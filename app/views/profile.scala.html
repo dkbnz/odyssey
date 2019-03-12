@@ -1,0 +1,144 @@
+@(currentUser : Profile)
+
+@main("Profile") {
+    <script>
+        function setEdit() {
+            var editContainer = document.querySelector("#edit-container");
+            var mainContainer = document.querySelector(".profile-container");
+            mainContainer.style.display="none";
+            editContainer.style.display="inline";
+        }
+
+        function endEdit(saveChanges) {
+            if (saveChanges == true) {
+/*                var firstNameChange = document.getElementById("firstNameField").value;
+                currentUser.setFirstName(firstNameChange)*/
+            }
+            var editContainer = document.querySelector("#edit-container");
+            var mainContainer = document.querySelector(".profile-container");
+            editContainer.style.display="none";
+            mainContainer.style.display="inline";
+            window.location.reload();
+        }
+    </script>
+    <div id="container">
+        <div class="profile-container">
+
+            <!-- Gets basic attributes of current user and displays them  -->
+            <div>
+                <h1><b>@currentUser.getFirstName() @currentUser.getLastName()</b></h1>
+                <p> Date of Birth: (@currentUser.getFormattedDate())</p>
+                <p> Gender: @currentUser.getGender()</p>
+            </div>
+
+            <!-- Finds all nationalities and passports for current user and
+            displays them as two lists, set side-by-side -->
+            <div>
+
+                <h2>Nationalities</h2>
+                <ul>
+                @for(nationality <- currentUser.getNationalities()) {
+                    <li>@nationality</li>
+                }
+                </ul>
+            </div>
+            <div>
+
+                <h2>Passports</h2>
+                <ul>
+                @for(passport <- currentUser.getPassports()) {
+                    <li>@passport</li>
+                }
+                </ul>
+            </div>
+
+            <!-- Buttons to edit and delete profile -->
+            <div class="edit-profile-buttons">
+                <button type="button" class="btn btn-primary" onclick="setEdit()">Edit Profile Attributes</button>
+                <button type="button" class="btn btn-danger">Delete Profile</button>
+            </div>
+        </div>
+
+    <!--Edit field, hidden until 'Edit Profile Attributes button is pressed -->
+        <div class="container" id="edit-container">
+            <h1 class="page_title">Edit Profile</h1>
+            <hr>
+            <div class="row">
+
+                    <!-- edit form column -->
+                <div class="col-md-9 personal-info">
+                    <h3>Personal Information</h3>
+
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">First name:</label>
+                            <div class="col-lg-8">
+                                <input id="firstNameField" class="form-control" type="text" value=@currentUser.getFirstName()>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">Last name:</label>
+                            <div class="col-lg-8">
+                                <input id="lastNameField" class="form-control" type="text" value=@currentUser.getLastName()>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">Gender:</label>
+                            <div class="col-lg-8">
+                                <div class="ui-select">
+                                    <select id="user_gender" class="form-control" >
+                                        <!-- Doesn't work on Firefox -->
+                                        <option value="@currentUser.getGender()" selected disabled hidden>@currentUser.getGender()</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+    @*                    <div class="form-group">
+                            <label class="col-lg-3 control-label">Email:</label>
+                            <div class="col-lg-8">
+                                <input class="form-control" type="text" value="janesemail@gmail.com">
+                            </div>
+                        </div>*@
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Date of Birth:</label>
+                            <div class="col-md-8">
+                                <input id="DOBField" class="form-control" type="date">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Username:</label>
+                            <div class="col-md-8">
+                                <input id="usernameField" class="form-control" type="text" value=@currentUser.getUsername()>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Password:</label>
+                            <div class="col-md-8">
+                                <input id="passwordField" class="form-control" type="password" value="notTheirPassword">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Confirm password:</label>
+                            <div class="col-md-8">
+                                <input id="passwordField2" class="form-control" type="password" value="notTheirPassword">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label"></label>
+                            <div class="col-md-8">
+                                <input type="button" class="btn btn-primary" value="Save Changes" onclick="endEdit(true)">
+                                <span></span>
+                                <input type="reset" class="btn btn-default" value="Cancel" onclick="endEdit(false)">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+}
