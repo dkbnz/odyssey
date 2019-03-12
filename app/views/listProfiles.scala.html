@@ -1,0 +1,27 @@
+@import helper._
+
+@(profiles: List[Profile], success: String)
+
+@main {
+
+    @showPrompt(success)
+
+    <table style="width: 100%">
+        <tr>
+            <th>Firstname</th>
+            <th>Lastname</th>
+        </tr>
+
+        @for(profile <- profiles) {
+            <tr>
+                <td>@profile.getfName</td>
+                <td>@profile.getlName</td>
+                <td>
+                    <a href="@routes.ProfileController.view(profile.getId)">View</a>
+                </td>
+            </tr>
+        }
+    </table>
+
+}
+
