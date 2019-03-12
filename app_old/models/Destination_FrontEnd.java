@@ -1,6 +1,6 @@
 package models;
 
-public class Destination {
+public class Destination_FrontEnd {
     private String destination;
     private String type;
     private String district;
