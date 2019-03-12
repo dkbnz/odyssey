@@ -25,7 +25,7 @@ import java.util.concurrent.CompletionStage;
 /**
  * Display Profile page
  */
-public class ProfileController extends Controller {
+public class ProfileController_FrontEnd extends Controller {
 
 
 

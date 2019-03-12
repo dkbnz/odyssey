@@ -7,7 +7,7 @@ import java.time.Period;
 import java.util.Date;
 import java.util.List;
 
-public class Profile {
+public class Profile_FrontEnd {
 
     private String firstName;
     private String lastName;
