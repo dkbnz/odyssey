@@ -1,0 +1,10 @@
+@(passwordError: Boolean)
+
+@main {
+    @if(passwordError) {
+        <strong>Incorrect Password</strong>
+    } else {
+        <strong>The user does not exist</strong>
+        <p>Please check your password, or create a new profile</p>
+    }
+}
