@@ -1,15 +1,14 @@
-package controllers;
+package controllers.destinations;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import models.Destination;
-import models.DestinationType;
+import models.destinations.*;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 
 import java.util.List;
-
 import views.html.destinations.listDestinations;
+
 
 public class DestinationController extends Controller {
 

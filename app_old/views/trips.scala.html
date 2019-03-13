@@ -1,3 +1,4 @@
+@import models.destinations.Destination
 @(tripEU: List[Destination], tripUK: List[Destination])
 
 @main("My Trips") {
@@ -23,7 +24,7 @@
                     <tbody>
                     @for(destination <- tripEU) {
                         <tr>
-                            <td>@destination.getDestination()</td>
+                            <td>@destination.getName()</td>
                             <td>@destination.getType()</td>
                             <td>@destination.getDistrict()</td>
                             <td>@destination.getLatitude()</td>
@@ -50,7 +51,7 @@
                     <tbody>
                     @for(destination <- tripUK) {
                         <tr>
-                            <td>@destination.getDestination()</td>
+                            <td>@destination.getName()</td>
                             <td>@destination.getType()</td>
                             <td>@destination.getDistrict()</td>
                             <td>@destination.getLatitude()</td>

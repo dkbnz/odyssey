@@ -1,4 +1,4 @@
-package models.Destinations;
+package models.destinations;
 
 import io.ebean.Finder;
 import models.BaseModel;

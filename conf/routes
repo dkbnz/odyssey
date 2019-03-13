@@ -13,3 +13,18 @@ POST    /fetch                      controllers.ProfileController.fetch(request:
 # Requests relating to authorisation are as follows
 POST    /login                      controllers.AuthController.login(request: Request)
 POST    /logout                     controllers.AuthController.logout()
+
+
+#DESTINATIONS
+# Destinations page
+GET     /destinations               controllers.destinations.DestinationController.index()
+
+# Add destination
+GET     /destinations/create         controllers.destinations.DestinationController.create()
+POST    /destinations/create         controllers.destinations.DestinationController.save(request: Request)
+
+#Delete a destination
+DELETE  /destinations/delete/:id        controllers.destinations.DestinationController.destroy(id: Long)
+
+#Update a destination
+PUT     /destinations/edit         controllers.destinations.DestinationController.edit(request: Request)
