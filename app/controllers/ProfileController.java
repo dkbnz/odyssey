@@ -15,15 +15,15 @@ import static play.mvc.Results.*;
 
 
 /**
- * The controller for user profiles
+ * Controller to handle the CRUD of Profiles
  */
 public class ProfileController {
 
     /**
      * Fetches a single profile from the database.
-     *
      * If the Id is specified in the JSON request, and the client is an admin, returns specified Id.
      * If the Id is not specified, but the client is logged in, returns client Id
+     *
      * @param request HTTP request from client
      * @return HTTP Result of the request
      */
@@ -45,10 +45,7 @@ public class ProfileController {
                     }
 
                 })
-                .orElseGet(() -> {
-                    // User is not logged in
-                    return unauthorized("You are not logged in.");
-                });
+                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
 
 
