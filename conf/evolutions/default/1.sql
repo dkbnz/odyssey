@@ -52,6 +52,21 @@ BEGIN
   EXECUTE stmt;
 END
 $$
+create table profile (
+  id                            bigint auto_increment not null,
+  username                      varchar(255),
+  password                      varchar(255),
+  first_name                    varchar(255),
+  middle_name                   varchar(255),
+  last_name                     varchar(255),
+  gender                        varchar(255),
+  date_of_birth                 date,
+  date_of_creation              datetime(6),
+  constraint pk_profile primary key (id)
+);
+
 
 # --- !Downs
+
+drop table if exists profile;
 
