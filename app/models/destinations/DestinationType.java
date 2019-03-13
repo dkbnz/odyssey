@@ -1,4 +1,4 @@
-package models.Destinations;
+package models.destinations;
 
 public enum DestinationType {
     AMENITY_AREA, APPELLATION, AREA, BANK, BASIN, BAY, BEACH, BEND, BRIDGE, BUILDING, BUSH, CANAL,
