@@ -19,10 +19,36 @@ import static play.mvc.Results.*;
  */
 public class ProfileController {
 
+
+    /**
+     * Creates a user based on given JSON body.
+     * If username exists, returns
+     * If user is created, sets session and returns created() (HTTP 201)
+     */
+    public Result create(Http.Request request) {
+
+        JsonNode json = request.body().asJson();
+
+        if(Profile.find
+                .query()
+                .where()
+                .like("username", json.get("newUser").asText())
+                .findOne() != null) {
+            return badRequest(); // TODO: Choose better return code. conflict()?
+        };
+
+        Profile newUser = new Profile();
+        newUser.username = json.get("newUser").asText();
+        newUser.password = json.get("newPass").asText();
+        newUser.save();
+
+        return created().addingToSession(request, "connected", newUser.id.toString());
+    }
+
     /**
      * Fetches a single profile from the database.
      * If the Id is specified in the JSON request, and the client is an admin, returns specified Id.
-     * If the Id is not specified, but the client is logged in, returns client Id
+     * If the Id is not specified, but the client is logged in, returns client profile
      *
      * @param request HTTP request from client
      * @return HTTP Result of the request
@@ -36,7 +62,7 @@ public class ProfileController {
 
                     JsonNode json = request.body().asJson();
 
-                    if (json.has("idToGet")) {// TODO: Implement admin hierarchy and perform checks here
+                    if (json.has("id")) {// TODO: Implement admin hierarchy and perform checks here
                         Profile profileToGet = Profile.find.byId(Integer.valueOf(userId));
                         return ok(profileToGet.toJson());
                     } else {
@@ -47,6 +73,40 @@ public class ProfileController {
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
+
+    /**
+     * Deletes a currently logged in profile and invalidates their session
+     * If user is admin and the id is specified in the JSON body, delete specified id.
+     * @param request HTTP Request containing JSON Body
+     * @return HTTP Result of the request
+     */
+    public Result delete(Http.Request request) {
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> {
+                    // User is logged in
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+
+                    JsonNode json = request.body().asJson();
+
+                    if (json.has("id")) {
+                        if (true) { // TODO: Implement admin rights here
+                            Profile profileToDelete = Profile.find.byId(Integer.valueOf(userId));
+                            profileToDelete.delete();// TODO: Handle case where admin deletes currently logged in user.
+                            return ok("Delete successful");
+                        } else {
+                            return unauthorized("You do not have admin rights to delete other users.");
+                        }
+                    } else {
+                        // User is deleting their own profile
+                        userProfile.delete();
+                        return ok("Delete successful").withNewSession();
+                    }
+
+                })
+                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
+    }
+
 
 
 //    /**
