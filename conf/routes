@@ -17,3 +17,5 @@ POST    /logout                     controllers.AuthController.logout()
 
 
 # GET requests to serve the pages
+
+GET     /                           controllers.PageController.welcome()
