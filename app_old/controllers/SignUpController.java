@@ -12,13 +12,15 @@ import javax.inject.Inject;
  * Display Signup page
  */
 public class SignUpController extends Controller {
+
+
     /**
      * Handle default path requests
      */
-
     @Inject
     FormFactory formFactory;
     private Form<ProfileFormData> form;
+
 
     /**
      * Starts the sign up page and initializes the profile form
@@ -29,15 +31,30 @@ public class SignUpController extends Controller {
         return ok(views.html.signUp.render(form));
     }
 
+
     /**
      * Saves the users entry after they have hit the next button
      * @param request the request holding all the profile information
      * @return redirects to the traveller page
      */
     public Result save(Http.Request request) {
-        Form<ProfileFormData> profileForm = formFactory.form(ProfileFormData.class).bindFromRequest(request);
+        //Gets the JSON from the request
+        JsonNode json = request.body().asJson();
 
-        ProfileFormData profile = profileForm.get();
-        return redirect(routes.TravellerTypeController.select());
+        // Gets the username from the body from the JSON
+        String username = json.get("username").asText();
+
+        // searches databse for a username matching the JSON username
+        Profile profile = Profile.find.query().where()
+                .like("username", username).findOne();
+
+        if (profile == null) {
+            return badRequest();
+        } else {
+            return ok(json);
+        }
+
+
+        return badRequest();
     }
 }
