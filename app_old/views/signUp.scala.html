@@ -10,36 +10,76 @@
 </head>
 <body>
     <div class="welcome">
-
-        <div class="signup_container"> @helper.form(action = helper.CSRF(routes.SignUpController.save)) {
-
-            <!--Form to display content for the Sign Up, creates a CSRF form-->
+        <div class="signup_container">
             <div class="signup_content">
                 <h1 class="page_title">Sign Up</h1>
                 <p class="page_title"><i>Enter your personal details below</i></p>
-                @helper.CSRF.formField
-
-                @helper.inputText(profileForm("firstName"), '_label -> "First Name:", 'class -> "form_text", 'placeholder -> "First Name", 'class -> "form-control")
-
-                @helper.inputText(profileForm("lastName"), '_label -> "Last Name:", 'class -> "form_text", 'placeholder -> "Last Name", 'class -> "form-control")
-
-                @helper.inputText(profileForm("username"), '_label -> "Username:", 'class -> "form_text", 'placeholder -> "Username", 'class -> "form-control")
-
-                @helper.inputPassword(profileForm("password"), '_label -> "Password:", 'class -> "form_text", 'placeholder -> "Password", 'class -> "form-control")
-
-                @helper.inputDate(profileForm("dateOfBirth"), '_label -> "Date of Birth:", 'class -> "form_text", 'class -> "form-control")
-
-                @helper.select(profileForm("gender"), options = Seq("Male" -> "Male", "Female" -> "Female", "Other" -> "Other"), '_label -> "Gender:", 'class -> "form_text form-control", 'style -> "text-align-last: center;")
-
-                <button class="btn btn-primary btn-group-justified btn-lg" type="submit">Next</button>
-            }
+                <form id="signup-form" role="form" data-ng-submit="attemptSignUp()">
+                    <div class="form_text">
+                        <label>First Name:</label>
+                        <input type="text" class="form-control" data-ng-model="first_name" required>
+                    </div>
+                    <div class="form_text">
+                        <label>Last Name:</label>
+                        <input type="text" class="form-control" data-ng-model="last_name" required>
+                    </div>
+                    <div class="form_text">
+                        <label>Username:</label>
+                        <input type="text" class="form-control" data-ng-model="username" required>
+                    </div>
+                    <div class="form_text">
+                        <label>Password:</label>
+                        <input type="password" class="form-control" data-ng-model="password" required>
+                    </div>
+                    <div class="form_text">
+                        <label>Date of birth:</label>
+                        <input type="date" class="form-control" data-ng-model="date_of_birth" required>
+                    </div>
+                    <div class="form_text">
+                        <label>Gender:</label>
+                        <select type="" class="form-control" data-ng-model="gender" required>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="btn-Next">Next</button>
+                </form>
             </div>
         </div>
-
     </div>
 
     <script>
-        document.querySelector("#dateOfBirth").valueAsDate = new Date("01-Jan-2000");
+            document.querySelector("#dateOfBirth").valueAsDate = new Date("01-Jan-2000");
+
+            var app = angular.module('profileApp', []);
+
+            app.controller('indexCtrl', function($window, $scope, $http) {
+
+                $scope.promptIndex = 0;
+
+                $scope.attemptSignUp = function () {
+                    $http({
+                        method: 'POST',
+                        url: 'signup',
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        data: JSON.stringify({
+                            first_name: $scope.first_name,
+                            last_name: $scope.last_name,
+                            username: $scope.username,
+                            password: $scope.password,
+                            date_of_birth: $scope.date_of_birth,
+                            gender: $scope.gender
+                        }),
+                    }).then(function (response) {
+                        response.firs
+                        $window.location.href = "/travel-type";
+                    }, function (err) {
+                        $scope.navIndex = 1;
+                        $scope.promptIndex = 2;
+                    })
+                };
+            });
     </script>
 
 </body>
