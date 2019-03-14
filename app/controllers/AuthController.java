@@ -44,7 +44,7 @@ public class AuthController extends Controller {
                     if ((profile != null) && (profile.password.equals(password))) {
                         // Profile was successfully fetched and password matches,
                         // Set session token as id and return ok (200 response)
-                        return ok().addingToSession(request, "connected", profile.id.toString());
+                        return ok().addingToSession(request, "authorized", profile.id.toString());
                     }
 
                     return unauthorized("User/pass not found");
