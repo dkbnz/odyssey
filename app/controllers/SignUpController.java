@@ -1,5 +1,7 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import models.Profile;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -15,20 +17,11 @@ public class SignUpController extends Controller {
 
 
     /**
-     * Handle default path requests
-     */
-    @Inject
-    FormFactory formFactory;
-    private Form<ProfileFormData> form;
-
-
-    /**
      * Starts the sign up page and initializes the profile form
      * @return send the profile form to the sign up html doc
      */
     public Result signUp() {
-        this.form = formFactory.form(ProfileFormData.class);
-        return ok(views.html.signUp.render(form));
+        return ok(views.html.signUp.render());
     }
 
 
@@ -53,8 +46,5 @@ public class SignUpController extends Controller {
         } else {
             return ok(json);
         }
-
-
-        return badRequest();
     }
 }
