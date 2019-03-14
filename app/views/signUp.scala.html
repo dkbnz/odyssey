@@ -1,8 +1,9 @@
-@(profileForm: Form[ProfileFormData])
+
 <head>
     <title>TravelEA - Signup</title>
     <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")"/>
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
     <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery-3.3.1.min.js")" ></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap.min.js")" ></script>
@@ -10,6 +11,7 @@
 </head>
 <body>
     <div class="welcome">
+
         <div class="signup_container">
             <div class="signup_content">
                 <h1 class="page_title">Sign Up</h1>
@@ -46,6 +48,54 @@
                 </form>
             </div>
         </div>
+
+        <div class="travel_container" hidden>
+            <div class="signup_content">
+                <h1 class="page_title">Sign Up</h1>
+                <p class="page_title"><i>Enter your travelling details below.</i></p>
+                <div id="left">
+                    <div id="top">
+                        <h2>Nationality</h2>
+                        <p><i>You may select more than one (Shift/Ctrl)</i></p>
+                        <select id="nationality" multiple size="10" class="form-control">
+                            </select>
+                        <h2>Passport Country</h2>
+                        <p><i>You may select more than one (Shift/Ctrl)</i></p>
+                        <select id="passports" multiple size="10" class="form-control">
+                            </select>
+                    </div>
+                    <div id="bottom">
+                        <h2>Traveller Type</h2>
+                        <p><i>You may select more than one (Shift/Ctrl)</i></p>
+                        <select id="travel" multiple size="7" class="form-control" style="overflow: auto;">
+                            </select>
+                    </div>
+                </div>
+                <div id="right">
+                    <div class = "info_container">
+                        <h2>Traveller Types</h2>
+                        <div class="typeInfoBox">
+
+                            <p><b>Groupie:</b> You like to travel with a group of people</p>
+
+                            <p><b>Thrillseeker:</b> Your idea of a perfect holiday involves getting out of your comfort zone and rest and relaxation is the lowest on your priority list.</p>
+
+                            <p><b>Gap Year:</b> You've just finished study and are looking to experience the world before getting into the harsh reality of the real world.</p>
+
+                            <p><b>Frequent Weekender:</b> Do the Mahi on the weekdays to get the treats on the weekend.</p>
+
+                            <p><b>Holidaymaker:</b> YOU LIKE TO PARTYYYY!</p>
+
+                            <p><b>Functional/Business Traveller:</b> Business business business hurdy durr.</p>
+
+                            <p><b>Backpacker:</b> You want to experience as much of the world as possible. This means leaving luxury behind and getting right into the heart of it. </p>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-group-justified btn-lg" onclick="location.href=''">Create Profile</button>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <script>
@@ -72,7 +122,6 @@
                             gender: $scope.gender
                         }),
                     }).then(function (response) {
-                        response.firs
                         $window.location.href = "/travel-type";
                     }, function (err) {
                         $scope.navIndex = 1;
