@@ -8,6 +8,7 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public class
 BaseModel extends Model {
+
     @Id
     public Long id;
 
@@ -18,4 +19,5 @@ BaseModel extends Model {
     public void setId(Long id) {
         this.id = id;
     }
+
 }

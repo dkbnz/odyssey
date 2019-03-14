@@ -9,7 +9,11 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # Requests relating to profiles are as follows
 POST    /fetch                      controllers.ProfileController.fetch(request: Request)
+DELETE  /delete                     controllers.ProfileController.delete(request: Request)
 
 # Requests relating to authorisation are as follows
 POST    /login                      controllers.AuthController.login(request: Request)
 POST    /logout                     controllers.AuthController.logout()
+
+
+# GET requests to serve the pages

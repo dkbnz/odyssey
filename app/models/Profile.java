@@ -42,13 +42,11 @@ public class Profile extends BaseModel {
 //    @ManyToMany
 //    public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
 
+    @ManyToMany
+    public List<Nationality> nationalities = new ArrayList<Nationality>();
 
-//    @ManyToMany
-//    public List<Nationality> nationalities = new ArrayList<Nationality>();
-
-
-//    @OneToMany(mappedBy = "profile")
-//    public List<Passport> passports = new ArrayList<Passport>();
+    @OneToMany(mappedBy = "profile")
+    public List<Passport> passports = new ArrayList<Passport>();
 
 //    public void addTravellerType(TravellerType travellerType) {
 //        this.travellerTypes.add(travellerType);
