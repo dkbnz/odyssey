@@ -2,13 +2,12 @@ package controllers.destinations;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import models.destinations.*;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 
 import java.util.List;
-import views.html.destinations.listDestinations;
-
 
 public class DestinationController extends Controller {
 
@@ -16,17 +15,9 @@ public class DestinationController extends Controller {
      * Lists all destinations
      * @return
      */
-    public Result index() {
+    public Result fetch() {
         List<Destination> destinations = Destination.find.all();
-        return ok(listDestinations.render(destinations));
-    }
-
-    /**
-     * Creates a new destination
-     * @return ok when page created
-     */
-    public Result create() {
-        return ok("create page");
+        return ok(Json.toJson(destinations));
     }
 
     /**
@@ -36,6 +27,15 @@ public class DestinationController extends Controller {
     public Result save(Http.Request request) {
         JsonNode json = request.body().asJson();
 
+        //TODO: Validate fields
+
+        Destination destination = createNewDestination(json);
+
+        destination.save();
+        return ok("Created");
+    }
+
+    private Destination createNewDestination(JsonNode json) {
         Destination destination = new Destination();
         destination.setId(json.get("id").asLong());
         destination.setName(json.get("name").asText());
@@ -44,9 +44,7 @@ public class DestinationController extends Controller {
         destination.setLatitude(json.get("crd_latitude").asDouble());
         destination.setLongitude(json.get("crd_longitude").asDouble());
         destination.setType(DestinationType.valueOf(json.get("type").asText().toUpperCase()));
-
-        destination.save();
-        return ok("created");
+        return destination;
     }
 
     /**
@@ -62,19 +60,19 @@ public class DestinationController extends Controller {
         }
 
         destination.delete();
-        return ok("deleted");
+        return ok("Deleted");
     }
 
-    public Result edit(Http.Request request) {
+    public Result edit(Long id, Http.Request request) {
         JsonNode json = request.body().asJson();
 
-        Long id = json.get("id").asLong();
         Destination oldDestination = Destination.find.byId(id.intValue());
 
         if (oldDestination == null) {
             return notFound();
         }
 
+        //TODO: only update given fields
 
         oldDestination.setName(json.get("name").asText());
         oldDestination.setCountry(json.get("country").asText());
@@ -86,7 +84,5 @@ public class DestinationController extends Controller {
         oldDestination.update();
 
         return ok("Updated");
-
     }
-
 }
