@@ -29,14 +29,14 @@ public class AuthController extends Controller {
                     // User is not logged in, attempt to search database
                     JsonNode json = request.body().asJson();
 
-                    if (!(json.has("user") && json.has("pass"))) {
+                    if (!(json.has("username") && json.has("password"))) {
                         // If JSON Object contains no user or pass key, return bad request
                         // Prevents null pointer exceptions when trying to get the values below.
                         return badRequest();
                     }
 
-                    String username = json.get("user").asText();
-                    String password = json.get("pass").asText();
+                    String username = json.get("username").asText();
+                    String password = json.get("password").asText();
 
                     Profile profile = Profile.find.query().where()
                             .like("username", username).findOne();
