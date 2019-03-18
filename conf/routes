@@ -17,7 +17,7 @@ POST    /logout                     controllers.AuthController.logout()
 
 #DESTINATIONS
 # Get all destinations
-GET     /destinations               controllers.destinations.DestinationController.fetch()
+GET     /destinations               controllers.destinations.DestinationController.fetch(request: Request)
 
 # Add destination
 POST    /destinations               controllers.destinations.DestinationController.save(request: Request)

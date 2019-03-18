@@ -1,6 +1,7 @@
 package controllers.destinations;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.ebean.ExpressionList;
 import models.destinations.*;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -11,18 +12,59 @@ import java.util.List;
 
 public class DestinationController extends Controller {
 
+    private static String ID = "id";
+    private static String NAME = "name";
+    private static String TYPE = "type";
+    private static String COUNTRY = "country";
+    private static String DISTRICT = "district";
+
     /**
-     * Lists all destinations
-     * @return
+     * Fetches all destinations.
+     * @return HTTP response containing the destinations found in the response body.
      */
-    public Result fetch() {
+    private Result fetch() {
         List<Destination> destinations = Destination.find.all();
         return ok(Json.toJson(destinations));
     }
 
     /**
-     * Saves a new destination
-     * @return ok when destination saved
+     * Fetches all destinations based on HTTP request query parameters.
+     * @param request HTTP request containing query parameters to filter results.
+     * @return HTTP response containing the destinations found in the response body.
+     */
+    public Result fetch(Http.Request request) {
+
+        //If there is no request body, return all destinations.
+        if (request.body() != null) {
+            return fetch();
+        }
+
+        //Filter destinations based on query parameters.
+        JsonNode json = request.body().asJson();
+        // name, type, latitude, longitude, country
+
+        List<Destination> destinations;
+
+        ExpressionList<Destination> expressionList = Destination.find.query().where();
+        if (json.has(NAME)) {
+            expressionList.ilike(NAME, json.get(NAME).asText());
+        }
+        if (json.has(TYPE)) {
+            expressionList.ieq(TYPE, json.get(TYPE).asText());
+        }
+        if (json.has("latitude")) {
+            expressionList.eq("latitude", json.get("latitude").asLong());
+        }
+
+        destinations = expressionList.findList();
+
+        return ok(Json.toJson(destinations));
+    }
+
+    /**
+     * Saves a new destination.
+     * @param request HTTP request containing a json body of the new destination details.
+     * @return HTTP response ok when the destination is saved.
      */
     public Result save(Http.Request request) {
         JsonNode json = request.body().asJson();
@@ -35,22 +77,27 @@ public class DestinationController extends Controller {
         return ok("Created");
     }
 
+    /**
+     * Creates a new destination object given a json object.
+     * @param json The json of the destination object.
+     * @return the new destination object.
+     */
     private Destination createNewDestination(JsonNode json) {
         Destination destination = new Destination();
-        destination.setId(json.get("id").asLong());
-        destination.setName(json.get("name").asText());
-        destination.setCountry(json.get("country").asText());
-        destination.setDistrict(json.get("district").asText());
+        destination.setId(json.get(ID).asLong());
+        destination.setName(json.get(NAME).asText());
+        destination.setCountry(json.get(COUNTRY).asText());
+        destination.setDistrict(json.get(DISTRICT).asText());
         destination.setLatitude(json.get("crd_latitude").asDouble());
         destination.setLongitude(json.get("crd_longitude").asDouble());
-        destination.setType(DestinationType.valueOf(json.get("type").asText().toUpperCase()));
+        destination.setType(DestinationType.valueOf(json.get(TYPE).asText().toUpperCase()));
         return destination;
     }
 
     /**
-     * Deletes a destination
-     * @param id The id of the
-     * @return not found response if destination could not be found, ok if deleted
+     * Deletes a destination.
+     * @param id The id of the destination.
+     * @return HTTP response not found response if destination could not be found, ok if deleted.
      */
     public Result destroy(Long id) {
         Destination destination = Destination.find.byId(id.intValue());
@@ -63,6 +110,12 @@ public class DestinationController extends Controller {
         return ok("Deleted");
     }
 
+    /**
+     * Updates a destination based on input in the HTTP request body.
+     * @param id The id of the destination.
+     * @param request HTTP request containing a json body of fields to update in the destination.
+     * @return HTTP response not found if destination could not be found, ok if updated.
+     */
     public Result edit(Long id, Http.Request request) {
         JsonNode json = request.body().asJson();
 
@@ -74,12 +127,12 @@ public class DestinationController extends Controller {
 
         //TODO: only update given fields
 
-        oldDestination.setName(json.get("name").asText());
-        oldDestination.setCountry(json.get("country").asText());
-        oldDestination.setDistrict(json.get("district").asText());
+        oldDestination.setName(json.get(NAME).asText());
+        oldDestination.setCountry(json.get(COUNTRY).asText());
+        oldDestination.setDistrict(json.get(DISTRICT).asText());
         oldDestination.setLatitude(json.get("crd_latitude").asDouble());
         oldDestination.setLongitude(json.get("crd_longitude").asDouble());
-        oldDestination.setType(DestinationType.valueOf(json.get("type").asText().toUpperCase()));
+        oldDestination.setType(DestinationType.valueOf(json.get(TYPE).asText().toUpperCase()));
 
         oldDestination.update();
 
