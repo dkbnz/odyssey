@@ -9,7 +9,5 @@ public class PageController extends Controller {
     /**
      * Handle default path requests
      */
-    public Result welcome() {
-        return ok(views.html.welcome.render());
-    }
+    public Result index() { return ok(views.html.index.render()); }
 }

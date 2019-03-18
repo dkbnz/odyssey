@@ -15,10 +15,6 @@ DELETE  /delete                     controllers.ProfileController.delete(request
 POST    /login                      controllers.AuthController.login(request: Request)
 POST    /logout                     controllers.AuthController.logout()
 
-# Routes for sign up pages
-GET     /signup                     controllers.SignUpController.signUp()
-
-
 # GET requests to serve the pages
 
-GET     /                           controllers.PageController.welcome()
+GET     /                           controllers.PageController.index()

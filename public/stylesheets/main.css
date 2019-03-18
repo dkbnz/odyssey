@@ -1,7 +1,45 @@
+html, body {
+    /* The html and body elements cannot have any padding or margin. */
+    height: 100%;
+}
+
+.bg {
+    /* Background image used */
+    background-image: url("../images/background_image.jpg");
+
+
+    /* Center and scale the image nicely */
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+    height: 100vh;
+}
+
+#footer {
+    background-color: white;
+    text-align: center;
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+    height: 40px;
+    width: 100%;
+    font-size: 0.7em;
+}
+
+#subtitle {
+    font-style: italic;
+    color: white;
+    -webkit-text-stroke-width: 0.1px;
+    -webkit-text-stroke-color: black;
+}
+
+/*
+
 @font-face
 {
-    font-family: Baumans;
-    src: url('Baumans-Regular.ttf'),
+font-family: Baumans;
+src: url('Baumans-Regular.ttf'),
     url('Baumans-Regular.ttf');
 }
 
@@ -68,6 +106,7 @@ table {
 select:active {
     outline: black;
 }
+
 
 .signup_container {
     width: 100%;
@@ -190,9 +229,6 @@ select:active {
     font-size: 1vh;
 }
 .whole_container {
-    min-height: 100%;
-    position: relative;
-    margin: 0 auto;
 }
 
 .main_header {
@@ -214,14 +250,14 @@ select:active {
 }
 
 .welcome {
-    background: url("../images/background_image.jpg") no-repeat fixed;
-    height: 100%;
-    width: 100%;
+    background: url("../images/background_image.jpg") no-repeat center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
     background-size: cover;
-    padding: 0px;
-    bottom: 0;
-    text-align: center;
+    -o-background-size: cover;
+    min-height: 100%;
 }
+
 .welcome_container {
     width: 600px;
     height: 600px;
@@ -479,3 +515,4 @@ div#edit-container {
     margin: 0 auto;
     padding-top: 5%;
 }
+*/
