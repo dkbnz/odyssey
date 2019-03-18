@@ -4,21 +4,42 @@
 <html>
     <head>
         <title>TravelEA - @title</title>
-        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
-        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/main.css")"/>
-        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
-        <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery-3.3.1.min.js")" ></script>
-        <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap.min.js")" ></script>
+        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")" />
+        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/main.css")" />
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")" />
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/popper.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery-3.3.1.min.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
+
+        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/bootstrap-multiselect.css")" />
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap-multiselect.js")" ></script>
 
         <script type="text/javascript">
                 $(document).ready(function () {
+
+
+                    $('#nationality').multiselect({
+                        enableFiltering: true,
+                        maxHeight: 200
+                    });
+
+                    $('#passport').multiselect({
+                        includeSelectAllOption: true,
+                        maxHeight: 200
+                    });
+
+                    $('#travType').multiselect({
+                        maxHeight: 200
+                    });
+
                     $("#signup-form").submit(function (e) {
                         e.preventDefault();
                         $("#signUpPopup").modal("hide");
                         $("#signUpContinued").modal("show");
                     });
-                });
 
+
+                });
         </script>
     </head>
     <body>
