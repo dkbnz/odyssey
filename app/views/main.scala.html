@@ -5,19 +5,24 @@
     <head>
         <title>TravelEA - @title</title>
         <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")"/>
+        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/main.css")"/>
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery-3.3.1.min.js")" ></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap.min.js")" ></script>
-        <script type="text/javascript" src="@routes.Assets.at("javascripts/custom.js")" ></script>
-        <script type="text/javascript" src="@routes.Assets.at("javascripts/sorttable.js")" ></script>
+
+        <script type="text/javascript">
+                $(document).ready(function () {
+                    $("#signup-form").submit(function (e) {
+                        e.preventDefault();
+                        $("#signUpPopup").modal("hide");
+                        $("#signUpContinued").modal("show");
+                    });
+                });
+
+        </script>
     </head>
     <body>
-        <div class = "whole_container">
-            @content
-        </div>
-        <footer class="main_footer">
-            <p>This is Team 9's TravelEA Website! <br/> Everyware&trade;</p>
-        </footer>
+        @content
+        @footer()
     </body>
 </html>
