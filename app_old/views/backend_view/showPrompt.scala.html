@@ -1,0 +1,26 @@
+@(content: String)
+
+@content match {
+    case "1" => {
+        <div class="alert alert-success">
+            <strong>Success!</strong> Profile deletion completed successfully!
+        </div>
+    }
+    case "2" => {
+        <div class="alert alert-success">
+            <strong>Success!</strong> Profile created successfully!
+        </div>
+    }
+    case "3" => {
+        <div class="alert alert-success">
+            <strong>Success!</strong> TravellerType deleted successfully!
+        </div>
+    }
+    case "4" => {
+        <div class="alert alert-success">
+            <strong>Success!</strong> TravellerType added successfully!
+        </div>
+    }
+
+    case _ => {}
+}
