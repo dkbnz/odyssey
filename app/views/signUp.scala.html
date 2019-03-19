@@ -9,42 +9,50 @@
                 <form id="signup-form" role="form">
                     <div class="form-group">
                         <label>First Name:</label>
-                        <input type="text" class="form-control" required>
+                        <input id="first_name" type="text" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label>Middle Name:</label>
-                        <input type="text" class="form-control" required>
+                        <input id="middle_name" type="text" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label>Last Name:</label>
-                        <input type="text" class="form-control" required>
+                        <input id="last_name" type="text" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label>Username:</label>
-                        <input type="text" class="form-control" required>
+                        <input id="username" type="text" class="form-control" required>
+                    </div>
+                    <div id="err_username" class="alert alert-danger alert-dismissible" data-ng-show="promptIndex === 1">
+                        <a href="#" class="close" aria-label="close" ng-click="promptIndex = 0">&times;</a>
+                        <strong>Username taken!</strong> Please use another username
                     </div>
                     <div class="form-group">
                         <label>Password:</label>
-                        <input type="password" class="form-control" required>
+                        <input id="password" type="password" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label>Retype Password:</label>
-                        <input type="password" class="form-control" required>
+                        <input id="password_retyped" type="password" class="form-control" required>
+                    </div>
+                    <div class="alert alert-danger alert-dismissible" data-ng-show="promptIndex2 === 1">
+                        <a href="#" class="close" aria-label="close" ng-click="promptIndex2 = 0">&times;</a>
+                        <strong>Passwords do not match!</strong> Please ensure this matches your password!
                     </div>
                     <div class="form-group">
                         <label>Date of birth:</label>
-                        <input type="date" class="form-control" required>
+                        <input id="date_of_birth" type="date" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label>Gender:</label>
-                        <select type="" class="form-control" required>
+                        <select id="gender" type="" class="form-control" required>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
                             <option value="other">Other</option>
                         </select>
                     </div>
                     <div class="form-group">
-                    <button type="submit" class="btn btn-primary" id="btn-Next">Next</button>
+                        <button type="submit" class="btn btn-primary" id="btn-Next">Next</button>
                     </div>
                 </form>
             </div>

@@ -29,13 +29,18 @@ public class ProfileController {
 
         JsonNode json = request.body().asJson();
 
-        if(Profile.find
-                .query()
-                .where()
-                .like("username", json.get("newUser").asText())
-                .findOne() != null) {
-            return badRequest(); // TODO: Choose better return code. conflict()?
-        };
+//        if(Profile.find
+//                .query()
+//                .where()
+//                .like("username", json.get("newUser").asText())
+//                .findOne() != null) {
+//            return badRequest(); // TODO: Choose better return code. conflict()?
+//        };
+
+        if (profileExists(json.get("newUser").asText())) {
+            return badRequest();
+        }
+
 
         Profile newUser = new Profile();
         newUser.username = json.get("newUser").asText();
@@ -43,6 +48,38 @@ public class ProfileController {
         newUser.save();
 
         return created().addingToSession(request, "connected", newUser.id.toString());
+    }
+
+
+    /**
+     * Field validation method checking whether a username already exists in the database
+     * @param username the name being checked (inputted as a String)
+     * @return false if the username is unique (acceptable), or true if the profile username exists (unacceptable)
+     */
+    private boolean profileExists(String username) {
+        boolean result = false;
+        if (Profile.find
+                .query()
+                .where()
+                .like("username", username)
+                .findOne() != null) {
+            result = true;
+        }
+        return result;
+    }
+
+    /**
+     * Function called from the routes request and sends back a request based on the result
+     * @param request the json object of the form
+     * @return ok when there is no username in the database and a bad request when there already is a user in the database
+     */
+    public Result checkUsername(Http.Request request) {
+        JsonNode json = request.body().asJson();
+        if (!profileExists(json.get("username").asText())) {
+            return ok();
+        } else {
+            return badRequest();
+        }
     }
 
     /**
