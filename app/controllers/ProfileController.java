@@ -57,21 +57,18 @@ public class ProfileController {
      * @return false if the username is unique (acceptable), or true if the profile username exists (unacceptable)
      */
     private boolean profileExists(String username) {
-        boolean result = false;
-        if (Profile.find
+        return Profile.find
                 .query()
                 .where()
                 .like("username", username)
-                .findOne() != null) {
-            result = true;
-        }
-        return result;
+                .findOne() != null;
     }
+
 
     /**
      * Function called from the routes request and sends back a request based on the result
      * @param request the json object of the form
-     * @return ok when there is no username in the database and a bad request when there already is a user in the database
+     * @return ok when there is no username in the database, or a bad request when there already is a user in the database
      */
     public Result checkUsername(Http.Request request) {
         JsonNode json = request.body().asJson();
@@ -81,6 +78,7 @@ public class ProfileController {
             return badRequest();
         }
     }
+
 
     /**
      * Fetches a single profile from the database.
