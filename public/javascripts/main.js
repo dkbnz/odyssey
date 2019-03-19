@@ -21,7 +21,20 @@ $(document).ready(function () {
 
     $("#signup-form").submit(function (e) {
         // When initial signup form is submitted, shows next modal
+        $.ajax({
+            type: "POST",
+            url: "/checkUsername",
+            dataType: "json",
+            success: function () {
+                // if () {
+                // } else {
+                // }
+            },
+
+            data: JSON.stringify($("#username"))
+        });
         e.preventDefault();
+        $("#err_username").hide();
         $("#signUpPopup").modal("hide");
         $("#signUpContinued").modal("show");
     });
