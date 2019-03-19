@@ -23,16 +23,16 @@ tag_checker:
   only:
     - tags
 
-test:
-  stage: test
-  script:
-    - sbt clean coverage test coverageReport
-
-
-#junit:
+#test:
 #  stage: test
 #  script:
-#    - sbt test
+#    - sbt clean coverage test coverageReport
+
+
+junit:
+  stage: test
+  script:
+    - sbt test
     
     
 #sonarqube_master_job:
