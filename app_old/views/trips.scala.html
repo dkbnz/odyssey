@@ -1,0 +1,83 @@
+@(tripEU: List[Destination], tripUK: List[Destination])
+
+@main("My Trips") {
+
+    <div id="container">
+
+        <h1 class="page_title">My Trips</h1>
+        <p class="page_title"><i>Click each section to show the list of destinations for each trip.</i></p>
+        <div class="trips-container">
+            <button class="collapsible">Europe Trip</button>
+            <div class="content">
+                <table id="keywords" class = "sortable trip" cellspacing="0" cellpadding="0">
+                    <thead>
+                        <tr>
+                            <th><span>Destination</span></th>
+                            <th><span>Type</span></th>
+                            <th><span>District</span></th>
+                            <th><span>Latitude</span></th>
+                            <th><span>Longitude</span></th>
+                            <th><span>Country</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for(destination <- tripEU) {
+                        <tr>
+                            <td>@destination.getDestination()</td>
+                            <td>@destination.getType()</td>
+                            <td>@destination.getDistrict()</td>
+                            <td>@destination.getLatitude()</td>
+                            <td>@destination.getLongitude()</td>
+                            <td>@destination.getCountry()</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <button class="collapsible">UK Trip</button>
+            <div class="content">
+                <table id="keywords" class = "sortable trip" cellspacing="0" cellpadding="0">
+                    <thead>
+                        <tr>
+                            <th><span>Destination</span></th>
+                            <th><span>Type</span></th>
+                            <th><span>District</span></th>
+                            <th><span>Latitude</span></th>
+                            <th><span>Longitude</span></th>
+                            <th><span>Country</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for(destination <- tripUK) {
+                        <tr>
+                            <td>@destination.getDestination()</td>
+                            <td>@destination.getType()</td>
+                            <td>@destination.getDistrict()</td>
+                            <td>@destination.getLatitude()</td>
+                            <td>@destination.getLongitude()</td>
+                            <td>@destination.getCountry()</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+                var coll = document.getElementsByClassName("collapsible");
+                var i;
+
+                for (i = 0; i < coll.length; i++) {
+                    coll[i].addEventListener("click", function() {
+                        this.classList.toggle("active");
+                        var content = this.nextElementSibling;
+                        if (content.style.display === "block") {
+                            content.style.display = "none";
+                        } else {
+                            content.style.display = "block";
+                        }
+                    });
+                }
+        </script>
+    </div>
+}
