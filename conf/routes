@@ -8,6 +8,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 # Following routes are specifically for the JSON requests
 
 # Requests relating to profiles are as follows
+POST    /checkUsername              controllers.ProfileController.checkUsername(request: Request)
 POST    /fetch                      controllers.ProfileController.fetch(request: Request)
 DELETE  /delete                     controllers.ProfileController.delete(request: Request)
 
