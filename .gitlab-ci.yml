@@ -26,7 +26,7 @@ tag_checker:
 test:
   stage: test
   script:
-    - sbt clean coverage test coverageReport
+    - ./sbt clean coverage test coverageReport
 
 
 #junit:
