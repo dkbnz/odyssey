@@ -21,22 +21,36 @@ $(document).ready(function () {
 
     $("#signup-form").submit(function (e) {
         // When initial signup form is submitted, shows next modal
-        $.ajax({
-            type: "POST",
-            url: "/checkUsername",
-            dataType: "json",
-            success: function () {
-                // if () {
-                // } else {
-                // }
-            },
+        var errors = false;
+        var csrf_token = $('meta[name="csrf-token"]').attr('content');
 
-            data: JSON.stringify($("#username"))
+        $.ajax({
+            method: "POST",
+            url: "/checkUsername",
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            data: JSON.stringify({username : $("#username").val()}),
+            success: function (response) { // "Called if the request succeeds"
+                $("#err_username").hide();
+                console.log("Hello")
+            },
+            error: function () { // "Called if the request fails"
+                $("#err_username").show();
+                errors = true;
+            }
         });
+
+        if (!($("#password") === $("#password_retyped"))) {
+            $("#err_password").show();
+            errors = true;;
+        }
+
         e.preventDefault();
-        $("#err_username").hide();
-        $("#signUpPopup").modal("hide");
-        $("#signUpContinued").modal("show");
+        if (!errors) {
+            $("#signUpPopup").modal("hide");
+            $("#signUpContinued").modal("show");
+        }
+
     });
 
 });

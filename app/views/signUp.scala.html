@@ -23,8 +23,8 @@
                         <label>Username:</label>
                         <input id="username" type="text" class="form-control" required>
                     </div>
-                    <div id="err_username" class="alert alert-danger alert-dismissible" data-ng-show="promptIndex === 1">
-                        <a href="#" class="close" aria-label="close" ng-click="promptIndex = 0">&times;</a>
+                    <div id="err_username" class="alert alert-danger alert-dismissible">
+                        <a href="#" class="close" aria-label="close">&times;</a>
                         <strong>Username taken!</strong> Please use another username
                     </div>
                     <div class="form-group">
@@ -35,8 +35,8 @@
                         <label>Retype Password:</label>
                         <input id="password_retyped" type="password" class="form-control" required>
                     </div>
-                    <div class="alert alert-danger alert-dismissible" data-ng-show="promptIndex2 === 1">
-                        <a href="#" class="close" aria-label="close" ng-click="promptIndex2 = 0">&times;</a>
+                    <div id="err_password" class="alert alert-danger alert-dismissible" >
+                        <a href="#" class="close" aria-label="close">&times;</a>
                         <strong>Passwords do not match!</strong> Please ensure this matches your password!
                     </div>
                     <div class="form-group">
