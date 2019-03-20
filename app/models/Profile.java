@@ -35,8 +35,9 @@ public class Profile extends BaseModel {
      * @return JsonNode object of profile
      */
     public JsonNode toJson(){
-        // TODO: Remove password from JSON object. Find a way of listing nationalities etc.
-        return Json.toJson(this);
+        JsonNode profile = Json.toJson(this);
+        profile.
+        return
     }
 
 //    @ManyToMany

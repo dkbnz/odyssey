@@ -1,6 +1,8 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import models.Profile;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -87,9 +89,7 @@ public class ProfileController {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
 
-                    JsonNode json = request.body().asJson();
-
-                    if (json.has("id")) {// TODO: Implement admin hierarchy and perform checks here
+                    if (id != Long.valueOf(userId)) {// TODO: Implement admin hierarchy and perform checks here
                         Profile profileToGet = Profile.find.byId(Integer.valueOf(userId));
                         return ok(profileToGet.toJson());
                     } else {
@@ -114,9 +114,7 @@ public class ProfileController {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
 
-                    JsonNode json = request.body().asJson();
-
-                    if (json.has("id")) {
+                    if (id != Long.valueOf(userId)) { // Current user is trying to delete another user
                         if (true) { // TODO: Implement admin rights here
                             Profile profileToDelete = Profile.find.byId(Integer.valueOf(userId));
                             profileToDelete.delete();// TODO: Handle case where admin deletes currently logged in user.
@@ -147,12 +145,27 @@ public class ProfileController {
      * badRequest if propertyName is not valid
      * List of profiles otherwise
      */
-    public Result search(Http.Request request, String f, String q) {
-        return ok("Search");
-    }
+    public Result list(Http.Request request, String f, String q) {
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> {
+                    ObjectMapper mapper = new ObjectMapper();
+                    ArrayNode results = mapper.createArrayNode();
+                    List<Profile> profiles;
 
-    public Result list(Http.Request request) {
-        return ok("List");
+                    if (f != null && q != null) {
+                        return ok("Search");
+                    } else {
+                        profiles = Profile.find.all();
+                    }
+
+                    for(Profile profile : profiles){
+                        results.add(profile.toJson());
+                    }
+
+                    return ok(results);
+                })
+                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
 
 //    /**
