@@ -19,23 +19,33 @@
                         <label>Last Name:</label>
                         <input id="last_name" type="text" class="form-control" required>
                     </div>
-                    <div id="user_group">
+
+
+
+                    <div id="username_group">
                         <div class="form-group">
                             <label>Username:</label>
                             <input id="username" type="text" class="form-control" required>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Password:</label>
-                        <input id="password" type="password" class="form-control" required>
+
+
+                    <div id = "password_group">
+                        <div class="form-group">
+                            <label>Password:</label>
+                            <input id="password" type="password" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Retype Password:</label>
+                            <input id="password_retyped" type="password" class="form-control" required>
+                        </div>
+                        @*<div id="err_password" class="alert alert-danger" >*@
+                            @*<strong>Passwords do not match!</strong> Please ensure this matches your password!*@
+                        @*</div>*@
                     </div>
-                    <div class="form-group">
-                        <label>Retype Password:</label>
-                        <input id="password_retyped" type="password" class="form-control" required>
-                    </div>
-                    <div id="err_password" class="alert alert-danger" >
-                        <strong>Passwords do not match!</strong> Please ensure this matches your password!
-                    </div>
+
+
+
                     <div class="form-group">
                         <label>Date of birth:</label>
                         <input id="date_of_birth" type="date" class="form-control" required>
