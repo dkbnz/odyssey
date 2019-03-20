@@ -21,11 +21,11 @@ public class Nationality extends BaseModel {
     public String nationality;
     public String country;
 
-    @ManyToMany(mappedBy = "nationalities")
-    public List<Profile> profiles = new ArrayList<Profile>();
+//    @ManyToMany(mappedBy = "nationalities")
+//    public List<Profile> profiles = new ArrayList<Profile>();
 
-    @OneToMany(mappedBy = "nationality")
-    public List<Passport> passports = new ArrayList<Passport>();
+//    @OneToMany(mappedBy = "nationality")
+//    public List<Passport> passports = new ArrayList<Passport>();
 
     public static Finder<Integer, Nationality> find = new Finder<>(Nationality.class);
 }

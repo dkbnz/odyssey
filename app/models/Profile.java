@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Finder;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
@@ -30,24 +31,32 @@ public class Profile extends BaseModel {
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     public Date dateOfCreation;
 
+
+    @ManyToMany
+    public List<Nationality> nationalities = new ArrayList<Nationality>();
+
+    public void addNationality(Nationality nationality){
+        nationalities.add(nationality);
+    }
+
     /**
      * Converts a Profile object to a JSON readable format
      * @return JsonNode object of profile
      */
     public JsonNode toJson(){
-        JsonNode profile = Json.toJson(this);
-        profile.
-        return
+        ObjectNode profile = (ObjectNode) Json.toJson(this);
+        profile.remove("password");
+        return profile;
     }
 
 //    @ManyToMany
 //    public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
 
-    @ManyToMany
-    public List<Nationality> nationalities = new ArrayList<Nationality>();
 
-    @OneToMany(mappedBy = "profile")
-    public List<Passport> passports = new ArrayList<Passport>();
+
+
+//    @OneToMany(mappedBy = "profile")
+//    public List<Passport> passports = new ArrayList<Passport>();
 
 //    public void addTravellerType(TravellerType travellerType) {
 //        this.travellerTypes.add(travellerType);
