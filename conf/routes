@@ -8,14 +8,14 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 # Following routes are specifically for the JSON requests
 
 # Requests relating to profiles are as follows
-GET     /profiles                   controllers.ProfileController.list() # Get all profiles
-GET     /profiles                   controllers.ProfileController.search(f: String, q: String) # Get all profiles based on query parameters
-POST    /profiles                   controllers.ProfileController.create(request: Request) # Create a new profile from given json body
-GET     /profile/:id                controllers.ProfileController.fetch(id: Long) # Get individual profile from given id
-PUT     /profile/:id                controllers.ProfileController.update(request: Request, id: Long) # Update profile with given id
-DELETE  /profile/:id                controllers.ProfileController.delete(id: Long) # Delete profile with given id
+GET     /profiles                   controllers.ProfileController.list(request: Request)
+GET     /profiles                   controllers.ProfileController.search(request: Request, f: String, q: String)
+POST    /profiles                   controllers.ProfileController.create(request: Request)
+GET     /profile/:id                controllers.ProfileController.fetch(request: Request, id: Long)
+PUT     /profile/:id                controllers.ProfileController.update(request: Request, id: Long)
+DELETE  /profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
 
-POST    /checkUsername              controllers.ProfileController.checkUsername(request: Request)
+POST    /checkUsername              controllers.ProfileController.checkUsername(requestrun: Request)
 
 # Requests relating to authorisation are as follows
 POST    /login                      controllers.AuthController.login(request: Request)
