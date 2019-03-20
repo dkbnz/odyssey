@@ -73,8 +73,7 @@ public class ProfileController {
     public Result checkUsername(Http.Request request) {
         JsonNode json = request.body().asJson();
         if (!profileExists(json.get("username").asText())) {
-            String message = "Acceptable username";
-            return ok(message);
+            return ok();
         } else {
             return badRequest();
         }
