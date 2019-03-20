@@ -29,25 +29,17 @@ public class ProfileController {
 
         JsonNode json = request.body().asJson();
 
-//        if(Profile.find
-//                .query()
-//                .where()
-//                .like("username", json.get("newUser").asText())
-//                .findOne() != null) {
-//            return badRequest(); // TODO: Choose better return code. conflict()?
-//        };
-
-        if (profileExists(json.get("newUser").asText())) {
+        if (!(json.has("username") && json.has("password"))
+                || profileExists(json.get("username").asText())) {
             return badRequest();
         }
 
-
         Profile newUser = new Profile();
-        newUser.username = json.get("newUser").asText();
-        newUser.password = json.get("newPass").asText();
+        newUser.username = json.get("username").asText();
+        newUser.password = json.get("password").asText();
         newUser.save();
 
-        return created().addingToSession(request, "connected", newUser.id.toString());
+        return created().addingToSession(request, "authorized", newUser.id.toString());
     }
 
 
@@ -142,7 +134,26 @@ public class ProfileController {
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
 
+    public Result update(Http.Request request) {
+        return ok("Update");
+    }
 
+    /**
+     * Performs an ebean find query on the database to search for profiles
+     * Ensures the pro
+     * @param f propertyName for searching the profile database
+     * @param q propertyValue to apply to the query
+     * @return
+     * badRequest if propertyName is not valid
+     * List of profiles otherwise
+     */
+    public Result search(String f, String q) {
+        return ok("Search");
+    }
+
+    public Result list(Http.Request) {
+        return ok("List");
+    }
 
 //    /**
 //     * Checks if the client is an admin, If so then returns an http Result
