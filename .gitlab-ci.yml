@@ -69,6 +69,7 @@ release-artifacts:
 update-sonar:
     stage: deploy
     script:
+    - export PATH=$PATH:/opt/sonarscanner/sonar-scanner-3.3.0.1492-linux/bin
     - echo $PATH
     - sonar-scanner
     only:
