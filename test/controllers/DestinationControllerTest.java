@@ -1,31 +1,63 @@
 package controllers;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import javax.inject.Inject;
+
+import com.google.inject.Module;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import play.Application;
+import play.ApplicationLoader;
+import play.Environment;
+import play.Mode;
 import play.inject.guice.GuiceApplicationBuilder;
+import play.inject.guice.GuiceApplicationLoader;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import play.test.WithApplication;
+
+import java.io.File;
 
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.OK;
-import static play.test.Helpers.GET;
+import static play.test.Helpers.*;
 
-public class DestinationControllerTest extends WithApplication {
+public class DestinationControllerTest {
 
-    @Override
-    protected Application provideApplication() {
-        return new GuiceApplicationBuilder().build();
+    @Inject Application application;
+
+    @Before
+    public void setup() {
+        Module testModule = new AbstractModule() {
+            @Override
+            public void configure() {
+                //Install custom test binding here
+            }
+        };
+
+        GuiceApplicationBuilder builder = new GuiceApplicationLoader()
+                .builder(new ApplicationLoader.Context(Environment.simple()))
+                .overrides(testModule);
+        Guice.createInjector(builder.applicationModule()).injectMembers(this);
+
+        Helpers.start(application);
+    }
+
+    @After
+    public void tearDown() {
+        Helpers.stop(application);
     }
 
     @Test
-    public void testGet() {
-        Http.RequestBuilder request = Helpers.fakeRequest()
+    public void testGetAllDestinations() {
+
+        Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri("/destinations");
-        Result result = Helpers.route(app, request);
-        assertEquals(OK, result.status());
 
+        Result result = route(application, request);
+        assertEquals(OK, result.status());
     }
 }
