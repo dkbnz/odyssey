@@ -80,7 +80,7 @@ public class ProfileController {
      * @param request HTTP request from client
      * @return HTTP Result of the request
      */
-    public Result fetch(Http.Request request) {
+    public Result fetch(Http.Request request, Long id) {
         return request.session()
                 .getOptional("authorized")
                 .map(userId -> {
@@ -107,7 +107,7 @@ public class ProfileController {
      * @param request HTTP Request containing JSON Body
      * @return HTTP Result of the request
      */
-    public Result delete(Http.Request request) {
+    public Result delete(Http.Request request, Long id) {
         return request.session()
                 .getOptional("authorized")
                 .map(userId -> {
@@ -134,7 +134,7 @@ public class ProfileController {
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
 
-    public Result update(Http.Request request) {
+    public Result update(Http.Request request, Long id) {
         return ok("Update");
     }
 
@@ -147,11 +147,11 @@ public class ProfileController {
      * badRequest if propertyName is not valid
      * List of profiles otherwise
      */
-    public Result search(String f, String q) {
+    public Result search(Http.Request request, String f, String q) {
         return ok("Search");
     }
 
-    public Result list(Http.Request) {
+    public Result list(Http.Request request) {
         return ok("List");
     }
 
