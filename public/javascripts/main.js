@@ -1,5 +1,6 @@
 $(document).ready(function () {
 
+
     $('#nationality').multiselect({
         enableFiltering: true,
         maxHeight: 400,
@@ -10,46 +11,60 @@ $(document).ready(function () {
         }
     });
 
+
     $('#passport').multiselect({
         includeSelectAllOption: true,
         maxHeight: 400
     });
 
+
     $('#travType').multiselect({
         maxHeight: 400
     });
 
-    $("#signup-form").submit(function (e) {
-        // When initial signup form is submitted, shows next modal
-        var errors = false;
-        var csrf_token = $('meta[name="csrf-token"]').attr('content');
 
+    $('#username').focusout(function() {
+        $("#err_username").remove();
         $.ajax({
             method: "POST",
             url: "/checkUsername",
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
             data: JSON.stringify({username : $("#username").val()}),
-            success: function (response) { // "Called if the request succeeds"
-                $("#err_username").hide();
-                console.log("Hello")
+            success: function (message) {
+                alert("SUCCESS ALERT");
+                //$("#err_username").remove();
             },
             error: function () { // "Called if the request fails"
-                $("#err_username").show();
-                errors = true;
-            }
-        });
 
-        if (!($("#password") === $("#password_retyped"))) {
+                $('#user_group').append("\n" +
+                    "                    <div id=\"err_username\" class=\"alert alert-danger hide\">\n" +
+                    "                        <strong>Username taken!</strong> Please use another username\n" +
+                    "                    </div>");
+            },
+        });
+    });
+
+
+    $("#signup-form").submit(function (e) {
+        // When initial signup form is submitted, shows next modal
+        var errors = false;
+
+        if (!($("#password").val() === $("#password_retyped").val())) {
             $("#err_password").show();
-            errors = true;;
+            errors = true;
+            alert(" PASS ERROR");
         }
 
         e.preventDefault();
         if (!errors) {
             $("#signUpPopup").modal("hide");
             $("#signUpContinued").modal("show");
+            alert("NO ERROR");
+        } else {
+            alert("ERROR");
         }
+
 
     });
 
