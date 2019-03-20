@@ -101,11 +101,78 @@ $(document).ready(function () {
     });
 
 
+    /**
+     * Upon deselecting first_name input container, check matching password retype to determine error message visibility.
+     */
+    $("#first_name").focusout(function () {
+        $("#err_firstname").remove();
+
+        var nameRegex = new RegExp("^[a-zA-Z]+((-|')[a-zA-Z]+)*$");
+
+        if(!(nameRegex.test($("#first_name").val()))) {
+            $("#firstname_group").append("\n" +
+                "                        <div id=\"err_firstname\" class=\"alert alert-danger\" > \n" +
+                "                            <strong>Name is invalid!</strong> Names must have no spaces, unenclosed hyphens/apostrophes, or numbers!\n" +
+                "                        </div>");
+        } else {
+            $("#err_firstname").remove();
+        }
+    });
+
+
+    /**
+     * Upon deselecting middle_name input container, check matching password retype to determine error message visibility.
+     */
+    $("#middle_name").focusout(function () {
+        $("#err_middlename").remove();
+
+        var nameRegex = new RegExp("^[a-zA-Z]*((-|')[a-zA-Z]*)*$"); //TODO: change this regex/function to allow null, "", or follow the other regex templates.
+
+        if (!(nameRegex.test($("#middle_name").val()))) {
+            $("#middlename_group").append("\n" +
+                "                        <div id=\"err_middlename\" class=\"alert alert-danger\" > \n" +
+                "                            <strong>Name is invalid!</strong> Names must have no spaces, unenclosed hyphens/apostrophes, or numbers!\n" +
+                "                        </div>");
+        } else {
+            $("#err_middlename").remove();
+        }
+    });
+
+
+    /**
+     * Upon deselecting last_name input container, check matching password retype to determine error message visibility.
+     */
+    $("#last_name").focusout(function () {
+        $("#err_lastname").remove();
+
+        var nameRegex = new RegExp("^[a-zA-Z]+((-|')[a-zA-Z]+)*$");
+
+        if(!(nameRegex.test($("#last_name").val()))) {
+            $("#lastname_group").append("\n" +
+                "                        <div id=\"err_lastname\" class=\"alert alert-danger\" > \n" +
+                "                            <strong>Name is invalid!</strong> Names must have no spaces, unenclosed hyphens/apostrophes, or numbers!\n" +
+                "                        </div>");
+        } else {
+            $("#err_lastname").remove();
+        }
+
+
+    });
+
+
+    /**
+     * Checks the validity of uer entries before proceeding to the next section.
+     * Alerts the user if invalid entries remain.
+     */
     $("#signup-form").submit(function (e) {
         // When initial signup form is submitted, shows next modal
 
         e.preventDefault();
-        if (($("#err_username").length == 0) && ($("#err_password").length == 0) ) {
+        if (($("#err_username").length === 0) &&
+            ($("#err_password").length === 0) &&
+            ($("#err_firstname").length === 0) &&
+            ($("#err_middlename").length === 0) &&
+            ($("#err_lastname").length === 0)) {
             $("#signUpPopup").modal("hide");
             $("#signUpContinued").modal("show");
         } else {
