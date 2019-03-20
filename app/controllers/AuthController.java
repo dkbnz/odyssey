@@ -28,6 +28,7 @@ public class AuthController extends Controller {
                 .orElseGet(() -> {
                     // User is not logged in, attempt to search database
                     JsonNode json = request.body().asJson();
+                    System.out.println(json);
 
                     if (!(json.has("username") && json.has("password"))) {
                         // If JSON Object contains no user or pass key, return bad request
