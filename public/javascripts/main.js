@@ -32,17 +32,15 @@ $(document).ready(function () {
             method: "POST",
             url: "/checkUsername",
             contentType: 'application/json; charset=utf-8',
-            dataType: 'json',
             data: JSON.stringify({username : $("#username").val()}),
-            error: function (jqXHR) { // "Called if the request fails"
-                if (jqXHR.status === 200) {
-                    $("#err_username").remove();
-                } else if (jqXHR.status === 400) {
-                    $('#username_group').append("\n" +
+            success: function () {
+                $("#err_username").remove();
+            },
+            error: function () {
+                $('#username_group').append("\n" +
                         "                    <div id=\"err_username\" class=\"alert alert-danger \">\n" +
                         "                        <strong>Username taken!</strong> Please use another username\n" +
                         "                    </div>");
-                }
             }
         });
     });
@@ -82,24 +80,14 @@ $(document).ready(function () {
 
     $("#signup-form").submit(function (e) {
         // When initial signup form is submitted, shows next modal
-        var errors = false;
-
-        if (!($("#password").val() === $("#password_retyped").val())) {
-            $("#err_password").show();
-            errors = true;
-            alert(" PASS ERROR");
-        }
 
         e.preventDefault();
-        if (!errors) {
+        if (($("#err_username").length == 0) && ($("#err_password").length == 0) ) {
             $("#signUpPopup").modal("hide");
             $("#signUpContinued").modal("show");
-            alert("NO ERROR");
         } else {
-            alert("ERROR");
+            alert("Please correctly fill out all fields before proceeding.");
         }
-
-
     });
 
 });
