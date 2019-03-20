@@ -3,12 +3,15 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.ExpressionList;
+import models.Nationality;
 import models.Profile;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
@@ -21,7 +24,6 @@ import static play.mvc.Results.*;
  */
 public class ProfileController {
 
-
     /**
      * Creates a user based on given JSON body.
      * If username exists, returns
@@ -31,14 +33,40 @@ public class ProfileController {
 
         JsonNode json = request.body().asJson();
 
-        if (!(json.has("username") && json.has("password"))
-                || profileExists(json.get("username").asText())) {
+        if (!(json.has("username")
+                && json.has("password")
+                && json.has("first_name")
+                && json.has("middle_name")
+                && json.has("last_name")
+                && json.has("date_of_birth")
+                && json.has("gender")
+                && json.has("nationality")
+//                && json.has( "passport_country")
+//                && json.has( "traveller_type")
+        ) || profileExists(json.get("username").asText())) {
             return badRequest();
         }
 
         Profile newUser = new Profile();
+
         newUser.username = json.get("username").asText();
         newUser.password = json.get("password").asText();
+        newUser.firstName = json.get("first_name").asText();
+        newUser.middleName = json.get("middle_name").asText();
+        newUser.lastName = json.get("last_name").asText();
+        newUser.dateOfBirth = LocalDate.parse(json.get("date_of_birth").asText());
+        newUser.gender = json.get("gender").asText();
+        newUser.dateOfCreation = new Date();
+
+        newUser.save();
+
+        Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
+            Nationality newNat = Nationality.find.byId(node.asInt());
+            newUser.addNationality(newNat);
+        };
+
+        json.get("nationality").forEach(nationalityAction);
+
         newUser.save();
 
         return created().addingToSession(request, "authorized", newUser.id.toString());
@@ -132,20 +160,54 @@ public class ProfileController {
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
 
+    /**
+     *
+     * @param profile
+     * @param json
+     * @return
+     */
+    public Result updateProfile(Profile profile, JsonNode json) {
+        return ok();
+    }
+
+    /**
+     *
+     * @param request
+     * @param id
+     * @return
+     */
     public Result update(Http.Request request, Long id) {
-        return ok("Update");
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> {
+                    // User is logged in
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    JsonNode json = request.body().asJson();
+
+                    if (id != Long.valueOf(userId)) {// TODO: Implement admin hierarchy and perform checks here
+                        Profile profileToEdit = Profile.find.byId(id.intValue());
+                        if (profileToEdit == null) {
+                            return badRequest(); // Tried to update profile that is non-existent
+                        }
+                        return updateProfile(profileToEdit, json);
+
+                    } else {
+                        // User is just updating their own profile
+                        return updateProfile(userProfile, json);
+                    }
+
+                })
+                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
 
     /**
      * Performs an ebean find query on the database to search for profiles
      * Ensures the pro
-     * @param f propertyName for searching the profile database
-     * @param q propertyValue to apply to the query
      * @return
      * badRequest if propertyName is not valid
      * List of profiles otherwise
      */
-    public Result list(Http.Request request, String f, String q) {
+    public Result list(Http.Request request) {
         return request.session()
                 .getOptional("authorized")
                 .map(userId -> {
@@ -153,9 +215,11 @@ public class ProfileController {
                     ArrayNode results = mapper.createArrayNode();
                     List<Profile> profiles;
 
-                    if (f != null && q != null) {
-                        return ok("Search");
+                    if (request.queryString().isEmpty()) {
+                        // No query string given. retrieve all profiles
+                        profiles = Profile.find.all();
                     } else {
+                        //TODO: implement search here. see Matildas destinations search
                         profiles = Profile.find.all();
                     }
 
