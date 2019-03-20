@@ -8,8 +8,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 # Following routes are specifically for the JSON requests
 
 # Requests relating to profiles are as follows
-GET     /profiles                   controllers.ProfileController.list(request: Request)
-GET     /profiles                   controllers.ProfileController.search(request: Request, f: String, q: String)
+GET     /profiles                   controllers.ProfileController.list(request: Request, f: String ?= null, q: String ?= null)
 POST    /profiles                   controllers.ProfileController.create(request: Request)
 GET     /profile/:id                controllers.ProfileController.fetch(request: Request, id: Long)
 PUT     /profile/:id                controllers.ProfileController.update(request: Request, id: Long)
