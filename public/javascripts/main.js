@@ -7,7 +7,7 @@ $(document).ready(function () {
         $.ajax({
             method: "POST",
             url: "/profiles",
-            contentType: 'application/json; charset=utf-8',
+            contentType: "application/json; charset=utf-8",
             data: JSON.stringify({
                 username : $("#username").val(),
                 password : $("#password").val(),
@@ -179,4 +179,24 @@ $(document).ready(function () {
         }
     });
 
+    // Sign in button pressed
+    $("#sign-in-form").submit(function (event) {
+        event.preventDefault();
+
+        $.ajax({
+            method: "POST",
+            url: "/login",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                username: $("#sign-in-username").val(),
+                password: $("#sign-in-password").val()
+            }),
+            success: function(response) {
+                console.log(response)
+            },
+            error: function(error) {
+                console.log(error)
+            }
+        });
+    });
 });
