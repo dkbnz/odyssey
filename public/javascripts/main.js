@@ -125,7 +125,7 @@ $(document).ready(function () {
     $("#middle_name").focusout(function () {
         $("#err_middlename").remove();
 
-        var nameRegex = new RegExp("^[a-zA-Z]*((-|')[a-zA-Z]*)*$"); //TODO: change this regex/function to allow null, "", or follow the other regex templates.
+        var nameRegex = new RegExp("(^[a-zA-Z]+((-|'| )[a-zA-Z]+)*$)|^$");
 
         if (!(nameRegex.test($("#middle_name").val()))) {
             $("#middlename_group").append("\n" +
