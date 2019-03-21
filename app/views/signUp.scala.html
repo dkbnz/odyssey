@@ -69,10 +69,12 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">SignUp Continued</h4>
+                <h4 class="modal-title">Sign Up Continued</h4>
             </div>
             <div class="modal-body">
                 <form id="create-form" role="form">
+
+                    <label><em>Select at least one traveller type and nationality to add to your profile.</em></label>
 
                     <div class="form-row">
                         <div class="form-group col-md-6">
@@ -90,14 +92,11 @@
                     <div class="form-group">
                         <div id="trav-carousel" class="carousel slide" data-ride="carousel">
                             <ol class="carousel-indicators">
-                                <li data-target="#trav-carousel" data-slide-to="0" class="active"></li>
-                                <li data-target="#trav-carousel" data-slide-to="1"></li>
-                                <li data-target="#trav-carousel" data-slide-to="2"></li>
+                                @* Indicators populated from database by JQuery *@
                             </ol>
-
                             <div class="carousel-inner" id="trav-carousel-body">
+                                @* Carousel populated from database by JQuery *@
                             </div>
-
                             <a class="carousel-control-prev" href="#trav-carousel" role="button" data-slide="prev">
                                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                 <span class="sr-only">Previous</span>

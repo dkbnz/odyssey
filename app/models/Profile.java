@@ -31,9 +31,15 @@ public class Profile extends BaseModel {
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     public Date dateOfCreation;
 
-
     @ManyToMany
     public List<Nationality> nationalities = new ArrayList<Nationality>();
+
+    @ManyToMany
+    public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
+
+    public void addTravType(TravellerType travellerType) {
+        travellerTypes.add(travellerType);
+    }
 
     public void addNationality(Nationality nationality){
         nationalities.add(nationality);
@@ -49,8 +55,6 @@ public class Profile extends BaseModel {
         return profile;
     }
 
-    @ManyToMany
-    public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
 
 
 
