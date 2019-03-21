@@ -76,49 +76,60 @@
             </div>
             <div class="modal-body">
                 <form id="create-form" role="form">
-                <div class="form-group">
-                    <label>Nationalities:</label>
-                    <select class="form-control" id="nationality" multiple="multiple">
-                        <option value="1">Option 1</option>
-                        <option value="2">Option 2</option>
-                        <option value="3">Option 3</option>
-                        <option value="4">Option 4</option>
-                        <option value="5">Option 5</option>
-                        <option value="6">Option 6</option>
-                        <option value="3">Option 3</option>
-                        <option value="4">Option 4</option>
-                        <option value="5">Option 5</option>
-                        <option value="6">Option 6</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Passports:</label>
-                    <select class="form-control" id="passport" multiple="multiple">
-                        <option value="1">Option 1</option>
-                        <option value="2">Option 2</option>
-                        <option value="3">Option 3</option>
-                        <option value="4">Option 4</option>
-                        <option value="5">Option 5</option>
-                        <option value="6">Option 6</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Traveller Types:</label>
-                    <select class="form-control" id="travType" multiple="multiple">
-                        <option value="1">Option 1</option>
-                        <option value="2">Option 2</option>
-                        <option value="3">Option 3</option>
-                        <option value="4">Option 4</option>
-                        <option value="5">Option 5</option>
-                        <option value="6">Option 6</option>
-                    </select>
-                </div>
-                <div class="form-group">
+
+                    <div class="form-group">
+                        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                            <ol class="carousel-indicators">
+                                <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                                <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                                <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+                            </ol>
+                            <div class="carousel-inner" id="trav-carousel">
+
+                            </div>
+                            <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="nationality">Nationalities:</label>
+                            <select class="form-control" id="nationality" multiple="multiple">
+                                <option value="1">Option 1</option>
+                                <option value="2">Option 2</option>
+                                <option value="3">Option 3</option>
+                                <option value="4">Option 4</option>
+                                <option value="5">Option 5</option>
+                                <option value="6">Option 6</option>
+                                <option value="3">Option 3</option>
+                                <option value="4">Option 4</option>
+                                <option value="5">Option 5</option>
+                                <option value="6">Option 6</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="passport">Passports:</label>
+                            <select class="form-control" id="passport" multiple="multiple">
+                                <option value="1">Option 1</option>
+                                <option value="2">Option 2</option>
+                                <option value="3">Option 3</option>
+                                <option value="4">Option 4</option>
+                                <option value="5">Option 5</option>
+                                <option value="6">Option 6</option>
+                            </select>
+                        </div>
+                    </div>
+                <div class="form-group text-center">
                     <button type="submit" class="btn btn-primary" id="btn-Create">Create Profile</button>
                 </div>
             </form>
-            </div>
-            <div class="modal-footer">
             </div>
         </div>
     </div>
