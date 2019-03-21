@@ -3,13 +3,13 @@
 # ~~~~
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET           /assets/*file        controllers.Assets.at(path="/public", file)
 
 # Following routes are specifically for the JSON requests
 
 # Requests relating to profiles are as follows
-POST    /fetch                      controllers.ProfileController.fetch(request: Request)
+POST          /fetch               controllers.ProfileController.fetch(request: Request)
 
 # Requests relating to authorisation are as follows
-POST    /login                      controllers.AuthController.login(request: Request)
-POST    /logout                     controllers.AuthController.logout()
+POST          /login               controllers.AuthController.login(request: Request)
+DELETE        /logout              controllers.AuthController.logout()
