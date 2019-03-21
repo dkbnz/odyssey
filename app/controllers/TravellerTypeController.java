@@ -7,6 +7,7 @@ import models.TravellerType;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+
 import java.util.List;
 
 /**
@@ -18,6 +19,7 @@ public class TravellerTypeController extends Controller {
 
     /**
      * Pulls a list of TravellerTypes from the database and returns it as a JSON list
+     *
      * @return Http Result with a json body
      */
     public Result list() {
@@ -29,7 +31,7 @@ public class TravellerTypeController extends Controller {
         List<TravellerType> travTypes = TravellerType.find.all();
 
 
-        for(TravellerType travtype : travTypes){
+        for (TravellerType travtype : travTypes) {
             travTypeobj = (ObjectNode) Json.toJson(travtype);
             travTypeobj.remove("profiles");
             results.add(travTypeobj);

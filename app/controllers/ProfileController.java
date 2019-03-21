@@ -42,8 +42,8 @@ public class ProfileController {
                 && json.has("date_of_birth")
                 && json.has("gender")
                 && json.has("nationality")
-                && json.has( "passport_country")
-                && json.has( "traveller_type")
+                && json.has("passport_country")
+                && json.has("traveller_type")
         ) || profileExists(json.get("username").asText())) {
             return badRequest();
         }
@@ -83,6 +83,7 @@ public class ProfileController {
 
     /**
      * Field validation method checking whether a username already exists in the database
+     *
      * @param username the name being checked (inputted as a String)
      * @return false if the username is unique (acceptable), or true if the profile username exists (unacceptable)
      */
@@ -97,6 +98,7 @@ public class ProfileController {
 
     /**
      * Function called from the routes request and sends back a request based on the result
+     *
      * @param request the json object of the form
      * @return ok when there is no username in the database, or a bad request when there already is a user in the database
      */
@@ -140,6 +142,7 @@ public class ProfileController {
     /**
      * Deletes a currently logged in profile and invalidates their session
      * If user is admin and the id is specified in the JSON body, delete specified id.
+     *
      * @param request HTTP Request containing JSON Body
      * @return HTTP Result of the request
      */
@@ -170,6 +173,7 @@ public class ProfileController {
 
     /**
      * Helper function to update a profile from a given JsonNode
+     *
      * @param profile
      * @param json
      * @return
@@ -180,6 +184,7 @@ public class ProfileController {
 
     /**
      * Takes a Http request containing a Json body and
+     *
      * @param request
      * @param id
      * @return
@@ -211,8 +216,8 @@ public class ProfileController {
     /**
      * Performs an ebean find query on the database to search for profiles
      * Ensures the pro
-     * @return
-     * badRequest if propertyName is not valid
+     *
+     * @return badRequest if propertyName is not valid
      * List of profiles otherwise
      */
     public Result list(Http.Request request) {
@@ -231,7 +236,7 @@ public class ProfileController {
                         profiles = Profile.find.all();
                     }
 
-                    for(Profile profile : profiles){
+                    for (Profile profile : profiles) {
                         results.add(profile.toJson());
                     }
 
