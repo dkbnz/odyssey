@@ -9,7 +9,7 @@ $(document).ready(function () {
                 $("#trav-carousel").append("<div class=\"carousel-item" + active + "\">\n" +
                     "  <img style=\"width: 100%\"src=\"" + response[key].imgUrl + "\" alt=\"...\">\n" +
                     "  <div class=\"carousel-caption d-none d-md-block\">\n" +
-                    "    <h5>" + response[key].travellerType + "</h5>\n" +
+                    "    <h5><input name=\"travtypes\" type=\"checkbox\" value=\"" + response[key].id + "\"> " + response[key].travellerType + "</h5>\n" +
                     "    <p>" + response[key].description + "</p>\n" +
                     "  </div>\n" +
                     "</div>");
@@ -37,7 +37,8 @@ $(document).ready(function () {
                 last_name : $("#last_name").val(),
                 date_of_birth : $("#date_of_birth").val(),
                 gender : $("#gender").val(),
-                nationality : $("#nationality").val()
+                nationality : $("#nationality").val(),
+                traveller_type : $("input[name='travtypes']:checked").map(function(){return this.value;}).get()
             }),
             success: function (response) { // "Called if the request succeeds"
                 console.log(response)
@@ -196,8 +197,6 @@ $(document).ready(function () {
             $("#signUpPopup").modal("hide");
 
             $("#signUpContinued").modal("show");
-
-
 
         } else {
             alert("Please correctly fill out all fields before proceeding.");
