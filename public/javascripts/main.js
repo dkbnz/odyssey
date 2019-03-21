@@ -1,10 +1,13 @@
 $(document).ready(function () {
 
+    /**
+     * Following ajax call populates the Traveller type carousel in profile creation
+     */
     $.ajax({
         method: "GET",
-        url: "/travtypes",
+        url: "/api/travtypes",
         success: function (response) { // "Called if the request succeeds"
-            var active = " active";
+            var active = " active"; // TODO: Use .addclass() instead of this string.
             for (var key in response) {
                 $("#trav-carousel-body").append("<div class=\"carousel-item" + active + "\">\n" +
                     "  <img style=\"width: 100%\"src=\"" + response[key].imgUrl + "\" alt=\"...\">\n" +
@@ -21,9 +24,12 @@ $(document).ready(function () {
         }
     });
 
+    /**
+     * Following ajax call populates the passport and nationality dropdowns
+     */
     $.ajax({
         method: "GET",
-        url: "/nationalities",
+        url: "/api/nationalities",
         success: function (response) { // "Called if the request succeeds"
             for (var key in response) {
                 $("#nationality").append("<option value=\"" + response[key].id + "\">" + response[key].nationality + "</option>");
@@ -48,34 +54,6 @@ $(document).ready(function () {
         }
     });
 
-    $("#create-form").submit(function(e) {
-
-        e.preventDefault();
-
-        $.ajax({
-            method: "POST",
-            url: "/profiles",
-            contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify({
-                username : $("#username").val(),
-                password : $("#password").val(),
-                first_name : $("#first_name").val(),
-                middle_name : $("#middle_name").val(),
-                last_name : $("#last_name").val(),
-                date_of_birth : $("#date_of_birth").val(),
-                gender : $("#gender").val(),
-                nationality : $("#nationality").val(),
-                traveller_type : $("input[name='travtypes']:checked").map(function(){return this.value;}).get()
-            }),
-            success: function (response) { // "Called if the request succeeds"
-                console.log(response)
-            },
-            error: function (error) { // "Called if the request fails"
-                console.log(error)
-            }
-        });
-    });
-
 
     /**
      *  Upon deselecting input container, check the text entry from the input container against the database to see if their proposed username is already taken
@@ -84,7 +62,7 @@ $(document).ready(function () {
         $("#err_username").remove();
         $.ajax({
             method: "POST",
-            url: "/checkUsername",
+            url: "/api/checkUsername",
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify({username : $("#username").val()}),
             success: function () {
@@ -210,7 +188,38 @@ $(document).ready(function () {
             alert("Please correctly fill out all fields before proceeding.");
         }
 
+    });
 
+    /**
+     * Profile creation handler
+     */
+    $("#create-form").submit(function(e) {
+
+        e.preventDefault();
+
+        $.ajax({
+            method: "POST",
+            url: "/api/profiles",
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({
+                username : $("#username").val(),
+                password : $("#password").val(),
+                first_name : $("#first_name").val(),
+                middle_name : $("#middle_name").val(),
+                last_name : $("#last_name").val(),
+                date_of_birth : $("#date_of_birth").val(),
+                gender : $("#gender").val(),
+                nationality : $("#nationality").val(),
+                passport : $("#passport").val(),
+                traveller_type : $("input[name='travtypes']:checked").map(function(){return this.value;}).get() // Creates an array of traveller type ids from checked boxes in carousel
+            }),
+            success: function (response) { // "Called if the request succeeds"
+                console.log(response) // TODO: Upon profile successfully being created, redirect to the profile page.
+            },
+            error: function (error) { // "Called if the request fails"
+                console.log(error)
+            }
+        });
     });
 
 });
