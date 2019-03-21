@@ -7,17 +7,22 @@ $(document).ready(function () {
         method: "GET",
         url: "/api/travtypes",
         success: function (response) { // "Called if the request succeeds"
-            var active = " active"; // TODO: Use .addclass() instead of this string.
+
+            // Iterator through each traveller type and add to carousel
             for (var key in response) {
-                $("#trav-carousel-body").append("<div class=\"carousel-item" + active + "\">\n" +
+                $("#trav-carousel .carousel-indicators").append("<li data-target=\"#trav-carousel\" data-slide-to=\"" + response[key].id + "\"></li>");
+                $("#trav-carousel-body").append("<div class=\"carousel-item\">\n" +
                     "  <img style=\"width: 100%\"src=\"" + response[key].imgUrl + "\" alt=\"...\">\n" +
-                    "  <div class=\"carousel-caption d-none d-sm-block\">\n" +
+                    "  <div class=\"carousel-caption\">\n" +
                     "    <h5><input name=\"travtypes\" type=\"checkbox\" value=\"" + response[key].id + "\"> " + response[key].travellerType + "</h5>\n" +
                     "    <p>" + response[key].description + "</p>\n" +
                     "  </div>\n" +
                     "</div>");
-                active = "";
             }
+
+            //Set first carousel indicator and first carousel image to active.
+            $("#trav-carousel .carousel-indicators li").first().addClass("active");
+            $("#trav-carousel-body .carousel-item").first().addClass("active");
         },
         error: function (error) { // "Called if the request fails"
             console.log(error)
@@ -210,7 +215,7 @@ $(document).ready(function () {
                 date_of_birth : $("#date_of_birth").val(),
                 gender : $("#gender").val(),
                 nationality : $("#nationality").val(),
-                passport : $("#passport").val(),
+                passport_country : $("#passport").val(),
                 traveller_type : $("input[name='travtypes']:checked").map(function(){return this.value;}).get() // Creates an array of traveller type ids from checked boxes in carousel
             }),
             success: function (response) { // "Called if the request succeeds"
