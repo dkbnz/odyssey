@@ -9,44 +9,44 @@
                 <form id="signup-form" role="form">
                     <div id="firstname_group">
                         <div class="form-group">
-                            <label>First Name: <label style="color:red">*</label></label>
+                            <label>First Name:</label>
                             <input id="first_name" type="text" class="form-control" required>
                         </div>
                     </div>
                     <div id="middlename_group">
                         <div class="form-group">
                             <label>Middle Name(s):</label>
-                            <input id="middle_name" type="text" class="form-control" >
+                            <input id="middle_name" type="text" class="form-control" placeholder="Optional">
                         </div>
                     </div>
                     <div id="lastname_group">
                         <div class="form-group">
-                            <label>Last Name: <label style="color:red">*</label></label>
+                            <label>Last Name:</label>
                             <input id="last_name" type="text" class="form-control" required>
                         </div>
                     </div>
                     <div id="username_group">
                         <div class="form-group">
-                            <label>Username: <label style="color:red">*</label></label>
+                            <label>Username:</label>
                             <input id="username" type="text" class="form-control" required>
                         </div>
                     </div>
                     <div id = "password_group">
                         <div class="form-group">
-                            <label>Password: <label style="color:red">*</label></label>
+                            <label>Password:</label>
                             <input id="password" type="password" class="form-control password" required>
                         </div>
                         <div class="form-group">
-                            <label>Retype Password: <label style="color:red">*</label></label>
+                            <label>Retype Password:</label>
                             <input id="password_retyped" type="password" class="form-control password" required>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Date of birth: <label style="color:red">*</label></label>
+                        <label>Date of birth:</label>
                         <input id="date_of_birth" type="date" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label>Gender: <label style="color:red">*</label></label>
+                        <label>Gender:</label>
                         <select id="gender" type="" class="form-control" required>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
@@ -55,9 +55,6 @@
                     </div>
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary" id="btn-Next">Next</button>
-                    </div>
-                    <div>
-                        <label style="color:red">* these fields are required for your profile</label>
                     </div>
                 </form>
             </div>
@@ -76,47 +73,47 @@
             </div>
             <div class="modal-body">
                 <form id="create-form" role="form">
-                <div class="form-group">
-                    <label>Nationalities:</label>
-                    <select class="form-control" id="nationality" multiple="multiple">
-                        <option value="1">Option 1</option>
-                        <option value="2">Option 2</option>
-                        <option value="3">Option 3</option>
-                        <option value="4">Option 4</option>
-                        <option value="5">Option 5</option>
-                        <option value="6">Option 6</option>
-                        <option value="3">Option 3</option>
-                        <option value="4">Option 4</option>
-                        <option value="5">Option 5</option>
-                        <option value="6">Option 6</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Passports:</label>
-                    <select class="form-control" id="passport" multiple="multiple">
-                        <option value="1">Option 1</option>
-                        <option value="2">Option 2</option>
-                        <option value="3">Option 3</option>
-                        <option value="4">Option 4</option>
-                        <option value="5">Option 5</option>
-                        <option value="6">Option 6</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Traveller Types:</label>
-                    <select class="form-control" id="travType" multiple="multiple">
-                        <option value="1">Option 1</option>
-                        <option value="2">Option 2</option>
-                        <option value="3">Option 3</option>
-                        <option value="4">Option 4</option>
-                        <option value="5">Option 5</option>
-                        <option value="6">Option 6</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary" id="btn-Create">Create Profile</button>
-                </div>
-            </form>
+                    <div class="form-group">
+                        <label>Nationalities:</label>
+                        <select class="form-control" id="nationality" multiple="multiple" required>
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="3">Option 3</option>
+                            <option value="4">Option 4</option>
+                            <option value="5">Option 5</option>
+                            <option value="6">Option 6</option>
+                            <option value="3">Option 3</option>
+                            <option value="4">Option 4</option>
+                            <option value="5">Option 5</option>
+                            <option value="6">Option 6</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Passports:</label>
+                        <select class="form-control" id="passport" multiple="multiple">
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="3">Option 3</option>
+                            <option value="4">Option 4</option>
+                            <option value="5">Option 5</option>
+                            <option value="6">Option 6</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Traveller Types:</label>
+                        <select class="form-control" id="travType" multiple="multiple">
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="3">Option 3</option>
+                            <option value="4">Option 4</option>
+                            <option value="5">Option 5</option>
+                            <option value="6">Option 6</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" id="btn-Create">Create Profile</button>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
             </div>
