@@ -1,30 +1,31 @@
 $(document).ready(function () {
 
     $("#create-form").submit(function(e) {
+
+        e.preventDefault();
+
         $.ajax({
             method: "POST",
             url: "/profiles",
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify({
                 username : $("#username").val(),
-                password : $().val(),
-                first_name : $().val(),
-                middle_name : $().val(),
-                last_name : $().val(),
-                date_of_birth : $().val(),
-                gender : $().val(),
-                nationality : $().val(),
+                password : $("#password").val(),
+                first_name : $("#first_name").val(),
+                middle_name : $("#middle_name").val(),
+                last_name : $("#last_name").val(),
+                date_of_birth : $("#date_of_birth").val(),
+                gender : $("#gender").val(),
+                nationality : $("#nationality").val()
             }),
             success: function (response) { // "Called if the request succeeds"
-                $("#err_username").hide();
-                console.log("Hello")
+                console.log(response)
             },
-            error: function () { // "Called if the request fails"
-                $("#err_username").show();
-                errors = true;
+            error: function (error) { // "Called if the request fails"
+                console.log(error)
             }
         });
-    })
+    });
 
     $('#nationality').multiselect({
         enableFiltering: true,
@@ -44,7 +45,6 @@ $(document).ready(function () {
     // $('#travType').multiselect({
     //     maxHeight: 400
     // });
-
 
     /**
      *  Upon deselecting input container, check the text entry from the input container against the database to see if their proposed username is already taken
@@ -68,11 +68,10 @@ $(document).ready(function () {
         });
     });
 
-
     /**
      * Upon deselecting password input container, check matching password retype to determine error message visibility.
      */
-    $('#password').focusout(function() {
+    $('.password').focusout(function() {
         $("#err_password").remove();
         if (!($("#password").val() === $("#password_retyped").val())) {
             $("#password_group").append("\n" +
