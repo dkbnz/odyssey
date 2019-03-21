@@ -12,6 +12,13 @@ libraryDependencies += "com.h2database" % "h2" % "1.4.197"
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-core" % "2.3.0.1"
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2"
 
+// For Cucumber
+libraryDependencies += "io.cucumber" % "cucumber-core" % "4.2.0" % Test
+libraryDependencies += "io.cucumber" % "cucumber-jvm" % "4.2.0" % Test
+libraryDependencies += "io.cucumber" % "cucumber-junit" % "4.2.0" % Test
+libraryDependencies += "io.cucumber" % "cucumber-java" % "4.2.0"
+libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.25.2"
+
 // For database
 // mySQL
 // libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.47"
