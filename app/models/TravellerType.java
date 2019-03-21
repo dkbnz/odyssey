@@ -25,12 +25,6 @@ public class TravellerType extends BaseModel {
     public String imgUrl;
 
     /**
-     * The Profile entities mapped to a traveller type
-     */
-    @ManyToMany(mappedBy = "travellerTypes")
-    public List<Profile> profiles = new ArrayList<Profile>();
-
-    /**
      * A finder used to search for a traveller type
      */
     public static Finder<Integer, TravellerType> find = new Finder<>(TravellerType.class);

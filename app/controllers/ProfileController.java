@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.ExpressionList;
 import models.Nationality;
 import models.Profile;
+import models.TravellerType;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -41,7 +42,7 @@ public class ProfileController {
                 && json.has("date_of_birth")
                 && json.has("gender")
                 && json.has("nationality")
-//                && json.has( "passport_country")
+                && json.has( "passport_country")
                 && json.has( "traveller_type")
         ) || profileExists(json.get("username").asText())) {
             return badRequest();
@@ -66,6 +67,13 @@ public class ProfileController {
         };
 
         json.get("nationality").forEach(nationalityAction);
+
+        Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
+            TravellerType travType = TravellerType.find.byId(node.asInt());
+            newUser.addTravType(travType);
+        };
+
+        json.get("traveller_type").forEach(travTypeAction);
 
         newUser.save();
 
