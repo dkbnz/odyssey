@@ -1,0 +1,24 @@
+@(title: String)(content: Html)
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TravelEA - @title</title>
+        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")" />
+        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/bootstrap-multiselect.css")" />
+
+        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/main.css")" />
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")" />
+
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/popper.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery-3.3.1.min.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap-multiselect.js")"></script>
+
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/main.js")"></script>
+    </head>
+    <body>
+        @content
+        @footer()
+    </body>
+</html>

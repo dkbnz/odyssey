@@ -3,57 +3,25 @@
 
 # --- !Ups
 
--- init script create procs
--- Inital script to create stored procedures etc for mysql platform
-DROP PROCEDURE IF EXISTS usp_ebean_drop_foreign_keys;
+create table nationality (
+  id                            integer not null,
+  nationality                   varchar(255),
+  country                       varchar(255),
+  constraint pk_nationality primary key (id)
+);
 
-delimiter $$
---
--- PROCEDURE: usp_ebean_drop_foreign_keys TABLE, COLUMN
--- deletes all constraints and foreign keys referring to TABLE.COLUMN
---
-CREATE PROCEDURE usp_ebean_drop_foreign_keys(IN p_table_name VARCHAR(255), IN p_column_name VARCHAR(255))
-BEGIN
-  DECLARE done INT DEFAULT FALSE;
-  DECLARE c_fk_name CHAR(255);
-  DECLARE curs CURSOR FOR SELECT CONSTRAINT_NAME from information_schema.KEY_COLUMN_USAGE
-    WHERE TABLE_SCHEMA = DATABASE() and TABLE_NAME = p_table_name and COLUMN_NAME = p_column_name
-      AND REFERENCED_TABLE_NAME IS NOT NULL;
-  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+create table passport (
+  id                            integer not null,
+  issue_country                 varchar(255),
+  profile_id                    integer,
+  nationality_id                integer,
+  constraint pk_passport primary key (id),
+  foreign key (profile_id) references profile (id) on delete restrict on update restrict,
+  foreign key (nationality_id) references nationality (id) on delete restrict on update restrict
+);
 
-  OPEN curs;
-
-  read_loop: LOOP
-    FETCH curs INTO c_fk_name;
-    IF done THEN
-      LEAVE read_loop;
-    END IF;
-    SET @sql = CONCAT('ALTER TABLE ', p_table_name, ' DROP FOREIGN KEY ', c_fk_name);
-    PREPARE stmt FROM @sql;
-    EXECUTE stmt;
-  END LOOP;
-
-  CLOSE curs;
-END
-$$
-
-DROP PROCEDURE IF EXISTS usp_ebean_drop_column;
-
-delimiter $$
---
--- PROCEDURE: usp_ebean_drop_column TABLE, COLUMN
--- deletes the column and ensures that all indices and constraints are dropped first
---
-CREATE PROCEDURE usp_ebean_drop_column(IN p_table_name VARCHAR(255), IN p_column_name VARCHAR(255))
-BEGIN
-  CALL usp_ebean_drop_foreign_keys(p_table_name, p_column_name);
-  SET @sql = CONCAT('ALTER TABLE ', p_table_name, ' DROP COLUMN ', p_column_name);
-  PREPARE stmt FROM @sql;
-  EXECUTE stmt;
-END
-$$
 create table profile (
-  id                            bigint auto_increment not null,
+  id                            integer not null,
   username                      varchar(255),
   password                      varchar(255),
   first_name                    varchar(255),
@@ -61,12 +29,26 @@ create table profile (
   last_name                     varchar(255),
   gender                        varchar(255),
   date_of_birth                 date,
-  date_of_creation              datetime(6),
+  date_of_creation              timestamp,
   constraint pk_profile primary key (id)
+);
+
+create table profile_nationality (
+  profile_id                    integer not null,
+  nationality_id                integer not null,
+  constraint pk_profile_nationality primary key (profile_id,nationality_id),
+  foreign key (profile_id) references profile (id) on delete restrict on update restrict,
+  foreign key (nationality_id) references nationality (id) on delete restrict on update restrict
 );
 
 
 # --- !Downs
 
+drop table if exists nationality;
+
+drop table if exists passport;
+
 drop table if exists profile;
+
+drop table if exists profile_nationality;
 
