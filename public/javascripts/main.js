@@ -1,5 +1,53 @@
 $(document).ready(function () {
 
+    $.ajax({
+        method: "GET",
+        url: "/travtypes",
+        success: function (response) { // "Called if the request succeeds"
+            var active = " active";
+            for (var key in response) {
+                $("#trav-carousel-body").append("<div class=\"carousel-item" + active + "\">\n" +
+                    "  <img style=\"width: 100%\"src=\"" + response[key].imgUrl + "\" alt=\"...\">\n" +
+                    "  <div class=\"carousel-caption d-none d-sm-block\">\n" +
+                    "    <h5><input name=\"travtypes\" type=\"checkbox\" value=\"" + response[key].id + "\"> " + response[key].travellerType + "</h5>\n" +
+                    "    <p>" + response[key].description + "</p>\n" +
+                    "  </div>\n" +
+                    "</div>");
+                active = "";
+            }
+        },
+        error: function (error) { // "Called if the request fails"
+            console.log(error)
+        }
+    });
+
+    $.ajax({
+        method: "GET",
+        url: "/nationalities",
+        success: function (response) { // "Called if the request succeeds"
+            for (var key in response) {
+                $("#nationality").append("<option value=\"" + response[key].id + "\">" + response[key].nationality + "</option>");
+                $("#passport").append("<option value=\"" + response[key].id + "\">" + response[key].country + "</option>");
+            }
+
+            $('#nationality').multiselect({
+                buttonWidth: '60%',
+                enableFiltering: true,
+                maxHeight: 400,
+
+            });
+
+            $('#passport').multiselect({
+                buttonWidth: '60%',
+                enableFiltering: true,
+                maxHeight: 400
+            });
+        },
+        error: function (error) { // "Called if the request fails"
+            console.log(error)
+        }
+    });
+
     $("#create-form").submit(function(e) {
 
         e.preventDefault();
@@ -16,7 +64,8 @@ $(document).ready(function () {
                 last_name : $("#last_name").val(),
                 date_of_birth : $("#date_of_birth").val(),
                 gender : $("#gender").val(),
-                nationality : $("#nationality").val()
+                nationality : $("#nationality").val(),
+                traveller_type : $("input[name='travtypes']:checked").map(function(){return this.value;}).get()
             }),
             success: function (response) { // "Called if the request succeeds"
                 console.log(response)
@@ -27,25 +76,6 @@ $(document).ready(function () {
         });
     });
 
-    $('#nationality').multiselect({
-        enableFiltering: true,
-        maxHeight: 400,
-        // Add selected nationality to passport dropdown option box
-        onChange: function(option, checked) {
-            nat_id = $(option).val();//Get the id from the nationality option
-            $('#passport').append('<option value="' + nat_id + '">Country ' + nat_id + '</option>');
-        }
-    });
-
-
-    // $('#passport').multiselect({
-    //     includeSelectAllOption: true,
-    //     maxHeight: 400
-    // });
-    //
-    // $('#travType').multiselect({
-    //     maxHeight: 400
-    // });
 
     /**
      *  Upon deselecting input container, check the text entry from the input container against the database to see if their proposed username is already taken
@@ -172,11 +202,15 @@ $(document).ready(function () {
             ($("#err_firstname").length === 0) &&
             ($("#err_middlename").length === 0) &&
             ($("#err_lastname").length === 0)) {
-            $("#signUpPopup").modal("hide");
-            $("#signUpContinued").modal("show");
+
+            $("#signUpPopup").modal("toggle");
+            $("#signUpContinued").modal("toggle");
+
         } else {
             alert("Please correctly fill out all fields before proceeding.");
         }
+
+
     });
 
 });
