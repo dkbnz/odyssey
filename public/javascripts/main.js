@@ -1,5 +1,26 @@
 $(document).ready(function () {
 
+    $.ajax({
+        method: "GET",
+        url: "/travtypes",
+        success: function (response) { // "Called if the request succeeds"
+            var active = " active";
+            for (var key in response) {
+                $("#trav-carousel").append("<div class=\"carousel-item" + active + "\">\n" +
+                    "  <img style=\"width: 100%\"src=\"" + response[key].imgUrl + "\" alt=\"...\">\n" +
+                    "  <div class=\"carousel-caption d-none d-md-block\">\n" +
+                    "    <h5>" + response[key].travellerType + "</h5>\n" +
+                    "    <p>" + response[key].description + "</p>\n" +
+                    "  </div>\n" +
+                    "</div>");
+                active = "";
+            }
+        },
+        error: function (error) { // "Called if the request fails"
+            console.log(error)
+        }
+    });
+
     $("#create-form").submit(function(e) {
 
         e.preventDefault();
@@ -37,14 +58,14 @@ $(document).ready(function () {
         }
     });
 
-    // $('#passport').multiselect({
-    //     includeSelectAllOption: true,
-    //     maxHeight: 400
-    // });
-    //
-    // $('#travType').multiselect({
-    //     maxHeight: 400
-    // });
+    $('#passport').multiselect({
+        includeSelectAllOption: true,
+        maxHeight: 400
+    });
+
+    $('#travType').multiselect({
+        maxHeight: 400
+    });
 
     /**
      *  Upon deselecting input container, check the text entry from the input container against the database to see if their proposed username is already taken
@@ -171,11 +192,18 @@ $(document).ready(function () {
             ($("#err_firstname").length === 0) &&
             ($("#err_middlename").length === 0) &&
             ($("#err_lastname").length === 0)) {
+
             $("#signUpPopup").modal("hide");
+
             $("#signUpContinued").modal("show");
+
+
+
         } else {
             alert("Please correctly fill out all fields before proceeding.");
         }
+
+
     });
 
 });
