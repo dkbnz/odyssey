@@ -49,8 +49,8 @@ public class Profile extends BaseModel {
         return profile;
     }
 
-//    @ManyToMany
-//    public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
+    @ManyToMany
+    public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
 
 
 
