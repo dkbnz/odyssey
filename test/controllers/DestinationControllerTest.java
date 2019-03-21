@@ -30,12 +30,7 @@ public class DestinationControllerTest {
 
     @Before
     public void setup() {
-        Module testModule = new AbstractModule() {
-            @Override
-            public void configure() {
-                //Install custom test binding here
-            }
-        };
+        Module testModule = new AbstractModule() { };
 
         GuiceApplicationBuilder builder = new GuiceApplicationLoader()
                 .builder(new ApplicationLoader.Context(Environment.simple()))
@@ -52,12 +47,15 @@ public class DestinationControllerTest {
 
     @Test
     public void testGetAllDestinations() {
-
+        //Arrange
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri("/destinations");
 
+        //Act
         Result result = route(application, request);
+
+        //Assert
         assertEquals(OK, result.status());
     }
 }
