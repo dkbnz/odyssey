@@ -68,6 +68,7 @@ $(document).ready(function () {
         });
     });
 
+
     /**
      * Upon deselecting password input container, check matching password retype to determine error message visibility.
      */
@@ -111,7 +112,7 @@ $(document).ready(function () {
         if(!(nameRegex.test($("#first_name").val()))) {
             $("#firstname_group").append("\n" +
                 "                        <div id=\"err_firstname\" class=\"alert alert-danger\" > \n" +
-                "                            <strong>Name is invalid!</strong> Names must have no spaces, unenclosed hyphens/apostrophes, or numbers!\n" +
+                "                            <strong>Name is invalid!</strong> The first name must have no spaces, unenclosed hyphens/apostrophes, numbers or other symbols!\n" +
                 "                        </div>");
         } else {
             $("#err_firstname").remove();
@@ -130,7 +131,7 @@ $(document).ready(function () {
         if (!(nameRegex.test($("#middle_name").val()))) {
             $("#middlename_group").append("\n" +
                 "                        <div id=\"err_middlename\" class=\"alert alert-danger\" > \n" +
-                "                            <strong>Name is invalid!</strong> Names must have no spaces, unenclosed hyphens/apostrophes, or numbers!\n" +
+                "                            <strong>Invalid name(s)!</strong> Middle name(s) must have no unenclosed hyphens/apostrophes, numbers or other symbols! Please have only one space between each name.\n" +
                 "                        </div>");
         } else {
             $("#err_middlename").remove();
@@ -149,13 +150,11 @@ $(document).ready(function () {
         if(!(nameRegex.test($("#last_name").val()))) {
             $("#lastname_group").append("\n" +
                 "                        <div id=\"err_lastname\" class=\"alert alert-danger\" > \n" +
-                "                            <strong>Name is invalid!</strong> Names must have no spaces, unenclosed hyphens/apostrophes, or numbers!\n" +
+                "                            <strong>Name is invalid!</strong> The last name must have no spaces, unenclosed hyphens/apostrophes, numbers or other symbols!\n" +
                 "                        </div>");
         } else {
             $("#err_lastname").remove();
         }
-
-
     });
 
 
