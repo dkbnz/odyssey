@@ -1,4 +1,4 @@
-package controllers;
+package java;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
