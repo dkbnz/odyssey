@@ -25,7 +25,8 @@ public class AuthController extends Controller {
         return request.session()
                 .getOptional("authorized")
                 .map(userId -> ok("OK")) // User is already logged in, return OK
-                .orElseGet(() -> {
+                .orElseGet(() -> { // orElseGet tries to get the `getOptional` value, otherwise executes the following function
+
                     // User is not logged in, attempt to search database
                     JsonNode json = request.body().asJson();
 
