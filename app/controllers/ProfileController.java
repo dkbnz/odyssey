@@ -161,7 +161,7 @@ public class ProfileController {
     }
 
     /**
-     *
+     * Helper function to update a profile from a given JsonNode
      * @param profile
      * @param json
      * @return
@@ -171,7 +171,7 @@ public class ProfileController {
     }
 
     /**
-     *
+     * Takes a Http request containing a Json body and
      * @param request
      * @param id
      * @return
