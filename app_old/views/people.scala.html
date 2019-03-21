@@ -1,7 +1,11 @@
 @(people: List[Person])
 
 @main("People") {
-    <body>
+
+    @navbar()
+
+    <section id="main">
+
 
         <div id="container" class = "people_table">
             <h1 class="page_title">People</h1>
@@ -135,4 +139,5 @@
                     }
             </script>
         </div>
+    </section>
 }
