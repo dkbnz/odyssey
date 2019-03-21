@@ -86,6 +86,20 @@ create table profile_nationality (
   constraint pk_profile_nationality primary key (profile_id,nationality_id)
 );
 
+create table profile_traveller_type (
+  profile_id                    bigint not null,
+  traveller_type_id             bigint not null,
+  constraint pk_profile_traveller_type primary key (profile_id,traveller_type_id)
+);
+
+create table traveller_type (
+  id                            bigint auto_increment not null,
+  traveller_type                varchar(255),
+  description                   varchar(255),
+  img_url                       varchar(255),
+  constraint pk_traveller_type primary key (id)
+);
+
 create index ix_passport_profile_id on passport (profile_id);
 alter table passport add constraint fk_passport_profile_id foreign key (profile_id) references profile (id) on delete restrict on update restrict;
 
@@ -97,6 +111,12 @@ alter table profile_nationality add constraint fk_profile_nationality_profile fo
 
 create index ix_profile_nationality_nationality on profile_nationality (nationality_id);
 alter table profile_nationality add constraint fk_profile_nationality_nationality foreign key (nationality_id) references nationality (id) on delete restrict on update restrict;
+
+create index ix_profile_traveller_type_profile on profile_traveller_type (profile_id);
+alter table profile_traveller_type add constraint fk_profile_traveller_type_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
+
+create index ix_profile_traveller_type_traveller_type on profile_traveller_type (traveller_type_id);
+alter table profile_traveller_type add constraint fk_profile_traveller_type_traveller_type foreign key (traveller_type_id) references traveller_type (id) on delete restrict on update restrict;
 
 
 # --- !Downs
@@ -113,6 +133,12 @@ drop index ix_profile_nationality_profile on profile_nationality;
 alter table profile_nationality drop foreign key fk_profile_nationality_nationality;
 drop index ix_profile_nationality_nationality on profile_nationality;
 
+alter table profile_traveller_type drop foreign key fk_profile_traveller_type_profile;
+drop index ix_profile_traveller_type_profile on profile_traveller_type;
+
+alter table profile_traveller_type drop foreign key fk_profile_traveller_type_traveller_type;
+drop index ix_profile_traveller_type_traveller_type on profile_traveller_type;
+
 drop table if exists nationality;
 
 drop table if exists passport;
@@ -120,4 +146,8 @@ drop table if exists passport;
 drop table if exists profile;
 
 drop table if exists profile_nationality;
+
+drop table if exists profile_traveller_type;
+
+drop table if exists traveller_type;
 
