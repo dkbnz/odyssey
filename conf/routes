@@ -14,7 +14,8 @@ GET     /profile/:id                controllers.ProfileController.fetch(request:
 PUT     /profile/:id                controllers.ProfileController.update(request: Request, id: Long)
 DELETE  /profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
 
-GET     /travtypes                  controllers.TravellerTypeController.gettypes()
+GET     /travtypes                  controllers.TravellerTypeController.list()
+GET     /nationalities              controllers.NationalityController.list()
 POST    /checkUsername              controllers.ProfileController.checkUsername(requestrun: Request)
 
 # Requests relating to authorisation are as follows
