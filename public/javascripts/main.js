@@ -202,6 +202,8 @@ $(document).ready(function () {
 
         e.preventDefault();
 
+        // Perform traveller type and nationality checks here
+
         $.ajax({
             method: "POST",
             url: "/api/profiles",

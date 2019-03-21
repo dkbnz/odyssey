@@ -18,6 +18,7 @@ public class NationalityController extends Controller {
 
     /**
      * Pulls a list of Nationalities from the database and returns it as a JSON list
+     *
      * @return Http Result with a json body
      */
     public Result list() {
@@ -27,7 +28,7 @@ public class NationalityController extends Controller {
 
         List<Nationality> nationalities = Nationality.find.all();
 
-        for(Nationality nationality : nationalities){
+        for (Nationality nationality : nationalities) {
             results.add(Json.toJson(nationality));
         }
 
