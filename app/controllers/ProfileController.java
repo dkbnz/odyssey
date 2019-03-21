@@ -42,7 +42,7 @@ public class ProfileController {
                 && json.has("gender")
                 && json.has("nationality")
 //                && json.has( "passport_country")
-//                && json.has( "traveller_type")
+                && json.has( "traveller_type")
         ) || profileExists(json.get("username").asText())) {
             return badRequest();
         }
