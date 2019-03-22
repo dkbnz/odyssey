@@ -25,3 +25,6 @@ And open <http://localhost:9000/>
 * [EBean](https://www.playframework.com/documentation/latest/JavaEbean) is a Java ORM library that uses SQL.The documentation can be found [here](https://ebean-orm.github.io/).
 * For Java Forms, Please see [here](<https://playframework.com/documentation/latest/JavaForms>).
 
+### Licences
+
+Look at the `license_documentation.md` file in the `doc` folder
