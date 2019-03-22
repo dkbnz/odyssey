@@ -1,3 +1,8 @@
 /*
   All custom css for the dashboard goes in here.
  */
+
+/* Padding to prevent content from hiding behind navbar */
+body {
+    padding-top: 100px;
+}
