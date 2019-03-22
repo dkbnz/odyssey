@@ -3,57 +3,20 @@
 
 # --- !Ups
 
--- init script create procs
--- Inital script to create stored procedures etc for mysql platform
-DROP PROCEDURE IF EXISTS usp_ebean_drop_foreign_keys;
+create table destination (
+  id                            integer not null,
+  name                          varchar(255),
+  type                          integer,
+  district                      varchar(255),
+  latitude                      double not null,
+  longitude                     double not null,
+  country                       varchar(255),
+  constraint ck_destination_type check ( type in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97)),
+  constraint pk_destination primary key (id)
+);
 
-delimiter $$
---
--- PROCEDURE: usp_ebean_drop_foreign_keys TABLE, COLUMN
--- deletes all constraints and foreign keys referring to TABLE.COLUMN
---
-CREATE PROCEDURE usp_ebean_drop_foreign_keys(IN p_table_name VARCHAR(255), IN p_column_name VARCHAR(255))
-BEGIN
-  DECLARE done INT DEFAULT FALSE;
-  DECLARE c_fk_name CHAR(255);
-  DECLARE curs CURSOR FOR SELECT CONSTRAINT_NAME from information_schema.KEY_COLUMN_USAGE
-    WHERE TABLE_SCHEMA = DATABASE() and TABLE_NAME = p_table_name and COLUMN_NAME = p_column_name
-      AND REFERENCED_TABLE_NAME IS NOT NULL;
-  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-
-  OPEN curs;
-
-  read_loop: LOOP
-    FETCH curs INTO c_fk_name;
-    IF done THEN
-      LEAVE read_loop;
-    END IF;
-    SET @sql = CONCAT('ALTER TABLE ', p_table_name, ' DROP FOREIGN KEY ', c_fk_name);
-    PREPARE stmt FROM @sql;
-    EXECUTE stmt;
-  END LOOP;
-
-  CLOSE curs;
-END
-$$
-
-DROP PROCEDURE IF EXISTS usp_ebean_drop_column;
-
-delimiter $$
---
--- PROCEDURE: usp_ebean_drop_column TABLE, COLUMN
--- deletes the column and ensures that all indices and constraints are dropped first
---
-CREATE PROCEDURE usp_ebean_drop_column(IN p_table_name VARCHAR(255), IN p_column_name VARCHAR(255))
-BEGIN
-  CALL usp_ebean_drop_foreign_keys(p_table_name, p_column_name);
-  SET @sql = CONCAT('ALTER TABLE ', p_table_name, ' DROP COLUMN ', p_column_name);
-  PREPARE stmt FROM @sql;
-  EXECUTE stmt;
-END
-$$
 create table profile (
-  id                            bigint auto_increment not null,
+  id                            integer not null,
   username                      varchar(255),
   password                      varchar(255),
   first_name                    varchar(255),
@@ -61,12 +24,14 @@ create table profile (
   last_name                     varchar(255),
   gender                        varchar(255),
   date_of_birth                 date,
-  date_of_creation              datetime(6),
+  date_of_creation              timestamp,
   constraint pk_profile primary key (id)
 );
 
 
 # --- !Downs
+
+drop table if exists destination;
 
 drop table if exists profile;
 
