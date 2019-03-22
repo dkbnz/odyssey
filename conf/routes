@@ -18,6 +18,9 @@ GET     /api/travtypes                  controllers.TravellerTypeController.list
 GET     /api/nationalities              controllers.NationalityController.list()
 POST    /api/checkUsername              controllers.ProfileController.checkUsername(requestrun: Request)
 
+POST    /api/login                      controllers.AuthController.login(request: Request)
+POST    /api/logout                     controllers.AuthController.logout()
+
 # Requests relating to authorisation are as follows
 
 
@@ -36,5 +39,4 @@ PUT     /destination/:id            controllers.destinations.DestinationControll
 
 # GET requests to serve the pages
 GET     /                           controllers.PageController.index()
-POST    /login                      controllers.AuthController.login(request: Request)
-POST    /logout                     controllers.AuthController.logout()
+GET     /dash                       controllers.PageController.dash()
