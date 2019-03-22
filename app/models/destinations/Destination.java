@@ -1,6 +1,7 @@
-package models;
+package models.destinations;
 
 import io.ebean.Finder;
+import models.BaseModel;
 import play.data.validation.Constraints;
 
 import javax.persistence.Entity;
