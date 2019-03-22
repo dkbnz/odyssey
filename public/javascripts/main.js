@@ -230,3 +230,15 @@ $(document).ready(function () {
     });
 
 });
+
+/**
+ * Following function is to sort data in table based on a input field.
+ */
+$(document).ready(function(){
+    $("#filterInput").on("keyup", function() {
+        var value = $(this).val().toUpperCase();
+        $("#peopleTableBody tr").filter(function() {
+            $(this).toggle($(this).text().toUpperCase().indexOf(value) > -1)
+        });
+    });
+});
