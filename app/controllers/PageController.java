@@ -12,11 +12,11 @@ public class PageController extends Controller {
      * Method to serve the index page
      */
     public Result index() {
-        return ok(views.html.index.render());
+        return ok(views.html.index.page.render());
     }
 
     /**
      * Method to serve the dashboard page
      */
-    public Result dash() { return ok(views.html.dashboard.render()); }
+    public Result dash() { return ok(views.html.dash.page.render()); }
 }
