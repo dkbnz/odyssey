@@ -64,4 +64,4 @@ Max Characters: 15
 
 ## Editing a Profile
 
-Same fields as *Creating a Profile*. Except *Username* cannot be changed.
+Same fields as *Creating a Profile*.
