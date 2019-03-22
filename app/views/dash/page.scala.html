@@ -1,5 +1,17 @@
 @main("Dashboard", "dash.js", "dash.css") {
     @dash.navbar()
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="profile">
+        @dash.profile()
+        </div>
+        <div class="tab-pane fade show" id="edit">
+        @dash.editProfile()
+        </div>
+        <div class="tab-pane fade show" id="search">
+        @dash.searchProfiles()
+        </div>
+    </div>
     @* @profile *@
     @* @updateprofile *@
     @* @mytrips *@
