@@ -27,4 +27,4 @@ And open <http://localhost:9000/>
 
 ### Licences
 
-Look at the `license_documentation.md` file in the `doc` folder
+Look at the `licenses.md` file in the `doc` folder
