@@ -13,12 +13,61 @@
 
 
 #subtitle {
+    font-family: Arial;
     font-style: italic;
     color: white;
     -webkit-text-stroke-width: 0.1px;
     -webkit-text-stroke-color: black;
 }
 
+/* Adds background box to Traveller Type selection */
+.carousel-caption {
+    background: #e5e5e5e5;
+    border-radius: 10px;
+    color: black;
+}
+
+/* Styling for Traveller Type checkbox */
+.carousel-caption input[type='checkbox'] {
+    width:30px;
+    height:30px;
+    background:white;
+    border-radius:5px;
+    border:2px solid #555;
+}
+
+.carousel-caption input[type='checkbox']:checked {
+    background: #abd;
+}
+
+/* Imports the Bauman's Regular Font */
+@font-face
+{
+    font-family: Baumans;
+    src: url('Baumans-Regular.ttf'),
+    url('Baumans-Regular.ttf');
+}
+
+/* Sets the font styling for headings*/
+h1 {
+    font-family: 'Baumans';
+    font-weight: bold;
+}
+
+h2 {
+    font-family: 'Baumans';
+    font-weight: bold;
+}
+
+h3 {
+    font-family: 'Baumans';
+    font-weight: bold;
+}
+
+h4 {
+    font-family: 'Baumans';
+    font-weight: bold;
+}
 /*
 
 @font-face
