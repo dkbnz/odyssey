@@ -10,11 +10,13 @@ $(document).ready(function () {
 
             // Iterator through each traveller type and add to carousel
             for (var key in response) {
-                $("#trav-carousel .carousel-indicators").append("<li data-target=\"#trav-carousel\" data-slide-to=\"" + response[key].id + "\"></li>");
+                var index = response[key].id-1;
+                $("#trav-carousel .carousel-indicators").append("<li data-target=\"#trav-carousel\" data-slide-to=\"" + index + "\"></li>");
                 $("#trav-carousel-body").append("<div class=\"carousel-item\">\n" +
                     "  <img style=\"width: 100%\"src=\"" + response[key].imgUrl + "\" alt=\"...\">\n" +
                     "  <div class=\"carousel-caption\">\n" +
-                    "    <h5><input name=\"travtypes\" type=\"checkbox\" value=\"" + response[key].id + "\"> " + response[key].travellerType + "</h5>\n" +
+                    "    <h3>" +  response[key].travellerType + "</h3>" +
+                    "    <h5><input name=\"travtypes\" type=\"checkbox\" value=\"" + response[key].id + "\"> </h5>\n" +
                     "    <p>" + response[key].description + "</p>\n" +
                     "  </div>\n" +
                     "</div>");
@@ -44,7 +46,7 @@ $(document).ready(function () {
             $('#nationality').multiselect({
                 buttonWidth: '60%',
                 enableFiltering: true,
-                maxHeight: 400,
+                maxHeight: 400
 
             });
 
