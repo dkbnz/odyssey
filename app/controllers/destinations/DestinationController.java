@@ -27,7 +27,7 @@ public class DestinationController extends Controller {
      */
     private Result fetch() {
         List<Destination> destinations = Destination.find.all();
-        return ok(views.html.destinations.listDestinations.render(destinations));
+        return ok(views.html.viewDestinations.listDestinations.render(destinations));
     }
 
     /**
@@ -65,7 +65,7 @@ public class DestinationController extends Controller {
 
         destinations = expressionList.findList();
 
-        return ok(views.html.destinations.listDestinations.render(destinations));
+        return ok(views.html.viewDestinations.listDestinations.render(destinations));
     }
 
     private String queryComparator(String field) {
