@@ -50,6 +50,12 @@ h4 {
 
 /* All #keywords styling is for the sortable tables
   Stuart Langridge, http://www.kryogenix.org/code/browser/sorttable/ */
+#keywords {
+    margin-top: 80px;
+    height: 30%;
+    overflow: auto;
+}
+
 #keywords thead {
     cursor: pointer;
     background: #c9dff0;
