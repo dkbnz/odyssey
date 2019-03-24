@@ -59,6 +59,9 @@ public class DestinationController extends Controller {
         if (queryString.containsKey(LONGITUDE)) {
             expressionList.eq(LONGITUDE, Double.parseDouble(queryString.get(LONGITUDE)[0]));
         }
+        if (queryString.containsKey(DISTRICT)) {
+            expressionList.ilike(DISTRICT, queryComparator(queryString.get(DISTRICT)[0]));
+        }
         if (queryString.containsKey(COUNTRY)) {
             expressionList.ilike(COUNTRY, queryComparator(queryString.get(COUNTRY)[0]));
         }
@@ -95,7 +98,6 @@ public class DestinationController extends Controller {
      */
     private Destination createNewDestination(JsonNode json) {
         Destination destination = new Destination();
-        destination.setId(json.get(ID).asLong());
         destination.setName(json.get(NAME).asText());
         destination.setCountry(json.get(COUNTRY).asText());
         destination.setDistrict(json.get(DISTRICT).asText());
