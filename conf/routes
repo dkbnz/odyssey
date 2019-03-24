@@ -8,11 +8,20 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 # Following routes are specifically for the JSON requests
 
 # Requests relating to profiles are as follows
-POST    /fetch                      controllers.ProfileController.fetch(request: Request)
+GET     /api/profiles                   controllers.ProfileController.list(request: Request)
+POST    /api/profiles                   controllers.ProfileController.create(request: Request)
+GET     /api/profile/:id                controllers.ProfileController.fetch(request: Request, id: Long)
+PUT     /api/profile/:id                controllers.ProfileController.update(request: Request, id: Long)
+DELETE  /api/profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
+
+GET     /api/travtypes                  controllers.TravellerTypeController.list()
+GET     /api/nationalities              controllers.NationalityController.list()
+POST    /api/checkUsername              controllers.ProfileController.checkUsername(requestrun: Request)
+
+POST    /api/login                      controllers.AuthController.login(request: Request)
+POST    /api/logout                     controllers.AuthController.logout()
 
 # Requests relating to authorisation are as follows
-POST    /login                      controllers.AuthController.login(request: Request)
-POST    /logout                     controllers.AuthController.logout()
 
 
 #DESTINATIONS
@@ -27,3 +36,7 @@ DELETE  /destination/:id            controllers.destinations.DestinationControll
 
 #Update a destination
 PUT     /destination/:id            controllers.destinations.DestinationController.edit(id: Long, request: Request)
+
+# GET requests to serve the pages
+GET     /                           controllers.PageController.index()
+GET     /dash                       controllers.PageController.dash()

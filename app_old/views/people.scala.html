@@ -1,13 +1,17 @@
 @(people: List[Person])
 
 @main("People") {
-    <body>
+
+    @navbar()
+
+    <section id="main">
+
 
         <div id="container" class = "people_table">
             <h1 class="page_title">People</h1>
             <p class="page_title"><i>The table below shows all profiles stored in TravelEA.</i> </p>
 
-            <input type="search" class="light-table-filter" data-table="sortable" placeholder="Filter">
+            <input type="search" id="filterInput" placeholder="Filter">
             <a class="btn btn-link" data-toggle="modal" data-target="#advancedSearchPopup" style="cursor: pointer;">Advanced Search</a>
             <div class = "modal" id="advancedSearchPopup" tabindex="-1">
                 <div class="modal-dialog">
@@ -82,7 +86,7 @@
                         <th><span>Traveler Type</span></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id = "peopleTableBody">
                     @for(person <- people) {
                         <tr>
                             <td>@person.getIdNumber()</td>
@@ -135,4 +139,5 @@
                     }
             </script>
         </div>
+    </section>
 }
