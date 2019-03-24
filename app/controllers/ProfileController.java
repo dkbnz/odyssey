@@ -342,7 +342,7 @@ public class ProfileController {
 //    /**
 //     * Displays a profile matching the given username from the HTTP request.
 //     * @param username the username of the profile to be displayed
-//     * @return the HTTP response containing the new page and profile to be displayed.
+//     * @return the HTTP response containing the new destinationsPage and profile to be displayed.
 //     */
 //    public Result retrieveSingle(String username) {
 //        Profile profile = Profile.find.query().where()

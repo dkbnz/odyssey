@@ -38,5 +38,6 @@ DELETE  /api/destination/:id            controllers.destinations.DestinationCont
 PUT     /api/destination/:id            controllers.destinations.DestinationController.edit(id: Long, request: Request)
 
 # GET requests to serve the pages
-GET     /                           controllers.PageController.index()
-GET     /dash                       controllers.PageController.dash()
+GET     /                               controllers.PageController.index()
+GET     /dash                           controllers.PageController.dash()
+GET     /destinations                   controllers.PageController.destinations()
