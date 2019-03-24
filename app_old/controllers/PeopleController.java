@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to for the People page functionality
+ * Class to for the People destinationsPage functionality
  */
 public class PeopleController extends Controller {
 
