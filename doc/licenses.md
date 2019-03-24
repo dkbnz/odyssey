@@ -201,3 +201,22 @@ INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
 DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
+
+#### Photos
+
+##### Welcome Page
+
+Image is taken by Isaac Worsley, a team member of Everyware. Therefore, permission is granted by him 
+to use the image throughout the TravelEA application.
+
+##### Traveller Types
+
+All images are obtained from [Unsplash](https://unsplash.com), a free photo source, and don't require any copyright
+accreditation. However, they do prefer valid accreditation is given which is outlined below.
+- [Backpacker](https://unsplash.com/photos/gbaeHydpgtE) - Photo by [Chris Hayashi](https://unsplash.com/@chris_hayashi)
+- [Business](https://unsplash.com/photos/ZGjbiukp_-A) - Photo by [Samson Creative.](https://unsplash.com/@samsonyyc)
+- [Frequent Weekender](https://unsplash.com/photos/BPCsppbNRMI) - Photo by [Everett McIntire](https://unsplash.com/@everettm)
+- [Gap Year](https://unsplash.com/photos/n5LNMjr7gyI) - Photo by [Court Prather](https://unsplash.com/@courtmarie)
+- [Groupie](https://unsplash.com/photos/zdSoe8za6Hs) - Photo by [Levi Guzman](https://unsplash.com/@homeschool)
+- [Holiday Maker](https://unsplash.com/photos/Yb-n0JHlsWY) - Photo by [Andre Benz](https://unsplash.com/@trapnation)
+- [Thrillseeker](https://unsplash.com/photos/FZ0qzjVF_-c) -  Photo by [Chen Hu](https://unsplash.com/@huchenme)

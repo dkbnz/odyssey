@@ -212,10 +212,9 @@ public class ProfileController {
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
-
     /**
      * Performs an ebean find query on the database to search for profiles
-     * Ensures the pro
+     * Ensures the pro //TODO: fix this?
      *
      * @return badRequest if propertyName is not valid
      * List of profiles otherwise
