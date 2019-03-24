@@ -116,7 +116,7 @@ $(document).ready(function () {
 
 
     /**
-     * Upon deselecting first_name input container, check matching password retype to determine error message visibility.
+     * Upon deselecting first_name input container, check if contents are valid according to a regular expression.
      */
     $("#first_name").focusout(function () {
         $("#err_firstname").remove();
@@ -135,7 +135,7 @@ $(document).ready(function () {
 
 
     /**
-     * Upon deselecting middle_name input container, check matching password retype to determine error message visibility.
+     * Upon deselecting middle_name input container, check if contents are valid according to a regular expression.
      */
     $("#middle_name").focusout(function () {
         $("#err_middlename").remove();
@@ -154,7 +154,7 @@ $(document).ready(function () {
 
 
     /**
-     * Upon deselecting last_name input container, check matching password retype to determine error message visibility.
+     * Upon deselecting last_name input container, check if contents are valid according to a regular expression.
      */
     $("#last_name").focusout(function () {
         $("#err_lastname").remove();
