@@ -1,4 +1,4 @@
-## Licensing
+## External Libraries Licencing 
 
 #### Bootstrap
 
@@ -202,14 +202,14 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
 
-#### Photos
+## Photos and Media
 
-##### Welcome Page
+#### Welcome Page
 
 Image is taken by Isaac Worsley, a team member of Everyware. Therefore, permission is granted by him 
 to use the image throughout the TravelEA application.
 
-##### Traveller Types
+#### Traveller Types
 
 All images are obtained from [Unsplash](https://unsplash.com), a free photo source, and don't require any copyright
 accreditation. However, they do prefer valid accreditation is given which is outlined below.
