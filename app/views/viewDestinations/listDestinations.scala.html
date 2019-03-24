@@ -3,29 +3,32 @@
 @import models.destinations.Destination
 @(destinations: List[Destination])
 
-<table id="keywords" class = "sortable" cellspacing="0" cellpadding="0">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Id</th>
-            <th>Type</th>
-            <th>District</th>
-            <th>Latitude
-            <th>Longitude</th>
-            <th>Country</th>
-        </tr>
-    </thead>
-    <tbody>
-        @for(destination <- destinations) {
-            <tr>
-                <td>@destination.getName</td>
-                <td>@destination.getId</td>
-                <td>@destination.getType</td>
-                <td>@destination.getDistrict</td>
-                <td>@destination.getLatitude</td>
-                <td>@destination.getLongitude</td>
-                <td>@destination.getCountry</td>
-            </tr>
-        }
-    </tbody>
-</table>
+@viewDestinations.mainDestinations("Destinations", "main.js", "main.css") {
+    <div class="container">
+        <h1 class="page title">Destinations</h1>
+        <table id="keywords" class = "sortable" cellspacing="0" cellpadding="0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>District</th>
+                    <th>Latitude
+                    <th>Longitude</th>
+                    <th>Country</th>
+                </tr>
+            </thead>
+            <tbody>
+            @for(destination <- destinations) {
+                <tr>
+                    <td>@destination.getName</td>
+                    <td>@destination.getType</td>
+                    <td>@destination.getDistrict</td>
+                    <td>@destination.getLatitude</td>
+                    <td>@destination.getLongitude</td>
+                    <td>@destination.getCountry</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

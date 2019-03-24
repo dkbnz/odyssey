@@ -40,4 +40,4 @@ PUT     /api/destination/:id            controllers.destinations.DestinationCont
 # GET requests to serve the pages
 GET     /                               controllers.PageController.index()
 GET     /dash                           controllers.PageController.dash()
-GET     /destinations                   controllers.PageController.destinations()
+# GET     /destinations                   controllers.PageController.destinations()
