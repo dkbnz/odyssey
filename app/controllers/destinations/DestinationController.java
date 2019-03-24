@@ -27,7 +27,7 @@ public class DestinationController extends Controller {
      */
     private Result fetch() {
         List<Destination> destinations = Destination.find.all();
-        return ok(Json.toJson(destinations));
+        return ok(views.html.destinations.listDestinations.render(destinations));
     }
 
     /**
@@ -65,7 +65,7 @@ public class DestinationController extends Controller {
 
         destinations = expressionList.findList();
 
-        return ok(Json.toJson(destinations));
+        return ok(views.html.destinations.listDestinations.render(destinations));
     }
 
     private String queryComparator(String field) {
