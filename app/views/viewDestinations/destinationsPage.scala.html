@@ -1,0 +1,19 @@
+@import helper._
+
+@import models.destinations.Destination
+@(destinations: List[Destination])
+
+@viewDestinations.mainDestinations("Destinations", "destinations.js", "destinations.css") {
+    <div class="container" id="container">
+        <h1 class="page_title">Destinations</h1>
+        <p class="page_title"><i>Search for a destination using the fields below.</i> </p>
+        <div class="tab-pane fade show active" id="searchDestinations">
+            @viewDestinations.searchDestinations()
+        </div>
+        <div class="tab-pane fade show" id="tableDestinations">
+            <div id="tableContent">
+
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,25 @@
+@import helper._
+
+@import models.destinations.Destination
+
+    <div class="container">
+        <label for="dest_name">Name</label>
+        <input id="dest_name" type="text" class="form-control">
+
+        <label for="dest_type">Type</label>
+        <input id="dest_type" type="text" class="form-control">
+
+        <label for="dest_district">District</label>
+        <input id="dest_district" type="text" class="form-control">
+
+        <label for="dest_latitude">Latitude</label>
+        <input id="dest_latitude" type="text" class="form-control">
+
+        <label for="dest_longitude">Longitude</label>
+        <input id="dest_longitude" type="text" class="form-control">
+
+        <label for="dest_country">Country</label>
+        <input id="dest_country" type="text" class="form-control">
+
+        <button type="submit" class="btn btn-primary" id="btn-Next" onclick="searchDestinations()">Search</button>
+    </div>
