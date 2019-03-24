@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Finder;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
@@ -30,38 +31,41 @@ public class Profile extends BaseModel {
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     public Date dateOfCreation;
 
-    /**
-     * Converts a Profile object to a JSON readable format
-     * @return JsonNode object of profile
-     */
-    public JsonNode toJson(){
-        // TODO: Remove password from JSON object. Find a way of listing nationalities etc.
-        return Json.toJson(this);
-    }
+    @ManyToMany
+    public List<Nationality> nationalities = new ArrayList<Nationality>();
 
-//    @ManyToMany
-//    public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
-
-
-//    @ManyToMany
-//    public List<Nationality> nationalities = new ArrayList<Nationality>();
-
+    @ManyToMany
+    public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
 
 //    @OneToMany(mappedBy = "profile")
 //    public List<Passport> passports = new ArrayList<Passport>();
 
-//    public void addTravellerType(TravellerType travellerType) {
-//        this.travellerTypes.add(travellerType);
-//    }
-//
-//
-//    public boolean removeTravellerType(TravellerType travellerType) {
-//        if (this.travellerTypes.size() >= 2) {
-//            return this.travellerTypes.remove(travellerType);
-//        } else {
-//            return false;
-//        }
-//    }
+    public void addTravType(TravellerType travellerType) {
+        this.travellerTypes.add(travellerType);
+    }
+
+    public boolean removeTravType(TravellerType travellerType) {
+        if (this.travellerTypes.size() >= 2) {
+            return this.travellerTypes.remove(travellerType);
+        } else {
+            return false;
+        }
+    }
+
+    public void addNationality(Nationality nationality) {
+        this.nationalities.add(nationality);
+    }
+
+    /**
+     * Converts a Profile object to a JSON readable format
+     *
+     * @return JsonNode object of profile
+     */
+    public JsonNode toJson() {
+        ObjectNode profile = (ObjectNode) Json.toJson(this);
+        profile.remove("password");
+        return profile;
+    }
 
     public static Finder<Integer, Profile> find = new Finder<>(Profile.class);
 }
