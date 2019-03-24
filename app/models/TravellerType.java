@@ -1,0 +1,31 @@
+package models;
+
+import io.ebean.Finder;
+import play.data.validation.Constraints;
+
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * TravellerType entity managed by Ebean
+ */
+@Entity
+public class TravellerType extends BaseModel {
+
+    /**
+     * The name of a traveller type
+     */
+    @Constraints.Required
+    public String travellerType;
+
+    public String description;
+
+    public String imgUrl;
+
+    /**
+     * A finder used to search for a traveller type
+     */
+    public static Finder<Integer, TravellerType> find = new Finder<>(TravellerType.class);
+}
