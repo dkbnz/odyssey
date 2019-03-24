@@ -28,15 +28,16 @@ public class AuthController extends Controller {
                 .orElseGet(() -> {
                     // User is not logged in, attempt to search database
                     JsonNode json = request.body().asJson();
+                    System.out.println(json);
 
-                    if (!(json.has("user") && json.has("pass"))) {
+                    if (!(json.has("username") && json.has("password"))) {
                         // If JSON Object contains no user or pass key, return bad request
                         // Prevents null pointer exceptions when trying to get the values below.
                         return badRequest();
                     }
 
-                    String username = json.get("user").asText();
-                    String password = json.get("pass").asText();
+                    String username = json.get("username").asText();
+                    String password = json.get("password").asText();
 
                     Profile profile = Profile.find.query().where()
                             .like("username", username).findOne();
@@ -44,7 +45,7 @@ public class AuthController extends Controller {
                     if ((profile != null) && (profile.password.equals(password))) {
                         // Profile was successfully fetched and password matches,
                         // Set session token as id and return ok (200 response)
-                        return ok().addingToSession(request, "connected", profile.id.toString());
+                        return ok().addingToSession(request, "authorized", profile.id.toString());
                     }
 
                     return unauthorized("User/pass not found");
@@ -55,6 +56,7 @@ public class AuthController extends Controller {
     /**
      * Clears session resulting in authorized tag being cleared,
      * Therefore deauthorizing client
+     *
      * @return ok() result, as logout should always succeed
      */
     public Result logout() {

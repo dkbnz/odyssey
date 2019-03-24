@@ -21,7 +21,7 @@ libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.25.2"
 
 // For database
 // mySQL
-// libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.47"
+libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.15"
 
 // SQLite
 libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.23.1"
