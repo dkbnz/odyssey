@@ -13,7 +13,6 @@ import java.util.Map;
 
 public class DestinationController extends Controller {
 
-    private static final String ID = "id";
     private static final String NAME = "name";
     private static final String TYPE = "type";
     private static final String COUNTRY = "country";
