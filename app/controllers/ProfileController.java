@@ -1,12 +1,18 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.ExpressionList;
+import models.Nationality;
 import models.Profile;
+import models.TravellerType;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
@@ -20,23 +26,108 @@ import static play.mvc.Results.*;
 public class ProfileController {
 
     /**
+     * Creates a user based on given JSON body.
+     * If username exists, returns
+     * If user is created, sets session and returns created() (HTTP 201)
+     */
+    public Result create(Http.Request request) {
+
+        JsonNode json = request.body().asJson();
+
+        if (!(json.has("username")
+                && json.has("password")
+                && json.has("first_name")
+                && json.has("middle_name")
+                && json.has("last_name")
+                && json.has("date_of_birth")
+                && json.has("gender")
+                && json.has("nationality")
+                && json.has("passport_country")
+                && json.has("traveller_type")
+        ) || profileExists(json.get("username").asText())) {
+            return badRequest();
+        }
+
+        Profile newUser = new Profile();
+
+        newUser.username = json.get("username").asText();
+        newUser.password = json.get("password").asText();
+        newUser.firstName = json.get("first_name").asText();
+        newUser.middleName = json.get("middle_name").asText();
+        newUser.lastName = json.get("last_name").asText();
+        newUser.dateOfBirth = LocalDate.parse(json.get("date_of_birth").asText());
+        newUser.gender = json.get("gender").asText();
+        newUser.dateOfCreation = new Date();
+
+        newUser.save();
+
+        Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
+            Nationality newNat = Nationality.find.byId(node.asInt());
+            newUser.addNationality(newNat);
+        };
+
+        json.get("nationality").forEach(nationalityAction);
+
+        Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
+            TravellerType travType = TravellerType.find.byId(node.asInt());
+            newUser.addTravType(travType);
+        };
+
+        json.get("traveller_type").forEach(travTypeAction);
+
+        newUser.save();
+
+        return created().addingToSession(request, "authorized", newUser.id.toString());
+    }
+
+
+    /**
+     * Field validation method checking whether a username already exists in the database
+     *
+     * @param username the name being checked (inputted as a String)
+     * @return false if the username is unique (acceptable), or true if the profile username exists (unacceptable)
+     */
+    private boolean profileExists(String username) {
+        return Profile.find
+                .query()
+                .where()
+                .like("username", username)
+                .findOne() != null;
+    }
+
+
+    /**
+     * Function called from the routes request and sends back a request based on the result
+     *
+     * @param request the json object of the form
+     * @return ok when there is no username in the database, or a bad request when there already is a user in the database
+     */
+    public Result checkUsername(Http.Request request) {
+        JsonNode json = request.body().asJson();
+        if (!profileExists(json.get("username").asText())) {
+            return ok();
+        } else {
+            return badRequest();
+        }
+    }
+
+
+    /**
      * Fetches a single profile from the database.
      * If the Id is specified in the JSON request, and the client is an admin, returns specified Id.
-     * If the Id is not specified, but the client is logged in, returns client Id
+     * If the Id is not specified, but the client is logged in, returns client profile
      *
      * @param request HTTP request from client
      * @return HTTP Result of the request
      */
-    public Result fetch(Http.Request request) {
+    public Result fetch(Http.Request request, Long id) {
         return request.session()
                 .getOptional("authorized")
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
 
-                    JsonNode json = request.body().asJson();
-
-                    if (json.has("idToGet")) {// TODO: Implement admin hierarchy and perform checks here
+                    if (id != Long.valueOf(userId)) {// TODO: Implement admin hierarchy and perform checks here
                         Profile profileToGet = Profile.find.byId(Integer.valueOf(userId));
                         return ok(profileToGet.toJson());
                     } else {
@@ -48,6 +139,110 @@ public class ProfileController {
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
 
+    /**
+     * Deletes a currently logged in profile and invalidates their session
+     * If user is admin and the id is specified in the JSON body, delete specified id.
+     *
+     * @param request HTTP Request containing JSON Body
+     * @return HTTP Result of the request
+     */
+    public Result delete(Http.Request request, Long id) {
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> {
+                    // User is logged in
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+
+                    if (id != Long.valueOf(userId)) { // Current user is trying to delete another user
+                        if (true) { // TODO: Implement admin rights here
+                            Profile profileToDelete = Profile.find.byId(Integer.valueOf(userId));
+                            profileToDelete.delete();// TODO: Handle case where admin deletes currently logged in user.
+                            return ok("Delete successful");
+                        } else {
+                            return unauthorized("You do not have admin rights to delete other users.");
+                        }
+                    } else {
+                        // User is deleting their own profile
+                        userProfile.delete();
+                        return ok("Delete successful").withNewSession();
+                    }
+
+                })
+                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
+    }
+
+    /**
+     * Helper function to update a profile from a given JsonNode
+     *
+     * @param profile
+     * @param json
+     * @return
+     */
+    public Result updateProfile(Profile profile, JsonNode json) {
+        return ok();
+    }
+
+    /**
+     * Takes a Http request containing a Json body and
+     *
+     * @param request
+     * @param id
+     * @return
+     */
+    public Result update(Http.Request request, Long id) {
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> {
+                    // User is logged in
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    JsonNode json = request.body().asJson();
+
+                    if (id != Long.valueOf(userId)) {// TODO: Implement admin hierarchy and perform checks here
+                        Profile profileToEdit = Profile.find.byId(id.intValue());
+                        if (profileToEdit == null) {
+                            return badRequest(); // Tried to update profile that is non-existent
+                        }
+                        return updateProfile(profileToEdit, json);
+
+                    } else {
+                        // User is just updating their own profile
+                        return updateProfile(userProfile, json);
+                    }
+
+                })
+                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
+    }
+    /**
+     * Performs an ebean find query on the database to search for profiles
+     * Ensures the pro //TODO: fix this?
+     *
+     * @return badRequest if propertyName is not valid
+     * List of profiles otherwise
+     */
+    public Result list(Http.Request request) {
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> {
+                    ObjectMapper mapper = new ObjectMapper();
+                    ArrayNode results = mapper.createArrayNode();
+                    List<Profile> profiles;
+
+                    if (request.queryString().isEmpty()) {
+                        // No query string given. retrieve all profiles
+                        profiles = Profile.find.all();
+                    } else {
+                        //TODO: implement search here. see Matildas destinations search
+                        profiles = Profile.find.all();
+                    }
+
+                    for (Profile profile : profiles) {
+                        results.add(profile.toJson());
+                    }
+
+                    return ok(results);
+                })
+                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
+    }
 
 //    /**
 //     * Checks if the client is an admin, If so then returns an http Result

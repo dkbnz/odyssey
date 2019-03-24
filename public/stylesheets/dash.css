@@ -1,0 +1,78 @@
+/*
+  All custom css for the dashboard goes in here.
+ */
+
+/* Padding to prevent content from hiding behind navbar */
+body {
+    padding-top: 100px;
+}
+
+/* Imports the Bauman's Regular Font */
+@font-face
+{
+    font-family: Baumans;
+    src: url('Baumans-Regular.ttf'),
+    url('Baumans-Regular.ttf');
+}
+
+/* Sets the font styling for headings*/
+h1 {
+    font-family: 'Baumans';
+    font-weight: bold;
+}
+
+h2 {
+    font-family: 'Baumans';
+    font-weight: bold;
+}
+
+h3 {
+    font-family: 'Baumans';
+    font-weight: bold;
+}
+
+h4 {
+    font-family: 'Baumans';
+    font-weight: bold;
+}
+
+/* Page Titles and Subtitles*/
+.page_title {
+    text-align: center;
+}
+
+/* All #keywords styling is for the sortable tables
+  Stuart Langridge, http://www.kryogenix.org/code/browser/sorttable/ */
+#keywords thead {
+    cursor: pointer;
+    background: #c9dff0;
+    text-align: center;
+}
+
+#keywords thead tr th {
+    font-weight: bold;
+    padding: 12px 30px;
+    padding-left: 42px;
+}
+
+#keywords thead tr th span {
+    padding-right: 20px;
+    background-repeat: no-repeat;
+    background-position: 100% 100%;
+}
+
+#keywords thead tr th.headerSortUp, #keywords thead tr th.headerSortDown {
+    background: #acc8dd;
+}
+
+#keywords tbody tr {
+    color: #555;
+}
+
+#keywords tbody tr td {
+    text-align: center;
+    padding: 15px 10px;
+}
+
+
+
