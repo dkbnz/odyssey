@@ -5,15 +5,15 @@
 
 **First Name(s)** *required*  
 Max Characters: 30   
-Allowed Characters: letters, hyphens and spaces  
+Allowed Characters: letters, hyphens, apostrophes and spaces  
 
 **Middle Name(s)**  
 Max Characters: 30   
-Allowed Characters: letters, hyphens and spaces  
+Allowed Characters: letters, hyphens, apostrophes and spaces   
 
 **Last Name(s)** *required*  
 Max Characters: 30   
-Allowed Characters: letters, hyphens and spaces  
+Allowed Characters: letters, hyphens, apostrophes and spaces
 
 <a name="username"></a>
 **Username** *required*  
