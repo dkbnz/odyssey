@@ -84,6 +84,21 @@ $(document).ready(function () {
         });
     });
 
+    $('#password').focusout(function () {
+        $("#err_password1").remove();
+        var mediumRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
+
+        if(!(mediumRegex.test($("#password").val()))) {
+            $(".p1").append("\n" +
+                "                        <div id=\"err_password1\" class=\"alert alert-danger\" > \n" +
+                "                            <strong>Your password is weak</strong> You must have at least 2 of the following: lowercase letters, uppercase letters, numbers. Password must also be at least 6 characters long. \n" +
+                "                        </div>");
+        } else {
+            $("#err_password1").remove();
+        }
+    });
+
+
 
     /**
      * Upon deselecting password input container, check matching password retype to determine error message visibility.
@@ -117,18 +132,19 @@ $(document).ready(function () {
     });
 
 
+
     /**
      * Upon deselecting first_name input container, check matching password retype to determine error message visibility.
      */
     $("#first_name").focusout(function () {
         $("#err_firstname").remove();
 
-        var nameRegex = new RegExp("^[a-zA-Z]+((-|')[a-zA-Z]+)*$");
+        var nameRegex = new RegExp("^(?=.{1,30}$)[a-zA-Z -']*$");
 
         if(!(nameRegex.test($("#first_name").val()))) {
             $("#firstname_group").append("\n" +
                 "                        <div id=\"err_firstname\" class=\"alert alert-danger\" > \n" +
-                "                            <strong>Name is invalid!</strong> The first name must have no spaces, unenclosed hyphens/apostrophes, numbers or other symbols!\n" +
+                "                            <strong>Name is invalid!</strong> The first name must be between 1 and 30 characters and have no numbers or other symbols!\n" +
                 "                        </div>");
         } else {
             $("#err_firstname").remove();
@@ -142,12 +158,12 @@ $(document).ready(function () {
     $("#middle_name").focusout(function () {
         $("#err_middlename").remove();
 
-        var nameRegex = new RegExp("(^[a-zA-Z]+((-|'| )[a-zA-Z]+)*$)|^$");
+        var nameRegex = new RegExp("^(?=.{1,30}$)[a-zA-Z -']*$");
 
         if (!(nameRegex.test($("#middle_name").val()))) {
             $("#middlename_group").append("\n" +
                 "                        <div id=\"err_middlename\" class=\"alert alert-danger\" > \n" +
-                "                            <strong>Invalid name(s)!</strong> Middle name(s) must have no unenclosed hyphens/apostrophes, numbers or other symbols! Please have only one space between each name.\n" +
+                "                            <strong>Invalid name(s)!</strong> The middle name(s) must be between 1 and 30 characters and have no numbers or other symbols!\n" +
                 "                        </div>");
         } else {
             $("#err_middlename").remove();
@@ -161,17 +177,18 @@ $(document).ready(function () {
     $("#last_name").focusout(function () {
         $("#err_lastname").remove();
 
-        var nameRegex = new RegExp("^[a-zA-Z]+((-|')[a-zA-Z]+)*$");
+        var nameRegex = new RegExp("^(?=.{1,30}$)[a-zA-Z -']*$");
 
         if(!(nameRegex.test($("#last_name").val()))) {
             $("#lastname_group").append("\n" +
                 "                        <div id=\"err_lastname\" class=\"alert alert-danger\" > \n" +
-                "                            <strong>Name is invalid!</strong> The last name must have no spaces, unenclosed hyphens/apostrophes, numbers or other symbols!\n" +
+                "                            <strong>Name is invalid!</strong> The last name must be between 1 and 30 characters and have no numbers or other symbols!\n" +
                 "                        </div>");
         } else {
             $("#err_lastname").remove();
         }
     });
+
 
 
     /**
