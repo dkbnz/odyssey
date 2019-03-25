@@ -18,5 +18,6 @@ public class PageController extends Controller {
     /**
      * Method to serve the dashboard page
      */
-    public Result dash() { return ok(views.html.dash.page.render()); }
+    public Result dash() {
+        return ok(views.html.dash.page.render()); }
 }
