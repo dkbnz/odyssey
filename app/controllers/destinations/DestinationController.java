@@ -3,7 +3,6 @@ package controllers.destinations;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.ExpressionList;
 import models.destinations.*;
-import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -13,7 +12,6 @@ import java.util.Map;
 
 public class DestinationController extends Controller {
 
-    private static final String ID = "id";
     private static final String NAME = "name";
     private static final String TYPE = "type";
     private static final String COUNTRY = "country";
@@ -21,13 +19,17 @@ public class DestinationController extends Controller {
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
 
+    public Result index() {
+        return ok(views.html.viewDestinations.destinationsPage.render());
+    }
+
     /**
      * Fetches all destinations.
      * @return HTTP response containing the destinations found in the response body.
      */
     private Result fetch() {
         List<Destination> destinations = Destination.find.all();
-        return ok(Json.toJson(destinations));
+        return ok(views.html.viewDestinations.tableDestinations.render(destinations));
     }
 
     /**
@@ -47,27 +49,43 @@ public class DestinationController extends Controller {
         List<Destination> destinations;
 
         ExpressionList<Destination> expressionList = Destination.find.query().where();
-        if (queryString.containsKey(NAME)) {
-            expressionList.ilike(NAME, queryComparator(queryString.get(NAME)[0]));
+        String name = queryString.get(NAME)[0];
+        String type = queryString.get(TYPE)[0];
+        String latitude = queryString.get(LATITUDE)[0];
+        String longitude = queryString.get(LONGITUDE)[0];
+        String district = queryString.get(DISTRICT)[0];
+        String country = queryString.get(COUNTRY)[0];
+
+        if (name.length() != 0) {
+            expressionList.ilike(NAME, queryComparator(name));
         }
-        if (queryString.containsKey(TYPE)) {
-            expressionList.ilike(TYPE, queryString.get(TYPE)[0]);
+        if (type.length() != 0) {
+            expressionList.ilike(TYPE, type);
         }
-        if (queryString.containsKey(LATITUDE)) {
-            expressionList.eq(LATITUDE, Double.parseDouble(queryString.get(LATITUDE)[0]));
+        if (latitude.length() != 0) {
+            expressionList.eq(LATITUDE, Double.parseDouble(latitude));
         }
-        if (queryString.containsKey(LONGITUDE)) {
-            expressionList.eq(LONGITUDE, Double.parseDouble(queryString.get(LONGITUDE)[0]));
+        if (longitude.length() != 0) {
+            expressionList.eq(LONGITUDE, Double.parseDouble(longitude));
         }
-        if (queryString.containsKey(COUNTRY)) {
-            expressionList.ilike(COUNTRY, queryComparator(queryString.get(COUNTRY)[0]));
+        if (district.length() != 0) {
+            expressionList.ilike(DISTRICT, queryComparator(district));
+        }
+        if (country.length() != 0) {
+            expressionList.ilike(COUNTRY, queryComparator(country));
         }
 
         destinations = expressionList.findList();
 
-        return ok(Json.toJson(destinations));
+        return ok(views.html.viewDestinations.tableDestinations.render(destinations));
     }
 
+    /**
+     * This function builds a string to use in an sql query in a like clause. It places percentage signs on either
+     * side of the given string parameter.
+     * @param field The string to be concatenated with percentage signs on either side of the field.
+     * @return A string containing the field wrapped in percentage signs.
+     */
     private String queryComparator(String field) {
         return "%" + field + "%";
     }
@@ -95,7 +113,6 @@ public class DestinationController extends Controller {
      */
     private Destination createNewDestination(JsonNode json) {
         Destination destination = new Destination();
-        destination.setId(json.get(ID).asLong());
         destination.setName(json.get(NAME).asText());
         destination.setCountry(json.get(COUNTRY).asText());
         destination.setDistrict(json.get(DISTRICT).asText());

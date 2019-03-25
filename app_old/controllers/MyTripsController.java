@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to for the My Trips page functionality
+ * Class to for the My Trips destinationsPage functionality
  */
 public class MyTripsController extends Controller {
 
