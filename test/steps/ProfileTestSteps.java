@@ -65,6 +65,10 @@ public class ProfileTestSteps {
     }
 
 
+
+
+
+
     @Given("the application is running")
     public void theApplicationIsRunning() {
         Assert.assertTrue(application.isTest());
@@ -85,6 +89,41 @@ public class ProfileTestSteps {
         Result result = route(application, request);
         Assert.assertEquals(ok(), result.status());
     }
+
+
+
+
+
+
+    @Given("the application is running [2]")
+    public void theApplicationIsRunning2() {
+        Assert.assertTrue(application.isTest());
+    }
+
+
+    @When("I send a GET request to the \\/travtypes endpoint")
+    public void iSendAGETRequestToTheTravtypesEndpoint() {
+        request = fakeRequest()
+                .method(GET)
+                .uri("/travtypes");
+        Assert.assertTrue(request instanceof Http.RequestBuilder);
+    }
+
+
+    @Then("the received status code is ok() [2]")
+    public void theReceivedStatusCodeIs2() {
+        Result result = route(application, request);
+        Assert.assertEquals(ok(), result.status());
+    }
+
+
+
+
+
+
+
+
+
 
 
 
