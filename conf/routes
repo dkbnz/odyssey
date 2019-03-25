@@ -3,23 +3,42 @@
 # ~~~~
 
 # Map static resources from the /public folder to the /assets URL path
-GET           /assets/*file         controllers.Assets.at(path="/public", file)
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # Following routes are specifically for the JSON requests
 
 # Requests relating to profiles are as follows
-GET           /profiles             controllers.ProfileController.list(request: Request)
-POST          /profiles             controllers.ProfileController.create(request: Request)
-GET           /profile/:id          controllers.ProfileController.fetch(request: Request, id: Long)
-PUT           /profile/:id          controllers.ProfileController.update(request: Request, id: Long)
-DELETE        /profile/:id          controllers.ProfileController.delete(request: Request, id: Long)
+GET     /api/profiles                   controllers.ProfileController.list(request: Request)
+POST    /api/profiles                   controllers.ProfileController.create(request: Request)
+GET     /api/profile/:id                controllers.ProfileController.fetch(request: Request, id: Long)
+PUT     /api/profile/:id                controllers.ProfileController.update(request: Request, id: Long)
+DELETE  /api/profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
 
-POST          /checkUsername        controllers.ProfileController.checkUsername(requestrun: Request)
+GET     /api/travtypes                  controllers.TravellerTypeController.list()
+GET     /api/nationalities              controllers.NationalityController.list()
+POST    /api/checkUsername              controllers.ProfileController.checkUsername(requestrun: Request)
+
+POST    /api/login                      controllers.AuthController.login(request: Request)
+POST    /api/logout                     controllers.AuthController.logout()
 
 # Requests relating to authorisation are as follows
-POST          /login                controllers.AuthController.login(request: Request)
-DELETE        /logout               controllers.AuthController.logout()
 
+
+#DESTINATIONS
+# Get all destinations
+GET     /api/destinations               controllers.destinations.DestinationController.fetch(request: Request)
+#GET     /destinations                   controllers.destinations.DestinationController.index()
+
+# Add destination
+POST    /api/destinations               controllers.destinations.DestinationController.save(request: Request)
+
+#Delete a destination
+DELETE  /api/destination/:id            controllers.destinations.DestinationController.destroy(id: Long)
+
+#Update a destination
+PUT     /api/destination/:id            controllers.destinations.DestinationController.edit(id: Long, request: Request)
 
 # GET requests to serve the pages
-GET           /                     controllers.PageController.index()
+GET     /                               controllers.PageController.index()
+GET     /dash                           controllers.PageController.dash()
+GET     /destinations                   controllers.PageController.destinations()

@@ -56,6 +56,7 @@ public class AuthController extends Controller {
     /**
      * Clears session resulting in authorized tag being cleared,
      * Therefore deauthorizing client
+     *
      * @return ok() result, as logout should always succeed
      */
     public Result logout() {
