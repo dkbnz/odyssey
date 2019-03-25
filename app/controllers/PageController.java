@@ -1,7 +1,13 @@
 package controllers;
 
+import models.destinations.DestinationType;
 import play.mvc.Controller;
 import play.mvc.Result;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
 
 /**
  * Controller to handle the serving of pages
@@ -23,5 +29,8 @@ public class PageController extends Controller {
     /**
      * Method to serve the destinations page
      */
-    public Result destinations() { return ok(views.html.viewDestinations.destinationsPage.render()); }
+    public Result destinations() {
+        List<DestinationType> types = new ArrayList<>(EnumSet.allOf(DestinationType.class));
+        return ok(views.html.viewDestinations.destinationsPage.render(types));
+    }
 }
