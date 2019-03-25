@@ -199,7 +199,7 @@ $(document).ready(function () {
      * Profile creation handler
      */
     $("#create-form").submit(function(e) {
-
+        console.log("TEST");
         e.preventDefault();
 
         // Perform traveller type and nationality checks here
@@ -221,7 +221,9 @@ $(document).ready(function () {
                 traveller_type : $("input[name='travtypes']:checked").map(function(){return this.value;}).get() // Creates an array of traveller type ids from checked boxes in carousel
             }),
             success: function (response) { // "Called if the request succeeds"
-                console.log(response) // TODO: Upon profile successfully being created, redirect to the profile page.
+                console.log(response); // TODO: Upon profile successfully being created, redirect to the profile page.
+                console.log(response[0].username);
+                window.location="@routes.controllers.PageController.dash(response)";
             },
             error: function (error) { // "Called if the request fails"
                 console.log(error)

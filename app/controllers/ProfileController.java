@@ -9,7 +9,6 @@ import models.Profile;
 import models.TravellerType;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Results;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static play.mvc.Results.*;
+
 
 
 /**
@@ -77,7 +77,8 @@ public class ProfileController {
 
         newUser.save();
 
-        return created().addingToSession(request, "authorized", newUser.id.toString());
+        created().addingToSession(request, "authorized", newUser.id.toString());
+        return ok(newUser.toJson());
     }
 
 
@@ -120,21 +121,14 @@ public class ProfileController {
      * @param request HTTP request from client
      * @return HTTP Result of the request
      */
-    public Result fetch(Http.Request request, Long id) {
+    public Result fetch(Http.Request request) {
         return request.session()
                 .getOptional("authorized")
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
 
-                    if (id != Long.valueOf(userId)) {// TODO: Implement admin hierarchy and perform checks here
-                        Profile profileToGet = Profile.find.byId(Integer.valueOf(userId));
-                        return ok(profileToGet.toJson());
-                    } else {
-                        // User is just requesting their own profile
-                        return ok(userProfile.toJson());
-                    }
-
+                    return ok(views.html.dash.profile.render(userProfile));
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
