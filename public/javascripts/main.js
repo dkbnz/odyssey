@@ -1,3 +1,7 @@
+window.onload = function() {
+    document.getElementById('navbar').style.display = 'none';
+};
+
 $(document).ready(function () {
 
     /**

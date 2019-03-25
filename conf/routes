@@ -26,17 +26,19 @@ POST    /api/logout                     controllers.AuthController.logout()
 
 #DESTINATIONS
 # Get all destinations
-GET     /destinations               controllers.destinations.DestinationController.fetch(request: Request)
+GET     /api/destinations               controllers.destinations.DestinationController.fetch(request: Request)
+#GET     /destinations                   controllers.destinations.DestinationController.index()
 
 # Add destination
-POST    /destinations               controllers.destinations.DestinationController.save(request: Request)
+POST    /api/destinations               controllers.destinations.DestinationController.save(request: Request)
 
 #Delete a destination
-DELETE  /destination/:id            controllers.destinations.DestinationController.destroy(id: Long)
+DELETE  /api/destination/:id            controllers.destinations.DestinationController.destroy(id: Long)
 
 #Update a destination
-PUT     /destination/:id            controllers.destinations.DestinationController.edit(id: Long, request: Request)
+PUT     /api/destination/:id            controllers.destinations.DestinationController.edit(id: Long, request: Request)
 
 # GET requests to serve the pages
-GET     /                           controllers.PageController.index()
-GET     /dash                       controllers.PageController.dash()
+GET     /                               controllers.PageController.index()
+GET     /dash                           controllers.PageController.dash()
+GET     /destinations                   controllers.PageController.destinations()
