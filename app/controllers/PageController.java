@@ -9,14 +9,19 @@ import play.mvc.Result;
 public class PageController extends Controller {
 
     /**
-     * Method to serve the index page
+     * Method to serve the index destinationsPage
      */
     public Result index() {
         return ok(views.html.index.page.render());
     }
 
     /**
-     * Method to serve the dashboard page
+     * Method to serve the dashboard destinationsPage
      */
     public Result dash() { return ok(views.html.dash.page.render()); }
+
+    /**
+     * Method to serve the destinations page
+     */
+    public Result destinations() { return ok(views.html.viewDestinations.destinationsPage.render()); }
 }
