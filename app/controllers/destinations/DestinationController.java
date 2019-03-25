@@ -31,7 +31,7 @@ public class DestinationController extends Controller {
      */
     private Result fetch() {
         List<Destination> destinations = Destination.find.all();
-        return ok(views.html.viewDestinations.destinationsPage.render());
+        return ok(views.html.viewDestinations.tableDestinations.render(destinations));
     }
 
     /**
