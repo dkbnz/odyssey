@@ -25,7 +25,7 @@ function searchDestinations() {
 
 
         },
-        error: function(error) {
+        error: function() {
             document.getElementById("keywords").classList.remove("d-none");
         }
     });
@@ -77,6 +77,41 @@ function resetForm() {
 }
 
 /**
+ * Function to check all the fields put into the Create Destination form.
+ * @param fields
+ */
+function checkFields(fields) {
+    console.log(fields);
+    var error = [];
+    var possibleFields = [" Name", " Type", " District", " Latitude", " Longitude", " Country"];
+    for (var i = 0; i < fields.length; i++) {
+        if (fields[i].length === 0) {
+            error.push(possibleFields[i]);
+        }
+    }
+    if(isNaN(fields[3])) {
+        error.push(possibleFields[3]);
+    }
+    if  (isNaN(fields[4])) {
+        error.push(possibleFields[4]);
+    }
+    return error;
+}
+
+/**
+ * Function to hide the alert bars after a time. Using the given id of the fields and the text to show in the error.
+ * @param id of the alert fields
+ * @param text of error, depending on if its a user error or server error.
+ */
+function timeoutAlert(id, text) {
+    document.getElementById("createDestinationError").innerHTML = "Error creating destination! " + text;
+    $(id).fadeTo(5000, 500).slideUp(1000, function(){
+        $(id).slideUp(1000);
+    });
+}
+
+
+/**
  * Function to create a destination, uses an Ajax POST request and populates the database if input is valid.
  */
 function createDestination() {
@@ -87,8 +122,10 @@ function createDestination() {
     var longitude = Number(document.getElementById("newDest_longitude").value);
     var country = document.getElementById("newDest_country").value;
 
-    // Checks the fields are valid, otherwise returns an error.
-    if (name.length !==0 && type.length !== 0 && district.length !== 0 && latitude.length !== 0 && longitude.length !== 0 && country.length !== 0 && !isNaN(latitude) && !isNaN(longitude)) {
+    var fieldList = [name, type, district, latitude, longitude, country];
+    var errorList = checkFields(fieldList);
+
+    if(errorList.length === 0) {
         $.ajax({
             method: "POST",
             url: "/api/destinations",
@@ -102,18 +139,15 @@ function createDestination() {
                 country : country
             }),
             success: function () {
-                document.getElementById("createDestinationError").className = "banner banner-top alert-danger hide";
-                document.getElementById("createDestinationSuccess").classList.remove("hide");
+                $('#createDestinationError').hide();
+                timeoutAlert("#createDestinationSuccess","");
                 resetForm();
             },
-            error: function (error) {
-                document.getElementById("createDestinationSuccess").className = "banner banner-top alert-success hide";
-                document.getElementById("createDestinationError").classList.remove("hide");
+            error: function () {
+                timeoutAlert("#createDestinationError", "Internal Server Error, try again!");
             }
         });
     } else {
-        document.getElementById("createDestinationError").classList.remove("hide");
+        timeoutAlert("#createDestinationError", "We found errors in the following fields:" + errorList);
     }
-
-
 }
