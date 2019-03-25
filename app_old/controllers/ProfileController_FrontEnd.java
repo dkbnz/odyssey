@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 /**
- * Display Profile page
+ * Display Profile destinationsPage
  */
 public class ProfileController_FrontEnd extends Controller {
 
