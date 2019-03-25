@@ -1,6 +1,7 @@
 package controllers;
 
 import models.destinations.DestinationType;
+import org.springframework.util.StringUtils;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -31,6 +32,24 @@ public class PageController extends Controller {
      */
     public Result destinations() {
         List<DestinationType> types = new ArrayList<>(EnumSet.allOf(DestinationType.class));
-        return ok(views.html.viewDestinations.destinationsPage.render(types));
+        List<String> newDestinations = formatTypes(types);
+
+        return ok(views.html.viewDestinations.destinationsPage.render(types, newDestinations));
+    }
+
+    private List<String> formatTypes(List<DestinationType> types) {
+        List<String> newDestinations = new ArrayList<String>();
+        for (int i = 0; i < types.size(); i++) {
+            String toAdd = types.get(i).toString().replace('_', ' ');
+            toAdd = toAdd.toLowerCase();
+
+            ArrayList<String> wordSplit= new ArrayList<String>();
+            for (String word :toAdd.split(" ")) {
+                wordSplit.add(StringUtils.capitalize(word));
+            }
+            toAdd = String.join(" ", wordSplit);
+            newDestinations.add(toAdd);
+        }
+        return newDestinations;
     }
 }
