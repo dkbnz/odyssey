@@ -174,7 +174,7 @@ $(document).ready(function () {
     $("#middle_name").focusout(function () {
         $("#err_middlename").remove();
 
-        var nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
+        var nameRegex = new RegExp("(^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$)|^$");
 
         if (!(nameRegex.test($("#middle_name").val()))) {
             // If the contents checked are not accepted by the regex, then present an error message below the container.
