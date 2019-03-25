@@ -2,15 +2,20 @@
 
 @import models.destinations.Destination
 @main("Destinations", "destinations.js", "destinations.css") {
+    @viewDestinations.navDestinations()
     <div class="container" id="container">
-        <h1 class="page_title">Destinations</h1>
-        <p class="page_title"><i>Search for a destination using the fields below.</i> </p>
-        <div class="tab-pane fade show active" id="searchDestinations">
-            @viewDestinations.searchDestinations()
-        </div>
-        <div class="tab-pane fade show" id="tableDestinations">
-            <div id="tableContent">
 
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="searchDestinations">
+                @viewDestinations.searchDestinations()
+            </div>
+            <div class="tab-pane fade show" id="createDestination">
+                @viewDestinations.createDestination()
+            </div>
+            <div class="tab-pane fade show" id="tableDestinations">
+                <div id="tableContent">
+
+                </div>
             </div>
         </div>
     </div>
