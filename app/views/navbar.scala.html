@@ -1,8 +1,6 @@
-<nav class="navbar navbar-expand-md navbar-light fixed-top bg-light">
+<nav class="navbar navbar-expand-md navbar-light fixed-top bg-light" id="navbar">
 
-    <a class="navbar-brand" href="#">
-        <a class="navbar-brand" href="/"><img src="@routes.Assets.at("images/full_logo_sm.png")"></a>
-    </a>
+    <a class="navbar-brand" href="/"><img src="@routes.Assets.at("images/full_logo_sm.png")"></a>
 
     @* Hamburger menu toggle only shown on smaller devices *@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-list" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -14,12 +12,15 @@
         @* Tab navigation must be kept to a single unordered list *@
         <ul class="navbar-nav nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link active" href="localhost:9000/api/destinations" data-toggle="tab">Destination</a>
+                <a class="nav-link active" href="@routes.PageController.destinations()">Destinations</a>
             </li>
         </ul>
 
         @* Use this unordered list for actual links *@
         <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="@routes.PageController.dash()">Profile</a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="">Logout</a>
             </li>
