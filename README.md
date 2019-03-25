@@ -21,7 +21,10 @@ And open <http://localhost:9000/>
 * Remember to set up your GitLab CI server (refer to the student guide on Learn for instructions).
 
 ### Reference
-* [Play documentation](https://playframework.com/documentation/latest/Home](https://playframework.com/documentation/latest/Home)
+* [Play Documentation](https://playframework.com/documentation/latest/Home)
 * [EBean](https://www.playframework.com/documentation/latest/JavaEbean) is a Java ORM library that uses SQL.The documentation can be found [here](https://ebean-orm.github.io/).
 * For Java Forms, Please see [here](<https://playframework.com/documentation/latest/JavaForms>).
 
+### Licences
+
+Look at the `libraries_resources_licencing .md` file in the `doc` folder

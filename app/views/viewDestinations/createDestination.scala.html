@@ -1,0 +1,46 @@
+@import helper._
+
+@import models.destinations.Destination
+
+<div class="container">
+    <h1 class="page_title">Create a Destination</h1>
+    <p class="page_title"><i>Add a new destination using the form below</i> </p>
+
+    <label for="newDest_name">Name</label>
+    <input id="newDest_name" type="text" class="form-control">
+
+    <label for="newDest_type">Type</label>
+    <input id="newDest_type" type="text" class="form-control">
+
+@*    <select id="newDest_type" class="form-control">
+        <option>Place</option>
+        <option>Basin</option>
+        <option>Stream</option>
+        <option>Site</option>
+        <option>Hill</option>
+        <option>Cave</option>
+        <option>Pass</option>
+        <option>Rock</option>
+        <option>Recreation Reserve</option>
+        <option>Suburb</option>
+        <option>Channel</option>
+        <option>Glacier</option>
+        <option>Point</option>
+        <option>Lake</option>
+        <option>National Park</option>
+    </select>*@
+
+    <label for="newDest_district">District</label>
+    <input id="newDest_district" type="text" class="form-control">
+
+    <label for="newDest_latitude">Latitude</label>
+    <input id="newDest_latitude" type="text" class="form-control">
+
+    <label for="newDest_longitude">Longitude</label>
+    <input id="newDest_longitude" type="text" class="form-control">
+
+    <label for="newDest_country">Country</label>
+    <input id="newDest_country" type="text" class="form-control">
+
+    <button type="submit" class="btn btn-primary" id="btn-Next" onclick="createDestination()">Create Destination</button>
+</div>
