@@ -1,6 +1,8 @@
 @import helper._
 
 @import models.destinations.Destination
+@import models.destinations.DestinationType
+@(types: List[DestinationType])
 @main("Destinations", "destinations.js", "destinations.css") {
     @viewDestinations.navDestinations()
     <div class="container" id="container">
@@ -18,7 +20,7 @@
                 @viewDestinations.searchDestinations()
             </div>
             <div class="tab-pane fade show" id="createDestination">
-                @viewDestinations.createDestination()
+                @viewDestinations.createDestination(types)
             </div>
             <div class="tab-pane fade show" id="tableDestinations">
                 <div id="tableContent">

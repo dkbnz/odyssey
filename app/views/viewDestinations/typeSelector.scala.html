@@ -1,0 +1,10 @@
+@import helper._
+
+@import models.destinations.DestinationType
+@(types: List[DestinationType])
+<label for="newDestinationTypeSelector">Type</label>
+<select class="form-control" id="newDestinationTypeSelector">
+    @for(destinationType <- types) {
+        <option>destinationType</option>
+    }
+</select>
