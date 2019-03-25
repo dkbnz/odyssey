@@ -7,7 +7,6 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +20,6 @@ public class DestinationController extends Controller {
     private static final String LONGITUDE = "longitude";
 
     public Result index() {
-        List<Destination> destination = new ArrayList<>();
         return ok(views.html.viewDestinations.destinationsPage.render());
     }
 
@@ -82,6 +80,12 @@ public class DestinationController extends Controller {
         return ok(views.html.viewDestinations.tableDestinations.render(destinations));
     }
 
+    /**
+     * This function builds a string to use in an sql query in a like clause. It places percentage signs on either
+     * side of the given string parameter.
+     * @param field The string to be concatenated with percentage signs on either side of the field.
+     * @return A string containing the field wrapped in percentage signs.
+     */
     private String queryComparator(String field) {
         return "%" + field + "%";
     }
