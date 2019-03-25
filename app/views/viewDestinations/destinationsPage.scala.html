@@ -1,0 +1,29 @@
+@import helper._
+
+@import models.destinations.Destination
+@main("Destinations", "destinations.js", "destinations.css") {
+    @viewDestinations.navDestinations()
+    <div class="container" id="container">
+
+        <div class="tab-content">
+            <div id="createDestinationSuccess" class="banner banner-top alert-success hide" role="alert">
+                Destination created successfully!
+                <span class="banner-close" onclick="hideSuccessBanner()"></span>
+            </div>
+            <div id="createDestinationError" class="banner banner-top alert-danger hide" role="alert">
+                Error creating destination!
+                <span class="banner-close" onclick="hideErrorBanner()"></span>
+            </div>
+            <div class="tab-pane fade show active" id="searchDestinations">
+                @viewDestinations.searchDestinations()
+            </div>
+            <div class="tab-pane fade show" id="createDestination">
+                @viewDestinations.createDestination()
+            </div>
+            <div class="tab-pane fade show" id="tableDestinations">
+                <div id="tableContent">
+                </div>
+            </div>
+        </div>
+    </div>
+}
