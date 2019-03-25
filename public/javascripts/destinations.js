@@ -16,12 +16,14 @@ function searchDestinations() {
         success: function(response) {
             $("#keywords").remove();
             $("#tableContent").append(response);
-            console.log(response);
             document.getElementById("keywords").classList.remove("d-none");
             document.getElementById("tableDestinations").classList.add("active");
+            var newTableObject = document.getElementById("keywords");
+            sorttable.makeSortable(newTableObject);
+
+
         },
         error: function(error) {
-            console.log("ERROR");
             document.getElementById("keywords").classList.remove("d-none");
             console.log(error);
         }
