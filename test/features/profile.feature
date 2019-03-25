@@ -1,10 +1,16 @@
-Feature: Creating a profile
+Feature: Having a profile system
 
 
   Scenario: Get all profiles
     Given the application is running
     When I send a GET request to the /profiles endpoint
     Then the received status code is ok()
+
+
+  Scenario: Get all nationalities
+    Given the application is running [2]
+    When I send a GET request to the /travtypes endpoint
+    Then the received status code is ok() [2]
 
 
   Scenario: Attempting to sign up with an existing username
