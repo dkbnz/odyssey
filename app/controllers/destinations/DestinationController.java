@@ -22,7 +22,7 @@ public class DestinationController extends Controller {
 
     public Result index() {
         List<Destination> destination = new ArrayList<>();
-        return ok(views.html.viewDestinations.destinationsPage.render(destination));
+        return ok(views.html.viewDestinations.destinationsPage.render());
     }
 
     /**
@@ -31,7 +31,7 @@ public class DestinationController extends Controller {
      */
     private Result fetch() {
         List<Destination> destinations = Destination.find.all();
-        return ok(views.html.viewDestinations.tableDestinations.render(destinations));
+        return ok(views.html.viewDestinations.destinationsPage.render());
     }
 
     /**

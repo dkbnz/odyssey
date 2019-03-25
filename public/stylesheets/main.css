@@ -1,6 +1,10 @@
-html, body {
+html {
     /* The html and body elements cannot have any padding or margin. */
     height: 100%;
+}
+
+body {
+    background-color: #e2e6ea;
 }
 
 #footer {
@@ -12,6 +16,10 @@ html, body {
     height: 40px;
     width: 100%;
     font-size: 0.7em;
+}
+
+#container {
+    margin-top: 100px;
 }
 
 /* Imports the Bauman's Regular Font */
@@ -54,6 +62,7 @@ h4 {
     margin-top: 80px;
     height: 30%;
     overflow: auto;
+    width: 100%;
 }
 
 #keywords thead {
