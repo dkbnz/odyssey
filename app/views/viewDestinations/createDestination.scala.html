@@ -2,7 +2,7 @@
 
 @import models.destinations.Destination
 @import models.destinations.DestinationType
-@(types: List[DestinationType])
+@(types: List[DestinationType],stringTypes: List[String])
 <div class="container">
     <h1 class="page_title">Create a Destination</h1>
     <p class="page_title"><i>Add a new destination using the form below</i> </p>
@@ -12,7 +12,7 @@
 
     @*<label for="newDest_type">Type</label>*@
     @*<input id="newDest_type" type="text" class="form-control">*@
-    @viewDestinations.typeSelector(types)
+    @viewDestinations.typeSelector(types, stringTypes)
 
     <label for="newDest_district">District</label>
     <input id="newDest_district" type="text" class="form-control">
