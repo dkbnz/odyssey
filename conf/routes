@@ -10,7 +10,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 # Requests relating to profiles are as follows
 GET     /api/profiles                   controllers.ProfileController.list(request: Request)
 POST    /api/profiles                   controllers.ProfileController.create(request: Request)
-GET     /api/profile/:id                controllers.ProfileController.fetch(request: Request, id: Long)
+GET     /api/profile                    controllers.ProfileController.fetch(request: Request)
 PUT     /api/profile/:id                controllers.ProfileController.update(request: Request, id: Long)
 DELETE  /api/profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
 
@@ -26,17 +26,17 @@ POST    /api/logout                     controllers.AuthController.logout()
 
 #DESTINATIONS
 # Get all destinations
-GET     /destinations               controllers.destinations.DestinationController.fetch(request: Request)
+GET     /destinations                   controllers.destinations.DestinationController.fetch(request: Request)
 
 # Add destination
-POST    /destinations               controllers.destinations.DestinationController.save(request: Request)
+POST    /destinations                   controllers.destinations.DestinationController.save(request: Request)
 
 #Delete a destination
-DELETE  /destination/:id            controllers.destinations.DestinationController.destroy(id: Long)
+DELETE  /destination/:id                controllers.destinations.DestinationController.destroy(id: Long)
 
 #Update a destination
-PUT     /destination/:id            controllers.destinations.DestinationController.edit(id: Long, request: Request)
+PUT     /destination/:id                controllers.destinations.DestinationController.edit(id: Long, request: Request)
 
 # GET requests to serve the pages
-GET     /                           controllers.PageController.index()
-GET     /dash                       controllers.PageController.dash()
+GET     /                               controllers.PageController.index()
+GET     /dash                           controllers.PageController.dash()
