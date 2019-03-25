@@ -260,6 +260,8 @@ $(document).ready(function () {
                 traveller_type : $("input[name='travtypes']:checked").map(function(){return this.value;}).get() // Creates an array of traveller type ids from checked boxes in carousel
             }),
             success: function (response) { // "Called if the request succeeds"
+                console.log(response); // TODO: Upon profile successfully being created, redirect to the profile page.
+                window.location="dash";
             },
             error: function (error) { // "Called if the request fails"
                 console.log(error)
