@@ -7,7 +7,6 @@ function searchDestinations() {
     var longitude = document.getElementById("dest_longitude").value;
     var country = document.getElementById("dest_country").value;
 
-
     $.ajax({
         type: 'GET',
         url: "api/destinations",
@@ -25,7 +24,6 @@ function searchDestinations() {
         },
         error: function(error) {
             document.getElementById("keywords").classList.remove("d-none");
-            console.log(error);
         }
     });
 }
@@ -36,6 +34,16 @@ function hideTable() {
 }
 
 
+function hideSuccessBanner() {
+    window.location.reload();
+}
+
+
+function hideErrorBanner() {
+    document.getElementById("createDestinationError").classList.add("hide");
+}
+
+
 function createDestination() {
     var name = document.getElementById("newDest_name").value;
     var type = document.getElementById("newDest_type").value;
@@ -43,7 +51,6 @@ function createDestination() {
     var latitude = document.getElementById("newDest_latitude").value;
     var longitude = document.getElementById("newDest_longitude").value;
     var country = document.getElementById("newDest_country").value;
-    console.log(name, type, district, latitude, longitude, country);
 
     $.ajax({
         method: "POST",
@@ -57,10 +64,11 @@ function createDestination() {
             longitude : longitude,
             country : country
         }),
-        success: function (response) { // "Called if the request succeeds"
+        success: function () {
+            document.getElementById("createDestinationSuccess").classList.remove("hide");
         },
-        error: function (error) { // "Called if the request fails"
-            console.log(error)
+        error: function (error) {
+            document.getElementById("createDestinationError").classList.remove("hide");
         }
     });
 }
