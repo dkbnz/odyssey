@@ -116,7 +116,7 @@ function timeoutAlert(id, text) {
  */
 function createDestination() {
     var name = document.getElementById("newDest_name").value;
-    var type = document.getElementById("newDest_type").value;
+    var type = document.getElementById("newDestinationTypeSelector").value;
     var district = document.getElementById("newDest_district").value;
     var latitude = Number(document.getElementById("newDest_latitude").value);
     var longitude = Number(document.getElementById("newDest_longitude").value);
