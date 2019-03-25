@@ -27,7 +27,7 @@ POST    /api/logout                     controllers.AuthController.logout()
 #DESTINATIONS
 # Get all destinations
 GET     /api/destinations               controllers.destinations.DestinationController.fetch(request: Request)
-GET     /destinations                   controllers.destinations.DestinationController.index()
+#GET     /destinations                   controllers.destinations.DestinationController.index()
 
 # Add destination
 POST    /api/destinations               controllers.destinations.DestinationController.save(request: Request)
@@ -41,4 +41,4 @@ PUT     /api/destination/:id            controllers.destinations.DestinationCont
 # GET requests to serve the pages
 GET     /                               controllers.PageController.index()
 GET     /dash                           controllers.PageController.dash()
-# GET     /destinations                   controllers.PageController.destinations()
+GET     /destinations                   controllers.PageController.destinations()

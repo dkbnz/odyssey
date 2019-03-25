@@ -15,6 +15,7 @@ function searchDestinations() {
         success: function(response) {
             $("#keywords").remove();
             $("#tableContent").append(response);
+            console.log(response);
             document.getElementById("keywords").classList.remove("d-none");
         },
         error: function(error) {
