@@ -6,6 +6,7 @@ $.ajax({
     url: "/api/nationalities",
     success: function (response) { // "Called if the request succeeds"
         for (var key in response) {
+
             $("#profile-nationality").append("<option value=\"" + response[key].id + "\">" + response[key].nationality + "</option>");
         }
 
