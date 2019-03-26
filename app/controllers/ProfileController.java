@@ -234,7 +234,6 @@ public class ProfileController {
                     userProfile.lastName = json.get("last_name").asText();
                     userProfile.dateOfBirth = LocalDate.parse(json.get("date_of_birth").asText());
                     userProfile.gender = json.get("gender").asText();
-                    userProfile.dateOfCreation = new Date();
 
                     userProfile.nationalities.clear();
                     userProfile.travellerTypes.clear();
