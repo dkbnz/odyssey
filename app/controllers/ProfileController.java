@@ -3,6 +3,7 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Nationality;
 import models.Passport;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static play.mvc.Results.*;
@@ -25,6 +27,16 @@ import static play.mvc.Results.*;
  * Controller to handle the CRUD of Profiles
  */
 public class ProfileController {
+
+
+    private static final String NATIONALITY = "nationality";
+    private static final String GENDER = "gender";
+    private static final String MIN_AGE = "min_age";
+    private static final String MAX_AGE = "max_age";
+    private static final String TRAVELLER_TYPE = "traveller_type";
+    private static final String DATE_OF_BIRTH = "date_of_birth";
+    private static final String NATIONALITY_FIELD = "nationalities.nationality";
+    private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
 
     /**
      * Creates a user based on given JSON body.
@@ -304,8 +316,7 @@ public class ProfileController {
                         // No query string given. retrieve all profiles
                         profiles = Profile.find.all();
                     } else {
-                        //TODO: implement search here. see Matildas destinations search
-                        profiles = Profile.find.all();
+                        profiles = searchProfiles(request.queryString());
                     }
 
                     for (Profile profile : profiles) {
@@ -316,6 +327,41 @@ public class ProfileController {
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
+
+    private List<Profile> searchProfiles(Map<String, String[]> queryString) {
+        ExpressionList<Profile> profileExpressionList = Ebean.find(Profile.class).where();
+        String nationality = queryString.get(NATIONALITY)[0];
+        String gender = queryString.get(GENDER)[0];
+        String minAge = queryString.get(MIN_AGE)[0];
+        String maxAge = queryString.get(MAX_AGE)[0];
+        String travellerType = queryString.get(TRAVELLER_TYPE)[0];
+        LocalDate minDate = LocalDate.of(1000, 1, 1);
+        LocalDate maxDate = LocalDate.of(3000, 12, 30);
+
+        if (gender.length() != 0) {
+            profileExpressionList.eq(GENDER, gender);
+        }
+
+        if ((maxAge.length() != 0)) {
+            minDate = LocalDate.now().minusYears(Integer.parseInt(maxAge));
+        }
+        if ((minAge.length() != 0)) {
+            maxDate = LocalDate.now().minusYears(Integer.parseInt(minAge));
+        }
+        profileExpressionList.between(DATE_OF_BIRTH, minDate, maxDate);
+
+        if (nationality.length() != 0) {
+            profileExpressionList.eq(NATIONALITY_FIELD, nationality);
+        }
+        if (travellerType.length() != 0) {
+            profileExpressionList.eq(TRAVELLER_TYPE_FIELD, travellerType);
+        }
+
+        return profileExpressionList.findList();
+
+    }
+
+
 
 //    /**
 //     * Checks if the client is an admin, If so then returns an http Result
