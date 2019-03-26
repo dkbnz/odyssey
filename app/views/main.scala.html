@@ -1,5 +1,6 @@
 @(title: String, js: String, css: String)(content: Html)
 
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -15,9 +16,11 @@
         <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery-3.3.1.min.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap-multiselect.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/sorttable.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/" + js)"></script>
     </head>
     <body>
+        @navbar()
         @content
         @footer()
     </body>
