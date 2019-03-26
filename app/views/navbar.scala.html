@@ -13,14 +13,12 @@
 
     <div class="collapse navbar-collapse" id="navbar-list">
 
-        @* Tab navigation must be kept to a single unordered list *@
         <ul class="navbar-nav nav mr-auto">
             <li class="nav-item">
                 <a class="nav-link @activeLink("/destinations")"  href="@routes.PageController.destinations()">Destinations</a>
             </li>
         </ul>
 
-        @* Use this unordered list for actual links *@
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link @activeLink("/dash")" href="@routes.PageController.dash()">Profile</a>
