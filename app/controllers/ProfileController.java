@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.ExpressionList;
 import models.Nationality;
+import models.Passport;
 import models.Profile;
 import models.TravellerType;
 import play.mvc.Http;
@@ -68,6 +69,13 @@ public class ProfileController {
 
         json.get("nationality").forEach(nationalityAction);
 
+        Consumer<JsonNode> passportAction = (JsonNode node) -> {
+            Passport newPass = Passport.find.byId(node.asInt());
+            newUser.addPassport(newPass);
+        };
+
+        json.get("passport_country").forEach(passportAction);
+
         Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
             TravellerType travType = TravellerType.find.byId(node.asInt());
             newUser.addTravType(travType);
@@ -77,8 +85,7 @@ public class ProfileController {
 
         newUser.save();
 
-        created().addingToSession(request, "authorized", newUser.id.toString());
-        return ok(newUser.toJson());
+        return created().addingToSession(request, "authorized", newUser.id.toString());
     }
 
 
@@ -166,18 +173,7 @@ public class ProfileController {
     }
 
     /**
-     * Helper function to update a profile from a given JsonNode
-     *
-     * @param profile
-     * @param json
-     * @return
-     */
-    public Result updateProfile(Profile profile, JsonNode json) {
-        return ok();
-    }
-
-    /**
-     * Takes a Http request containing a Json body and
+     * Takes a Http request containing a Json body and finds logged in user, then updates said user
      *
      * @param request
      * @param id
@@ -191,21 +187,80 @@ public class ProfileController {
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
                     JsonNode json = request.body().asJson();
 
-                    if (id != Long.valueOf(userId)) {// TODO: Implement admin hierarchy and perform checks here
-                        Profile profileToEdit = Profile.find.byId(id.intValue());
-                        if (profileToEdit == null) {
-                            return badRequest(); // Tried to update profile that is non-existent
-                        }
-                        return updateProfile(profileToEdit, json);
-
-                    } else {
-                        // User is just updating their own profile
-                        return updateProfile(userProfile, json);
+                    if (!(json.has("username")
+                            && json.has("password")
+                            && json.has("first_name")
+                            && json.has("middle_name")
+                            && json.has("last_name")
+                            && json.has("date_of_birth")
+                            && json.has("gender")
+                            && json.has("nationality")
+                            && json.has("passport_country")
+                            && json.has("traveller_type")
+                    )) {
+                        return badRequest();
                     }
+
+                    if (!json.get("password").asText().isEmpty()) { // Only update password if user has typed a new one
+                        userProfile.password = json.get("password").asText();
+                    }
+
+                    userProfile.username = json.get("username").asText();
+                    userProfile.firstName = json.get("first_name").asText();
+                    userProfile.middleName = json.get("middle_name").asText();
+                    userProfile.lastName = json.get("last_name").asText();
+                    userProfile.dateOfBirth = LocalDate.parse(json.get("date_of_birth").asText());
+                    userProfile.gender = json.get("gender").asText();
+                    userProfile.dateOfCreation = new Date();
+
+                    userProfile.nationalities.clear();
+                    userProfile.travellerTypes.clear();
+
+                    Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
+                        Nationality newNat = Nationality.find.byId(node.asInt());
+                        userProfile.addNationality(newNat);
+                    };
+
+                    json.get("nationality").forEach(nationalityAction);
+
+                    Consumer<JsonNode> passportAction = (JsonNode node) -> {
+                        Passport newPass = Passport.find.byId(node.asInt());
+                        userProfile.addPassport(newPass);
+                    };
+
+                    json.get("passport_country").forEach(passportAction);
+
+                    Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
+                        TravellerType travType = TravellerType.find.byId(node.asInt());
+                        userProfile.addTravType(travType);
+                    };
+
+                    json.get("traveller_type").forEach(travTypeAction);
+
+                    userProfile.save();
+
+                    return ok("UPDATED");
 
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
+
+
+    public Result edit(Http.Request request) {
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> {
+                    // User is logged in
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    List<Nationality> nationalities = Nationality.find.all();
+                    List<Passport> passports = Passport.find.all();
+
+                    return ok(views.html.dash.editProfile.render(userProfile, nationalities, passports));
+                })
+                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
+    }
+
+
     /**
      * Performs an ebean find query on the database to search for profiles
      * Ensures the pro //TODO: fix this?
