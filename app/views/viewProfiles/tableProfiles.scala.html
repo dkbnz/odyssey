@@ -20,13 +20,13 @@
                 <td>@profile.getFirstName</td>
                 <td>@profile.getLastName</td>
                 <td>@for(nationalities <- profile.getNationalities) {
-                    @nationalities.nationality <br/>
+                    @nationalities.getNationality <br/>
                 }
                 </td>
                 <td>@profile.getGender</td>
                 <td>@profile.getAge</td>
                 <td>@for(travellerTypes <- profile.getTravellerTypes) {
-                    @travellerTypes.travellerType <br/>
+                    @travellerTypes.getTravellerType <br/>
                 }
                 </td>
             </tr>
