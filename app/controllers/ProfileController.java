@@ -3,27 +3,40 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Nationality;
+import models.Passport;
 import models.Profile;
 import models.TravellerType;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Results;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static play.mvc.Results.*;
+
 
 
 /**
  * Controller to handle the CRUD of Profiles
  */
 public class ProfileController {
+
+
+    private static final String NATIONALITY = "nationality";
+    private static final String GENDER = "gender";
+    private static final String MIN_AGE = "min_age";
+    private static final String MAX_AGE = "max_age";
+    private static final String TRAVELLER_TYPE = "traveller_type";
+    private static final String DATE_OF_BIRTH = "date_of_birth";
+    private static final String NATIONALITY_FIELD = "nationalities.nationality";
+    private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
 
     /**
      * Creates a user based on given JSON body.
@@ -48,6 +61,11 @@ public class ProfileController {
             return badRequest();
         }
 
+        if(json.get("nationality").size() == 0
+        || json.get("traveller_type").size() == 0) {
+            return badRequest();
+        }
+
         Profile newUser = new Profile();
 
         newUser.username = json.get("username").asText();
@@ -67,6 +85,13 @@ public class ProfileController {
         };
 
         json.get("nationality").forEach(nationalityAction);
+
+        Consumer<JsonNode> passportAction = (JsonNode node) -> {
+            Passport newPass = Passport.find.byId(node.asInt());
+            newUser.addPassport(newPass);
+        };
+
+        json.get("passport_country").forEach(passportAction);
 
         Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
             TravellerType travType = TravellerType.find.byId(node.asInt());
@@ -104,11 +129,35 @@ public class ProfileController {
      */
     public Result checkUsername(Http.Request request) {
         JsonNode json = request.body().asJson();
-        if (!profileExists(json.get("username").asText())) {
-            return ok();
-        } else {
+
+        if (!json.has("username")) {
             return badRequest();
         }
+
+        String username = json.get("username").asText();
+
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> {
+                    // User is logged in, used for editing
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+
+                    if (!profileExists(username) || userProfile.username.equals(username)) {
+                        return ok(); // If they are checking their own username, return ok()
+                    } else {
+                        return badRequest();
+                    }
+                })
+                .orElseGet(() -> {
+                    //User is not logged in, used for signup
+                    if (!profileExists(username)) {
+                        return ok();
+                    } else {
+                        return badRequest();
+                    }
+                }); // User is not logged in
+
+
     }
 
 
@@ -120,21 +169,14 @@ public class ProfileController {
      * @param request HTTP request from client
      * @return HTTP Result of the request
      */
-    public Result fetch(Http.Request request, Long id) {
+    public Result fetch(Http.Request request) {
         return request.session()
                 .getOptional("authorized")
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
 
-                    if (id != Long.valueOf(userId)) {// TODO: Implement admin hierarchy and perform checks here
-                        Profile profileToGet = Profile.find.byId(Integer.valueOf(userId));
-                        return ok(profileToGet.toJson());
-                    } else {
-                        // User is just requesting their own profile
-                        return ok(userProfile.toJson());
-                    }
-
+                    return ok(views.html.dash.profile.render(userProfile));
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
@@ -172,24 +214,12 @@ public class ProfileController {
     }
 
     /**
-     * Helper function to update a profile from a given JsonNode
-     *
-     * @param profile
-     * @param json
-     * @return
-     */
-    public Result updateProfile(Profile profile, JsonNode json) {
-        return ok();
-    }
-
-    /**
-     * Takes a Http request containing a Json body and
+     * Takes a Http request containing a Json body and finds logged in user, then updates said user
      *
      * @param request
-     * @param id
      * @return
      */
-    public Result update(Http.Request request, Long id) {
+    public Result update(Http.Request request) {
         return request.session()
                 .getOptional("authorized")
                 .map(userId -> {
@@ -197,21 +227,86 @@ public class ProfileController {
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
                     JsonNode json = request.body().asJson();
 
-                    if (id != Long.valueOf(userId)) {// TODO: Implement admin hierarchy and perform checks here
-                        Profile profileToEdit = Profile.find.byId(id.intValue());
-                        if (profileToEdit == null) {
-                            return badRequest(); // Tried to update profile that is non-existent
-                        }
-                        return updateProfile(profileToEdit, json);
-
-                    } else {
-                        // User is just updating their own profile
-                        return updateProfile(userProfile, json);
+                    if (!(json.has("username")
+                            && json.has("password")
+                            && json.has("first_name")
+                            && json.has("middle_name")
+                            && json.has("last_name")
+                            && json.has("date_of_birth")
+                            && json.has("gender")
+                            && json.has("nationality")
+                            && json.has("passport_country")
+                            && json.has("traveller_type")
+                    )) {
+                        return badRequest();
                     }
+
+                    if(json.get("nationality").size() == 0
+                            || json.get("traveller_type").size() == 0) {
+                        return badRequest();
+                    }
+
+                    if (!json.get("password").asText().isEmpty()) { // Only update password if user has typed a new one
+                        userProfile.password = json.get("password").asText();
+                    }
+
+                    userProfile.username = json.get("username").asText();
+                    userProfile.firstName = json.get("first_name").asText();
+                    userProfile.middleName = json.get("middle_name").asText();
+                    userProfile.lastName = json.get("last_name").asText();
+                    userProfile.dateOfBirth = LocalDate.parse(json.get("date_of_birth").asText());
+                    userProfile.gender = json.get("gender").asText();
+
+                    userProfile.nationalities.clear();
+                    userProfile.travellerTypes.clear();
+                    userProfile.passports.clear();
+
+                    Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
+                        Nationality newNat = Nationality.find.byId(node.asInt());
+                        userProfile.addNationality(newNat);
+                    };
+
+                    json.get("nationality").forEach(nationalityAction);
+
+                    Consumer<JsonNode> passportAction = (JsonNode node) -> {
+                        Passport newPass = Passport.find.byId(node.asInt());
+                        userProfile.addPassport(newPass);
+                    };
+
+                    json.get("passport_country").forEach(passportAction);
+
+                    Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
+                        TravellerType travType = TravellerType.find.byId(node.asInt());
+                        userProfile.addTravType(travType);
+                    };
+
+                    json.get("traveller_type").forEach(travTypeAction);
+
+                    userProfile.save();
+
+                    return ok("UPDATED");
 
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
+
+
+    public Result edit(Http.Request request) {
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> {
+                    // User is logged in
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    List<Nationality> nationalities = Nationality.find.all();
+                    List<Passport> passports = Passport.find.all();
+                    List<TravellerType> travTypes = TravellerType.find.all();
+
+                    return ok(views.html.dash.editProfile.render(userProfile, nationalities, passports, travTypes));
+                })
+                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
+    }
+
+
     /**
      * Performs an ebean find query on the database to search for profiles
      * Ensures the pro //TODO: fix this?
@@ -231,18 +326,50 @@ public class ProfileController {
                         // No query string given. retrieve all profiles
                         profiles = Profile.find.all();
                     } else {
-                        //TODO: implement search here. see Matildas destinations search
-                        profiles = Profile.find.all();
+                        profiles = searchProfiles(request.queryString());
                     }
 
-                    for (Profile profile : profiles) {
-                        results.add(profile.toJson());
-                    }
+//                    for (Profile profile : profiles) {
+//                        results.add(profile.toJson());
+//                    }
 
-                    return ok(results);
+                    return ok(views.html.viewProfiles.tableProfiles.render(profiles));
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
+
+    private List<Profile> searchProfiles(Map<String, String[]> queryString) {
+        ExpressionList<Profile> profileExpressionList = Ebean.find(Profile.class).where();
+        String nationality = queryString.get(NATIONALITY)[0];
+        String gender = queryString.get(GENDER)[0];
+        String minAge = queryString.get(MIN_AGE)[0];
+        String maxAge = queryString.get(MAX_AGE)[0];
+        String travellerType = queryString.get(TRAVELLER_TYPE)[0];
+        LocalDate minDate = LocalDate.of(1000, 1, 1);
+        LocalDate maxDate = LocalDate.of(3000, 12, 30);
+
+        if (gender.length() != 0) {
+            profileExpressionList.eq(GENDER, gender);
+        }
+        if ((maxAge.length() != 0)) {
+            minDate = LocalDate.now().minusYears(Integer.parseInt(maxAge));
+        }
+        if ((minAge.length() != 0)) {
+            maxDate = LocalDate.now().minusYears(Integer.parseInt(minAge));
+        }
+        profileExpressionList.between(DATE_OF_BIRTH, minDate, maxDate);
+
+        if (nationality.length() != 0) {
+            profileExpressionList.eq(NATIONALITY_FIELD, nationality);
+        }
+        if (travellerType.length() != 0) {
+            profileExpressionList.eq(TRAVELLER_TYPE_FIELD, travellerType);
+        }
+
+        return profileExpressionList.findList();
+    }
+
+
 
 //    /**
 //     * Checks if the client is an admin, If so then returns an http Result
@@ -342,7 +469,7 @@ public class ProfileController {
 //    /**
 //     * Displays a profile matching the given username from the HTTP request.
 //     * @param username the username of the profile to be displayed
-//     * @return the HTTP response containing the new destinationsPage and profile to be displayed.
+//     * @return the HTTP response containing the new page and profile to be displayed.
 //     */
 //    public Result retrieveSingle(String username) {
 //        Profile profile = Profile.find.query().where()
