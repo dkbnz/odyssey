@@ -1,4 +1,4 @@
-package java;
+package unit;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -11,14 +11,12 @@ import org.junit.Test;
 import play.Application;
 import play.ApplicationLoader;
 import play.Environment;
-import play.Mode;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.inject.guice.GuiceApplicationLoader;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import java.io.File;
 
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.OK;
@@ -50,7 +48,7 @@ public class DestinationControllerTest {
         //Arrange
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .uri("/destinations");
+                .uri("/api/destinations");
 
         //Act
         Result result = route(application, request);
