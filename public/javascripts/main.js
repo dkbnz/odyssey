@@ -1,5 +1,8 @@
 window.onload = function() {
     document.getElementById('navbar').style.display = 'none';
+
+
+
 };
 
 $(document).ready(function () {
@@ -245,4 +248,9 @@ $(document).ready(function(){
             $(this).toggle($(this).text().toUpperCase().indexOf(value) > -1)
         });
     });
+
+    $("#logout-btn").on("click", function(){
+        alert("Hello");
+    });
+
 });
