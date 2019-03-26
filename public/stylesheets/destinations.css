@@ -1,0 +1,41 @@
+.btn {
+    font-weight: bold;
+    position: absolute;
+    margin: 10px;
+}
+
+#tableContent {
+    margin-top: 10vh;
+    height: 50vh;
+    overflow-y: auto;
+    margin-bottom: 10vh;
+}
+
+.banner {
+    position: absolute;
+    z-index: 9999;
+    padding: 20px 20px;
+    border: 1px solid transparent;
+}
+
+.banner.hide {
+    display: none;
+}
+
+.banner-top {
+    left: 20%;
+    right: 20%;
+}
+
+.banner-close {
+    position: absolute;
+    right: 1.5%;
+}
+
+.banner-close:after {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    content: 'X';
+    color: #69f;
+}

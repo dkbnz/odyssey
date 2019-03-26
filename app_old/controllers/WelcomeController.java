@@ -3,7 +3,7 @@ package controllers;
 import play.mvc.Controller;
 import play.mvc.Result;
 /**
- * Display Welcome/Login page
+ * Display Welcome/Login destinationsPage
  */
 public class WelcomeController extends Controller {
     /**
