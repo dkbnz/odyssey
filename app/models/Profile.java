@@ -37,23 +37,19 @@ public class Profile extends BaseModel {
     @ManyToMany
     public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
 
-//    @OneToMany(mappedBy = "profile")
-//    public List<Passport> passports = new ArrayList<Passport>();
+    @ManyToMany
+    public List<Passport> passports = new ArrayList<Passport>();
 
     public void addTravType(TravellerType travellerType) {
         this.travellerTypes.add(travellerType);
     }
 
-    public boolean removeTravType(TravellerType travellerType) {
-        if (this.travellerTypes.size() >= 2) {
-            return this.travellerTypes.remove(travellerType);
-        } else {
-            return false;
-        }
-    }
-
     public void addNationality(Nationality nationality) {
         this.nationalities.add(nationality);
+    }
+
+    public void addPassport(Passport passport) {
+        this.passports.add(passport);
     }
 
     /**
