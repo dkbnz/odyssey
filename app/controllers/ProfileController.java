@@ -324,7 +324,8 @@ public class ProfileController {
                         results.add(profile.toJson());
                     }
 
-                    return ok(results);
+                    return ok(views.html.viewProfiles.tableProfiles.render(results));
+                    //(views.html.viewDestinations.tableDestinations.render(destinations)
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
