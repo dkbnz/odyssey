@@ -274,9 +274,17 @@ $(document).ready(function () {
                 window.location = "/dash";  // Direct to dashboard
             },
             error: function(error) {
-                console.log(error)
+                // if element exists a length value is returned
+                if (!$("#err_sign_in").length) {    // If no length value returned, create warning
+                    $("#sign-in-form").append("\n" +
+                        "<div id=\"err_sign_in\" class=\"alert alert-danger\" > \n" +
+                        "Username or Password Incorrect \n" +
+                        "</div>");
+                }
             }
         });
+    }).focusout(function () {
+        $("#err_sign_in").remove();
     });
 
 });
