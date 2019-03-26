@@ -10,18 +10,34 @@
     <h1 class="page_title">Find A Travel Partner</h1>
     <p class="page_title"><i>Search for other travellers using the form below.</i> </p>
 
+    <div class="form-group">
+        <label for="profile-nationality">Nationalities:</label>
+        <select class="form-control" id="profile-nationality" multiple="multiple"></select>
+    </div>
 
-    <label for="profile-nationality">Name</label>
-    <input id="profile-nationality" type="text" class="form-control">
+    <div class="form-group">
+    <label for="profile-gender">Gender:</label>
+    <select id="profile-gender" class="form-control" multiple="multiple">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+    </select>
+    </div>
 
-    <label for="profile-gender">Type</label>
-    <input id="profile-gender" type="text" class="form-control">
+    <div class="form-group">
+        <label for="profile-min-age">Min Age:</label>
+        <input id="profile-min-age" type="text" class="form-control">
+    </div>
 
-    <label for="profile-age-range">District</label>
-    <input id="profile-age-range" type="text" class="form-control">
+    <div class="form-group">
+    <label for="profile-max-age">Max Age:</label>
+    <input id="profile-max-age" type="text" class="form-control">
+    </div>
 
-    <label for="profile-travellertypes">Latitude</label>
-    <input id="profile-travellertypes" type="text" class="form-control">
+    <div class="form-group">
+    <label for="profile-travellertypes">Traveller Type(s):</label>
+    <select class="form-control" id="profile-travellertypes" multiple="multiple"></select>
+    </div>
 
 
     @*<button type="submit" class="btn btn-primary" id="btn-Next" onclick="searchProfiles()">Search</button>*@
