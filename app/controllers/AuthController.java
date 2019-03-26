@@ -25,12 +25,13 @@ public class AuthController extends Controller {
         return request.session()
                 .getOptional("authorized")
                 .map(userId -> ok("OK")) // User is already logged in, return OK
-                .orElseGet(() -> {
+                .orElseGet(() -> { // orElseGet tries to get the `getOptional` value, otherwise executes the following function
+
                     // User is not logged in, attempt to search database
                     JsonNode json = request.body().asJson();
-                    System.out.println(json);
 
-                    if (!(json.has("username") && json.has("password"))) {
+                    // Check if a body was given and has required fields
+                    if (json == null || (!(json.has("username") && json.has("password")))) {
                         // If JSON Object contains no user or pass key, return bad request
                         // Prevents null pointer exceptions when trying to get the values below.
                         return badRequest();
