@@ -207,7 +207,6 @@ $(document).ready(function () {
      */
     $("#signup-form").submit(function (e) {
         // When initial signup form is submitted, shows next modal
-
         e.preventDefault();
         if (($("#err_username").length === 0) &&
             ($("#err_password").length === 0) &&
@@ -252,6 +251,29 @@ $(document).ready(function () {
             success: function (response) { // "Called if the request succeeds"
             },
             error: function (error) { // "Called if the request fails"
+                console.log(error)
+            }
+        });
+    });
+
+    /**
+     *  Profile sign in handler
+     */
+    $("#sign-in-form").submit(function (e) {
+        e.preventDefault();
+
+        $.ajax({
+            method: "POST",
+            url: "/login",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                username: $("#sign-in-username").val(),
+                password: $("#sign-in-password").val()
+            }),
+            success: function(response) {
+                console.log(response)
+            },
+            error: function(error) {
                 console.log(error)
             }
         });
