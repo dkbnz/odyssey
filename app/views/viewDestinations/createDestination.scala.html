@@ -1,34 +1,16 @@
 @import helper._
 
 @import models.destinations.Destination
-
+@import models.destinations.DestinationType
+@(types: List[DestinationType],stringTypes: List[String])
 <div class="container">
     <h1 class="page_title">Create a Destination</h1>
     <p class="page_title"><i>Add a new destination using the form below</i> </p>
 
     <label for="newDest_name">Name</label>
-    <input id="newDest_name" type="text" class="form-control">
-
-    <label for="newDest_type">Type</label>
-    <input id="newDest_type" type="text" class="form-control">
-
-@*    <select id="newDest_type" class="form-control">
-        <option>Place</option>
-        <option>Basin</option>
-        <option>Stream</option>
-        <option>Site</option>
-        <option>Hill</option>
-        <option>Cave</option>
-        <option>Pass</option>
-        <option>Rock</option>
-        <option>Recreation Reserve</option>
-        <option>Suburb</option>
-        <option>Channel</option>
-        <option>Glacier</option>
-        <option>Point</option>
-        <option>Lake</option>
-        <option>National Park</option>
-    </select>*@
+    <input id="newDest_name" type="text" class="form-control" autofocus>
+    <!--Import the selector box for type, populated from newTypeSelector.scala.html-->
+    @viewDestinations.newTypeSelector(types, stringTypes)
 
     <label for="newDest_district">District</label>
     <input id="newDest_district" type="text" class="form-control">
