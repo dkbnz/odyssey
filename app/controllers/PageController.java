@@ -52,4 +52,8 @@ public class PageController extends Controller {
         }
         return newDestinations;
     }
+
+    public Result searchProfiles() {
+        return ok(views.html.viewProfiles.profilesPage.render());
+    }
 }
