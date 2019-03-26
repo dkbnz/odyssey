@@ -176,10 +176,9 @@ public class ProfileController {
      * Takes a Http request containing a Json body and finds logged in user, then updates said user
      *
      * @param request
-     * @param id
      * @return
      */
-    public Result update(Http.Request request, Long id) {
+    public Result update(Http.Request request) {
         return request.session()
                 .getOptional("authorized")
                 .map(userId -> {
@@ -215,6 +214,7 @@ public class ProfileController {
 
                     userProfile.nationalities.clear();
                     userProfile.travellerTypes.clear();
+                    userProfile.passports.clear();
 
                     Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
                         Nationality newNat = Nationality.find.byId(node.asInt());
@@ -254,8 +254,9 @@ public class ProfileController {
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
                     List<Nationality> nationalities = Nationality.find.all();
                     List<Passport> passports = Passport.find.all();
+                    List<TravellerType> travTypes = TravellerType.find.all();
 
-                    return ok(views.html.dash.editProfile.render(userProfile, nationalities, passports));
+                    return ok(views.html.dash.editProfile.render(userProfile, nationalities, passports, travTypes));
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
