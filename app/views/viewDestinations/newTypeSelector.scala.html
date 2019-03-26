@@ -3,6 +3,7 @@
 @import models.destinations.DestinationType
 @(types: List[DestinationType], stringTypes: List[String])
 
+<!-- Selector for Destination Type -->
 <label for="newDestinationTypeSelector">Type</label>
 <select class="form-control" id="newDestinationTypeSelector">
     @for((item, index) <- types.zipWithIndex) {
