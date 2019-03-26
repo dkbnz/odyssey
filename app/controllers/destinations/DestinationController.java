@@ -28,6 +28,20 @@ public class DestinationController extends Controller {
         return ok(views.html.viewDestinations.tableDestinations.render(destinations));
     }
 
+    private boolean checkDestination(JsonNode json) {
+        List<Destination> destinations;
+        String name = json.get("name").toString();
+        ExpressionList<Destination> expressionList = Destination.find.query().where();
+
+        expressionList.eq(NAME, name);
+
+        System.out.println(expressionList);
+
+        destinations = expressionList.findList();
+        System.out.println(destinations);
+        return (destinations.isEmpty());
+    }
+
     /**
      * Fetches all destinations based on HTTP request query parameters.
      * @param request HTTP request containing query parameters to filter results.
@@ -93,13 +107,17 @@ public class DestinationController extends Controller {
      */
     public Result save(Http.Request request) {
         JsonNode json = request.body().asJson();
-
+        boolean checkName = checkDestination(json);
+        System.out.println(checkName);
+        if (checkName) {
+            return badRequest("Duplicate Destination Name Found!");
+        } else {
+            Destination destination = createNewDestination(json);
+            destination.save();
+            return ok("Created");
+        }
         //TODO: Validate fields
 
-        Destination destination = createNewDestination(json);
-
-        destination.save();
-        return ok("Created");
     }
 
     /**
