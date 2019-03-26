@@ -53,7 +53,7 @@
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="nationality">Nationalities:</label>
-                <select class="form-control" id="nationality" multiple="multiple">
+                <select class="form-control" id="nationality" multiple="multiple" required>
                     @for(nationality <- nationalities) {
 
                         <option value="@nationality.id" @for(userNationality <- currentUser.nationalities) {

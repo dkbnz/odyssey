@@ -254,30 +254,37 @@ $(document).ready(function () {
         e.preventDefault();
 
         // Perform traveller type and nationality checks here
+        if($("input[name='travtypes']:checked").map(function(){return this.value;}).get().length == 0) {
+            alert("Please select at least 1 traveller type")
+        } else {
 
-        $.ajax({
-            method: "POST",
-            url: "/api/profiles",
-            contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify({
-                username : $("#username").val(),
-                password : $("#password").val(),
-                first_name : $("#first_name").val(),
-                middle_name : $("#middle_name").val(),
-                last_name : $("#last_name").val(),
-                date_of_birth : $("#date_of_birth").val(),
-                gender : $("#gender").val(),
-                nationality : $("#nationality").val(),
-                passport_country : $("#passport").val(),
-                traveller_type : $("input[name='travtypes']:checked").map(function(){return this.value;}).get() // Creates an array of traveller type ids from checked boxes in carousel
-            }),
-            success: function (response) { // "Called if the request succeeds"
-                console.log(response); // TODO: Upon profile successfully being created, redirect to the profile page.
-                window.location="dash";
-            },
-            error: function (error) { // "Called if the request fails"
-                console.log(error)
-            }
-        });
+            $.ajax({
+                method: "POST",
+                url: "/api/profiles",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({
+                    username: $("#username").val(),
+                    password: $("#password").val(),
+                    first_name: $("#first_name").val(),
+                    middle_name: $("#middle_name").val(),
+                    last_name: $("#last_name").val(),
+                    date_of_birth: $("#date_of_birth").val(),
+                    gender: $("#gender").val(),
+                    nationality: $("#nationality").val(),
+                    passport_country: $("#passport").val(),
+                    traveller_type: $("input[name='travtypes']:checked").map(function () {
+                        return this.value;
+                    }).get() // Creates an array of traveller type ids from checked boxes in carousel
+                }),
+                success: function (response) { // "Called if the request succeeds"
+                    console.log(response); // TODO: Upon profile successfully being created, redirect to the profile page.
+                    window.location = "dash";
+                },
+                error: function (error) { // "Called if the request fails"
+                    console.log(error)
+                }
+            });
+
+        }
     });
 });
