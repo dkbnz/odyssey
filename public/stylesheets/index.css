@@ -1,3 +1,9 @@
+body {
+    background-color: #e2e6ea;
+    padding-top: 0px;
+
+}
+
 .bg {
     /* Background image used */
     background-image: url("../images/background_image.jpg");

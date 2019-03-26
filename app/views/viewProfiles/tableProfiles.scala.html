@@ -15,17 +15,21 @@
         </tr>
     </thead>
     <tbody>
-        @*
-    @for(profile <- profiles) {
-        <tr>
-            <td>@profile.getFirstName</td>
-            <td>@profile.getLastName</td>
-            <td>@profile.getNationality</td>
-            <td>@profile.getGender</td>
-            <td>@profile.getAge</td>
-            <td>@profile.getTravellerTypes</td>
-        </tr>
-    }
-        *@
+        @for(profile <- profiles) {
+            <tr>
+                <td>@profile.getFirstName</td>
+                <td>@profile.getLastName</td>
+                <td>@for(nationalities <- profile.getNationalities) {
+                    @nationalities.nationality <br/>
+                }
+                </td>
+                <td>@profile.getGender</td>
+                <td>@profile.getAge</td>
+                <td>@for(travellerTypes <- profile.getTravellerTypes) {
+                    @travellerTypes.travellerType <br/>
+                }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
