@@ -4,7 +4,6 @@
 function searchDestinations() {
     var name = document.getElementById("dest_name").value;
     var type = document.getElementById("searchDestinationTypeSelector").value;
-    console.log(type);
     var district = document.getElementById("dest_district").value;
     var latitude = document.getElementById("dest_latitude").value;
     var longitude = document.getElementById("dest_longitude").value;
@@ -22,8 +21,6 @@ function searchDestinations() {
             document.getElementById("tableDestinations").classList.add("active");
             var newTableObject = document.getElementById("keywords");
             sorttable.makeSortable(newTableObject);
-
-
         },
         error: function() {
             document.getElementById("keywords").classList.remove("d-none");
@@ -41,7 +38,6 @@ function createDestination() {
     var latitude = document.getElementById("newDest_latitude").value;
     var longitude = document.getElementById("newDest_longitude").value;
     var country = document.getElementById("newDest_country").value;
-
     var fieldList = [name, type, district, latitude, longitude, country];
     var errorList = checkFields(fieldList);
 
@@ -130,8 +126,6 @@ function checkFields(fields) {
             error.push(possibleFields[i]);
         }
     }
-    //console.log(fields[3]);
-    //console.log(fields[4]);
     if(isNaN(fields[3])) {
         error.push(possibleFields[3]);
     }
