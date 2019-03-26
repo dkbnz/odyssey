@@ -1,15 +1,13 @@
 /**
- * Following ajax call populates the passport and nationality dropdowns
+ * Following ajax call populates the nationality dropdowns
  */
 $.ajax({
     method: "GET",
     url: "/api/nationalities",
-    success: function (response) { // "Called if the request succeeds"
+    success: function (response) { // Called if the request succeeds
         for (var key in response) {
-
             $("#profile-nationality").append("<option value=\"" + response[key].id + "\">" + response[key].nationality + "</option>");
         }
-
         /*
         $('#profile-nationality').multiselect({
             buttonWidth: '60%',
@@ -19,9 +17,8 @@ $.ajax({
 
         });
         */
-
     },
-    error: function (error) { // "Called if the request fails"
+    error: function (error) { // Called if the request fails
         console.log(error)
     }
 });
@@ -33,11 +30,10 @@ $.ajax({
 $.ajax({
     method: "GET",
     url: "/api/travtypes",
-    success: function (response) { // "Called if the request succeeds"
+    success: function (response) { // Called if the request succeeds
         for (var key in response) {
             $("#profile-travellertypes").append("<option value=\"" + response[key].id + "\">" + response[key].travellerType + "</option>");
         }
-
         /*
         $('#profile-travellertypes').multiselect({
             buttonWidth: '60%',
@@ -53,10 +49,8 @@ $.ajax({
             enableCaseInsensitiveFiltering: true
         });
         */
-
-
     },
-    error: function (error) { // "Called if the request fails"
+    error: function (error) { // Called if the request fails
         console.log(error)
     }
 });
@@ -81,16 +75,17 @@ function searchProfiles() {
         dataType: 'html',
 
         success: function(response) {
-            console.log("HERE");
-            $("#keywords").remove();
+            console.log(response);
+            $("#profile-list").remove();
             $("#tableContent").append(response);
-            document.getElementById("keywords").classList.remove("d-none");
+            document.getElementById("profile-list").classList.remove("d-none");
             document.getElementById("tableProfiles").classList.add("active");
-            var newTableObject = document.getElementById("keywords");
+            var newTableObject = document.getElementById("profile-list");
             sorttable.makeSortable(newTableObject);
         },
-        error: function() {
-            document.getElementById("keywords").classList.remove("d-none");
+        error: function(error) {
+            console.log(error);
+            document.getElementById("profile-list").classList.remove("d-none");
         }
     });
 }

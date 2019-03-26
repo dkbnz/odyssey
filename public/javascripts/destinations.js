@@ -23,7 +23,6 @@ function searchDestinations() {
             var newTableObject = document.getElementById("keywords");
             sorttable.makeSortable(newTableObject);
         },
-
         error: function() {
             document.getElementById("keywords").classList.remove("d-none");
         }
