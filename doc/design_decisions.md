@@ -4,15 +4,15 @@
 ## Creating a Profile
 
 **First Name(s)** *required*  
-Max Characters: 30   
+Max Characters: 100   
 Allowed Characters: letters, hyphens, apostrophes and spaces  
 
 **Middle Name(s)**  
-Max Characters: 30   
+Max Characters: 100   
 Allowed Characters: letters, hyphens, apostrophes and spaces   
 
 **Last Name(s)** *required*  
-Max Characters: 30   
+Max Characters: 100   
 Allowed Characters: letters, hyphens, apostrophes and spaces
 
 <a name="username"></a>
