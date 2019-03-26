@@ -36,10 +36,42 @@ $(document).ready(function () {
                 maxHeight: 400
 
             });
+
+            $("#edit-form").submit(function(e) {
+
+                e.preventDefault();
+
+                $.ajax({
+                    method: "PUT",
+                    url: "/api/profile",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({
+                        username : $("#username").val(),
+                        password : $("#password").val(),
+                        first_name : $("#first_name").val(),
+                        middle_name : $("#middle_name").val(),
+                        last_name : $("#last_name").val(),
+                        date_of_birth : $("#date_of_birth").val(),
+                        gender : $("#gender").val(),
+                        nationality : $("#nationality").val(),
+                        passport_country : $("#passport").val(),
+                        traveller_type : $("input[name='travtypes']:checked").map(function(){return this.value;}).get() // Creates an array of traveller type ids from checked boxes in carousel
+                    }),
+                    success: function (response) { // "Called if the request succeeds"
+                        console.log(response);
+                        alert("update successful")
+                    },
+                    error: function (error) { // "Called if the request fails"
+                        console.log(error)
+                    }
+                });
+            });
+
         },
         error: function (error) {
             console.log(error)
         }
     });
+
 
 });
