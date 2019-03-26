@@ -65,7 +65,7 @@ function createDestination() {
             },
             error: function (error) {
                 console.log(error);
-                timeoutAlert("#createDestinationError", "Internal Server Error, try again!");
+                timeoutAlert("#createDestinationError", "Internal Server Error, try again! Hint: the destination might already exist");
             }
         });
     } else {
