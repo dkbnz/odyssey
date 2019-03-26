@@ -3,12 +3,12 @@ package steps;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Module;
+import cucumber.api.java.After;
+import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import play.Application;
 import play.ApplicationLoader;
 import play.Environment;
@@ -19,7 +19,6 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 import javax.inject.Inject;
-
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.GET;
@@ -34,7 +33,7 @@ public class DestinationTestSteps {
     private int statusCode;
 
     @Before
-    public void setup() {
+    public void setUp() {
         Module testModule = new AbstractModule() { };
 
         GuiceApplicationBuilder builder = new GuiceApplicationLoader()
@@ -52,7 +51,7 @@ public class DestinationTestSteps {
 
     @Given("I have a running application")
     public void i_have_a_running_application() {
-        Assert.assertNotNull(application);
+        Assert.assertTrue(application.isTest());
     }
 
     @When("I send a GET request to the destinations endpoint")
