@@ -58,14 +58,16 @@ $(document).ready(function () {
             $('#nationality').multiselect({
                 buttonWidth: '60%',
                 enableFiltering: true,
-                maxHeight: 400
+                maxHeight: 400,
+                enableCaseInsensitiveFiltering: true
 
             });
 
             $('#passport').multiselect({
                 buttonWidth: '60%',
                 enableFiltering: true,
-                maxHeight: 400
+                maxHeight: 400,
+                enableCaseInsensitiveFiltering: true
             });
         },
         error: function (error) { // "Called if the request fails"
