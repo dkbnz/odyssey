@@ -19,10 +19,6 @@ public class DestinationController extends Controller {
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
 
-    public Result index() {
-        return ok(views.html.viewDestinations.destinationsPage.render());
-    }
-
     /**
      * Fetches all destinations.
      * @return HTTP response containing the destinations found in the response body.
