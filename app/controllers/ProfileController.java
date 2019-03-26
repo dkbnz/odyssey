@@ -254,8 +254,9 @@ public class ProfileController {
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
                     List<Nationality> nationalities = Nationality.find.all();
                     List<Passport> passports = Passport.find.all();
+                    List<TravellerType> travTypes = TravellerType.find.all();
 
-                    return ok(views.html.dash.editProfile.render(userProfile, nationalities, passports));
+                    return ok(views.html.dash.editProfile.render(userProfile, nationalities, passports, travTypes));
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
