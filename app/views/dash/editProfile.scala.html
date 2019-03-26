@@ -6,25 +6,25 @@
         <div id="firstname_group">
             <div class="form-group">
                 <label>First Name(s):</label>
-                <input id="first_name" type="text" class="form-control" value="@currentUser.firstName" required>
+                <input id="first_name" type="text" class="form-control" value="@currentUser.getFirstName" required>
             </div>
         </div>
         <div id="middlename_group">
             <div class="form-group">
                 <label>Middle Name(s):</label>
-                <input id="middle_name" type="text" class="form-control" value="@currentUser.middleName" placeholder="Optional">
+                <input id="middle_name" type="text" class="form-control" value="@currentUser.getMiddleName" placeholder="Optional">
             </div>
         </div>
         <div id="lastname_group">
             <div class="form-group">
                 <label>Last Name(s):</label>
-                <input id="last_name" type="text" class="form-control" value="@currentUser.lastName" required>
+                <input id="last_name" type="text" class="form-control" value="@currentUser.getLastName" required>
             </div>
         </div>
         <div id="username_group">
             <div class="form-group">
                 <label>Username:</label>
-                <input id="username" type="text" class="form-control" value="@currentUser.username" required>
+                <input id="username" type="text" class="form-control" value="@currentUser.getUsername" required>
             </div>
         </div>
         <div id="password_group">
@@ -39,11 +39,11 @@
         </div>
         <div class="form-group">
             <label>Date of birth:</label>
-            <input id="date_of_birth" type="date" class="form-control" value="@currentUser.dateOfBirth" required>
+            <input id="date_of_birth" type="date" class="form-control" value="@currentUser.getDateOfBirth" required>
         </div>
         <div class="form-group">
             <label>Gender:</label>
-            <select id="gender" type="" class="form-control"  value="@currentUser.gender" required>
+            <select id="gender" type="" class="form-control"  value="@currentUser.getGender" required>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
                 <option value="other">Other</option>
@@ -56,18 +56,13 @@
                 <select class="form-control" id="nationality" multiple="multiple" required>
                     @for(nationality <- nationalities) {
 
-                        <option value="@nationality.id" @for(userNationality <- currentUser.nationalities) {
-                            @if(userNationality.id == nationality.id) {
+                        <option value="@nationality.getId" @for(userNationality <- currentUser.getNationalities) {
+                            @if(userNationality.getId == nationality.getId) {
                                 selected
                             }
-                        }>@nationality.nationality</option>
+                        }>@nationality.getNationality</option>
                     }
                 </select>
-
-                <script>
-
-                    $("#nationality")
-                </script>
 
             </div>
             <div class="form-group col-md-6">
@@ -75,11 +70,11 @@
                 <select class="form-control" id="passport" multiple="multiple">
                     @for(passport <- passports) {
 
-                        <option value="@passport.id" @for(userPassport <- currentUser.passports) {
-                            @if(userPassport.id == passport.id) {
+                        <option value="@passport.getId" @for(userPassport <- currentUser.getPassports) {
+                            @if(userPassport.getId == passport.getId) {
                                 selected
                             }
-                        }>@passport.country</option>
+                        }>@passport.getCountry</option>
                     }
                 </select>
             </div>
@@ -90,7 +85,7 @@
                 <ol class="carousel-indicators">
 
                     @for(travType <- travTypes) {
-                        <li data-target="#trav-carousel" data-slide-to="@{travType.id - 1}"></li>
+                        <li data-target="#trav-carousel" data-slide-to="@{travType.getId - 1}"></li>
                     }
 
 
@@ -99,15 +94,15 @@
 
 
                     @for(travType <- travTypes) {
-                        <div class="carousel-item @if(travType.id == 1){active}">
-                            <img style="width: 100%" src="@travType.imgUrl" alt="@travType.travellerType">
+                        <div class="carousel-item @if(travType.getId == 1){active}">
+                            <img style="width: 100%" src="@travType.getImgUrl" alt="@travType.getTravellerType">
                             <div class="carousel-caption">
-                                <h3>@travType.travellerType</h3>
-                                <h5><input name="travtypes" type="checkbox" value="@travType.id" @for(userTravType <- currentUser.travellerTypes) {
-                                    @if(userTravType.id == travType.id) {
+                                <h3>@travType.getTravellerType</h3>
+                                <h5><input name="travtypes" type="checkbox" value="@travType.getId" @for(userTravType <- currentUser.getTravellerTypes) {
+                                    @if(userTravType.getId == travType.getId) {
                                         checked
                                     }
-                                }> @travType.description</h5>
+                                }> @travType.getDescription</h5>
                                 <p></p>
                             </div>
                         </div>
