@@ -30,7 +30,8 @@ public class AuthController extends Controller {
                     // User is not logged in, attempt to search database
                     JsonNode json = request.body().asJson();
 
-                    if (!(json.has("username") && json.has("password"))) {
+                    // Check if a body was given and has required fields
+                    if (json == null || (!(json.has("username") && json.has("password")))) {
                         // If JSON Object contains no user or pass key, return bad request
                         // Prevents null pointer exceptions when trying to get the values below.
                         return badRequest();
