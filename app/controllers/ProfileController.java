@@ -124,11 +124,35 @@ public class ProfileController {
      */
     public Result checkUsername(Http.Request request) {
         JsonNode json = request.body().asJson();
-        if (!profileExists(json.get("username").asText())) {
-            return ok();
-        } else {
+
+        if (!json.has("username")) {
             return badRequest();
         }
+
+        String username = json.get("username").asText();
+
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> {
+                    // User is logged in, used for editing
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+
+                    if (!profileExists(username) || userProfile.username.equals(username)) {
+                        return ok(); // If they are checking their own username, return ok()
+                    } else {
+                        return badRequest();
+                    }
+                })
+                .orElseGet(() -> {
+                    //User is not logged in, used for signup
+                    if (!profileExists(username)) {
+                        return ok();
+                    } else {
+                        return badRequest();
+                    }
+                }); // User is not logged in
+
+
     }
 
 
