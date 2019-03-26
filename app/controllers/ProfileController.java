@@ -61,6 +61,11 @@ public class ProfileController {
             return badRequest();
         }
 
+        if(json.get("nationality").size() == 0
+        || json.get("traveller_type").size() == 0) {
+            return badRequest();
+        }
+
         Profile newUser = new Profile();
 
         newUser.username = json.get("username").asText();
