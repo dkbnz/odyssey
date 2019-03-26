@@ -42,3 +42,4 @@ PUT     /api/destination/:id            controllers.destinations.DestinationCont
 GET     /                               controllers.PageController.index()
 GET     /dash                           controllers.PageController.dash()
 GET     /destinations                   controllers.PageController.destinations()
+GET     /searchProfile                  controllers.PageController.searchProfiles()

@@ -24,4 +24,7 @@ public class PageController extends Controller {
      * Method to serve the destinations page
      */
     public Result destinations() { return ok(views.html.viewDestinations.destinationsPage.render()); }
+
+
+    public Result searchProfiles() { return ok(views.html.viewProfiles.profilesPage.render()); }
 }
