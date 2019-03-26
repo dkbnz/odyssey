@@ -1,4 +1,4 @@
-@(currentUser: Profile, nationalities: List[Nationality], passports: List[Passport])
+@(currentUser: Profile, nationalities: List[Nationality], passports: List[Passport], travTypes: List[TravellerType])
 
 <div class="container">
     <form id="edit-form" role="form">
@@ -87,10 +87,32 @@
         <div class="form-group">
             <div id="trav-carousel" class="carousel slide" data-ride="carousel">
                 <ol class="carousel-indicators">
-                    @* Indicators populated from database by jQuery *@
+
+                    @for(travType <- travTypes) {
+                        <li data-target="#trav-carousel" data-slide-to="@{travType.id - 1}"></li>
+                    }
+
+
                 </ol>
                 <div class="carousel-inner" id="trav-carousel-body">
-                    @* Carousel populated from database by jQuery *@
+
+
+                    @for(travType <- travTypes) {
+                        <div class="carousel-item @if(travType.id == 1){active}">
+                            <img style="width: 100%" src="@travType.imgUrl" alt="@travType.travellerType">
+                            <div class="carousel-caption">
+                                <h3>@travType.travellerType</h3>
+                                <h5><input name="travtypes" type="checkbox" value="@travType.id" @for(userTravType <- currentUser.travellerTypes) {
+                                    @if(userTravType.id == travType.id) {
+                                        checked
+                                    }
+                                }> @travType.description</h5>
+                                <p></p>
+                            </div>
+                        </div>
+                    }
+
+
                 </div>
                 <a class="carousel-control-prev" href="#trav-carousel" role="button" data-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
