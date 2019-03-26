@@ -12,13 +12,11 @@ import javax.persistence.Entity;
 @Entity
 public class Destination extends BaseModel {
 
-
     /**
      * The name of the destination.
      */
     @Constraints.Required
     private String name;
-
 
     /**
      * The type of destination (monument, natural landmark, building, event, etc...).
@@ -33,14 +31,12 @@ public class Destination extends BaseModel {
     @Constraints.Required
     private String district;
 
-
     /**
      * The latitude of the destination.
      *
      */
     @Constraints.Required
     private double latitude;
-
 
     /**
      * The longitude of the destination.
@@ -49,13 +45,16 @@ public class Destination extends BaseModel {
     @Constraints.Required
     private double longitude;
 
-
     /**
      * The country the destination belongs to.
      */
     @Constraints.Required
     private String country;
 
+    /**
+     * Custom finder for destinations. Supports querying the destination data table through Ebean.
+     */
+    public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
 
     public String getName() {
         return name;
@@ -104,6 +103,4 @@ public class Destination extends BaseModel {
     public void setCountry(String country) {
         this.country = country;
     }
-
-    public static Finder<Integer, Destination> find = new Finder<>(Destination.class);
 }
