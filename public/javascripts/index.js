@@ -71,6 +71,19 @@ $(document).ready(function () {
         }
     });
 
+    /**
+     * Send an empty login request to the server. Should redirect to dashboard if logged in already
+     */
+    $.ajax({
+        method: "POST",
+        url: "/api/login",
+        success: function () {  // Success send in response if already logged in
+            window.location = "/dash"
+        },
+        error: function () {
+        }
+    });
+
 
     /**
      *  Upon deselecting input container, check the text entry from the input container against the database to see if their proposed username is already taken
@@ -207,7 +220,6 @@ $(document).ready(function () {
      */
     $("#signup-form").submit(function (e) {
         // When initial signup form is submitted, shows next modal
-
         e.preventDefault();
         if (($("#err_username").length === 0) &&
             ($("#err_password").length === 0) &&
@@ -255,6 +267,37 @@ $(document).ready(function () {
                 console.log(error)
             }
         });
+    });
+
+    /**
+     *  Profile sign in handler
+     */
+    $("#sign-in-form").submit(function (e) {
+        e.preventDefault();
+
+        $.ajax({
+            method: "POST",
+            url: "/api/login",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                username: $("#sign-in-username").val(),
+                password: $("#sign-in-password").val()
+            }),
+            success: function(response) {
+                window.location = "/dash";  // Direct to dashboard
+            },
+            error: function(error) {
+                // if element exists a length value is returned
+                if (!$("#err_sign_in").length) {    // If no length value returned, create warning
+                    $("#sign-in-form").append("\n" +
+                        "<div id=\"err_sign_in\" class=\"alert alert-danger\" > \n" +
+                        "Username or Password Incorrect \n" +
+                        "</div>");
+                }
+            }
+        });
+    }).focusout(function () {
+        $("#err_sign_in").remove();
     });
 
 });
