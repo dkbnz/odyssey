@@ -241,6 +241,11 @@ public class ProfileController {
                         return badRequest();
                     }
 
+                    if(json.get("nationality").size() == 0
+                            || json.get("traveller_type").size() == 0) {
+                        return badRequest();
+                    }
+
                     if (!json.get("password").asText().isEmpty()) { // Only update password if user has typed a new one
                         userProfile.password = json.get("password").asText();
                     }
