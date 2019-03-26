@@ -1,6 +1,6 @@
 @import helper._
 
-@import models.destinations.Destination
+@import models.Profile
 @(profiles: List[Profile])
 
 <table id="keywords" class = "sortable d-none" cellspacing="0" cellpadding="0">
@@ -15,17 +15,15 @@
         </tr>
     </thead>
     <tbody>
-        @*
-    @for(profile <- profiles) {
-        <tr>
-            <td>@profile.getFirstName</td>
-            <td>@profile.getLastName</td>
-            <td>@profile.getNationality</td>
-            <td>@profile.getGender</td>
-            <td>@profile.getAge</td>
-            <td>@profile.getTravellerTypes</td>
-        </tr>
-    }
-        *@
+        @for(profile <- profiles) {
+            <tr>
+                <td>@profile.getFirstName</td>
+                <td>@profile.getLastName</td>
+                <td>@profile.getNationalities</td>
+                <td>@profile.getGender</td>
+                <td>@profile.getAge</td>
+                <td>@profile.getTravellerTypes</td>
+            </tr>
+        }
     </tbody>
 </table>
