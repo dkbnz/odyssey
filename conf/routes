@@ -11,6 +11,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 GET     /api/profiles                   controllers.ProfileController.list(request: Request)
 POST    /api/profiles                   controllers.ProfileController.create(request: Request)
 GET     /api/profile                    controllers.ProfileController.fetch(request: Request)
+GET     /api/profile/edit               controllers.ProfileController.edit(request: Request)
 PUT     /api/profile/:id                controllers.ProfileController.update(request: Request, id: Long)
 DELETE  /api/profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
 
