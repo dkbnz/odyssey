@@ -74,6 +74,21 @@ $(document).ready(function () {
                 $("#err_password1").remove();
                 var mediumRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
 
+    // When logout button clicked, send POST request to logout
+    $("#logout-btn").click(function(){
+        $.ajax({
+            method: "POST",
+            url: "/api/logout",
+            success: function (response) { // "Called if the request succeeds"
+                window.location = "/" // Redirect to index
+            },
+            error: function (error) { // "Called if the request fails"
+                console.log(error)
+            }
+        });
+    });
+
+});
                 if(!(mediumRegex.test($("#password").val()))) {
                     // If the contents checked are not accepted by the regex, then present an error message below the container.
                     $(".p1").append("\n" +
