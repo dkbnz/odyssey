@@ -61,6 +61,11 @@ public class ProfileController {
             return badRequest();
         }
 
+        if(json.get("nationality").size() == 0
+        || json.get("traveller_type").size() == 0) {
+            return badRequest();
+        }
+
         Profile newUser = new Profile();
 
         newUser.username = json.get("username").asText();
@@ -236,6 +241,11 @@ public class ProfileController {
                         return badRequest();
                     }
 
+                    if(json.get("nationality").size() == 0
+                            || json.get("traveller_type").size() == 0) {
+                        return badRequest();
+                    }
+
                     if (!json.get("password").asText().isEmpty()) { // Only update password if user has typed a new one
                         userProfile.password = json.get("password").asText();
                     }
@@ -246,7 +256,6 @@ public class ProfileController {
                     userProfile.lastName = json.get("last_name").asText();
                     userProfile.dateOfBirth = LocalDate.parse(json.get("date_of_birth").asText());
                     userProfile.gender = json.get("gender").asText();
-                    userProfile.dateOfCreation = new Date();
 
                     userProfile.nationalities.clear();
                     userProfile.travellerTypes.clear();
@@ -320,11 +329,11 @@ public class ProfileController {
                         profiles = searchProfiles(request.queryString());
                     }
 
-                    for (Profile profile : profiles) {
-                        results.add(profile.toJson());
-                    }
+//                    for (Profile profile : profiles) {
+//                        results.add(profile.toJson());
+//                    }
 
-                    return ok(results);
+                    return ok(views.html.viewProfiles.tableProfiles.render(profiles));
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
@@ -342,7 +351,6 @@ public class ProfileController {
         if (gender.length() != 0) {
             profileExpressionList.eq(GENDER, gender);
         }
-
         if ((maxAge.length() != 0)) {
             minDate = LocalDate.now().minusYears(Integer.parseInt(maxAge));
         }
@@ -359,7 +367,6 @@ public class ProfileController {
         }
 
         return profileExpressionList.findList();
-
     }
 
 
