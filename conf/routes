@@ -12,7 +12,7 @@ GET     /api/profiles                   controllers.ProfileController.list(reque
 POST    /api/profiles                   controllers.ProfileController.create(request: Request)
 GET     /api/profile                    controllers.ProfileController.fetch(request: Request)
 GET     /api/profile/edit               controllers.ProfileController.edit(request: Request)
-PUT     /api/profile/:id                controllers.ProfileController.update(request: Request, id: Long)
+PUT     /api/profile                    controllers.ProfileController.update(request: Request)
 DELETE  /api/profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
 
 GET     /api/travtypes                  controllers.TravellerTypeController.list()
