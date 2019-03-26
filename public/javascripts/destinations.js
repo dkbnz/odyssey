@@ -2,7 +2,6 @@
  * Function to search for destinations, uses an Ajax GET request and populates table in the view.
  */
 function searchDestinations() {
-    //document.getElementById("tableDestinations").className("tab-pane fade active show");
     var name = document.getElementById("dest_name").value;
     var type = document.getElementById("searchDestinationTypeSelector").value;
     console.log(type);
@@ -33,7 +32,49 @@ function searchDestinations() {
 }
 
 /**
- * Hides the table upon load of the creat destinations page.
+ * Function to create a destination, uses an Ajax POST request and populates the database if input is valid.
+ */
+function createDestination() {
+    var name = document.getElementById("newDest_name").value;
+    var type = document.getElementById("newDestinationTypeSelector").value;
+    var district = document.getElementById("newDest_district").value;
+    var latitude = document.getElementById("newDest_latitude").value;
+    var longitude = document.getElementById("newDest_longitude").value;
+    var country = document.getElementById("newDest_country").value;
+
+    var fieldList = [name, type, district, latitude, longitude, country];
+    var errorList = checkFields(fieldList);
+
+    if(errorList.length === 0) {
+        $.ajax({
+            method: "POST",
+            url: "/api/destinations",
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({
+                name : name,
+                type : type,
+                district : district,
+                latitude : Number(latitude),
+                longitude : Number(longitude),
+                country : country
+            }),
+            success: function () {
+                $('#createDestinationError').hide();
+                timeoutAlert("#createDestinationSuccess","");
+                resetForm();
+            },
+            error: function (error) {
+                console.log(error);
+                timeoutAlert("#createDestinationError", "Internal Server Error, try again!");
+            }
+        });
+    } else {
+        timeoutAlert("#createDestinationError", "We found errors in the following fields:" + errorList);
+    }
+}
+
+/**
+ * Hides the table upon load of the create destinations page/div.
  */
 function hideTable() {
     var table = document.getElementById("keywords");
@@ -67,7 +108,7 @@ function hideErrorBanner() {
 }
 
 /**
- * Function to reset the form when destination is created.
+ * Function to reset the form when destination is successfully created.
  */
 function resetForm() {
     document.getElementById("newDest_name").value = "";
@@ -89,6 +130,8 @@ function checkFields(fields) {
             error.push(possibleFields[i]);
         }
     }
+    //console.log(fields[3]);
+    //console.log(fields[4]);
     if(isNaN(fields[3])) {
         error.push(possibleFields[3]);
     }
@@ -111,43 +154,3 @@ function timeoutAlert(id, text) {
 }
 
 
-/**
- * Function to create a destination, uses an Ajax POST request and populates the database if input is valid.
- */
-function createDestination() {
-    var name = document.getElementById("newDest_name").value;
-    var type = document.getElementById("newDestinationTypeSelector").value;
-    var district = document.getElementById("newDest_district").value;
-    var latitude = Number(document.getElementById("newDest_latitude").value);
-    var longitude = Number(document.getElementById("newDest_longitude").value);
-    var country = document.getElementById("newDest_country").value;
-
-    var fieldList = [name, type, district, latitude, longitude, country];
-    var errorList = checkFields(fieldList);
-
-    if(errorList.length === 0) {
-        $.ajax({
-            method: "POST",
-            url: "/api/destinations",
-            contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify({
-                name : name,
-                type : type,
-                district : district,
-                latitude : latitude,
-                longitude : longitude,
-                country : country
-            }),
-            success: function () {
-                $('#createDestinationError').hide();
-                timeoutAlert("#createDestinationSuccess","");
-                resetForm();
-            },
-            error: function () {
-                timeoutAlert("#createDestinationError", "Internal Server Error, try again!");
-            }
-        });
-    } else {
-        timeoutAlert("#createDestinationError", "We found errors in the following fields:" + errorList);
-    }
-}
