@@ -71,6 +71,19 @@ $(document).ready(function () {
         }
     });
 
+    /**
+     * Send an empty login request to the server. Should redirect to dashboard if logged in already
+     */
+    $.ajax({
+        method: "POST",
+        url: "/api/login",
+        success: function () {  // Success send in response if already logged in
+            window.location = "/dash"
+        },
+        error: function () {
+        }
+    });
+
 
     /**
      *  Upon deselecting input container, check the text entry from the input container against the database to see if their proposed username is already taken
