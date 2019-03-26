@@ -1,3 +1,13 @@
+/**
+ * Hides the navbar and the footer on the welcome page.
+ */
+
+window.onload = function() {
+    document.getElementById('navbar').style.display = 'none';
+    document.getElementById('footer').style.display = 'none';
+
+};
+
 $(document).ready(function () {
 
 
@@ -48,14 +58,16 @@ $(document).ready(function () {
             $('#nationality').multiselect({
                 buttonWidth: '60%',
                 enableFiltering: true,
-                maxHeight: 400
+                maxHeight: 400,
+                enableCaseInsensitiveFiltering: true
 
             });
 
             $('#passport').multiselect({
                 buttonWidth: '60%',
                 enableFiltering: true,
-                maxHeight: 400
+                maxHeight: 400,
+                enableCaseInsensitiveFiltering: true
             });
         },
         error: function (error) { // "Called if the request fails"
