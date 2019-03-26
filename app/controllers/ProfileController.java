@@ -333,10 +333,6 @@ public class ProfileController {
                         profiles = searchProfiles(request.queryString());
                     }
 
-//                    for (Profile profile : profiles) {
-//                        results.add(profile.toJson());
-//                    }
-
                     return ok(views.html.viewProfiles.tableProfiles.render(profiles));
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
