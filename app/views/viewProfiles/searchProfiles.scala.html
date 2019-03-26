@@ -12,16 +12,16 @@
 
     <div class="form-group">
         <label for="profile-nationality">Nationalities:</label>
-        <select class="form-control" id="profile-nationality" multiple="multiple"></select>
+        <select class="form-control" id="profile-nationality"></select><!--multiple="multiple"-->
     </div>
 
     <div class="form-group">
-    <label for="profile-gender">Gender:</label>
-    <select id="profile-gender" class="form-control" multiple="multiple">
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-        <option value="other">Other</option>
-    </select>
+        <label for="profile-gender">Gender:</label>
+        <select id="profile-gender" class="form-control"> <!--multiple="multiple"-->
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+        </select>
     </div>
 
     <div class="form-group">
@@ -30,16 +30,15 @@
     </div>
 
     <div class="form-group">
-    <label for="profile-max-age">Max Age:</label>
-    <input id="profile-max-age" type="text" class="form-control">
+        <label for="profile-max-age">Max Age:</label>
+        <input id="profile-max-age" type="text" class="form-control">
     </div>
 
     <div class="form-group">
-    <label for="profile-travellertypes">Traveller Type(s):</label>
-    <select class="form-control" id="profile-travellertypes" multiple="multiple"></select>
+        <label for="profile-travellertypes">Traveller Type(s):</label>
+        <select class="form-control" id="profile-travellertypes"></select><!--multiple="multiple"-->
     </div>
 
-
-    @*<button type="submit" class="btn btn-primary" id="btn-Next" onclick="searchProfiles()">Search</button>*@
+    <button type="submit" class="btn btn-primary" id="btn-Next" onclick="searchProfiles()">Search</button>
 
 </div>
