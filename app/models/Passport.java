@@ -1,5 +1,7 @@
 package models;
 
+import io.ebean.Finder;
+
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -7,11 +9,7 @@ import javax.persistence.OneToMany;
 @Entity
 public class Passport extends BaseModel {
 
-    public String issueCountry;
+    public String country;
 
-    @ManyToOne
-    public Profile profile;
-
-    @ManyToOne
-    public Nationality nationality;
+    public static Finder<Integer, Passport> find = new Finder<>(Passport.class);
 }
