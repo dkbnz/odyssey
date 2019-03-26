@@ -22,7 +22,7 @@ import models.Profile;
 
 
 /**
- * Display Profile page
+ * Display Profile destinationsPage
  */
 public class PlanTripsController extends Controller {
     /**
