@@ -320,12 +320,11 @@ public class ProfileController {
                         profiles = searchProfiles(request.queryString());
                     }
 
-                    for (Profile profile : profiles) {
-                        results.add(profile.toJson());
-                    }
+//                    for (Profile profile : profiles) {
+//                        results.add(profile.toJson());
+//                    }
 
-                    return ok(views.html.viewProfiles.tableProfiles.render(results));
-                    //(views.html.viewDestinations.tableDestinations.render(destinations)
+                    return ok(views.html.viewProfiles.tableProfiles.render(profiles));
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
@@ -343,7 +342,6 @@ public class ProfileController {
         if (gender.length() != 0) {
             profileExpressionList.eq(GENDER, gender);
         }
-
         if ((maxAge.length() != 0)) {
             minDate = LocalDate.now().minusYears(Integer.parseInt(maxAge));
         }
@@ -360,7 +358,6 @@ public class ProfileController {
         }
 
         return profileExpressionList.findList();
-
     }
 
 
