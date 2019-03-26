@@ -9,6 +9,7 @@ import play.libs.Json;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,23 +38,19 @@ public class Profile extends BaseModel {
     @ManyToMany
     public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
 
-//    @OneToMany(mappedBy = "profile")
-//    public List<Passport> passports = new ArrayList<Passport>();
+    @ManyToMany
+    public List<Passport> passports = new ArrayList<Passport>();
 
     public void addTravType(TravellerType travellerType) {
         this.travellerTypes.add(travellerType);
     }
 
-    public boolean removeTravType(TravellerType travellerType) {
-        if (this.travellerTypes.size() >= 2) {
-            return this.travellerTypes.remove(travellerType);
-        } else {
-            return false;
-        }
-    }
-
     public void addNationality(Nationality nationality) {
         this.nationalities.add(nationality);
+    }
+
+    public void addPassport(Passport passport) {
+        this.passports.add(passport);
     }
 
     /**
@@ -65,6 +62,32 @@ public class Profile extends BaseModel {
         ObjectNode profile = (ObjectNode) Json.toJson(this);
         profile.remove("password");
         return profile;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+
+    public List<Nationality> getNationalities() {
+        return nationalities;
+    }
+
+    public List<TravellerType> getTravellerTypes() {
+        return travellerTypes;
+    }
+
+    public int getAge() {
+        Period age = Period.between(LocalDate.now(), dateOfBirth);
+        return age.getYears();
     }
 
     public static Finder<Integer, Profile> find = new Finder<>(Profile.class);
