@@ -27,7 +27,9 @@ $.ajax({
 });
 
 
-
+/**
+ * Populates the Traveller Type select container with traveller types from the database on the Profile Search page.
+ */
 $.ajax({
     method: "GET",
     url: "/api/travtypes",
@@ -58,6 +60,7 @@ $.ajax({
         console.log(error)
     }
 });
+
 
 /**
  * Function to search for destinations, uses an Ajax GET request and populates table in the view.
