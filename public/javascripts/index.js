@@ -271,7 +271,7 @@ $(document).ready(function () {
                 password: $("#sign-in-password").val()
             }),
             success: function(response) {
-                console.log(response)
+                window.location = "/dash";  // Direct to dashboard
             },
             error: function(error) {
                 console.log(error)
