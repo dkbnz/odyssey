@@ -1,6 +1,8 @@
 @import helper._
 
 @import models.destinations.Destination
+@import models.destinations.DestinationType
+@(types: List[DestinationType],stringTypes: List[String])
 
     <div class="container">
         <h1 class="page_title">Search Destinations</h1>
@@ -8,8 +10,10 @@
         <label for="dest_name">Name</label>
         <input id="dest_name" type="text" class="form-control">
 
-        <label for="dest_type">Type</label>
-        <input id="dest_type" type="text" class="form-control">
+        @*<label for="dest_type">Type</label>
+        <input id="dest_type" type="text" class="form-control">*@
+        @viewDestinations.searchTypeSelector(types, stringTypes)
+
 
         <label for="dest_district">District</label>
         <input id="dest_district" type="text" class="form-control">
