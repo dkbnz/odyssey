@@ -1,0 +1,20 @@
+@import helper._
+
+@import models.Profile
+@main("Search Profiles", "profiles.js", "profiles.css") {
+
+    <div class="container" id="container">
+
+        <div class="tab-content">
+
+            <div class="tab-pane fade show active" id="searchProfiles">
+            @viewProfiles.searchProfiles()
+            </div>
+
+            <div class="tab-pane fade show" id="tableProfiles">
+                <div id="tableContent">
+                </div>
+            </div>
+        </div>
+    </div>
+}

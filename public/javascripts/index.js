@@ -56,14 +56,16 @@ $(document).ready(function () {
             $('#nationality').multiselect({
                 buttonWidth: '60%',
                 enableFiltering: true,
-                maxHeight: 400
+                maxHeight: 400,
+                enableCaseInsensitiveFiltering: true
 
             });
 
             $('#passport').multiselect({
                 buttonWidth: '60%',
                 enableFiltering: true,
-                maxHeight: 400
+                maxHeight: 400,
+                enableCaseInsensitiveFiltering: true
             });
         },
         error: function (error) { // "Called if the request fails"
@@ -86,7 +88,7 @@ $(document).ready(function () {
 
 
     /**
-     *  Upon deselecting input container, check the text entry from the input container against the database to see if their proposed username is already taken
+     *  Upon deselecting input container, check contents against the database to see if their proposed username is already taken
      */
     $('#username').focusout(function() {
         $("#err_username").remove();
@@ -96,9 +98,11 @@ $(document).ready(function () {
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify({username : $("#username").val()}),
             success: function () {
+                // Profile controller method has verified input uniqueness returning ok(200), so existing error messages should be removed.
                 $("#err_username").remove();
             },
             error: function () {
+                // Profile controller method has detecting an existing username matching the input returning badRequest(400), so an error message is presented.
                 $('#username_group').append("\n" +
                         "                    <div id=\"err_username\" class=\"alert alert-danger \">\n" +
                         "                        <strong>Username taken!</strong> Please use another username\n" +
@@ -107,20 +111,25 @@ $(document).ready(function () {
         });
     });
 
+
+    /**
+     * Upon deselecting password input container, check if the contents match the regex to determine validity.
+     */
     $('#password').focusout(function () {
         $("#err_password1").remove();
         var mediumRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
 
         if(!(mediumRegex.test($("#password").val()))) {
+            // If the contents checked are not accepted by the regex, then present an error message below the container.
             $(".p1").append("\n" +
                 "                        <div id=\"err_password1\" class=\"alert alert-danger\" > \n" +
                 "                            <strong>Your password is weak</strong> You must have at least 2 of the following: lowercase letters, uppercase letters, numbers. Password must also be at least 6 characters long. \n" +
                 "                        </div>");
         } else {
+            // Otherwise the contents are valid and any error messages present should be removed.
             $("#err_password1").remove();
         }
     });
-
 
 
     /**
@@ -129,11 +138,13 @@ $(document).ready(function () {
     $('.password').focusout(function() {
         $("#err_password").remove();
         if (!($("#password").val() === $("#password_retyped").val())) {
+            // If the password and its retype do not match, then present an error message below the container
             $("#password_group").append("\n" +
                 "                        <div id=\"err_password\" class=\"alert alert-danger\" >\n" +
                 "                            <strong>Passwords do not match!</strong> Please ensure this matches your password!\n" +
                 "                        </div>");
         } else {
+            // Otherwise the contents are valid and any error messages present should be removed.
             $("#err_password").remove();
         }
     });
@@ -145,69 +156,76 @@ $(document).ready(function () {
     $('#password_retyped').focusout(function() {
         $("#err_password").remove();
         if (!($("#password").val() === $("#password_retyped").val())) {
+            // If the password and its retype do not match, then present an error message below the container
             $("#password_group").append("\n" +
                 "                        <div id=\"err_password\" class=\"alert alert-danger\" >\n" +
                 "                            <strong>Passwords do not match!</strong> Please ensure this matches your password!\n" +
                 "                        </div>");
         } else {
+            // Otherwise the contents are valid and any error messages present should be removed.
             $("#err_password").remove();
         }
     });
 
 
-
     /**
-     * Upon deselecting first_name input container, check matching password retype to determine error message visibility.
+     * Upon deselecting first_name input container, check if contents are valid according to a regular expression.
      */
     $("#first_name").focusout(function () {
         $("#err_firstname").remove();
 
-        var nameRegex = new RegExp("^(?=.{1,30}$)[a-zA-Z -']*$");
+        var nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
 
         if(!(nameRegex.test($("#first_name").val()))) {
+            // If the contents checked are not accepted by the regex, then present an error message below the container.
             $("#firstname_group").append("\n" +
                 "                        <div id=\"err_firstname\" class=\"alert alert-danger\" > \n" +
-                "                            <strong>Name is invalid!</strong> The first name must be between 1 and 30 characters and have no numbers or other symbols!\n" +
+                "                            <strong>Invalid!</strong> Must be 1-100 characters long. Hyphens and apostrophes must be used correctly!\n" +
                 "                        </div>");
         } else {
+            // Otherwise the contents are valid and any error messages present should be removed.
             $("#err_firstname").remove();
         }
     });
 
 
     /**
-     * Upon deselecting middle_name input container, check matching password retype to determine error message visibility.
+     * Upon deselecting middle_name input container, check if contents are valid according to a regular expression.
      */
     $("#middle_name").focusout(function () {
         $("#err_middlename").remove();
 
-        var nameRegex = new RegExp("^(?=.{1,30}$)[a-zA-Z -']*$");
+        var nameRegex = new RegExp("(^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$)|^$");
 
         if (!(nameRegex.test($("#middle_name").val()))) {
+            // If the contents checked are not accepted by the regex, then present an error message below the container.
             $("#middlename_group").append("\n" +
                 "                        <div id=\"err_middlename\" class=\"alert alert-danger\" > \n" +
-                "                            <strong>Invalid name(s)!</strong> The middle name(s) must be between 1 and 30 characters and have no numbers or other symbols!\n" +
+                "                            <strong>Invalid!</strong> Must be 1-100 characters long. Hyphens and apostrophes must be used correctly!\n" +
                 "                        </div>");
         } else {
+            // Otherwise the contents are valid and any error messages present should be removed.
             $("#err_middlename").remove();
         }
     });
 
 
     /**
-     * Upon deselecting last_name input container, check matching password retype to determine error message visibility.
+     * Upon deselecting last_name input container, check if contents are valid according to a regular expression.
      */
     $("#last_name").focusout(function () {
         $("#err_lastname").remove();
 
-        var nameRegex = new RegExp("^(?=.{1,30}$)[a-zA-Z -']*$");
+        var nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
 
         if(!(nameRegex.test($("#last_name").val()))) {
+            // If the contents checked are not accepted by the regex, then present an error message below the container.
             $("#lastname_group").append("\n" +
                 "                        <div id=\"err_lastname\" class=\"alert alert-danger\" > \n" +
-                "                            <strong>Name is invalid!</strong> The last name must be between 1 and 30 characters and have no numbers or other symbols!\n" +
+                "                            <strong>Invalid!</strong> Must be 1-100 characters long. Hyphens and apostrophes must be used correctly!\n" +
                 "                        </div>");
         } else {
+            // Otherwise the contents are valid and any error messages present should be removed.
             $("#err_lastname").remove();
         }
     });
@@ -220,6 +238,7 @@ $(document).ready(function () {
      */
     $("#signup-form").submit(function (e) {
         // When initial signup form is submitted, shows next modal
+
         e.preventDefault();
         if (($("#err_username").length === 0) &&
             ($("#err_password").length === 0) &&
@@ -244,31 +263,39 @@ $(document).ready(function () {
         e.preventDefault();
 
         // Perform traveller type and nationality checks here
+        if($("input[name='travtypes']:checked").map(function(){return this.value;}).get().length == 0) {
+            alert("Please select at least 1 traveller type")
+        } else {
 
-        $.ajax({
-            method: "POST",
-            url: "/api/profiles",
-            contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify({
-                username : $("#username").val(),
-                password : $("#password").val(),
-                first_name : $("#first_name").val(),
-                middle_name : $("#middle_name").val(),
-                last_name : $("#last_name").val(),
-                date_of_birth : $("#date_of_birth").val(),
-                gender : $("#gender").val(),
-                nationality : $("#nationality").val(),
-                passport_country : $("#passport").val(),
-                traveller_type : $("input[name='travtypes']:checked").map(function(){return this.value;}).get() // Creates an array of traveller type ids from checked boxes in carousel
-            }),
-            success: function (response) { // "Called if the request succeeds"
-            },
-            error: function (error) { // "Called if the request fails"
-                console.log(error)
-            }
-        });
+            $.ajax({
+                method: "POST",
+                url: "/api/profiles",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({
+                    username: $("#username").val(),
+                    password: $("#password").val(),
+                    first_name: $("#first_name").val(),
+                    middle_name: $("#middle_name").val(),
+                    last_name: $("#last_name").val(),
+                    date_of_birth: $("#date_of_birth").val(),
+                    gender: $("#gender").val(),
+                    nationality: $("#nationality").val(),
+                    passport_country: $("#passport").val(),
+                    traveller_type: $("input[name='travtypes']:checked").map(function () {
+                        return this.value;
+                    }).get() // Creates an array of traveller type ids from checked boxes in carousel
+                }),
+                success: function (response) { // "Called if the request succeeds"
+                    console.log(response); // TODO: Upon profile successfully being created, redirect to the profile page.
+                    window.location = "dash";
+                },
+                error: function (error) { // "Called if the request fails"
+                    console.log(error)
+                }
+            });
+
+        }
     });
-
     /**
      *  Profile sign in handler
      */
