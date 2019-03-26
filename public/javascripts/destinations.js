@@ -4,7 +4,8 @@
 function searchDestinations() {
     //document.getElementById("tableDestinations").className("tab-pane fade active show");
     var name = document.getElementById("dest_name").value;
-    var type = document.getElementById("dest_type").value;
+    var type = document.getElementById("searchDestinationTypeSelector").value;
+    console.log(type);
     var district = document.getElementById("dest_district").value;
     var latitude = document.getElementById("dest_latitude").value;
     var longitude = document.getElementById("dest_longitude").value;
@@ -81,7 +82,6 @@ function resetForm() {
  * @param fields
  */
 function checkFields(fields) {
-    console.log(fields);
     var error = [];
     var possibleFields = [" Name", " Type", " District", " Latitude", " Longitude", " Country"];
     for (var i = 0; i < fields.length; i++) {

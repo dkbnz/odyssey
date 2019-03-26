@@ -5,10 +5,8 @@
 
 <label for="newDestinationTypeSelector">Type</label>
 <select class="form-control" id="newDestinationTypeSelector">
-@*    @for(destinationType <- types) {
-        <option value=@destinationType></option>
-    }*@
     @for((item, index) <- types.zipWithIndex) {
         <option value=@types(index)>@stringTypes(index)</option>
     }
 </select>
+
