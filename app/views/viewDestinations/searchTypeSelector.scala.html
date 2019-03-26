@@ -1,0 +1,12 @@
+@import helper._
+
+@import models.destinations.DestinationType
+@(types: List[DestinationType], stringTypes: List[String])
+
+<label for="searchDestinationTypeSelector">Type</label>
+<select class="form-control" id="searchDestinationTypeSelector">
+    <option value="">--Any--</option>
+    @for((item, index) <- types.zipWithIndex) {
+    <option value=@index>@stringTypes(index)</option>
+    }
+</select>
