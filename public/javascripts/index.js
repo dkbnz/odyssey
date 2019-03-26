@@ -264,7 +264,7 @@ $(document).ready(function () {
 
         $.ajax({
             method: "POST",
-            url: "/login",
+            url: "/api/login",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify({
                 username: $("#sign-in-username").val(),
