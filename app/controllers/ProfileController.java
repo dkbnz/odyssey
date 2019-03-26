@@ -206,6 +206,9 @@ public class ProfileController {
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
+
+
+
     /**
      * Performs an ebean find query on the database to search for profiles
      * Ensures the pro //TODO: fix this?
@@ -226,6 +229,8 @@ public class ProfileController {
                         profiles = Profile.find.all();
                     } else {
                         //TODO: implement search here. see Matildas destinations search
+
+
                         profiles = Profile.find.all();
                     }
 
@@ -237,6 +242,10 @@ public class ProfileController {
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
+
+
+
+
 
 //    /**
 //     * Checks if the client is an admin, If so then returns an http Result
