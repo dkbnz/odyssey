@@ -109,7 +109,7 @@ public class Profile extends BaseModel {
     }
 
     public int getAge() {
-        Period age = Period.between(LocalDate.now(), dateOfBirth);
+        Period age = Period.between(dateOfBirth, LocalDate.now());
         return age.getYears();
     }
 
