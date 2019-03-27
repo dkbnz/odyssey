@@ -65,3 +65,21 @@ Max Characters: 15
 ## Editing a Profile
 
 Same fields as *Creating a Profile*.
+
+## Creating a Destination
+
+**Name** *required*  
+Cannot exist in the database already.
+
+**Type** *required*  
+Dropdown box
+
+**Discrict** *required*  
+
+**Latitude** *required*  
+Must be a number
+
+**Longitude** *required*  
+Must be a number
+
+**Country** *required*  
