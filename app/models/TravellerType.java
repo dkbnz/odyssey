@@ -4,9 +4,6 @@ import io.ebean.Finder;
 import play.data.validation.Constraints;
 
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * TravellerType entity managed by Ebean
