@@ -1,30 +1,19 @@
-# SENG302 Project Template
-Basic Play project using sbt build and basic GitLab CI.
-It is a requirement that your product can be packaged to a deliverable form using the `sbt dist` command.
-Remember to set up your GitLab CI server (refer to the student guide for instructions).
-
-## Basic Project Structure
-* app/ Your application source
-* doc/ User and design documentation
-* doc/examples/ Demo example files for use with your application
-* conf/ configuration files required to ensure the project builds properly
+# SENG302 Team 100 - Everyware
+See the User Manual inside the project Wiki for how to setup the the application to run.
 
 ## How to run
-Start the Play app:
-```bash
-sbt run
-```
-And open <http://localhost:9000/>
+Either:  
+a) Double click on the runTravelEA.sh file in the root directory.  
+OR  
+b) Open the root directory in terminal and type sbt run.
+Upon compile, open your local browser and navigate to localhost:9000
 
-## Todo
-* In the `build.sbt` file, you will need to ensure you update the name (on line 1) to your appropriate Team Number and Name
-* Remember to set up your GitLab CI server (refer to the student guide on Learn for instructions).
+Congratulations, TravelEA should now be running, you can now Create a Profile or Login.
 
 ### Reference
 * [Play Documentation](https://playframework.com/documentation/latest/Home)
 * [EBean](https://www.playframework.com/documentation/latest/JavaEbean) is a Java ORM library that uses SQL.The documentation can be found [here](https://ebean-orm.github.io/).
 * For Java Forms, Please see [here](<https://playframework.com/documentation/latest/JavaForms>).
 
-### Licences
-
-Look at the `libraries_resources_licencing .md` file in the `doc` folder
+### Licencing
+All external licences can be found in the `/doc` directory in the repo.
