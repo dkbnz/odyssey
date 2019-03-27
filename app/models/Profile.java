@@ -109,8 +109,8 @@ public class Profile extends BaseModel {
     }
 
     public int getAge() {
-        Period age = Period.between(LocalDate.now(), dateOfBirth);
-        return age.getYears()*-1;
+        Period age = Period.between(dateOfBirth, LocalDate.now());
+        return age.getYears();
     }
 
     public void clearTravellerTypes() {
