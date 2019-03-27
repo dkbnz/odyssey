@@ -29,6 +29,12 @@ import static play.mvc.Results.*;
 public class ProfileController {
 
 
+    private static final String USERNAME = "username";
+    private static final String PASSFIELD = "password";
+    private static final String FIRST_NAME = "first_name";
+    private static final String MIDDLE_NAME = "middle_name";
+    private static final String LAST_NAME = "last_name";
+    private static final String PASSPORT = "passport_country";
     private static final String NATIONALITY = "nationality";
     private static final String GENDER = "gender";
     private static final String MIN_AGE = "min_age";
@@ -37,6 +43,7 @@ public class ProfileController {
     private static final String DATE_OF_BIRTH = "date_of_birth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
+    private static final String AUTHORIZED = "authorized";
 
     /**
      * Creates a user based on given JSON body.
@@ -47,35 +54,35 @@ public class ProfileController {
 
         JsonNode json = request.body().asJson();
 
-        if (!(json.has("username")
-                && json.has("password")
-                && json.has("first_name")
-                && json.has("middle_name")
-                && json.has("last_name")
-                && json.has("date_of_birth")
-                && json.has("gender")
-                && json.has("nationality")
-                && json.has("passport_country")
-                && json.has("traveller_type")
-        ) || profileExists(json.get("username").asText())) {
+        if (!(json.has(USERNAME)
+                && json.has(PASSFIELD)
+                && json.has(FIRST_NAME)
+                && json.has(MIDDLE_NAME)
+                && json.has(LAST_NAME)
+                && json.has(DATE_OF_BIRTH)
+                && json.has(GENDER)
+                && json.has(NATIONALITY)
+                && json.has(PASSPORT)
+                && json.has(TRAVELLER_TYPE)
+        ) || profileExists(json.get(USERNAME).asText())) {
             return badRequest();
         }
 
-        if(json.get("nationality").size() == 0
-        || json.get("traveller_type").size() == 0) {
+        if(json.get(NATIONALITY).size() == 0
+        || json.get(TRAVELLER_TYPE).size() == 0) {
             return badRequest();
         }
 
         Profile newUser = new Profile();
 
-        newUser.setUsername(json.get("username").asText());
-        newUser.setPassword(json.get("password").asText());
-        newUser.setFirstName(json.get("first_name").asText());
-        newUser.setMiddleName(json.get("middle_name").asText());
-        newUser.setLastName(json.get("last_name").asText());
-        newUser.setGender(json.get("gender").asText());
+        newUser.setUsername(json.get(USERNAME).asText());
+        newUser.setPassword(json.get(PASSFIELD).asText());
+        newUser.setFirstName(json.get(FIRST_NAME).asText());
+        newUser.setMiddleName(json.get(MIDDLE_NAME).asText());
+        newUser.setLastName(json.get(LAST_NAME).asText());
+        newUser.setGender(json.get(GENDER).asText());
 
-        newUser.setDateOfBirth(LocalDate.parse(json.get("date_of_birth").asText()));
+        newUser.setDateOfBirth(LocalDate.parse(json.get(DATE_OF_BIRTH).asText()));
         newUser.setDateOfCreation(new Date());
 
         newUser.save();
@@ -85,25 +92,25 @@ public class ProfileController {
             newUser.addNationality(newNat);
         };
 
-        json.get("nationality").forEach(nationalityAction);
+        json.get(NATIONALITY).forEach(nationalityAction);
 
         Consumer<JsonNode> passportAction = (JsonNode node) -> {
             Passport newPass = Passport.find.byId(node.asInt());
             newUser.addPassport(newPass);
         };
 
-        json.get("passport_country").forEach(passportAction);
+        json.get(PASSPORT).forEach(passportAction);
 
         Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
             TravellerType travType = TravellerType.find.byId(node.asInt());
             newUser.addTravType(travType);
         };
 
-        json.get("traveller_type").forEach(travTypeAction);
+        json.get(TRAVELLER_TYPE).forEach(travTypeAction);
 
         newUser.save();
 
-        return created().addingToSession(request, "authorized", newUser.id.toString());
+        return created().addingToSession(request, AUTHORIZED, newUser.id.toString());
     }
 
 
@@ -117,7 +124,7 @@ public class ProfileController {
         return Profile.find
                 .query()
                 .where()
-                .like("username", username)
+                .like(USERNAME, username)
                 .findOne() != null;
     }
 
@@ -131,14 +138,14 @@ public class ProfileController {
     public Result checkUsername(Http.Request request) {
         JsonNode json = request.body().asJson();
 
-        if (!json.has("username")) {
+        if (!json.has(USERNAME)) {
             return badRequest();
         }
 
-        String username = json.get("username").asText();
+        String username = json.get(USERNAME).asText();
 
         return request.session()
-                .getOptional("authorized")
+                .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in, used for editing
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
@@ -172,7 +179,7 @@ public class ProfileController {
      */
     public Result fetch(Http.Request request) {
         return request.session()
-                .getOptional("authorized")
+                .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
@@ -191,12 +198,12 @@ public class ProfileController {
      */
     public Result delete(Http.Request request, Long id) {
         return request.session()
-                .getOptional("authorized")
+                .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
 
-                    if (id != Long.valueOf(userId)) { // Current user is trying to delete another user
+                    if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
                         if (true) { // TODO: Implement admin rights here
                             Profile profileToDelete = Profile.find.byId(Integer.valueOf(userId));
                             profileToDelete.delete();// TODO: Handle case where admin deletes currently logged in user.
@@ -222,41 +229,41 @@ public class ProfileController {
      */
     public Result update(Http.Request request) {
         return request.session()
-                .getOptional("authorized")
+                .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
                     JsonNode json = request.body().asJson();
 
-                    if (!(json.has("username")
-                            && json.has("password")
-                            && json.has("first_name")
-                            && json.has("middle_name")
-                            && json.has("last_name")
-                            && json.has("date_of_birth")
-                            && json.has("gender")
-                            && json.has("nationality")
-                            && json.has("passport_country")
-                            && json.has("traveller_type")
+                    if (!(json.has(USERNAME)
+                            && json.has(PASSFIELD)
+                            && json.has(FIRST_NAME)
+                            && json.has(MIDDLE_NAME)
+                            && json.has(LAST_NAME)
+                            && json.has(DATE_OF_BIRTH)
+                            && json.has(GENDER)
+                            && json.has(NATIONALITY)
+                            && json.has(PASSPORT)
+                            && json.has(TRAVELLER_TYPE)
                     )) {
                         return badRequest();
                     }
 
-                    if(json.get("nationality").size() == 0
-                            || json.get("traveller_type").size() == 0) {
+                    if(json.get(NATIONALITY).size() == 0
+                            || json.get(TRAVELLER_TYPE).size() == 0) {
                         return badRequest();
                     }
 
-                    if (!json.get("password").asText().isEmpty()) { // Only update password if user has typed a new one
-                        userProfile.setPassword(json.get("password").asText());
+                    if (!json.get(PASSFIELD).asText().isEmpty()) { // Only update password if user has typed a new one
+                        userProfile.setPassword(json.get(PASSFIELD).asText());
                     }
 
-                    userProfile.setUsername(json.get("username").asText());
-                    userProfile.setFirstName(json.get("first_name").asText());
-                    userProfile.setMiddleName(json.get("middle_name").asText());
-                    userProfile.setLastName(json.get("last_name").asText());
-                    userProfile.setDateOfBirth(LocalDate.parse(json.get("date_of_birth").asText()));
-                    userProfile.setGender(json.get("gender").asText());
+                    userProfile.setUsername(json.get(USERNAME).asText());
+                    userProfile.setFirstName(json.get(FIRST_NAME).asText());
+                    userProfile.setMiddleName(json.get(MIDDLE_NAME).asText());
+                    userProfile.setLastName(json.get(LAST_NAME).asText());
+                    userProfile.setDateOfBirth(LocalDate.parse(json.get(DATE_OF_BIRTH).asText()));
+                    userProfile.setGender(json.get(GENDER).asText());
 
                     userProfile.clearNationalities();
                     userProfile.clearPassports();
@@ -270,21 +277,21 @@ public class ProfileController {
                         userProfile.addNationality(newNat);
                     };
 
-                    json.get("nationality").forEach(nationalityAction);
+                    json.get(NATIONALITY).forEach(nationalityAction);
 
                     Consumer<JsonNode> passportAction = (JsonNode node) -> {
                         Passport newPass = Passport.find.byId(node.asInt());
                         userProfile.addPassport(newPass);
                     };
 
-                    json.get("passport_country").forEach(passportAction);
+                    json.get(PASSPORT).forEach(passportAction);
 
                     Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
                         TravellerType travType = TravellerType.find.byId(node.asInt());
                         userProfile.addTravType(travType);
                     };
 
-                    json.get("traveller_type").forEach(travTypeAction);
+                    json.get(TRAVELLER_TYPE).forEach(travTypeAction);
 
                     userProfile.update();
 
@@ -297,7 +304,7 @@ public class ProfileController {
 
     public Result edit(Http.Request request) {
         return request.session()
-                .getOptional("authorized")
+                .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
@@ -320,7 +327,7 @@ public class ProfileController {
      */
     public Result list(Http.Request request) {
         return request.session()
-                .getOptional("authorized")
+                .getOptional(AUTHORIZED)
                 .map(userId -> {
                     ObjectMapper mapper = new ObjectMapper();
                     ArrayNode results = mapper.createArrayNode();
