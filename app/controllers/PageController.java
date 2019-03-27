@@ -15,13 +15,15 @@ import java.util.List;
  * Controller to handle the serving of pages
  */
 public class PageController extends Controller {
+    
+    private static final String AUTHORIZED = "authorized";
 
     /**
      * Method to serve the index page
      */
     public Result index(Http.Request request) {
         return request.session()
-                .getOptional("authorized")
+                .getOptional(AUTHORIZED)
                 .map(userId -> redirect("/dash")) // User is logged in, redirect to dash
                 .orElseGet(() -> ok(views.html.index.page.render())); // Otherwise, present index
     }
@@ -31,7 +33,7 @@ public class PageController extends Controller {
      */
     public Result dash(Http.Request request) {
         return request.session()
-                .getOptional("authorized")
+                .getOptional(AUTHORIZED)
                 .map(userId -> ok(views.html.dash.page.render())) // User is logged in, render dash
                 .orElseGet(() -> redirect("/")); // User is not logged in, redirect to index
     }
@@ -41,7 +43,7 @@ public class PageController extends Controller {
      */
     public Result searchProfiles(Http.Request request) {
         return request.session()
-                .getOptional("authorized")
+                .getOptional(AUTHORIZED)
                 .map(userId -> ok(views.html.viewProfiles.profilesPage.render())) // User is logged in, render dash
                 .orElseGet(() -> redirect("/")); // User is not logged in, redirect to index
     }
@@ -51,7 +53,7 @@ public class PageController extends Controller {
      */
     public Result destinations(Http.Request request) {
         return request.session()
-                .getOptional("authorized")
+                .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in, render destinations
                     List<DestinationType> types = new ArrayList<>(EnumSet.allOf(DestinationType.class));

@@ -35,10 +35,8 @@ public class DestinationController extends Controller {
 
         expressionList.eq(NAME, name);
 
-        System.out.println(expressionList);
-
         destinations = expressionList.findList();
-        System.out.println(destinations);
+
         return (destinations.isEmpty());
     }
 
@@ -108,7 +106,7 @@ public class DestinationController extends Controller {
     public Result save(Http.Request request) {
         JsonNode json = request.body().asJson();
         boolean checkName = checkDestination(json);
-        System.out.println(checkName);
+
         if (checkName) {
             return badRequest("Duplicate Destination Name Found!");
         } else {
