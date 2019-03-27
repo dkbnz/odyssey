@@ -39,6 +39,7 @@ public class DestinationTestSteps {
     private int statusCode;
     private static final String DUPLICATE_NAME = "Duplicate";
     private static final String DUPLICATE_DISTRICT = "Nelson";
+    private static final String destinationUri = "/api/destinations";
 
 
     @BeforeClass
@@ -78,7 +79,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri("/api/destinations");
+                .uri(destinationUri);
         route(application, request);
     }
 
@@ -102,7 +103,7 @@ public class DestinationTestSteps {
     public void i_send_a_GET_request_to_the_destinations_endpoint() {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .uri("/api/destinations");
+                .uri(destinationUri);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -114,7 +115,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri("/api/destinations");
+                .uri(destinationUri);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -150,7 +151,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri("/api/destinations");
+                .uri(destinationUri);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -162,7 +163,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri("/api/destinations");
+                .uri(destinationUri);
         Result result = route(application, request);
         statusCode = result.status();
     }
