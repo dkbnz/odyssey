@@ -18,3 +18,4 @@ Feature: Having a profile system
     And The username "GimmeErrors" exists within the TravelEA database
     When A new username, "GimmeErrors", is passed through the ProfileController
     Then the status code received is 400
+
