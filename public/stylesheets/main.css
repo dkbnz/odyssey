@@ -24,28 +24,12 @@ body {
 @font-face
 {
     font-family: Baumans;
-    src: url('Baumans-Regular.ttf'),
-    url('Baumans-Regular.ttf');
+    src: url('Baumans-Regular.ttf');
 }
 
 /* Sets the font styling for headings*/
-h1 {
-    font-family: 'Baumans';
-    font-weight: bold;
-}
-
-h2 {
-    font-family: 'Baumans';
-    font-weight: bold;
-}
-
-h3 {
-    font-family: 'Baumans';
-    font-weight: bold;
-}
-
-h4 {
-    font-family: 'Baumans';
+h1, h2, h3, h4 {
+    font-family: Baumans, SansSerif;
     font-weight: bold;
 }
 

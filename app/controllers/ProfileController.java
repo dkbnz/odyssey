@@ -196,7 +196,7 @@ public class ProfileController {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
 
-                    if (id != Long.valueOf(userId)) { // Current user is trying to delete another user
+                    if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
                         if (true) { // TODO: Implement admin rights here
                             Profile profileToDelete = Profile.find.byId(Integer.valueOf(userId));
                             profileToDelete.delete();// TODO: Handle case where admin deletes currently logged in user.
