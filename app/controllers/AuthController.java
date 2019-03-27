@@ -12,6 +12,11 @@ import play.mvc.Result;
  */
 public class AuthController extends Controller {
 
+
+    private static final String USERNAME = "username";
+    private static final String PASSFIELD = "password";
+    private static final String AUTHORIZED = "authorized";
+
     /**
      * Checks if client is authorized, if authorized, return ok()
      * If not, checks if user exists in the database.
@@ -23,28 +28,30 @@ public class AuthController extends Controller {
      */
     public Result login(Http.Request request) {
         return request.session()
-                .getOptional("authorized")
+                .getOptional(AUTHORIZED)
                 .map(userId -> ok("OK")) // User is already logged in, return OK
-                .orElseGet(() -> {
+                .orElseGet(() -> { // orElseGet tries to get the `getOptional` value, otherwise executes the following function
+
                     // User is not logged in, attempt to search database
                     JsonNode json = request.body().asJson();
 
-                    if (!(json.has("user") && json.has("pass"))) {
+                    // Check if a body was given and has required fields
+                    if (json == null || (!(json.has(USERNAME) && json.has(PASSFIELD)))) {
                         // If JSON Object contains no user or pass key, return bad request
                         // Prevents null pointer exceptions when trying to get the values below.
                         return badRequest();
                     }
 
-                    String username = json.get("user").asText();
-                    String password = json.get("pass").asText();
+                    String username = json.get(USERNAME).asText();
+                    String password = json.get(PASSFIELD).asText();
 
                     Profile profile = Profile.find.query().where()
-                            .like("username", username).findOne();
+                            .like(USERNAME, username).findOne();
 
                     if ((profile != null) && (profile.password.equals(password))) {
                         // Profile was successfully fetched and password matches,
                         // Set session token as id and return ok (200 response)
-                        return ok().addingToSession(request, "connected", profile.id.toString());
+                        return ok().addingToSession(request, AUTHORIZED, profile.id.toString());
                     }
 
                     return unauthorized("User/pass not found");
@@ -55,6 +62,7 @@ public class AuthController extends Controller {
     /**
      * Clears session resulting in authorized tag being cleared,
      * Therefore deauthorizing client
+     *
      * @return ok() result, as logout should always succeed
      */
     public Result logout() {
