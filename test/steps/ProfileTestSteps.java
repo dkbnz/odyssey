@@ -9,9 +9,12 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import io.cucumber.datatable.DataTable;
 import models.Profile;
 import org.junit.Assert;
 import org.junit.runner.Request;
+import org.springframework.beans.BeansException;
+import org.springframework.context.annotation.Bean;
 import play.ApplicationLoader;
 import play.Environment;
 import play.Application;
@@ -25,6 +28,8 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 import static play.mvc.Results.ok;
 import static play.test.Helpers.*;
@@ -58,13 +63,13 @@ public class ProfileTestSteps {
 
 
     @Given("the application is running")
-    public void theApplicationIsRunning() {
+    public void theApplicationIsRunning() throws BeansException {
         Assert.assertTrue(application.isTest());
     }
 
 
     @When("I send a GET request to the \\/profiles endpoint")
-    public void iSendAGETRequestToTheProfilesEndpoint() {
+    public void iSendAGETRequestToTheProfilesEndpoint() throws BeansException {
         request = fakeRequest()
                 .method(GET)
                 .uri("/profiles");
@@ -73,7 +78,7 @@ public class ProfileTestSteps {
 
 
     @Then("the received status code is ok()")
-    public void theReceivedStatusCodeIs() {
+    public void theReceivedStatusCodeIs() throws BeansException{
         Result result = route(application, request);
         Assert.assertEquals(ok(), result.status());
     }
@@ -84,13 +89,13 @@ public class ProfileTestSteps {
 
 
     @Given("the application is running [2]")
-    public void theApplicationIsRunning2() {
+    public void theApplicationIsRunning2() throws BeansException {
         Assert.assertTrue(application.isTest());
     }
 
 
     @When("I send a GET request to the \\/travtypes endpoint")
-    public void iSendAGETRequestToTheTravtypesEndpoint() {
+    public void iSendAGETRequestToTheTravtypesEndpoint() throws BeansException {
         request = fakeRequest()
                 .method(GET)
                 .uri("/travtypes");
@@ -99,7 +104,7 @@ public class ProfileTestSteps {
 
 
     @Then("the received status code is ok() [2]")
-    public void theReceivedStatusCodeIs2() {
+    public void theReceivedStatusCodeIs2() throws BeansException {
         Result result = route(application, request);
         Assert.assertEquals(ok(), result.status());
     }
@@ -108,6 +113,41 @@ public class ProfileTestSteps {
 
 
 
+
+    private List<Map<String,String>> profile;
+
+    @Given("I am connected to the TravelEA database")
+    public void iAmConnectedToTheTravelEADatabase() {
+        // Write code here that turns the phrase above into concrete actions
+
+    }
+
+
+    @Given("The following profile exists within the TravelEA database:")
+    public void theFollowingProfileExistsWithinTheTravelEADatabase(DataTable dataTable) {
+        // Write code here that turns the phrase above into concrete actions
+        // For automatic transformation, change DataTable to one of
+        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+        // Double, Byte, Short, Long, BigInteger or BigDecimal.
+        //
+        // For other transformations you can register a DataTableType.
+        this.profile = dataTable.asMaps();
+
+    }
+
+
+    @When("A user attempts to create a profile with the following field:")
+    public void aUserAttemptsToCreateAProfileWithTheFollowingField(DataTable dataTable) {
+        // Write code here that turns the phrase above into concrete actions
+        // For automatic transformation, change DataTable to one of
+        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+        // Double, Byte, Short, Long, BigInteger or BigDecimal.
+        //
+        // For other transformations you can register a DataTableType.
+        throw new cucumber.api.PendingException();
+    }
 
 
 
