@@ -36,14 +36,14 @@ javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-Werror")
 
 
 val framework = new TestFramework("com.waioeka.sbt.runner.CucumberFramework")
-testFrameworks += framework
-
-// Configure the arguments.
-testOptions in Test += Tests.Argument(framework,"--glue","")
-testOptions in Test += Tests.Argument(framework,"--plugin","html:/tmp/html")
-testOptions in Test += Tests.Argument(framework,"--plugin","json:/tmp/json")
-
-/** can remove pretty printing if running in parallel. */
-parallelExecution in Test := true
-
-unmanagedClasspath in Test += baseDirectory.value / "test/features"
+//testFrameworks += framework
+//
+//// Configure the arguments.
+//testOptions in Test += Tests.Argument(framework,"--glue","")
+//testOptions in Test += Tests.Argument(framework,"--plugin","html:/tmp/html")
+//testOptions in Test += Tests.Argument(framework,"--plugin","json:/tmp/json")
+//
+///** can remove pretty printing if running in parallel. */
+//parallelExecution in Test := true
+//
+//unmanagedClasspath in Test += baseDirectory.value / "test/features"
