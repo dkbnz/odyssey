@@ -35,10 +35,6 @@ public class ProfileTestSteps {
     @Inject
     Application application;
 
-//    private Connection connection;
-//
-//    private ProfileController controller = null;
-
     private Http.RequestBuilder request;
 
 
@@ -52,21 +48,13 @@ public class ProfileTestSteps {
         Guice.createInjector(builder.applicationModule()).injectMembers(this);
 
         Helpers.start(application);
-
-//        connection = DriverManager.getConnection("jdbc:mysql:seng302-2019-team100-test");
-
     }
 
 
     @After
     public void tearDown() throws SQLException {
         Helpers.stop(application);
-//        connection.close();
     }
-
-
-
-
 
 
     @Given("the application is running")
