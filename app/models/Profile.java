@@ -64,6 +64,30 @@ public class Profile extends BaseModel {
         return profile;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public Date getDateOfCreation() {
+        return dateOfCreation;
+    }
+
+    public List<Passport> getPassports() {
+        return passports;
+    }
+
     public String getFirstName() {
         return firstName;
     }
@@ -76,7 +100,6 @@ public class Profile extends BaseModel {
         return gender;
     }
 
-
     public List<Nationality> getNationalities() {
         return nationalities;
     }
@@ -87,7 +110,51 @@ public class Profile extends BaseModel {
 
     public int getAge() {
         Period age = Period.between(LocalDate.now(), dateOfBirth);
-        return age.getYears();
+        return age.getYears()*-1;
+    }
+
+    public void clearTravellerTypes() {
+        this.travellerTypes.clear();
+    }
+
+    public void clearNationalities() {
+        this.nationalities.clear();
+    }
+
+    public void clearPassports() {
+        this.passports.clear();
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public void setDateOfCreation(Date dateOfCreation) {
+        this.dateOfCreation = dateOfCreation;
     }
 
     public static Finder<Integer, Profile> find = new Finder<>(Profile.class);

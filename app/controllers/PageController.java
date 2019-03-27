@@ -3,6 +3,7 @@ package controllers;
 import models.destinations.DestinationType;
 import org.springframework.util.StringUtils;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import java.util.ArrayList;
@@ -16,25 +17,49 @@ import java.util.List;
 public class PageController extends Controller {
 
     /**
-     * Method to serve the index destinationsPage
+     * Method to serve the index page
      */
-    public Result index() {
-        return ok(views.html.index.page.render());
+    public Result index(Http.Request request) {
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> redirect("/dash")) // User is logged in, redirect to dash
+                .orElseGet(() -> ok(views.html.index.page.render())); // Otherwise, present index
     }
 
     /**
-     * Method to serve the dashboard destinationsPage
+     * Method to serve the dashboard page
      */
-    public Result dash() { return ok(views.html.dash.page.render()); }
+    public Result dash(Http.Request request) {
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> ok(views.html.dash.page.render())) // User is logged in, render dash
+                .orElseGet(() -> redirect("/")); // User is not logged in, redirect to index
+    }
+
+    /**
+     * Method to serve the search profiles page
+     */
+    public Result searchProfiles(Http.Request request) {
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> ok(views.html.viewProfiles.profilesPage.render())) // User is logged in, render dash
+                .orElseGet(() -> redirect("/")); // User is not logged in, redirect to index
+    }
 
     /**
      * Method to serve the destinations page
      */
-    public Result destinations() {
-        List<DestinationType> types = new ArrayList<>(EnumSet.allOf(DestinationType.class));
-        List<String> newDestinations = formatTypes(types);
+    public Result destinations(Http.Request request) {
+        return request.session()
+                .getOptional("authorized")
+                .map(userId -> {
+                    // User is logged in, render destinations
+                    List<DestinationType> types = new ArrayList<>(EnumSet.allOf(DestinationType.class));
+                    List<String> newDestinations = formatTypes(types);
 
-        return ok(views.html.viewDestinations.destinationsPage.render(types, newDestinations));
+                    return ok(views.html.viewDestinations.destinationsPage.render(types, newDestinations));
+                })
+                .orElseGet(() -> redirect("/")); // User is not logged in, redirect to index
     }
 
     private List<String> formatTypes(List<DestinationType> types) {
@@ -51,9 +76,5 @@ public class PageController extends Controller {
             newDestinations.add(toAdd);
         }
         return newDestinations;
-    }
-
-    public Result searchProfiles() {
-        return ok(views.html.viewProfiles.profilesPage.render());
     }
 }
