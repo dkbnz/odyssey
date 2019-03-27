@@ -1,9 +1,24 @@
 // All javascript functionality for the dashboard goes in here.
 
-//const getAllProfiles = `SELECT Profile.id, Profile.username, Profile.first_name, Profile.middle_name, Profile.last_name, Profile.gender, Profile.date_of_birth, (SELECT nationality FROM nationality LEFT JOIN profile_nationality ON nationality.id = profile_nationality.nationality_id) FROM profile`
 
 $(document).ready(function () {
 
+
+    // When logout button clicked, send POST request to logout
+    $("#logout-btn").click(function(){
+        $.ajax({
+            method: "POST",
+            url: "/api/logout",
+            success: function (response) { // "Called if the request succeeds"
+                window.location = "/" // Redirect to index
+            },
+            error: function (error) { // "Called if the request fails"
+                console.log(error)
+            }
+        });
+    });
+
+    // Make ajax call to populate view profile page
     $.ajax({
         type: 'GET',
         url: "api/profile",
@@ -16,6 +31,7 @@ $(document).ready(function () {
         }
     });
 
+    // Make ajax call to populate edit profile page, Add validation event handlers
     $.ajax({
         type: 'GET',
         url: "api/profile/edit",
@@ -38,32 +54,40 @@ $(document).ready(function () {
             });
 
 
-
-
             /**
              *  Upon deselecting input container, check contents against the database to see if their proposed username is already taken
              */
             $('#username').focusout(function() {
-                $("#err_username").remove();
-                $.ajax({
-                    method: "POST",
-                    url: "/api/checkUsername",
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify({username : $("#username").val()}),
+                $("#err_username_taken").remove();
+                $("#err_username_invalid").remove();
+                var emailRegex = new RegExp("^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))$");
+                if (!(emailRegex.test($("#username").val()))) {
+                    $('#username_group').append("\n" +
+                        "                    <div id=\"err_username_invalid\" class=\"alert alert-danger \">\n" +
+                        "                        <strong>Email invalid!</strong> Please enter a valid email\n" +
+                        "                    </div>");
+                } else {
+                    $("#err_username_invalid").remove();
+                    $.ajax({
+                        method: "POST",
+                        url: "/api/checkUsername",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify({username : $("#username").val()}),
 
-                    success: function () {
-                        // Profile controller method has verified input uniqueness returning ok(200), so existing error messages should be removed.
-                        $("#err_username").remove();
-                    },
+                        success: function () {
+                            // Profile controller method has verified input uniqueness returning ok(200), so existing error messages should be removed.
+                            $("#err_username").remove();
+                        },
 
-                    error: function () {
-                        // Profile controller method has detecting an existing username matching the input returning badRequest(400), so an error message is presented.
-                        $('#username_group').append("\n" +
-                            "                    <div id=\"err_username\" class=\"alert alert-danger \">\n" +
-                            "                        <strong>Username taken!</strong> Please use another username\n" +
-                            "                    </div>");
-                    }
-                });
+                        error: function () {
+                            // Profile controller method has detecting an existing username matching the input returning badRequest(400), so an error message is presented.
+                            $('#username_group').append("\n" +
+                                "                    <div id=\"err_username_taken\" class=\"alert alert-danger \">\n" +
+                                "                        <strong>Email taken!</strong> Please use another email\n" +
+                                "                    </div>");
+                        }
+                    });
+                }
             });
 
 
@@ -74,21 +98,6 @@ $(document).ready(function () {
                 $("#err_password1").remove();
                 var mediumRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
 
-    // When logout button clicked, send POST request to logout
-    $("#logout-btn").click(function(){
-        $.ajax({
-            method: "POST",
-            url: "/api/logout",
-            success: function (response) { // "Called if the request succeeds"
-                window.location = "/" // Redirect to index
-            },
-            error: function (error) { // "Called if the request fails"
-                console.log(error)
-            }
-        });
-    });
-
-});
                 if(!(mediumRegex.test($("#password").val()))) {
                     // If the contents checked are not accepted by the regex, then present an error message below the container.
                     $(".p1").append("\n" +

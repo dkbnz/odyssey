@@ -55,13 +55,29 @@ Must have at least one Traveller Type selected
 ## Logging In
 
 **Username** *required*  
-Min Characters: 3  
-Max Characters: 15   
+Min Characters: 5  
 
 **Password** *required*  
-Min Characters: 5  
-Max Characters: 15  
+Min Characters: 6  
 
 ## Editing a Profile
 
 Same fields as *Creating a Profile*.
+
+## Creating a Destination
+
+**Name** *required*  
+Cannot exist in the database already.
+
+**Type** *required*  
+Dropdown box
+
+**Discrict** *required*  
+
+**Latitude** *required*  
+Must be a number
+
+**Longitude** *required*  
+Must be a number
+
+**Country** *required*  
