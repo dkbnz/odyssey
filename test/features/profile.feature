@@ -22,4 +22,3 @@ Feature: Having a profile system
       | username    | password    | first_name | middle_name | last_name | date_of_birth | gender |
       | TestUser123 | TestPass321 | Test       |             | Dummy     | 2000-01-01    | other  |
     Then the status code received is 400
-

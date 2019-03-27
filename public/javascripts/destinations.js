@@ -14,7 +14,6 @@ function searchDestinations() {
         url: "api/destinations",
         data: {'name': name, 'type': type, 'district': district, 'latitude': latitude, 'longitude': longitude, 'country': country},
         dataType: 'html',
-
         success: function(response) {
             $("#keywords").remove();
             $("#tableContent").append(response);
@@ -29,7 +28,6 @@ function searchDestinations() {
     });
 }
 
-
 /**
  * Function to create a destination, uses an Ajax POST request and populates the database if input is valid.
  */
@@ -42,6 +40,7 @@ function createDestination() {
     var country = document.getElementById("newDest_country").value;
     var fieldList = [name, type, district, latitude, longitude, country];
     var errorList = checkFields(fieldList);
+    console.log(type);
 
     if(errorList.length === 0) {
         $.ajax({
@@ -56,22 +55,20 @@ function createDestination() {
                 longitude : Number(longitude),
                 country : country
             }),
-
             success: function () {
                 $('#createDestinationError').hide();
                 timeoutAlert("#createDestinationSuccess","");
                 resetForm();
             },
-
-            error: function () {
-                timeoutAlert("#createDestinationError", "Internal Server Error, try again!");
+            error: function (error) {
+                console.log(error);
+                timeoutAlert("#createDestinationError", error.responseText);
             }
         });
     } else {
         timeoutAlert("#createDestinationError", "We found errors in the following fields:" + errorList);
     }
 }
-
 
 /**
  * Hides the table upon load of the create destinations page/div.
@@ -83,7 +80,6 @@ function hideTable() {
     }
 }
 
-
 /**
  * Checks if the table exists, if it does it is displayed upon load of the search destinations page.
  */
@@ -94,7 +90,6 @@ function showTable() {
     }
 }
 
-
 /**
  * Function to hide the success banner when input is valid.
  */
@@ -102,14 +97,12 @@ function hideSuccessBanner() {
     window.location.reload();
 }
 
-
 /**
  * Function to hide the error banner when input is valid.
  */
 function hideErrorBanner() {
     document.getElementById("createDestinationError").classList.add("hide");
 }
-
 
 /**
  * Function to reset the form when destination is successfully created.
@@ -121,7 +114,6 @@ function resetForm() {
     document.getElementById("newDest_longitude").value = "";
     document.getElementById("newDest_country").value = "";
 }
-
 
 /**
  * Function to check all the fields put into the Create Destination form.
@@ -143,7 +135,6 @@ function checkFields(fields) {
     }
     return error;
 }
-
 
 /**
  * Function to hide the alert bars after a time. Using the given id of the fields and the text to show in the error.

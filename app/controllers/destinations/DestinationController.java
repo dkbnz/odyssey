@@ -82,8 +82,60 @@ public class DestinationController extends Controller {
      * @param field The string to be concatenated with percentage signs on either side of the field.
      * @return A string containing the field wrapped in percentage signs.
      */
-    private String queryComparator(String field) {
+    private static String queryComparator(String field) {
         return "%" + field + "%";
+    }
+
+    /**
+     * Looks at all the input fields for creating a destination and determines if the input is valid or not.
+     * @param json the json of the destination inputs.
+     * @return a boolean true if the input is valid.
+     */
+    private boolean validInput(JsonNode json) {
+        String name = json.get(NAME).asText();
+        String country = json.get(COUNTRY).asText();
+        String district = json.get(DISTRICT).asText();
+        String latitude = json.get(LATITUDE).asText();
+        String longitude = json.get(LONGITUDE).asText();
+        String type = json.get(TYPE).asText();
+
+        // Checks all fields contain data
+        if (name.length() == 0 || country.length() == 0 || district.length() == 0 || latitude.length() == 0 || longitude.length() == 0 || type.length() == 0) {
+            return false;
+        }
+
+        //Ensure latitude and longitude can be converted to doubles.
+        try {
+            Double.parseDouble(latitude);
+            Double.parseDouble(longitude);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        try {
+            DestinationType.valueOf(json.get(TYPE).asText().toUpperCase());
+        } catch (IllegalArgumentException e){
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Determines if a given json input for creating a new destination already exists in the database.
+     * @param json the json of the destination inputs.
+     * @return true if the destination does not exist in the database.
+     */
+    private boolean destinationDoesNotExist(JsonNode json) {
+        String name = json.get(NAME).asText();
+        String district = json.get(DISTRICT).asText();
+
+        List<Destination> destinations = Destination.find.query().where()
+                .ilike(NAME, name)
+                .ilike(DISTRICT, district)
+                .findList();
+        return (destinations.isEmpty());
     }
 
     /**
@@ -94,12 +146,17 @@ public class DestinationController extends Controller {
     public Result save(Http.Request request) {
         JsonNode json = request.body().asJson();
 
-        //TODO: Validate fields
+        if (!validInput(json)) {
+            return badRequest("Invalid input.");
+        }
 
-        Destination destination = createNewDestination(json);
-
-        destination.save();
-        return ok("Created");
+        if (destinationDoesNotExist(json)) {
+            Destination destination = createNewDestination(json);
+            destination.save();
+            return ok("Created");
+        } else {
+            return badRequest("A destination with the name [ " +json.get(NAME).asText() + " ] and district [ " + json.get(DISTRICT).asText() + " ] already exists.");
+        }
     }
 
     /**
