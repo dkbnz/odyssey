@@ -29,7 +29,7 @@ body {
 
 /* Sets the font styling for headings*/
 h1, h2, h3, h4 {
-    font-family: Baumans, SansSerif;
+    font-family: Baumans, sans-serif;
     font-weight: bold;
 }
 
