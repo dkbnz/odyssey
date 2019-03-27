@@ -89,6 +89,7 @@ function searchProfiles() {
         });
     } else {
         timeoutAlert("#searchProfileError", "We found errors in the following field(s):" + checkAges + ". Must be a number");
+        document.getElementById("keywords").classList.add("d-none");
     }
 }
 
