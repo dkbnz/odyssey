@@ -55,12 +55,10 @@ Must have at least one Traveller Type selected
 ## Logging In
 
 **Username** *required*  
-Min Characters: 3  
-Max Characters: 15   
+Min Characters: 5  
 
 **Password** *required*  
-Min Characters: 5  
-Max Characters: 15  
+Min Characters: 6  
 
 ## Editing a Profile
 
