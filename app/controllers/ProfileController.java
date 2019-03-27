@@ -189,6 +189,7 @@ public class ProfileController {
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
 
+
     /**
      * Deletes a currently logged in profile and invalidates their session
      * If user is admin and the id is specified in the JSON body, delete specified id.
@@ -220,6 +221,7 @@ public class ProfileController {
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
+
 
     /**
      * Takes a Http request containing a Json body and finds logged in user, then updates said user
@@ -344,6 +346,7 @@ public class ProfileController {
                 })
                 .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
     }
+
 
     private List<Profile> searchProfiles(Map<String, String[]> queryString) {
         ExpressionList<Profile> profileExpressionList = Ebean.find(Profile.class).where();
