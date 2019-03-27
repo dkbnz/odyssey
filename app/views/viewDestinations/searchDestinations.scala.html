@@ -1,0 +1,29 @@
+@import helper._
+
+@import models.destinations.Destination
+@import models.destinations.DestinationType
+@(types: List[DestinationType],stringTypes: List[String])
+
+    <div class="container">
+        <h1 class="page_title">Search Destinations</h1>
+        <p class="page_title"><em>Search for a destination using the form below.</em> </p>
+        <label for="dest_name">Name</label>
+        <input id="dest_name" type="text" class="form-control">
+
+        <!--Import the selector box for type, populated from searchTypeSelector.scala.html-->
+        @viewDestinations.searchTypeSelector(types, stringTypes)
+
+        <label for="dest_district">District</label>
+        <input id="dest_district" type="text" class="form-control">
+
+        <label for="dest_latitude">Latitude</label>
+        <input id="dest_latitude" type="text" class="form-control">
+
+        <label for="dest_longitude">Longitude</label>
+        <input id="dest_longitude" type="text" class="form-control">
+
+        <label for="dest_country">Country</label>
+        <input id="dest_country" type="text" class="form-control">
+
+        <button type="submit" class="btn btn-primary" id="btn-Next" onclick="searchDestinations()">Search</button>
+    </div>

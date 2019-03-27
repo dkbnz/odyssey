@@ -1,0 +1,129 @@
+@(currentUser: Profile, nationalities: List[Nationality], passports: List[Passport], travTypes: List[TravellerType])
+
+<div class="container">
+    <form id="edit-form" role="form">
+
+        <div id="firstname_group">
+            <div class="form-group">
+                <label>First Name(s):</label>
+                <input id="first_name" type="text" class="form-control" value="@currentUser.getFirstName" required>
+            </div>
+        </div>
+        <div id="middlename_group">
+            <div class="form-group">
+                <label>Middle Name(s):</label>
+                <input id="middle_name" type="text" class="form-control" value="@currentUser.getMiddleName" placeholder="Optional">
+            </div>
+        </div>
+        <div id="lastname_group">
+            <div class="form-group">
+                <label>Last Name(s):</label>
+                <input id="last_name" type="text" class="form-control" value="@currentUser.getLastName" required>
+            </div>
+        </div>
+        <div id="username_group">
+            <div class="form-group">
+                <label>Email:</label>
+                <input id="username" type="text" class="form-control" value="@currentUser.getUsername" required>
+            </div>
+        </div>
+        <div id="password_group">
+            <div class="form-group p1">
+                <label>Password:</label>
+                <input id="password" type="password" class="form-control password" placeholder="Unchanged">
+            </div>
+            <div class="form-group p2">
+                <label>Retype Password:</label>
+                <input id="password_retyped" type="password" class="form-control password" placeholder="Unchanged">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Date of birth:</label>
+            <input id="date_of_birth" type="date" class="form-control" value="@currentUser.getDateOfBirth" required>
+        </div>
+        <div class="form-group">
+            <label>Gender:</label>
+            <select id="gender" type="" class="form-control"  value="@currentUser.getGender" required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="nationality">Nationalities:</label>
+                <select class="form-control" id="nationality" multiple="multiple" required>
+                    @for(nationality <- nationalities) {
+
+                        <option value="@nationality.getId" @for(userNationality <- currentUser.getNationalities) {
+                            @if(userNationality.getId == nationality.getId) {
+                                selected
+                            }
+                        }>@nationality.getNationality</option>
+                    }
+                </select>
+
+            </div>
+            <div class="form-group col-md-6">
+                <label for="passport">Passports:</label>
+                <select class="form-control" id="passport" multiple="multiple">
+                    @for(passport <- passports) {
+
+                        <option value="@passport.getId" @for(userPassport <- currentUser.getPassports) {
+                            @if(userPassport.getId == passport.getId) {
+                                selected
+                            }
+                        }>@passport.getCountry</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div id="trav-carousel" class="carousel slide" data-ride="carousel">
+                <ol class="carousel-indicators">
+
+                    @for(travType <- travTypes) {
+                        <li data-target="#trav-carousel" data-slide-to="@{travType.getId - 1}"></li>
+                    }
+
+
+                </ol>
+                <div class="carousel-inner" id="trav-carousel-body">
+
+
+                    @for(travType <- travTypes) {
+                        <div class="carousel-item @if(travType.getId == 1){active}">
+                            <img style="width: 100%" src="@travType.getImgUrl" alt="@travType.getTravellerType">
+                            <div class="carousel-caption">
+                                <h3>@travType.getTravellerType</h3>
+                                <h5><input name="travtypes" type="checkbox" value="@travType.getId" @for(userTravType <- currentUser.getTravellerTypes) {
+                                    @if(userTravType.getId == travType.getId) {
+                                        checked
+                                    }
+                                }> @travType.getDescription</h5>
+                                <p></p>
+                            </div>
+                        </div>
+                    }
+
+
+                </div>
+                <a class="carousel-control-prev" href="#trav-carousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#trav-carousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="form-group text-center">
+            <button type="submit" class="btn btn-primary" id="btn-Save">Save Profile</button>
+        </div>
+
+    </form>
+</div>

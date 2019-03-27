@@ -1,13 +1,16 @@
 package models;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Finder;
 import play.data.format.Formats;
-import play.data.validation.Constraints;
 import play.libs.Json;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,38 +33,130 @@ public class Profile extends BaseModel {
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     public Date dateOfCreation;
 
-    /**
-     * Converts a Profile object to a JSON readable format
-     * @return JsonNode object of profile
-     */
-    public JsonNode toJson(){
-        // TODO: Remove password from JSON object. Find a way of listing nationalities etc.
-        return Json.toJson(this);
+    @ManyToMany
+    public List<Nationality> nationalities = new ArrayList<Nationality>();
+
+    @ManyToMany
+    public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
+
+    @ManyToMany
+    public List<Passport> passports = new ArrayList<Passport>();
+
+    public void addTravType(TravellerType travellerType) {
+        this.travellerTypes.add(travellerType);
     }
 
-//    @ManyToMany
-//    public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
+    public void addNationality(Nationality nationality) {
+        this.nationalities.add(nationality);
+    }
 
+    public void addPassport(Passport passport) {
+        this.passports.add(passport);
+    }
 
-//    @ManyToMany
-//    public List<Nationality> nationalities = new ArrayList<Nationality>();
+    /**
+     * Converts a Profile object to a JSON readable format
+     *
+     * @return JsonNode object of profile
+     */
+    public JsonNode toJson() {
+        ObjectNode profile = (ObjectNode) Json.toJson(this);
+        profile.remove("password");
+        return profile;
+    }
 
+    public String getUsername() {
+        return username;
+    }
 
-//    @OneToMany(mappedBy = "profile")
-//    public List<Passport> passports = new ArrayList<Passport>();
+    public String getPassword() {
+        return password;
+    }
 
-//    public void addTravellerType(TravellerType travellerType) {
-//        this.travellerTypes.add(travellerType);
-//    }
-//
-//
-//    public boolean removeTravellerType(TravellerType travellerType) {
-//        if (this.travellerTypes.size() >= 2) {
-//            return this.travellerTypes.remove(travellerType);
-//        } else {
-//            return false;
-//        }
-//    }
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public Date getDateOfCreation() {
+        return dateOfCreation;
+    }
+
+    public List<Passport> getPassports() {
+        return passports;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public List<Nationality> getNationalities() {
+        return nationalities;
+    }
+
+    public List<TravellerType> getTravellerTypes() {
+        return travellerTypes;
+    }
+
+    public int getAge() {
+        Period age = Period.between(dateOfBirth, LocalDate.now());
+        return age.getYears();
+    }
+
+    public void clearTravellerTypes() {
+        this.travellerTypes.clear();
+    }
+
+    public void clearNationalities() {
+        this.nationalities.clear();
+    }
+
+    public void clearPassports() {
+        this.passports.clear();
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public void setDateOfCreation(Date dateOfCreation) {
+        this.dateOfCreation = dateOfCreation;
+    }
 
     public static Finder<Integer, Profile> find = new Finder<>(Profile.class);
 }

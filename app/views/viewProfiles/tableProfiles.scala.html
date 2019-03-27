@@ -1,0 +1,35 @@
+@import helper._
+
+@import models.Profile
+@(profiles: List[Profile])
+
+<table id="keywords" class = "sortable d-none" cellspacing="0" cellpadding="0">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Nationality</th>
+            <th>Gender</th>
+            <th>Age</th>
+            <th>Traveller Type(s)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for(profile <- profiles) {
+            <tr>
+                <td>@profile.getFirstName</td>
+                <td>@profile.getLastName</td>
+                <td>@for(nationalities <- profile.getNationalities) {
+                    @nationalities.getNationality <br/>
+                }
+                </td>
+                <td>@profile.getGender</td>
+                <td>@profile.getAge</td>
+                <td>@for(travellerTypes <- profile.getTravellerTypes) {
+                    @travellerTypes.getTravellerType <br/>
+                }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
