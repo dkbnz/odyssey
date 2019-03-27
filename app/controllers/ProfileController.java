@@ -13,7 +13,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +43,7 @@ public class ProfileController {
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
     private static final String AUTHORIZED = "authorized";
+    private static final String notSignedIn = "You are not logged in.";
 
     /**
      * Creates a user based on given JSON body.
@@ -157,7 +157,7 @@ public class ProfileController {
                     }
                 })
                 .orElseGet(() -> {
-                    //User is not logged in, used for signup
+                    //User is not logged in, used for signup"You are not logged in."
                     if (!profileExists(username)) {
                         return ok();
                     } else {
@@ -186,7 +186,7 @@ public class ProfileController {
 
                     return ok(views.html.dash.profile.render(userProfile));
                 })
-                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
+                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
     }
 
 
@@ -219,7 +219,7 @@ public class ProfileController {
                     }
 
                 })
-                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
+                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
     }
 
 
@@ -300,7 +300,7 @@ public class ProfileController {
                     return ok("UPDATED");
 
                 })
-                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
+                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
     }
 
 
@@ -316,7 +316,7 @@ public class ProfileController {
 
                     return ok(views.html.dash.editProfile.render(userProfile, nationalities, passports, travTypes));
                 })
-                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
+                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
     }
 
 
@@ -344,7 +344,7 @@ public class ProfileController {
 
                     return ok(views.html.viewProfiles.tableProfiles.render(profiles));
                 })
-                .orElseGet(() -> unauthorized("You are not logged in.")); // User is not logged in
+                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
     }
 
 
