@@ -4,6 +4,7 @@
 @import models.destinations.DestinationType
 @(types: List[DestinationType],stringTypes: List[String])
 @main("Destinations", "destinations.js", "destinations.css") {
+    @mainNav("destinations")
     @viewDestinations.navDestinations()
     <div class="container" id="container">
 
@@ -36,4 +37,7 @@
             </div>
         </div>
     </div>
+
+
+    @footer()
 }
