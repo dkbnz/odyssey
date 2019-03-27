@@ -2,7 +2,8 @@ package controllers.destinations;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.ExpressionList;
-import models.destinations.*;
+import models.destinations.Destination;
+import models.destinations.DestinationType;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
