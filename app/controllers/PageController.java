@@ -64,6 +64,9 @@ public class PageController extends Controller {
                 .orElseGet(() -> redirect("/")); // User is not logged in, redirect to index
     }
 
+    /**
+     * Method used to format the select dropdown for Destination Types.
+     */
     private List<String> formatTypes(List<DestinationType> types) {
         List<String> newDestinations = new ArrayList<String>();
         for (int i = 0; i < types.size(); i++) {
