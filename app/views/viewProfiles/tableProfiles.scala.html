@@ -3,7 +3,7 @@
 @import models.Profile
 @(profiles: List[Profile])
 
-<table id="profile-list" class = "sortable d-none" cellspacing="0" cellpadding="0">
+<table id="keywords" class = "sortable d-none" cellspacing="0" cellpadding="0">
     <thead>
         <tr>
             <th>First Name</th>
@@ -20,13 +20,13 @@
                 <td>@profile.getFirstName</td>
                 <td>@profile.getLastName</td>
                 <td>@for(nationalities <- profile.getNationalities) {
-                    @nationalities.nationality <br/>
+                    @nationalities.getNationality <br/>
                 }
                 </td>
                 <td>@profile.getGender</td>
                 <td>@profile.getAge</td>
                 <td>@for(travellerTypes <- profile.getTravellerTypes) {
-                    @travellerTypes.travellerType <br/>
+                    @travellerTypes.getTravellerType <br/>
                 }
                 </td>
             </tr>

@@ -3,24 +3,25 @@
 <div class="container">
         <!-- Gets basic attributes of current user and displays them  -->
     <div>
-        <h1><b>@currentUser.firstName @currentUser.middleName @currentUser.lastName</b></h1>
-        <p> Date of Birth: (@currentUser.dateOfBirth)</p>
-        <p> Date of Creation: (@currentUser.dateOfCreation)</p>
-        <p> Gender: @currentUser.gender</p>
+        <h1><b>@currentUser.getFirstName @currentUser.getMiddleName @currentUser.getLastName</b></h1>
+        <p> Date of Creation: (@currentUser.getUsername)</p>
+        <p> Date of Birth: (@currentUser.getDateOfBirth)</p>
+        <p> Email: (@currentUser.getUsername)</p>
+        <p> Gender: @currentUser.getGender</p>
     </div>
 
     <div>
         <h2>Nationalities</h2>
         <ul>
-        @for(nationality <- currentUser.nationalities) {
-            <li>@nationality.nationality</li>
+        @for(nationality <- currentUser.getNationalities) {
+            <li>@nationality.getNationality</li>
         }
         </ul>
     </div>
     <div>
         <h2>Passports</h2>
         <ul>
-        @for(passport <- currentUser.passports) {
+        @for(passport <- currentUser.getPassports) {
             <li>@passport.country</li>
         }
         </ul>
@@ -28,7 +29,7 @@
     <div>
         <h2>Traveller Types</h2>
         <ul>
-        @for(travellerType <- currentUser.travellerTypes) {
+        @for(travellerType <- currentUser.getTravellerTypes) {
             <li>@travellerType.travellerType</li>
         }
         </ul>

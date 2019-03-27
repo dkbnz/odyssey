@@ -24,6 +24,18 @@ public class TravellerType extends BaseModel {
 
     public String imgUrl;
 
+    public String getTravellerType() {
+        return travellerType;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
     /**
      * A finder used to search for a traveller type
      */
