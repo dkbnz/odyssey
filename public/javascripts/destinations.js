@@ -40,6 +40,7 @@ function createDestination() {
     var country = document.getElementById("newDest_country").value;
     var fieldList = [name, type, district, latitude, longitude, country];
     var errorList = checkFields(fieldList);
+    console.log(type);
 
     if(errorList.length === 0) {
         $.ajax({
@@ -61,7 +62,7 @@ function createDestination() {
             },
             error: function (error) {
                 console.log(error);
-                timeoutAlert("#createDestinationError", "Internal Server Error, try again! Hint: the destination might already exist");
+                timeoutAlert("#createDestinationError", error.responseText);
             }
         });
     } else {
