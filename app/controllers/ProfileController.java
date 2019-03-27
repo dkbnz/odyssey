@@ -30,7 +30,7 @@ public class ProfileController {
 
 
     private static final String USERNAME = "username";
-    private static final String PASSWORD = "password";
+    private static final String PASSFIELD = "password";
     private static final String FIRST_NAME = "first_name";
     private static final String MIDDLE_NAME = "middle_name";
     private static final String LAST_NAME = "last_name";
@@ -43,7 +43,6 @@ public class ProfileController {
     private static final String DATE_OF_BIRTH = "date_of_birth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
-
     private static final String AUTHORIZED = "authorized";
 
     /**
@@ -56,7 +55,7 @@ public class ProfileController {
         JsonNode json = request.body().asJson();
 
         if (!(json.has(USERNAME)
-                && json.has(PASSWORD)
+                && json.has(PASSFIELD)
                 && json.has(FIRST_NAME)
                 && json.has(MIDDLE_NAME)
                 && json.has(LAST_NAME)
@@ -77,7 +76,7 @@ public class ProfileController {
         Profile newUser = new Profile();
 
         newUser.setUsername(json.get(USERNAME).asText());
-        newUser.setPassword(json.get(PASSWORD).asText());
+        newUser.setPassword(json.get(PASSFIELD).asText());
         newUser.setFirstName(json.get(FIRST_NAME).asText());
         newUser.setMiddleName(json.get(MIDDLE_NAME).asText());
         newUser.setLastName(json.get(LAST_NAME).asText());
@@ -237,7 +236,7 @@ public class ProfileController {
                     JsonNode json = request.body().asJson();
 
                     if (!(json.has(USERNAME)
-                            && json.has(PASSWORD)
+                            && json.has(PASSFIELD)
                             && json.has(FIRST_NAME)
                             && json.has(MIDDLE_NAME)
                             && json.has(LAST_NAME)
@@ -255,8 +254,8 @@ public class ProfileController {
                         return badRequest();
                     }
 
-                    if (!json.get(PASSWORD).asText().isEmpty()) { // Only update password if user has typed a new one
-                        userProfile.setPassword(json.get(PASSWORD).asText());
+                    if (!json.get(PASSFIELD).asText().isEmpty()) { // Only update password if user has typed a new one
+                        userProfile.setPassword(json.get(PASSFIELD).asText());
                     }
 
                     userProfile.setUsername(json.get(USERNAME).asText());
