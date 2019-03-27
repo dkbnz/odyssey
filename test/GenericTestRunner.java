@@ -5,9 +5,9 @@ import org.junit.runner.RunWith;
 
 @RunWith (Cucumber.class)
 @CucumberOptions (
-        features = "features",
+        features = "test/features",
         plugin = {"pretty", "html:target/site/cucumber-pretty", "json:target/cucumber.json"},
-        glue = "steps",
+        glue = "test/steps",
         snippets = SnippetType.CAMELCASE)
 public class GenericTestRunner {
 }
