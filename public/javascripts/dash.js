@@ -58,26 +58,36 @@ $(document).ready(function () {
              *  Upon deselecting input container, check contents against the database to see if their proposed username is already taken
              */
             $('#username').focusout(function() {
-                $("#err_username").remove();
-                $.ajax({
-                    method: "POST",
-                    url: "/api/checkUsername",
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify({username : $("#username").val()}),
+                $("#err_username_taken").remove();
+                $("#err_username_invalid").remove();
+                var emailRegex = new RegExp("^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))$");
+                if (!(emailRegex.test($("#username").val()))) {
+                    $('#username_group').append("\n" +
+                        "                    <div id=\"err_username_invalid\" class=\"alert alert-danger \">\n" +
+                        "                        <strong>Email invalid!</strong> Please enter a valid email\n" +
+                        "                    </div>");
+                } else {
+                    $("#err_username_invalid").remove();
+                    $.ajax({
+                        method: "POST",
+                        url: "/api/checkUsername",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify({username : $("#username").val()}),
 
-                    success: function () {
-                        // Profile controller method has verified input uniqueness returning ok(200), so existing error messages should be removed.
-                        $("#err_username").remove();
-                    },
+                        success: function () {
+                            // Profile controller method has verified input uniqueness returning ok(200), so existing error messages should be removed.
+                            $("#err_username").remove();
+                        },
 
-                    error: function () {
-                        // Profile controller method has detecting an existing username matching the input returning badRequest(400), so an error message is presented.
-                        $('#username_group').append("\n" +
-                            "                    <div id=\"err_username\" class=\"alert alert-danger \">\n" +
-                            "                        <strong>Username taken!</strong> Please use another username\n" +
-                            "                    </div>");
-                    }
-                });
+                        error: function () {
+                            // Profile controller method has detecting an existing username matching the input returning badRequest(400), so an error message is presented.
+                            $('#username_group').append("\n" +
+                                "                    <div id=\"err_username_taken\" class=\"alert alert-danger \">\n" +
+                                "                        <strong>Email taken!</strong> Please use another email\n" +
+                                "                    </div>");
+                        }
+                    });
+                }
             });
 
 
