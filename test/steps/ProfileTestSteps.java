@@ -12,6 +12,8 @@ import cucumber.api.java.en.When;
 import models.Profile;
 import org.junit.Assert;
 import org.junit.runner.Request;
+import org.springframework.beans.BeansException;
+import org.springframework.context.annotation.Bean;
 import play.ApplicationLoader;
 import play.Environment;
 import play.Application;
@@ -70,13 +72,13 @@ public class ProfileTestSteps {
 
 
     @Given("the application is running")
-    public void theApplicationIsRunning() {
+    public void theApplicationIsRunning() throws BeansException {
         Assert.assertTrue(application.isTest());
     }
 
 
     @When("I send a GET request to the \\/profiles endpoint")
-    public void iSendAGETRequestToTheProfilesEndpoint() {
+    public void iSendAGETRequestToTheProfilesEndpoint() throws BeansException {
         request = fakeRequest()
                 .method(GET)
                 .uri("/profiles");
@@ -85,7 +87,7 @@ public class ProfileTestSteps {
 
 
     @Then("the received status code is ok()")
-    public void theReceivedStatusCodeIs() {
+    public void theReceivedStatusCodeIs() throws BeansException{
         Result result = route(application, request);
         Assert.assertEquals(ok(), result.status());
     }
@@ -96,13 +98,13 @@ public class ProfileTestSteps {
 
 
     @Given("the application is running [2]")
-    public void theApplicationIsRunning2() {
+    public void theApplicationIsRunning2() throws BeansException {
         Assert.assertTrue(application.isTest());
     }
 
 
     @When("I send a GET request to the \\/travtypes endpoint")
-    public void iSendAGETRequestToTheTravtypesEndpoint() {
+    public void iSendAGETRequestToTheTravtypesEndpoint() throws BeansException {
         request = fakeRequest()
                 .method(GET)
                 .uri("/travtypes");
@@ -111,7 +113,7 @@ public class ProfileTestSteps {
 
 
     @Then("the received status code is ok() [2]")
-    public void theReceivedStatusCodeIs2() {
+    public void theReceivedStatusCodeIs2() throws BeansException {
         Result result = route(application, request);
         Assert.assertEquals(ok(), result.status());
     }
