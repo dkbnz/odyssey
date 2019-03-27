@@ -18,7 +18,7 @@ libraryDependencies += "io.cucumber" % "cucumber-jvm" % "4.2.0" % Test
 libraryDependencies += "io.cucumber" % "cucumber-junit" % "4.2.0" % Test
 libraryDependencies += "io.cucumber" % "cucumber-java" % "4.2.0"
 libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.25.2"
-libraryDependencies += "com.waioeka.sbt" %% "cucumber-runner" % "0.1.5"
+//libraryDependencies += "com.waioeka.sbt" %% "cucumber-runner" % "0.1.5"
 
 // For database
 // mySQL
@@ -35,7 +35,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-Werror")
 
 
-val framework = new TestFramework("com.waioeka.sbt.runner.CucumberFramework")
+//val framework = new TestFramework("com.waioeka.sbt.runner.CucumberFramework")
 //testFrameworks += framework
 //
 //// Configure the arguments.
