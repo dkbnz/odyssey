@@ -7,14 +7,14 @@ Feature: Destination API Endpoint
 
   Scenario:
     Given I have a running application
-    When I create a new destination with the following values
+    When I create a new destination with the following valid values
     | Name    | Type | District | Latitude  | Longitude| Country    |
-    | ASB     | Bank | Nelson   | 24.5      | 34.6     | New Zealand|
+    | ASB     | BANK | Nelson   | 24.5      | 34.6     | New Zealand|
     Then the status code received is OK
 
   Scenario:
     Given I have a running application
-    When I create a new destination with the following values
+    When I create a new destination with the following invalid values
       | Name    | Type | District | Latitude  | Longitude| Country    |
-      | ASB     | Bank | Nelson   | 24.5      | 34.6     | New Zealand|
-    Then the status code received is OK
+      |         | BANK | Nelson   | 24.5      | 34.6     | New Zealand|
+    Then the status code received is BadRequest
