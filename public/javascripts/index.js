@@ -294,7 +294,7 @@ $(document).ready(function () {
             url: "/api/login",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify({
-                username: $("#sign-in-username").val(),
+                username: $("#sign-in-email").val(),
                 password: $("#sign-in-password").val()
             }),
             success: function(response) {
@@ -305,7 +305,7 @@ $(document).ready(function () {
                 if (!$("#err_sign_in").length) {    // If no length value returned, create warning
                     $("#sign-in-form").append("\n" +
                         "<div id=\"err_sign_in\" class=\"alert alert-danger\" > \n" +
-                        "Username or Password Incorrect \n" +
+                        "Email or Password Incorrect \n" +
                         "</div>");
                 }
             }
