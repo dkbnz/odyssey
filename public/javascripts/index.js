@@ -2,12 +2,6 @@
  * Hides the navbar and the footer on the welcome page.
  */
 
-window.onload = function() {
-    document.getElementById('navbar').style.display = 'none';
-    document.getElementById('footer').style.display = 'none';
-
-};
-
 $(document).ready(function () {
 
     /**
