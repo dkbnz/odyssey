@@ -4,17 +4,6 @@ stages:
   - build
   - test
   - deploy
-
-#sbt installing (doesn't currently work)
-#before_script:
-#  - apt-get update -y
-#  - apt-get install apt-transport-https -y
-#  ## Install SBT
-#  - echo "deb http://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list
-#  - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 642AC823
-#  - apt-get update -y
-#  - apt-get install sbt -y
-#  - sbt sbt-version
   
 tag_checker:
   stage: build
@@ -23,25 +12,10 @@ tag_checker:
   only:
     - tags
 
-#test:
+#junit:
 #  stage: test
 #  script:
-#    - sbt clean coverage test coverageReport
-
-
-junit:
-  stage: test
-  script:
-    - sbt test
-    
-    
-#sonarqube_master_job:
-#  stage: test
-#  only:
-#    - master
-#  script:
-#    - sonar-scanner -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_LOGIN -Dsonar.analysis.mode=preview -Dsonar.gitlab.commit_sha=$CI_COMMIT_SHA -Dsonar.gitlab.ref_name=$CI_COMMIT_REF_NAME -Dsonar.gitlab.project_id=$CI_PROJECT_ID
-#https://github.com/gabrie-allaigre/sonar-gitlab-plugin/
+#    - sbt test
 
 
 
