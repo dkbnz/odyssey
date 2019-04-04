@@ -53,6 +53,6 @@ update-sonar:
 run-project:
     stage: deploy
     script:
-        - sbt "run 8000"
+        - sudo sh runTravelEA.sh
     only:
         - master@seng302-2019/team-100
