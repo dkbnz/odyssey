@@ -1,2 +1,2 @@
 #!/bin/bash
-sbt run
+sbt "run 8000"
