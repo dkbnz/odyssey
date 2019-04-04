@@ -29,10 +29,10 @@ tag_checker:
 #    - sbt clean coverage test coverageReport
 
 
-junit:
-  stage: test
-  script:
-    - sbt test
+#junit:
+#  stage: test
+#  script:
+#    - sbt test
     
     
 #sonarqube_master_job:
