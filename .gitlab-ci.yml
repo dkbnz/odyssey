@@ -24,7 +24,7 @@ tag_checker:
 recent-artifacts:
   stage: deploy
   script:
-    - sbt dist
+    - sudo sbt dist
   artifacts:
     paths:
       - target/universal/*.zip
@@ -35,7 +35,7 @@ recent-artifacts:
 release-artifacts:
  stage: deploy
  script:
-    - sbt dist
+    - sudo sbt dist
  artifacts:
     paths:
     - target/universal/*.zip
@@ -56,7 +56,7 @@ unzip-project:
     stage: unzip
     script:
         - cd target/universal
-        - unzip seng302-team-100-everyware-$SNAPSHOT_VERSION-SNAPSHOT.zip
+        - sudo unzip seng302-team-100-everyware-$SNAPSHOT_VERSION-SNAPSHOT.zip
     only:
         - master@seng302-2019/team-100
 
