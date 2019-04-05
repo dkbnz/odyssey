@@ -4,6 +4,7 @@ stages:
   - build
   - test
   - deploy
+  - run
   
 tag_checker:
   stage: build
@@ -57,7 +58,7 @@ deploy_zip:
         - unzip $ZIP_VERSION
 
 run-project:
-    stage: deploy
+    stage: run
     script:
         - cd target/universal/$DEPLOY_VERSION/bin
         - ./seng-302-team-100-everyware
