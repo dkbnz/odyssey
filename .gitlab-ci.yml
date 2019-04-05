@@ -52,7 +52,7 @@ update-sonar:
         - master@seng302-2019/team-100
         - dev_branch@seng302-2019/team-100
 
-unzip_project:
+unzip-project:
     stage: unzip
     script:
         - cd target/universal
@@ -60,10 +60,10 @@ unzip_project:
     only:
         - master@seng302-2019/team-100
 
-#run-project:
-#    stage: run
-#    script:
-#        - cd target/universal/seng302-team-100-everyware-0.0.1-SNAPSHOT/bin
-#        - ./seng-302-team-100-everyware
-#    only:
-#        - master@seng302-2019/team-100 
+run-project:
+    stage: run
+    script:
+        - cd target/universal/seng302-team-100-everyware-$SNAPSHOT_VERSION-SNAPSHOT/bin
+        - ./seng-302-team-100-everyware console
+    only:
+        - master@seng302-2019/team-100 
