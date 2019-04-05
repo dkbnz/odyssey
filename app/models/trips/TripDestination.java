@@ -6,7 +6,9 @@ import models.destinations.Destination;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.CascadeType;
 import javax.persistence.OneToMany;
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -18,12 +20,12 @@ public class TripDestination extends BaseModel {
     /**
      * The starting date of the trip destination.
      */
-    private Date start_date;
+    private LocalDate start_date;
 
     /**
      * The ending date of the trip destination.
      */
-    private Date end_date;
+    private LocalDate end_date;
 
     /**
      * Position of the trip destination within a trip
@@ -39,23 +41,23 @@ public class TripDestination extends BaseModel {
     /**
      * The destination ID this trip destination has
      */
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.PERSIST)
     private Destination destination;
 
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return start_date;
     }
 
-    public void setStartDate(Date start_date) {
+    public void setStartDate(LocalDate start_date) {
         this.start_date = start_date;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return end_date;
     }
 
-    public void setEndDate(Date end_date) {
+    public void setEndDate(LocalDate end_date) {
         this.end_date = end_date;
     }
 
@@ -75,13 +77,13 @@ public class TripDestination extends BaseModel {
 //        this.trip_id = trip_id;
 //    }
 
-//    public int getDestination_id() {
-//        return destination_id;
-//    }
-//
-//    public void setDestination_id(int destination_id) {
-//        this.destination_id = destination_id;
-//    }
+    public Destination getDestination() {
+        return destination;
+    }
+
+    public void setDestination(Destination destination) {
+        this.destination = destination;
+    }
 
     /**
      * A finder used to search for a trip destination
