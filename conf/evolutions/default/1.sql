@@ -124,8 +124,8 @@ create table trip (
 
 create table trip_destination (
   id                            bigint auto_increment not null,
-  start_date                    datetime(6),
-  end_date                      datetime(6),
+  start_date                    date,
+  end_date                      date,
   list_order                    integer not null,
   trip_id                       bigint,
   destination_id                bigint,
