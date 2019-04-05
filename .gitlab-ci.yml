@@ -4,6 +4,7 @@ stages:
   - build
   - test
   - deploy
+  - unzip
   - run
   
 tag_checker:
@@ -51,9 +52,10 @@ update-sonar:
         - master@seng302-2019/team-100
         - dev_branch@seng302-2019/team-100
 
-deploy_zip:
-    stage: deploy
+unzip_project:
+    stage: unzip
     script:
+        - echo $(ls)
         - cd target/universal
         - unzip seng302-team-100-everyware-0.0.1-SNAPSHOT.zip
     only:
