@@ -13,10 +13,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class createTripController extends Controller {
+public class TripController extends Controller {
 
+    private static final String AUTHORIZED = "authorized";
     private static final String NAME = "name";
     private static final String TRIPDESTINATIONS = "trip_destinations";
+    private static final String NOTSIGNEDIN = "You are not logged in.";
+
 
     /**
      * Creates a trips for a user based on information sent in the http request
@@ -65,4 +68,23 @@ public class createTripController extends Controller {
 
         return ok("Hello 2");
     };
+
+
+    /**
+     * Fetches a single trip from the database for a logged in user.
+     * TODO: provide returned OK Results a view to render single trips on.
+     *
+     * @param request HTTP request from client
+     * @return an OK response rendering the fetched trip onto the page, or an unauthorised message.
+     */
+    public Result fetch(Http.Request request) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(tripId -> {
+                    Trip trip = Trip.find.byId(Integer.valueOf(tripId));
+                    return ok(views.html.trip.render(trip));
+                })
+                .orElseGet(() -> unauthorized(NOTSIGNEDIN));
+    }
+
 }
