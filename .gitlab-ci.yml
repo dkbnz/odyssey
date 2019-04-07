@@ -12,6 +12,8 @@ clean-build:
     stage: clean
     script:
         - sudo rm -r target
+        - sudo rm -r project/project
+        - sudo rm -r project/target
     only:
         - master@seng302-2019/team-100
   
