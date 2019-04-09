@@ -1,5 +1,6 @@
 package unit;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.ProfileController;
@@ -40,6 +41,7 @@ public class ProfileControllerTest {
         json.put("last_name", "Dummy");
         json.put("date_of_birth", "2000-01-01");
         json.put("gender", "other");
+
 
         //json.putArray();
 
