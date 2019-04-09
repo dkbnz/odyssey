@@ -15,6 +15,7 @@ import play.mvc.Result;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class TripController extends Controller {
@@ -36,49 +37,61 @@ public class TripController extends Controller {
     public Result create(Http.Request request) throws IOException {
 
         JsonNode json = request.body().asJson();
-
         Trip trip = new Trip();
 
         trip.setName(json.get(NAME).asText());
 
         int order = 0;
-        List<TripDestination> myDestinationList = new ArrayList<>();
+        List<TripDestination> destinationList = new ArrayList<>();
 
 
         ObjectMapper mapper = new ObjectMapper();
 
-        JsonNode tripDestinations = mapper.readTree(json.get(TRIPDESTINATIONS).asText());
-
-//
-//        ObjectMapper map = new ObjectMapper();
-//        ObjectNode node = mapper.createObjectNode();
-//
-//        node.put("username", "TestUser123");
-//        node.put("password", "TestPass");
-//        node.put("first_name", "Test");
-//        node.put("middle_name", "");
-//        node.put("last_name", "Dummy");
-//        node.put("date_of_birth", "2000-01-01");
-//        node.put("gender", "other");
-//
-//        //json.putArray();
+        JsonNode rootNode = mapper.readTree(json.asText());
+        JsonNode tripDestinations = rootNode.path(TRIPDESTINATIONS);
+        //JsonNode tripDestinations = mapper.readTree(json.get(TRIPDESTINATIONS).asText());
 
 
-        System.out.println(tripDestinations);
-        for (JsonNode tripDestination : tripDestinations) {
+        // Parse JSON to create and append trip destinations using iterator.
+        Iterator<JsonNode> iterator = tripDestinations.elements();
+        while (iterator.hasNext()) {
+            JsonNode destinationJson = iterator.next();
             TripDestination destination = new TripDestination();
             destination.setList_order(order++);
-            destination.setDestination(Destination.find.byId(Integer.parseInt(tripDestination.get(DESTINATIONID).asText())));
-            destination.setStartDate(LocalDate.parse(tripDestination.get(STARTDATE).asText()));
-            destination.setEndDate(LocalDate.parse(tripDestination.get(ENDDATE).asText()));
-            myDestinationList.add(destination);
+            destination.setDestination(Destination.find.byId(Integer.parseInt(destinationJson.get(DESTINATIONID).asText())));
+            destination.setStartDate(LocalDate.parse(destinationJson.get(STARTDATE).asText()));
+            destination.setEndDate(LocalDate.parse(destinationJson.get(ENDDATE).asText()));
+            destinationList.add(destination);
         }
 
-        trip.setDestinations(myDestinationList);
-        trip.save();
+        System.out.println(tripDestinations);
 
+        // Parse JSON to create and append trip destinations using ArrayNode.
+        ArrayNode arrayNode = (ArrayNode) tripDestinations;
+        for (int i = 0; i < arrayNode.size(); i++) {
+            TripDestination destination = new TripDestination();
+            destination.setList_order(i);
+            destination.setDestination(Destination.find.byId(Integer.parseInt(arrayNode.get(i).get(DESTINATIONID).asText())));
+            destination.setStartDate(LocalDate.parse(arrayNode.get(i).get(STARTDATE).asText()));
+            destination.setEndDate(LocalDate.parse(arrayNode.get(i).get(ENDDATE).asText()));
+            destinationList.add(destination);
+        }
+
+
+//        for (JsonNode tripDestination : tripDestinations) {
+//            TripDestination destination = new TripDestination();
+//            destination.setList_order(order++);
+//            destination.setDestination(Destination.find.byId(Integer.parseInt(tripDestination.get(DESTINATIONID).asText())));
+//            destination.setStartDate(LocalDate.parse(tripDestination.get(STARTDATE).asText()));
+//            destination.setEndDate(LocalDate.parse(tripDestination.get(ENDDATE).asText()));
+//            destinationList.add(destination);
+//        }
+
+
+        trip.setDestinations(destinationList);
+        trip.save();
         return ok();
-    };
+    }
 
 
     /**
