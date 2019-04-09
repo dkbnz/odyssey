@@ -69,14 +69,6 @@ public class TripDestination extends BaseModel {
         this.list_order = list_order;
     }
 
-//    public int getTrip_id() {
-//        return trip_id;
-//    }
-//
-//    public void setTrip_id(int trip_id) {
-//        this.trip_id = trip_id;
-//    }
-
     public Destination getDestination() {
         return destination;
     }
