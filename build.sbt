@@ -4,7 +4,9 @@ version := "0.0.1-SNAPSHOT"
 
 scalaVersion := "2.12.8"
 
-lazy val myProject = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
+lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean).settings(
+  watchSources ++= (baseDirectory.value / "public/ui" ** "*").get
+)
 
 libraryDependencies += guice
 libraryDependencies += jdbc

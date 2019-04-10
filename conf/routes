@@ -25,7 +25,7 @@ POST    /api/logout                     controllers.AuthController.logout()
 # Requests relating to authorisation are as follows
 
 
-#DESTINATIONS
+# DESTINATIONS
 # Get all destinations
 GET     /api/destinations               controllers.destinations.DestinationController.fetch(request: Request)
 
@@ -43,3 +43,13 @@ GET     /                               controllers.PageController.index(request
 GET     /dash                           controllers.PageController.dash(request: Request)
 GET     /destinations                   controllers.PageController.destinations(request: Request)
 GET     /searchProfile                  controllers.PageController.searchProfiles(request: Request)
+
+
+# Load index page
+GET        /             controllers.Assets.at(path="/public", file="index.html")
+
+# An example route
+GET        /v1/summary      controllers.HomeController.appSummary()
+
+# Map static resources from the /public folder to the file resource paths
+GET        /*file        controllers.Assets.at(path="/public", file)
