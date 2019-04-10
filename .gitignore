@@ -1,3 +1,6 @@
+# Ignore node_modules (frontend nodejs libraries)
+ui/node_modules
+
 # Ignore Play! working directory #
 bin/
 /db
