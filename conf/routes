@@ -40,7 +40,7 @@ PUT     /api/destination/:id            controllers.destinations.DestinationCont
 
 # GET requests to serve the pages
 GET     /                               controllers.PageController.index(request: Request)
-POST     /trip                           controllers.trips.TripController.create(request: Request)
+POST    /trip                           controllers.trips.TripController.create(request: Request)
 GET     /dash                           controllers.PageController.dash(request: Request)
 GET     /destinations                   controllers.PageController.destinations(request: Request)
 GET     /searchProfile                  controllers.PageController.searchProfiles(request: Request)

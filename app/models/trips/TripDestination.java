@@ -61,11 +61,11 @@ public class TripDestination extends BaseModel {
         this.end_date = end_date;
     }
 
-    public int getList_order() {
+    public int getListOrder() {
         return list_order;
     }
 
-    public void setList_order(int list_order) {
+    public void setListOrder(int list_order) {
         this.list_order = list_order;
     }
 
