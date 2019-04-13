@@ -18,12 +18,13 @@ public class TripController extends Controller {
 
     private static final String AUTHORIZED = "authorized";
     private static final String NAME = "trip_name";
-    private static final String TRIPDESTINATIONS = "trip_destinations";
-    private static final String STARTDATE = "start_date";
-    private static final String ENDDATE = "end_date";
-    private static final String DESTINATIONID = "destination_id";
+    private static final String TRIP_DESTINATIONS = "trip_destinations";
+    private static final String START_DATE = "start_date";
+    private static final String END_DATE = "end_date";
+    private static final String DESTINATION_ID = "destination_id";
     private static final String ID = "id";
-    private static final String NOTSIGNEDIN = "You are not logged in.";
+    private static final String NOT_LOGGED_IN = "You are not logged in.";
+    private static final int MINIMUM_TRIP_DESTINATIONS = 2;
 
 
     /**
@@ -36,13 +37,13 @@ public class TripController extends Controller {
         JsonNode json = request.body().asJson();
 
         // Check if the request contains a trip name and an array of destinations.
-        if (!(json.has(NAME) && json.has(TRIPDESTINATIONS))) {
+        if (!(json.has(NAME) && json.has(TRIP_DESTINATIONS))) {
             return badRequest();
         }
 
 
         // Check if the array of destinations in the request contains at least two trips.
-        if (!(json.get(TRIPDESTINATIONS) == null || json.get(TRIPDESTINATIONS).size() >= 2)) {
+        if (!(json.get(TRIP_DESTINATIONS) == null || json.get(TRIP_DESTINATIONS).size() >= MINIMUM_TRIP_DESTINATIONS)) {
             return badRequest();
         }
 
@@ -57,7 +58,7 @@ public class TripController extends Controller {
 
 
         // Create a json node for the destinations contained in the trip to use for iteration.
-        ArrayNode tripDestinations = (ArrayNode) json.get(TRIPDESTINATIONS);
+        ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
 
 
         // Check if the array can be processed so the main loop can be run.
@@ -73,16 +74,16 @@ public class TripController extends Controller {
                 JsonNode destinationJson = iterator.next();
 
                 // Check if current node has a destination ID, and it corresponds with a destination in our database.
-                if (destinationJson.get(DESTINATIONID) != null &&
+                if (destinationJson.get(DESTINATION_ID) != null &&
                         Destination.find.query()
                         .where()
-                        .like(ID, DESTINATIONID)
+                        .like(ID, DESTINATION_ID)
                         .findOne() != null) {
 
                     // Parse the values contained in the current node of the array
-                    Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATIONID).asText());
-                    LocalDate parsedStartDate = LocalDate.parse(destinationJson.get(STARTDATE).asText());
-                    LocalDate parsedEndDate = LocalDate.parse(destinationJson.get(ENDDATE).asText());
+                    Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATION_ID).asText());
+                    LocalDate parsedStartDate = LocalDate.parse(destinationJson.get(START_DATE).asText());
+                    LocalDate parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
                     Destination parsedDestination = Destination.find.byId(parsedDestinationId);
 
                     // Create a new TripDestination object and set the values to be those parsed.
@@ -123,6 +124,6 @@ public class TripController extends Controller {
                     Trip trip = Trip.find.byId(Integer.valueOf(tripId));
                     return ok(AUTHORIZED);//views.html.trip.render(trip));
                 })
-                .orElseGet(() -> unauthorized(NOTSIGNEDIN));
+                .orElseGet(() -> unauthorized(NOT_LOGGED_IN));
     }
 }
