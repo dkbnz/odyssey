@@ -22,6 +22,7 @@ public class TripController extends Controller {
     private static final String STARTDATE = "start_date";
     private static final String ENDDATE = "end_date";
     private static final String DESTINATIONID = "destination_id";
+    private static final String ID = "id";
     private static final String NOTSIGNEDIN = "You are not logged in.";
 
 
@@ -33,7 +34,6 @@ public class TripController extends Controller {
     public Result create(Http.Request request) {
 
         JsonNode json = request.body().asJson();
-
 
         // Check if the request contains a trip name and an array of destinations.
         if (!(json.has(NAME) && json.has(TRIPDESTINATIONS))) {
@@ -63,31 +63,41 @@ public class TripController extends Controller {
         // Check if the array can be processed so the main loop can be run.
         if (tripDestinations.isArray()) {
 
+            // Simple integer for incrementing the list_order attribute for trip destinations.
             int order = 0;
 
-            // Parse JSON to create and append trip destinations using iterator.
+            // Parse JSON to create and append trip destinations using an iterator.
             Iterator<JsonNode> iterator = tripDestinations.elements();
             while (iterator.hasNext()) {
                 // Set the current node having its contents extracted.
                 JsonNode destinationJson = iterator.next();
 
-                // Parse the values contained in the current node of the array
-                Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATIONID).asText());
-                Destination parsedDestination = Destination.find.byId(parsedDestinationId);
-                LocalDate parsedStartDate = LocalDate.parse(destinationJson.get(STARTDATE).asText());
-                LocalDate parsedEndDate = LocalDate.parse(destinationJson.get(ENDDATE).asText());
+                // Check if current node has a destination ID, and it corresponds with a destination in our database.
+                if (destinationJson.get(DESTINATIONID) != null &&
+                        Destination.find.query()
+                        .where()
+                        .like(ID, DESTINATIONID)
+                        .findOne() != null) {
 
-                // Create a new TripDestination object and set the values to be those parsed.
-                TripDestination newTripDestination = new TripDestination();
-                newTripDestination.setListOrder(order++);
-                newTripDestination.setDestination(parsedDestination);
-                newTripDestination.setStartDate(parsedStartDate);
-                newTripDestination.setEndDate(parsedEndDate);
+                    // Parse the values contained in the current node of the array
+                    Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATIONID).asText());
+                    LocalDate parsedStartDate = LocalDate.parse(destinationJson.get(STARTDATE).asText());
+                    LocalDate parsedEndDate = LocalDate.parse(destinationJson.get(ENDDATE).asText());
+                    Destination parsedDestination = Destination.find.byId(parsedDestinationId);
 
-                // Add created destination to the list of trip destinations.
-                destinationList.add(newTripDestination);
+                    // Create a new TripDestination object and set the values to be those parsed.
+                    TripDestination newTripDestination = new TripDestination();
+                    newTripDestination.setDestination(parsedDestination);
+                    newTripDestination.setStartDate(parsedStartDate);
+                    newTripDestination.setEndDate(parsedEndDate);
+                    newTripDestination.setListOrder(order++);
+
+                    // Add created destination to the list of trip destinations.
+                    destinationList.add(newTripDestination);
+                } else {
+                    return badRequest();
+                }
             }
-
         } else {
             return badRequest();
         }
@@ -97,16 +107,6 @@ public class TripController extends Controller {
         trip.save();
         return ok();
     }
-
-
-
-
-
-
-
-
-
-
 
 
     /**
@@ -125,24 +125,4 @@ public class TripController extends Controller {
                 })
                 .orElseGet(() -> unauthorized(NOTSIGNEDIN));
     }
-
-
-//    {
-//        "trip_name": "ExampleName",
-//            "trip_destinations": [
-//        {
-//            "destination_id": "15040",
-//                "start_date": "2019-09-20",
-//                "end_date": "2019-10-20"
-//        },
-//        {
-//            "destination_id": "15042",
-//                "start_date": "2019-10-20",
-//                "end_date": "2019-11-14"
-//        }
-//  ]
-//    }
-
-
-
 }
