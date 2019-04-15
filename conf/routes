@@ -38,9 +38,29 @@ DELETE  /api/destination/:id            controllers.destinations.DestinationCont
 #Update a destination
 PUT     /api/destination/:id            controllers.destinations.DestinationController.edit(id: Long, request: Request)
 
+
+#TRIPS
+# Get all trips for a profile
+#GET     /api/profiles/:profileId/trips                      controllers.trips.TripController.list(request: Request)
+
+# Add trip to a profile
+#POST    /api/profiles/:profileId/trips                      controllers.trips.TripController.create(request: Request)
+POST    /api/trips                                          controllers.trips.TripController.create(request: Request)
+
+# Get a single trip from a profile
+#GET     /api/profiles/:profileId/trips/:tripId                  controllers.trips.TripController.fetch(request: Request, id: Long)
+
+# Update a specific trip
+#PATCH   /api/profiles/:profileId/trips/:tripId                  controllers.trips.TripController.edit(request: Request, id: Long)
+
+# Delete a specific destination
+#DELETE  /api/profiles/:profileId/trips/:tripId                  controllers.trips.TripController.delete(request: Request, id: Long)
+
+
+
+
 # GET requests to serve the pages
 GET     /                               controllers.PageController.index(request: Request)
-POST    /trip                           controllers.trips.TripController.create(request: Request)
 GET     /dash                           controllers.PageController.dash(request: Request)
 GET     /destinations                   controllers.PageController.destinations(request: Request)
 GET     /searchProfile                  controllers.PageController.searchProfiles(request: Request)

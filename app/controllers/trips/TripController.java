@@ -22,6 +22,7 @@ public class TripController extends Controller {
     private static final String START_DATE = "start_date";
     private static final String END_DATE = "end_date";
     private static final String DESTINATION_ID = "destination_id";
+    private static final String TRIP_ID = "trip_id";
     private static final String ID = "id";
     private static final String NOT_LOGGED_IN = "You are not logged in.";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
@@ -31,6 +32,7 @@ public class TripController extends Controller {
      * Creates a trips for a user based on information sent in the http request
      * @param request json format of trip information
      * @return OK response for successful creation, or badRequest.
+     * TODO: Link created trips to a profile as per the database schema
      */
     public Result create(Http.Request request) {
 
@@ -118,12 +120,28 @@ public class TripController extends Controller {
      * @return an OK response rendering the fetched trip onto the page, or an unauthorised message.
      */
     public Result fetch(Http.Request request) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(tripId -> {
-                    Trip trip = Trip.find.byId(Integer.valueOf(tripId));
-                    return ok(AUTHORIZED);//views.html.trip.render(trip));
-                })
-                .orElseGet(() -> unauthorized(NOT_LOGGED_IN));
+
+        JsonNode json = request.body().asJson();
+
+        Integer parsedTripId = null;
+        try {
+            parsedTripId = Integer.parseInt(json.get(TRIP_ID).asText());
+        } catch (NumberFormatException e) {
+            return badRequest();
+        }
+
+        Trip returnedTrip = null;
+
+        String id = String.valueOf(parsedTripId);
+        if (Trip.find.query()
+                .where()
+                .like(id, TRIP_ID)
+                .findOne() != null) {
+            returnedTrip = Trip.find.byId(parsedTripId);
+        } else {
+            return notFound();
+        }
+
+        return ok();
     }
 }
