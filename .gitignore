@@ -94,7 +94,6 @@ Temporary Items
 
 # Netbeans
 nbproject/private/
-build/
 nbbuild/
 dist/
 nbdist/
