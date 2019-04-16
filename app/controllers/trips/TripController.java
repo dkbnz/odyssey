@@ -63,9 +63,10 @@ public class TripController extends Controller {
                         trip.setDestinations(destinationList);
                         trip.save();
                         userProfile.addTrip(trip);
+                        userProfile.save();
                         return ok();
                     } else {
-                        return badRequest();
+                        return unauthorized("gay");//destinationList.toString());
                     }
 
                 })
@@ -162,7 +163,7 @@ public class TripController extends Controller {
 
         // Simple integer for incrementing the list_order attribute for trip destinations.
         int order = 0;
-        long previousDestination = -1;
+        //long previousDestination = -1;
 
         // Parse JSON to create and append trip destinations using an iterator.
         Iterator<JsonNode> iterator = tripDestinations.elements();
@@ -171,11 +172,10 @@ public class TripController extends Controller {
             JsonNode destinationJson = iterator.next();
 
             // Check if current node has a destination ID, and it corresponds with a destination in our database.
-            if (destinationJson.get(DESTINATION_ID) != null && destinationJson.get(DESTINATION_ID).asLong() != previousDestination &&
-                    Destination.find.query()
-                            .where()
-                            .like(ID, DESTINATION_ID)
-                            .findOne() != null) {
+            if (destinationJson.get(DESTINATION_ID) != null
+                    //&& destinationJson.get(DESTINATION_ID).asLong() != previousDestination
+                    //Destination.find.query().where().like(ID, DESTINATION_ID).findOne() != null
+            ) {
 
                 // Parse the values contained in the current node of the array
                 Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATION_ID).asText());
@@ -189,10 +189,11 @@ public class TripController extends Controller {
                 newTripDestination.setStartDate(parsedStartDate);
                 newTripDestination.setEndDate(parsedEndDate);
                 newTripDestination.setListOrder(order++);
+                newTripDestination.save();
 
                 // Add created destination to the list of trip destinations.
                 result.add(newTripDestination);
-                previousDestination = newTripDestination.getId();
+                // previousDestination = newTripDestination.getId();
             } else {
                 return null;
             }
