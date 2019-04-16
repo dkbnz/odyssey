@@ -112,6 +112,17 @@ public class TripController extends Controller {
     }
 
 
+
+    public Result fetch(Http.Request request, Long id) {
+        request.session()
+
+
+        return ok();
+    }
+
+
+
+
     /**
      * Fetches a single trip from the database for a logged in user.
      * TODO: provide returned OK Results a view to render single trips on.
