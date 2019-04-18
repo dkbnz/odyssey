@@ -51,7 +51,7 @@ POST    /api/trips                                          controllers.trips.Tr
 #GET     /api/profiles/:profileId/trips/:tripId                  controllers.trips.TripController.fetch(request: Request, id: Long)
 
 # Update a specific trip
-#PATCH   /api/profiles/:profileId/trips/:tripId                  controllers.trips.TripController.edit(request: Request, id: Long)
+PATCH   /api/trips/:tripId                                      controllers.trips.TripController.edit(request: Request, id: Long)
 
 # Delete a specific destination
 #DELETE  /api/profiles/:profileId/trips/:tripId                  controllers.trips.TripController.delete(request: Request, id: Long)

@@ -118,6 +118,7 @@ create table traveller_type (
 
 create table trip (
   id                            bigint auto_increment not null,
+  profile_id                    bigint not null,
   name                          varchar(255),
   constraint pk_trip primary key (id)
 );
@@ -150,6 +151,9 @@ alter table profile_passport add constraint fk_profile_passport_profile foreign 
 create index ix_profile_passport_passport on profile_passport (passport_id);
 alter table profile_passport add constraint fk_profile_passport_passport foreign key (passport_id) references passport (id) on delete restrict on update restrict;
 
+create index ix_trip_profile_id on trip (profile_id);
+alter table trip add constraint fk_trip_profile_id foreign key (profile_id) references profile (id) on delete restrict on update restrict;
+
 create index ix_trip_destination_trip_id on trip_destination (trip_id);
 alter table trip_destination add constraint fk_trip_destination_trip_id foreign key (trip_id) references trip (id) on delete restrict on update restrict;
 
@@ -176,6 +180,9 @@ drop index ix_profile_passport_profile on profile_passport;
 
 alter table profile_passport drop foreign key fk_profile_passport_passport;
 drop index ix_profile_passport_passport on profile_passport;
+
+alter table trip drop foreign key fk_trip_profile_id;
+drop index ix_trip_profile_id on trip;
 
 alter table trip_destination drop foreign key fk_trip_destination_trip_id;
 drop index ix_trip_destination_trip_id on trip_destination;
