@@ -61,8 +61,8 @@ public class TripController extends Controller {
                     // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return OK.
                     if (destinationList != null) {
                         trip.setDestinations(destinationList);
-                        trip.save();
                         userProfile.addTrip(trip);
+                        trip.save();
                         return ok();
                     } else {
                         return badRequest();
@@ -117,7 +117,6 @@ public class TripController extends Controller {
             // Trip being modified
             Trip trip = Trip.find.byId(id.intValue());
 
-
             JsonNode json = request.body().asJson();
 
             if (!isValidTrip(json)) {
@@ -127,16 +126,15 @@ public class TripController extends Controller {
             String name = json.get(NAME).asText();
             trip.setName(name);
 
-
             // Create a json node for the destinations contained in the trip to use for iteration.
             ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
-
 
             // Create an empty List for TripDestination objects to be populated from the request.
             List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
 
             if (destinationList != null) {
                 trip.setDestinations(destinationList);
+                trip.save();
             } else {
                 return badRequest();
             }
@@ -144,7 +142,6 @@ public class TripController extends Controller {
         } else {
             return unauthorized();
         }
-
         return ok();
     }
 
