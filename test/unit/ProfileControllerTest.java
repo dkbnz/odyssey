@@ -42,9 +42,6 @@ public class ProfileControllerTest {
         json.put("date_of_birth", "2000-01-01");
         json.put("gender", "other");
 
-
-        //json.putArray();
-
         Http.Request request = fakeRequest(POST, "/api/checkUsername").bodyJson(json).build();
 
         ProfileController controller = new ProfileController();
