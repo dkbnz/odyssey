@@ -1,5 +1,4 @@
 export default {
-  playLogo: './static/play.svg',
-  javaLogo: './static/java.webp',
-  vueLogo: './static/vue.png'
+    appLogo: './static/full_logo_sm.png',
+    baumans: './static/Baumans-Regular.ttf'
 }
