@@ -1,13 +1,14 @@
 <template>
-    <div class="container">
+    <div>
         <b-navbar variant="light">
             <b-navbar-nav>
-                <b-nav-item @click="togglePage">Profile</b-nav-item>
-                <b-nav-item @click="togglePage">Edit Profile</b-nav-item>
+                <b-nav-item @click="togglePage(viewProfile)">Profile</b-nav-item>
+                <b-nav-item @click="togglePage(editProfile)">Edit Profile</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
         <view-profile v-if="viewProfile"></view-profile>
         <edit-profile v-if="editProfile"></edit-profile>
+
     </div>
 
 </template>
@@ -27,10 +28,12 @@
             }
         },
         methods: {
-            togglePage: function() {
-                this.viewProfile = !this.viewProfile;
-                this.editProfile = !this.editProfile;
-            }
+            togglePage: function(viewPage) {
+                if(!viewPage) {
+                    this.viewProfile = !this.viewProfile;
+                    this.editProfile = !this.editProfile;
+                }
+            },
         },
         components: {
             ViewProfile,
