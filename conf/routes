@@ -49,7 +49,11 @@ GET     /searchProfile                  controllers.PageController.searchProfile
 GET        /             controllers.Assets.at(path="/public", file="index.html")
 
 # An example route
-GET        /v1/summary      controllers.HomeController.appSummary()
+GET     /v1/summary                     controllers.HomeController.appSummary()
+GET     /v1/travtypes                   controllers.TravellerTypeController.list()
+GET     /v1/nationalities               controllers.NationalityController.list()
+GET     /v1/profiles                    controllers.ProfileController.list(request: Request)
+GET     /v1/destinations                controllers.destinations.DestinationController.fetch(request: Request)
 
 # Map static resources from the /public folder to the file resource paths
 GET        /*file        controllers.Assets.at(path="/public", file)
