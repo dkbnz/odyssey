@@ -23,7 +23,7 @@
 
                 </b-collapse>
             </b-navbar>
-            <trips></trips>
+            <profiles></profiles>
         </div>
     </div>
 </template>
@@ -32,6 +32,7 @@
     import Trips from './components/trips/tripsPage.vue'
     import Index from './components/index/indexPage.vue'
     import Dash from './components/dash/dashPage.vue'
+    import Profiles from './components/profiles/profilesPage.vue'
 
     import assets from './assets'
     export default {
@@ -80,7 +81,8 @@
         components: {
             Trips,
             Index,
-            Dash
+            Dash,
+            Profiles
         }
     }
 </script>

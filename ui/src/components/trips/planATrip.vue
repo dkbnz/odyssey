@@ -137,7 +137,7 @@
         data() {
             return {
                 heading: 'Plan a Trip',
-                optionViews: [{value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
+                optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPage: 10,
                 currentPage: 1,
                 tripName: null,
