@@ -43,25 +43,36 @@
             <b-form-input id="dateOfBirth" v-model="dateOfBirth" :type="'date'" trim></b-form-input>
         </b-form-group>
         <b-row>
-            <b-form-group
-                    id="nationalities-field"
-                    label="Nationalities:"
-                    label-for="nationality">
-                <b-form-input id="nationality" v-model="nationalities" :type="'text'" trim></b-form-input>
-            </b-form-group>
-            <b-form-group
-                    id="passports-field"
-                    label="Passport(s):"
-                    label-for="passports">
-                <b-form-input id="passports" v-model="passports" :type="'text'" trim></b-form-input>
-            </b-form-group>
+            <b-col>
+                <b-form-group
+                        id="nationalities-field"
+                        label="Nationality:"
+                        label-for="nationality">
+                    <b-form-select id="nationality" v-model="nationalities" multiple trim>
+                        <option v-for="nationality in nationalityOptions">{{nationality.nationality}}</option>
+                    </b-form-select>
+                </b-form-group>
+            </b-col>
+            <b-col>
+                <b-form-group
+                        id="passports-field"
+                        label="Passport:"
+                        label-for="passports">
+                    <b-form-select id="passports" v-model="passports" trim multiple>
+                        <option v-for="nationality in nationalityOptions">{{nationality.country}}</option>
+                    </b-form-select>
+                </b-form-group>
+            </b-col>
         </b-row>
         <b-form-group
-                id="travellerTypes-field"
+                id="travType-field"
                 label="Traveller Type(s):"
-                label-for="passports">
-            <b-form-input id="travellerTypes" v-model="travellerTypes" :type="'text'" trim></b-form-input>
+                label-for="travType">
+            <b-form-select id="travType" v-model="travTypes" multiple trim>
+                <option v-for="travType in travTypeOptions">{{travType.travellerType}}</option>
+            </b-form-select>
         </b-form-group>
+        <b-button variant="success" size="lg" block >Save Profile</b-button>
     </div>
 </template>
 
@@ -78,11 +89,49 @@
                 retypeP: "",
                 dateOfBirth: "25/09/1998",
                 gender: "Male",
-                nationalities: [],
-                passports: [],
-                travellerTypes: []
+                nationalities: ['New Zealand'],
+                passports: ['New Zealand'],
+                travTypes: ['Gap Year'],
+                nationalityOptions: [],
+                travTypeOptions: []
             }
-        }
+        },
+        mounted () {
+            this.getNationalities(nationalities => this.nationalityOptions = nationalities);
+            this.getTravTypes(travTypes => this.travTypeOptions = travTypes);
+        },
+        methods: {
+            getNationalities (cb) {
+                return fetch(`/v1/nationalities`, {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
+            getTravTypes (cb) {
+                return fetch(`/v1/travtypes`, {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
+
+            checkStatus (response) {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                }
+                const error = new Error(`HTTP Error ${response.statusText}`);
+                error.status = response.statusText;
+                error.response = response;
+                console.log(error); // eslint-disable-line no-console
+                throw error;
+            },
+            parseJSON (response) {
+                return response.json();
+            }
+        },
     }
 </script>
 
