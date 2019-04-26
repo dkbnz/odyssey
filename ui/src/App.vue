@@ -2,18 +2,38 @@
 
     <div class="App">
         <div>
-            <b-navbar>
+            <b-navbar variant="light">
                 <b-navbar-brand href="#"><img :src="assets.appLogo"></b-navbar-brand>
+                <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+                <b-collapse id="nav-collapse" is-nav>
+                    <b-navbar-nav>
+                        <b-nav-item href="/searchProfile">People</b-nav-item>
+                        <b-nav-item href="/trips">Trips</b-nav-item>
+                        <b-nav-item href="/destinations">Destinations</b-nav-item>
+                    </b-navbar-nav>
+
+                    <b-navbar-nav class="ml-auto">
+                        <b-nav-item-dropdown right>
+                            <!-- Using 'button-content' slot -->
+                            <template slot="button-content"><em>{{ username }}</em></template>
+                            <b-dropdown-item href="/dash">Profile</b-dropdown-item>
+                            <b-dropdown-item href="#">Logout</b-dropdown-item>
+                        </b-nav-item-dropdown>
+                    </b-navbar-nav>
+
+                </b-collapse>
             </b-navbar>
+
+            <trips></trips>
         </div>
-
-        <trips></trips>
-
     </div>
 </template>
 <script>
 
-    import Trips from './components/Trips.vue'
+    import Trips from './components/trips/tripsPage.vue'
+    import Index from './components/index/indexPage.vue'
+    import Dash from './components/dash/dashPage.vue'
+
     import assets from './assets'
     export default {
         computed: {
@@ -22,14 +42,21 @@
             },
         },
         mounted () {
-            this.getSummary(summary => this.appSummary = summary.content)
+            this.getSummary(summary => this.appSummary = summary.content);
         },
         data () {
             return {
-                appSummary: ''
+                appSummary: '',
+                currentComponent: null,
+                componentsArray: [Trips,Index],
+                username: "Isaac",
+                appDestinations: ''
             }
         },
         methods: {
+            swapComponent: function(component) {
+                this.currentComponent = component;
+            },
             getSummary (cb) {
                 return fetch(`/v1/summary`, {
                     accept: "application/json"
@@ -38,7 +65,6 @@
                     .then(this.parseJSON)
                     .then(cb)
             },
-
             checkStatus (response) {
                 if (response.status >= 200 && response.status < 300) {
                     return response;
@@ -55,7 +81,9 @@
             }
         },
         components: {
-            Trips
+            Trips,
+            Index,
+            Dash
         }
     }
 </script>
