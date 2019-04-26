@@ -20,57 +20,81 @@
                     height="4px"
             ></b-progress>
         </b-alert>
+        <b-modal ref="editModal" id="editModal" hide-footer title="Edit Destination">
+            <div class="d-block">
+                <b-form-group id="editName-field" label="Trip Name:" label-for="editName">
+                    <b-input id="editName" v-model="editName">{{editName}} trim</b-input>
+                </b-form-group>
+                <b-form-group id="editInDate-field" label="In Date:" label-for="editInDate">
+                    <b-input id="editInDate" v-model="editInDate">{{editInDate}} trim</b-input>
+                </b-form-group>
+                <b-form-group id="editOutDate-field" label="Out Date:" label-for="editOutDate">
+                    <b-input id="editOutDate" v-model="editOutDate">{{editOutDate}} trim</b-input>
+                </b-form-group>
+            </div>
+            <b-button class="mr-2 float-right" variant="success" @click="saveDestination(rowEdit, editName, editInDate, editOutDate); dismissModal; dismissCountDown">Save</b-button>
+            <b-button class="mr-2 float-right" variant="danger" @click="dismissModal">Cancel</b-button>
 
-        <b-container fluid >
-            <b-form-group
-                    id="trip_name-field"
-                    label="Trip Name:"
-                    label-for="trip_name">
-                <b-form-input id="trip_name" v-model="tripName" :type="'text'" trim></b-form-input>
-            </b-form-group>
-        </b-container>
-        <b-container>
-            <b-row>
-                <b-col>
-                    <b-form-group
-                            id="destination-field"
-                            label="Add a Destination:"
-                            label-for="destination">
-                        <b-form-input id="destination" v-model="destinationName" :type="'text'" trim></b-form-input>
-                    </b-form-group>
-                </b-col>
-                <b-col>
-                    <b-form-group
-                            id="inDate-field"
-                            label="In Date (optional):"
-                            label-for="inDate">
-                        <b-form-input id="inDate" v-model="inDate" :type="'date'" trim></b-form-input>
-                    </b-form-group>
-                </b-col>
-                <b-col>
-                    <b-form-group
-                            id="outDate-field"
-                            label="Out Date (optional):"
-                            label-for="outDate">
-                        <b-form-input id="outDate" v-model="outDate" :type="'date'" trim></b-form-input>
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-button class="mr-2 float-right" @click="addDestination">Add Destination</b-button>
-        </b-container>
+        </b-modal>
+
+        <b-form>
+            <b-container fluid>
+                <b-form-group
+                        id="trip_name-field"
+                        label="Trip Name:"
+                        label-for="trip_name">
+                    <b-form-input id="trip_name" v-model="tripName" :type="'text'" trim></b-form-input>
+                </b-form-group>
+            </b-container>
+            <b-form @reset="resetDestForm">
+                <b-container>
+                    <b-row >
+                        <b-col>
+                            <b-form-group
+                                    id="destination-field"
+                                    label="Add a Destination:"
+                                    label-for="destination">
+                                <b-form-input id="destination" v-model="destinationName" :type="'text'" trim></b-form-input>
+                            </b-form-group>
+                        </b-col>
+                        <b-col>
+                            <b-form-group
+                                    id="inDate-field"
+                                    label="In Date (optional):"
+                                    label-for="inDate">
+                                <b-form-input id="inDate" v-model="inDate" :type="'date'" trim></b-form-input>
+                            </b-form-group>
+                        </b-col>
+                        <b-col>
+                            <b-form-group
+                                    id="outDate-field"
+                                    label="Out Date (optional):"
+                                    label-for="outDate">
+                                <b-form-input id="outDate" v-model="outDate" :type="'date'" trim></b-form-input>
+                            </b-form-group>
+                        </b-col>
+                    </b-row>
+                    <b-button class="mr-2 float-right" variant="primary" @click="addDestination">Add Destination</b-button>
+                </b-container>
+
+            </b-form>
+
+        </b-form>
 
         <b-table hover striped outlined
                  id="myTrips"
-                 :items="destinations"
                  :fields="fields"
+                 :items="destinations"
                  :per-page="perPage"
                  :current-page="currentPage"
         >
+
             <template slot="actions" slot-scope="row">
+                <b-button size="sm" v-b-modal.editModal @click="populateModal(row.item)" class="mr-2">Edit</b-button>
                 <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                 </b-button>
-                <b-button size="sm" @click="deleteDestination(row.item.id)" variant="danger" class="mr-2">Delete
+                <b-button size="sm" @click="deleteDestination(row.item)" variant="danger" class="mr-2">Delete
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
@@ -124,9 +148,7 @@
                 ></b-pagination>
             </b-col>
         </b-row>
-        <b-row>
-            <b-button @click="submitTrip">Save Trip</b-button>
-        </b-row>
+        <b-button variant="primary" block class="mr-2 float-right" @click="submitTrip">Save Trip</b-button>
 
     </div>
 </template>
@@ -149,6 +171,10 @@
                 successTripAddedAlert: false,
                 dismissSecs: 3,
                 dismissCountDown: 0,
+                rowEdit: null,
+                editName: null,
+                editInDate: null,
+                editOutDate: null,
                 fields: [
                     { key: 'destination_name'},
                     { key: 'in_date' },
@@ -179,13 +205,37 @@
         methods: {
             addDestination: function() {
                 this.destinations.push({destination_name: this.destinationName,in_date: this.inDate,out_date: this.outDate});
+                this.resetDestForm();
             },
-            deleteDestination: function(id) {
-                console.log(id);
-                this.destinations.splice(id, 1)
+            deleteDestination: function(row) {
+                console.log(row);
+                this.destinations.splice(1, row)
+            },
+            populateModal(row) {
+                this.rowEdit = row;
+                this.editName = row.destination_name;
+                this.editInDate = row.in_date;
+                this.editOutDate = row.out_date;
+            },
+            saveDestination(row, editName, editInDate, editOutDate) {
+                row.destination_name = editName;
+                row.in_date = editInDate;
+                row.out_date = editOutDate;
+                this.$refs['editModal'].hide()
+            },
+            dismissModal() {
+                this.$refs['editModal'].hide()
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
+            },
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
+            },
+            resetDestForm() {
+                this.destinationName = "";
+                this.inDate = "";
+                this.outDate = "";
             },
             submitTrip: function() {
                 if (this.tripName === null || this.tripName.length === 0) {
@@ -197,11 +247,14 @@
                 } else {
                     this.nameAlert = false;
                     this.destinationsAlert = false;
-                    this.dismissCountDown = this.dismissSecs;
+                    this.showAlert();
                     let trip = {
                         name: this.tripName,
                         tripDestinations: this.destinations
                     };
+                    this.resetDestForm();
+                    this.tripName = "";
+                    this.destinations = [];
                     console.log(trip);
                 }
 
