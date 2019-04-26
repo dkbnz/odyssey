@@ -33,7 +33,7 @@
                                 label-for="password">
                             <b-form-input id="password" v-model="password" :type="'password'" trim></b-form-input>
                         </b-form-group>
-                        <b-button id="sign-in"type="submit" block @click="submitForm">Sign In</b-button>
+                        <b-button id="sign-in" type="submit" block @click="submitForm">Sign In</b-button>
                     </b-modal>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div id="upcomingTrips">
-            <h1 class="page_title">Your Upcoming Trips</h1>
+            <h1 class="page_title">Upcoming Trips</h1>
             <p class="page_title"><i>Here are your upcoming trips!</i></p>
             <b-table hover striped outlined
                      id="myFutureTrips"
@@ -35,7 +35,7 @@
         </div>
 
         <div id="pastTrips">
-            <h1 class="page_title">Your Past Trips</h1>
+            <h1 class="page_title">Past Trips</h1>
             <p class="page_title"><i>Here are your past trips!</i></p>
             <b-table hover striped outlined
                      id="myPastTrips"
@@ -43,6 +43,8 @@
                      :fields="fields"
                      :per-page="perPagePast"
                      :current-page="currentPagePast"
+                     :sort-by="sortBy"
+                     :sort-desc="false"
             >
             </b-table>
             <b-row>
@@ -69,7 +71,6 @@
         </div>
 
 
-
     </div>
 
 </template>
@@ -79,32 +80,34 @@
         name: "YourTrips",
         data: function() {
             return {
-                optionViews: [{value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
+                optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPageUpcoming: 5,
                 perPagePast: 5,
                 currentPageUpcoming: 1,
                 currentPagePast: 1,
+                sortBy: 'start_date',
+                fields: ['trip_name', 'start_date', 'end_date', 'more_details'],
                 futureTrips: [
-                    { id: 1, destination_name: 'France', in_date: '12/02/15', out_date: '15/02/15'},
-                    { id: 2, destination_name: 'German', in_date: '15/03/15', out_date: '17/02/15'},
-                    { id: 3, destination_name: 'Italy', in_date: '17/02/15', out_date: '19/02/15' },
-                    { id: 4, destination_name: 'Greece', in_date: '19/02/15', out_date: '21/02/15' },
-                    { id: 5, destination_name: 'Britain', in_date: '21/02/15', out_date: '23/02/15' },
-                    { id: 6, destination_name: 'Fiji', in_date: '23/02/15', out_date: '25/02/15' },
-                    { id: 7, destination_name: 'USA', in_date: '25/02/15', out_date: '27/02/15' },
-                    { id: 8, destination_name: 'Australia', in_date: '27/02/15', out_date: '01/03/15' },
-                    { id: 9, destination_name: 'NZ', in_date: '01/03/15', out_date: '03/03/15' }
+                    { id: 1, trip_name: 'France', start_date: '12/02/15', end_date: '15/02/15'},
+                    { id: 2, trip_name: 'Germany', start_date: '15/02/15', end_date: '17/02/15'},
+                    { id: 3, trip_name: 'Italy', start_date: '17/02/15', end_date: '19/02/15' },
+                    { id: 4, trip_name: 'Greece', start_date: '19/02/15', end_date: '21/02/15' },
+                    { id: 5, trip_name: 'Britain', start_date: '21/02/15', end_date: '23/02/15' },
+                    { id: 6, trip_name: 'Fiji', start_date: '23/02/15', end_date: '25/02/15' },
+                    { id: 7, trip_name: 'USA', start_date: '25/02/15', end_date: '27/02/15' },
+                    { id: 8, trip_name: 'Australia', start_date: '27/02/15', end_date: '01/03/15' },
+                    { id: 9, trip_name: 'NZ', start_date: '01/03/15', end_date: '03/03/15' }
                 ],
                 pastTrips: [
-                    { id: 1, destination_name: 'France', in_date: '12/02/15', out_date: '15/02/15'},
-                    { id: 2, destination_name: 'German', in_date: '15/03/15', out_date: '17/02/15'},
-                    { id: 3, destination_name: 'Italy', in_date: '17/02/15', out_date: '19/02/15' },
-                    { id: 4, destination_name: 'Greece', in_date: '19/02/15', out_date: '21/02/15' },
-                    { id: 5, destination_name: 'Britain', in_date: '21/02/15', out_date: '23/02/15' },
-                    { id: 6, destination_name: 'Fiji', in_date: '23/02/15', out_date: '25/02/15' },
-                    { id: 7, destination_name: 'USA', in_date: '25/02/15', out_date: '27/02/15' },
-                    { id: 8, destination_name: 'Australia', in_date: '27/02/15', out_date: '01/03/15' },
-                    { id: 9, destination_name: 'NZ', in_date: '01/03/15', out_date: '03/03/15' }
+                    { id: 1, trip_name: 'France', start_date: '12/02/15', end_date: '15/02/15'},
+                    { id: 2, trip_name: 'Germany', start_date: '15/02/15', end_date: '17/02/15'},
+                    { id: 3, trip_name: 'Italy', start_date: '17/02/15', end_date: '19/02/15' },
+                    { id: 4, trip_name: 'Greece', start_date: '19/02/15', end_date: '21/02/15' },
+                    { id: 5, trip_name: 'Britain', start_date: '21/02/15', end_date: '23/02/15' },
+                    { id: 6, trip_name: 'Fiji', start_date: '23/02/15', end_date: '25/02/15' },
+                    { id: 7, trip_name: 'USA', start_date: '25/02/15', end_date: '27/02/15' },
+                    { id: 8, trip_name: 'Australia', start_date: '27/02/15', end_date: '01/03/15' },
+                    { id: 9, trip_name: 'NZ', start_date: '01/03/15', end_date: '03/03/15' }
                 ]
             }
 
@@ -116,7 +119,7 @@
             rowsPast() {
                 return this.pastTrips.length
             }
-        },
+        }
     }
 </script>
 
