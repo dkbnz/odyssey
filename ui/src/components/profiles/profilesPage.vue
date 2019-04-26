@@ -50,7 +50,7 @@
                     <option v-for="travType in travTypeOptions">{{travType.travellerType}}</option>
                 </b-form-select>
             </b-form-group>
-            <b-button block @click="searchProfiles">Search</b-button>
+            <b-button block variant="primary" @click="searchProfiles">Search</b-button>
         </div>
         <div style="margin-top: 40px">
             <b-table hover striped outlined

@@ -23,7 +23,7 @@
 
                 </b-collapse>
             </b-navbar>
-            <profiles></profiles>
+            <trips></trips>
         </div>
     </div>
 </template>
