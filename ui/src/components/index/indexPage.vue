@@ -43,7 +43,7 @@
 </template>
 
 <script>
-    import Signup from "../../components/index/Signup.vue"
+    import Signup from "./signup.vue"
 
     export default {
         name: "Index.vue",
