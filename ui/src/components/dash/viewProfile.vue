@@ -1,6 +1,7 @@
 <template>
     <div class="container">
         <h1>{{ profile_name }}</h1>
+        <h2>Personal Details</h2>
         <p> Date of Creation: {{ dateOfCreation }}</p>
         <p> Date of Birth: {{ dateOfBirth }}</p>
         <p> Email: {{ email }}</p>
@@ -31,7 +32,7 @@
         name: "viewProfile",
         data () {
             return {
-                profile_name: "Isaac Worsley",
+                profile_name: "Isaac Taylor Worsley",
                 dateOfCreation: "17/04/2019",
                 dateOfBirth: "25/09/1998",
                 email: "itw21@uclive.ac.nz",

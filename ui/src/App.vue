@@ -23,7 +23,7 @@
 
                 </b-collapse>
             </b-navbar>
-            <trips></trips>
+            <dash></dash>
         </div>
     </div>
 </template>
@@ -98,7 +98,11 @@
 
     }
     .container {
+        margin-top: 20px;
         padding-top: 20px;
+        padding-bottom: 50px;
+        background-color: white;
+        border-radius: 5px;
     }
 
     /* Imports the Bauman's Regular Font */

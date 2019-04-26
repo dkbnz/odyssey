@@ -69,6 +69,11 @@
                 </b-col>
             </b-row>
         </div>
+        <b-button v-b-toggle.collapsePlan class="mr-1">Wanting to Plan a Trip?</b-button>
+        <b-collapse id="collapsePlan" style="margin-top: 20px">
+            <plan-a-trip></plan-a-trip>
+        </b-collapse>
+
 
 
     </div>
@@ -76,6 +81,7 @@
 </template>
 
 <script>
+    import PlanATrip from './planATrip.vue'
     export default {
         name: "YourTrips",
         data: function() {
@@ -119,6 +125,9 @@
             rowsPast() {
                 return this.pastTrips.length
             }
+        },
+        components: {
+            PlanATrip
         }
     }
 </script>
