@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="container">
         <h1>{{ profile_name }}</h1>
         <p> Date of Creation: {{ dateOfCreation }}</p>
         <p> Date of Birth: {{ dateOfBirth }}</p>
@@ -21,10 +21,12 @@
             <li v-for="travType in travellerTypes">{{ travType }}</li>
         </ul>
 
+        <your-trips></your-trips>
     </div>
 </template>
 
 <script>
+    import YourTrips from "../trips/yourTrips.vue"
     export default {
         name: "viewProfile",
         data () {
@@ -38,6 +40,9 @@
                 passports: ['New Zealand', 'English'],
                 travellerTypes: ['Gap Year']
             }
+        },
+        components: {
+            YourTrips
         }
     }
 </script>

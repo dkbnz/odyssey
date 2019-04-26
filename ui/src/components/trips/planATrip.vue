@@ -2,6 +2,25 @@
     <div class="container">
         <h1 class="page_title">{{ heading }}</h1>
         <p class="page_title"><i>Book your next trip!</i></p>
+        <b-alert v-model="nameAlert" variant="danger" dismissible>No Trip Name!</b-alert>
+        <b-alert v-model="destinationsAlert" variant="danger" dismissible>Must be at least 2 destinations</b-alert>
+
+        <b-alert
+                :show="dismissCountDown"
+                dismissible
+                variant="success"
+                @dismissed="dismissCountDown=0"
+                @dismiss-count-down="countDownChanged"
+        >
+            <p>Trip Successfully Added</p>
+            <b-progress
+                    variant="success"
+                    :max="dismissSecs"
+                    :value="dismissCountDown"
+                    height="4px"
+            ></b-progress>
+        </b-alert>
+
         <b-container fluid >
             <b-form-group
                     id="trip_name-field"
@@ -42,22 +61,44 @@
 
         <b-table hover striped outlined
                  id="myTrips"
-                 :items="items"
+                 :items="destinations"
                  :fields="fields"
                  :per-page="perPage"
                  :current-page="currentPage"
         >
-            <template slot="show_details" slot-scope="row">
+            <template slot="actions" slot-scope="row">
                 <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                 </b-button>
-            </template>
-            <template slot="delete" slot-scope="row">
-                <b-button size="sm" @click="row.deleteDestination(row)" class="mr-2">Delete
+                <b-button size="sm" @click="deleteDestination(row.item.id)" variant="danger" class="mr-2">Delete
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
                 <b-card>
+                    <b-row class="mb-2">
+                        <b-col sm="3" class="text-sm-right"><b>Type:</b></b-col>
+                        <b-col>{{ row.item.type }}</b-col>
+                    </b-row>
+
+                    <b-row class="mb-2">
+                        <b-col sm="3" class="text-sm-right"><b>District:</b></b-col>
+                        <b-col>{{ row.item.district }}</b-col>
+                    </b-row>
+
+                    <b-row class="mb-2">
+                        <b-col sm="3" class="text-sm-right"><b>Latitude:</b></b-col>
+                        <b-col>{{ row.item.latitude }}</b-col>
+                    </b-row>
+
+                    <b-row class="mb-2">
+                        <b-col sm="3" class="text-sm-right"><b>Longitude:</b></b-col>
+                        <b-col>{{ row.item.longitude }}</b-col>
+                    </b-row>
+
+                    <b-row class="mb-2">
+                        <b-col sm="3" class="text-sm-right"><b>Country:</b></b-col>
+                        <b-col>{{ row.item.country }}</b-col>
+                    </b-row>
 
                 </b-card>
             </template>
@@ -83,6 +124,9 @@
                 ></b-pagination>
             </b-col>
         </b-row>
+        <b-row>
+            <b-button @click="submitTrip">Save Trip</b-button>
+        </b-row>
 
     </div>
 </template>
@@ -90,57 +134,77 @@
 <script>
     export default {
         name: "PlanATrip",
-        created() {
-            document.title = "TravelEA - Plan a Trip";
-        },
         data() {
             return {
                 heading: 'Plan a Trip',
                 optionViews: [{value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPage: 10,
                 currentPage: 1,
-                tripName: "",
+                tripName: null,
                 destinationName: "",
                 inDate: "",
                 outDate: "",
+                nameAlert: false,
+                destinationsAlert: false,
+                successTripAddedAlert: false,
+                dismissSecs: 3,
+                dismissCountDown: 0,
                 fields: [
                     { key: 'destination_name'},
                     { key: 'in_date' },
                     { key: 'out_date' },
-                    'show_details',
-                    'delete'
+                    'actions'
                 ],
                 subFields: [
-                    {key: 'destinationList'},
-                    {key: 'inDate'},
-                    {key: 'outDate'}
+                    {key: 'type'},
+                    {key: 'district'},
+                    {key: 'latitude'},
+                    {key: 'longitude'},
+                    {key: 'country'},
+
+
                 ],
-                items: [
-                    { id: 1, destination_name: 'France', in_date: '12/02/15', out_date: '15/02/15'},
-                    { id: 2, destination_name: 'German', in_date: '15/03/15', out_date: '17/02/15'},
-                    { id: 3, destination_name: 'Italy', in_date: '17/02/15', out_date: '19/02/15' },
-                    { id: 4, destination_name: 'Greece', in_date: '19/02/15', out_date: '21/02/15' },
-                    { id: 5, destination_name: 'Britain', in_date: '21/02/15', out_date: '23/02/15' },
-                    { id: 6, destination_name: 'Fiji', in_date: '23/02/15', out_date: '25/02/15' },
-                    { id: 7, destination_name: 'USA', in_date: '25/02/15', out_date: '27/02/15' },
-                    { id: 8, destination_name: 'Australia', in_date: '27/02/15', out_date: '01/03/15' },
-                    { id: 9, destination_name: 'NZ', in_date: '01/03/15', out_date: '03/03/15' }
+                destinations: [
+                    { id: 1, destination_name: '15 Mile Creek', in_date: '12/02/15', out_date: '15/02/15', type: "STREAM", district: "Nelson", latitude: "-40.79825", longitude: "172.514222", country: "New Zealand"},
+
                 ],
 
             }
         },
         computed: {
             rows() {
-                return this.items.length
+                return this.destinations.length
             }
         },
         methods: {
             addDestination: function() {
-                this.items.push({destination_name: this.destinationName,in_date: this.inDate,out_date: this.outDate});
-                console.log(this.tripName, this.destinationName, this.inDate, this.outDate);
+                this.destinations.push({destination_name: this.destinationName,in_date: this.inDate,out_date: this.outDate});
             },
-            deleteDestination: function(index) {
-                this.items.splice(index, 1)
+            deleteDestination: function(id) {
+                console.log(id);
+                this.destinations.splice(id, 1)
+            },
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown
+            },
+            submitTrip: function() {
+                if (this.tripName === null || this.tripName.length === 0) {
+                    this.destinationsAlert = false;
+                    this.nameAlert = true;
+                } else if (this.destinations.length < 2) {
+                    this.nameAlert = false;
+                    this.destinationsAlert = true;
+                } else {
+                    this.nameAlert = false;
+                    this.destinationsAlert = false;
+                    this.dismissCountDown = this.dismissSecs;
+                    let trip = {
+                        name: this.tripName,
+                        tripDestinations: this.destinations
+                    };
+                    console.log(trip);
+                }
+
             }
         }
     }
