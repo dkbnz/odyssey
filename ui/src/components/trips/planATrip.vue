@@ -149,7 +149,6 @@
             </b-col>
         </b-row>
         <b-button variant="primary" block class="mr-2 float-right" @click="submitTrip">Save Trip</b-button>
-
     </div>
 </template>
 
