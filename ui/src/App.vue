@@ -23,7 +23,6 @@
 
                 </b-collapse>
             </b-navbar>
-
             <trips></trips>
         </div>
     </div>
@@ -50,13 +49,11 @@
                 currentComponent: null,
                 componentsArray: [Trips,Index],
                 username: "Isaac",
-                appDestinations: ''
+                appDestinations: '',
+
             }
         },
         methods: {
-            swapComponent: function(component) {
-                this.currentComponent = component;
-            },
             getSummary (cb) {
                 return fetch(`/v1/summary`, {
                     accept: "application/json"
@@ -97,6 +94,9 @@
         background-color: #e2e6ea;
         padding-bottom: 50px;
 
+    }
+    .container {
+        padding-top: 20px;
     }
 
     /* Imports the Bauman's Regular Font */
