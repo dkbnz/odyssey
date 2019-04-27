@@ -7,7 +7,7 @@
             </b-navbar-nav>
         </b-navbar>
         <search-destinations v-if="searchDestinations" v-bind:profile="profile" v-bind:destinations="destinations" ></search-destinations>
-        <add-destinations v-if="addDestinations" v-bind:profile="profile" ></add-destinations>
+        <add-destinations v-if="addDestinations" v-bind:profile="profile" v-bind:destinations="destinations" ></add-destinations>
 
     </div>
 </template>
@@ -31,6 +31,14 @@
                 addDestinations: false
             }
         },
+        methods: {
+            togglePage: function(viewPage) {
+                if(!viewPage) {
+                    this.searchDestinations = !this.searchDestinations;
+                    this.addDestinations = !this.addDestinations;
+                }
+            },
+        }
     }
 </script>
 

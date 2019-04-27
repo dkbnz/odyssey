@@ -56,7 +56,7 @@ GET     /v1/profile                     controllers.ProfileController.fetch(requ
 GET     /v1/profiles                    controllers.ProfileController.list(request: Request)
 
 GET     /v1/destinations                controllers.destinations.DestinationController.fetch(request: Request)
-POST    /v1/destinations                controllers.destinations.DestinationController.fetch(request: Request)
+POST    /v1/destinations               controllers.destinations.DestinationController.save(request: Request)
 
 POST    /v1/login                       controllers.AuthController.login(request: Request)
 POST    /v1/logout                      controllers.AuthController.logout()
