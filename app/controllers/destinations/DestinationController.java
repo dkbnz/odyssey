@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.ExpressionList;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -26,7 +27,7 @@ public class DestinationController extends Controller {
      */
     private Result fetch() {
         List<Destination> destinations = Destination.find.all();
-        return ok(views.html.viewDestinations.tableDestinations.render(destinations));
+        return ok(Json.toJson(destinations));
     }
 
     /**
@@ -35,15 +36,16 @@ public class DestinationController extends Controller {
      * @return HTTP response containing the destinations found in the response body.
      */
     public Result fetch(Http.Request request) {
-
         //If there are no query parameters, return all destinations.
         if (request.queryString().isEmpty()) {
             return fetch();
         }
 
+
         //Filter destinations based on query parameters.
         Map<String, String[]> queryString = request.queryString();
         List<Destination> destinations;
+
 
         ExpressionList<Destination> expressionList = Destination.find.query().where();
         String name = queryString.get(NAME)[0];
@@ -74,7 +76,7 @@ public class DestinationController extends Controller {
 
         destinations = expressionList.findList();
 
-        return ok(views.html.viewDestinations.tableDestinations.render(destinations));
+        return ok(Json.toJson(destinations));
     }
 
     /**

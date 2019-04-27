@@ -11,6 +11,7 @@ import models.Profile;
 import models.TravellerType;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.libs.Json;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -184,7 +185,7 @@ public class ProfileController {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
 
-                    return ok(views.html.dash.profile.render(userProfile));
+                    return ok(userProfile.toJson());
                 })
                 .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
     }
@@ -342,7 +343,7 @@ public class ProfileController {
                         profiles = searchProfiles(request.queryString());
                     }
 
-                    return ok(views.html.viewProfiles.tableProfiles.render(profiles));
+                    return ok(Json.toJson(profiles));
                 })
                 .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
     }
