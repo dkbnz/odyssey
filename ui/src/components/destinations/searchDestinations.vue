@@ -2,7 +2,7 @@
     <div class="container">
         <h1 class="page_title">Search Destinations</h1>
         <p class="page_title"><i>Search for a destination using the form below</i></p>
-        <b-alert v-model="showError" variant="danger" dismissible>There's something wrong in the form!</b-alert>
+        <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
         <div>
             <b-form-group
                     id="name-field"
@@ -27,6 +27,20 @@
                     label="District:"
                     label-for="district">
                 <b-form-input id="district" v-model="searchDistrict" trim></b-form-input>
+            </b-form-group>
+
+            <b-form-group
+                    id="latitude-field"
+                    label="Latitude:"
+                    label-for="latitude">
+                <b-form-input id="latitude" v-model="searchLat" trim></b-form-input>
+            </b-form-group>
+
+            <b-form-group
+                    id="longitude-field"
+                    label="Longitude:"
+                    label-for="longitude">
+                <b-form-input id="longitude" v-model="searchLong" trim></b-form-input>
             </b-form-group>
 
             <b-form-group
@@ -81,13 +95,16 @@
                 searchName :"",
                 searchType: "",
                 searchDistrict: "",
+                searchLat: "",
+                searchLong: "",
                 searchCountry: "",
                 showError: false,
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
-                perPage: 5,
+                perPage: 10,
                 currentPage: 1,
                 fields: ['name', 'type', 'district', 'latitude', 'longitude', 'country'],
-                searchDestination: ""
+                searchDestination: "",
+                errorMessage: ""
             }
         },
         computed: {
@@ -96,15 +113,31 @@
             }
         },
         methods: {
+            checkLatLong() {
+                let ok = true;
+                if (isNaN(this.dLatitude)) {
+                    this.showError = true;
+                    this.errorMessage = ("'" + this.dLatitude + "' is not a number!");
+                    ok = false;
+                } else if (isNaN(this.dLongitude)) {
+                    this.showError = true;
+                    this.errorMessage = ("'" + this.dLongitude + "' is not a number!");
+                    ok = false;
+                }
+                return ok;
+            },
             searchDestinations() {
-                this.searchDestination = {
-                    name: this.searchName,
-                    type: this.searchType,
-                    district: this.searchDistrict,
-                    country: this.searchCountry
-                };
-                this.queryDestinations();
-                console.log(this.searchDestination)
+                if (this.checkLatLong) {
+                    this.searchDestination = {
+                        name: this.searchName,
+                        type: this.searchType,
+                        district: this.searchDistrict,
+                        country: this.searchCountry
+                    };
+                    this.queryDestinations();
+                    console.log(this.searchDestination)
+                }
+
             },
             queryDestinations (cb) {
                 return fetch(`/v1/destinations`, {
