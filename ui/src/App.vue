@@ -2,9 +2,11 @@
 
     <div class="App">
         <div>
-            <b-navbar variant="light">
-                <b-navbar-brand href="#"><img :src="assets.appLogo"></b-navbar-brand>
+            <b-navbar variant="light" toggleable="lg">
+                <b-navbar-brand href="/"><img :src="assets.appLogo"></b-navbar-brand>
+
                 <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
                 <b-collapse id="nav-collapse" is-nav>
                     <b-navbar-nav>
                         <b-nav-item href="/searchProfile">People</b-nav-item>
@@ -23,7 +25,7 @@
 
                 </b-collapse>
             </b-navbar>
-            <dash></dash>
+            <profiles></profiles>
         </div>
     </div>
 </template>
@@ -42,7 +44,7 @@
             },
         },
         mounted () {
-            this.getSummary(summary => this.appSummary = summary.content);
+
         },
         data () {
             return {
@@ -51,32 +53,10 @@
                 componentsArray: [Trips,Index],
                 username: "Isaac",
                 appDestinations: '',
-
             }
         },
         methods: {
-            getSummary (cb) {
-                return fetch(`/v1/summary`, {
-                    accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(cb)
-            },
-            checkStatus (response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                console.log(error); // eslint-disable-line no-console
-                throw error;
-            },
 
-            parseJSON (response) {
-                return response.json();
-            }
         },
         components: {
             Trips,
