@@ -17,7 +17,7 @@
                 label-for="password">
             <b-form-input id="password" v-model="password" :type="'password'" trim></b-form-input>
         </b-form-group>
-        <b-button id="sign-in" variant="primary" type="submit" block @click="submitForm">Sign In</b-button>
+        <b-button id="sign-in" variant="primary" type="submit" block @click="login">Sign In</b-button>
 
     </div>
 
@@ -49,6 +49,17 @@
                 return this.userstate === true ? 'Thank you' : ''
             }
         },
+        methods: {
+            login() {
+                fetch('/v1/login', {
+                    method: 'POST',
+                    headers:{'content-type': 'application/json'},
+                    body: JSON.stringify({username: this.username, password: this.password})
+                }).then(function(response) {
+                    return response.json();
+                })
+            }
+        }
     }
 </script>
 

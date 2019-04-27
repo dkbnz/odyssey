@@ -17,15 +17,16 @@
                     <b-navbar-nav class="ml-auto">
                         <b-nav-item-dropdown right>
                             <!-- Using 'button-content' slot -->
-                            <template slot="button-content"><em>{{ username }}</em></template>
+                            <template slot="button-content"><em>{{ profile.firstName }}</em></template>
                             <b-dropdown-item href="/dash">Profile</b-dropdown-item>
-                            <b-dropdown-item href="#">Logout</b-dropdown-item>
+                            <b-dropdown-item @click="logout">Logout</b-dropdown-item>
                         </b-nav-item-dropdown>
                     </b-navbar-nav>
 
                 </b-collapse>
             </b-navbar>
-            <profiles></profiles>
+            <destinations v-bind:profile="profile" v-bind:destinations="destinations" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></destinations>
+            <footer id="footer"><p>This is Team 100's TravelEA Website!<br/>Everyware&trade;</p></footer>
         </div>
     </div>
 </template>
@@ -35,6 +36,7 @@
     import Index from './components/index/indexPage.vue'
     import Dash from './components/dash/dashPage.vue'
     import Profiles from './components/profiles/profilesPage.vue'
+    import Destinations from './components/destinations/destinationsPage.vue'
 
     import assets from './assets'
     export default {
@@ -44,25 +46,89 @@
             },
         },
         mounted () {
-
+            this.getProfile(profile => this.profile = profile);
+            this.getNationalities(nationalities => this.nationalityOptions = nationalities);
+            this.getTravTypes(travTypes => this.travTypeOptions = travTypes);
+            this.getDestinations(destinations => this.destinations = destinations);
         },
         data () {
             return {
                 appSummary: '',
                 currentComponent: null,
                 componentsArray: [Trips,Index],
-                username: "Isaac",
                 appDestinations: '',
+                profile: "",
+                nationalityOptions: [],
+                travTypeOptions: [],
+                destinations: []
             }
         },
         methods: {
+            logout (cb) {
+                return fetch(`/v1/logout`, {
+                    method: 'POST',
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
+            getDestinations (cb) {
+                return fetch(`/v1/destinations`, {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
+
+            getProfile (cb) {
+                return fetch(`/v1/profile`, {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
+
+            getNationalities (cb) {
+                return fetch(`/v1/nationalities`, {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
+            getTravTypes (cb) {
+                return fetch(`/v1/travtypes`, {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
+
+            checkStatus (response) {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                }
+                const error = new Error(`HTTP Error ${response.statusText}`);
+                error.status = response.statusText;
+                error.response = response;
+                console.log(error); // eslint-disable-line no-console
+                throw error;
+            },
+            parseJSON (response) {
+                return response.json();
+            },
 
         },
         components: {
             Trips,
             Index,
             Dash,
-            Profiles
+            Profiles,
+            Destinations
         }
     }
 </script>
