@@ -6,8 +6,8 @@
                 <b-nav-item @click="togglePage(editProfile)">Edit Profile</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
-        <view-profile v-if="viewProfile"></view-profile>
-        <edit-profile v-if="editProfile"></edit-profile>
+        <view-profile v-if="viewProfile" v-bind:profile="profile" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></view-profile>
+        <edit-profile v-if="editProfile" v-bind:profile="profile" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></edit-profile>
 
     </div>
 
@@ -18,6 +18,7 @@
     import EditProfile from "./editProfile.vue"
     export default {
         name: "dashPage",
+        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
         created() {
             document.title = "TravelEA - Dashboard";
         },
@@ -26,6 +27,9 @@
                 viewProfile: true,
                 editProfile: false
             }
+        },
+        mounted () {
+
         },
         methods: {
             togglePage: function(viewPage) {
