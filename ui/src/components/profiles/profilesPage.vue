@@ -124,21 +124,24 @@
                     {value: 'other', text: 'Other'}
                 ],
                 travTypeOptions: [],
-                fields: ['first_name', 'last_name', 'nationality', 'gender', 'age', 'traveller_type', 'actions'],
-                profiles: [
-                    {first_name:'Isaac'},
-                    {first_name:'Jack'},
-                    {first_name:'Jill'},
-                    {first_name:'John'},
-                    {first_name:'James'},
-                    {first_name:'Jerry'}]
+                fields: [{key:'firstName', label: "First Name"}, {key:'lastName', label: "Last Name"}, {key:'nationalities[0].nationality', label: "Nationality"}, 'gender', 'age', {key:'travellerTypes[0].travellerType', label: "Traveller Types"}, 'actions'],
+                profiles: []
             }
         },
         mounted () {
             this.getNationalities(nationalities => this.nationalityOptions = nationalities);
             this.getTravTypes(travTypes => this.travTypeOptions = travTypes);
+            this.getProfiles(profiles => this.profiles = profiles);
         },
         methods: {
+            getProfiles (cb) {
+                return fetch(`/v1/profiles`, {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
             getNationalities (cb) {
                 return fetch(`/v1/nationalities`, {
                     accept: "application/json"

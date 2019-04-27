@@ -4,25 +4,25 @@
                 id="first_name-field"
                 label="First Name(s):"
                 label-for="first_name">
-            <b-form-input id="first_name" v-model="first_name" :type="'text'" trim></b-form-input>
+            <b-form-input id="first_name" v-model="profile.firstName" :type="'text'" trim></b-form-input>
         </b-form-group>
         <b-form-group
                 id="middle_name-field"
                 label="Middle Name(s):"
                 label-for="middle_name">
-            <b-form-input id="middle_name" v-model="middle_name" :type="'text'" trim></b-form-input>
+            <b-form-input id="middle_name" v-model="profile.middleName" :type="'text'" trim></b-form-input>
         </b-form-group>
         <b-form-group
                 id="last_name-field"
                 label="Last Name(s):"
                 label-for="last_name">
-            <b-form-input id="last_name" v-model="last_name" :type="'text'" trim></b-form-input>
+            <b-form-input id="last_name" v-model="profile.lastName" :type="'text'" trim></b-form-input>
         </b-form-group>
         <b-form-group
                 id="email-field"
                 label="Email:"
                 label-for="email">
-            <b-form-input id="email" v-model="email" :type="'email'" trim></b-form-input>
+            <b-form-input id="email" v-model="profile.username" :type="'email'" trim></b-form-input>
         </b-form-group>
         <b-form-group
                 id="password-field"
@@ -40,7 +40,7 @@
                 id="DOB-field"
                 label="Date of Birth:"
                 label-for="dateOfBirth">
-            <b-form-input id="dateOfBirth" v-model="dateOfBirth" :type="'date'" trim></b-form-input>
+            <b-form-input id="dateOfBirth" v-model="profile.dateOfBirth" :type="'date'" trim></b-form-input>
         </b-form-group>
         <b-row>
             <b-col>
@@ -48,7 +48,7 @@
                         id="nationalities-field"
                         label="Nationality:"
                         label-for="nationality">
-                    <b-form-select id="nationality" v-model="nationalities" multiple trim>
+                    <b-form-select id="nationality" v-model="profile.nationalities" multiple trim>
                         <option v-for="nationality in nationalityOptions">{{nationality.nationality}}</option>
                     </b-form-select>
                 </b-form-group>
@@ -58,7 +58,7 @@
                         id="passports-field"
                         label="Passport:"
                         label-for="passports">
-                    <b-form-select id="passports" v-model="passports" trim multiple>
+                    <b-form-select id="passports" v-model="profile.passports" trim multiple>
                         <option v-for="nationality in nationalityOptions">{{nationality.country}}</option>
                     </b-form-select>
                 </b-form-group>
@@ -68,56 +68,38 @@
                 id="travType-field"
                 label="Traveller Type(s):"
                 label-for="travType">
-            <b-form-select id="travType" v-model="travTypes" multiple trim>
+            <b-form-select id="travType" v-model="profile.travellerTypes" multiple trim>
                 <option v-for="travType in travTypeOptions">{{travType.travellerType}}</option>
             </b-form-select>
         </b-form-group>
-        <b-button variant="success" size="lg" block >Save Profile</b-button>
+        <b-button variant="success" size="lg" block @click="saveProfile">Save Profile</b-button>
     </div>
 </template>
 
 <script>
     export default {
         name: "editProfile",
+        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
         data: function() {
             return {
-                first_name: "Isaac",
-                middle_name: "Taylor",
-                last_name: "Worsley",
-                email: "itw21@uclive.ac.nz",
                 password: "",
-                retypeP: "",
-                dateOfBirth: "25/09/1998",
-                gender: "Male",
-                nationalities: ['New Zealand'],
-                passports: ['New Zealand'],
-                travTypes: ['Gap Year'],
-                nationalityOptions: [],
-                travTypeOptions: []
+                retypeP: ""
+
             }
         },
         mounted () {
-            this.getNationalities(nationalities => this.nationalityOptions = nationalities);
-            this.getTravTypes(travTypes => this.travTypeOptions = travTypes);
         },
         methods: {
-            getNationalities (cb) {
-                return fetch(`/v1/nationalities`, {
-                    accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(cb);
-            },
-            getTravTypes (cb) {
-                return fetch(`/v1/travtypes`, {
-                    accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(cb);
-            },
+            saveProfile() {
 
+                fetch('/v1/profile/edit', {
+                    method: 'POST',
+                    headers:{'content-type': 'application/json'},
+                    body: JSON.stringify(this.profile)
+                }).then(function(response) {
+                    return response.json();
+                })
+            },
             checkStatus (response) {
                 if (response.status >= 200 && response.status < 300) {
                     return response;
