@@ -1,41 +1,31 @@
 <template>
 
     <div class="bg">
-        <div class="container h-100">
-            <div class="row h-100 justify-content-center align-items-center">
+        <div style="padding-top: 10%">
+            <div>
                 <div align="center">
                     <img src="../../../static/full_logo_lg.png" width="50%" alt="TravelEA Logo">
                     <h3 id="subtitle" align="center">Your personal Travel Executive Assistant!</h3>
                 </div>
 
-                <div>
-                    <b-button v-b-modal.modalSignup class="btn btn-info btn-lg">Signup</b-button>
-                    <b-modal id="modalSignup" centered title="Sign Up">
-                        <p class="my-4">Hello from modal!</p>
-                    </b-modal>
+                    <b-row>
+                        <b-col>
+                            <b-button v-b-modal.modalSignup class="btn btn-info btn-lg float-right">Signup</b-button>
+                            <b-modal id="modalSignup" centered hide-footer>
+                                <template slot="modal-title"><h2>Sign Up</h2></template>
+                                <signup></signup>
+                            </b-modal>
+                        </b-col>
+                        <b-col>
+                            <b-button v-b-modal.modalLogin  class="btn btn-info btn-lg float-left">Login</b-button>
+                            <b-modal id="modalLogin" hide-footer centered title="Login">
+                                <template slot="modal-title"><h2>Login</h2></template>
+                                <login></login>
+                            </b-modal>
+                        </b-col>
 
-                    <b-button v-b-modal.modalLogin  class="btn btn-info btn-lg">Login</b-button>
-                    <b-modal id="modalLogin" hide-footer centered title="Login">
-                        <b-form-group
-                                id="username-field"
-                                description="Please enter your username (email)"
-                                label="Username"
-                                label-for="username"
-                                :invalid-feedack="userinvalidFeedback"
-                                :valid-feedback="uservalidFeedback"
-                                :state="userstate" >
-                            <b-form-input id="username" v-model="username" :state="userstate" trim></b-form-input>
-                        </b-form-group>
-                        <b-form-group
-                                id="password-field"
-                                description="Please enter your password"
-                                label="Password"
-                                label-for="password">
-                            <b-form-input id="password" v-model="password" :type="'password'" trim></b-form-input>
-                        </b-form-group>
-                        <b-button id="sign-in" type="submit" block @click="submitForm">Sign In</b-button>
-                    </b-modal>
-                </div>
+                    </b-row>
+
             </div>
         </div>
 
@@ -44,6 +34,7 @@
 
 <script>
     import Signup from "./signup.vue"
+    import Login from "./login.vue"
 
     export default {
         name: "Index.vue",
@@ -52,42 +43,16 @@
         },
         data: function() {
             return {
-                showSignup: false,
                 username: '',
-                password: '',
-                ajaxRequest: false
+                password: ''
             }
         },
         methods: {
-            toggleSignup: function(){
-                this.showSignup = !this.showSignup;
-            },
-            submitForm: function(e) {
-                e.preventDefault();
-                this.ajaxRequest = true;
-                axios.get("https://jsonplaceholder.typicode.com/todos/")
-                    .then(response => console.log(response));
-            }
-        },
-        computed: {
-            userstate() {
-                return !!(this.username.length >= 4) && this.username.includes('@')
-            },
-            userinvalidFeedback() {
-                if (this.username.length > 4) {
-                    return ''
-                } else if (this.username.length > 0) {
-                    return 'Enter at least 4 characters'
-                } else {
-                    return 'Please enter something'
-                }
-            },
-            uservalidFeedback() {
-                return this.userstate === true ? 'Thank you' : ''
-            }
+
         },
         components: {
-            Signup
+            Signup,
+            Login
         }
 
     }
@@ -97,7 +62,7 @@
     body {
         background-color: #e2e6ea;
         padding-top: 0px;
-        overflow-y: hidden;
+        overflow: hidden;
 
     }
 
