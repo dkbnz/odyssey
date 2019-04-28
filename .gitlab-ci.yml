@@ -8,11 +8,6 @@ stages:
   - unzip
   - run
   
-assume-ownership:
-    stage: clean
-    script:
-        - sudo chown gitlab-runner:gitlab-runner ./
-  
 clean-build:
     stage: clean
     script:
@@ -40,6 +35,7 @@ recent-artifacts:
   stage: deploy
   script:
     - sudo sbt dist
+    - sudo chown -R gitlab-runner /target
   artifacts:
     paths:
       - target/universal/*.zip
@@ -51,6 +47,7 @@ release-artifacts:
  stage: deploy
  script:
     - sudo sbt dist
+    - sudo chown -R gitlab-runner /target
  artifacts:
     paths:
     - target/universal/*.zip
