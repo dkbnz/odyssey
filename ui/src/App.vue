@@ -2,8 +2,8 @@
 
     <div class="App">
         <div>
-            <dash v-if="profile.length !== 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></dash>
-            <index v-if="profile.length === 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></index>
+            <destinations v-if="profile.length !== 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></destinations>
+            <index v-if="profile.length === 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions" ></index>
         </div>
     </div>
 </template>
