@@ -18,7 +18,7 @@
                     label-for="password">
                 <b-form-input id="password" v-model="password" :type="'password'" trim></b-form-input>
             </b-form-group>
-            <b-button id="sign-in" variant="primary" type="submit" block @click="login">Sign In</b-button>
+            <b-button id="sign-in" variant="primary" block @click="login">Sign In</b-button>
         </b-form>
 
     </div>
@@ -58,6 +58,7 @@
                     headers:{'content-type': 'application/json'},
                     body: JSON.stringify({username: this.username, password: this.password})
                 }).then(function(response) {
+                    location.reload();
                     return response.json();
                 })
             }
