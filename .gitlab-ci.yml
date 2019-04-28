@@ -35,7 +35,7 @@ recent-artifacts:
   stage: deploy
   script:
     - sudo sbt dist
-    - sudo chown -R gitlab-runner /target
+    - sudo chown -R gitlab-runner ./target
   artifacts:
     paths:
       - target/universal/*.zip
@@ -47,7 +47,7 @@ release-artifacts:
  stage: deploy
  script:
     - sudo sbt dist
-    - sudo chown -R gitlab-runner /target
+    - sudo chown -R gitlab-runner ./target
  artifacts:
     paths:
     - target/universal/*.zip
