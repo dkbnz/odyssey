@@ -2,31 +2,8 @@
 
     <div class="App">
         <div>
-            <b-navbar variant="light" toggleable="lg">
-                <b-navbar-brand href="/"><img :src="assets.appLogo"></b-navbar-brand>
-
-                <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-
-                <b-collapse id="nav-collapse" is-nav>
-                    <b-navbar-nav>
-                        <b-nav-item href="/searchProfile">People</b-nav-item>
-                        <b-nav-item href="/trips">Trips</b-nav-item>
-                        <b-nav-item href="/destinations">Destinations</b-nav-item>
-                    </b-navbar-nav>
-
-                    <b-navbar-nav class="ml-auto">
-                        <b-nav-item-dropdown right>
-                            <!-- Using 'button-content' slot -->
-                            <template slot="button-content"><em>{{ profile.firstName }}</em></template>
-                            <b-dropdown-item href="/dash">Profile</b-dropdown-item>
-                            <b-dropdown-item @click="logout">Logout</b-dropdown-item>
-                        </b-nav-item-dropdown>
-                    </b-navbar-nav>
-
-                </b-collapse>
-            </b-navbar>
-            <destinations v-bind:profile="profile" v-bind:destinations="destinations" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></destinations>
-            <footer id="footer"><p>This is Team 100's TravelEA Website!<br/>Everyware&trade;</p></footer>
+            <dash v-if="profile.length !== 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></dash>
+            <index v-if="profile.length === 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></index>
         </div>
     </div>
 </template>
@@ -50,43 +27,41 @@
             this.getNationalities(nationalities => this.nationalityOptions = nationalities);
             this.getTravTypes(travTypes => this.travTypeOptions = travTypes);
             this.getDestinations(destinations => this.destinations = destinations);
+            this.getDestinationTypes(destinationT => this.destinationTypes = destinationT);
         },
         data () {
             return {
-                appSummary: '',
-                currentComponent: null,
-                componentsArray: [Trips,Index],
-                appDestinations: '',
                 profile: "",
                 nationalityOptions: [],
                 travTypeOptions: [],
-                destinations: []
+                destinations: [],
+                destinationTypes: []
             }
         },
         methods: {
-            logout (cb) {
-                return fetch(`/v1/logout`, {
-                    method: 'POST',
-                    accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(cb);
-            },
             getDestinations (cb) {
                 return fetch(`/v1/destinations`, {
                     accept: "application/json"
                 })
-                    .then(this.checkStatus)
+                    //.then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(cb);
             },
+            getDestinationTypes (cb) {
+                return fetch(`/v1/destinationTypes`, {
+                    accept: "application/json"
+                })
+                //.then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
+
 
             getProfile (cb) {
                 return fetch(`/v1/profile`, {
                     accept: "application/json"
                 })
-                    .then(this.checkStatus)
+                    //.then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(cb);
             },
@@ -95,7 +70,7 @@
                 return fetch(`/v1/nationalities`, {
                     accept: "application/json"
                 })
-                    .then(this.checkStatus)
+                    //.then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(cb);
             },
@@ -103,7 +78,7 @@
                 return fetch(`/v1/travtypes`, {
                     accept: "application/json"
                 })
-                    .then(this.checkStatus)
+                    //.then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(cb);
             },
