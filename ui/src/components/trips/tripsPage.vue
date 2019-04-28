@@ -7,7 +7,7 @@
                 <b-nav-item @click="togglePage(yourTrips)">Your Trips</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
-        <plan-a-trip v-if="planATrip"></plan-a-trip>
+        <plan-a-trip v-if="planATrip" v-bind:destinations="destinations"></plan-a-trip>
         <your-trips v-if="yourTrips"></your-trips>
         <footer-main></footer-main>
 
@@ -22,7 +22,7 @@
     import FooterMain from '../helperComponents/footerMain.vue'
     export default {
         name: "Trips",
-        props: ['profile'],
+        props: ['profile', 'destinations'],
         created() {
             document.title = "TravelEA - Trips";
         },
