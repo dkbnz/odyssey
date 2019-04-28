@@ -16,7 +16,7 @@ import java.util.Map;
 public class DestinationController extends Controller {
 
     private static final String NAME = "name";
-    private static final String TYPE = "type";
+    private static final String TYPE = "type_id";
     private static final String COUNTRY = "country";
     private static final String DISTRICT = "district";
     private static final String LATITUDE = "latitude";
@@ -110,10 +110,9 @@ public class DestinationController extends Controller {
         String district = json.get(DISTRICT).asText();
         String latitude = json.get(LATITUDE).asText();
         String longitude = json.get(LONGITUDE).asText();
-        String type = json.get(TYPE).asText();
 
         // Checks all fields contain data
-        if (name.length() == 0 || country.length() == 0 || district.length() == 0 || latitude.length() == 0 || longitude.length() == 0 || type.length() == 0) {
+        if (name.length() == 0 || country.length() == 0 || district.length() == 0 || latitude.length() == 0 || longitude.length() == 0) {
             return false;
         }
 
@@ -125,11 +124,6 @@ public class DestinationController extends Controller {
             return false;
         }
 
-        try {
-            DestinationTypeEnum.valueOf(json.get(TYPE).asText().toUpperCase());
-        } catch (IllegalArgumentException e){
-            return false;
-        }
 
         return true;
     }
@@ -144,10 +138,12 @@ public class DestinationController extends Controller {
         String name = json.get(NAME).asText();
         String district = json.get(DISTRICT).asText();
 
+
         List<Destination> destinations = Destination.find.query().where()
                 .ilike(NAME, name)
                 .ilike(DISTRICT, district)
                 .findList();
+        System.out.println("----------------3----------------------------------------------------" + destinations);
         return (destinations.isEmpty());
     }
 
@@ -162,6 +158,7 @@ public class DestinationController extends Controller {
         if (!validInput(json)) {
             return badRequest("Invalid input.");
         }
+
 
         if (destinationDoesNotExist(json)) {
             Destination destination = createNewDestination(json);
