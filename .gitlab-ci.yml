@@ -8,10 +8,14 @@ stages:
   - unzip
   - run
   
-clean-build:
+assume-ownership:
     stage: clean
     script:
         - sudo chown gitlab-runner:gitlab-runner ./
+  
+clean-build:
+    stage: clean
+    script:
         - if [ -d "target" ]; then sudo rm -r target; fi
         - if [ -d "project/project" ]; then sudo rm -r project/project; fi
         - if [ -d "project/target" ]; then sudo rm -r project/target; fi
