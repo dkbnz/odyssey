@@ -90,10 +90,11 @@
 <script>
     export default {
         name: "searchDestinations",
-        props: ['destinations', 'destinationTypes'],
+        props: ['destinationTypes'],
         data () {
             return {
                 searchName :"",
+                destinations: [],
                 searchType: "",
                 searchDistrict: "",
                 searchLat: "",
@@ -112,6 +113,11 @@
             rows() {
                 return this.destinations.length
             }
+
+        },
+        mounted () {
+            this.queryDestinations();
+            //this.queryDestinations(destinations => this.destinations = destinations);
         },
         methods: {
             checkLatLong() {
@@ -136,18 +142,32 @@
                         country: this.searchCountry
                     };
                     this.queryDestinations();
-                    console.log(this.searchDestination)
                 }
 
             },
-            queryDestinations (cb) {
-                return fetch(`/v1/destinations`, {
+            queryDestinations () {
+                let searchQuery = "?name=" + this.searchName + "&type_id=" + this.searchType + "&district=" + this.searchDistrict + "&latitude=" + this.searchLat + "&longitude=" + this.searchLong + "&country=" + this.searchCountry;
+                return fetch(`/v1/destinations` + searchQuery,  {
                     dataType: 'html',
-                    data: ({'name': this.searchName, 'type': this.searchType, 'district': this.searchDistrict, 'country': this.searchCountry})
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
-                    .then(cb);
+                    .then((data) => {
+                        this.destinations = data;
+                    })
+            },
+            checkStatus (response) {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                }
+                const error = new Error(`HTTP Error ${response.statusText}`);
+                error.status = response.statusText;
+                error.response = response;
+                console.log(error); // eslint-disable-line no-console
+                throw error;
+            },
+            parseJSON (response) {
+                return response.json();
             },
         }
     }
