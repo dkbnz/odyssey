@@ -39,6 +39,7 @@ public class AuthController extends Controller {
                     if (json == null || (!(json.has(USERNAME) && json.has(PASSFIELD)))) {
                         // If JSON Object contains no user or pass key, return bad request
                         // Prevents null pointer exceptions when trying to get the values below.
+                        System.out.println("InvalidJSON");
                         return badRequest();
                     }
 
