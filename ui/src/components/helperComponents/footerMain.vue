@@ -1,0 +1,13 @@
+<template>
+    <footer id="footer"><p>This is Team 100's TravelEA Website!<br/>Everyware&trade;</p></footer>
+</template>
+
+<script>
+    export default {
+        name: "footerMain"
+    }
+</script>
+
+<style scoped>
+
+</style>
