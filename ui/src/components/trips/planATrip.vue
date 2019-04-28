@@ -22,9 +22,6 @@
         </b-alert>
         <b-modal ref="editModal" id="editModal" hide-footer title="Edit Destination">
             <div class="d-block">
-                <b-form-group id="editName-field" label="Trip Name:" label-for="editName">
-                    <b-input id="editName" v-model="editName">{{editName}} trim</b-input>
-                </b-form-group>
                 <b-form-group id="editInDate-field" label="In Date:" label-for="editInDate">
                     <b-input id="editInDate" v-model="editInDate">{{editInDate}} trim</b-input>
                 </b-form-group>
@@ -32,7 +29,7 @@
                     <b-input id="editOutDate" v-model="editOutDate">{{editOutDate}} trim</b-input>
                 </b-form-group>
             </div>
-            <b-button class="mr-2 float-right" variant="success" @click="saveDestination(rowEdit, editName, editInDate, editOutDate); dismissModal; dismissCountDown">Save</b-button>
+            <b-button class="mr-2 float-right" variant="success" @click="saveDestination(rowEdit, editInDate, editOutDate); dismissModal; dismissCountDown">Save</b-button>
             <b-button class="mr-2 float-right" variant="danger" @click="dismissModal">Cancel</b-button>
 
         </b-modal>
@@ -54,7 +51,9 @@
                                     id="destination-field"
                                     label="Add a Destination:"
                                     label-for="destination">
-                                <b-form-input id="destination" v-model="destinationName" :type="'text'" trim></b-form-input>
+                                <b-form-select id="destination" v-model="tripDestination" :type="'text'" trim>
+                                    <option v-for="destination in destinations" :value="destination">{{destination.name}}</option>
+                                </b-form-select>
                             </b-form-group>
                         </b-col>
                         <b-col>
@@ -84,7 +83,7 @@
         <b-table hover striped outlined
                  id="myTrips"
                  :fields="fields"
-                 :items="destinations"
+                 :items="tripDestinations"
                  :per-page="perPage"
                  :current-page="currentPage"
         >
@@ -155,6 +154,7 @@
 <script>
     export default {
         name: "PlanATrip",
+        props: ['destinations'],
         data() {
             return {
                 heading: 'Plan a Trip',
@@ -162,7 +162,7 @@
                 perPage: 10,
                 currentPage: 1,
                 tripName: null,
-                destinationName: "",
+                tripDestination: "",
                 inDate: "",
                 outDate: "",
                 nameAlert: false,
@@ -175,7 +175,7 @@
                 editInDate: null,
                 editOutDate: null,
                 fields: [
-                    { key: 'destination_name'},
+                    { key: 'trip_name'},
                     { key: 'in_date' },
                     { key: 'out_date' },
                     'actions'
@@ -189,8 +189,7 @@
 
 
                 ],
-                destinations: [
-                    { id: 1, destination_name: '15 Mile Creek', in_date: '12/02/15', out_date: '15/02/15', type: "STREAM", district: "Nelson", latitude: "-40.79825", longitude: "172.514222", country: "New Zealand"},
+                tripDestinations: [
 
                 ],
 
@@ -203,7 +202,7 @@
         },
         methods: {
             addDestination: function() {
-                this.destinations.push({destination_name: this.destinationName,in_date: this.inDate,out_date: this.outDate});
+                this.tripDestinations.push({trip_name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
                 this.resetDestForm();
             },
             deleteDestination: function(row) {
@@ -212,12 +211,10 @@
             },
             populateModal(row) {
                 this.rowEdit = row;
-                this.editName = row.destination_name;
                 this.editInDate = row.in_date;
                 this.editOutDate = row.out_date;
             },
-            saveDestination(row, editName, editInDate, editOutDate) {
-                row.destination_name = editName;
+            saveDestination(row, editInDate, editOutDate) {
                 row.in_date = editInDate;
                 row.out_date = editOutDate;
                 this.$refs['editModal'].hide()
@@ -232,7 +229,7 @@
                 this.dismissCountDown = this.dismissSecs
             },
             resetDestForm() {
-                this.destinationName = "";
+                this.tripDestination = "";
                 this.inDate = "";
                 this.outDate = "";
             },
