@@ -45,13 +45,13 @@ PUT     /api/destination/:id            controllers.destinations.DestinationCont
 
 # Add trip to a profile
 #POST    /api/profiles/:profileId/trips                      controllers.trips.TripController.create(request: Request)
-POST    /api/trips                                          controllers.trips.TripController.create(request: Request)
+POST    /api/trip                       controllers.trips.TripController.create(request: Request)
 
 # Get a single trip from a profile
-#GET     /api/profiles/:profileId/trips/:tripId                  controllers.trips.TripController.fetch(request: Request, id: Long)
+GET     /api/trip                       controllers.trips.TripController.fetch(request: Request)
 
 # Update a specific trip
-PATCH   /api/trips/:id                                      controllers.trips.TripController.edit(request: Request, id: Long)
+PATCH   /api/trips/:id                  controllers.trips.TripController.edit(request: Request, id: Long)
 
 # Delete a specific destination
 #DELETE  /api/profiles/:profileId/trips/:tripId                  controllers.trips.TripController.delete(request: Request, id: Long)
