@@ -19,6 +19,7 @@
                     <template slot="first">
                         <option :value="null" >-- Any --</option>
                     </template>
+                    <option v-for="destination in destinationTypes" :value="destination.id">{{destination.destinationType}}</option>
                 </b-form-select>
             </b-form-group>
 
@@ -89,7 +90,7 @@
 <script>
     export default {
         name: "searchDestinations",
-        props: ['destinations'],
+        props: ['destinations', 'destinationTypes'],
         data () {
             return {
                 searchName :"",
@@ -102,7 +103,7 @@
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPage: 10,
                 currentPage: 1,
-                fields: ['name', 'type', 'district', 'latitude', 'longitude', 'country'],
+                fields: ['name', {key:'type.destinationType', label:'Type'}, 'district', 'latitude', 'longitude', 'country'],
                 searchDestination: "",
                 errorMessage: ""
             }

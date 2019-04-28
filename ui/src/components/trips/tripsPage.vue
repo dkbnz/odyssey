@@ -1,5 +1,6 @@
 <template>
     <div>
+        <nav-bar-main v-bind:profile="profile"></nav-bar-main>
         <b-navbar variant="light">
             <b-navbar-nav>
                 <b-nav-item @click="togglePage(planATrip)">Plan a Trip</b-nav-item>
@@ -8,6 +9,7 @@
         </b-navbar>
         <plan-a-trip v-if="planATrip"></plan-a-trip>
         <your-trips v-if="yourTrips"></your-trips>
+        <footer-main></footer-main>
 
     </div>
 
@@ -16,8 +18,11 @@
 <script>
     import PlanATrip from './planATrip.vue'
     import YourTrips from './yourTrips.vue'
+    import NavBarMain from '../helperComponents/navbarMain.vue'
+    import FooterMain from '../helperComponents/footerMain.vue'
     export default {
         name: "Trips",
+        props: ['profile'],
         created() {
             document.title = "TravelEA - Trips";
         },
@@ -37,7 +42,9 @@
         },
         components: {
             PlanATrip,
-            YourTrips
+            YourTrips,
+            NavBarMain,
+            FooterMain
         }
     }
 </script>

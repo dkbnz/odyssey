@@ -16,7 +16,8 @@
                         id="type-field"
                         label="Destination Type:"
                         label-for="type">
-                    <b-form-select id="type" v-model="dType" trim>
+                    <b-form-select id="type" v-model="dType"trim>
+                        <option v-for="destination in destinationTypes" :value="destination.id">{{destination.destinationType}}</option>
                     </b-form-select>
                 </b-form-group>
 
@@ -57,7 +58,7 @@
 <script>
     export default {
         name: "addDestinations",
-        props: ['profile', 'destinations'],
+        props: ['profile', 'destinations', 'destinationTypes'],
         data () {
             return {
                 dName: "",
