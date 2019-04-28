@@ -2,7 +2,6 @@
     <div>
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
         <div class="container">
-
             <h1 class="page_title">Find Profiles</h1>
             <p class="page_title"><i>Search for other travellers using the form below</i></p>
             <b-alert v-model="showError" variant="danger" dismissible>There's something wrong in the form!</b-alert>
@@ -15,7 +14,7 @@
                         <template slot="first">
                             <option :value="null" >-- Any --</option>
                         </template>
-                        <option v-for="nationality in nationalityOptions">{{nationality.nationality}}</option>
+                        <option v-for="nationality in nationalityOptions" :value="nationality.id">{{nationality.nationality}}</option>
                     </b-form-select>
                 </b-form-group>
                 <b-form-group
@@ -50,7 +49,7 @@
                         <template slot="first">
                             <option :value="null" >-- Any --</option>
                         </template>
-                        <option v-for="travType in travTypeOptions">{{travType.travellerType}}</option>
+                        <option v-for="travType in travTypeOptions" :value="travType.id">{{travType.travellerType}}</option>
                     </b-form-select>
                 </b-form-group>
                 <b-button block variant="primary" @click="searchProfiles">Search</b-button>
@@ -70,7 +69,7 @@
                     </template>
                     <template slot="row-details" slot-scope="row">
                         <b-card>
-                            <view-profile></view-profile>
+                            <view-profile :profile="row.item"></view-profile>
                         </b-card>
                     </template>
                 </b-table>
@@ -108,7 +107,7 @@
     import FooterMain from '../helperComponents/footerMain.vue'
     export default {
         name: "profilesPage",
-        props: ['profile'],
+        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
         created() {
             document.title = "TravelEA - Profiles";
         },
@@ -124,20 +123,16 @@
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPage: 5,
                 currentPage: 1,
-                nationalityOptions: [],
                 genderOptions: [
                     {value: 'male', text: 'Male'},
                     {value: 'female', text: 'Female'},
                     {value: 'other', text: 'Other'}
                 ],
-                travTypeOptions: [],
                 fields: [{key:'firstName', label: "First Name"}, {key:'lastName', label: "Last Name"}, {key:'nationalities[0].nationality', label: "Nationality"}, 'gender', 'age', {key:'travellerTypes[0].travellerType', label: "Traveller Types"}, 'actions'],
                 profiles: []
             }
         },
         mounted () {
-            this.getNationalities(nationalities => this.nationalityOptions = nationalities);
-            this.getTravTypes(travTypes => this.travTypeOptions = travTypes);
             this.getProfiles(profiles => this.profiles = profiles);
         },
         methods: {
@@ -149,22 +144,10 @@
                     .then(this.parseJSON)
                     .then(cb);
             },
-            getNationalities (cb) {
-                return fetch(`/v1/nationalities`, {
-                    accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(cb);
+            parseJSON (response) {
+                return response.json();
             },
-            getTravTypes (cb) {
-                return fetch(`/v1/travtypes`, {
-                    accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(cb);
-            },
+
             searchProfiles() {
                 this.minAge = parseInt(this.minAge);
                 this.maxAge =  parseInt(this.maxAge);

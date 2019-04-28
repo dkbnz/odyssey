@@ -164,11 +164,12 @@
                 showSecond: false,
                 nationalities: [],
                 passports: [],
-                travTypes: []
+                travTypes: [],
+                usernameValid: true
             }
         },
         mounted () {
-            //this.checkUsername(checkUsername => this.usernameValid = checkUsername);
+            this.checkUsername(checkUsername => this.usernameValid = checkUsername);
         },
         computed: {
             fNameValidation() {
