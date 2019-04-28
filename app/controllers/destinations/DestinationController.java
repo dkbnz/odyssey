@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.ExpressionList;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
+import models.destinations.DestinationTypeEnum;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -20,6 +21,15 @@ public class DestinationController extends Controller {
     private static final String DISTRICT = "district";
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
+
+    /**
+     * Return a json object listing all destination types in the database
+     * @return
+     */
+    public Result getTypes() {
+        List<DestinationType> destinationTypes = DestinationType.find.all();
+        return ok(Json.toJson(destinationTypes));
+    }
 
     /**
      * Fetches all destinations.
@@ -116,7 +126,7 @@ public class DestinationController extends Controller {
         }
 
         try {
-            DestinationType.valueOf(json.get(TYPE).asText().toUpperCase());
+            DestinationTypeEnum.valueOf(json.get(TYPE).asText().toUpperCase());
         } catch (IllegalArgumentException e){
             return false;
         }
@@ -174,7 +184,11 @@ public class DestinationController extends Controller {
         destination.setDistrict(json.get(DISTRICT).asText());
         destination.setLatitude(json.get(LATITUDE).asDouble());
         destination.setLongitude(json.get(LONGITUDE).asDouble());
-        destination.setType(DestinationType.valueOf(json.get(TYPE).asText().toUpperCase()));
+
+        DestinationType destType = DestinationType.find.byId(json.get(TYPE).asInt());
+
+        destination.setType(destType);
+
         return destination;
     }
 
@@ -216,7 +230,9 @@ public class DestinationController extends Controller {
         oldDestination.setDistrict(json.get(DISTRICT).asText());
         oldDestination.setLatitude(json.get(LATITUDE).asDouble());
         oldDestination.setLongitude(json.get(LONGITUDE).asDouble());
-        oldDestination.setType(DestinationType.valueOf(json.get(TYPE).asText().toUpperCase()));
+
+        DestinationType destType = DestinationType.find.byId(json.get(TYPE).asInt());
+        oldDestination.setType(destType);
 
         oldDestination.update();
 

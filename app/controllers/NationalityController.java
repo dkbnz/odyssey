@@ -23,16 +23,9 @@ public class NationalityController extends Controller {
      */
     public Result list() {
 
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayNode results = mapper.createArrayNode();
-
         List<Nationality> nationalities = Nationality.find.all();
 
-        for (Nationality nationality : nationalities) {
-            results.add(Json.toJson(nationality));
-        }
-
-        return ok(results);
+        return ok(Json.toJson(nationalities));
     }
 }
 
