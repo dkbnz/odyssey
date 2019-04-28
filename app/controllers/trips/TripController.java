@@ -6,6 +6,7 @@ import models.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -66,7 +67,7 @@ public class TripController extends Controller {
                         userProfile.save();
                         return ok();
                     } else {
-                        return unauthorized("gay");//destinationList.toString());
+                        return unauthorized("Error here");//destinationList.toString());
                     }
 
                 })
@@ -222,18 +223,13 @@ public class TripController extends Controller {
             return badRequest();
         }
 
-        Trip returnedTrip;
+        Trip returnedTrip = Trip.find.byId(parsedTripId);
 
-        String id = String.valueOf(parsedTripId);
-        if (Trip.find.query()
-                .where()
-                .like(id, TRIP_ID)
-                .findOne() != null) {
-            returnedTrip = Trip.find.byId(parsedTripId);
-        } else {
+
+        if (returnedTrip == null) {
             return notFound();
         }
 
-        return ok();
+        return ok(Json.toJson(returnedTrip));
     }
 }
