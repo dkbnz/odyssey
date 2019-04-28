@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.ExpressionList;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
+import models.destinations.DestinationTypeEnum;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -14,11 +16,20 @@ import java.util.Map;
 public class DestinationController extends Controller {
 
     private static final String NAME = "name";
-    private static final String TYPE = "type";
+    private static final String TYPE = "type_id";
     private static final String COUNTRY = "country";
     private static final String DISTRICT = "district";
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
+
+    /**
+     * Return a json object listing all destination types in the database
+     * @return
+     */
+    public Result getTypes() {
+        List<DestinationType> destinationTypes = DestinationType.find.all();
+        return ok(Json.toJson(destinationTypes));
+    }
 
     /**
      * Fetches all destinations.
@@ -26,7 +37,7 @@ public class DestinationController extends Controller {
      */
     private Result fetch() {
         List<Destination> destinations = Destination.find.all();
-        return ok(views.html.viewDestinations.tableDestinations.render(destinations));
+        return ok(Json.toJson(destinations));
     }
 
     /**
@@ -35,15 +46,16 @@ public class DestinationController extends Controller {
      * @return HTTP response containing the destinations found in the response body.
      */
     public Result fetch(Http.Request request) {
-
         //If there are no query parameters, return all destinations.
         if (request.queryString().isEmpty()) {
             return fetch();
         }
 
+
         //Filter destinations based on query parameters.
         Map<String, String[]> queryString = request.queryString();
         List<Destination> destinations;
+
 
         ExpressionList<Destination> expressionList = Destination.find.query().where();
         String name = queryString.get(NAME)[0];
@@ -74,7 +86,7 @@ public class DestinationController extends Controller {
 
         destinations = expressionList.findList();
 
-        return ok(views.html.viewDestinations.tableDestinations.render(destinations));
+        return ok(Json.toJson(destinations));
     }
 
     /**
@@ -98,10 +110,9 @@ public class DestinationController extends Controller {
         String district = json.get(DISTRICT).asText();
         String latitude = json.get(LATITUDE).asText();
         String longitude = json.get(LONGITUDE).asText();
-        String type = json.get(TYPE).asText();
 
         // Checks all fields contain data
-        if (name.length() == 0 || country.length() == 0 || district.length() == 0 || latitude.length() == 0 || longitude.length() == 0 || type.length() == 0) {
+        if (name.length() == 0 || country.length() == 0 || district.length() == 0 || latitude.length() == 0 || longitude.length() == 0) {
             return false;
         }
 
@@ -113,11 +124,6 @@ public class DestinationController extends Controller {
             return false;
         }
 
-        try {
-            DestinationType.valueOf(json.get(TYPE).asText().toUpperCase());
-        } catch (IllegalArgumentException e){
-            return false;
-        }
 
         return true;
     }
@@ -132,10 +138,12 @@ public class DestinationController extends Controller {
         String name = json.get(NAME).asText();
         String district = json.get(DISTRICT).asText();
 
+
         List<Destination> destinations = Destination.find.query().where()
                 .ilike(NAME, name)
                 .ilike(DISTRICT, district)
                 .findList();
+        System.out.println("----------------3----------------------------------------------------" + destinations);
         return (destinations.isEmpty());
     }
 
@@ -150,6 +158,7 @@ public class DestinationController extends Controller {
         if (!validInput(json)) {
             return badRequest("Invalid input.");
         }
+
 
         if (destinationDoesNotExist(json)) {
             Destination destination = createNewDestination(json);
@@ -172,7 +181,11 @@ public class DestinationController extends Controller {
         destination.setDistrict(json.get(DISTRICT).asText());
         destination.setLatitude(json.get(LATITUDE).asDouble());
         destination.setLongitude(json.get(LONGITUDE).asDouble());
-        destination.setType(DestinationType.valueOf(json.get(TYPE).asText().toUpperCase()));
+
+        DestinationType destType = DestinationType.find.byId(json.get(TYPE).asInt());
+
+        destination.setType(destType);
+
         return destination;
     }
 
@@ -214,7 +227,9 @@ public class DestinationController extends Controller {
         oldDestination.setDistrict(json.get(DISTRICT).asText());
         oldDestination.setLatitude(json.get(LATITUDE).asDouble());
         oldDestination.setLongitude(json.get(LONGITUDE).asDouble());
-        oldDestination.setType(DestinationType.valueOf(json.get(TYPE).asText().toUpperCase()));
+
+        DestinationType destType = DestinationType.find.byId(json.get(TYPE).asInt());
+        oldDestination.setType(destType);
 
         oldDestination.update();
 
