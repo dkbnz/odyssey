@@ -35,7 +35,7 @@
                         label="Email:"
                         label-for="email">
                     <b-form-input id="email" v-model="email" type="text" :state="emailValidation" trim required></b-form-input>
-                    <b-form-invalid-feedback :state="emailValidation"> Your email must be between 3 and 15 characters and must be an email! </b-form-invalid-feedback>
+                    <b-form-invalid-feedback :state="emailValidation"> Your email must be valid and unique! </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="emailValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
@@ -164,11 +164,9 @@
                 showSecond: false,
                 nationalities: [],
                 passports: [],
-                travTypes: []
+                travTypes: [],
+                validEmail: false
             }
-        },
-        mounted () {
-            //this.checkUsername(checkUsername => this.usernameValid = checkUsername);
         },
         computed: {
             fNameValidation() {
@@ -184,7 +182,8 @@
             },
             emailValidation() {
                 let emailRegex = new RegExp("^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})");
-                return emailRegex.test(this.email);
+                this.checkUsername();
+                return (emailRegex.test(this.email) && this.validEmail);
             },
             passwordValidation() {
                 let passwordRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
@@ -235,15 +234,14 @@
                 }
             },
             checkUsername() {
+                let self = this;
                 fetch(`/v1/checkUsername`, {
                     method: 'POST',
                     headers:{'content-type': 'application/json'},
                     body: JSON.stringify({'username': this.email})
 
                 }).then(function(response) {
-                    let ok = response.ok;
-                    console.log(ok);
-                    return response.ok;
+                    self.validEmail = response.ok;
                 }).then(this.checkStatus)
 
             },
@@ -265,7 +263,20 @@
                 }).then(function(response) {
                     return response.json();
                 })
-            }
+            },
+            checkStatus (response) {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                }
+                const error = new Error(`HTTP Error ${response.statusText}`);
+                error.status = response.statusText;
+                error.response = response;
+                console.log(error); // eslint-disable-line no-console
+                throw error;
+            },
+            parseJSON (response) {
+                return response.json();
+            },
         }
     }
 </script>
