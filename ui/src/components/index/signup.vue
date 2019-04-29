@@ -156,9 +156,9 @@
                 dateOfBirth: '',
                 gender: '',
                 genderOptions: [
-                    {value: 'male', text: 'Male'},
-                    {value: 'female', text: 'Female'},
-                    {value: 'other', text: 'Other'}
+                    {value: 'Male', text: 'Male'},
+                    {value: 'Female', text: 'Female'},
+                    {value: 'Other', text: 'Other'}
                 ],
                 showFirst: true,
                 showSecond: false,
