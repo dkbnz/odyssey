@@ -11,7 +11,6 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 GET     /api/profiles                   controllers.ProfileController.list(request: Request)
 POST    /api/profiles                   controllers.ProfileController.create(request: Request)
 GET     /api/profile                    controllers.ProfileController.fetch(request: Request)
-GET     /api/profile/edit               controllers.ProfileController.edit(request: Request)
 PUT     /api/profile                    controllers.ProfileController.update(request: Request)
 DELETE  /api/profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
 
@@ -51,7 +50,7 @@ POST    /api/trip                       controllers.trips.TripController.create(
 GET     /api/trip                       controllers.trips.TripController.fetch(request: Request)
 
 # Update a specific trip
-PATCH   /api/trips/:id                  controllers.trips.TripController.edit(request: Request, id: Long)
+PATCH   /api/trip/:id                  controllers.trips.TripController.edit(request: Request, id: Long)
 
 # Delete a specific destination
 #DELETE  /api/profiles/:profileId/trips/:tripId                  controllers.trips.TripController.delete(request: Request, id: Long)
@@ -83,7 +82,6 @@ GET     /v1/destinationTypes            controllers.destinations.DestinationCont
 
 POST    /v1/login                       controllers.AuthController.login(request: Request)
 POST    /v1/logout                      controllers.AuthController.logout()
-GET     /v1/profile/edit                controllers.ProfileController.edit(request: Request)
 POST    /v1/checkUsername               controllers.ProfileController.checkUsername(requestrun: Request)
 
 # Map static resources from the /public folder to the file resource paths
