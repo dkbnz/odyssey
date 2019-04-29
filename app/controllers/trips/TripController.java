@@ -6,6 +6,7 @@ import models.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
+import repositories.TripRepository;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -18,16 +19,17 @@ import java.util.List;
 
 public class TripController extends Controller {
 
-    private static final String AUTHORIZED = "authorized";
-    private static final String NAME = "trip_name";
-    private static final String TRIP_DESTINATIONS = "trip_destinations";
-    private static final String START_DATE = "start_date";
-    private static final String END_DATE = "end_date";
-    private static final String DESTINATION_ID = "destination_id";
-    private static final String TRIP_ID = "trip_id";
-    private static final String ID = "id";
-    private static final String NOT_LOGGED_IN = "You are not logged in.";
-    private static final int MINIMUM_TRIP_DESTINATIONS = 2;
+    private final String AUTHORIZED = "authorized";
+    private final String NAME = "trip_name";
+    private final String TRIP_DESTINATIONS = "trip_destinations";
+    private final String START_DATE = "start_date";
+    private final String END_DATE = "end_date";
+    private final String DESTINATION_ID = "destination_id";
+    private final String TRIP_ID = "trip_id";
+    private final String ID = "id";
+    private final String NOT_LOGGED_IN = "You are not logged in.";
+    private final int MINIMUM_TRIP_DESTINATIONS = 2;
+    private TripRepository repository = new TripRepository();
 
 
     /**
@@ -65,7 +67,7 @@ public class TripController extends Controller {
             if (destinationList != null) {
                 trip.setDestinations(destinationList);
                 profile.addTrip(trip);
-                trip.save();
+                profile.save();
                 return ok();
             } else {
                 return badRequest();
@@ -112,17 +114,19 @@ public class TripController extends Controller {
             // Current profile
             Profile profile = Profile.find.byId(Integer.valueOf(userId));
 
-            // Trip being modified
-            Trip trip = Trip.find.byId(id.intValue());
-
             JsonNode json = request.body().asJson();
 
             if (!isValidTrip(json)) {
                 return badRequest();
             }
 
+            // Trip being modified
+            Trip trip = Trip.find.byId(id.intValue());
+
             String name = json.get(NAME).asText();
             trip.setName(name);
+
+            repository.removeTripDestinations(trip);
 
             // Create a json node for the destinations contained in the trip to use for iteration.
             ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
@@ -132,11 +136,11 @@ public class TripController extends Controller {
 
             if (destinationList != null) {
                 trip.setDestinations(destinationList);
-                trip.save();
+                trip.update();
+                profile.update();
             } else {
                 return badRequest();
             }
-
         } else {
             return unauthorized();
         }
@@ -156,18 +160,19 @@ public class TripController extends Controller {
 
         // Simple integer for incrementing the list_order attribute for trip destinations.
         int order = 0;
-        //long previousDestination = -1;
+        long previousDestination = -1;
 
         // Parse JSON to create and append trip destinations using an iterator.
         Iterator<JsonNode> iterator = tripDestinations.elements();
         while (iterator.hasNext()) {
             // Set the current node having its contents extracted.
             JsonNode destinationJson = iterator.next();
+            int id = destinationJson.get(DESTINATION_ID).asInt();
 
             // Check if current node has a destination ID, and it corresponds with a destination in our database.
             if (destinationJson.get(DESTINATION_ID) != null
-                    //&& destinationJson.get(DESTINATION_ID).asLong() != previousDestination
-                    //Destination.find.query().where().like(ID, DESTINATION_ID).findOne() != null
+                    && destinationJson.get(DESTINATION_ID).asLong() != previousDestination
+                    && Destination.find.byId(id) != null
             ) {
 
                 // Parse the values contained in the current node of the array
@@ -182,11 +187,10 @@ public class TripController extends Controller {
                 newTripDestination.setStartDate(parsedStartDate);
                 newTripDestination.setEndDate(parsedEndDate);
                 newTripDestination.setListOrder(order++);
-                newTripDestination.save();
 
                 // Add created destination to the list of trip destinations.
                 result.add(newTripDestination);
-                // previousDestination = newTripDestination.getId();
+                previousDestination = id;
             } else {
                 return null;
             }
@@ -198,7 +202,6 @@ public class TripController extends Controller {
 
     /**
      * Fetches a single trip from the database for a logged in user.
-     * TODO: provide returned OK Results a view to render single trips on.
      *
      * @param request HTTP request from client
      * @return an OK response rendering the fetched trip onto the page, or an unauthorised message.
@@ -207,16 +210,20 @@ public class TripController extends Controller {
 
         JsonNode json = request.body().asJson();
 
+        // The id taken from the json node, initialised as null for validation purposes.
         Integer parsedTripId;
+
+        // Retrieving the id of the trip being fetched
         try {
             parsedTripId = Integer.parseInt(json.get(TRIP_ID).asText());
         } catch (NumberFormatException e) {
             return badRequest();
         }
 
+        // Retrieving the trip which corresponds to the id parsed.
         Trip returnedTrip = Trip.find.byId(parsedTripId);
 
-
+        // Verifying the existence of the trip being retrieved.
         if (returnedTrip == null) {
             return notFound();
         }

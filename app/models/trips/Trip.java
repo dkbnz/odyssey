@@ -25,7 +25,8 @@ public class Trip extends BaseModel {
      * The trips destinations for the trip
      */
 //    @Constraints.Required
-    @OneToMany(mappedBy = "trip", cascade=CascadeType.ALL)
+
+    @OneToMany(mappedBy="trip", cascade=CascadeType.ALL)
     private List<TripDestination> destinations;
 
     public String getName() {
