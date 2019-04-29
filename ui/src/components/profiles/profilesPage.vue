@@ -8,7 +8,7 @@
             <div>
                 <b-form-group
                         id="nationalities-field"
-                        label="Nationalities:"
+                        label="Nationality:"
                         label-for="nationality">
                     <b-form-select id="nationality" v-model="searchNationality" trim>
                         <template slot="first">
@@ -29,21 +29,22 @@
                 </b-form-group>
                 <b-form-group
                         id="minAge-field"
-                        label="Min Age:"
+                        label="Min Age: "
                         label-for="minAge">
+                    <div class="mt-2">{{ searchMinAge }}</div>
                     <b-form-input id="minAge" v-model="searchMinAge" :type="'range'" min="0" max="150" trim></b-form-input>
-                    <div class="mt-2">Value: {{ searchMinAge }}</div>
+
                 </b-form-group>
                 <b-form-group
                         id="maxAge-field"
                         label="Max Age:"
                         label-for="maxAge">
+                    <div class="mt-2">{{ searchMaxAge }}</div>
                     <b-form-input id="maxAge" v-model="searchMaxAge" :type="'range'" min="0" max="150" trim></b-form-input>
-                    <div class="mt-2">Value: {{ searchMaxAge }}</div>
                 </b-form-group>
                 <b-form-group
                         id="travType-field"
-                        label="Traveller Type(s):"
+                        label="Traveller Type:"
                         label-for="travType">
                     <b-form-select id="travType" v-model="searchTravType" trim>
                         <template>
