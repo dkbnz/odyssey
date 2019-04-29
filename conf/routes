@@ -43,9 +43,22 @@ GET     /dash                           controllers.PageController.dash(request:
 GET     /destinations                   controllers.PageController.destinations(request: Request)
 GET     /searchProfile                  controllers.PageController.searchProfiles(request: Request)
 
+#TRIPS
+# Get all trips for a profile
+#GET     /api/profiles/:profileId/trips                      controllers.trips.TripController.list(request: Request)
+
+# Add trip to a profile
+#POST    /api/profiles/:profileId/trips                      controllers.trips.TripController.create(request: Request)
+POST    /api/trip                       controllers.trips.TripController.create(request: Request)
+
+# Get a single trip from a profile
+GET     /api/trip                       controllers.trips.TripController.fetch(request: Request)
+
+# Update a specific trip
+PATCH   /api/trip/:id                   controllers.trips.TripController.edit(request: Request, id: Long)
 
 # Load index page
-GET        /             controllers.Assets.at(path="/public", file="index.html")
+GET        /                            controllers.Assets.at(path="/public", file="index.html")
 
 # An example route
 GET     /v1/summary                     controllers.HomeController.appSummary()
