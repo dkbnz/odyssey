@@ -7,7 +7,7 @@
                 <b-nav-item @click="togglePage(addDestinations)">Add a Destination</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
-        <search-destinations v-if="searchDestinations" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes"></search-destinations>
+        <search-destinations v-if="searchDestinations" v-bind:profile="profile" v-bind:destinationTypes="destinationTypes"></search-destinations>
         <add-destinations v-if="addDestinations" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" ></add-destinations>
         <footer-main></footer-main>
     </div>

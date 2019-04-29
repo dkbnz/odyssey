@@ -6,7 +6,6 @@
                 <div>
 
                     <div align="center">
-                        <p>"HERE"{{this.profile}}</p>
                         <img src="../../../static/full_logo_lg.png" width="50%" alt="TravelEA Logo">
                         <h3 id="subtitle" align="center">Your personal Travel Executive Assistant!</h3>
                     </div>
