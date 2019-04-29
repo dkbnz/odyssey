@@ -39,6 +39,14 @@
             }
         },
         methods: {
+            getProfile (cb) {
+                return fetch(`/v1/profile`, {
+                    accept: "application/json"
+                })
+                //.then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
             getDestinations (cb) {
                 return fetch(`/v1/destinations`, {
                     accept: "application/json"
@@ -55,17 +63,6 @@
                     .then(this.parseJSON)
                     .then(cb);
             },
-
-
-            getProfile (cb) {
-                return fetch(`/v1/profile`, {
-                    accept: "application/json"
-                })
-                    //.then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(cb);
-            },
-
             getNationalities (cb) {
                 return fetch(`/v1/nationalities`, {
                     accept: "application/json"
