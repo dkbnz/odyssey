@@ -2,8 +2,36 @@
 
     <div class="App">
         <div>
-            <dash v-if="profile.length !== 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></dash>
-            <index v-if="profile.length === 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions" ></index>
+            <div v-if="!onIndexPage()">
+                <b-navbar variant="light" toggleable="lg">
+                    <b-navbar-brand href="/"><img :src="assets.appLogo"></b-navbar-brand>
+
+                    <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+                    <b-collapse id="nav-collapse" is-nav>
+                        <b-navbar-nav>
+                            <b-nav-item href="/profiles">People</b-nav-item>
+                            <b-nav-item href="/trips">Trips</b-nav-item>
+                            <b-nav-item href="/destinations">Destinations</b-nav-item>
+                        </b-navbar-nav>
+
+                        <b-navbar-nav class="ml-auto">
+                            <b-nav-item-dropdown right>
+                                <!-- Using 'button-content' slot -->
+                                <template slot="button-content"><em>{{ profile.firstName }}</em></template>
+                                <b-dropdown-item href="/dash">Profile</b-dropdown-item>
+                                <b-dropdown-item @click="logout">Logout</b-dropdown-item>
+                            </b-nav-item-dropdown>
+                        </b-navbar-nav>
+
+                    </b-collapse>
+                </b-navbar>
+            </div>
+            <router-view></router-view>
+            <!--TODO: Pass this information-->
+            <!--<dash v-if="profile.length !== 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></dash>-->
+            <!--<index v-if="profile.length === 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions" ></index>-->
+            <footer-main v-if="!onIndexPage()"></footer-main>
         </div>
     </div>
 </template>
@@ -14,6 +42,8 @@
     import Dash from './components/dash/dashPage.vue'
     import Profiles from './components/profiles/profilesPage.vue'
     import Destinations from './components/destinations/destinationsPage.vue'
+    import NavBarMain from './components/helperComponents/navbarMain'
+    import FooterMain from './components/helperComponents/footerMain'
 
     import assets from './assets'
     export default {
@@ -96,6 +126,10 @@
             parseJSON (response) {
                 return response.json();
             },
+            onIndexPage() {
+                //TODO: find a better way to achieve this!
+                return window.location.href === "http://localhost:8080/";
+            }
 
         },
         components: {
@@ -103,7 +137,9 @@
             Index,
             Dash,
             Profiles,
-            Destinations
+            Destinations,
+            NavBarMain,
+            FooterMain
         }
     }
 </script>
