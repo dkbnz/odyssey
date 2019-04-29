@@ -1,6 +1,6 @@
 package controllers;
 
-import models.destinations.DestinationType;
+import models.destinations.DestinationTypeEnum;
 import org.springframework.util.StringUtils;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -56,7 +56,7 @@ public class PageController extends Controller {
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in, render destinations
-                    List<DestinationType> types = new ArrayList<>(EnumSet.allOf(DestinationType.class));
+                    List<DestinationTypeEnum> types = new ArrayList<>(EnumSet.allOf(DestinationTypeEnum.class));
                     List<String> newDestinations = formatTypes(types);
 
                     return ok(views.html.viewDestinations.destinationsPage.render(types, newDestinations));
@@ -64,7 +64,7 @@ public class PageController extends Controller {
                 .orElseGet(() -> redirect("/")); // User is not logged in, redirect to index
     }
 
-    private List<String> formatTypes(List<DestinationType> types) {
+    private List<String> formatTypes(List<DestinationTypeEnum> types) {
         List<String> newDestinations = new ArrayList<String>();
         for (int i = 0; i < types.size(); i++) {
             String toAdd = types.get(i).toString().replace('_', ' ');

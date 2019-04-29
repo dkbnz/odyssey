@@ -11,6 +11,7 @@ import models.Profile;
 import models.TravellerType;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.libs.Json;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -47,7 +48,7 @@ public class ProfileController {
 
     /**
      * Creates a user based on given JSON body.
-     * If username exists, returns
+     * If username exists, returns badRequest() (HTTP 400)
      * If user is created, sets session and returns created() (HTTP 201)
      */
     public Result create(Http.Request request) {
@@ -184,7 +185,7 @@ public class ProfileController {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
 
-                    return ok(views.html.dash.profile.render(userProfile));
+                    return ok(userProfile.toJson());
                 })
                 .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
     }
@@ -303,26 +304,9 @@ public class ProfileController {
                 .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
     }
 
-
-    public Result edit(Http.Request request) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(userId -> {
-                    // User is logged in
-                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-                    List<Nationality> nationalities = Nationality.find.all();
-                    List<Passport> passports = Passport.find.all();
-                    List<TravellerType> travTypes = TravellerType.find.all();
-
-                    return ok(views.html.dash.editProfile.render(userProfile, nationalities, passports, travTypes));
-                })
-                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
-    }
-
-
     /**
      * Performs an ebean find query on the database to search for profiles
-     * Ensures the pro //TODO: fix this?
+     * If no query is specified, it will return a list of all profiles
      *
      * @return badRequest if propertyName is not valid
      * List of profiles otherwise
@@ -342,12 +326,18 @@ public class ProfileController {
                         profiles = searchProfiles(request.queryString());
                     }
 
-                    return ok(views.html.viewProfiles.tableProfiles.render(profiles));
+                    return ok(Json.toJson(profiles));
                 })
                 .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
     }
 
 
+    /**
+     * Function to validate a query string and return a list of profiles
+     * If no profiles are found, return an empty list
+     * @param queryString
+     * @return
+     */
     private List<Profile> searchProfiles(Map<String, String[]> queryString) {
         ExpressionList<Profile> profileExpressionList = Ebean.find(Profile.class).where();
         String nationality = queryString.get(NATIONALITY)[0];
