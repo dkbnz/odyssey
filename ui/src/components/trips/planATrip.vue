@@ -80,6 +80,7 @@
         </b-form>
 
         <b-table hover striped outlined
+                 ref="tripDestTable"
                  id="myTrips"
                  :fields="fields"
                  :items="tripDestinations"
@@ -93,6 +94,12 @@
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                 </b-button>
                 <b-button size="sm" @click="deleteDestination(row.item)" variant="danger" class="mr-2">Delete
+                </b-button>
+            </template>
+            <template slot="order" slot-scope="row">
+                <b-button size="sm" :disabled="tripDestinations.length === 1 || row.index === 0" @click="moveUp(row.index)" variant="success" class="mr-2">&uarr;
+                </b-button>
+                <b-button size="sm" :disabled="tripDestinations.length === 1 || row.index === tripDestinations.length-1" @click="moveDown(row.index)" variant="success" class="mr-2">&darr;
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
@@ -146,7 +153,9 @@
                 ></b-pagination>
             </b-col>
         </b-row>
-        <b-button variant="primary" block class="mr-2 float-right" @click="submitTrip">Save Trip</b-button>
+        <b-button variant="primary" block class="mr-2 float-right" @click="submitTrip"> <b-spinner small v-if="savingTrip" variant="dark" label="Spinning">Saving...</b-spinner> Save Trip</b-button>
+
+
     </div>
 </template>
 
@@ -174,7 +183,8 @@
                 editInDate: null,
                 editOutDate: null,
                 fields: [
-                    { key: 'trip_name'},
+                    'order',
+                    { key: 'name'},
                     { key: 'in_date' },
                     { key: 'out_date' },
                     'actions'
@@ -187,6 +197,7 @@
                     {key: 'country'},
                 ],
                 tripDestinations: [],
+                savingTrip: false
 
             }
         },
@@ -198,7 +209,7 @@
         methods: {
             addDestination: function() {
                 if (this.tripDestination) {
-                    this.tripDestinations.push({destId: this.tripDestination.id, trip_name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
+                    this.tripDestinations.push({destId: this.tripDestination.id, name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
                     this.resetDestForm();
                 } else {
                     this.showError = true;
@@ -213,6 +224,20 @@
                 this.rowEdit = row;
                 this.editInDate = row.in_date;
                 this.editOutDate = row.out_date;
+            },
+            moveUp(rowIndex) {
+                let upIndex = rowIndex - 1;
+                let swapRow = this.tripDestinations[rowIndex];
+                this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
+                this.tripDestinations[upIndex] = swapRow;
+                this.$refs.tripDestTable.refresh()
+            },
+            moveDown(rowIndex) {
+                let upIndex = rowIndex + 1;
+                let swapRow = this.tripDestinations[rowIndex];
+                this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
+                this.tripDestinations[upIndex] = swapRow;
+                this.$refs.tripDestTable.refresh()
             },
             saveDestination(row, editInDate, editOutDate) {
                 row.in_date = editInDate;
@@ -260,6 +285,7 @@
                 }
             },
             saveTrip(trip) {
+                this.savingTrip=true;
                 let self = this;
                 fetch('/v1/trip', {
                     method: 'POST',
@@ -267,6 +293,7 @@
                     body: JSON.stringify(trip)
                 }).then(function(response) {
                     if (response.ok) {
+                        self.savingTrip=false;
                         self.showAlert();
                         self.resetDestForm();
                         self.tripName="";
