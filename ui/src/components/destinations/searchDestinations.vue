@@ -60,6 +60,8 @@
                      :fields="fields"
                      :per-page="perPage"
                      :current-page="currentPage"
+                     :sort-by.sync="sortBy"
+                     :sort-desc.sync="sortDesc"
             >
             </b-table>
             <b-row>
@@ -93,6 +95,8 @@
         props: ['destinationTypes'],
         data () {
             return {
+                sortBy: 'name',
+                sortDesc: false,
                 searchName :"",
                 destinations: [],
                 searchType: "",
@@ -104,7 +108,7 @@
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPage: 10,
                 currentPage: 1,
-                fields: ['name', {key:'type.destinationType', label:'Type'}, 'district', 'latitude', 'longitude', 'country'],
+                fields: [{key:'name', value:'name', sortable: true}, {key:'type.destinationType', label:'Type', sortable: true}, {key:'district', value:'district', sortable: true}, 'latitude', 'longitude', {key:'country', value:'country', sortable: true}],
                 searchDestination: "",
                 errorMessage: ""
             }
@@ -117,7 +121,6 @@
         },
         mounted () {
             this.queryDestinations();
-            //this.queryDestinations(destinations => this.destinations = destinations);
         },
         methods: {
             checkLatLong() {
