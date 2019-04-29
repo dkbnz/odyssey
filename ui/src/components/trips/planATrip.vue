@@ -2,8 +2,7 @@
     <div class="container">
         <h1 class="page_title">{{ heading }}</h1>
         <p class="page_title"><i>Book your next trip!</i></p>
-        <b-alert v-model="nameAlert" variant="danger" dismissible>No Trip Name!</b-alert>
-        <b-alert v-model="destinationsAlert" variant="danger" dismissible>Must be at least 2 destinations</b-alert>
+        <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
 
         <b-alert
                 :show="dismissCountDown"
@@ -61,7 +60,7 @@
                                     id="inDate-field"
                                     label="In Date (optional):"
                                     label-for="inDate">
-                                <b-form-input id="inDate" v-model="inDate" :type="'date'" trim></b-form-input>
+                                <b-form-input id="inDate" v-model="inDate" :type="'date'" max='9999-12-31' trim></b-form-input>
                             </b-form-group>
                         </b-col>
                         <b-col>
@@ -69,7 +68,7 @@
                                     id="outDate-field"
                                     label="Out Date (optional):"
                                     label-for="outDate">
-                                <b-form-input id="outDate" v-model="outDate" :type="'date'" trim></b-form-input>
+                                <b-form-input id="outDate" v-model="outDate" :type="'date'" max='9999-12-31' trim></b-form-input>
                             </b-form-group>
                         </b-col>
                     </b-row>
@@ -165,8 +164,8 @@
                 tripDestination: "",
                 inDate: "",
                 outDate: "",
-                nameAlert: false,
-                destinationsAlert: false,
+                showError: false,
+                errorMessage: "",
                 successTripAddedAlert: false,
                 dismissSecs: 3,
                 dismissCountDown: 0,
@@ -186,12 +185,8 @@
                     {key: 'latitude'},
                     {key: 'longitude'},
                     {key: 'country'},
-
-
                 ],
-                tripDestinations: [
-
-                ],
+                tripDestinations: [],
 
             }
         },
@@ -202,12 +197,17 @@
         },
         methods: {
             addDestination: function() {
-                this.tripDestinations.push({destId: this.tripDestination.id, trip_name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
-                this.resetDestForm();
+                if (this.tripDestination) {
+                    this.tripDestinations.push({destId: this.tripDestination.id, trip_name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
+                    this.resetDestForm();
+                } else {
+                    this.showError = true;
+                    this.errorMessage = "No Destination Selected";
+                }
+
             },
             deleteDestination: function(row) {
-                console.log(row);
-                this.destinations.splice(1, row)
+                this.tripDestinations.splice(row, 1)
             },
             populateModal(row) {
                 this.rowEdit = row;
@@ -235,15 +235,13 @@
             },
             submitTrip: function() {
                 if (this.tripName === null || this.tripName.length === 0) {
-                    this.destinationsAlert = false;
-                    this.nameAlert = true;
+                    this.showError = true;
+                    this.errorMessage = "No Trip Name";
                 } else if (this.tripDestinations.length < 2) {
-                    this.nameAlert = false;
-                    this.destinationsAlert = true;
+                    this.showError = true;
+                    this.errorMessage = "Must be at least 2 destinations";
                 } else {
-                    this.nameAlert = false;
-                    this.destinationsAlert = false;
-                    this.showAlert();
+                    this.showError = false;
                     let tripDestinationsList = [];
                     for (let i = 0; i < this.tripDestinations.length; i++) {
                         if(this.tripDestinations[i].in_date === undefined) {
@@ -259,12 +257,7 @@
                         trip_destinations: tripDestinationsList
                     };
                     this.saveTrip(trip);
-                    //this.resetDestForm();
-                    //this.tripName = "";
-                    //this.destinations = [];
-                    //console.log(trip);
                 }
-
             },
             saveTrip(trip) {
                 let self = this;
@@ -273,11 +266,20 @@
                     headers:{'content-type': 'application/json'},
                     body: JSON.stringify(trip)
                 }).then(function(response) {
-                    self.resetDestForm();
-                    self.tripName="";
-                    self.tripDestinations = [];
-                    return response.json();
-                })
+                    if (response.ok) {
+                        self.showAlert();
+                        self.resetDestForm();
+                        self.tripName="";
+                        self.tripDestinations = [];
+                        return JSON.parse(JSON.stringify(response));
+                    } else {
+                        throw new Error('Something went wrong, try again later.');
+                    }
+                }).catch((error) => {
+                    this.showError = true;
+                    this.errorMessage = (error);
+
+                });
             },
         }
     }
