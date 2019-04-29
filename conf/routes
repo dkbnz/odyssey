@@ -11,7 +11,6 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 GET     /api/profiles                   controllers.ProfileController.list(request: Request)
 POST    /api/profiles                   controllers.ProfileController.create(request: Request)
 GET     /api/profile                    controllers.ProfileController.fetch(request: Request)
-GET     /api/profile/edit               controllers.ProfileController.edit(request: Request)
 PUT     /api/profile                    controllers.ProfileController.update(request: Request)
 DELETE  /api/profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
 
@@ -25,7 +24,7 @@ POST    /api/logout                     controllers.AuthController.logout()
 # Requests relating to authorisation are as follows
 
 
-#DESTINATIONS
+# DESTINATIONS
 # Get all destinations
 GET     /api/destinations               controllers.destinations.DestinationController.fetch(request: Request)
 
@@ -43,3 +42,26 @@ GET     /                               controllers.PageController.index(request
 GET     /dash                           controllers.PageController.dash(request: Request)
 GET     /destinations                   controllers.PageController.destinations(request: Request)
 GET     /searchProfile                  controllers.PageController.searchProfiles(request: Request)
+
+
+# Load index page
+GET        /             controllers.Assets.at(path="/public", file="index.html")
+
+# An example route
+GET     /v1/summary                     controllers.HomeController.appSummary()
+GET     /v1/travtypes                   controllers.TravellerTypeController.list()
+GET     /v1/nationalities               controllers.NationalityController.list()
+GET     /v1/profile                     controllers.ProfileController.fetch(request: Request)
+GET     /v1/profiles                    controllers.ProfileController.list(request: Request)
+POST    /v1/profiles                    controllers.ProfileController.create(request: Request)
+
+GET     /v1/destinations                controllers.destinations.DestinationController.fetch(request: Request)
+POST    /v1/destinations                controllers.destinations.DestinationController.save(request: Request)
+GET     /v1/destinationTypes            controllers.destinations.DestinationController.getTypes()
+
+POST    /v1/login                       controllers.AuthController.login(request: Request)
+POST    /v1/logout                      controllers.AuthController.logout()
+POST    /v1/checkUsername               controllers.ProfileController.checkUsername(request: Request)
+
+# Map static resources from the /public folder to the file resource paths
+GET        /*file        controllers.Assets.at(path="/public", file)
