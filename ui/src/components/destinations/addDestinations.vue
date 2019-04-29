@@ -109,7 +109,16 @@
                     this.addDestination();
                 }
             },
+            resetDestForm() {
+                this.dName = "";
+                this.dType = "";
+                this.dDistrict = "";
+                this.dLatitude = "";
+                this.dLongitude = "";
+                this.dCountry = "";
+            },
             addDestination (cb) {
+                let self = this;
                 let response = fetch(`/v1/destinations`, {
                     method: 'POST',
                     headers:{'content-type': 'application/json'},
@@ -121,6 +130,8 @@
 
                     .then(function(response) {
                         if (response.ok) {
+                            self.resetDestForm();
+                            self.showAlert();
                             return JSON.parse(JSON.stringify(response));
                         } else {
                             throw new Error('Something is wrong!');
