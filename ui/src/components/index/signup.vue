@@ -75,6 +75,7 @@
                     <b-form-invalid-feedback :state="genderValidation"> Please select a gender. </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="genderValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
+                <b-alert v-model="showError" variant="danger" dismissible>The form contains errors!</b-alert>
                 <b-button variant="primary" block @click="checkPersonalForm" >Next</b-button>
 
             </b-form>
@@ -147,6 +148,7 @@
         props: ['nationalityOptions', 'travTypeOptions'],
         data: function() {
             return {
+                showError: false,
                 first_name: '',
                 middle_name: '',
                 last_name: '',
@@ -170,41 +172,72 @@
         },
         computed: {
             fNameValidation() {
+                if (this.first_name.length === 0) {
+                    return null;
+                }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.first_name);
             },
             mNameValidation() {
-                return this.middle_name.length >= 0 && this.middle_name.length <= 100
+                let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
+                return nameRegex.test(this.middle_name) || this.middle_name.length === 0 ;
             },
             lNameValidation() {
+                if (this.last_name.length === 0) {
+                    return null;
+                }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.last_name);
             },
             emailValidation() {
+                if (this.email.length === 0) {
+                    return null;
+                }
                 let emailRegex = new RegExp("^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})");
                 this.checkUsername();
                 return (emailRegex.test(this.email) && this.validEmail);
             },
             passwordValidation() {
+                if (this.password.length === 0) {
+                    return null;
+                }
                 let passwordRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
                 return passwordRegex.test(this.password)
             },
             rePasswordValidation() {
+                if (this.rePassword.length === 0) {
+                    return null;
+                }
                 return this.password.length > 0 && this.rePassword === this.password;
             },
             dateOfBirthValidation() {
+                if (this.dateOfBirth.length === 0) {
+                    return null;
+                }
                 return this.dateOfBirth.length > 0;
             },
             genderValidation() {
+                if (this.gender.length === 0) {
+                    return null;
+                }
                 return this.gender.length > 0;
             },
             nationalityValidation() {
+                if (this.nationalities.length === 0) {
+                    return null;
+                }
                 return this.nationalities.length > 0;
             },
             passportValidation() {
+                if (this.passports.length === 0) {
+                    return null;
+                }
                 return this.passports.length > 0;
             },
             travTypeValidation() {
+                if (this.travTypes.length === 0) {
+                    return null;
+                }
                 return this.travTypes.length > 0;
             }
 
@@ -213,7 +246,10 @@
             checkPersonalForm() {
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
                     && this.passwordValidation && this.rePasswordValidation && this.dateOfBirthValidation && this.genderValidation) {
+                    this.showError = false;
                     this.nextPage();
+                } else {
+                    this.showError = true;
                 }
             },
             checkAssociateForm() {
