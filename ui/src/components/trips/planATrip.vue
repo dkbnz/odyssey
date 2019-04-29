@@ -22,10 +22,10 @@
         <b-modal ref="editModal" id="editModal" hide-footer title="Edit Destination">
             <div class="d-block">
                 <b-form-group id="editInDate-field" label="In Date:" label-for="editInDate">
-                    <b-input id="editInDate" v-model="editInDate">{{editInDate}} trim</b-input>
+                    <b-input id="editInDate" :type="'date'" v-model="editInDate" max='9999-12-31'>{{editInDate}} trim</b-input>
                 </b-form-group>
                 <b-form-group id="editOutDate-field" label="Out Date:" label-for="editOutDate">
-                    <b-input id="editOutDate" v-model="editOutDate">{{editOutDate}} trim</b-input>
+                    <b-input id="editOutDate" :type="'date'" v-model="editOutDate" max='9999-12-31'>{{editOutDate}} trim</b-input>
                 </b-form-group>
             </div>
             <b-button class="mr-2 float-right" variant="success" @click="saveDestination(rowEdit, editInDate, editOutDate); dismissModal; dismissCountDown">Save</b-button>
@@ -178,7 +178,6 @@
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 rowEdit: null,
-                editName: null,
                 editInDate: null,
                 editOutDate: null,
                 fields: [
