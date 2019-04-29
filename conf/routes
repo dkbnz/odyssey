@@ -58,7 +58,7 @@ GET     /api/trip                       controllers.trips.TripController.fetch(r
 PATCH   /api/trip/:id                   controllers.trips.TripController.edit(request: Request, id: Long)
 
 # Load index page
-GET        /                            controllers.Assets.at(path="/public", file="index.html")
+GET     /                               controllers.Assets.at(path="/public", file="index.html")
 
 # An example route
 GET     /v1/summary                     controllers.HomeController.appSummary()
@@ -75,6 +75,7 @@ GET     /v1/destinationTypes            controllers.destinations.DestinationCont
 POST    /v1/login                       controllers.AuthController.login(request: Request)
 POST    /v1/logout                      controllers.AuthController.logout()
 POST    /v1/checkUsername               controllers.ProfileController.checkUsername(request: Request)
+POST    /v1/trip                         controllers.trips.TripController.create(request: Request)
 
 # Map static resources from the /public folder to the file resource paths
 GET        /*file        controllers.Assets.at(path="/public", file)

@@ -291,7 +291,6 @@
             },
 
             saveProfile(profile) {
-                console.log(profile);
                 fetch('/v1/profiles', {
                     method: 'POST',
                     headers:{'content-type': 'application/json'},
