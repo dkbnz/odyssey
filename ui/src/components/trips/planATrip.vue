@@ -197,12 +197,12 @@
         },
         computed: {
             rows() {
-                return this.destinations.length
+                return this.tripDestinations.length
             }
         },
         methods: {
             addDestination: function() {
-                this.tripDestinations.push({trip_name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
+                this.tripDestinations.push({destId: this.tripDestination.id, trip_name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
                 this.resetDestForm();
             },
             deleteDestination: function(row) {
@@ -237,24 +237,48 @@
                 if (this.tripName === null || this.tripName.length === 0) {
                     this.destinationsAlert = false;
                     this.nameAlert = true;
-                } else if (this.destinations.length < 2) {
+                } else if (this.tripDestinations.length < 2) {
                     this.nameAlert = false;
                     this.destinationsAlert = true;
                 } else {
                     this.nameAlert = false;
                     this.destinationsAlert = false;
                     this.showAlert();
+                    let tripDestinationsList = [];
+                    for (let i = 0; i < this.tripDestinations.length; i++) {
+                        if(this.tripDestinations[i].in_date === undefined) {
+                            this.tripDestinations[i].in_date = null;
+                        }
+                        if(this.tripDestinations[i].out_date === undefined) {
+                            this.tripDestinations[i].out_date = null;
+                        }
+                        tripDestinationsList.push({destination_id: this.tripDestinations[i].destId, start_date: this.tripDestinations[i].in_date, end_date: this.tripDestinations[i].out_date})
+                    }
                     let trip = {
-                        name: this.tripName,
-                        tripDestinations: this.destinations
+                        trip_name: this.tripName,
+                        trip_destinations: tripDestinationsList
                     };
-                    this.resetDestForm();
-                    this.tripName = "";
-                    this.destinations = [];
-                    console.log(trip);
+                    this.saveTrip(trip);
+                    //this.resetDestForm();
+                    //this.tripName = "";
+                    //this.destinations = [];
+                    //console.log(trip);
                 }
 
-            }
+            },
+            saveTrip(trip) {
+                let self = this;
+                fetch('/v1/trip', {
+                    method: 'POST',
+                    headers:{'content-type': 'application/json'},
+                    body: JSON.stringify(trip)
+                }).then(function(response) {
+                    self.resetDestForm();
+                    self.tripName="";
+                    self.tripDestinations = [];
+                    return response.json();
+                })
+            },
         }
     }
 </script>
