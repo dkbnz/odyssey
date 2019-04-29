@@ -63,7 +63,7 @@ GET     /v1/destinationTypes            controllers.destinations.DestinationCont
 POST    /v1/login                       controllers.AuthController.login(request: Request)
 POST    /v1/logout                      controllers.AuthController.logout()
 GET     /v1/profile/edit                controllers.ProfileController.edit(request: Request)
-POST    /v1/checkUsername               controllers.ProfileController.checkUsername(requestrun: Request)
+POST    /v1/checkUsername               controllers.ProfileController.checkUsername(request: Request)
 
 # Map static resources from the /public folder to the file resource paths
 GET        /*file        controllers.Assets.at(path="/public", file)
