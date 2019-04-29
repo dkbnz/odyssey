@@ -62,6 +62,8 @@
                          :fields="fields"
                          :per-page="perPage"
                          :current-page="currentPage"
+                         :sort-by.sync="sortBy"
+                         :sort-desc.sync="sortDesc"
                 >
                     <template slot="actions" slot-scope="row">
                         <b-button size="sm" @click="row.toggleDetails" class="mr-2">
@@ -115,6 +117,8 @@
 
         data: function() {
             return {
+                sortBy: 'firstName',
+                sortDesc: false,
                 showError: false,
                 searchNationality: "",
                 searchGender: "",
@@ -129,7 +133,7 @@
                     {value: 'female', text: 'Female'},
                     {value: 'other', text: 'Other'}
                 ],
-                fields: [{key:'firstName', label: "First Name"}, {key:'lastName', label: "Last Name"}, {key:'nationalities[0].nationality', label: "Nationality"}, 'gender', 'age', {key:'travellerTypes[0].travellerType', label: "Traveller Types"}, 'actions'],
+                fields: [{key:'firstName', label: "First Name", sortable: true}, {key:'lastName', label: "Last Name", sortable: true}, {key:'nationalities[0].nationality', label: "Nationality", sortable: true}, {key:'gender', value: 'gender', sortable: true}, {key:'age', value:'age', sortable: true}, {key:'travellerTypes[0].travellerType', label: "Traveller Types" , sortable: true}, 'actions'],
                 profiles: []
             }
         },
