@@ -10,18 +10,18 @@
                         id="nationalities-field"
                         label="Nationalities:"
                         label-for="nationality">
-                    <b-form-select id="nationality" v-model="nationalities" trim>
+                    <b-form-select id="nationality" v-model="searchNationality" trim>
                         <template slot="first">
                             <option :value="null" >-- Any --</option>
                         </template>
-                        <option v-for="nationality in nationalityOptions" :value="nationality.id">{{nationality.nationality}}</option>
+                        <option v-for="nationality in nationalityOptions" :value="nationality.nationality">{{nationality.nationality}}</option>
                     </b-form-select>
                 </b-form-group>
                 <b-form-group
                         id="gender-field"
                         label="Gender:"
                         label-for="gender">
-                    <b-form-select id="gender" v-model="gender" :options="genderOptions" trim>
+                    <b-form-select id="gender" v-model="searchGender" :options="genderOptions" trim>
                         <template slot="first">
                             <option :value="null" >-- Any --</option>
                         </template>
@@ -31,25 +31,25 @@
                         id="minAge-field"
                         label="Min Age:"
                         label-for="minAge">
-                    <b-form-input id="minAge" v-model="minAge" :type="'range'" min="0" max="150" trim></b-form-input>
-                    <div class="mt-2">Value: {{ minAge }}</div>
+                    <b-form-input id="minAge" v-model="searchMinAge" :type="'range'" min="0" max="150" trim></b-form-input>
+                    <div class="mt-2">Value: {{ searchMinAge }}</div>
                 </b-form-group>
                 <b-form-group
                         id="maxAge-field"
                         label="Max Age:"
                         label-for="maxAge">
-                    <b-form-input id="maxAge" v-model="maxAge" :type="'range'" min="0" max="150" trim></b-form-input>
-                    <div class="mt-2">Value: {{ maxAge }}</div>
+                    <b-form-input id="maxAge" v-model="searchMaxAge" :type="'range'" min="0" max="150" trim></b-form-input>
+                    <div class="mt-2">Value: {{ searchMaxAge }}</div>
                 </b-form-group>
                 <b-form-group
                         id="travType-field"
                         label="Traveller Type(s):"
                         label-for="travType">
-                    <b-form-select id="travType" v-model="travType" trim>
-                        <template slot="first">
-                            <option :value="null" >-- Any --</option>
+                    <b-form-select id="travType" v-model="searchTravType" trim>
+                        <template>
+                            <option :value="null" selected="selected">-- Any --</option>
                         </template>
-                        <option v-for="travType in travTypeOptions" :value="travType.id">{{travType.travellerType}}</option>
+                        <option v-for="travType in travTypeOptions" :value="travType.travellerType">{{travType.travellerType}}</option>
                     </b-form-select>
                 </b-form-group>
                 <b-button block variant="primary" @click="searchProfiles">Search</b-button>
@@ -115,11 +115,11 @@
         data: function() {
             return {
                 showError: false,
-                nationalities: null,
-                gender: null,
-                minAge: 0,
-                maxAge: 150,
-                travType: null,
+                searchNationality: "",
+                searchGender: "",
+                searchMinAge: 0,
+                searchMaxAge: 100,
+                searchTravType: "",
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPage: 5,
                 currentPage: 1,
@@ -133,7 +133,8 @@
             }
         },
         mounted () {
-            this.getProfiles(profiles => this.profiles = profiles);
+            this.queryProfiles();
+            //this.getProfiles(profiles => this.profiles = profiles);
         },
         methods: {
             getProfiles (cb) {
@@ -148,19 +149,42 @@
                 return response.json();
             },
 
+
+
             searchProfiles() {
-                this.minAge = parseInt(this.minAge);
-                this.maxAge =  parseInt(this.maxAge);
-                if (isNaN(this.minAge) || isNaN(this.maxAge)) {
+                this.searchMinAge = parseInt(this.searchMinAge);
+                this.searchMaxAge =  parseInt(this.searchMaxAge);
+                if (isNaN(this.searchMinAge) || isNaN(this.searchMaxAge)) {
                     this.showError = true;
-                } else if (this.minAge > this.maxAge) {
+                } else if (this.searchMinAge > this.searchMaxAge) {
                     this.showError = true;
                 }
                 else {
+                    if (this.searchTravType === null) {
+                        this.searchTravType = "";
+                    }
+                    if (this.searchNationality === null) {
+                        this.searchNationality = "";
+                    }
+                    if (this.searchGender === null) {
+                        this.searchGender = "";
+                    }
                     this.showError = false;
-                    console.log(this.nationalities, this.gender, this.minAge, this.maxAge, this.travType)
+                    this.queryProfiles();
+
                 }
-            }
+            },
+            queryProfiles () {
+                let searchQuery = "?nationality=" + this.searchNationality + "&gender=" + this.searchGender + "&min_age=" + this.searchMinAge + "&max_age=" + this.searchMaxAge + "&traveller_type=" + this.searchTravType;
+                return fetch(`/v1/profiles` + searchQuery,  {
+
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then((data) => {
+                        this.profiles = data;
+                    })
+            },
         },
         computed: {
             rows() {
