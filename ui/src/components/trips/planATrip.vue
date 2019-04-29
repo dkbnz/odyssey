@@ -158,7 +158,6 @@
 
     </div>
 </template>
-
 <script>
     export default {
         name: "PlanATrip",
@@ -209,8 +208,18 @@
         methods: {
             addDestination: function() {
                 if (this.tripDestination) {
-                    this.tripDestinations.push({destId: this.tripDestination.id, name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
-                    this.resetDestForm();
+                    if(this.tripDestinations.length === 0) {
+                        this.tripDestinations.push({destId: this.tripDestination.id, name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
+                        this.resetDestForm();
+                    }
+                    else if(!this.checkSameDestination(this.tripDestination.id)) {
+                        this.showError = false;
+                        this.tripDestinations.push({destId: this.tripDestination.id, name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
+                        this.resetDestForm();
+                    } else {
+                        this.showError = true;
+                        this.errorMessage = "Can't have same destination next to another, please select another destination";
+                    }
                 } else {
                     this.showError = true;
                     this.errorMessage = "No Destination Selected";
@@ -226,18 +235,34 @@
                 this.editOutDate = row.out_date;
             },
             moveUp(rowIndex) {
-                let upIndex = rowIndex - 1;
-                let swapRow = this.tripDestinations[rowIndex];
-                this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
-                this.tripDestinations[upIndex] = swapRow;
-                this.$refs.tripDestTable.refresh()
+                if(!this.checkSameDestination(this.tripDestinations[rowIndex].destId)) {
+                    let upIndex = rowIndex - 1;
+                    let swapRow = this.tripDestinations[rowIndex];
+                    this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
+                    this.tripDestinations[upIndex] = swapRow;
+                    this.$refs.tripDestTable.refresh()
+                } else {
+                    this.showError = true;
+                    this.errorMessage = "Can't have same destination next to another, please choose another destination to move";
+                }
             },
             moveDown(rowIndex) {
-                let upIndex = rowIndex + 1;
-                let swapRow = this.tripDestinations[rowIndex];
-                this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
-                this.tripDestinations[upIndex] = swapRow;
-                this.$refs.tripDestTable.refresh()
+                if(!this.checkSameDestination(this.tripDestinations[rowIndex].destId)) {
+                    let upIndex = rowIndex + 1;
+                    let swapRow = this.tripDestinations[rowIndex];
+                    this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
+                    this.tripDestinations[upIndex] = swapRow;
+                    this.$refs.tripDestTable.refresh()
+                } else {
+                    this.showError = true;
+                    this.errorMessage = "Can't have same destination next to another, please choose another destination to move";
+                }
+            },
+            checkSameDestination(destId) {
+                let previousDestinationIndex = this.tripDestinations.length - 1;
+                if(this.tripDestinations[previousDestinationIndex].destId === destId) {
+                    return true;
+                }
             },
             saveDestination(row, editInDate, editOutDate) {
                 row.in_date = editInDate;
