@@ -69,11 +69,6 @@
                 </b-col>
             </b-row>
         </div>
-        <b-button v-b-toggle.collapsePlan class="mr-1">Wanting to Plan a Trip?</b-button>
-        <b-collapse id="collapsePlan" style="margin-top: 20px">
-            <plan-a-trip></plan-a-trip>
-        </b-collapse>
-
 
 
     </div>
