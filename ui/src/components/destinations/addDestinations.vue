@@ -93,20 +93,24 @@
             checkLatLong() {
                 let ok = true;
                 if (isNaN(this.dLatitude)) {
-                    this.showError = true;
                     this.errorMessage = ("Latitude: '" + this.dLatitude + "' is not a number!");
                     ok = false;
                 } else if (isNaN(this.dLongitude)) {
-                    this.showError = true;
                     this.errorMessage = ("Longitude: '" + this.dLongitude + "' is not a number!");
                     ok = false;
                 }
                 return ok;
             },
             checkDestinationFields() {
-                if (this.checkLatLong() && this.dName && this.dDistrict && this.dLatitude && this.dLongitude && this.dCountry) {
+                if (!this.checkLatLong()) {
+                    this.showError = true;
+                } else if (this.dName && this.dDistrict && this.dLatitude && this.dLongitude && this.dCountry) {
                     this.showError = false;
                     this.addDestination();
+                } else {
+                    this.errorMessage = ("Please enter in all fields!");
+                    this.showError = true;
+
                 }
             },
             resetDestForm() {
