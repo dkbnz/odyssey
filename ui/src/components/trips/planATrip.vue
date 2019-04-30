@@ -93,7 +93,7 @@
                 <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                 </b-button>
-                <b-button size="sm" @click="deleteDestination(row.item)" variant="danger" class="mr-2">Delete
+                <b-button size="sm" @click="deleteDestination(row.item, row.index)" variant="danger" class="mr-2">Delete
                 </b-button>
             </template>
             <template slot="order" slot-scope="row">
@@ -216,8 +216,7 @@
                         this.tripDestinations.push({destId: this.tripDestination.id, name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
                         this.resetDestForm();
                     } else {
-                        this.showError = true;
-                        this.errorMessage = "Can't have same destination next to another, please select another destination";
+                        this.showDuplicateDestError("add");
                     }
                 } else {
                     this.showError = true;
@@ -225,8 +224,19 @@
                 }
 
             },
-            deleteDestination: function(row) {
-                this.tripDestinations.splice(row, 1)
+            deleteDestination: function(row, rowIndex) {
+                if(this.tripDestinations.length > 2) {
+                    if (rowIndex === this.tripDestinations.length - 1) {
+                        this.tripDestinations.splice(rowIndex, 1);
+                    }
+                    else if (this.tripDestinations[rowIndex - 1].destId !== this.tripDestinations[rowIndex + 1].destId) {
+                        this.tripDestinations.splice(rowIndex, 1);
+                    } else {
+                        this.showDuplicateDestError("delete")
+                    }
+                } else {
+                    this.tripDestinations.splice(rowIndex, 1);
+                }
             },
             populateModal(row) {
                 this.rowEdit = row;
@@ -234,28 +244,36 @@
                 this.editOutDate = row.out_date;
             },
             moveUp(rowIndex) {
-                if(!this.checkSameDestination(this.tripDestinations[rowIndex].destId)) {
+                if(rowIndex === 1 && this.tripDestinations[rowIndex-1].destId === this.tripDestinations[rowIndex+1].destId) {
+                    this.showDuplicateDestError("move")
+                }
+                else if(this.tripDestinations[rowIndex-2].destId !== this.tripDestinations[rowIndex].destId) {
                     let upIndex = rowIndex - 1;
                     let swapRow = this.tripDestinations[rowIndex];
                     this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
                     this.tripDestinations[upIndex] = swapRow;
                     this.$refs.tripDestTable.refresh()
                 } else {
-                    this.showError = true;
-                    this.errorMessage = "Can't have same destination next to another, please choose another destination to move";
+                    this.showDuplicateDestError("move")
                 }
             },
             moveDown(rowIndex) {
-                if(!this.checkSameDestination(this.tripDestinations[rowIndex].destId)) {
+                if(rowIndex === 1 && this.tripDestinations[rowIndex-1].destId === this.tripDestinations[rowIndex+1].destId) {
+                    this.showDuplicateDestError("move")
+                }
+                else if(this.tripDestinations[rowIndex+2].destId !== this.tripDestinations[rowIndex].destId) {
                     let upIndex = rowIndex + 1;
                     let swapRow = this.tripDestinations[rowIndex];
                     this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
                     this.tripDestinations[upIndex] = swapRow;
                     this.$refs.tripDestTable.refresh()
                 } else {
-                    this.showError = true;
-                    this.errorMessage = "Can't have same destination next to another, please choose another destination to move";
+                    this.showDuplicateDestError("move")
                 }
+            },
+            showDuplicateDestError(error) {
+                this.showError = true;
+                this.errorMessage = "Can't have same destination next to another, please choose another destination to " + error;
             },
             checkSameDestination(destId) {
                 let previousDestinationIndex = this.tripDestinations.length - 1;
@@ -266,7 +284,7 @@
             saveDestination(row, editInDate, editOutDate) {
                 row.in_date = editInDate;
                 row.out_date = editOutDate;
-                this.$refs['editModal'].hide()
+                this.dismissModal();
             },
             dismissModal() {
                 this.$refs['editModal'].hide()
@@ -288,7 +306,7 @@
                     this.errorMessage = "No Trip Name";
                 } else if (this.tripDestinations.length < 2) {
                     this.showError = true;
-                    this.errorMessage = "Must be at least 2 destinations";
+                    this.errorMessage = "There must be at least 2 destinations";
                 } else {
                     this.showError = false;
                     let tripDestinationsList = [];
