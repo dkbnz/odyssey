@@ -254,4 +254,14 @@ public class TripController extends Controller {
 
         return ok(Json.toJson(returnedTrip));
     }
+
+    /**
+     * Fetches all the trips for a specified user
+     * @param id the id of the user requested
+     * @return the list of trips as a JSON
+     */
+    public Result fetchAll(Long id) {
+        List<Trip> trips = repository.fetchAllTrips(id);
+        return ok(Json.toJson(trips));
+    }
 }

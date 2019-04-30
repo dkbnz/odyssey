@@ -1,8 +1,9 @@
 package repositories;
 
+import io.ebean.ExpressionList;
+import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
-
 import java.util.List;
 
 
@@ -23,5 +24,22 @@ public class TripRepository {
             destination.delete();
         }
 
+    }
+
+    /**
+     * Finds all the trips with a specified user id
+     * @param id the profile id
+     * @return the list of trips
+     */
+    public List<Trip> fetchAllTrips(Long id) {
+
+        List<Trip> trips;
+
+        // Creates a list of trips from a query based on profile id
+        ExpressionList<Trip> expressionList = Trip.find.query().where();
+        expressionList.eq("profile_id", id);
+        trips = expressionList.findList();
+
+        return trips;
     }
 }
