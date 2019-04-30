@@ -345,6 +345,7 @@
                         throw new Error('Something went wrong, try again later.');
                     }
                 }).catch((error) => {
+                    this.savingTrip = false;
                     this.showError = true;
                     this.errorMessage = (error);
 
