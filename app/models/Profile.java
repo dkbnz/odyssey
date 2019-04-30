@@ -29,6 +29,9 @@ public class Profile extends BaseModel {
     public String lastName;
     public String gender;
     public LocalDate dateOfBirth;
+    public Boolean is_admin;
+
+
 
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     public Date dateOfCreation;
@@ -156,6 +159,14 @@ public class Profile extends BaseModel {
 
     public void setDateOfCreation(Date dateOfCreation) {
         this.dateOfCreation = dateOfCreation;
+    }
+
+    public Boolean getIs_admin() {
+        return is_admin;
+    }
+
+    public void setIs_admin(Boolean is_admin) {
+        this.is_admin = is_admin;
     }
 
     public static Finder<Integer, Profile> find = new Finder<>(Profile.class);
