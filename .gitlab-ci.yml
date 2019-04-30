@@ -35,9 +35,9 @@ recent-artifacts:
   stage: deploy
   script:
     - sudo sbt dist
-#    - sudo chown -R gitlab-runner target
-#    - sudo chown -R gitlab-runner project/project
-#    - sudo chown -R gitlab-runner project/target
+    - sudo chown -R gitlab-runner target
+    - sudo chown -R gitlab-runner project/project
+    - sudo chown -R gitlab-runner project/target
   artifacts:
     paths:
       - target/universal/*.zip
@@ -49,9 +49,9 @@ release-artifacts:
  stage: deploy
  script:
     - sudo sbt dist
-#    - sudo chown -R gitlab-runner target
- #   - sudo chown -R gitlab-runner project/project
-  #  - sudo chown -R gitlab-runner project/target
+    - sudo chown -R gitlab-runner target
+    - sudo chown -R gitlab-runner project/project
+    - sudo chown -R gitlab-runner project/target
  artifacts:
     paths:
     - target/universal/*.zip
@@ -73,6 +73,7 @@ unzip-project:
     script:
         - cd target/universal
         - sudo unzip seng302-team-100-everyware-$SNAPSHOT_VERSION-SNAPSHOT.zip
+        - sudo chown -R gitlab-runner seng302-team-100-everyware-$SNAPSHOT_VERSION-SNAPSHOT
     only:
         - master@seng302-2019/team-100
 
