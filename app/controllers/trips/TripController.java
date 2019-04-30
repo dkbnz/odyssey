@@ -59,7 +59,6 @@ public class TripController extends Controller {
 
             // Create an empty List for TripDestination objects to be populated from the request.
             List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
-
             // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return OK.
             if (destinationList != null) {
                 trip.setDestinations(destinationList);
@@ -88,7 +87,7 @@ public class TripController extends Controller {
             return false;
         }
 
-        // Check if the array of destinations in the request contains at least two trips.
+        // Check if the array of destinations in the request contains at least two destinations.
         if (!(json.get(TRIP_DESTINATIONS) == null || json.get(TRIP_DESTINATIONS).size() >= MINIMUM_TRIP_DESTINATIONS)) {
             return false;
         }
@@ -171,7 +170,6 @@ public class TripController extends Controller {
                     && destinationJson.get(DESTINATION_ID).asLong() != previousDestination
                     && Destination.find.byId(id) != null
             ) {
-                System.out.println(destinationJson.get(START_DATE).asText());
                 // Checks the dates are done correctly
                 if (!isValidDates(destinationJson.get(START_DATE).asText(), destinationJson.get(END_DATE).asText())) {
                     return null;
@@ -214,9 +212,9 @@ public class TripController extends Controller {
      * @return true if valid and false if invalid
      */
     private boolean isValidDates(String startDate, String endDate) {
-        if (startDate == "") {
+        if (startDate.equals("")) {
             return true;
-        }else if (endDate == ""){
+        }else if (endDate.equals("")){
             return true;
         } else {
             return LocalDate.parse(startDate).isAfter(LocalDate.parse(endDate));
