@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-navbar variant="light" toggleable="lg">
-            <b-navbar-brand href="/"><img :src="assets.appLogo"></b-navbar-brand>
+            <b-navbar-brand href="/dash"><img :src="assets.appLogo"></b-navbar-brand>
 
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -42,10 +42,9 @@
                     method: 'POST',
                     accept: "application/json"
                 })
-                //.then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(cb);
-                location.reload();
+                window.location.pathname="/";
                 return response;
 
             },
