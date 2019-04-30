@@ -6,6 +6,7 @@
         <p> Date of Creation: {{ new Date(profile.dateOfCreation).toUTCString()}}</p>
         <p> Date of Birth: {{new Date(profile.dateOfBirth).toLocaleDateString()}}</p>
         <p> Gender: {{ profile.gender }}</p>
+        <p> ADMIN: {{profile.is_admin}}</p>
 
         <h2> Nationalities </h2>
         <ul>

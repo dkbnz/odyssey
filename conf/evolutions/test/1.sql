@@ -91,6 +91,7 @@ create table profile (
   last_name                     varchar(255),
   gender                        varchar(255),
   date_of_birth                 date,
+  is_admin                      tinyint(1),
   date_of_creation              datetime(6),
   constraint pk_profile primary key (id)
 );

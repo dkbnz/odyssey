@@ -71,8 +71,14 @@
                         <strong>Loading...</strong>
                     </div>
                     <template slot="actions" slot-scope="row">
+                        <b-button v-if="profile.is_admin" :disabled="row.item.is_admin" size="sm" @click="makeAdmin(row.item)" class="mr-2">
+                            Make Admin
+                        </b-button>
                         <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                             {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
+                        </b-button>
+                        <b-button v-if="profile.is_admin" :disabled="row.item.username==='admin@travelea.com'" size="sm" @click="makeAdmin(row.item)" class="mr-2">
+                            Delete
                         </b-button>
                     </template>
                     <template slot="row-details" slot-scope="row">
@@ -150,9 +156,9 @@
             parseJSON (response) {
                 return response.json();
             },
-
-
-
+            makeAdmin(profile) {
+                console.log(profile)
+            },
             searchProfiles() {
                 this.searchMinAge = parseInt(this.searchMinAge);
                 this.searchMaxAge =  parseInt(this.searchMaxAge);
