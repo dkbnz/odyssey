@@ -43,6 +43,7 @@ public class ProfileController {
     private static final String DATE_OF_BIRTH = "date_of_birth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
+    private static final String IS_ADMIN = "is_admin";
     private static final String AUTHORIZED = "authorized";
     private static final String notSignedIn = "You are not logged in.";
 
@@ -85,6 +86,7 @@ public class ProfileController {
 
         newUser.setDateOfBirth(LocalDate.parse(json.get(DATE_OF_BIRTH).asText()));
         newUser.setDateOfCreation(new Date());
+        newUser.setIs_admin(false);
 
         newUser.save();
 
@@ -204,10 +206,12 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-
+                    System.out.println("--------------------------------------" + userProfile.getFirstName());
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
-                        if (true) { // TODO: Implement admin rights here
-                            Profile profileToDelete = Profile.find.byId(Integer.valueOf(userId));
+                        // If user is admin, they can delete other profiles
+                        if (userProfile.getIs_admin()) {
+                            Profile profileToDelete = Profile.find.byId(Integer.valueOf(id.intValue()));
+                            // TODO: handle cascade delete, has foreign key constraints to profile_nationality, profile....
                             profileToDelete.delete();// TODO: Handle case where admin deletes currently logged in user.
                             return ok("Delete successful");
                         } else {
