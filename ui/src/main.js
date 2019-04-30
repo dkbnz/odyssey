@@ -4,7 +4,6 @@ import Vue from 'vue'
 import App from './App.vue'
 import BootstrapVue from 'bootstrap-vue'
 
-import Index from './components/index/indexPage'
 import Dash from './components/dash/dashPage'
 import Destinations from './components/destinations/destinationsPage'
 import Profiles from './components/profiles/profilesPage'
@@ -20,11 +19,6 @@ Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 
 const routes = [
-    {
-        path:"/",
-        name: "index",
-        component: Index
-    },
     {
         path:"/dash",
         name: "dash",
