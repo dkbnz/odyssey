@@ -171,6 +171,7 @@ public class TripController extends Controller {
                     && destinationJson.get(DESTINATION_ID).asLong() != previousDestination
                     && Destination.find.byId(id) != null
             ) {
+                System.out.println(destinationJson.get(START_DATE).asText());
                 // Checks the dates are done correctly
                 if (!isValidDates(destinationJson.get(START_DATE).asText(), destinationJson.get(END_DATE).asText())) {
                     return null;
@@ -179,11 +180,11 @@ public class TripController extends Controller {
                 // Parse the values contained in the current node of the array
                 Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATION_ID).asText());
                 LocalDate parsedStartDate = null;
-                if (destinationJson.get(START_DATE).asText() != "null") {
+                if (destinationJson.get(START_DATE).asText() != "") {
                     parsedStartDate = LocalDate.parse(destinationJson.get(START_DATE).asText());
                 }
                 LocalDate parsedEndDate = null;
-                if (destinationJson.get(END_DATE).asText() != "null") {
+                if (destinationJson.get(END_DATE).asText() != "") {
                     parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
                 }
                 Destination parsedDestination = Destination.find.byId(parsedDestinationId);
@@ -213,9 +214,9 @@ public class TripController extends Controller {
      * @return true if valid and false if invalid
      */
     private boolean isValidDates(String startDate, String endDate) {
-        if (startDate == "null") {
+        if (startDate == "") {
             return true;
-        }else if (endDate == "null"){
+        }else if (endDate == ""){
             return true;
         } else {
             return LocalDate.parse(startDate).isAfter(LocalDate.parse(endDate));
