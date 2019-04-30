@@ -8,7 +8,7 @@
             </b-navbar-nav>
         </b-navbar>
         <plan-a-trip v-if="planATrip" v-bind:destinations="destinations"></plan-a-trip>
-        <your-trips v-if="yourTrips"></your-trips>
+        <your-trips :trips="trips" v-if="yourTrips" :profile="profile"></your-trips>
         <footer-main></footer-main>
 
     </div>
@@ -32,12 +32,27 @@
                 yourTrips: false
             }
         },
+        mounted() {
+            this.getAllTrips(trips => this.trips = trips);
+        },
         methods: {
             togglePage: function(viewPage) {
                 if(!viewPage) {
                     this.planATrip = !this.planATrip;
                     this.yourTrips = !this.yourTrips;
                 }
+            },
+            getAllTrips(cb) {
+                let userId = this.profile.id;
+                return fetch(`/v1/trips/all?id=` + userId, {
+                    accept: "application/json"
+                })
+                //.then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
+            parseJSON (response) {
+                return response.json();
             },
         },
         components: {
