@@ -2,7 +2,7 @@
 
     <div class="App">
         <div>
-            <trips v-if="profile.length !== 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></trips>
+            <profiles v-if="profile.length !== 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></profiles>
             <index v-if="profile.length === 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions" ></index>
         </div>
     </div>
@@ -35,7 +35,8 @@
                 nationalityOptions: [],
                 travTypeOptions: [],
                 destinations: [],
-                destinationTypes: []
+                destinationTypes: [],
+                trips: []
             }
         },
         methods: {
@@ -79,6 +80,7 @@
                     .then(this.parseJSON)
                     .then(cb);
             },
+
 
             checkStatus (response) {
                 if (response.status >= 200 && response.status < 300) {
