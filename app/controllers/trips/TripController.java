@@ -26,8 +26,6 @@ public class TripController extends Controller {
     private final String END_DATE = "end_date";
     private final String DESTINATION_ID = "destination_id";
     private final String TRIP_ID = "trip_id";
-    private final String ID = "id";
-    private final String NOT_LOGGED_IN = "You are not logged in.";
     private final int MINIMUM_TRIP_DESTINATIONS = 2;
     private TripRepository repository = new TripRepository();
 
@@ -36,7 +34,6 @@ public class TripController extends Controller {
      * Creates a trips for a user based on information sent in the http request
      * @param request json format of trip information
      * @return OK response for successful creation, or badRequest.
-     * TODO: Link created trips to a profile as per the database schema
      */
     public Result create(Http.Request request) {
 
@@ -84,7 +81,7 @@ public class TripController extends Controller {
      * @param json the json body of a request received
      * @return false json doesn't contain a name or an array of destinations with at least two nodes, or else return true.
      */
-    public boolean isValidTrip(JsonNode json) {
+    private boolean isValidTrip(JsonNode json) {
 
         // Check if the request contains a trip name and an array of destinations.
         if (!(json.has(NAME) && json.has(TRIP_DESTINATIONS))) {
@@ -151,10 +148,10 @@ public class TripController extends Controller {
     /**
      * Parse the ArrayNode from a valid request's json body to create a list of TripDestination objects
      * This method is used when creating a trip and when editing a trip
-     * @param tripDestinations
+     * @param tripDestinations the array of trip destinations
      * @return an array of destinations
      */
-    public List<TripDestination> parseTripDestinations(ArrayNode tripDestinations) {
+    private List<TripDestination> parseTripDestinations(ArrayNode tripDestinations) {
 
         List<TripDestination> result = new ArrayList<>();
 
@@ -174,11 +171,21 @@ public class TripController extends Controller {
                     && destinationJson.get(DESTINATION_ID).asLong() != previousDestination
                     && Destination.find.byId(id) != null
             ) {
+                // Checks the dates are done correctly
+                if (!isValidDates(destinationJson.get(START_DATE).asText(), destinationJson.get(END_DATE).asText())) {
+                    return null;
+                }
 
                 // Parse the values contained in the current node of the array
                 Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATION_ID).asText());
-                LocalDate parsedStartDate = LocalDate.parse(destinationJson.get(START_DATE).asText());
-                LocalDate parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
+                LocalDate parsedStartDate = null;
+                if (destinationJson.get(START_DATE).asText() != "null") {
+                    parsedStartDate = LocalDate.parse(destinationJson.get(START_DATE).asText());
+                }
+                LocalDate parsedEndDate = null;
+                if (destinationJson.get(END_DATE).asText() != "null") {
+                    parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
+                }
                 Destination parsedDestination = Destination.find.byId(parsedDestinationId);
 
                 // Create a new TripDestination object and set the values to be those parsed.
@@ -197,6 +204,22 @@ public class TripController extends Controller {
         }
 
         return  result;
+    }
+
+    /**
+     * Checks the start and end dates to make sure that the start date does not happen after the end date but if either is null this does not apply
+     * @param startDate starting date as string
+     * @param endDate ending date as string
+     * @return true if valid and false if invalid
+     */
+    private boolean isValidDates(String startDate, String endDate) {
+        if (startDate == "null") {
+            return true;
+        }else if (endDate == "null"){
+            return true;
+        } else {
+            return LocalDate.parse(startDate).isAfter(LocalDate.parse(endDate));
+        }
     }
 
 
