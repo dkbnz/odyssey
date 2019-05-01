@@ -289,8 +289,70 @@ public class TripController extends Controller {
                 return notFound();
             }
 
+            boolean tripInProfile = false;
+            for (Trip tempTrip : profile.getTrips()) {
+                if (tempTrip.getId() == profile.getId()) {
+                    tripInProfile = true;
+                }
+            }
+            if (!tripInProfile) {
+                return forbidden();
+            }
+
             // Repository method handling the database and object manipulation.
             repository.deleteTripFromProfile(profile, trip);
+
+        } else {
+            return unauthorized();
+        }
+
+        // Deletion successful.
+        return ok();
+
+    }
+
+    /**
+     * Checks whether a trip belongs to the logged in user
+     * @param request Http request from the client, from which the current user profile can be obtained.
+     * @return HTTP response code
+     */
+    public Result checkTripProfile(Http.Request request) {
+        JsonNode json = request.body().asJson();
+
+        if (!json.has("id")) {
+            return badRequest();
+        }
+
+//        if (true) {
+//            return preconditionRequired();
+//        }
+        Long id = json.get("id").asLong();
+
+        String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
+
+        // Check if a user is logged in.
+        if (userId != null) {
+
+            // Retrieve the profile having its trip removed.
+            Profile profile = Profile.find.byId(Integer.valueOf(userId));
+
+            // Retrieve the individual trip being deleted by its id.
+            Trip trip = Trip.find.byId(id.intValue());
+
+            // Check for query success.
+            if (profile == null || trip == null) {
+                return notFound();
+            }
+
+            boolean tripInProfile = false;
+            for (Trip tempTrip : profile.getTrips()) {
+                if (tempTrip.getId() == profile.getId()) {
+                    tripInProfile = true;
+                }
+            }
+            if (!tripInProfile) {
+                return forbidden();
+            }
 
         } else {
             return unauthorized();
