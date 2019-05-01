@@ -58,8 +58,15 @@
                     headers:{'content-type': 'application/json'},
                     body: JSON.stringify({username: this.username, password: this.password})
                 }).then(function(response) {
-                    window.location.pathname ="/dash";
-                    return response.json();
+                    if (response.ok) {
+                        window.location.pathname ="/dash";
+                        return response.json();
+                    } else {
+                        window.location.pathname="/";
+                        return response.json();
+                    }
+
+
                 })
             }
         }
