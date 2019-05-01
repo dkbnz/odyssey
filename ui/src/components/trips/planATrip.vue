@@ -72,7 +72,7 @@
                             </b-form-group>
                         </b-col>
                     </b-row>
-                    <b-button class="mr-2 float-right" variant="primary" @click="addDestination">Add Destination</b-button>
+                    <b-button class="mr-2 float-right" variant="primary" @click="checkDestination">Add Destination</b-button>
                 </b-container>
 
             </b-form>
@@ -206,16 +206,19 @@
             }
         },
         methods: {
-            addDestination: function() {
+            checkDestination: function() {
                 if (this.tripDestination) {
-                    if(this.tripDestinations.length === 0) {
-                        this.tripDestinations.push({destId: this.tripDestination.id, name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
-                        this.resetDestForm();
-                    }
-                    else if(!this.checkSameDestination(this.tripDestination.id)) {
-                        this.showError = false;
-                        this.tripDestinations.push({destId: this.tripDestination.id, name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
-                        this.resetDestForm();
+                    let startDate = new Date(this.inDate);
+                    let endDate = new Date(this.outDate);
+
+                    if(startDate > endDate) {
+                        this.showError = true;
+                        this.errorMessage = "Incorrect date ordering.";
+
+                    } else if(this.tripDestinations.length === 0) {
+                        this.addDestination()
+                    } else if(!this.checkSameDestination(this.tripDestination.id)) {
+                        this.addDestination()
                     } else {
                         this.showDuplicateDestError("add");
                     }
@@ -224,6 +227,11 @@
                     this.errorMessage = "No Destination Selected";
                 }
 
+            },
+            addDestination() {
+                this.showError = false;
+                this.tripDestinations.push({destId: this.tripDestination.id, name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
+                this.resetDestForm();
             },
             deleteDestination: function(row, rowIndex) {
                 if(this.tripDestinations.length > 2) {

@@ -9,6 +9,10 @@ import java.util.List;
 
 public class TripRepository {
 
+
+    private final String PROFILE_ID = "profile_id";
+
+
     /**
      * Removes the existing TripDestinations from a trip being edited.
      * Is used before parsing the request body in edit which will contain all the updated trips, "cleaning the slate".
@@ -26,6 +30,7 @@ public class TripRepository {
 
     }
 
+
     /**
      * Finds all the trips with a specified user id
      * @param id the profile id
@@ -37,7 +42,7 @@ public class TripRepository {
 
         // Creates a list of trips from a query based on profile id
         ExpressionList<Trip> expressionList = Trip.find.query().where();
-        expressionList.eq("profile_id", id);
+        expressionList.eq(PROFILE_ID, id);
         trips = expressionList.findList();
 
         return trips;
