@@ -163,7 +163,7 @@ public class DestinationController extends Controller {
         if (destinationDoesNotExist(json)) {
             Destination destination = createNewDestination(json);
             destination.save();
-            return ok("Created");
+            return created("Created");
         } else {
             return badRequest("A destination with the name [ " +json.get(NAME).asText() + " ] and district [ " + json.get(DISTRICT).asText() + " ] already exists.");
         }

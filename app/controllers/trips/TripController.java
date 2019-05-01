@@ -64,7 +64,7 @@ public class TripController extends Controller {
                 trip.setDestinations(destinationList);
                 profile.addTrip(trip);
                 profile.save();
-                return ok();
+                return created();
             } else {
                 return badRequest();
             }
