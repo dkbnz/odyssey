@@ -29,7 +29,8 @@
                 nationalityOptions: [],
                 travTypeOptions: [],
                 destinations: [],
-                destinationTypes: []
+                destinationTypes: [],
+                trips: []
             }
         },
         methods: {
