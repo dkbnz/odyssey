@@ -129,6 +129,7 @@ public class TripController extends Controller {
 
             // Create an empty List for TripDestination objects to be populated from the request.
             List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
+            System.out.println(destinationList);
 
             if (destinationList != null) {
                 trip.setDestinations(destinationList);
@@ -178,11 +179,11 @@ public class TripController extends Controller {
                 // Parse the values contained in the current node of the array
                 Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATION_ID).asText());
                 LocalDate parsedStartDate = null;
-                if (destinationJson.get(START_DATE).asText() != "") {
+                if (destinationJson.get(START_DATE).asText().equals("") || destinationJson.get(START_DATE).asText().equals(null)) {
                     parsedStartDate = LocalDate.parse(destinationJson.get(START_DATE).asText());
                 }
                 LocalDate parsedEndDate = null;
-                if (destinationJson.get(END_DATE).asText() != "") {
+                if (destinationJson.get(END_DATE).asText().equals("") || destinationJson.get(END_DATE).asText().equals(null)) {
                     parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
                 }
                 Destination parsedDestination = Destination.find.byId(parsedDestinationId);
@@ -212,9 +213,9 @@ public class TripController extends Controller {
      * @return true if valid and false if invalid
      */
     private boolean isValidDates(String startDate, String endDate) {
-        if (startDate.equals("")) {
+        if (startDate.equals("") || startDate.equals("null")) {
             return true;
-        }else if (endDate.equals("")){
+        }else if (endDate.equals("") || endDate.equals("null")){
             return true;
         } else {
             return LocalDate.parse(startDate).isAfter(LocalDate.parse(endDate));
