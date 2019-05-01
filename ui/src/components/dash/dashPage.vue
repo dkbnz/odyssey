@@ -21,7 +21,7 @@
     import FooterMain from '../helperComponents/footerMain.vue'
     export default {
         name: "dashPage",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips'],
         created() {
             document.title = "TravelEA - Dashboard";
         },
