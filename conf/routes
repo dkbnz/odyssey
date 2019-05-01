@@ -82,6 +82,7 @@ POST    /v1/checkUsername               controllers.ProfileController.checkUsern
 POST    /v1/trip                        controllers.trips.TripController.create(request: Request)
 GET     /v1/trip                        controllers.trips.TripController.fetch(request: Request)
 GET     /v1/trips/all                   controllers.trips.TripController.fetchAll(id: Long)
+DELETE  /v1/trip/:id                    controllers.trips.TripController.destroy(request: Request, id: Long)
 
 # Map static resources from the /public folder to the file resource paths
 GET        /*file        controllers.Assets.at(path="/public", file)
