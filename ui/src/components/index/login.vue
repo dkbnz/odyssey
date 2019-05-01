@@ -58,7 +58,7 @@
                     headers:{'content-type': 'application/json'},
                     body: JSON.stringify({username: this.username, password: this.password})
                 }).then(function(response) {
-                    location.reload();
+                    window.location.pathname ="/dash";
                     return response.json();
                 })
             }
