@@ -30,7 +30,9 @@
     import assets from '../../assets/index'
     export default {
         name: "navbarMain",
-        props: ['profile'],
+        props: {
+            'profile': Object
+        },
         computed: {
             assets () {
                 return assets

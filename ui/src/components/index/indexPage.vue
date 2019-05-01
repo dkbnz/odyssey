@@ -41,7 +41,11 @@
 
     export default {
         name: "Index.vue",
-        props: ['assets', 'nationalityOptions', 'travTypeOptions', 'profile'],
+        props: {
+            'profile': Object,
+            'nationalityOptions': Array,
+            'travTypeOptions': Array
+        },
         created() {
             document.title = "Welcome to TravelEA";
         },

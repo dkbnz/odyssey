@@ -64,9 +64,9 @@
                      :sort-desc.sync="sortDesc"
                      :busy="destinations.length === 0"
             >
-                <div slot="table-busy" class="text-center text-danger my-2">
-                    <b-spinner class="align-middle"></b-spinner>
-                    <strong>Loading...</strong>
+                <div slot="table-busy" class="text-center my-2">
+                    <b-spinner v-if="retrievingDestinations" class="align-middle"></b-spinner>
+                    <strong>Can't find any destinations!</strong>
                 </div>
             </b-table>
             <b-row>
@@ -97,7 +97,9 @@
 <script>
     export default {
         name: "searchDestinations",
-        props: ['destinationTypes'],
+        props: {
+            'destinationTypes': Array
+        },
         data () {
             return {
                 sortBy: 'name',
@@ -115,7 +117,8 @@
                 currentPage: 1,
                 fields: [{key:'name', value:'name', sortable: true}, {key:'type.destinationType', label:'Type', sortable: true}, {key:'district', value:'district', sortable: true}, 'latitude', 'longitude', {key:'country', value:'country', sortable: true}],
                 searchDestination: "",
-                errorMessage: ""
+                errorMessage: "",
+                retrievingDestinations: false
             }
         },
         computed: {
@@ -154,6 +157,7 @@
 
             },
             queryDestinations () {
+                this.retrievingDestinations = true;
                 let searchQuery = "?name=" + this.searchName + "&type_id=" + this.searchType + "&district=" + this.searchDistrict + "&latitude=" + this.searchLat + "&longitude=" + this.searchLong + "&country=" + this.searchCountry;
                 return fetch(`/v1/destinations` + searchQuery,  {
                     dataType: 'html',
@@ -162,6 +166,7 @@
                     .then(this.parseJSON)
                     .then((data) => {
                         this.destinations = data;
+                        this.retrievingDestinations = false;
                     })
             },
             checkStatus (response) {

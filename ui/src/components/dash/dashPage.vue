@@ -7,7 +7,7 @@
                 <b-nav-item @click="togglePage(editProfile)">Edit Profile</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
-        <view-profile v-if="viewProfile" :trips="trips" v-bind:profile="profile" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></view-profile>
+        <view-profile v-if="viewProfile" v-bind:profile="profile" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></view-profile>
         <edit-profile v-if="editProfile" v-bind:profile="profile" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></edit-profile>
         <footer-main></footer-main>
     </div>
@@ -21,7 +21,11 @@
     import FooterMain from '../helperComponents/footerMain.vue'
     export default {
         name: "dashPage",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
+        props: {
+            'profile': Object,
+            'nationalityOptions': Array,
+            'travTypeOptions': Array
+        },
         created() {
             document.title = "TravelEA - Dashboard";
         },
