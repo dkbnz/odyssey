@@ -48,7 +48,7 @@
         },
         methods: {
             logout () {
-                let response = fetch(`/v1/logout`, {
+                fetch(`/v1/logout`, {
                     method: 'POST',
                     accept: "application/json"
                 })
