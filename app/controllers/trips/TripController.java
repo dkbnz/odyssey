@@ -172,6 +172,7 @@ public class TripController extends Controller {
             ) {
                 // Checks the dates are done correctly
                 if (!isValidDates(destinationJson.get(START_DATE).asText(), destinationJson.get(END_DATE).asText())) {
+                    System.out.println("HERE");
                     return null;
                 }
 
@@ -193,7 +194,7 @@ public class TripController extends Controller {
                 newTripDestination.setStartDate(parsedStartDate);
                 newTripDestination.setEndDate(parsedEndDate);
                 newTripDestination.setListOrder(order++);
-
+                System.out.println(newTripDestination.getStartDate());
                 // Add created destination to the list of trip destinations.
                 result.add(newTripDestination);
                 previousDestination = id;
@@ -217,7 +218,7 @@ public class TripController extends Controller {
         }else if (endDate.equals("") || endDate.equals("null")){
             return true;
         } else {
-            return LocalDate.parse(startDate).isAfter(LocalDate.parse(endDate));
+            return LocalDate.parse(startDate).isBefore(LocalDate.parse(endDate));
         }
     }
 
