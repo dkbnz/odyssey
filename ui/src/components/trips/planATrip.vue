@@ -97,9 +97,9 @@
                 </b-button>
             </template>
             <template slot="order" slot-scope="row">
-                <b-button size="sm" :disabled="tripDestinations.length === 1 || row.index === 0" @click="moveUp(row.index)" variant="success" class="mr-2">&uarr;
+                <b-button size="sm" :disabled="tripDestinations.length === 1 || row.index === 0" @click="moveUpCheck(row.index)" variant="success" class="mr-2">&uarr;
                 </b-button>
-                <b-button size="sm" :disabled="tripDestinations.length === 1 || row.index === tripDestinations.length-1" @click="moveDown(row.index)" variant="success" class="mr-2">&darr;
+                <b-button size="sm" :disabled="tripDestinations.length === 1 || row.index === tripDestinations.length-1" @click="moveDownCheck(row.index)" variant="success" class="mr-2">&darr;
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
@@ -244,33 +244,57 @@
                 this.editInDate = row.in_date;
                 this.editOutDate = row.out_date;
             },
-            moveUp(rowIndex) {
+            moveUpCheck(rowIndex) {
                 if(rowIndex === 1 && this.tripDestinations[rowIndex-1].destId === this.tripDestinations[rowIndex+1].destId) {
                     this.showDuplicateDestError("move")
                 }
+                else if (rowIndex === 1) {
+                    this.moveUp(rowIndex);
+                }
+                else if (rowIndex === this.getDestinationRows()-1) {
+                    this.moveUp(rowIndex);
+                }
+                else if (this.tripDestinations[rowIndex-1].destId === this.tripDestinations[rowIndex+1].destId) {
+                    this.showDuplicateDestError("move")
+                }
                 else if(this.tripDestinations[rowIndex-2].destId !== this.tripDestinations[rowIndex].destId) {
-                    let upIndex = rowIndex - 1;
-                    let swapRow = this.tripDestinations[rowIndex];
-                    this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
-                    this.tripDestinations[upIndex] = swapRow;
-                    this.$refs.tripDestTable.refresh()
+                    this.moveUp(rowIndex);
+                } else {
+                    this.showDuplicateDestError("move")
+                }
+            },
+            moveUp(rowIndex) {
+                let upIndex = rowIndex - 1;
+                let swapRow = this.tripDestinations[rowIndex];
+                this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
+                this.tripDestinations[upIndex] = swapRow;
+                this.$refs.tripDestTable.refresh()
+            },
+            moveDownCheck(rowIndex) {
+                if(rowIndex === this.getDestinationRows()-2 && this.tripDestinations[rowIndex+1].destId === this.tripDestinations[rowIndex-1].destId) {
+                    this.showDuplicateDestError("move")
+                }
+                else if (rowIndex === this.getDestinationRows()-2) {
+                    this.moveDown(rowIndex);
+                }
+                else if (rowIndex === 0) {
+                    this.moveDown(rowIndex);
+                }
+                else if (this.tripDestinations[rowIndex+1].destId === this.tripDestinations[rowIndex-1].destId) {
+                    this.showDuplicateDestError("move")
+                }
+                else if(this.tripDestinations[rowIndex+2].destId !== this.tripDestinations[rowIndex].destId) {
+                    this.moveDown(rowIndex);
                 } else {
                     this.showDuplicateDestError("move")
                 }
             },
             moveDown(rowIndex) {
-                if(rowIndex === 1 && this.tripDestinations[rowIndex-1].destId === this.tripDestinations[rowIndex+1].destId) {
-                    this.showDuplicateDestError("move")
-                }
-                else if(this.tripDestinations[rowIndex+2].destId !== this.tripDestinations[rowIndex].destId) {
-                    let upIndex = rowIndex + 1;
-                    let swapRow = this.tripDestinations[rowIndex];
-                    this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
-                    this.tripDestinations[upIndex] = swapRow;
-                    this.$refs.tripDestTable.refresh()
-                } else {
-                    this.showDuplicateDestError("move")
-                }
+                let upIndex = rowIndex + 1;
+                let swapRow = this.tripDestinations[rowIndex];
+                this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
+                this.tripDestinations[upIndex] = swapRow;
+                this.$refs.tripDestTable.refresh()
             },
             showDuplicateDestError(error) {
                 this.showError = true;
@@ -328,19 +352,19 @@
                 }
             },
             saveTrip(trip) {
-                this.savingTrip=true;
+                this.savingTrip = true;
                 let self = this;
                 fetch('/v1/trip', {
                     method: 'POST',
-                    headers:{'content-type': 'application/json'},
+                    headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)
-                }).then(function(response) {
+                }).then(function (response) {
                     if (response.ok) {
-                        self.savingTrip=false;
+                        self.savingTrip = false;
                         self.showAlert();
                         self.$emit('tripSaved', true);
                         self.resetDestForm();
-                        self.tripName="";
+                        self.tripName = "";
                         self.tripDestinations = [];
                         return JSON.parse(JSON.stringify(response));
                     } else {
@@ -352,6 +376,9 @@
                     this.errorMessage = (error);
 
                 });
+            },
+            getDestinationRows() {
+                return this.tripDestinations.length
             },
         }
     }
