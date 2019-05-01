@@ -1,15 +1,13 @@
 <template>
     <div>
         <b-form>
+            <b-alert v-model="showError" variant="danger" dismissible>Invalid Username or Password</b-alert>
             <b-form-group
                     id="username-field"
                     description="Please enter your username (email)"
                     label="Username"
-                    label-for="username"
-                    :invalid-feedack="userinvalidFeedback"
-                    :valid-feedback="uservalidFeedback"
-                    :state="userstate" >
-                <b-form-input id="username" v-model="username" :state="userstate" autofocus trim></b-form-input>
+                    label-for="username">
+                <b-form-input id="username" v-model="username" autofocus trim></b-form-input>
             </b-form-group>
             <b-form-group
                     id="password-field"
@@ -31,38 +29,26 @@
         data: function() {
             return {
                 username: '',
-                password: ''
+                password: '',
+                showError: false
             }
         },
         computed: {
-            userstate() {
-                return !!(this.username.length >= 4) && this.username.includes('@')
-            },
-            userinvalidFeedback() {
-                if (this.username.length > 4) {
-                    return ''
-                } else if (this.username.length > 0) {
-                    return 'Enter at least 4 characters'
-                } else {
-                    return 'Please enter something'
-                }
-            },
-            uservalidFeedback() {
-                return this.userstate === true ? 'Thank you' : ''
-            }
         },
         methods: {
             login() {
+                let self = this;
                 fetch('/v1/login', {
                     method: 'POST',
                     headers:{'content-type': 'application/json'},
                     body: JSON.stringify({username: this.username, password: this.password})
                 }).then(function(response) {
                     if (response.ok) {
+                        self.showError = false;
                         window.location.pathname ="/dash";
                         return response.json();
                     } else {
-                        window.location.pathname="/";
+                        self.showError = true;
                         return response.json();
                     }
 
