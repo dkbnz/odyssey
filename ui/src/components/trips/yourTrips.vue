@@ -29,7 +29,7 @@
                 <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                 </b-button>
-                <b-button size="sm" v-b-modal.deleteModal @click="checkDelete(row.item)" variant="danger" class="mr-2">Delete
+                <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="checkDelete(row.item)" variant="danger" class="mr-2">Delete
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
@@ -136,10 +136,12 @@
                 errorMessage: "",
                 showError: false,
                 validDelete: false,
+                deleteButton: false,
             }
         },
         mounted () {
-            this.getAllTrips(trips => this.trips = trips);
+            this.getAllTrips(trips => this.trips = trips)
+            .then(this.checkUser());
         },
         computed: {
             rowsUpcoming() {
@@ -167,6 +169,7 @@
                 this.getAllTrips(trips => this.trips = trips);
             },
             checkDelete(row) {
+                console.log(this.trips);
                 this.tripToDelete = row;
                 this.tripName = row.name;
             },
@@ -180,6 +183,8 @@
                 }).then(function (response) {
                     if (response.ok) {
                         self.successfulDelete();
+                    } else if (response.status === 403) {
+                        throw new Error('You cannot delete another user\'s trips');
                     } else {
                         throw new Error('Something went wrong, try again later.');
                     }
@@ -200,6 +205,25 @@
                 error.response = response;
                 console.log(error); // eslint-disable-line no-console
                 throw error;
+            },
+            checkUser: function() {
+                let self = this;
+                if (this.trips.length === 0) {
+                    return;
+                }
+                fetch('/v1/trips/checkUserProfile', {
+                    method: 'POST',
+                    body: JSON.stringify({'id': self.trips[0].id})
+                }).then(function (response) {
+                    if (response.ok) {
+                        self.deleteButton = true;
+                    } else {
+                        self.deleteButton = false;
+                    }
+                }).catch((error) => {
+                    this.showError = true;
+                    this.errorMessage = (error);
+                });
             },
             parseJSON (response) {
                 return response.json();
