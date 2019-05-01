@@ -30,7 +30,11 @@
     import YourTrips from "../trips/yourTrips.vue"
     export default {
         name: "viewProfile",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips'],
+        props: {
+            'profile': Object,
+            'nationalityOptions': Array,
+            'travTypeOptions': Array
+        },
         data () {
             return {
             }
