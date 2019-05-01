@@ -203,7 +203,7 @@ public class TripController extends Controller {
             }
         }
 
-        return  result;
+        return result;
     }
 
     /**
@@ -253,6 +253,7 @@ public class TripController extends Controller {
 
         return ok(Json.toJson(returnedTrip));
     }
+
 
     /**
      * Fetches all the trips for a specified user
