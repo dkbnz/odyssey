@@ -2,19 +2,13 @@
 
     <div class="App">
         <div>
-            <trips v-if="profile.length !== 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></trips>
-            <index v-if="profile.length === 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions" ></index>
+            <router-view v-if="this.profile.length !== 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></router-view>
+            <!--<index v-if="this.profile.length === 0" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></index>-->
         </div>
     </div>
 </template>
 <script>
-
-    import Trips from './components/trips/tripsPage.vue'
     import Index from './components/index/indexPage.vue'
-    import Dash from './components/dash/dashPage.vue'
-    import Profiles from './components/profiles/profilesPage.vue'
-    import Destinations from './components/destinations/destinationsPage.vue'
-
     import assets from './assets'
     export default {
         computed: {
@@ -40,14 +34,6 @@
             }
         },
         methods: {
-            getProfile (cb) {
-                return fetch(`/v1/profile`, {
-                    accept: "application/json"
-                })
-                //.then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(cb);
-            },
             getDestinations (cb) {
                 return fetch(`/v1/destinations`, {
                     accept: "application/json"
@@ -64,6 +50,17 @@
                     .then(this.parseJSON)
                     .then(cb);
             },
+
+
+            getProfile (cb) {
+                return fetch(`/v1/profile`, {
+                    accept: "application/json"
+                })
+                    //.then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
+
             getNationalities (cb) {
                 return fetch(`/v1/nationalities`, {
                     accept: "application/json"
@@ -81,7 +78,6 @@
                     .then(cb);
             },
 
-
             checkStatus (response) {
                 if (response.status >= 200 && response.status < 300) {
                     return response;
@@ -94,15 +90,12 @@
             },
             parseJSON (response) {
                 return response.json();
-            },
+            }
+
 
         },
         components: {
-            Trips,
-            Index,
-            Dash,
-            Profiles,
-            Destinations
+            Index
         }
     }
 </script>
