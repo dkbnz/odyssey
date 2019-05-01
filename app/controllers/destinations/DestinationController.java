@@ -143,7 +143,6 @@ public class DestinationController extends Controller {
                 .ilike(NAME, name)
                 .ilike(DISTRICT, district)
                 .findList();
-        System.out.println("----------------3----------------------------------------------------" + destinations);
         return (destinations.isEmpty());
     }
 
