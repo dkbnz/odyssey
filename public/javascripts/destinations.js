@@ -12,7 +12,7 @@ function searchDestinations() {
     $.ajax({
         type: 'GET',
         url: "api/destinations",
-        data: {'name': name, 'type': type, 'district': district, 'latitude': latitude, 'longitude': longitude, 'country': country},
+        data: {'name': name, 'type_id': type, 'district': district, 'latitude': latitude, 'longitude': longitude, 'country': country},
         dataType: 'html',
         success: function(response) {
             $("#keywords").remove();
