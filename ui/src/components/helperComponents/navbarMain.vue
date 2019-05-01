@@ -7,16 +7,16 @@
 
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
-                    <b-nav-item href="/profiles">People</b-nav-item>
-                    <b-nav-item href="/trips">Trips</b-nav-item>
-                    <b-nav-item href="/destinations">Destinations</b-nav-item>
+                    <b-nav-item href="/profiles" :class="{active: currentPage==='/profiles'}">People</b-nav-item>
+                    <b-nav-item href="/trips" :class="{active: currentPage==='/trips'}">Trips</b-nav-item>
+                    <b-nav-item href="/destinations" :class="{active: currentPage==='/destinations'}">Destinations</b-nav-item>
                 </b-navbar-nav>
 
                 <b-navbar-nav class="ml-auto">
                     <b-nav-item-dropdown right>
                         <!-- Using 'button-content' slot -->
                         <template slot="button-content"><em>{{ profile.firstName }}</em></template>
-                        <b-dropdown-item href="/dash">Profile</b-dropdown-item>
+                        <b-dropdown-item href="/dash" :class="{active: currentPage==='/dash'}">Profile</b-dropdown-item>
                         <b-dropdown-item @click="logout">Logout</b-dropdown-item>
                     </b-nav-item-dropdown>
                 </b-navbar-nav>
@@ -38,6 +38,14 @@
                 return assets
             },
         },
+        data () {
+            return {
+                currentPage: '/dash'
+            }
+        },
+        mounted () {
+            this.getCurrentPage();
+        },
         methods: {
             logout () {
                 let response = fetch(`/v1/logout`, {
@@ -56,6 +64,9 @@
                 });
 
             },
+            getCurrentPage() {
+                this.currentPage = window.location.pathname;
+            }
         }
     }
 </script>
