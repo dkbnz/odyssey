@@ -296,6 +296,7 @@
                     headers:{'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function(response) {
+                    location.reload();
                     return response.json();
                 })
             },
