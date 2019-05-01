@@ -62,7 +62,12 @@
                      :current-page="currentPage"
                      :sort-by.sync="sortBy"
                      :sort-desc.sync="sortDesc"
+                     :busy="destinations.length === 0"
             >
+                <div slot="table-busy" class="text-center text-danger my-2">
+                    <b-spinner class="align-middle"></b-spinner>
+                    <strong>Loading...</strong>
+                </div>
             </b-table>
             <b-row>
                 <b-col cols="1">
