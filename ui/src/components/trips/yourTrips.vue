@@ -10,7 +10,11 @@
                      :fields="fields"
                      :per-page="perPageUpcoming"
                      :current-page="currentPageUpcoming"
+                     :busy="trips.length === 0"
             >
+                <div slot="table-busy" class="text-center my-2">
+                    <strong>Can't find any trips!</strong>
+                </div>
             <template slot="more_details" slot-scope="row">
                 <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
