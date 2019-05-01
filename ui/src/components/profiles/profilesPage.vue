@@ -64,7 +64,12 @@
                          :current-page="currentPage"
                          :sort-by.sync="sortBy"
                          :sort-desc.sync="sortDesc"
+                         :busy="profiles.length === 0"
                 >
+                    <div slot="table-busy" class="text-center text-danger my-2">
+                        <b-spinner class="align-middle"></b-spinner>
+                        <strong>Loading...</strong>
+                    </div>
                     <template slot="actions" slot-scope="row">
                         <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                             {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
@@ -143,14 +148,6 @@
             //this.getProfiles(profiles => this.profiles = profiles);
         },
         methods: {
-            getProfiles (cb) {
-                return fetch(`/v1/profiles`, {
-                    accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(cb);
-            },
             parseJSON (response) {
                 return response.json();
             },

@@ -7,7 +7,7 @@
 
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
-                    <b-nav-item href="/searchProfile">People</b-nav-item>
+                    <b-nav-item href="/profiles">People</b-nav-item>
                     <b-nav-item href="/trips">Trips</b-nav-item>
                     <b-nav-item href="/destinations">Destinations</b-nav-item>
                 </b-navbar-nav>
@@ -42,10 +42,9 @@
                     method: 'POST',
                     accept: "application/json"
                 })
-                //.then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(cb);
-                location.reload();
+                window.location.pathname="/";
                 return response;
 
             },
