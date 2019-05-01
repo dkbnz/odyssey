@@ -311,10 +311,10 @@
                     this.showError = false;
                     let tripDestinationsList = [];
                     for (let i = 0; i < this.tripDestinations.length; i++) {
-                        if(this.tripDestinations[i].in_date === undefined) {
+                        if(this.tripDestinations[i].in_date === undefined || this.tripDestinations[i].in_date.length === 0) {
                             this.tripDestinations[i].in_date = null;
                         }
-                        if(this.tripDestinations[i].out_date === undefined) {
+                        if(this.tripDestinations[i].out_date === undefined || this.tripDestinations[i].out_date.length === 0) {
                             this.tripDestinations[i].out_date = null;
                         }
                         tripDestinationsList.push({destination_id: this.tripDestinations[i].destId, start_date: this.tripDestinations[i].in_date, end_date: this.tripDestinations[i].out_date})
