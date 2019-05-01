@@ -3,6 +3,16 @@
         <div id="upcomingTrips">
             <h1 class="page_title">Upcoming Trips</h1>
             <p class="page_title"><i>Here are your upcoming trips!</i></p>
+            <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
+            <b-alert v-model="validDelete" variant="success" dismissible>Trip Deleted</b-alert>
+            <b-modal ref="deleteModal" id="deleteModal" hide-footer title="Delete Trip">
+                <div class="d-block">
+                    Are you sure that you want to delete "{{tripName}}"?
+                </div>
+                <b-button class="mr-2 float-right" variant="danger" @click="dismissModal(); deleteTrip(tripToDelete);">Delete</b-button>
+                <b-button class="mr-2 float-right" @click="dismissModal">Cancel</b-button>
+
+            </b-modal>
             <b-table hover striped outlined
                      id="myFutureTrips"
                      ref="myFutureTrips"
@@ -18,6 +28,8 @@
             <template slot="more_details" slot-scope="row">
                 <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+                </b-button>
+                <b-button size="sm" v-b-modal.deleteModal @click="checkDelete(row.item)" variant="danger" class="mr-2">Delete
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
@@ -118,9 +130,13 @@
                     {key: 'destination.startDate', label: "In Date"},
                     {key: 'destination.endDate', label: "Out Date"}],
                 pastTrips: [],
-                trips:[]
+                trips:[],
+                tripToDelete: null,
+                tripName: null,
+                errorMessage: "",
+                showError: false,
+                validDelete: false,
             }
-
         },
         mounted () {
             this.getAllTrips(trips => this.trips = trips);
@@ -145,6 +161,35 @@
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(cb);
+            },
+            successfulDelete() {
+                this.validDelete = true;
+                this.getAllTrips(trips => this.trips = trips);
+            },
+            checkDelete(row) {
+                this.tripToDelete = row;
+                this.tripName = row.name;
+            },
+            deleteTrip: function(trip) {
+                this.errorMessage = "";
+                this.showError = false;
+                this.validDelete = false;
+                let self = this;
+                fetch('/v1/trip/' + trip.id, {
+                        method: 'DELETE',
+                }).then(function (response) {
+                    if (response.ok) {
+                        self.successfulDelete();
+                    } else {
+                        throw new Error('Something went wrong, try again later.');
+                    }
+                }).catch((error) => {
+                    this.showError = true;
+                    this.errorMessage = (error);
+                });
+            },
+            dismissModal() {
+                this.$refs['deleteModal'].hide()
             },
             checkStatus (response) {
                 if (response.status >= 200 && response.status < 300) {
