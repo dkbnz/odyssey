@@ -20,7 +20,11 @@
     import FooterMain from '../helperComponents/footerMain.vue'
     export default {
         name: "destinationsPage",
-        props: ['profile', 'destinations', 'destinationTypes'],
+        props: {
+            'profile': Object,
+            'destinations': Array,
+            'destinationTypes': Array
+        },
         created() {
             document.title = "TravelEA - Destinations";
         },

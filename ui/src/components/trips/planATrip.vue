@@ -161,7 +161,9 @@
 <script>
     export default {
         name: "PlanATrip",
-        props: ['destinations'],
+        props: {
+            'destinations': Array
+        },
         data() {
             return {
                 heading: 'Plan a Trip',

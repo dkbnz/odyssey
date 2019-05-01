@@ -13,6 +13,7 @@
                      :busy="trips.length === 0"
             >
                 <div slot="table-busy" class="text-center my-2">
+                    <b-spinner v-if="retrievingTrips" class="align-middle"></b-spinner>
                     <strong>Can't find any trips!</strong>
                 </div>
             <template slot="more_details" slot-scope="row">
@@ -99,7 +100,9 @@
     import PlanATrip from './planATrip.vue'
     export default {
         name: "YourTrips",
-        props: ['profile'],
+        props: {
+            'profile': Object
+        },
         data: function() {
             return {
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
@@ -118,7 +121,8 @@
                     {key: 'destination.startDate', label: "In Date"},
                     {key: 'destination.endDate', label: "Out Date"}],
                 pastTrips: [],
-                trips:[]
+                trips:[],
+                retrievingTrips: false
             }
 
         },
@@ -138,6 +142,7 @@
         },
         methods: {
             getAllTrips(cb) {
+                this.retrievingTrips = true;
                 let userId = this.profile.id;
                 return fetch(`/v1/trips/all?id=` + userId, {
                     accept: "application/json"
@@ -157,6 +162,7 @@
                 throw error;
             },
             parseJSON (response) {
+                this.retrievingTrips = false;
                 return response.json();
             },
         }
