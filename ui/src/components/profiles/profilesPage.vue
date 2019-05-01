@@ -64,11 +64,11 @@
                          :current-page="currentPage"
                          :sort-by.sync="sortBy"
                          :sort-desc.sync="sortDesc"
-                         :busy="profiles.length === 0"
+                         :busy="this.profiles.length===0"
                 >
-                    <div slot="table-busy" class="text-center text-danger my-2">
-                        <b-spinner class="align-middle"></b-spinner>
-                        <strong>Loading...</strong>
+                    <div slot="table-busy" class="text-center my-2">
+                        <b-spinner v-if="retrievingProfiles" class="align-middle"></b-spinner>
+                        <strong>Can't find any profiles!</strong>
                     </div>
                     <template slot="actions" slot-scope="row">
                         <b-button size="sm" @click="row.toggleDetails" class="mr-2">
@@ -116,7 +116,11 @@
     import FooterMain from '../helperComponents/footerMain.vue'
     export default {
         name: "profilesPage",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
+        props: {
+            'profile': Object,
+            'nationalityOptions': Array,
+            'travTypeOptions': Array
+        },
         created() {
             document.title = "TravelEA - Profiles";
         },
@@ -140,20 +144,17 @@
                     {value: 'other', text: 'Other'}
                 ],
                 fields: [{key:'firstName', label: "First Name", sortable: true}, {key:'lastName', label: "Last Name", sortable: true}, {key:'nationalities[0].nationality', label: "Nationality", sortable: true}, {key:'gender', value: 'gender', sortable: true}, {key:'age', value:'age', sortable: true}, {key:'travellerTypes[0].travellerType', label: "Traveller Types" , sortable: true}, 'actions'],
-                profiles: []
+                profiles: [],
+                retrievingProfiles: false
             }
         },
         mounted () {
             this.queryProfiles();
-            //this.getProfiles(profiles => this.profiles = profiles);
         },
         methods: {
             parseJSON (response) {
                 return response.json();
             },
-
-
-
             searchProfiles() {
                 this.searchMinAge = parseInt(this.searchMinAge);
                 this.searchMaxAge =  parseInt(this.searchMaxAge);
@@ -178,6 +179,7 @@
                 }
             },
             queryProfiles () {
+                this.retrievingProfiles = true;
                 let searchQuery = "?nationality=" + this.searchNationality + "&gender=" + this.searchGender + "&min_age=" + this.searchMinAge + "&max_age=" + this.searchMaxAge + "&traveller_type=" + this.searchTravType;
                 return fetch(`/v1/profiles` + searchQuery,  {
 
@@ -185,6 +187,7 @@
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
+                        this.retrievingProfiles = false;
                         this.profiles = data;
                     })
             },

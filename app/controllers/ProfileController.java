@@ -352,7 +352,7 @@ public class ProfileController {
             profileExpressionList.eq(GENDER, gender);
         }
         if ((maxAge.length() != 0)) {
-            minDate = LocalDate.now().minusYears(Integer.parseInt(maxAge) - 1);
+            minDate = LocalDate.now().minusYears(Integer.parseInt(maxAge) + (long) 1);
         }
         if ((minAge.length() != 0)) {
             maxDate = LocalDate.now().minusYears(Integer.parseInt(minAge));
