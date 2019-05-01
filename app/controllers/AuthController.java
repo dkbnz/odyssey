@@ -29,7 +29,7 @@ public class AuthController extends Controller {
     public Result login(Http.Request request) {
         return request.session()
                 .getOptional(AUTHORIZED)
-                .map(userId -> ok("OK")) // User is already logged in, return OK
+                .map(userId -> ok("OK, Already logged In")) // User is already logged in, return OK
                 .orElseGet(() -> { // orElseGet tries to get the `getOptional` value, otherwise executes the following function
 
                     // User is not logged in, attempt to search database
@@ -52,7 +52,7 @@ public class AuthController extends Controller {
                     if ((profile != null) && (profile.password.equals(password))) {
                         // Profile was successfully fetched and password matches,
                         // Set session token as id and return ok (200 response)
-                        return ok().addingToSession(request, AUTHORIZED, profile.id.toString());
+                        return ok("Logged In").addingToSession(request, AUTHORIZED, profile.id.toString());
                     }
 
                     return unauthorized("User/pass not found");
@@ -67,7 +67,7 @@ public class AuthController extends Controller {
      * @return ok() result, as logout should always succeed
      */
     public Result logout() {
-        return ok("OK").withNewSession(); // Sets a new session, clearing the old one
+        return ok("OK, Logged out").withNewSession(); // Sets a new session, clearing the old one
     }
 
 }
