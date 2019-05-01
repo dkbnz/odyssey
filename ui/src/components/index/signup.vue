@@ -296,7 +296,7 @@
                     headers:{'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function(response) {
-                    location.reload();
+                    window.location.pathname ="/dash";
                     return response.json();
                 })
             },
