@@ -253,11 +253,17 @@
                 this.editOutDate = row.out_date;
             },
             moveUpCheck(rowIndex) {
-                if(rowIndex === 1 && this.tripDestinations[rowIndex-1].destId === this.tripDestinations[rowIndex+1].destId) {
+                if(this.tripDestinations.length === 2) {
+                    this.moveUp(rowIndex);
+                }
+                else if(rowIndex === 1 && this.tripDestinations[rowIndex-1].destId === this.tripDestinations[rowIndex+1].destId) {
                     this.showDuplicateDestError("move")
                 }
                 else if (rowIndex === 1) {
                     this.moveUp(rowIndex);
+                }
+                else if(this.tripDestinations[rowIndex-2].destId === this.tripDestinations[rowIndex].destId) {
+                    this.showDuplicateDestError("move")
                 }
                 else if (rowIndex === this.getDestinationRows()-1) {
                     this.moveUp(rowIndex);
@@ -265,10 +271,8 @@
                 else if (this.tripDestinations[rowIndex-1].destId === this.tripDestinations[rowIndex+1].destId) {
                     this.showDuplicateDestError("move")
                 }
-                else if(this.tripDestinations[rowIndex-2].destId !== this.tripDestinations[rowIndex].destId) {
+                else {
                     this.moveUp(rowIndex);
-                } else {
-                    this.showDuplicateDestError("move")
                 }
             },
             moveUp(rowIndex) {
@@ -279,22 +283,35 @@
                 this.$refs.tripDestTable.refresh()
             },
             moveDownCheck(rowIndex) {
-                if(rowIndex === this.getDestinationRows()-2 && this.tripDestinations[rowIndex+1].destId === this.tripDestinations[rowIndex-1].destId) {
-                    this.showDuplicateDestError("move")
-                }
-                else if (rowIndex === this.getDestinationRows()-2) {
+                if(this.tripDestinations.length === 2) {
                     this.moveDown(rowIndex);
                 }
-                else if (rowIndex === 0) {
+                else if (rowIndex === 0 && this.tripDestinations[rowIndex + 2].destId !== this.tripDestinations[rowIndex].destId) {
                     this.moveDown(rowIndex);
                 }
-                else if (this.tripDestinations[rowIndex+1].destId === this.tripDestinations[rowIndex-1].destId) {
+                else if (rowIndex === 0 && this.tripDestinations[rowIndex + 2].destId === this.tripDestinations[rowIndex].destId) {
                     this.showDuplicateDestError("move")
                 }
-                else if(this.tripDestinations[rowIndex+2].destId !== this.tripDestinations[rowIndex].destId) {
-                    this.moveDown(rowIndex);
-                } else {
+                else if (this.tripDestinations[rowIndex+1].destId === this.tripDestinations[rowIndex-1].destId && rowIndex !== 0) {
                     this.showDuplicateDestError("move")
+                }
+                else if (this.tripDestinations[rowIndex+1].destId !== this.tripDestinations[rowIndex-1].destId && rowIndex !== 0) {
+                    this.moveDown(rowIndex);
+                }
+                else if (this.tripDestinations[rowIndex+2].destId === this.tripDestinations[rowIndex].destId && this.getDestinationRows() > 2) {
+                    this.showDuplicateDestError("move")
+                }
+                else if (rowIndex === this.getDestinationRows()-2) {;
+                    this.moveDown(rowIndex);
+                }
+                else if (rowIndex === 0 && this.getDestinationRows === 2) {
+                    this.moveDown(rowIndex);
+                }
+                else if(this.tripDestinations[rowIndex+2].destId === this.tripDestinations[rowIndex].destId) {
+                    this.showDuplicateDestError("move");
+                }
+                else {
+                    this.moveDown(rowIndex);
                 }
             },
             moveDown(rowIndex) {
