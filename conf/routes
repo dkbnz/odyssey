@@ -51,7 +51,10 @@ GET        /             controllers.Assets.at(path="/public", file="index.html"
 GET     /v1/summary                     controllers.HomeController.appSummary()
 GET     /v1/travtypes                   controllers.TravellerTypeController.list()
 GET     /v1/nationalities               controllers.NationalityController.list()
+
 GET     /v1/profile                     controllers.ProfileController.fetch(request: Request)
+PUT     /v1/profile                    controllers.ProfileController.update(request: Request)
+
 GET     /v1/profiles                    controllers.ProfileController.list(request: Request)
 POST    /v1/profiles                    controllers.ProfileController.create(request: Request)
 
