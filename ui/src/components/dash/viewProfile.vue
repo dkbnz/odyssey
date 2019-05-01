@@ -22,7 +22,7 @@
             <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
         </ul>
 
-        <your-trips :trips="trips" ></your-trips>
+        <your-trips :profile="profile"></your-trips>
     </div>
 </template>
 
@@ -33,28 +33,14 @@
         props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips'],
         data () {
             return {
-                trips:[]
             }
         },
         components: {
             YourTrips
         },
         mounted () {
-            this.getAllTrips(trips => this.trips = trips);
         },
         methods: {
-            getAllTrips(cb) {
-                let userId = this.profile.id;
-                return fetch(`/v1/trips/all?id=` + userId, {
-                    accept: "application/json"
-                })
-                //.then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(cb);
-            },
-            parseJSON (response) {
-                return response.json();
-            },
         }
     }
 </script>
