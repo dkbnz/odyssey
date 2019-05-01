@@ -5,6 +5,7 @@
             <p class="page_title"><i>Here are your upcoming trips!</i></p>
             <b-table hover striped outlined
                      id="myFutureTrips"
+                     ref="myFutureTrips"
                      :items="trips"
                      :fields="fields"
                      :per-page="perPageUpcoming"
@@ -53,6 +54,7 @@
             <p class="page_title"><i>Here are your past trips!</i></p>
             <b-table hover striped outlined
                      id="myPastTrips"
+                     ref="myPastTrips"
                      :items="pastTrips"
                      :fields="fields"
                      :per-page="perPagePast"
@@ -93,7 +95,7 @@
     import PlanATrip from './planATrip.vue'
     export default {
         name: "YourTrips",
-        props: ['profile', 'trips'],
+        props: ['profile'],
         data: function() {
             return {
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
@@ -111,11 +113,13 @@
                     {key: 'destination.longitude', label: "Destination Longitude"},
                     {key: 'destination.startDate', label: "In Date"},
                     {key: 'destination.endDate', label: "Out Date"}],
-                pastTrips: []
+                pastTrips: [],
+                trips:[]
             }
 
         },
         mounted () {
+            this.getAllTrips(trips => this.trips = trips);
         },
         computed: {
             rowsUpcoming() {
@@ -129,6 +133,25 @@
             PlanATrip
         },
         methods: {
+            getAllTrips(cb) {
+                let userId = this.profile.id;
+                return fetch(`/v1/trips/all?id=` + userId, {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb);
+            },
+            checkStatus (response) {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                }
+                const error = new Error(`HTTP Error ${response.statusText}`);
+                error.status = response.statusText;
+                error.response = response;
+                console.log(error); // eslint-disable-line no-console
+                throw error;
+            },
             parseJSON (response) {
                 return response.json();
             },
