@@ -129,7 +129,6 @@ public class TripController extends Controller {
 
             // Create an empty List for TripDestination objects to be populated from the request.
             List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
-            System.out.println(destinationList);
 
             if (destinationList != null) {
                 trip.setDestinations(destinationList);
@@ -179,11 +178,11 @@ public class TripController extends Controller {
                 // Parse the values contained in the current node of the array
                 Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATION_ID).asText());
                 LocalDate parsedStartDate = null;
-                if (destinationJson.get(START_DATE).asText().equals("") || destinationJson.get(START_DATE).asText().equals(null)) {
+                if (destinationJson.get(START_DATE).asText().equals("") || destinationJson.get(START_DATE).asText() == null) {
                     parsedStartDate = LocalDate.parse(destinationJson.get(START_DATE).asText());
                 }
                 LocalDate parsedEndDate = null;
-                if (destinationJson.get(END_DATE).asText().equals("") || destinationJson.get(END_DATE).asText().equals(null)) {
+                if (destinationJson.get(END_DATE).asText().equals("") || destinationJson.get(END_DATE).asText() == null) {
                     parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
                 }
                 Destination parsedDestination = Destination.find.byId(parsedDestinationId);
