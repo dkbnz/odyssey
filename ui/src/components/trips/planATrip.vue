@@ -195,7 +195,8 @@
                     {key: 'country'},
                 ],
                 tripDestinations: [],
-                savingTrip: false
+                savingTrip: false,
+                letTripSaved: false
 
             }
         },
@@ -337,6 +338,7 @@
                     if (response.ok) {
                         self.savingTrip=false;
                         self.showAlert();
+                        self.$emit('tripSaved', true);
                         self.resetDestForm();
                         self.tripName="";
                         self.tripDestinations = [];
