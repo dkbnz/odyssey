@@ -103,6 +103,7 @@ public class TripController extends Controller {
      * @return
      */
     public Result edit(Http.Request request, Long id) {
+
         String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
 
         if (userId != null ) {
@@ -172,7 +173,6 @@ public class TripController extends Controller {
             ) {
                 // Checks the dates are done correctly
                 if (!isValidDates(destinationJson.get(START_DATE).asText(), destinationJson.get(END_DATE).asText())) {
-                    System.out.println("HERE");
                     return null;
                 }
 
@@ -194,7 +194,6 @@ public class TripController extends Controller {
                 newTripDestination.setStartDate(parsedStartDate);
                 newTripDestination.setEndDate(parsedEndDate);
                 newTripDestination.setListOrder(order++);
-                System.out.println(newTripDestination.getStartDate());
                 // Add created destination to the list of trip destinations.
                 result.add(newTripDestination);
                 previousDestination = id;
@@ -264,4 +263,41 @@ public class TripController extends Controller {
         List<Trip> trips = repository.fetchAllTrips(id);
         return ok(Json.toJson(trips));
     }
+
+
+    /**
+     * Deletes a trip from the user currently logged in.
+     * @param request Http request from the client, from which the current user profile can be obtained.
+     * @param id The id of the trip being deleted from a profile
+     * @return
+     */
+    public Result destroy(Http.Request request, Long id) {
+
+        String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
+
+        // Check if a user is logged in.
+        if (userId != null) {
+
+            // Retrieve the profile having its trip removed.
+            Profile profile = Profile.find.byId(Integer.valueOf(userId));
+
+            // Retrieve the individual trip being deleted by its id.
+            Trip trip = Trip.find.byId(id.intValue());
+
+            // Check for query success.
+            if (profile == null || trip == null) {
+                return notFound();
+            }
+
+            // Repository method handling the database and object manipulation.
+            repository.deleteTripFromProfile(profile, trip);
+
+        } else {
+            return unauthorized();
+        }
+
+        // Deletion successful.
+        return ok();
+    }
+
 }
