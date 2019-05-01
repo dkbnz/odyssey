@@ -77,7 +77,7 @@
                     </template>
                     <template slot="row-details" slot-scope="row">
                         <b-card>
-                            <view-profile :profile="row.item"></view-profile>
+                            <view-profile :profile="row.item" ></view-profile>
                         </b-card>
                     </template>
                 </b-table>
@@ -111,6 +111,7 @@
 
 <script>
     import viewProfile from '../dash/viewProfile.vue'
+    import Dash from '../dash/dashPage'
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
     export default {
@@ -196,7 +197,8 @@
         components: {
             viewProfile,
             NavBarMain,
-            FooterMain
+            FooterMain,
+            Dash
         }
     }
 </script>

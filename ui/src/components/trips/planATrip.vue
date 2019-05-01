@@ -2,8 +2,7 @@
     <div class="container">
         <h1 class="page_title">{{ heading }}</h1>
         <p class="page_title"><i>Book your next trip!</i></p>
-        <b-alert v-model="nameAlert" variant="danger" dismissible>No Trip Name!</b-alert>
-        <b-alert v-model="destinationsAlert" variant="danger" dismissible>Must be at least 2 destinations</b-alert>
+        <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
 
         <b-alert
                 :show="dismissCountDown"
@@ -23,10 +22,10 @@
         <b-modal ref="editModal" id="editModal" hide-footer title="Edit Destination">
             <div class="d-block">
                 <b-form-group id="editInDate-field" label="In Date:" label-for="editInDate">
-                    <b-input id="editInDate" v-model="editInDate">{{editInDate}} trim</b-input>
+                    <b-input id="editInDate" :type="'date'" v-model="editInDate" max='9999-12-31'>{{editInDate}} trim</b-input>
                 </b-form-group>
                 <b-form-group id="editOutDate-field" label="Out Date:" label-for="editOutDate">
-                    <b-input id="editOutDate" v-model="editOutDate">{{editOutDate}} trim</b-input>
+                    <b-input id="editOutDate" :type="'date'" v-model="editOutDate" max='9999-12-31'>{{editOutDate}} trim</b-input>
                 </b-form-group>
             </div>
             <b-button class="mr-2 float-right" variant="success" @click="saveDestination(rowEdit, editInDate, editOutDate); dismissModal; dismissCountDown">Save</b-button>
@@ -61,7 +60,7 @@
                                     id="inDate-field"
                                     label="In Date (optional):"
                                     label-for="inDate">
-                                <b-form-input id="inDate" v-model="inDate" :type="'date'" trim></b-form-input>
+                                <b-form-input id="inDate" v-model="inDate" :type="'date'" max='9999-12-31' trim></b-form-input>
                             </b-form-group>
                         </b-col>
                         <b-col>
@@ -69,11 +68,11 @@
                                     id="outDate-field"
                                     label="Out Date (optional):"
                                     label-for="outDate">
-                                <b-form-input id="outDate" v-model="outDate" :type="'date'" trim></b-form-input>
+                                <b-form-input id="outDate" v-model="outDate" :type="'date'" max='9999-12-31' trim></b-form-input>
                             </b-form-group>
                         </b-col>
                     </b-row>
-                    <b-button class="mr-2 float-right" variant="primary" @click="addDestination">Add Destination</b-button>
+                    <b-button class="mr-2 float-right" variant="primary" @click="checkDestination">Add Destination</b-button>
                 </b-container>
 
             </b-form>
@@ -81,6 +80,7 @@
         </b-form>
 
         <b-table hover striped outlined
+                 ref="tripDestTable"
                  id="myTrips"
                  :fields="fields"
                  :items="tripDestinations"
@@ -93,7 +93,13 @@
                 <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                 </b-button>
-                <b-button size="sm" @click="deleteDestination(row.item)" variant="danger" class="mr-2">Delete
+                <b-button size="sm" @click="deleteDestination(row.item, row.index)" variant="danger" class="mr-2">Delete
+                </b-button>
+            </template>
+            <template slot="order" slot-scope="row">
+                <b-button size="sm" :disabled="tripDestinations.length === 1 || row.index === 0" @click="moveUpCheck(row.index)" variant="success" class="mr-2">&uarr;
+                </b-button>
+                <b-button size="sm" :disabled="tripDestinations.length === 1 || row.index === tripDestinations.length-1" @click="moveDownCheck(row.index)" variant="success" class="mr-2">&darr;
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
@@ -147,10 +153,11 @@
                 ></b-pagination>
             </b-col>
         </b-row>
-        <b-button variant="primary" block class="mr-2 float-right" @click="submitTrip">Save Trip</b-button>
+        <b-button variant="primary" block class="mr-2 float-right" @click="submitTrip"> <b-spinner small v-if="savingTrip" variant="dark" label="Spinning">Saving...</b-spinner> Save Trip</b-button>
+
+
     </div>
 </template>
-
 <script>
     export default {
         name: "PlanATrip",
@@ -165,17 +172,17 @@
                 tripDestination: "",
                 inDate: "",
                 outDate: "",
-                nameAlert: false,
-                destinationsAlert: false,
+                showError: false,
+                errorMessage: "",
                 successTripAddedAlert: false,
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 rowEdit: null,
-                editName: null,
                 editInDate: null,
                 editOutDate: null,
                 fields: [
-                    { key: 'trip_name'},
+                    'order',
+                    { key: 'name'},
                     { key: 'in_date' },
                     { key: 'out_date' },
                     'actions'
@@ -186,38 +193,131 @@
                     {key: 'latitude'},
                     {key: 'longitude'},
                     {key: 'country'},
-
-
                 ],
-                tripDestinations: [
-
-                ],
+                tripDestinations: [],
+                savingTrip: false,
+                letTripSaved: false
 
             }
         },
         computed: {
             rows() {
-                return this.destinations.length
+                return this.tripDestinations.length
             }
         },
         methods: {
-            addDestination: function() {
-                this.tripDestinations.push({trip_name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
+            checkDestination: function() {
+                if (this.tripDestination) {
+                    let startDate = new Date(this.inDate);
+                    let endDate = new Date(this.outDate);
+
+                    if(startDate > endDate) {
+                        this.showError = true;
+                        this.errorMessage = "Incorrect date ordering.";
+
+                    } else if(this.tripDestinations.length === 0) {
+                        this.addDestination()
+                    } else if(!this.checkSameDestination(this.tripDestination.id)) {
+                        this.addDestination()
+                    } else {
+                        this.showDuplicateDestError("add");
+                    }
+                } else {
+                    this.showError = true;
+                    this.errorMessage = "No Destination Selected";
+                }
+
+            },
+            addDestination() {
+                this.showError = false;
+                this.tripDestinations.push({destId: this.tripDestination.id, name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
                 this.resetDestForm();
             },
-            deleteDestination: function(row) {
-                console.log(row);
-                this.destinations.splice(1, row)
+            deleteDestination: function(row, rowIndex) {
+                if(this.tripDestinations.length > 2) {
+                    if (rowIndex === this.tripDestinations.length - 1) {
+                        this.tripDestinations.splice(rowIndex, 1);
+                    }
+                    else if (this.tripDestinations[rowIndex - 1].destId !== this.tripDestinations[rowIndex + 1].destId) {
+                        this.tripDestinations.splice(rowIndex, 1);
+                    } else {
+                        this.showDuplicateDestError("delete")
+                    }
+                } else {
+                    this.tripDestinations.splice(rowIndex, 1);
+                }
             },
             populateModal(row) {
                 this.rowEdit = row;
                 this.editInDate = row.in_date;
                 this.editOutDate = row.out_date;
             },
+            moveUpCheck(rowIndex) {
+                if(rowIndex === 1 && this.tripDestinations[rowIndex-1].destId === this.tripDestinations[rowIndex+1].destId) {
+                    this.showDuplicateDestError("move")
+                }
+                else if (rowIndex === 1) {
+                    this.moveUp(rowIndex);
+                }
+                else if (rowIndex === this.getDestinationRows()-1) {
+                    this.moveUp(rowIndex);
+                }
+                else if (this.tripDestinations[rowIndex-1].destId === this.tripDestinations[rowIndex+1].destId) {
+                    this.showDuplicateDestError("move")
+                }
+                else if(this.tripDestinations[rowIndex-2].destId !== this.tripDestinations[rowIndex].destId) {
+                    this.moveUp(rowIndex);
+                } else {
+                    this.showDuplicateDestError("move")
+                }
+            },
+            moveUp(rowIndex) {
+                let upIndex = rowIndex - 1;
+                let swapRow = this.tripDestinations[rowIndex];
+                this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
+                this.tripDestinations[upIndex] = swapRow;
+                this.$refs.tripDestTable.refresh()
+            },
+            moveDownCheck(rowIndex) {
+                if(rowIndex === this.getDestinationRows()-2 && this.tripDestinations[rowIndex+1].destId === this.tripDestinations[rowIndex-1].destId) {
+                    this.showDuplicateDestError("move")
+                }
+                else if (rowIndex === this.getDestinationRows()-2) {
+                    this.moveDown(rowIndex);
+                }
+                else if (rowIndex === 0) {
+                    this.moveDown(rowIndex);
+                }
+                else if (this.tripDestinations[rowIndex+1].destId === this.tripDestinations[rowIndex-1].destId) {
+                    this.showDuplicateDestError("move")
+                }
+                else if(this.tripDestinations[rowIndex+2].destId !== this.tripDestinations[rowIndex].destId) {
+                    this.moveDown(rowIndex);
+                } else {
+                    this.showDuplicateDestError("move")
+                }
+            },
+            moveDown(rowIndex) {
+                let upIndex = rowIndex + 1;
+                let swapRow = this.tripDestinations[rowIndex];
+                this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
+                this.tripDestinations[upIndex] = swapRow;
+                this.$refs.tripDestTable.refresh()
+            },
+            showDuplicateDestError(error) {
+                this.showError = true;
+                this.errorMessage = "Can't have same destination next to another, please choose another destination to " + error;
+            },
+            checkSameDestination(destId) {
+                let previousDestinationIndex = this.tripDestinations.length - 1;
+                if(this.tripDestinations[previousDestinationIndex].destId === destId) {
+                    return true;
+                }
+            },
             saveDestination(row, editInDate, editOutDate) {
                 row.in_date = editInDate;
                 row.out_date = editOutDate;
-                this.$refs['editModal'].hide()
+                this.dismissModal();
             },
             dismissModal() {
                 this.$refs['editModal'].hide()
@@ -235,26 +335,59 @@
             },
             submitTrip: function() {
                 if (this.tripName === null || this.tripName.length === 0) {
-                    this.destinationsAlert = false;
-                    this.nameAlert = true;
-                } else if (this.destinations.length < 2) {
-                    this.nameAlert = false;
-                    this.destinationsAlert = true;
+                    this.showError = true;
+                    this.errorMessage = "No Trip Name";
+                } else if (this.tripDestinations.length < 2) {
+                    this.showError = true;
+                    this.errorMessage = "There must be at least 2 destinations";
                 } else {
-                    this.nameAlert = false;
-                    this.destinationsAlert = false;
-                    this.showAlert();
+                    this.showError = false;
+                    let tripDestinationsList = [];
+                    for (let i = 0; i < this.tripDestinations.length; i++) {
+                        if(this.tripDestinations[i].in_date === undefined || this.tripDestinations[i].in_date.length === 0) {
+                            this.tripDestinations[i].in_date = null;
+                        }
+                        if(this.tripDestinations[i].out_date === undefined || this.tripDestinations[i].out_date.length === 0) {
+                            this.tripDestinations[i].out_date = null;
+                        }
+                        tripDestinationsList.push({destination_id: this.tripDestinations[i].destId, start_date: this.tripDestinations[i].in_date, end_date: this.tripDestinations[i].out_date})
+                    }
                     let trip = {
-                        name: this.tripName,
-                        tripDestinations: this.destinations
+                        trip_name: this.tripName,
+                        trip_destinations: tripDestinationsList
                     };
-                    this.resetDestForm();
-                    this.tripName = "";
-                    this.destinations = [];
-                    console.log(trip);
+                    this.saveTrip(trip);
                 }
+            },
+            saveTrip(trip) {
+                this.savingTrip = true;
+                let self = this;
+                fetch('/v1/trip', {
+                    method: 'POST',
+                    headers: {'content-type': 'application/json'},
+                    body: JSON.stringify(trip)
+                }).then(function (response) {
+                    if (response.ok) {
+                        self.savingTrip = false;
+                        self.showAlert();
+                        self.$emit('tripSaved', true);
+                        self.resetDestForm();
+                        self.tripName = "";
+                        self.tripDestinations = [];
+                        return JSON.parse(JSON.stringify(response));
+                    } else {
+                        throw new Error('Something went wrong, try again later.');
+                    }
+                }).catch((error) => {
+                    this.savingTrip = false;
+                    this.showError = true;
+                    this.errorMessage = (error);
 
-            }
+                });
+            },
+            getDestinationRows() {
+                return this.tripDestinations.length
+            },
         }
     }
 </script>

@@ -8,7 +8,7 @@
             </b-navbar-nav>
         </b-navbar>
         <plan-a-trip v-if="planATrip" v-bind:destinations="destinations"></plan-a-trip>
-        <your-trips v-if="yourTrips"></your-trips>
+        <your-trips  v-if="yourTrips" :profile="profile"></your-trips>
         <footer-main></footer-main>
 
     </div>
@@ -29,8 +29,10 @@
         data: function() {
             return {
                 planATrip: true,
-                yourTrips: false
+                yourTrips: false,
             }
+        },
+        mounted() {
         },
         methods: {
             togglePage: function(viewPage) {
