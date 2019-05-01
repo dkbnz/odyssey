@@ -37,15 +37,21 @@
             },
         },
         methods: {
-            logout (cb) {
+            logout () {
                 let response = fetch(`/v1/logout`, {
                     method: 'POST',
                     accept: "application/json"
                 })
                     .then(this.parseJSON)
-                    .then(cb);
-                window.location.pathname="/";
-                return response;
+                .then(function(response) {
+                    if(response.ok) {
+                        window.location.pathname="/";
+                        return response;
+                    } else {
+                        window.location.pathname="/dash";
+                        return response
+                    }
+                });
 
             },
         }
