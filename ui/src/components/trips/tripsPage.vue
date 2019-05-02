@@ -8,7 +8,7 @@
             </b-navbar-nav>
         </b-navbar>
         <plan-a-trip v-if="planATrip" v-bind:destinations="destinations"></plan-a-trip>
-        <your-trips  v-if="yourTrips" :profile="profile"></your-trips>
+        <your-trips v-if="yourTrips" :profile="profile"></your-trips>
         <footer-main></footer-main>
     </div>
     <div v-else>
@@ -29,7 +29,7 @@
         created() {
             document.title = "TravelEA - Trips";
         },
-        data: function() {
+        data: function () {
             return {
                 planATrip: true,
                 yourTrips: false,
@@ -38,8 +38,8 @@
         mounted() {
         },
         methods: {
-            togglePage: function(viewPage) {
-                if(!viewPage) {
+            togglePage: function (viewPage) {
+                if (!viewPage) {
                     this.planATrip = !this.planATrip;
                     this.yourTrips = !this.yourTrips;
                 }
@@ -54,7 +54,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>
