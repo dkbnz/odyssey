@@ -26,26 +26,25 @@
 <script>
     export default {
         name: "login",
-        data: function() {
+        data: function () {
             return {
                 username: '',
                 password: '',
                 showError: false
             }
         },
-        computed: {
-        },
+        computed: {},
         methods: {
             login() {
                 let self = this;
                 fetch('/v1/login', {
                     method: 'POST',
-                    headers:{'content-type': 'application/json'},
+                    headers: {'content-type': 'application/json'},
                     body: JSON.stringify({username: this.username, password: this.password})
-                }).then(function(response) {
+                }).then(function (response) {
                     if (response.ok) {
                         self.showError = false;
-                        window.location.pathname ="/dash";
+                        window.location.pathname = "/dash";
                         console.log("here");
                         // router.push("/dash");
                         return response.json();
