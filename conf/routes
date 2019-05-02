@@ -31,8 +31,21 @@ GET     /v1/trip:id                     controllers.trips.TripController.fetchAl
 POST    /v1/trip                        controllers.trips.TripController.create(request: Request)
 GET     /v1/trip                        controllers.trips.TripController.fetch(request: Request)
 GET     /v1/trips/all                   controllers.trips.TripController.fetchAll(id: Long)
-DELETE  /v1/trip/:id                    controllers.trips.TripController.destroy(request: Request, id: Long)
-POST    /v1/trips/checkTripProfile      controllers.trips.TripController.checkTripProfile(request: Request)
+#DELETE  /v1/trip/:id                    controllers.trips.TripController.destroy(request: Request, id: Long)
 
 # Map static resources from the /public folder to the file resource paths
 GET        /*file        controllers.Assets.at(path="/public", file)
+
+#GET     /v1/profiles                    controllers.ProfileController.list(request: Request)
+#POST    /v1/profiles                    controllers.ProfileController.create(request: Request)
+#PATCH   /v1/profiles/:id                controllers.ProfileController.update(request: Request, id: Long)
+#GET     /v1/profiles/:id                controllers.ProfileController.fetch(request: Request, id: Long)
+#DELETE  /v1/Profiles/:id                controllers.ProfileController.fetch(request: Request, id: Long)
+
+#GET     /v1/profiles/:userId/trips      controllers.trips.TripController.fetchAll(userId: Long)
+#POST    /v1/profiles/:userId/trips      controllers.trips.TripController.create(request: Request)
+#PATCH   /v1/profiles/:userId/trips/:id  controllers.trips.TripController.destroy(userId: Long, id: Long)
+DELETE  /v1/profiles/:userId/trips/:id  controllers.trips.TripController.destroy(request: Request, userId: Long, id: Long)
+
+
+
