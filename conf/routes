@@ -27,9 +27,10 @@ POST    /v1/destinations                controllers.destinations.DestinationCont
 GET     /v1/destinationTypes            controllers.destinations.DestinationController.getTypes()
 
 # Trips
-GET     /v1/trips/:userId                    controllers.trips.TripController.fetchAll(userId: Long)
-POST    /v1/trips                        controllers.trips.TripController.create(request: Request)
+GET     /v1/trips/:userId               controllers.trips.TripController.fetchAll(userId: Long)
+POST    /v1/trips                       controllers.trips.TripController.create(request: Request)
 DELETE  /v1/trips/:id                   controllers.trips.TripController.destroy(request: Request, id: Long)
+PATCH   /v1/trips/:id                   controllers.trips.TripController.edit(request: Request, id: Long)
 
 # Map static resources from the /public folder to the file resource paths
 GET        /*file        controllers.Assets.at(path="/public", file)
