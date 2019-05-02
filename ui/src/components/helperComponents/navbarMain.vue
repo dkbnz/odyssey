@@ -65,7 +65,7 @@
                     });
             },
             getCurrentPage() {
-                this.currentPage = window.location.pathname;
+                this.currentPage = this.$router.currentRoute.fullPath;
             }
         }
     }
