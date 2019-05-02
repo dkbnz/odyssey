@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="profile.length !== 0">
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
         <div class="container">
             <h1 class="page_title">Find Profiles</h1>
@@ -106,7 +106,9 @@
         </div>
         <footer-main></footer-main>
     </div>
-
+    <div v-else>
+        <unauthorised-prompt></unauthorised-prompt>
+    </div>
 </template>
 
 <script>
@@ -114,13 +116,10 @@
     import Dash from '../dash/dashPage'
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
+    import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
     export default {
         name: "profilesPage",
-        props: {
-            'profile': Object,
-            'nationalityOptions': Array,
-            'travTypeOptions': Array
-        },
+        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
         created() {
             document.title = "TravelEA - Profiles";
         },
@@ -201,7 +200,8 @@
             viewProfile,
             NavBarMain,
             FooterMain,
-            Dash
+            Dash,
+            UnauthorisedPrompt
         }
     }
 </script>

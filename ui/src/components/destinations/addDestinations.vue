@@ -73,11 +73,7 @@
 <script>
     export default {
         name: "addDestinations",
-        props: {
-            'profile': Object,
-            'destinations': Array,
-            'destinationTypes': Array
-        },
+        props: ['profile', 'destinations', 'destinationTypes'],
         data () {
             return {
                 dName: "",

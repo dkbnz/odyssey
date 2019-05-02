@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="profile.length !== 0">
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
         <b-navbar variant="light">
             <b-navbar-nav>
@@ -11,7 +11,9 @@
         <edit-profile v-if="editProfile" v-bind:profile="profile" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></edit-profile>
         <footer-main></footer-main>
     </div>
-
+    <div v-else>
+        <unauthorised-prompt></unauthorised-prompt>
+    </div>
 </template>
 
 <script>
@@ -19,13 +21,10 @@
     import EditProfile from "./editProfile.vue"
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
+    import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
     export default {
         name: "dashPage",
-        props: {
-            'profile': Object,
-            'nationalityOptions': Array,
-            'travTypeOptions': Array
-        },
+        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
         created() {
             document.title = "TravelEA - Dashboard";
         },
@@ -50,7 +49,8 @@
             ViewProfile,
             EditProfile,
             NavBarMain,
-            FooterMain
+            FooterMain,
+            UnauthorisedPrompt
         }
     }
 </script>
