@@ -132,7 +132,12 @@
                 currentPageUpcoming: 1,
                 currentPagePast: 1,
                 sortBy: 'destinations[0].startDate',
-                fields: ['name', {key:'destinations[0].startDate', label: 'Start Date'}, {key:'destinations[1].endDate', label: 'End Date'}, 'more_details'],
+                fields: [
+                    'name',
+                    {key:'destinations[0].startDate', label: 'Start Date'},
+                    {key:'destinations[1].endDate', label: 'End Date'},
+                    'more_details'
+                ],
                 subFields:[
                     {key: 'destination.name', label: "Destination Name"},
                     {key: 'destination.type.destinationType', label: "Destination Type"},
