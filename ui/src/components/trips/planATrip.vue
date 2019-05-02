@@ -196,8 +196,7 @@
                 ],
                 tripDestinations: [],
                 savingTrip: false,
-                letTripSaved: false
-
+                letTripSaved: false,
             }
         },
         computed: {
@@ -314,6 +313,19 @@
                     return true;
                 }
             },
+            checkDateOrder() {
+                var allDates = [];
+                for(var i = 0; i < this.tripDestinations.length; i++) {
+                    allDates.push(this.tripDestinations[i].in_date);
+                    allDates.push(this.tripDestinations[i].out_date);
+                }
+                for(var j = 0; j < allDates.length-1; j++){
+                    if(allDates[j] > allDates[j+1]){
+                        return false;
+                    }
+                }
+                return true;
+            },
             saveDestination(row, editInDate, editOutDate) {
                 row.in_date = editInDate;
                 row.out_date = editOutDate;
@@ -340,6 +352,9 @@
                 } else if (this.tripDestinations.length < 2) {
                     this.showError = true;
                     this.errorMessage = "There must be at least 2 destinations";
+                } else if (!this.checkDateOrder()) {
+                    this.showError = true;
+                    this.errorMessage = "All Start/End Dates must be in order";
                 } else {
                     this.showError = false;
                     let tripDestinationsList = [];
