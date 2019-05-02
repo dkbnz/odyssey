@@ -212,7 +212,7 @@ public class ProfileController {
                         if (userProfile.getIs_admin()) {
                             Profile profileToDelete = Profile.find.byId(Integer.valueOf(id.intValue()));
                             // TODO: handle cascade delete, has foreign key constraints to profile_nationality, profile....
-                            profileToDelete.delete();// TODO: Handle case where admin deletes currently logged in user.
+                            profileToDelete.delete();
                             return ok("Delete successful");
                         } else {
                             return unauthorized("You do not have admin rights to delete other users.");
@@ -411,7 +411,7 @@ public class ProfileController {
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
                     if (userProfile.getIs_admin()) {
                         Profile updateProfile = Profile.find.byId(Math.toIntExact(id));
-                        if (!updateProfile.getUsername().equals("admin@travelea.com")) {
+                        if (!updateProfile.getId().equals(1)) {
                             if (updateProfile.getIs_admin()) {
                                 updateProfile.setIs_admin(false);
                                 updateProfile.update();
