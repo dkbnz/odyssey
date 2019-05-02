@@ -1,18 +1,27 @@
 <template>
     <div class="container">
         <div id="upcomingTrips">
+            {{profile.id}}
+            {{userProfile.id}}
             <h1 class="page_title">Upcoming Trips</h1>
             <p class="page_title"><i>Here are your upcoming trips!</i></p>
             <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
             <b-alert v-model="validDelete" variant="success" dismissible>Trip Deleted</b-alert>
+
             <b-modal ref="deleteModal" id="deleteModal" hide-footer title="Delete Trip">
                 <div class="d-block">
-                    Are you sure that you want to delete "{{tripName}}"?
+                    Are you sure that you want to delete "{{selectedTrip.name}}"?
                 </div>
-                <b-button class="mr-2 float-right" variant="danger" @click="dismissModal(); deleteTrip(tripToDelete);">Delete</b-button>
+                <b-button class="mr-2 float-right" variant="danger" @click="dismissModal(); deleteTrip(selectedTrip);">Delete</b-button>
                 <b-button class="mr-2 float-right" @click="dismissModal">Cancel</b-button>
 
             </b-modal>
+
+            <b-modal ref="editTripModal" id="editTripModal" size="xl" hide-footer title="Edit Trip">
+                <plan-a-trip v-bind:inputTrip="selectedTrip" v-if="selectedTrip !== ''"></plan-a-trip>
+                <b-button class="mr-2 float-right" @click="dismissModal">Cancel</b-button>
+            </b-modal>
+
             <b-table hover striped outlined
                      id="myFutureTrips"
                      ref="myFutureTrips"
@@ -29,7 +38,9 @@
                 <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                 </b-button>
-                <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="checkDelete(row.item)" variant="danger" class="mr-2">Delete
+                <b-button size="sm" v-model="editButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)" variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
+                </b-button>
+                <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)" variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
@@ -84,7 +95,8 @@
                     <b-form-group
                             id="numItemsPast-field"
                             label-for="perPagePast">
-                        <b-form-select id="perPage" v-model="perPagePast" :options="optionViews" size="sm" trim> </b-form-select>
+                        <b-form-select id="perPage" v-model="perPagePast" :options="optionViews" size="sm" trim>
+                        </b-form-select>
                     </b-form-group>
                 </b-col>
                 <b-col cols="8">
@@ -111,7 +123,7 @@
     import PlanATrip from './planATrip.vue'
     export default {
         name: "YourTrips",
-        props: ['profile'],
+        props: ['profile', 'userProfile'],
         data: function() {
             return {
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
@@ -131,17 +143,16 @@
                     {key: 'destination.endDate', label: "Out Date"}],
                 pastTrips: [],
                 trips:[],
-                tripToDelete: null,
-                tripName: null,
+                selectedTrip: "",
                 errorMessage: "",
                 showError: false,
                 validDelete: false,
-                deleteButton: false,
+                editButton: false,
+                deleteButton: false
             }
         },
         mounted () {
             this.getAllTrips(trips => this.trips = trips)
-            .then(this.checkUser());
         },
         computed: {
             rowsUpcoming() {
@@ -168,10 +179,9 @@
                 this.validDelete = true;
                 this.getAllTrips(trips => this.trips = trips);
             },
-            checkDelete(row) {
-                console.log(this.trips);
-                this.tripToDelete = row;
-                this.tripName = row.name;
+            sendTripToModal(trip) {
+                this.selectedTrip = trip;
+                console.log(this.selectedTrip.name)
             },
             deleteTrip: function(trip) {
                 this.errorMessage = "";
@@ -205,25 +215,6 @@
                 error.response = response;
                 console.log(error); // eslint-disable-line no-console
                 throw error;
-            },
-            checkUser: function() {
-                let self = this;
-                if (this.trips.length === 0) {
-                    return;
-                }
-                fetch('/v1/trips/checkUserProfile', {
-                    method: 'POST',
-                    body: JSON.stringify({'id': self.trips[0].id})
-                }).then(function (response) {
-                    if (response.ok) {
-                        self.deleteButton = true;
-                    } else {
-                        self.deleteButton = false;
-                    }
-                }).catch((error) => {
-                    this.showError = true;
-                    this.errorMessage = (error);
-                });
             },
             parseJSON (response) {
                 return response.json();
