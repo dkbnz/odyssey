@@ -186,7 +186,7 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-
+                    System.out.println(userId);
                     return ok(userProfile.toJson());
                 })
                 .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in

@@ -6,6 +6,7 @@ import io.ebean.Finder;
 import play.data.format.Formats;
 import play.libs.Json;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
@@ -36,13 +37,13 @@ public class Profile extends BaseModel {
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     public Date dateOfCreation;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     public List<Nationality> nationalities = new ArrayList<Nationality>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     public List<Passport> passports = new ArrayList<Passport>();
 
     public void addTravType(TravellerType travellerType) {
