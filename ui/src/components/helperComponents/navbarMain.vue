@@ -9,7 +9,8 @@
                 <b-navbar-nav>
                     <b-nav-item href="/profiles" :class="{active: currentPage==='/profiles'}">People</b-nav-item>
                     <b-nav-item href="/trips" :class="{active: currentPage==='/trips'}">Trips</b-nav-item>
-                    <b-nav-item href="/destinations" :class="{active: currentPage==='/destinations'}">Destinations</b-nav-item>
+                    <b-nav-item href="/destinations" :class="{active: currentPage==='/destinations'}">Destinations
+                    </b-nav-item>
                 </b-navbar-nav>
 
                 <b-navbar-nav class="ml-auto">
@@ -28,39 +29,39 @@
 
 <script>
     import assets from '../../assets/index'
+
     export default {
         name: "navbarMain",
         props: ['profile'],
         computed: {
-            assets () {
+            assets() {
                 return assets
             },
         },
-        data () {
+        data() {
             return {
                 currentPage: '/dash'
             }
         },
-        mounted () {
+        mounted() {
             this.getCurrentPage();
         },
         methods: {
-            logout () {
+            logout() {
                 fetch(`/v1/logout`, {
                     method: 'POST',
                     accept: "application/json"
                 })
                     .then(this.parseJSON)
-                .then(function(response) {
-                    if(response.ok) {
-                        window.location.pathname="/";
-                        return response;
-                    } else {
-                        window.location.pathname="/dash";
-                        return response
-                    }
-                });
-
+                    .then(function (response) {
+                        if (response.ok) {
+                            window.location.pathname = "/";
+                            return response;
+                        } else {
+                            window.location.pathname = "/dash";
+                            return response
+                        }
+                    });
             },
             getCurrentPage() {
                 this.currentPage = window.location.pathname;
@@ -68,7 +69,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>
