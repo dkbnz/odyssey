@@ -304,7 +304,7 @@ public class TripController extends Controller {
      * @param id The id of the trip being deleted from a profile
      * @return
      */
-    public Result destroy(Http.Request request, Long user, Long id) {
+    public Result destroy(Http.Request request, Long id) {
 
         String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
 
