@@ -373,4 +373,27 @@ public class ProfileController {
         return profileExpressionList.findList();
     }
 
+    /**
+     * Makes a user an admin if the current logged in user is an admin
+     * @param request
+     * @param id
+     * @return ok if successful, unauthorized if they are not logged in or are not admin
+     */
+    public Result makeAdmin(Http.Request request, Long id) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(userId -> {
+                    // User is logged in
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    if (userProfile.getIs_admin()) {
+                        Profile updateProfile = Profile.find.byId(Math.toIntExact(id));
+                        updateProfile.setIs_admin(true);
+                        updateProfile.update();
+                    } else {
+                        return forbidden();
+                    }
+                    return ok("UPDATED");
+                })
+                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
+    }
 }
