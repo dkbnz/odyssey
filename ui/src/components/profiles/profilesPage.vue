@@ -57,7 +57,8 @@
             </div>
             <div style="margin-top: 40px">
                 <b-table hover striped outlined
-                         id="myFutureTrips"
+                         id="profiles"
+                         ref="profilesTable"
                          :items="profiles"
                          :fields="fields"
                          :per-page="perPage"
@@ -71,13 +72,16 @@
                         <strong>Loading...</strong>
                     </div>
                     <template slot="actions" slot-scope="row">
-                        <b-button v-if="profile.is_admin" :disabled="row.item.is_admin" size="sm" @click="makeAdmin(row.item)" class="mr-2">
+                        <b-button v-if="profile.is_admin && !(row.item.is_admin)" size="sm" @click="makeAdmin(row.item)" variant="success" class="mr-2">
                             Make Admin
                         </b-button>
-                        <b-button size="sm" @click="row.toggleDetails" class="mr-2">
+                        <b-button v-if="profile.is_admin && row.item.is_admin" :disabled="row.item.username==='admin@travelea.com'" variant="danger" size="sm" @click="removeAdmin(row.item)" class="mr-2">
+                            Remove Admin
+                        </b-button>
+                        <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2">
                             {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
                         </b-button>
-                        <b-button v-if="profile.is_admin" :disabled="row.item.username==='admin@travelea.com'" size="sm" @click="makeAdmin(row.item)" class="mr-2">
+                        <b-button v-if="profile.is_admin" :disabled="row.item.username==='admin@travelea.com'" size="sm" variant="danger" @click="makeAdmin(row.item)" class="mr-2">
                             Delete
                         </b-button>
                     </template>
@@ -137,7 +141,7 @@
                 searchMaxAge: 100,
                 searchTravType: "",
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
-                perPage: 5,
+                perPage: 10,
                 currentPage: 1,
                 genderOptions: [
                     {value: 'male', text: 'Male'},
@@ -157,7 +161,20 @@
                 return response.json();
             },
             makeAdmin(profile) {
-                console.log(profile)
+                let self = this;
+                fetch('/v1/makeAdmin/' + profile.id, {
+                    method: 'POST',
+                }).then(function() {
+                    self.searchProfiles();
+                })
+            },
+            removeAdmin(profile) {
+                let self = this;
+                fetch('/v1/removeAdmin/' + profile.id, {
+                    method: 'POST',
+                }).then(function() {
+                    self.searchProfiles();
+                })
             },
             searchProfiles() {
                 this.searchMinAge = parseInt(this.searchMinAge);
