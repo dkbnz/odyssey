@@ -45,6 +45,7 @@
                         label-for="newPassword">
                     <b-form-input id="newPassword" v-model="password" type="password" :state="passwordValidation" trim required></b-form-input>
                     <b-form-invalid-feedback :state="passwordValidation"> Your password must be between 5 and 15 characters. </b-form-invalid-feedback>
+                    <b-form-invalid-feedback :state="passwordValidation"> Your password must contain 2/3 of: Uppercase, Lowercase, Number. </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="passwordValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
