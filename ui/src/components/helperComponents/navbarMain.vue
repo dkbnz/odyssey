@@ -48,6 +48,7 @@
         },
         methods: {
             logout() {
+                let self = this;
                 fetch(`/v1/logout`, {
                     method: 'POST',
                     accept: "application/json"
@@ -55,16 +56,16 @@
                     .then(this.parseJSON)
                     .then(function (response) {
                         if (response.ok) {
-                            window.location.pathname = "/";
+                            self.$router.push("/");
                             return response;
                         } else {
-                            window.location.pathname = "/dash";
-                            return response
+                            self.$router.push("/dash");
+                            return response;
                         }
                     });
             },
             getCurrentPage() {
-                this.currentPage = window.location.pathname;
+                this.currentPage = this.$router.currentRoute.fullPath;
             }
         }
     }
