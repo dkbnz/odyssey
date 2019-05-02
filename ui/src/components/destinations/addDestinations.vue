@@ -32,7 +32,9 @@
                         label="Destination Type:"
                         label-for="type">
                     <b-form-select id="type" v-model="dType" trim>
-                        <option v-for="destination in destinationTypes" :value="destination.id">{{destination.destinationType}}</option>
+                        <option v-for="destination in destinationTypes" :value="destination.id">
+                            {{destination.destinationType}}
+                        </option>
                     </b-form-select>
                 </b-form-group>
 
@@ -74,7 +76,7 @@
     export default {
         name: "addDestinations",
         props: ['profile', 'destinations', 'destinationTypes'],
-        data () {
+        data() {
             return {
                 dName: "",
                 dType: "",
@@ -110,7 +112,6 @@
                 } else {
                     this.errorMessage = ("Please enter in all fields!");
                     this.showError = true;
-
                 }
             },
             resetDestForm() {
@@ -121,18 +122,25 @@
                 this.dLongitude = "";
                 this.dCountry = "";
             },
-            addDestination (cb) {
+            addDestination(cb) {
                 let self = this;
                 let response = fetch(`/v1/destinations`, {
                     method: 'POST',
-                    headers:{'content-type': 'application/json'},
-                    body: (JSON.stringify({"name": this.dName, "type_id": this.dType, "district": this.dDistrict, "latitude": parseFloat(this.dLatitude), "longitude": parseFloat(this.dLongitude), "country": this.dCountry}))
+                    headers: {'content-type': 'application/json'},
+                    body: (JSON.stringify({
+                        "name": this.dName,
+                        "type_id": this.dType,
+                        "district": this.dDistrict,
+                        "latitude": parseFloat(this.dLatitude),
+                        "longitude": parseFloat(this.dLongitude),
+                        "country": this.dCountry
+                    }))
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(cb)
 
-                    .then(function(response) {
+                    .then(function (response) {
                         if (response.ok) {
                             self.resetDestForm();
                             self.showAlert();
@@ -140,13 +148,11 @@
                         } else {
                             throw new Error('Something is wrong!');
                         }
-                })
+                    })
                     .catch(() => {
                         this.showError = true;
                         this.errorMessage = ("'" + this.dName + "' already exists as a destination!");
-
                     });
-
                 return response;
             },
             countDownChanged(dismissCountDown) {
@@ -158,7 +164,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>
