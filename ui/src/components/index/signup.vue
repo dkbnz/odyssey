@@ -8,8 +8,7 @@
                         label-for="first_name">
                     <b-form-input id="first_name" v-model="first_name" type="text" :state="fNameValidation" trim
                                   autofocus required></b-form-input>
-                    <b-form-invalid-feedback :state="fNameValidation"> Your first name must be between 1-100 characters
-                        and contain no numbers.
+                    <b-form-invalid-feedback :state="fNameValidation"> Invalid! Must be 1-100 characters long. Hyphens and apostrophes must be used correctly!
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="fNameValidation"> Looks Good</b-form-valid-feedback>
                 </b-form-group>
@@ -20,8 +19,7 @@
                         label-for="middle_name">
                     <b-form-input id="middle_name" v-model="middle_name" type="text" :state="mNameValidation" trim
                                   placeholder="Optional"></b-form-input>
-                    <b-form-invalid-feedback :state="mNameValidation"> Your middle name must be less than 100 characters
-                        and contain no numbers.
+                    <b-form-invalid-feedback :state="mNameValidation"> Invalid! Must be 1-100 characters long. Hyphens and apostrophes must be used correctly!
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="mNameValidation"> Looks Good</b-form-valid-feedback>
                 </b-form-group>
@@ -32,8 +30,7 @@
                         label-for="last_name">
                     <b-form-input id="last_name" v-model="last_name" type="text" :state="lNameValidation" trim
                                   required></b-form-input>
-                    <b-form-invalid-feedback :state="lNameValidation"> Your last name must be between 1-100 characters
-                        and contain no numbers.
+                    <b-form-invalid-feedback :state="lNameValidation"> Invalid! Must be 1-100 characters long. Hyphens and apostrophes must be used correctly!
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="lNameValidation"> Looks Good</b-form-valid-feedback>
                 </b-form-group>
@@ -45,7 +42,7 @@
                         label-for="email">
                     <b-form-input id="email" v-model="email" type="text" :state="emailValidation" trim
                                   required></b-form-input>
-                    <b-form-invalid-feedback :state="emailValidation"> Your email must be valid and unique!
+                    <b-form-invalid-feedback :state="emailValidation"> Invalid! Please enter a valid email!
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="emailValidation"> Looks Good</b-form-valid-feedback>
                 </b-form-group>
@@ -56,8 +53,7 @@
                         label-for="newPassword">
                     <b-form-input id="newPassword" v-model="password" type="password" :state="passwordValidation" trim
                                   required></b-form-input>
-                    <b-form-invalid-feedback :state="passwordValidation"> Your password must be between 5 and 15
-                        characters.
+                    <b-form-invalid-feedback :state="passwordValidation"> Your password is weak You must have at least 2 of the following: lowercase letters, uppercase letters, numbers. Password must also be between 5 and 15 characters long.
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="passwordValidation"> Looks Good</b-form-valid-feedback>
                 </b-form-group>
@@ -69,7 +65,7 @@
                         label-for="rePassword">
                     <b-form-input id="rePassword" v-model="rePassword" type="password" :state="rePasswordValidation"
                                   trim required></b-form-input>
-                    <b-form-invalid-feedback :state="rePasswordValidation"> This isn't the same as the password!
+                    <b-form-invalid-feedback :state="rePasswordValidation"> Passwords do not match! Please ensure this matches your password!
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="rePasswordValidation"> Looks Good</b-form-valid-feedback>
                 </b-form-group>
@@ -80,7 +76,7 @@
                         label-for="dateOfBirth">
                     <b-form-input id="dateOfBirth" v-model="dateOfBirth" type="date" :state="dateOfBirthValidation" trim
                                   required></b-form-input>
-                    <b-form-invalid-feedback :state="dateOfBirthValidation"> You need a date of birth.
+                    <b-form-invalid-feedback :state="dateOfBirthValidation"> You need a date of birth!
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="dateOfBirthValidation"> Looks Good</b-form-valid-feedback>
                 </b-form-group>
@@ -91,7 +87,7 @@
                         label-for="gender">
                     <b-form-select id="gender" v-model="gender" :options="genderOptions" :state="genderValidation" trim
                                    required></b-form-select>
-                    <b-form-invalid-feedback :state="genderValidation"> Please select a gender.
+                    <b-form-invalid-feedback :state="genderValidation"> Please select a gender!
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="genderValidation"> Looks Good</b-form-valid-feedback>
                 </b-form-group>
