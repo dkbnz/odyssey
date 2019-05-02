@@ -173,7 +173,7 @@
         methods: {
             getAllTrips(cb) {
                 let userId = this.profile.id;
-                return fetch(`/v1/trips/all?id=` + userId, {
+                return fetch(`/v1/trips/` + userId, {
                     accept: "application/json"
                 })
                     .then(this.checkStatus)
@@ -193,7 +193,7 @@
                 this.showError = false;
                 this.validDelete = false;
                 let self = this;
-                fetch('/v1/trip/' + trip.id, {
+                fetch('/v1/trips/' + trip.id, {
                         method: 'DELETE',
                 }).then(function (response) {
                     if (response.ok) {
