@@ -141,7 +141,6 @@
         },
         mounted () {
             this.getAllTrips(trips => this.trips = trips)
-            .then(this.checkUser());
         },
         computed: {
             rowsUpcoming() {
@@ -169,7 +168,6 @@
                 this.getAllTrips(trips => this.trips = trips);
             },
             checkDelete(row) {
-                console.log(this.trips);
                 this.tripToDelete = row;
                 this.tripName = row.name;
             },
@@ -178,7 +176,8 @@
                 this.showError = false;
                 this.validDelete = false;
                 let self = this;
-                fetch('/v1/trip/' + trip.id, {
+                let userId = this.profile.id;
+                fetch('/v1/profiles/' + userId +  '/trips/' + trip.id, {
                         method: 'DELETE',
                 }).then(function (response) {
                     if (response.ok) {
@@ -205,25 +204,6 @@
                 error.response = response;
                 console.log(error); // eslint-disable-line no-console
                 throw error;
-            },
-            checkUser: function() {
-                let self = this;
-                if (this.trips.length === 0) {
-                    return;
-                }
-                fetch('/v1/trips/checkUserProfile', {
-                    method: 'POST',
-                    body: JSON.stringify({'id': self.trips[0].id})
-                }).then(function (response) {
-                    if (response.ok) {
-                        self.deleteButton = true;
-                    } else {
-                        self.deleteButton = false;
-                    }
-                }).catch((error) => {
-                    this.showError = true;
-                    this.errorMessage = (error);
-                });
             },
             parseJSON (response) {
                 return response.json();

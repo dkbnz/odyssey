@@ -179,11 +179,11 @@ public class TripController extends Controller {
                 // Parse the values contained in the current node of the array
                 Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATION_ID).asText());
                 LocalDate parsedStartDate = null;
-                if (!destinationJson.get(START_DATE).asText().equals("") || destinationJson.get(START_DATE).asText() != null) {
+                if (!destinationJson.get(START_DATE).asText().equals("null")) {
                     parsedStartDate = LocalDate.parse(destinationJson.get(START_DATE).asText());
                 }
                 LocalDate parsedEndDate = null;
-                if (!destinationJson.get(END_DATE).asText().equals("") || destinationJson.get(END_DATE).asText() != null) {
+                if (!destinationJson.get(END_DATE).asText().equals("null")) {
                     parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
                 }
                 Destination parsedDestination = Destination.find.byId(parsedDestinationId);
@@ -271,7 +271,7 @@ public class TripController extends Controller {
      * @param id The id of the trip being deleted from a profile
      * @return
      */
-    public Result destroy(Http.Request request, Long id) {
+    public Result destroy(Http.Request request, Long user, Long id) {
 
         String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
 
@@ -291,7 +291,7 @@ public class TripController extends Controller {
 
             boolean tripInProfile = false;
             for (Trip tempTrip : profile.getTrips()) {
-                if (tempTrip.getId() == profile.getId()) {
+                if (tempTrip.getId() == id) {
                     tripInProfile = true;
                 }
             }
@@ -310,56 +310,4 @@ public class TripController extends Controller {
         return ok();
 
     }
-
-    /**
-     * Checks whether a trip belongs to the logged in user
-     * @param request Http request from the client, from which the current user profile can be obtained.
-     * @return HTTP response code
-     */
-    public Result checkTripProfile(Http.Request request) {
-        JsonNode json = request.body().asJson();
-
-        if (!json.has("id")) {
-            return badRequest();
-        }
-
-//        if (true) {
-//            return preconditionRequired();
-//        }
-        Long id = json.get("id").asLong();
-
-        String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
-
-        // Check if a user is logged in.
-        if (userId != null) {
-
-            // Retrieve the profile having its trip removed.
-            Profile profile = Profile.find.byId(Integer.valueOf(userId));
-
-            // Retrieve the individual trip being deleted by its id.
-            Trip trip = Trip.find.byId(id.intValue());
-
-            // Check for query success.
-            if (profile == null || trip == null) {
-                return notFound();
-            }
-
-            boolean tripInProfile = false;
-            for (Trip tempTrip : profile.getTrips()) {
-                if (tempTrip.getId() == profile.getId()) {
-                    tripInProfile = true;
-                }
-            }
-            if (!tripInProfile) {
-                return forbidden();
-            }
-
-        } else {
-            return unauthorized();
-        }
-
-        // Deletion successful.
-        return ok();
-    }
-
 }
