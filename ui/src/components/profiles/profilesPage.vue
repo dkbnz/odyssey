@@ -75,13 +75,13 @@
                         <b-button v-if="profile.is_admin && !(row.item.is_admin)" size="sm" @click="makeAdmin(row.item)" variant="success" class="mr-2">
                             Make Admin
                         </b-button>
-                        <b-button v-if="profile.is_admin && row.item.is_admin" :disabled="row.item.username==='admin@travelea.com'" variant="danger" size="sm" @click="removeAdmin(row.item)" class="mr-2">
+                        <b-button v-if="profile.is_admin && row.item.is_admin" :disabled="row.item.id===1" variant="danger" size="sm" @click="removeAdmin(row.item)" class="mr-2">
                             Remove Admin
                         </b-button>
                         <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2">
                             {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
                         </b-button>
-                        <b-button v-if="profile.is_admin" :disabled="row.item.username==='admin@travelea.com'" size="sm" variant="danger" @click="makeAdmin(row.item)" class="mr-2">
+                        <b-button v-if="profile.is_admin" :disabled="row.item.id===1" size="sm" variant="danger" @click="makeAdmin(row.item)" class="mr-2">
                             Delete
                         </b-button>
                     </template>
