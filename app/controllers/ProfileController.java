@@ -186,7 +186,6 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-                    System.out.println(userId);
                     return ok(userProfile.toJson());
                 })
                 .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
@@ -206,21 +205,27 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-                    System.out.println("--------------------------------------" + userProfile.getFirstName());
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
                         // If user is admin, they can delete other profiles
                         if (userProfile.getIs_admin()) {
                             Profile profileToDelete = Profile.find.byId(Integer.valueOf(id.intValue()));
-                            // TODO: handle cascade delete, has foreign key constraints to profile_nationality, profile....
-                            profileToDelete.delete();
-                            return ok("Delete successful");
+                            if (profileToDelete.getId() == 1) {
+                                return forbidden("You can not delete the default administrator");
+                            } else {
+                                profileToDelete.delete();
+                                return ok("Delete successful");
+                            }
                         } else {
-                            return unauthorized("You do not have admin rights to delete other users.");
+                            return forbidden("You do not have admin rights to delete other users.");
                         }
                     } else {
                         // User is deleting their own profile
-                        userProfile.delete();
-                        return ok("Delete successful").withNewSession();
+                        if (userProfile.getId() == 1) {
+                            return forbidden("You can not delete the default administrator");
+                        } else {
+                            userProfile.delete();
+                            return ok("Delete successful").withNewSession();
+                        }
                     }
 
                 })
