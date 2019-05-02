@@ -208,9 +208,6 @@
 
             }
         },
-        mounted() {
-            console.log(this.inputTrip)
-        },
         computed: {
             rows() {
                 return this.inputTrip.destinations.length
@@ -369,26 +366,56 @@
                     this.showError = false;
                     let tripDestinationsList = [];
                     for (let i = 0; i < this.inputTrip.destinations.length; i++) {
-                        if(this.inputTrip.destinations[i].startDate === undefined || this.inputTrip.destinations[i].startDate.length === 0) {
-                            this.inputTrip.destinations[i].startDate = null;
-                        }
-                        if(this.inputTrip.destinations[i].endDate === undefined || this.inputTrip.destinations[i].endDate.length === 0) {
-                            this.inputTrip.destinations[i].endDate = null;
-                        }
+                        console.log(this.inputTrip.destinations[i].startDate)
+                        // if(this.inputTrip.destinations[i].startDate === undefined || this.inputTrip.destinations[i].startDate.length === 0) {
+                        //     this.inputTrip.destinations[i].startDate = null;
+                        // }
+                        // if(this.inputTrip.destinations[i].endDate === undefined || this.inputTrip.destinations[i].endDate.length === 0) {
+                        //     this.inputTrip.destinations[i].endDate = null;
+                        // }
                         tripDestinationsList.push({destination_id: this.inputTrip.destinations[i].destination.id, start_date: this.inputTrip.destinations[i].startDate, end_date: this.inputTrip.destinations[i].endDate})
                     }
                     let trip = {
                         trip_name: this.inputTrip.name,
                         trip_destinations: tripDestinationsList
                     };
-                    this.saveTrip(trip);
+                    if(this.inputTrip.id === null) {
+                        this.saveNewTrip(trip);
+                    } else {
+                        this.saveOldTrip(trip, this.inputTrip.id);
+                    }
                 }
             },
-            saveTrip(trip) {
+            saveNewTrip(trip) {
                 this.savingTrip = true;
                 let self = this;
-                fetch('/v1/trip', {
+                fetch('/v1/trips', {
                     method: 'POST',
+                    headers: {'content-type': 'application/json'},
+                    body: JSON.stringify(trip)
+                }).then(function (response) {
+                    if (response.ok) {
+                        self.savingTrip = false;
+                        self.showAlert();
+                        self.$emit('tripSaved', true);
+                        self.resetDestForm();
+                        self.inputTrip.name = "";
+                        self.inputTrip.destinations = [];
+                        return JSON.parse(JSON.stringify(response));
+                    } else {
+                        throw new Error('Something went wrong, try again later.');
+                    }
+                }).catch((error) => {
+                    this.savingTrip = false;
+                    this.showError = true;
+                    this.errorMessage = (error);
+                });
+            },
+            saveOldTrip(trip, tripId) {
+                this.savingTrip = true;
+                let self = this;
+                fetch('/v1/trips/' + tripId, {
+                    method: 'PATCH',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)
                 }).then(function (response) {
