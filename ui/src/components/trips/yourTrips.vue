@@ -16,28 +16,29 @@
                     <b-spinner v-if="retrievingTrips" class="align-middle"></b-spinner>
                     <strong>Can't find any trips!</strong>
                 </div>
-            <template slot="more_details" slot-scope="row">
-                <b-button size="sm" @click="row.toggleDetails" class="mr-2">
-                    {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
-                </b-button>
-            </template>
-            <template slot="row-details" slot-scope="row">
-                <b-card>
-                    <b-table
-                    id="futureTripsDestinations"
-                    :items="row.item.destinations"
-                    :fields="subFields">
-                    </b-table>
+                <template slot="more_details" slot-scope="row">
+                    <b-button size="sm" @click="row.toggleDetails" class="mr-2">
+                        {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+                    </b-button>
+                </template>
+                <template slot="row-details" slot-scope="row">
+                    <b-card>
+                        <b-table
+                                id="futureTripsDestinations"
+                                :items="row.item.destinations"
+                                :fields="subFields">
+                        </b-table>
 
-                </b-card>
-            </template>
+                    </b-card>
+                </template>
             </b-table>
             <b-row>
                 <b-col cols="1">
                     <b-form-group
                             id="numUpcomingtems-field"
                             label-for="perPageUpcoming">
-                        <b-form-select id="perPageUpcoming" v-model="perPageUpcoming" :options="optionViews" size="sm" trim> </b-form-select>
+                        <b-form-select id="perPageUpcoming" v-model="perPageUpcoming" :options="optionViews" size="sm"
+                                       trim></b-form-select>
                     </b-form-group>
                 </b-col>
                 <b-col cols="8">
@@ -73,7 +74,8 @@
                     <b-form-group
                             id="numItemsPast-field"
                             label-for="perPagePast">
-                        <b-form-select id="perPage" v-model="perPagePast" :options="optionViews" size="sm" trim> </b-form-select>
+                        <b-form-select id="perPage" v-model="perPagePast" :options="optionViews" size="sm"
+                                       trim></b-form-select>
                     </b-form-group>
                 </b-col>
                 <b-col cols="8">
@@ -98,19 +100,26 @@
 
 <script>
     import PlanATrip from './planATrip.vue'
+
     export default {
         name: "YourTrips",
         props: ['profile'],
-        data: function() {
+        data: function () {
             return {
-                optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
+                optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
+                    value: 15,
+                    text: "15"
+                }],
                 perPageUpcoming: 5,
                 perPagePast: 5,
                 currentPageUpcoming: 1,
                 currentPagePast: 1,
                 sortBy: 'destinations[0].startDate',
-                fields: ['name', {key:'destinations[0].startDate', label: 'Start Date'}, {key:'destinations[1].endDate', label: 'End Date'}, 'more_details'],
-                subFields:[
+                fields: ['name', {
+                    key: 'destinations[0].startDate',
+                    label: 'Start Date'
+                }, {key: 'destinations[1].endDate', label: 'End Date'}, 'more_details'],
+                subFields: [
                     {key: 'destination.name', label: "Destination Name"},
                     {key: 'destination.type.destinationType', label: "Destination Type"},
                     {key: 'destination.district', label: "Destination District"},
@@ -119,12 +128,12 @@
                     {key: 'destination.startDate', label: "In Date"},
                     {key: 'destination.endDate', label: "Out Date"}],
                 pastTrips: [],
-                trips:[],
+                trips: [],
                 retrievingTrips: false
             }
 
         },
-        mounted () {
+        mounted() {
             this.getAllTrips(trips => this.trips = trips);
         },
         computed: {
@@ -149,7 +158,7 @@
                     .then(this.parseJSON)
                     .then(cb);
             },
-            checkStatus (response) {
+            checkStatus(response) {
                 if (response.status >= 200 && response.status < 300) {
                     return response;
                 }
@@ -159,7 +168,7 @@
                 console.log(error); // eslint-disable-line no-console
                 throw error;
             },
-            parseJSON (response) {
+            parseJSON(response) {
                 this.retrievingTrips = false;
                 return response.json();
             },
@@ -168,10 +177,5 @@
 </script>
 
 <style scoped>
-
-    #pastTrips {
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid black;
-    }
+    @import "../../css/yourTrips.css";
 </style>
