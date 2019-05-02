@@ -15,6 +15,6 @@ esac
 
 case $2 in
     start)
-        start
+        start $1
         ;;
 esac
