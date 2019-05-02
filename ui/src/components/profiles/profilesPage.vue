@@ -72,18 +72,34 @@
                         <strong>Loading...</strong>
                     </div>
                     <template slot="actions" slot-scope="row">
-                        <b-button v-if="profile.is_admin && !(row.item.is_admin) && row.item.id !== 1" size="sm" @click="makeAdmin(row.item)" variant="success" class="mr-2">
-                            Make Admin
-                        </b-button>
-                        <b-button v-if="profile.is_admin && row.item.is_admin && row.item.id !== 1" :disabled="row.item.id===1" variant="danger" size="sm" @click="removeAdmin(row.item)" class="mr-2">
-                            Remove Admin
-                        </b-button>
-                        <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2">
-                            {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
-                        </b-button>
-                        <b-button v-if="profile.is_admin && row.item.id !== 1" :disabled="row.item.id===1" size="sm" variant="danger" @click="deleteUser(row.item)" class="mr-2">
-                            Delete
-                        </b-button>
+                        <b-row class="text-center" v-if="profile.is_admin">
+                            <b-col align-self="center" md="5">
+                                <b-button v-if="profile.is_admin && !(row.item.is_admin) && row.item.id !== 1" size="sm" @click="makeAdmin(row.item)" variant="success" class="mr-2">
+                                    Make Admin
+                                </b-button>
+                                <b-button v-if="profile.is_admin && row.item.is_admin && row.item.id !== 1" :disabled="row.item.id===1" variant="danger" size="sm" @click="removeAdmin(row.item)" class="mr-2">
+                                    Remove Admin
+                                </b-button>
+                            </b-col>
+
+                            <b-col align-self="center" md="4.5">
+                                <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2">
+                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
+                                </b-button>
+                            </b-col>
+                            <b-col align-self="center" md="2">
+                                <b-button v-if="profile.is_admin && row.item.id !== 1" :disabled="row.item.id===1" size="sm" variant="danger" @click="deleteUser(row.item)" class="mr-2">
+                                    Delete
+                                </b-button>
+                            </b-col>
+
+                        </b-row>
+                        <b-row v-else>
+                            <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2">
+                                {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
+                            </b-button>
+                        </b-row>
+
                     </template>
                     <template slot="row-details" slot-scope="row">
                         <b-card>
@@ -160,19 +176,20 @@
             parseJSON (response) {
                 return response.json();
             },
-            makeAdmin(profile) {
+            makeAdmin(aProfile) {
                 let self = this;
-                fetch('/v1/makeAdmin/' + profile.id, {
+                fetch('/v1/makeAdmin/' + aProfile.id, {
                     method: 'POST',
                 }).then(function() {
                     self.searchProfiles();
                 })
             },
-            removeAdmin(profile) {
+            removeAdmin(aProfile) {
                 let self = this;
-                fetch('/v1/removeAdmin/' + profile.id, {
+                fetch('/v1/removeAdmin/' + aProfile.id, {
                     method: 'POST',
                 }).then(function() {
+                    location.reload();
                     self.searchProfiles();
                 })
             },
