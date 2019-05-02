@@ -100,9 +100,7 @@
     import PlanATrip from './planATrip.vue'
     export default {
         name: "YourTrips",
-        props: {
-            'profile': Object
-        },
+        props: ['profile'],
         data: function() {
             return {
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],

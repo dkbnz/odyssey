@@ -97,9 +97,7 @@
 <script>
     export default {
         name: "searchDestinations",
-        props: {
-            'destinationTypes': Array
-        },
+        props: ['destinationTypes'],
         data () {
             return {
                 sortBy: 'name',
