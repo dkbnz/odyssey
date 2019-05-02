@@ -2,8 +2,7 @@
 
     <div class="App">
         <div>
-            <router-view v-if="this.profile.length !== 0" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></router-view>
-            <index v-if="this.profile.length === 0" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></index>
+            <router-view  v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></router-view>
         </div>
     </div>
 </template>

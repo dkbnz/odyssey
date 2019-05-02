@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="profile.length !== 0">
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
         <b-navbar variant="light">
             <b-navbar-nav>
@@ -10,9 +10,10 @@
         <plan-a-trip v-if="planATrip" v-bind:destinations="destinations"></plan-a-trip>
         <your-trips  v-if="yourTrips" :profile="profile"></your-trips>
         <footer-main></footer-main>
-
     </div>
-
+    <div v-else>
+        <unauthorised-prompt></unauthorised-prompt>
+    </div>
 </template>
 
 <script>
@@ -20,12 +21,11 @@
     import YourTrips from './yourTrips.vue'
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
+    import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
+
     export default {
         name: "Trips",
-        props: {
-            'profile': Object,
-            'destinations': Array
-        },
+        props: ['profile', 'destinations'],
         created() {
             document.title = "TravelEA - Trips";
         },
@@ -49,7 +49,8 @@
             PlanATrip,
             YourTrips,
             NavBarMain,
-            FooterMain
+            FooterMain,
+            UnauthorisedPrompt
         }
     }
 </script>

@@ -46,6 +46,8 @@
                     if (response.ok) {
                         self.showError = false;
                         window.location.pathname ="/dash";
+                        console.log("here");
+                        // router.push("/dash");
                         return response.json();
                     } else {
                         self.showError = true;
