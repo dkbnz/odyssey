@@ -22,7 +22,7 @@
             <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
         </ul>
 
-        <your-trips :profile="profile"></your-trips>
+        <your-trips :userProfile="userProfile" :profile="profile"></your-trips>
     </div>
 </template>
 
@@ -30,7 +30,7 @@
     import YourTrips from "../trips/yourTrips.vue"
     export default {
         name: "viewProfile",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips'],
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'userProfile'],
         data () {
             return {
             }

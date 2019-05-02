@@ -39,7 +39,7 @@
                         id="trip_name-field"
                         label="Trip Name:"
                         label-for="trip_name">
-                    <b-form-input id="trip_name" v-model="tripName" :type="'text'" trim></b-form-input>
+                    <b-form-input id="trip_name" v-model="inputTrip.name" :type="'text'" trim></b-form-input>
                 </b-form-group>
             </b-container>
             <b-form @reset="resetDestForm">
@@ -83,7 +83,7 @@
                  ref="tripDestTable"
                  id="myTrips"
                  :fields="fields"
-                 :items="tripDestinations"
+                 :items="inputTrip.destinations"
                  :per-page="perPage"
                  :current-page="currentPage"
         >
@@ -97,36 +97,36 @@
                 </b-button>
             </template>
             <template slot="order" slot-scope="row">
-                <b-button size="sm" :disabled="tripDestinations.length === 1 || row.index === 0" @click="moveUpCheck(row.index)" variant="success" class="mr-2">&uarr;
+                <b-button size="sm" :disabled="inputTrip.destinations.length === 1 || row.index === 0" @click="moveUpCheck(row.index)" variant="success" class="mr-2">&uarr;
                 </b-button>
-                <b-button size="sm" :disabled="tripDestinations.length === 1 || row.index === tripDestinations.length-1" @click="moveDownCheck(row.index)" variant="success" class="mr-2">&darr;
+                <b-button size="sm" :disabled="inputTrip.destinations.length === 1 || row.index === inputTrip.destinations.length-1" @click="moveDownCheck(row.index)" variant="success" class="mr-2">&darr;
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
                 <b-card>
                     <b-row class="mb-2">
                         <b-col sm="3" class="text-sm-right"><b>Type:</b></b-col>
-                        <b-col>{{ row.item.type }}</b-col>
+                        <b-col>{{ row.item.destination.type.destinationType }}</b-col>
                     </b-row>
 
                     <b-row class="mb-2">
                         <b-col sm="3" class="text-sm-right"><b>District:</b></b-col>
-                        <b-col>{{ row.item.district }}</b-col>
+                        <b-col>{{ row.item.destination.district }}</b-col>
                     </b-row>
 
                     <b-row class="mb-2">
                         <b-col sm="3" class="text-sm-right"><b>Latitude:</b></b-col>
-                        <b-col>{{ row.item.latitude }}</b-col>
+                        <b-col>{{ row.item.destination.latitude }}</b-col>
                     </b-row>
 
                     <b-row class="mb-2">
                         <b-col sm="3" class="text-sm-right"><b>Longitude:</b></b-col>
-                        <b-col>{{ row.item.longitude }}</b-col>
+                        <b-col>{{ row.item.destination.longitude }}</b-col>
                     </b-row>
 
                     <b-row class="mb-2">
                         <b-col sm="3" class="text-sm-right"><b>Country:</b></b-col>
-                        <b-col>{{ row.item.country }}</b-col>
+                        <b-col>{{ row.item.destination.country }}</b-col>
                     </b-row>
 
                 </b-card>
@@ -161,14 +161,23 @@
 <script>
     export default {
         name: "PlanATrip",
-        props: ['destinations'],
+        props: {
+            destinations: Array,
+            inputTrip: {
+                default: function () {
+                    return {id: null,
+                            name: "",
+                            destinations: []
+                    }
+                }
+            }},
+
         data() {
             return {
                 heading: 'Plan a Trip',
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPage: 10,
                 currentPage: 1,
-                tripName: null,
                 tripDestination: "",
                 inDate: "",
                 outDate: "",
@@ -182,27 +191,29 @@
                 editOutDate: null,
                 fields: [
                     'order',
-                    { key: 'name'},
-                    { key: 'in_date' },
-                    { key: 'out_date' },
+                    { key: 'destination.name'},
+                    { key: 'startDate' },
+                    { key: 'endDate' },
                     'actions'
                 ],
                 subFields: [
-                    {key: 'type'},
-                    {key: 'district'},
-                    {key: 'latitude'},
-                    {key: 'longitude'},
-                    {key: 'country'},
+                    {key: 'destination.type.destinationType'},
+                    {key: 'destination.district'},
+                    {key: 'destination.latitude'},
+                    {key: 'destination.longitude'},
+                    {key: 'destination.country'},
                 ],
-                tripDestinations: [],
                 savingTrip: false,
                 letTripSaved: false
 
             }
         },
+        mounted() {
+            console.log(this.inputTrip)
+        },
         computed: {
             rows() {
-                return this.tripDestinations.length
+                return this.inputTrip.destinations.length
             }
         },
         methods: {
@@ -215,7 +226,7 @@
                         this.showError = true;
                         this.errorMessage = "Incorrect date ordering.";
 
-                    } else if(this.tripDestinations.length === 0) {
+                    } else if(this.inputTrip.destinations.length === 0) {
                         this.addDestination()
                     } else if(!this.checkSameDestination(this.tripDestination.id)) {
                         this.addDestination()
@@ -230,30 +241,43 @@
             },
             addDestination() {
                 this.showError = false;
-                this.tripDestinations.push({destId: this.tripDestination.id, name: this.tripDestination.name, type: this.tripDestination.type.destinationType, district: this.tripDestination.district, latitude: this.tripDestination.latitude, longitude: this.tripDestination.longitude, country: this.tripDestination.country, in_date: this.inDate,out_date: this.outDate});
+                this.inputTrip.destinations.push({
+                    destination: {
+                        id: this.tripDestination.id,
+                        name: this.tripDestination.name,
+                        type: {
+                            destinationType : this.tripDestination.type.destinationType
+                        },
+                        district: this.tripDestination.district,
+                        latitude: this.tripDestination.latitude,
+                        longitude: this.tripDestination.longitude,
+                        country: this.tripDestination.country},
+                    startDate: this.inDate,
+                    endDate: this.outDate
+                });
                 this.resetDestForm();
             },
             deleteDestination: function(row, rowIndex) {
-                if(this.tripDestinations.length > 2) {
-                    if (rowIndex === this.tripDestinations.length - 1) {
-                        this.tripDestinations.splice(rowIndex, 1);
+                if(this.inputTrip.destinations.length > 2) {
+                    if (rowIndex === this.inputTrip.destinations.length - 1) {
+                        this.inputTrip.destinations.splice(rowIndex, 1);
                     }
-                    else if (this.tripDestinations[rowIndex - 1].destId !== this.tripDestinations[rowIndex + 1].destId) {
-                        this.tripDestinations.splice(rowIndex, 1);
+                    else if (this.inputTrip.destinations[rowIndex - 1].destination.id !== this.inputTrip.destinations[rowIndex + 1].destination.id) {
+                        this.inputTrip.destinations.splice(rowIndex, 1);
                     } else {
                         this.showDuplicateDestError("delete")
                     }
                 } else {
-                    this.tripDestinations.splice(rowIndex, 1);
+                    this.inputTrip.destinations.splice(rowIndex, 1);
                 }
             },
             populateModal(row) {
                 this.rowEdit = row;
-                this.editInDate = row.in_date;
-                this.editOutDate = row.out_date;
+                this.editInDate = row.startDate;
+                this.editOutDate = row.endDate;
             },
             moveUpCheck(rowIndex) {
-                if(rowIndex === 1 && this.tripDestinations[rowIndex-1].destId === this.tripDestinations[rowIndex+1].destId) {
+                if(rowIndex === 1 && this.inputTrip.destinations[rowIndex-1].destination.id === this.inputTrip.destinations[rowIndex+1].destination.id) {
                     this.showDuplicateDestError("move")
                 }
                 else if (rowIndex === 1) {
@@ -262,10 +286,10 @@
                 else if (rowIndex === this.getDestinationRows()-1) {
                     this.moveUp(rowIndex);
                 }
-                else if (this.tripDestinations[rowIndex-1].destId === this.tripDestinations[rowIndex+1].destId) {
+                else if (this.inputTrip.destinations[rowIndex-1].destination.id === this.inputTrip.destinations[rowIndex+1].destination.id) {
                     this.showDuplicateDestError("move")
                 }
-                else if(this.tripDestinations[rowIndex-2].destId !== this.tripDestinations[rowIndex].destId) {
+                else if(this.inputTrip.destinations[rowIndex-2].destination.id !== this.inputTrip.destinations[rowIndex].destination.id) {
                     this.moveUp(rowIndex);
                 } else {
                     this.showDuplicateDestError("move")
@@ -273,13 +297,13 @@
             },
             moveUp(rowIndex) {
                 let upIndex = rowIndex - 1;
-                let swapRow = this.tripDestinations[rowIndex];
-                this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
-                this.tripDestinations[upIndex] = swapRow;
+                let swapRow = this.inputTrip.destinations[rowIndex];
+                this.inputTrip.destinations[rowIndex] = this.inputTrip.destinations[upIndex];
+                this.inputTrip.destinations[upIndex] = swapRow;
                 this.$refs.tripDestTable.refresh()
             },
             moveDownCheck(rowIndex) {
-                if(rowIndex === this.getDestinationRows()-2 && this.tripDestinations[rowIndex+1].destId === this.tripDestinations[rowIndex-1].destId) {
+                if(rowIndex === this.getDestinationRows()-2 && this.inputTrip.destinations[rowIndex+1].destination.id === this.inputTrip.destinations[rowIndex-1].destination.id) {
                     this.showDuplicateDestError("move")
                 }
                 else if (rowIndex === this.getDestinationRows()-2) {
@@ -288,10 +312,10 @@
                 else if (rowIndex === 0) {
                     this.moveDown(rowIndex);
                 }
-                else if (this.tripDestinations[rowIndex+1].destId === this.tripDestinations[rowIndex-1].destId) {
+                else if (this.inputTrip.destinations[rowIndex+1].destination.id === this.inputTrip.destinations[rowIndex-1].destination.id) {
                     this.showDuplicateDestError("move")
                 }
-                else if(this.tripDestinations[rowIndex+2].destId !== this.tripDestinations[rowIndex].destId) {
+                else if(this.inputTrip.destinations[rowIndex+2].destination.id !== this.inputTrip.destinations[rowIndex].destination.id) {
                     this.moveDown(rowIndex);
                 } else {
                     this.showDuplicateDestError("move")
@@ -299,24 +323,24 @@
             },
             moveDown(rowIndex) {
                 let upIndex = rowIndex + 1;
-                let swapRow = this.tripDestinations[rowIndex];
-                this.tripDestinations[rowIndex] = this.tripDestinations[upIndex];
-                this.tripDestinations[upIndex] = swapRow;
+                let swapRow = this.inputTrip.destinations[rowIndex];
+                this.inputTrip.destinations[rowIndex] = this.inputTrip.destinations[upIndex];
+                this.inputTrip.destinations[upIndex] = swapRow;
                 this.$refs.tripDestTable.refresh()
             },
             showDuplicateDestError(error) {
                 this.showError = true;
                 this.errorMessage = "Can't have same destination next to another, please choose another destination to " + error;
             },
-            checkSameDestination(destId) {
-                let previousDestinationIndex = this.tripDestinations.length - 1;
-                if(this.tripDestinations[previousDestinationIndex].destId === destId) {
+            checkSameDestination(destination) {
+                let previousDestinationIndex = this.inputTrip.destinations.length - 1;
+                if(this.inputTrip.destinations[previousDestinationIndex].destination.id === destination.id) {
                     return true;
                 }
             },
             saveDestination(row, editInDate, editOutDate) {
-                row.in_date = editInDate;
-                row.out_date = editOutDate;
+                row.startDate = editInDate;
+                row.endDate = editOutDate;
                 this.dismissModal();
             },
             dismissModal() {
@@ -334,27 +358,28 @@
                 this.outDate = "";
             },
             submitTrip: function() {
-                if (this.tripName === null || this.tripName.length === 0) {
+                console.log(this.inputTrip.name);
+                if (this.inputTrip.name === null || this.inputTrip.name.length === 0) {
                     this.showError = true;
                     this.errorMessage = "No Trip Name";
-                } else if (this.tripDestinations.length < 2) {
+                } else if (this.inputTrip.destinations.length < 2) {
                     this.showError = true;
                     this.errorMessage = "There must be at least 2 destinations";
                 } else {
                     this.showError = false;
                     let tripDestinationsList = [];
-                    for (let i = 0; i < this.tripDestinations.length; i++) {
-                        if(this.tripDestinations[i].in_date === undefined || this.tripDestinations[i].in_date.length === 0) {
-                            this.tripDestinations[i].in_date = null;
+                    for (let i = 0; i < this.inputTrip.destinations.length; i++) {
+                        if(this.inputTrip.destinations[i].startDate === undefined || this.inputTrip.destinations[i].startDate.length === 0) {
+                            this.inputTrip.destinations[i].startDate = null;
                         }
-                        if(this.tripDestinations[i].out_date === undefined || this.tripDestinations[i].out_date.length === 0) {
-                            this.tripDestinations[i].out_date = null;
+                        if(this.inputTrip.destinations[i].endDate === undefined || this.inputTrip.destinations[i].endDate.length === 0) {
+                            this.inputTrip.destinations[i].endDate = null;
                         }
-                        tripDestinationsList.push({destination_id: this.tripDestinations[i].destId, start_date: this.tripDestinations[i].in_date, end_date: this.tripDestinations[i].out_date})
+                        tripDestinationsList.push({destination_id: this.inputTrip.destinations[i].destination.id, start_date: this.inputTrip.destinations[i].startDate, end_date: this.inputTrip.destinations[i].endDate})
                     }
                     let trip = {
-                        trip_name: this.tripName,
-                        trip_destinations: tripDestinationsList
+                        name: this.inputTrip.name,
+                        destinations: tripDestinationsList
                     };
                     this.saveTrip(trip);
                 }
@@ -372,8 +397,8 @@
                         self.showAlert();
                         self.$emit('tripSaved', true);
                         self.resetDestForm();
-                        self.tripName = "";
-                        self.tripDestinations = [];
+                        self.inputTrip.name = "";
+                        self.inputTrip.destinations = [];
                         return JSON.parse(JSON.stringify(response));
                     } else {
                         throw new Error('Something went wrong, try again later.');
@@ -386,7 +411,7 @@
                 });
             },
             getDestinationRows() {
-                return this.tripDestinations.length
+                return this.inputTrips.destinations.length
             },
         }
     }
