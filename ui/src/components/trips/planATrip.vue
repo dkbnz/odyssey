@@ -362,7 +362,7 @@
             saveTrip(trip) {
                 this.savingTrip = true;
                 let self = this;
-                fetch('/v1/trip', {
+                fetch('/v1/trips', {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)
