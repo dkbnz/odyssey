@@ -14,8 +14,6 @@ clean-build:
         - if [ -d "target" ]; then sudo rm -r target/*; fi
         - if [ -d "project/project" ]; then sudo rm -r project/project/*; fi
         - if [ -d "project/target" ]; then sudo rm -r project/target/*; fi
-        - touch text.txt
-        - echo "$(ls -l)"
     only:
         - master@seng302-2019/team-100
   
@@ -36,10 +34,7 @@ tag_checker:
 recent-artifacts:
   stage: deploy
   script:
-    - sudo sbt dist
-    - sudo chown -R gitlab-runner target
-    - sudo chown -R gitlab-runner project/project
-    - sudo chown -R gitlab-runner project/target
+    - sudo -u gitlab-runner sbt dist
   artifacts:
     paths:
       - target/universal/*.zip
@@ -50,10 +45,7 @@ recent-artifacts:
 release-artifacts:
  stage: deploy
  script:
-    - sudo sbt dist
-    - sudo chown -R gitlab-runner target
-    - sudo chown -R gitlab-runner project/project
-    - sudo chown -R gitlab-runner project/target
+    - sudo -u gitlab-runner sbt dist
  artifacts:
     paths:
     - target/universal/*.zip
@@ -65,7 +57,7 @@ update-sonar:
     script:
     - export PATH=$PATH:/opt/sonarscanner/sonar-scanner-3.3.0.1492-linux/bin
     - echo $PATH
-    - sonar-scanner
+    - sudo -u gitlab-runner sonar-scanner
     only:
         - master@seng302-2019/team-100
         - dev_branch@seng302-2019/team-100
@@ -74,8 +66,7 @@ unzip-project:
     stage: unzip
     script:
         - cd target/universal
-        - sudo unzip seng302-team-100-everyware-$SNAPSHOT_VERSION-SNAPSHOT.zip
-        - sudo chown -R gitlab-runner seng302-team-100-everyware-$SNAPSHOT_VERSION-SNAPSHOT
+        - sudo -u gitlab-runnerunzip seng302-team-100-everyware-$SNAPSHOT_VERSION-SNAPSHOT.zip
     only:
         - master@seng302-2019/team-100
 
