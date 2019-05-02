@@ -321,12 +321,13 @@
             },
 
             saveProfile(profile) {
+                let self = this;
                 fetch('/v1/profiles', {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function (response) {
-                    window.location.pathname = "/dash";
+                    self.$router.push("/dash");
                     return response.json();
                 })
             },

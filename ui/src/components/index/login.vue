@@ -18,9 +18,7 @@
             </b-form-group>
             <b-button id="sign-in" variant="primary" block @click="login">Sign In</b-button>
         </b-form>
-
     </div>
-
 </template>
 
 <script>
@@ -44,22 +42,14 @@
                 }).then(function (response) {
                     if (response.ok) {
                         self.showError = false;
-                        window.location.pathname = "/dash";
-                        console.log("here");
-                        // router.push("/dash");
+                        self.$router.push("/dash");
                         return response.json();
                     } else {
                         self.showError = true;
                         return response.json();
                     }
-
-
                 })
             }
         }
     }
 </script>
-
-<style scoped>
-
-</style>
