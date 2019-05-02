@@ -378,8 +378,8 @@
                         tripDestinationsList.push({destination_id: this.inputTrip.destinations[i].destination.id, start_date: this.inputTrip.destinations[i].startDate, end_date: this.inputTrip.destinations[i].endDate})
                     }
                     let trip = {
-                        name: this.inputTrip.name,
-                        destinations: tripDestinationsList
+                        trip_name: this.inputTrip.name,
+                        trip_destinations: tripDestinationsList
                     };
                     this.saveTrip(trip);
                 }
