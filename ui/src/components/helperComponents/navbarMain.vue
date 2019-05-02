@@ -48,6 +48,7 @@
         },
         methods: {
             logout() {
+                let self = this;
                 fetch(`/v1/logout`, {
                     method: 'POST',
                     accept: "application/json"
@@ -55,10 +56,10 @@
                     .then(this.parseJSON)
                     .then(function (response) {
                         if (response.ok) {
-                            window.location.pathname = "/";
+                            self.$router.push("/");
                             return response;
                         } else {
-                            window.location.pathname = "/dash";
+                            self.$router.push("/dash");
                             return response
                         }
                     });
