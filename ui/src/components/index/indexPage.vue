@@ -40,12 +40,8 @@
     import Login from "./login.vue"
 
     export default {
-        name: "Index.vue",
-        props: {
-            'profile': Object,
-            'nationalityOptions': Array,
-            'travTypeOptions': Array
-        },
+        name: "indexPage",
+        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
         created() {
             document.title = "Welcome to TravelEA";
         },

@@ -145,10 +145,7 @@
 <script>
     export default {
         name: "Signup",
-        props: {
-            'nationalityOptions': Array,
-            'travTypeOptions': Array
-        },
+        props: ['nationalityOptions', 'travTypeOptions'],
         data: function() {
             return {
                 showError: false,

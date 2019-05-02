@@ -123,11 +123,7 @@
 <script>
     export default {
         name: "editProfile",
-        props: {
-            'profile': Object,
-            'nationalityOptions': Array,
-            'travTypeOptions': Array
-        },
+        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
         data: function() {
             return {
                 saveProfile: {
