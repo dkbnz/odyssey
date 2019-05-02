@@ -168,7 +168,7 @@
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPage: 10,
                 currentPage: 1,
-                tripName: null,
+                tripName: "",
                 tripDestination: "",
                 inDate: "",
                 outDate: "",
@@ -178,8 +178,8 @@
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 rowEdit: null,
-                editInDate: null,
-                editOutDate: null,
+                editInDate: "",
+                editOutDate: "",
                 fields: [
                     'order',
                     { key: 'name'},
@@ -334,7 +334,7 @@
                 this.outDate = "";
             },
             submitTrip: function() {
-                if (this.tripName === null || this.tripName.length === 0) {
+                if (this.tripName.length === 0) {
                     this.showError = true;
                     this.errorMessage = "No Trip Name";
                 } else if (this.tripDestinations.length < 2) {
@@ -344,10 +344,10 @@
                     this.showError = false;
                     let tripDestinationsList = [];
                     for (let i = 0; i < this.tripDestinations.length; i++) {
-                        if(this.tripDestinations[i].in_date === undefined || this.tripDestinations[i].in_date.length === 0) {
+                        if(this.tripDestinations[i].in_date === null || this.tripDestinations[i].in_date.length === 0) {
                             this.tripDestinations[i].in_date = null;
                         }
-                        if(this.tripDestinations[i].out_date === undefined || this.tripDestinations[i].out_date.length === 0) {
+                        if(this.tripDestinations[i].out_date === null || this.tripDestinations[i].out_date.length === 0) {
                             this.tripDestinations[i].out_date = null;
                         }
                         tripDestinationsList.push({destination_id: this.tripDestinations[i].destId, start_date: this.tripDestinations[i].in_date, end_date: this.tripDestinations[i].out_date})
