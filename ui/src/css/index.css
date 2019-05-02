@@ -6,7 +6,7 @@ body {
 
 .bg {
     /* Background image used */
-    background-image: url("../../../static/background_image.jpg");
+    background-image: url("../../static/background_image.jpg");
     /* Center and scale the image nicely */
     -webkit-background-size: cover;
     -moz-background-size: cover;
