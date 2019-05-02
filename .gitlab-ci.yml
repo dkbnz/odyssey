@@ -56,7 +56,7 @@ update-sonar:
     stage: deploy
     script:
     - echo $PATH
-    - sonar-scanner
+    - sudo -u gitlab-runner sonar-scanner
     only:
         - master@seng302-2019/team-100
         - dev_branch@seng302-2019/team-100
@@ -65,7 +65,7 @@ unzip-project:
     stage: unzip
     script:
         - cd target/universal
-        - sudo -u gitlab-runnerunzip seng302-team-100-everyware-$SNAPSHOT_VERSION-SNAPSHOT.zip
+        - sudo -u gitlab-runner unzip seng302-team-100-everyware-$SNAPSHOT_VERSION-SNAPSHOT.zip
     only:
         - master@seng302-2019/team-100
 
