@@ -60,7 +60,10 @@ public class TripController extends Controller {
             // Create an empty List for TripDestination objects to be populated from the request.
             List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
             // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return OK.
-            if (destinationList != null) {
+
+            boolean isValidDates = isValidDateOrder(destinationList); ///Please confirm with someone else
+
+            if (destinationList != null && isValidDates == true) {
                 trip.setDestinations(destinationList);
                 profile.addTrip(trip);
                 profile.save();
@@ -94,6 +97,8 @@ public class TripController extends Controller {
 
         return true;
     }
+
+
 
 
     /**
@@ -131,7 +136,8 @@ public class TripController extends Controller {
             // Create an empty List for TripDestination objects to be populated from the request.
             List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
 
-            if (destinationList != null) {
+            boolean isValidDates = isValidDateOrder(destinationList); ///Please confirm with someone else
+            if (destinationList != null && isValidDates == true) {
                 trip.setDestinations(destinationList);
                 trip.update();
                 profile.update();
@@ -179,11 +185,11 @@ public class TripController extends Controller {
                 // Parse the values contained in the current node of the array
                 Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATION_ID).asText());
                 LocalDate parsedStartDate = null;
-                if (!destinationJson.get(START_DATE).asText().equals("") || destinationJson.get(START_DATE).asText() != null) {
+                if (!destinationJson.get(START_DATE).asText().equals("null")) {
                     parsedStartDate = LocalDate.parse(destinationJson.get(START_DATE).asText());
                 }
                 LocalDate parsedEndDate = null;
-                if (!destinationJson.get(END_DATE).asText().equals("") || destinationJson.get(END_DATE).asText() != null) {
+                if (!destinationJson.get(END_DATE).asText().equals("null")) {
                     parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
                 }
                 Destination parsedDestination = Destination.find.byId(parsedDestinationId);
@@ -219,6 +225,33 @@ public class TripController extends Controller {
         } else {
             return LocalDate.parse(startDate).isBefore(LocalDate.parse(endDate));
         }
+    }
+
+    /**
+     * Checks if all of the start/end dates within a trip are in valid order, to be called after saving a reorder
+     * @param tripDestinations array of all the destinations in the trip in the new order
+     * @return true if all the dates of destinations within a trip are in chronologinal order, false otherwise
+     */
+    private boolean isValidDateOrder(List<TripDestination> tripDestinations) {
+        //adds all dates within the list of tripdestinations to an array if they aren't null
+        List<LocalDate> alldates = new ArrayList<LocalDate>() {};
+        for(int i = 0; i < tripDestinations.size(); i++) {
+            LocalDate destStart = tripDestinations.get(i).getStartDate();
+            LocalDate destEnd = tripDestinations.get(i).getEndDate();
+            if(destStart != null){
+                alldates.add(destStart);
+            }
+            if(destEnd != null){
+                alldates.add(destEnd);
+            }
+        }
+        //iterate through from item 1 and 2 to n-1 and n. return false if any pair is not in order
+        for(int j=0; j<(alldates.size()-1); j++){
+            if(!(alldates.get(j).isBefore(alldates.get(j+1)))){
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -291,7 +324,7 @@ public class TripController extends Controller {
 
             boolean tripInProfile = false;
             for (Trip tempTrip : profile.getTrips()) {
-                if (tempTrip.getId() == profile.getId()) {
+                if (tempTrip.getId() == id) {
                     tripInProfile = true;
                 }
             }
@@ -310,56 +343,4 @@ public class TripController extends Controller {
         return ok();
 
     }
-
-    /**
-     * Checks whether a trip belongs to the logged in user
-     * @param request Http request from the client, from which the current user profile can be obtained.
-     * @return HTTP response code
-     */
-    public Result checkTripProfile(Http.Request request) {
-        JsonNode json = request.body().asJson();
-
-        if (!json.has("id")) {
-            return badRequest();
-        }
-
-//        if (true) {
-//            return preconditionRequired();
-//        }
-        Long id = json.get("id").asLong();
-
-        String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
-
-        // Check if a user is logged in.
-        if (userId != null) {
-
-            // Retrieve the profile having its trip removed.
-            Profile profile = Profile.find.byId(Integer.valueOf(userId));
-
-            // Retrieve the individual trip being deleted by its id.
-            Trip trip = Trip.find.byId(id.intValue());
-
-            // Check for query success.
-            if (profile == null || trip == null) {
-                return notFound();
-            }
-
-            boolean tripInProfile = false;
-            for (Trip tempTrip : profile.getTrips()) {
-                if (tempTrip.getId() == profile.getId()) {
-                    tripInProfile = true;
-                }
-            }
-            if (!tripInProfile) {
-                return forbidden();
-            }
-
-        } else {
-            return unauthorized();
-        }
-
-        // Deletion successful.
-        return ok();
-    }
-
 }
