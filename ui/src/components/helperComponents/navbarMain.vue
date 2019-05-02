@@ -60,7 +60,7 @@
                             return response;
                         } else {
                             self.$router.push("/dash");
-                            return response
+                            return response;
                         }
                     });
             },
