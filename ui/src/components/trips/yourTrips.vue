@@ -53,13 +53,13 @@
 
                 </b-card>
             </template>
-                <template slot="duration" slot-scope="data">
-                    {{Math.ceil((Math.abs(new Date(data.item.destinations[data.item.destinations.length -1 ].endDate).getTime() - new Date(data.item.destinations[0].startDate).getTime())))/ (1000 * 3600 * 24)}} days
+                <template v-if="trips.length > 0" slot="duration" slot-scope="data">
+                    {{calculateDuration(data.item.destinations)}}
                 </template>
-                <template slot="tripEndDate" slot-scope="data">
+                <template v-if="data.item.destinations[data.item.destinations.length -1].endDate" slot="tripEndDate" slot-scope="data">
                     {{data.item.destinations[data.item.destinations.length -1].endDate}}
                 </template>
-                <template slot="tripEndDest" slot-scope="data">
+                <template v-if="trips.length > 0" slot="tripEndDest" slot-scope="data">
                     {{data.item.destinations[data.item.destinations.length -1].destination.name}}
                 </template>
             </b-table>
@@ -184,6 +184,15 @@
             PlanATrip
         },
         methods: {
+            calculateDuration(destinations) {
+                let calculateDur = Math.ceil((Math.abs(new Date(destinations[destinations.length -1 ].endDate).getTime() - new Date(destinations[0].startDate).getTime())))/ (1000 * 3600 * 24)
+                if (calculateDur >= 365) {
+                    return Math.floor(calculateDur/365) + " year(s)"
+                } else {
+                    return calculateDur + " days"
+                }
+
+            },
             getAllTrips(cb) {
                 let userId = this.profile.id;
                 return fetch(`/v1/trips/` + userId, {
