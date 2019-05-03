@@ -63,11 +63,11 @@ public class TripController extends Controller {
 
             boolean isValidDates = isValidDateOrder(destinationList); ///Please confirm with someone else
 
-            if (destinationList != null && isValidDates == true) {
+            if (destinationList != null && isValidDates) {
                 trip.setDestinations(destinationList);
                 profile.addTrip(trip);
                 profile.save();
-                return ok();
+                return created();
             } else {
                 return badRequest();
             }
@@ -181,15 +181,14 @@ public class TripController extends Controller {
                 if (!isValidDates(destinationJson.get(START_DATE).asText(), destinationJson.get(END_DATE).asText())) {
                     return null;
                 }
-
                 // Parse the values contained in the current node of the array
                 Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATION_ID).asText());
                 LocalDate parsedStartDate = null;
-                if (!destinationJson.get(START_DATE).asText().equals("null")) {
+                if (!(destinationJson.get(START_DATE).asText().equals("null") || destinationJson.get(START_DATE).asText().equals(""))) {
                     parsedStartDate = LocalDate.parse(destinationJson.get(START_DATE).asText());
                 }
                 LocalDate parsedEndDate = null;
-                if (!destinationJson.get(END_DATE).asText().equals("null")) {
+                if (!(destinationJson.get(END_DATE).asText().equals("null") || destinationJson.get(END_DATE).asText().equals(""))) {
                     parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
                 }
                 Destination parsedDestination = Destination.find.byId(parsedDestinationId);
@@ -244,11 +243,15 @@ public class TripController extends Controller {
             if(destEnd != null){
                 alldates.add(destEnd);
             }
+            //alldates.add(destEnd);
+            //alldates.add(destStart);
         }
         //iterate through from item 1 and 2 to n-1 and n. return false if any pair is not in order
         for(int j=0; j<(alldates.size()-1); j++){
-            if(!(alldates.get(j).isBefore(alldates.get(j+1)))){
-                return false;
+            if (!(alldates.get(j) == null || (alldates.get(j+1) == null))) {
+                if(!(alldates.get(j).isBefore(alldates.get(j+1)))){
+                    return false;
+                }
             }
         }
         return true;
