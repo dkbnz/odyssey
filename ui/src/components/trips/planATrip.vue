@@ -355,7 +355,6 @@
                 this.outDate = "";
             },
             submitTrip: function() {
-                console.log(this.inputTrip.name);
                 if (this.inputTrip.name === null || this.inputTrip.name.length === 0) {
                     this.showError = true;
                     this.errorMessage = "No Trip Name";
@@ -366,13 +365,6 @@
                     this.showError = false;
                     let tripDestinationsList = [];
                     for (let i = 0; i < this.inputTrip.destinations.length; i++) {
-                        console.log(this.inputTrip.destinations[i].startDate)
-                        // if(this.inputTrip.destinations[i].startDate === undefined || this.inputTrip.destinations[i].startDate.length === 0) {
-                        //     this.inputTrip.destinations[i].startDate = null;
-                        // }
-                        // if(this.inputTrip.destinations[i].endDate === undefined || this.inputTrip.destinations[i].endDate.length === 0) {
-                        //     this.inputTrip.destinations[i].endDate = null;
-                        // }
                         tripDestinationsList.push({destination_id: this.inputTrip.destinations[i].destination.id, start_date: this.inputTrip.destinations[i].startDate, end_date: this.inputTrip.destinations[i].endDate})
                     }
                     let trip = {
@@ -394,7 +386,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)
                 }).then(function (response) {
-                    if (response.ok) {
+                    if (response.status === 201) {
                         self.savingTrip = false;
                         self.showAlert();
                         self.$emit('tripSaved', true);
@@ -419,7 +411,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)
                 }).then(function (response) {
-                    if (response.ok) {
+                    if (response.status === 201) {
                         self.savingTrip = false;
                         self.showAlert();
                         self.$emit('tripSaved', true);
