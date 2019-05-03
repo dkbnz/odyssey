@@ -321,10 +321,9 @@ public class TripController extends Controller {
             if (profile == null || trip == null) {
                 return notFound();
             }
-
             boolean tripInProfile = false;
             for (Trip tempTrip : profile.getTrips()) {
-                if (tempTrip.getId() == id) {
+                if (tempTrip.getId().equals(id)) {
                     tripInProfile = true;
                 }
             }
