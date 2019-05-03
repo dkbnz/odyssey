@@ -53,6 +53,15 @@
 
                 </b-card>
             </template>
+                <template slot="duration" slot-scope="data">
+                    {{Math.ceil((Math.abs(new Date(data.item.destinations[data.item.destinations.length -1 ].endDate).getTime() - new Date(data.item.destinations[0].startDate).getTime())))/ (1000 * 3600 * 24)}} days
+                </template>
+                <template slot="tripEndDate" slot-scope="data">
+                    {{data.item.destinations[data.item.destinations.length -1].endDate}}
+                </template>
+                <template slot="tripEndDest" slot-scope="data">
+                    {{data.item.destinations[data.item.destinations.length -1].destination.name}}
+                </template>
             </b-table>
             <b-row>
                 <b-col cols="1">
@@ -135,7 +144,10 @@
                 fields: [
                     'name',
                     {key:'destinations[0].startDate', label: 'Start Date'},
-                    {key:'destinations[1].endDate', label: 'End Date'},
+                    {key:'destinations[0].destination.name', label: 'Start Destination'},
+                    {key:'tripEndDate', label: 'End Date'},
+                    {key:'tripEndDest', label: 'End Destination'},
+                    {key: 'duration', label: 'Duration'},
                     'more_details'
                 ],
                 subFields:[
@@ -153,7 +165,7 @@
                 showError: false,
                 validDelete: false,
                 editButton: false,
-                deleteButton: false
+                deleteButton: false,
             }
         },
         mounted () {
@@ -165,7 +177,8 @@
             },
             rowsPast() {
                 return this.pastTrips.length
-            }
+            },
+
         },
         components: {
             PlanATrip
