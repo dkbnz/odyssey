@@ -191,7 +191,7 @@
                 editOutDate: null,
                 fields: [
                     'order',
-                    { key: 'destination.name'},
+                    { key: 'destination.name', label: 'Destination Name'},
                     { key: 'startDate' },
                     { key: 'endDate' },
                     'actions'
