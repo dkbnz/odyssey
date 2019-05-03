@@ -5,14 +5,21 @@
             <p class="page_title"><i>Here are your upcoming trips!</i></p>
             <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
             <b-alert v-model="validDelete" variant="success" dismissible>Trip Deleted</b-alert>
+
             <b-modal ref="deleteModal" id="deleteModal" hide-footer title="Delete Trip">
                 <div class="d-block">
-                    Are you sure that you want to delete "{{tripName}}"?
+                    Are you sure that you want to delete "{{selectedTrip.name}}"?
                 </div>
-                <b-button class="mr-2 float-right" variant="danger" @click="dismissModal(); deleteTrip(tripToDelete);">Delete</b-button>
-                <b-button class="mr-2 float-right" @click="dismissModal">Cancel</b-button>
+                <b-button class="mr-2 float-right" variant="danger" @click="dismissModal('deleteModal'); deleteTrip(selectedTrip);">Delete</b-button>
+                <b-button class="mr-2 float-right" @click="dismissModal('deleteModal')">Cancel</b-button>
 
             </b-modal>
+
+            <b-modal ref="editTripModal" id="editTripModal" size="xl" hide-footer title="Edit Trip">
+                <plan-a-trip v-bind:inputTrip="selectedTrip" v-if="selectedTrip !== ''"></plan-a-trip>
+                <b-button class="mr-2 float-right" @click="dismissModal('editTripModal')">Cancel</b-button>
+            </b-modal>
+
             <b-table hover striped outlined
                      id="myFutureTrips"
                      ref="myFutureTrips"
@@ -29,19 +36,39 @@
                 <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                 </b-button>
-                <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="checkDelete(row.item)" variant="danger" class="mr-2">Delete
+                <b-button size="sm" v-model="editButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)" variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
+                </b-button>
+                <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)" variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
                 <b-card>
                     <b-table
                     id="futureTripsDestinations"
+                    ref="destinationsTable"
                     :items="row.item.destinations"
                     :fields="subFields">
+                        <template v-if="trips.length > 0" slot="destInDate" slot-scope="data">
+                            {{data.item.startDate}}
+                        </template>
+                        <template v-if="trips.length > 0" slot="destOutDate" slot-scope="data">
+                            {{data.item.endDate}}
+                        </template>
+
                     </b-table>
 
                 </b-card>
             </template>
+            <template v-if="trips.length > 0" slot="duration" slot-scope="data">
+                {{calculateDuration(data.item.destinations)}}
+            </template>
+            <template v-if="data.item.destinations[data.item.destinations.length -1].endDate" slot="tripEndDate" slot-scope="data">
+                {{data.item.destinations[data.item.destinations.length -1].endDate}}
+            </template>
+            <template v-if="trips.length > 0" slot="tripEndDest" slot-scope="data">
+                {{data.item.destinations[data.item.destinations.length -1].destination.name}}
+            </template>
+
             </b-table>
             <b-row>
                 <b-col cols="1">
@@ -84,7 +111,8 @@
                     <b-form-group
                             id="numItemsPast-field"
                             label-for="perPagePast">
-                        <b-form-select id="perPage" v-model="perPagePast" :options="optionViews" size="sm" trim> </b-form-select>
+                        <b-form-select id="perPage" v-model="perPagePast" :options="optionViews" size="sm" trim>
+                        </b-form-select>
                     </b-form-group>
                 </b-col>
                 <b-col cols="8">
@@ -111,7 +139,7 @@
     import PlanATrip from './planATrip.vue'
     export default {
         name: "YourTrips",
-        props: ['profile'],
+        props: ['profile', 'userProfile'],
         data: function() {
             return {
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
@@ -120,22 +148,30 @@
                 currentPageUpcoming: 1,
                 currentPagePast: 1,
                 sortBy: 'destinations[0].startDate',
-                fields: ['name', {key:'destinations[0].startDate', label: 'Start Date'}, {key:'destinations[1].endDate', label: 'End Date'}, 'more_details'],
+                fields: [
+                    'name',
+                    {key:'destinations[0].startDate', label: 'Start Date'},
+                    {key:'destinations[0].destination.name', label: 'Start Destination'},
+                    {key:'tripEndDate', label: 'End Date'},
+                    {key:'tripEndDest', label: 'End Destination'},
+                    {key: 'duration', label: 'Duration'},
+                    'more_details'
+                ],
                 subFields:[
                     {key: 'destination.name', label: "Destination Name"},
                     {key: 'destination.type.destinationType', label: "Destination Type"},
                     {key: 'destination.district', label: "Destination District"},
                     {key: 'destination.latitude', label: "Destination Latitude"},
                     {key: 'destination.longitude', label: "Destination Longitude"},
-                    {key: 'destination.startDate', label: "In Date"},
-                    {key: 'destination.endDate', label: "Out Date"}],
+                    {key: 'destInDate', label: "In Date"},
+                    {key: 'destOutDate', label: "Out Date"}],
                 pastTrips: [],
                 trips:[],
-                tripToDelete: null,
-                tripName: null,
+                selectedTrip: "",
                 errorMessage: "",
                 showError: false,
                 validDelete: false,
+                editButton: false,
                 deleteButton: false,
             }
         },
@@ -148,12 +184,22 @@
             },
             rowsPast() {
                 return this.pastTrips.length
-            }
+            },
+
         },
         components: {
             PlanATrip
         },
         methods: {
+            calculateDuration(destinations) {
+                let calculateDur = Math.ceil((Math.abs(new Date(destinations[destinations.length -1 ].endDate).getTime() - new Date(destinations[0].startDate).getTime())))/ (1000 * 3600 * 24)
+                if (calculateDur >= 365) {
+                    return Math.floor(calculateDur/365) + " year(s)"
+                } else {
+                    return calculateDur + " days"
+                }
+
+            },
             getAllTrips(cb) {
                 let userId = this.profile.id;
                 return fetch(`/v1/trips/` + userId, {
@@ -167,9 +213,8 @@
                 this.validDelete = true;
                 this.getAllTrips(trips => this.trips = trips);
             },
-            checkDelete(row) {
-                this.tripToDelete = row;
-                this.tripName = row.name;
+            sendTripToModal(trip) {
+                this.selectedTrip = trip;
             },
             deleteTrip: function(trip) {
                 this.errorMessage = "";
@@ -191,8 +236,8 @@
                     this.errorMessage = (error);
                 });
             },
-            dismissModal() {
-                this.$refs['deleteModal'].hide()
+            dismissModal(modal) {
+                this.$refs[modal].hide();
             },
             checkStatus (response) {
                 if (response.status >= 200 && response.status < 300) {
