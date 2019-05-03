@@ -23,7 +23,9 @@
         </ul>
 
 
+
         <your-trips></your-trips>
+
     </div>
 </template>
 
