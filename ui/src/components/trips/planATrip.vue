@@ -97,9 +97,9 @@
                 </b-button>
             </template>
             <template slot="order" slot-scope="row">
-                <b-button size="sm" :disabled="inputTrip.destinations.length === 1 || row.index === 0" @click="moveUpCheck(row.index)" variant="success" class="mr-2">&uarr;
+                <b-button size="sm" :disabled="inputTrip.destinations.length === 1 || row.index === 0" @click="moveUp(row.index)" variant="success" class="mr-2">&uarr;
                 </b-button>
-                <b-button size="sm" :disabled="inputTrip.destinations.length === 1 || row.index === inputTrip.destinations.length-1" @click="moveDownCheck(row.index)" variant="success" class="mr-2">&darr;
+                <b-button size="sm" :disabled="inputTrip.destinations.length === 1 || row.index === inputTrip.destinations.length-1" @click="moveDown(row.index)" variant="success" class="mr-2">&darr;
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
@@ -192,7 +192,7 @@
                 fields: [
                     'order',
                     { key: 'destination.name', label: 'Destination Name'},
-                    { key: 'startDate' },
+                    { key: 'startDate'},
                     { key: 'endDate' },
                     'actions'
                 ],
@@ -273,57 +273,32 @@
                 this.editInDate = row.startDate;
                 this.editOutDate = row.endDate;
             },
-            moveUpCheck(rowIndex) {
-                if(rowIndex === 1 && this.inputTrip.destinations[rowIndex-1].destination.id === this.inputTrip.destinations[rowIndex+1].destination.id) {
-                    this.showDuplicateDestError("move")
-                }
-                else if (rowIndex === 1) {
-                    this.moveUp(rowIndex);
-                }
-                else if (rowIndex === this.getDestinationRows()-1) {
-                    this.moveUp(rowIndex);
-                }
-                else if (this.inputTrip.destinations[rowIndex-1].destination.id === this.inputTrip.destinations[rowIndex+1].destination.id) {
-                    this.showDuplicateDestError("move")
-                }
-                else if(this.inputTrip.destinations[rowIndex-2].destination.id !== this.inputTrip.destinations[rowIndex].destination.id) {
-                    this.moveUp(rowIndex);
-                } else {
-                    this.showDuplicateDestError("move")
-                }
-            },
             moveUp(rowIndex) {
                 let upIndex = rowIndex - 1;
                 let swapRow = this.inputTrip.destinations[rowIndex];
                 this.inputTrip.destinations[rowIndex] = this.inputTrip.destinations[upIndex];
                 this.inputTrip.destinations[upIndex] = swapRow;
-                this.$refs.tripDestTable.refresh()
-            },
-            moveDownCheck(rowIndex) {
-                if(rowIndex === this.getDestinationRows()-2 && this.inputTrip.destinations[rowIndex+1].destination.id === this.inputTrip.destinations[rowIndex-1].destination.id) {
-                    this.showDuplicateDestError("move")
-                }
-                else if (rowIndex === this.getDestinationRows()-2) {
-                    this.moveDown(rowIndex);
-                }
-                else if (rowIndex === 0) {
-                    this.moveDown(rowIndex);
-                }
-                else if (this.inputTrip.destinations[rowIndex+1].destination.id === this.inputTrip.destinations[rowIndex-1].destination.id) {
-                    this.showDuplicateDestError("move")
-                }
-                else if(this.inputTrip.destinations[rowIndex+2].destination.id !== this.inputTrip.destinations[rowIndex].destination.id) {
-                    this.moveDown(rowIndex);
-                } else {
-                    this.showDuplicateDestError("move")
-                }
+                this.$refs.tripDestTable.refresh();
             },
             moveDown(rowIndex) {
                 let upIndex = rowIndex + 1;
                 let swapRow = this.inputTrip.destinations[rowIndex];
                 this.inputTrip.destinations[rowIndex] = this.inputTrip.destinations[upIndex];
                 this.inputTrip.destinations[upIndex] = swapRow;
-                this.$refs.tripDestTable.refresh()
+                this.$refs.tripDestTable.refresh();
+            },
+            checkDuplicateDestinations() {
+                let result = [];
+                for (let i = 0; i < this.inputTrip.destinations.length-1; i++) {
+                    if (this.inputTrip.destinations[i].destination.id === this.inputTrip.destinations[i+1].destination.id) {
+                        result.push(true);
+                    } else {
+                        result.push(false);
+                    }
+                }
+                if(result.includes(true)) {
+                    return true;
+                }
             },
             showDuplicateDestError(error) {
                 this.showError = true;
@@ -361,7 +336,10 @@
                 } else if (this.inputTrip.destinations.length < 2) {
                     this.showError = true;
                     this.errorMessage = "There must be at least 2 destinations";
-                } else {
+                } else if (this.checkDuplicateDestinations()) {
+                    this.showDuplicateDestError("save");
+                }
+                else {
                     this.showError = false;
                     let tripDestinationsList = [];
                     for (let i = 0; i < this.inputTrip.destinations.length; i++) {
