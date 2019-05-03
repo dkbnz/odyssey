@@ -241,7 +241,6 @@
             }
         },
         mounted() {
-            console.log(this.saveProfile.gender);
         },
         computed: {
             fNameValidation() {
