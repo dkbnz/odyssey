@@ -52,12 +52,29 @@
                 password: ''
             }
         },
-        methods: {},
+        mounted() {
+            this.getProfile();
+        },
+        methods: {
+            redirectToDash() {
+                this.$router.replace("/dash");
+            },
+            getProfile() {
+                let self = this;
+                return fetch(`/v1/profile`, {
+                    accept: "application/json"
+                })
+                    .then(function (response) {
+                        if (response.status === 200) {
+                            self.redirectToDash();
+                        }
+                    })
+            }
+        },
         components: {
             Signup,
             Login
         }
-
     }
 </script>
 
