@@ -38,9 +38,9 @@
                 <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                 </b-button>
-                <b-button size="sm" v-model="editButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)" variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
+                <b-button size="sm" v-model="editFutureButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)" variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
                 </b-button>
-                <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)" variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
+                <b-button size="sm" v-model="deleteFutureButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)" variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
@@ -100,23 +100,6 @@
         <div id="pastTrips">
             <h1 class="page_title">Past Trips</h1>
             <p class="page_title"><i>Here are your past trips!</i></p>
-            <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
-            <b-alert v-model="validDelete" variant="success" dismissible>Trip Deleted</b-alert>
-
-            <b-modal ref="deleteModal" id="deleteModal" hide-footer title="Delete Trip">
-                <div class="d-block">
-                    Are you sure that you want to delete "{{selectedTrip.name}}"?
-                </div>
-                <b-button class="mr-2 float-right" variant="danger" @click="dismissModal('deleteModal'); deleteTrip(selectedTrip);">Delete</b-button>
-                <b-button class="mr-2 float-right" @click="dismissModal('deleteModal')">Cancel</b-button>
-
-            </b-modal>
-
-            <b-modal ref="editTripModal" id="editTripModal" size="xl" hide-footer title="Edit Trip">
-                <plan-a-trip v-bind:inputTrip="selectedTrip" v-if="selectedTrip !== ''"></plan-a-trip>
-                <b-button class="mr-2 float-right" @click="dismissModal('editTripModal')">Cancel</b-button>
-            </b-modal>
-
             <b-table hover striped outlined
                      id="myPastTrips"
                      ref="myPastTrips"
@@ -135,9 +118,9 @@
                     <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                         {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                     </b-button>
-                    <b-button size="sm" v-model="editButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)" variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
+                    <b-button size="sm" v-model="editPastButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)" variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
                     </b-button>
-                    <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)" variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
+                    <b-button size="sm" v-model="deletePastButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)" variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
                     </b-button>
                 </template>
                 <template slot="row-details" slot-scope="row">
@@ -238,8 +221,10 @@
                 errorMessage: "",
                 showError: false,
                 validDelete: false,
-                editButton: false,
-                deleteButton: false,
+                editFutureButton: false,
+                deleteFutureButton: false,
+                editPastButton: false,
+                deletePastButton: false
             }
         },
         mounted () {
@@ -251,7 +236,6 @@
                         self.futureTrips.push(trips[i]);
                     }
                     else if (new Date(trips[i].destinations[0].startDate) <= todayDate) {
-                        //console.log(trips[i].destinations.slice(-1)[0].endDate);
                         self.pastTrips.push(trips[i]);
                     } else {
                         self.futureTrips.push(trips[i]);
@@ -296,18 +280,7 @@
             },
             successfulDelete() {
                 this.validDelete = true;
-                this.getAllTrips(trips => {
-                    let todayDate = new Date();
-                    let self = this;
-                    for (let i = 0; i < trips.length; i++) {
-                        if (new Date(trips[i].destinations[0].startDate) <= todayDate) {
-                            self.pastTrips.push(trips[i]);
-                        } else {
-                            self.futureTrips.push(trips[i]);
-                        }
-                    }
-
-                })
+                //location.reload();
             },
             sendTripToModal(trip) {
                 this.selectedTrip = trip;
