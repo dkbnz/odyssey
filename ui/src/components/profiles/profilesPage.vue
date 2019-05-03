@@ -77,7 +77,7 @@
                     </template>
                     <template slot="row-details" slot-scope="row">
                         <b-card>
-                            <view-profile :profile="row.item" ></view-profile>
+                            <view-profile :profile="row.item" :userProfile="profile"></view-profile>
                         </b-card>
                     </template>
                 </b-table>
