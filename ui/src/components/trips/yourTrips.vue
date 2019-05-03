@@ -1,8 +1,6 @@
 <template>
     <div class="container">
         <div id="upcomingTrips">
-            {{profile.id}}
-            {{userProfile.id}}
             <h1 class="page_title">Upcoming Trips</h1>
             <p class="page_title"><i>Here are your upcoming trips!</i></p>
             <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
@@ -12,14 +10,14 @@
                 <div class="d-block">
                     Are you sure that you want to delete "{{selectedTrip.name}}"?
                 </div>
-                <b-button class="mr-2 float-right" variant="danger" @click="dismissModal(); deleteTrip(selectedTrip);">Delete</b-button>
-                <b-button class="mr-2 float-right" @click="dismissModal">Cancel</b-button>
+                <b-button class="mr-2 float-right" variant="danger" @click="dismissModal('deleteModal'); deleteTrip(selectedTrip);">Delete</b-button>
+                <b-button class="mr-2 float-right" @click="dismissModal('deleteModal')">Cancel</b-button>
 
             </b-modal>
 
             <b-modal ref="editTripModal" id="editTripModal" size="xl" hide-footer title="Edit Trip">
                 <plan-a-trip v-bind:inputTrip="selectedTrip" v-if="selectedTrip !== ''"></plan-a-trip>
-                <b-button class="mr-2 float-right" @click="dismissModal">Cancel</b-button>
+                <b-button class="mr-2 float-right" @click="dismissModal('editTripModal')">Cancel</b-button>
             </b-modal>
 
             <b-table hover striped outlined
@@ -47,21 +45,30 @@
                 <b-card>
                     <b-table
                     id="futureTripsDestinations"
+                    ref="destinationsTable"
                     :items="row.item.destinations"
                     :fields="subFields">
+                        <template v-if="trips.length > 0" slot="destInDate" slot-scope="data">
+                            {{data.item.startDate}}
+                        </template>
+                        <template v-if="trips.length > 0" slot="destOutDate" slot-scope="data">
+                            {{data.item.endDate}}
+                        </template>
+
                     </b-table>
 
                 </b-card>
             </template>
-                <template v-if="trips.length > 0" slot="duration" slot-scope="data">
-                    {{calculateDuration(data.item.destinations)}}
-                </template>
-                <template v-if="data.item.destinations[data.item.destinations.length -1].endDate" slot="tripEndDate" slot-scope="data">
-                    {{data.item.destinations[data.item.destinations.length -1].endDate}}
-                </template>
-                <template v-if="trips.length > 0" slot="tripEndDest" slot-scope="data">
-                    {{data.item.destinations[data.item.destinations.length -1].destination.name}}
-                </template>
+            <template v-if="trips.length > 0" slot="duration" slot-scope="data">
+                {{calculateDuration(data.item.destinations)}}
+            </template>
+            <template v-if="data.item.destinations[data.item.destinations.length -1].endDate" slot="tripEndDate" slot-scope="data">
+                {{data.item.destinations[data.item.destinations.length -1].endDate}}
+            </template>
+            <template v-if="trips.length > 0" slot="tripEndDest" slot-scope="data">
+                {{data.item.destinations[data.item.destinations.length -1].destination.name}}
+            </template>
+
             </b-table>
             <b-row>
                 <b-col cols="1">
@@ -156,8 +163,8 @@
                     {key: 'destination.district', label: "Destination District"},
                     {key: 'destination.latitude', label: "Destination Latitude"},
                     {key: 'destination.longitude', label: "Destination Longitude"},
-                    {key: 'destination.startDate', label: "In Date"},
-                    {key: 'destination.endDate', label: "Out Date"}],
+                    {key: 'destInDate', label: "In Date"},
+                    {key: 'destOutDate', label: "Out Date"}],
                 pastTrips: [],
                 trips:[],
                 selectedTrip: "",
@@ -208,7 +215,6 @@
             },
             sendTripToModal(trip) {
                 this.selectedTrip = trip;
-                console.log(this.selectedTrip.name)
             },
             deleteTrip: function(trip) {
                 this.errorMessage = "";
@@ -230,8 +236,8 @@
                     this.errorMessage = (error);
                 });
             },
-            dismissModal() {
-                this.$refs['deleteModal'].hide()
+            dismissModal(modal) {
+                this.$refs[modal].hide();
             },
             checkStatus (response) {
                 if (response.status >= 200 && response.status < 300) {
