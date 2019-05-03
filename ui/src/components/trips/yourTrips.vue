@@ -38,9 +38,9 @@
                 <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                 </b-button>
-                <b-button size="sm" v-model="editFutureButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)" variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
+                <b-button size="sm" v-model="editButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)" variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
                 </b-button>
-                <b-button size="sm" v-model="deleteFutureButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)" variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
+                <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)" variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
                 </b-button>
             </template>
             <template slot="row-details" slot-scope="row">
@@ -118,9 +118,9 @@
                     <b-button size="sm" @click="row.toggleDetails" class="mr-2">
                         {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                     </b-button>
-                    <b-button size="sm" v-model="editPastButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)" variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
+                    <b-button size="sm" v-model="editButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)" variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
                     </b-button>
-                    <b-button size="sm" v-model="deletePastButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)" variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
+                    <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)" variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
                     </b-button>
                 </template>
                 <template slot="row-details" slot-scope="row">
@@ -221,10 +221,8 @@
                 errorMessage: "",
                 showError: false,
                 validDelete: false,
-                editFutureButton: false,
-                deleteFutureButton: false,
-                editPastButton: false,
-                deletePastButton: false
+                editButton: false,
+                deleteButton: false,
             }
         },
         mounted () {
@@ -293,6 +291,7 @@
                 fetch('/v1/trips/' + trip.id, {
                         method: 'DELETE',
                 }).then(function (response) {
+                    console.log(response);
                     if (response.ok) {
                         self.successfulDelete();
                     } else if (response.status === 403) {
