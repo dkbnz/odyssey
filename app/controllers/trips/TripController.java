@@ -61,9 +61,7 @@ public class TripController extends Controller {
             List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
             // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return OK.
 
-            boolean isValidDates = isValidDateOrder(destinationList); ///Please confirm with someone else
-
-            if (destinationList != null && isValidDates) {
+            if (destinationList != null && isValidDateOrder(destinationList)) {
                 trip.setDestinations(destinationList);
                 profile.addTrip(trip);
                 profile.save();
