@@ -61,9 +61,7 @@ public class TripController extends Controller {
             List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
             // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return OK.
 
-            boolean isValidDates = isValidDateOrder(destinationList); ///Please confirm with someone else
-
-            if (destinationList != null && isValidDates) {
+            if (destinationList != null && isValidDateOrder(destinationList)) {
                 trip.setDestinations(destinationList);
                 profile.addTrip(trip);
                 profile.save();
@@ -136,8 +134,7 @@ public class TripController extends Controller {
             // Create an empty List for TripDestination objects to be populated from the request.
             List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
 
-            boolean isValidDates = isValidDateOrder(destinationList); ///Please confirm with someone else
-            if (destinationList != null && isValidDates == true) {
+            if (destinationList != null && isValidDateOrder(destinationList)) {
                 trip.setDestinations(destinationList);
                 trip.update();
                 profile.update();
@@ -222,7 +219,7 @@ public class TripController extends Controller {
         }else if (endDate.equals("") || endDate.equals("null")){
             return true;
         } else {
-            return LocalDate.parse(startDate).isBefore(LocalDate.parse(endDate));
+            return (LocalDate.parse(startDate).isBefore(LocalDate.parse(endDate)) || LocalDate.parse(startDate).equals(LocalDate.parse(endDate)));
         }
     }
 
@@ -243,14 +240,14 @@ public class TripController extends Controller {
             if(destEnd != null){
                 alldates.add(destEnd);
             }
-            //alldates.add(destEnd);
-            //alldates.add(destStart);
         }
         //iterate through from item 1 and 2 to n-1 and n. return false if any pair is not in order
         for(int j=0; j<(alldates.size()-1); j++){
             if (!(alldates.get(j) == null || (alldates.get(j+1) == null))) {
-                if(!(alldates.get(j).isBefore(alldates.get(j+1)))){
-                    return false;
+                if((alldates.get(j).isAfter(alldates.get(j+1)))){
+                    if (!(alldates.get(j).equals(alldates.get(j+1)))) {
+                        return false;
+                    }
                 }
             }
         }
@@ -324,10 +321,9 @@ public class TripController extends Controller {
             if (profile == null || trip == null) {
                 return notFound();
             }
-
             boolean tripInProfile = false;
             for (Trip tempTrip : profile.getTrips()) {
-                if (tempTrip.getId() == id) {
+                if (tempTrip.getId().equals(id)) {
                     tripInProfile = true;
                 }
             }
