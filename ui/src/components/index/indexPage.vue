@@ -15,9 +15,11 @@
                                 <b-button v-b-modal.modalSignup class="btn btn-info btn-lg float-right">Signup</b-button>
                                 <b-modal id="modalSignup" centered hide-footer>
                                     <template slot="modal-title"><h2>Sign Up</h2></template>
-                                    <signup v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></signup>
+                                    <signup v-bind:nationalityOptions="nationalityOptions"
+                                            v-bind:travTypeOptions="travTypeOptions"></signup>
                                 </b-modal>
                             </b-col>
+
                             <b-col>
                                 <b-button v-b-modal.modalLogin  class="btn btn-info btn-lg float-left">Login</b-button>
                                 <b-modal id="modalLogin" hide-footer centered title="Login">
