@@ -11,6 +11,7 @@
                     :state="userstate" >
                 <b-form-input id="username" v-model="username" :state="userstate" autofocus trim></b-form-input>
             </b-form-group>
+
             <b-form-group
                     id="password-field"
                     description="Please enter your password"
@@ -35,9 +36,16 @@
             }
         },
         computed: {
+            /**
+             * Checks email validity
+             * @returns {boolean|*} true if email is valid
+             */
             userstate() {
                 return !!(this.username.length >= 4) && this.username.includes('@')
             },
+            /**
+             * @returns {string} specific error messages depending on error
+             */
             userinvalidFeedback() {
                 if (this.username.length > 4) {
                     return ''
@@ -52,6 +60,9 @@
             }
         },
         methods: {
+            /**
+             * Attempts to log user in and redirects to dash page if login is valid
+             */
             login() {
                 fetch('/v1/login', {
                     method: 'POST',

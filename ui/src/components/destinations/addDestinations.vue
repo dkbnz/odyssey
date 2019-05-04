@@ -3,6 +3,9 @@
         <h1 class="page_title">Add a Destination</h1>
         <p class="page_title"><i>Add a destination using the form below</i></p>
         <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
+
+        <!--Displays a progress bar alert on submission which ticks down time to act
+        as a buffer for destination being added-->
         <b-alert
                 :show="dismissCountDown"
                 dismissible
@@ -18,6 +21,8 @@
                     height="4px"
             ></b-progress>
         </b-alert>
+
+        <!--Form for adding a destination-->
         <div>
             <b-form>
                 <b-form-group
@@ -90,6 +95,10 @@
             }
         },
         methods: {
+            /**
+             * Checks that latitude and longitude values are numbers and are between standard lat/long ranges
+             * @returns {boolean} true if fields are valid
+             */
             checkLatLong() {
                 let ok = true;
                 if (isNaN(this.dLatitude)) {
@@ -98,9 +107,19 @@
                 } else if (isNaN(this.dLongitude)) {
                     this.errorMessage = ("Longitude: '" + this.dLongitude + "' is not a number!");
                     ok = false;
+                } else if (abs(this.dLatitude) > 90) {
+                    this.errorMessage = ("Latitude: '" + this.dLatitude + "' must be between -90 and 90");
+                    ok = false;
+                } else if (abs(this.dLongitude) > 180) {
+                    this.errorMessage = ("Longitude: '" + this.dLongitude + "' must be between -180 and 180");
+                    ok = false;
                 }
                 return ok;
             },
+            /**
+             * Checks that all fields are present and runs validation
+             * On fail shows errors
+             */
             checkDestinationFields() {
                 if (!this.checkLatLong()) {
                     this.showError = true;
@@ -113,6 +132,9 @@
 
                 }
             },
+            /**
+             * Sets all fields to blank
+             */
             resetDestForm() {
                 this.dName = "";
                 this.dType = "";
@@ -121,6 +143,12 @@
                 this.dLongitude = "";
                 this.dCountry = "";
             },
+            /**
+             * Adds new destination to database, then resets form and shows success alert
+             * Checks whether location is duplicate and displays error if so
+             * @param cb
+             * @returns {Promise<Response | never>}
+             */
             addDestination (cb) {
                 let self = this;
                 let response = fetch(`/v1/destinations`, {
