@@ -6,8 +6,8 @@
 
         <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
 
-        <!--Displays success alert and progress bar on trip creation as a loading bar
-        for the trip being added to the database-->
+        <!-- Displays success alert and progress bar on trip creation as a loading bar
+        for the trip being added to the database -->
         <b-alert
                 :show="dismissCountDown"
                 dismissible
@@ -23,18 +23,19 @@
             ></b-progress>
         </b-alert>
 
-        <!--Modal for editing the arrival and departure dates for a destination
-        Displayed when the 'Edit' button is clicked on a destination-->
+        <!-- Modal for editing the arrival and departure dates for a destination
+        Displayed when the 'Edit' button is clicked on a destination -->
         <b-modal ref="editModal" id="editModal" hide-footer title="Edit Destination">
+            <b-alert v-model="showDateError" variant="danger" dismissible>{{errorMessage}}</b-alert>
             <div class="d-block">
-                <b-form-group id="editInDate-field" label="In Date:" label-for="editInDate">
+                <b-form-group id="editInDate-field" label="Start Date:" label-for="editInDate">
                     <b-input id="editInDate"
                              :type="'date'"
                              v-model="editInDate"
                              max='9999-12-31'>
                         {{editInDate}} trim</b-input>
                 </b-form-group>
-                <b-form-group id="editOutDate-field" label="Out Date:" label-for="editOutDate">
+                <b-form-group id="editOutDate-field" label="End Date:" label-for="editOutDate">
                     <b-input id="editOutDate"
                              :type="'date'"
                              v-model="editOutDate"
@@ -43,7 +44,7 @@
                 </b-form-group>
             </div>
 
-            <!--Buttons to cancel/save edit-->
+            <!-- Buttons to cancel/save edit -->
             <b-button class="mr-2 float-right"
                       variant="success"
                       @click="saveDestination(rowEdit, editInDate, editOutDate); dismissModal; dismissCountDown">
@@ -68,7 +69,7 @@
                 </b-form-group>
             </b-container>
 
-            <!--Form for adding a destination. Reset on destination add-->
+            <!-- Form for adding a destination. Reset on destination add -->
             <b-form @reset="resetDestForm">
                 <b-container>
                     <b-row >
@@ -125,7 +126,7 @@
             </b-form>
         </b-form>
 
-        <!--Table displaying all added destinations-->
+        <!-- Table displaying all added destinations -->
         <b-table hover striped outlined
                  ref="tripDestTable"
                  id="myTrips"
@@ -134,7 +135,7 @@
                  :per-page="perPage"
                  :current-page="currentPage">
 
-            <!--Buttons that appear for each destination added to table-->
+            <!-- Buttons that appear for each destination added to table -->
             <template slot="actions" slot-scope="row">
                 <!--Opens edit modal-->
                 <b-button size="sm"
@@ -142,7 +143,7 @@
                           @click="populateModal(row.item)"
                           class="mr-2">Edit
                 </b-button>
-                <!--Shows additional details about the selected destination-->
+                <!-- Shows additional details about the selected destination -->
                 <b-button size="sm"
                           @click="row.toggleDetails"
                           class="mr-2">
@@ -156,7 +157,7 @@
                 </b-button>
             </template>
 
-            <!--Buttons to shift destinations up/down in table-->
+            <!-- Buttons to shift destinations up/down in table -->
             <template slot="order" slot-scope="row">
                 <b-button size="sm"
                           :disabled="inputTrip.destinations.length === 1 || row.index === 0"
@@ -173,7 +174,7 @@
                 </b-button>
             </template>
 
-            <!--Additional details about selected destination, shown when 'Show Details' button is clicked-->
+            <!-- Additional details about selected destination, shown when 'Show Details' button is clicked -->
             <template slot="row-details" slot-scope="row">
                 <b-card>
                     <b-row class="mb-2">
@@ -205,7 +206,7 @@
 
         </b-table>
 
-        <!--Determines pagination and number of results per row of the table-->
+        <!-- Determines pagination and number of results per row of the table -->
         <b-row>
             <b-col cols="1">
                 <b-form-group
@@ -271,6 +272,7 @@
                 inDate: "",
                 outDate: "",
                 showError: false,
+                showDateError: false,
                 errorMessage: "",
                 successTripAddedAlert: false,
                 dismissSecs: 3,
@@ -299,7 +301,9 @@
         },
         computed: {
             /**
-             * @returns {number} the number of rows required in the table based on number of destinations to be displayed
+             * Computed function used for the pagination of the table.
+             * @returns {number} the number of rows required in the table based on number of destinations to be
+             * displayed.
              */
             rows() {
                 return this.inputTrip.destinations.length
@@ -307,23 +311,20 @@
         },
         methods: {
             /**
-             *
+             * Method used to check the destination to be added to the table is valid.
+             * First insures a destination is selected from the list.
+             * Then ensures the start date is before the end date.
              */
-            checkDestination: function() {
+            checkDestination() {
                 if (this.tripDestination) {
                     let startDate = new Date(this.inDate);
                     let endDate = new Date(this.outDate);
 
-                    if(startDate > endDate) {
-                        this.showError = true;
-                        this.errorMessage = "Incorrect date ordering.";
-
-                    } else if(this.inputTrip.destinations.length === 0) {
-                        this.addDestination()
-                    } else if(!this.checkSameDestination(this.tripDestination.id)) {
+                    if(startDate < endDate) {
                         this.addDestination()
                     } else {
-                        this.showDuplicateDestError("add");
+                        this.showError = true;
+                        this.errorMessage = "Incorrect date ordering.";
                     }
                 } else {
                     this.showError = true;
@@ -331,6 +332,10 @@
                 }
 
             },
+
+            /**
+             * Method to add the
+             */
             addDestination() {
                 this.showError = false;
                 this.inputTrip.destinations.push({
@@ -399,16 +404,17 @@
                 this.showError = true;
                 this.errorMessage = "Can't have same destination next to another, please choose another destination to " + error;
             },
-            checkSameDestination(destination) {
-                let previousDestinationIndex = this.inputTrip.destinations.length - 1;
-                if(this.inputTrip.destinations[previousDestinationIndex].destination.id === destination.id) {
-                    return true;
-                }
-            },
             saveDestination(row, editInDate, editOutDate) {
-                row.startDate = editInDate;
-                row.endDate = editOutDate;
-                this.dismissModal();
+                if (editInDate <= editOutDate) {
+                    this.showDateError = false;
+                    row.startDate = editInDate;
+                    row.endDate = editOutDate;
+                    this.dismissModal();
+                } else {
+                    this.showDateError = true;
+                    this.errorMessage = "Can't have the out date after the in date!"
+                }
+
             },
             dismissModal() {
                 this.$refs['editModal'].hide()
@@ -418,6 +424,15 @@
             },
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
+            },
+            checkDestinationDates() {
+                for (let i = 0; i < this.inputTrip.destinations.length; i++) {
+                    if(this.inputTrip.destinations[i].endDate > this.inputTrip.destinations[i+1].startDate) {
+                        return false
+                    } else {
+                        return true;
+                    }
+                }
             },
             resetDestForm() {
                 this.tripDestination = "";
@@ -433,6 +448,9 @@
                     this.errorMessage = "There must be at least 2 destinations";
                 } else if (this.checkDuplicateDestinations()) {
                     this.showDuplicateDestError("save");
+                } else if (!this.checkDestinationDates()) {
+                    this.showError = true;
+                    this.errorMessage = "The ordering of the dates doesn't work!";
                 }
                 else {
                     this.showError = false;
