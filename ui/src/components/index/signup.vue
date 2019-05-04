@@ -1,13 +1,20 @@
 <template>
     <div>
         <div v-if="showFirst" id="firstSignup">
+
+            <!--Input fields for sign-up. Validates automatically-->
             <b-form>
                 <b-form-group
                         id="fname-field"
                         label="First Name(s):"
                         label-for="first_name">
-                    <b-form-input id="first_name" v-model="first_name" type="text" :state="fNameValidation" trim autofocus required></b-form-input>
-                    <b-form-invalid-feedback :state="fNameValidation"> Your first name must be between 1-100 characters and contain no numbers. </b-form-invalid-feedback>
+                    <b-form-input id="first_name"
+                                  v-model="first_name" type="text"
+                                  :state="fNameValidation"
+                                  trim autofocus required></b-form-input>
+                    <b-form-invalid-feedback :state="fNameValidation">
+                        Your first name must be between 1-100 characters and contain no numbers.
+                    </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="fNameValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
@@ -15,8 +22,11 @@
                         id="mname-field"
                         label="Middle Name(s):"
                         label-for="middle_name">
-                    <b-form-input id="middle_name" v-model="middle_name" type="text" :state="mNameValidation" trim placeholder="Optional"></b-form-input>
-                    <b-form-invalid-feedback :state="mNameValidation"> Your middle name must be less than 100 characters and contain no numbers. </b-form-invalid-feedback>
+                    <b-form-input id="middle_name" v-model="middle_name" type="text"
+                                  :state="mNameValidation" trim placeholder="Optional"></b-form-input>
+                    <b-form-invalid-feedback :state="mNameValidation">
+                        Your middle name must be less than 100 characters and contain no numbers.
+                    </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="mNameValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
@@ -24,8 +34,14 @@
                         id="lname-field"
                         label="Last Name(s):"
                         label-for="last_name">
-                    <b-form-input id="last_name" v-model="last_name" type="text" :state="lNameValidation" trim required></b-form-input>
-                    <b-form-invalid-feedback :state="lNameValidation"> Your last name must be between 1-100 characters and contain no numbers. </b-form-invalid-feedback>
+                    <b-form-input id="last_name"
+                                  v-model="last_name"
+                                  type="text"
+                                  :state="lNameValidation"
+                                  trim required></b-form-input>
+                    <b-form-invalid-feedback :state="lNameValidation">
+                        Your last name must be between 1-100 characters and contain no numbers.
+                    </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="lNameValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
@@ -34,8 +50,14 @@
                         description="Note: this will be your username"
                         label="Email:"
                         label-for="email">
-                    <b-form-input id="email" v-model="email" type="text" :state="emailValidation" trim required></b-form-input>
-                    <b-form-invalid-feedback :state="emailValidation"> Your email must be valid and unique! </b-form-invalid-feedback>
+                    <b-form-input id="email"
+                                  v-model="email"
+                                  type="text"
+                                  :state="emailValidation"
+                                  trim required></b-form-input>
+                    <b-form-invalid-feedback :state="emailValidation">
+                        Your email must be valid and unique!
+                    </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="emailValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
@@ -43,9 +65,17 @@
                         id="password-field"
                         label="Password:"
                         label-for="newPassword">
-                    <b-form-input id="newPassword" v-model="password" type="password" :state="passwordValidation" trim required></b-form-input>
-                    <b-form-invalid-feedback :state="passwordValidation"> Your password must be between 5 and 15 characters. </b-form-invalid-feedback>
-                    <b-form-invalid-feedback :state="passwordValidation"> Your password must contain 2/3 of: Uppercase, Lowercase, Number. </b-form-invalid-feedback>
+                    <b-form-input id="newPassword"
+                                  v-model="password"
+                                  type="password"
+                                  :state="passwordValidation"
+                                  trim required></b-form-input>
+                    <b-form-invalid-feedback :state="passwordValidation">
+                        Your password must be between 5 and 15 characters.
+                    </b-form-invalid-feedback>
+                    <b-form-invalid-feedback :state="passwordValidation">
+                        Your password must contain 2/3 of: Uppercase, Lowercase, Number.
+                    </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="passwordValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
@@ -54,8 +84,14 @@
                         description="Please re-enter your password"
                         label="Retype Password:"
                         label-for="rePassword">
-                    <b-form-input id="rePassword" v-model="rePassword" type="password" :state="rePasswordValidation" trim required></b-form-input>
-                    <b-form-invalid-feedback :state="rePasswordValidation"> This isn't the same as the password! </b-form-invalid-feedback>
+                    <b-form-input id="rePassword"
+                                  v-model="rePassword"
+                                  type="password"
+                                  :state="rePasswordValidation"
+                                  trim required></b-form-input>
+                    <b-form-invalid-feedback :state="rePasswordValidation">
+                        This isn't the same as the password!
+                    </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="rePasswordValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
@@ -63,8 +99,14 @@
                         id="dateOfBirth-field"
                         label="Date of Birth:"
                         label-for="dateOfBirth">
-                    <b-form-input id="dateOfBirth" v-model="dateOfBirth" type="date" :state="dateOfBirthValidation" trim required></b-form-input>
-                    <b-form-invalid-feedback :state="dateOfBirthValidation"> You need a date of birth. </b-form-invalid-feedback>
+                    <b-form-input id="dateOfBirth"
+                                  v-model="dateOfBirth"
+                                  type="date"
+                                  :state="dateOfBirthValidation"
+                                  trim required></b-form-input>
+                    <b-form-invalid-feedback :state="dateOfBirthValidation">
+                        You need a date of birth.
+                    </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="dateOfBirthValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
@@ -72,16 +114,25 @@
                         id="gender-field"
                         label="Gender:"
                         label-for="gender">
-                    <b-form-select id="gender" v-model="gender" :options="genderOptions" :state="genderValidation" trim required></b-form-select>
-                    <b-form-invalid-feedback :state="genderValidation"> Please select a gender. </b-form-invalid-feedback>
+                    <b-form-select id="gender"
+                                   v-model="gender"
+                                   :options="genderOptions"
+                                   :state="genderValidation"
+                                   trim required></b-form-select>
+                    <b-form-invalid-feedback :state="genderValidation">
+                        Please select a gender.
+                    </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="genderValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
+
+
                 <b-alert v-model="showError" variant="danger" dismissible>The form contains errors!</b-alert>
                 <b-button variant="primary" block @click="checkPersonalForm" >Next</b-button>
 
             </b-form>
         </div>
 
+        <!--Fields for inputting nationalities, passports & traveller types-->
         <div v-if="showSecond" id="secondSignup">
             <b-form>
                 <b-row>
@@ -90,26 +141,44 @@
                                 id="nationalities-field"
                                 label="Nationality:"
                                 label-for="nationality">
-                            <b-form-select id="nationality" v-model="nationalities" :state="nationalityValidation" multiple trim>
-                                <option v-for="nationality in nationalityOptions" :value="nationality.id">{{nationality.nationality}}</option>
+                            <b-form-select id="nationality"
+                                           v-model="nationalities"
+                                           :state="nationalityValidation"
+                                           multiple trim>
+                                <option v-for="nationality in nationalityOptions"
+                                        :value="nationality.id">
+                                    {{nationality.nationality}}</option>
                             </b-form-select>
-                            <b-form-invalid-feedback :state="nationalityValidation"> Please select at least one nationality. </b-form-invalid-feedback>
+                            <b-form-invalid-feedback :state="nationalityValidation">
+                                Please select at least one nationality.
+                            </b-form-invalid-feedback>
                             <b-form-valid-feedback :state="nationalityValidation"> Looks Good </b-form-valid-feedback>
                         </b-form-group>
                     </b-col>
+
+
                     <b-col>
                         <b-form-group
                                 id="passports-field"
                                 label="Passport Country:"
                                 label-for="passports">
-                            <b-form-select id="passports" v-model="passports" :state="passportValidation" trim multiple>
-                                <option v-for="nationality in nationalityOptions" :value="nationality.id">{{nationality.country}}</option>
+                            <b-form-select id="passports"
+                                           v-model="passports"
+                                           :state="passportValidation"
+                                           trim multiple>
+                                <option v-for="nationality in nationalityOptions"
+                                        :value="nationality.id">
+                                    {{nationality.country}}</option>
                             </b-form-select>
-                            <b-form-invalid-feedback :state="passportValidation"> Please select at least one passport country. </b-form-invalid-feedback>
+                            <b-form-invalid-feedback :state="passportValidation">
+                                Please select at least one passport country.
+                            </b-form-invalid-feedback>
                             <b-form-valid-feedback :state="passportValidation"> Looks Good </b-form-valid-feedback>
                         </b-form-group>
                     </b-col>
                 </b-row>
+
+                <!--Carousel which displays an image specific to each option-->
                 <b-form-group
                         id="travType-field"
                         label="Traveller Type:"
@@ -132,9 +201,15 @@
                             <b-form-checkbox :value="travType.id" v-model="travTypes"></b-form-checkbox>
                         </b-carousel-slide>
                     </b-carousel>
-                    <b-form-invalid-feedback :state="travTypeValidation" align="center"> Please select at least one traveller type. </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="travTypeValidation" align="center"> Looks Good </b-form-valid-feedback>
+                    <b-form-invalid-feedback :state="travTypeValidation" align="center">
+                        Please select at least one traveller type.
+                    </b-form-invalid-feedback>
+                    <b-form-valid-feedback :state="travTypeValidation" align="center">
+                        Looks Good
+                    </b-form-valid-feedback>
                 </b-form-group>
+
+
                 <b-button @click="previousPage">Back</b-button>
                 <b-button @click="checkAssociateForm" variant="primary" class="float-right">Sign Up</b-button>
             </b-form>
@@ -172,6 +247,10 @@
             }
         },
         computed: {
+            /**
+             * Validates the input fields based on regex
+             * @returns {*} true if input is valid
+             */
             fNameValidation() {
                 if (this.first_name.length === 0) {
                     return null;
@@ -244,6 +323,9 @@
 
         },
         methods: {
+            /**
+             * Runs validation for all fields on first page
+             */
             checkPersonalForm() {
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
                     && this.passwordValidation && this.rePasswordValidation && this.dateOfBirthValidation && this.genderValidation) {
@@ -253,6 +335,9 @@
                     this.showError = true;
                 }
             },
+            /**
+             * Runs second page validation and creates an object using all inputs
+             */
             checkAssociateForm() {
                 if (this.nationalityValidation && this.passportValidation && this.travTypeValidation) {
                     let profile = {
@@ -270,6 +355,9 @@
                     this.saveProfile(profile);
                 }
             },
+            /**
+             * Checks that user does not already exist in database
+             */
             checkUsername() {
                 let self = this;
                 fetch(`/v1/checkUsername`, {
@@ -282,15 +370,24 @@
                 })
 
             },
+            /**
+             * Transfers to second page of sign-up
+             */
             nextPage() {
                 this.showFirst = false;
                 this.showSecond = true;
             },
+            /**
+             * Transfers to first page of sign-up
+             */
             previousPage() {
                 this.showFirst = true;
                 this.showSecond = false;
             },
-
+            /**
+             * Adds user to database
+             * @param profile object created with all input values
+             */
             saveProfile(profile) {
                 fetch('/v1/profiles', {
                     method: 'POST',

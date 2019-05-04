@@ -37,6 +37,9 @@
             },
         },
         methods: {
+            /**
+             * Logs the user out and returns to the index page
+             */
             logout (cb) {
                 let response = fetch(`/v1/logout`, {
                     method: 'POST',

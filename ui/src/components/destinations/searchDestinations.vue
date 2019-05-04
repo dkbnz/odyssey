@@ -4,6 +4,7 @@
         <p class="page_title"><i>Search for a destination using the form below</i></p>
         <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
         <div>
+            <!--Input fields for searching for destinations-->
             <b-form-group
                     id="name-field"
                     label="Destination Name:"
@@ -15,6 +16,7 @@
                     id="type-field"
                     label="Destination Type:"
                     label-for="type">
+                <!--Dropdown field for destination types-->
                 <b-form-select id="type" v-model="searchType" trim>
                     <template slot="first">
                         <option :value="null" >-- Any --</option>
@@ -53,6 +55,8 @@
 
             <b-button block variant="primary" @click="searchDestinations">Search</b-button>
         </div>
+
+        <!--Table for displaying search results-->
         <div style="margin-top: 40px">
             <b-table hover striped outlined
                      id="myFutureTrips"
@@ -62,13 +66,14 @@
                      :current-page="currentPage"
                      :sort-by.sync="sortBy"
                      :sort-desc.sync="sortDesc"
-                     :busy="destinations.length === 0"
-            >
+                     :busy="destinations.length === 0">
                 <div slot="table-busy" class="text-center text-danger my-2">
                     <b-spinner class="align-middle"></b-spinner>
                     <strong>Loading...</strong>
                 </div>
             </b-table>
+
+            <!--Settings for pagination & number of results displayed per page-->
             <b-row>
                 <b-col cols="1">
                     <b-form-group
@@ -119,6 +124,9 @@
             }
         },
         computed: {
+            /**
+             * @returns {number} number of rows to be displayed based on number of destinations present
+             */
             rows() {
                 return this.destinations.length
             }
@@ -128,6 +136,10 @@
             this.queryDestinations();
         },
         methods: {
+            /**
+             * Checks that latitude and longitude values are numbers
+             * @returns {boolean} true if fields are valid
+             */
             checkLatLong() {
                 let ok = true;
                 if (isNaN(this.dLatitude)) {
@@ -141,6 +153,9 @@
                 }
                 return ok;
             },
+            /**
+             * Sets values for search
+             */
             searchDestinations() {
                 if (this.checkLatLong) {
                     this.searchDestination = {
@@ -153,6 +168,11 @@
                 }
 
             },
+            /**
+             * Runs a query which searches through the destinations in the database and returns all which
+             * follow the search criteria
+             * @returns {Promise<Response | never>}
+             */
             queryDestinations () {
                 let searchQuery = "?name=" + this.searchName + "&type_id=" + this.searchType + "&district=" + this.searchDistrict + "&latitude=" + this.searchLat + "&longitude=" + this.searchLong + "&country=" + this.searchCountry;
                 return fetch(`/v1/destinations` + searchQuery,  {
@@ -164,6 +184,11 @@
                         this.destinations = data;
                     })
             },
+            /**
+             * Displays an error if search failed
+             * @param response from database search query
+             * @returns {*}
+             */
             checkStatus (response) {
                 if (response.status >= 200 && response.status < 300) {
                     return response;

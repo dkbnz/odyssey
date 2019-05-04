@@ -84,7 +84,8 @@
                           placeholder="Unchanged" trim>
             </b-form-input>
             <b-form-invalid-feedback :state="passwordValidation">
-                Your password must be between 5 and 15 characters and password must contain two of: Uppercase, Lowercase, Number
+                Your password must be between 5 and 15 characters and password must contain two of: Uppercase,
+                Lowercase, Number
             </b-form-invalid-feedback>
             <b-form-valid-feedback :state="passwordValidation">
                 Looks Good
@@ -134,79 +135,129 @@
                 id="gender-field"
                 label="Gender:"
                 label-for="gender">
-            <b-form-select id="gender" v-model="saveProfile.gender" :state="genderValidation" :options=genderOptions trim required>
-                <!--<option v-for="gender in genderOptions">{{gender.value}}</option>-->
+            <b-form-select id="gender"
+                           v-model="saveProfile.gender"
+                           :state="genderValidation"
+                           :options=genderOptions trim required>
             </b-form-select>
-            <b-form-invalid-feedback :state="genderValidation"> Please select a gender.</b-form-invalid-feedback>
-            <b-form-valid-feedback :state="genderValidation"> Looks Good</b-form-valid-feedback>
+            <b-form-invalid-feedback :state="genderValidation">
+                Please select a gender.
+            </b-form-invalid-feedback>
+            <b-form-valid-feedback :state="genderValidation">
+                Looks Good
+            </b-form-valid-feedback>
         </b-form-group>
+
+
         <b-row>
+            <!--Nationality field which displays user's current nationalities & all other nationalities.
+            Validates inputted text-->
             <b-col>
                 <b-form-group
                         id="nationalities-field"
                         label="Nationality:"
                         label-for="nationality">
-                    <b-form-select id="nationality" v-model="saveProfile.nationality" :state="nationalityValidation"
+                    <b-form-select id="nationality"
+                                   v-model="saveProfile.nationality"
+                                   :state="nationalityValidation"
                                    :required="true" multiple trim>
                         <optgroup label="Current Nationalities: (Please select these if you want to use them!)">
-                            <option v-for="nationality in profile.nationalities" :selected="true"
-                                    :value="nationality.id">{{nationality.nationality}}
+                            <option v-for="nationality in profile.nationalities"
+                                    :selected="true"
+                                    :value="nationality.id">
+                                {{nationality.nationality}}
                             </option>
                         </optgroup>
+                        <!--Removes user's current nationalities from options-->
                         <optgroup label="Other Nationalities:">
                             <option v-for="nationality in nationalityOptions"
-                                    v-if="!duplicateNationality(nationality.id)" :value="nationality.id">
+                                    v-if="!duplicateNationality(nationality.id)"
+                                    :value="nationality.id">
                                 {{nationality.nationality}}
                             </option>
                         </optgroup>
                     </b-form-select>
-                    <b-form-invalid-feedback :state="nationalityValidation"> Please select at least one nationality.
+                    <b-form-invalid-feedback :state="nationalityValidation">
+                        Please select at least one nationality.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="nationalityValidation"> Looks Good</b-form-valid-feedback>
+                    <b-form-valid-feedback :state="nationalityValidation">
+                        Looks Good
+                    </b-form-valid-feedback>
                 </b-form-group>
             </b-col>
+
+            <!--Passports field which displays user's current passports & all other passports.
+            Validates inputted text-->
             <b-col>
                 <b-form-group
                         id="passports-field"
                         label="Passport:"
                         label-for="passports">
-                    <b-form-select id="passports" v-model="saveProfile.passport_country" :state="passportValidation"
+                    <b-form-select id="passports"
+                                   v-model="saveProfile.passport_country"
+                                   :state="passportValidation"
                                    :required="true" trim multiple>
                         <optgroup label="Current Passports: (Please select these if you want to use them!)">
-                            <option v-for="passport in profile.passports" :selected="true" :value="passport.id">
+                            <option v-for="passport in profile.passports"
+                                    :selected="true"
+                                    :value="passport.id">
                                 {{passport.country}}
                             </option>
                         </optgroup>
+                        <!--Removes user's current passports from options-->
                         <optgroup label="Other Passports:">
-                            <option v-for="nationality in nationalityOptions" v-if="!duplicatePassport(nationality.id)"
-                                    :value="nationality.id">{{nationality.country}}
+                            <option v-for="nationality in nationalityOptions"
+                                    v-if="!duplicatePassport(nationality.id)"
+                                    :value="nationality.id">
+                                {{nationality.country}}
                             </option>
                         </optgroup>
                     </b-form-select>
-                    <b-form-invalid-feedback :state="passportValidation"> Please select at least one passport country.
+                    <b-form-invalid-feedback :state="passportValidation">
+                        Please select at least one passport country.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="passportValidation"> Looks Good</b-form-valid-feedback>
+                    <b-form-valid-feedback :state="passportValidation">
+                        Looks Good
+                    </b-form-valid-feedback>
                 </b-form-group>
             </b-col>
         </b-row>
+
+        <!--Traveller type field which displays user's current traveller types & all other types.
+            Validates inputted text-->
         <b-form-group
                 id="travType-field"
                 label="Traveller Type(s):"
                 label-for="travType">
-            <b-form-select lg id="travType" v-model="saveProfile.traveller_type" :state="travTypeValidation" multiple
-                           trim>
+            <b-form-select lg id="travType"
+                           v-model="saveProfile.traveller_type"
+                           :state="travTypeValidation" multiple trim>
                 <optgroup label="Current Traveller Types: (Please select these if you want to use them!)">
-                    <option v-for="travType in profile.travellerTypes" :value="travType.id">{{travType.travellerType}}
+                    <option v-for="travType in profile.travellerTypes"
+                            :value="travType.id">
+                        {{travType.travellerType}}
                     </option>
                 </optgroup>
+                <!--Removes user's current traveller types from options-->
                 <optgroup label="Other Traveller Types">
-                    <option v-for="travType in travTypeOptions" v-if="!duplicateTravType(travType.id)"
-                            :value="travType.id">{{travType.travellerType}}
+                    <option v-for="travType in travTypeOptions"
+                            v-if="!duplicateTravType(travType.id)"
+                            :value="travType.id">
+                        {{travType.travellerType}}
                     </option>
                 </optgroup>
             </b-form-select>
+            <b-form-invalid-feedback :state="travTypeValidation">
+                Please select at least one traveller type.
+            </b-form-invalid-feedback>
+            <b-form-valid-feedback :state="travTypeValidation">
+                Looks Good
+            </b-form-valid-feedback>
         </b-form-group>
+
+        <!--Displayed if there are input errors when "Save Profile" is clicked-->
         <b-alert v-model="showError" variant="danger" dismissible>The form contains errors!</b-alert>
+        <!--Validates inputs then updates user data if valid-->
         <b-button variant="success" size="lg" block @click="checkSaveProfile">Save Profile</b-button>
     </div>
 </template>
@@ -243,6 +294,10 @@
         mounted() {
         },
         computed: {
+            /**
+             * Validates input fields based on regular expression
+             * @returns {boolean} true if input is valid
+             */
             fNameValidation() {
                 if (this.saveProfile.first_name.length === 0) {
                     return false;
@@ -269,6 +324,10 @@
                 this.checkUsername();
                 return (emailRegex.test(this.saveProfile.username) && this.validEmail);
             },
+            /**
+             * Validates input fields based on regular expression
+             * @returns {*} true if input is valid, false if invalid, or null if field remains unselected
+             */
             passwordValidation() {
                 if (this.saveProfile.password.length === 0) {
                     return null;
@@ -296,7 +355,7 @@
             },
             nationalityValidation() {
                 if (this.saveProfile.nationality.length === 0) {
-                    return null;
+                    return false;
                 }
                 return this.saveProfile.nationality.length > 0;
             },
@@ -308,12 +367,15 @@
             },
             travTypeValidation() {
                 if (this.saveProfile.traveller_type.length === 0) {
-                    return null;
+                    return false;
                 }
                 return this.saveProfile.traveller_type.length > 0;
             }
         },
         methods: {
+            /**
+             * Checks that username does not exist in database
+             */
             checkUsername() {
                 let self = this;
                 fetch(`/v1/checkUsername`, {
@@ -326,14 +388,20 @@
                 })
 
             },
+            /**
+             * Runs all field validation. If any errors occur, displays an error
+             */
             checkSaveProfile() {
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
-                    && this.dateOfBirthValidation && this.genderValidation) {
+                    && this.dateOfBirthValidation && this.genderValidation && this.nationalityValidation && this.travTypeValidation) {
                     this.submitSaveProfile()
                 } else {
                     this.showError = true;
                 }
             },
+            /**
+             * Sends profile changes to profileController and reloads page
+             */
             submitSaveProfile() {
                 fetch('/v1/profile', {
                     method: 'PUT',
@@ -344,6 +412,12 @@
                     return response.json();
                 })
             },
+            /**
+             * Check for duplicates of nationalities/passports/traveller types in order to
+             * remove them from "other" option fields
+             * @param id of nationality to check
+             * @returns {boolean} true if value is duplicate of user's current
+             */
             duplicateNationality(id) {
                 for (let i = 0; i < this.profile.nationalities.length; i++) {
                     if (this.profile.nationalities[i].id === id) {
