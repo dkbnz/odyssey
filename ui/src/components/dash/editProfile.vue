@@ -88,7 +88,7 @@
                     <b-form-select id="nationality" v-model="saveProfile.nationality" :state="nationalityValidation"
                                    :required="true" multiple trim>
                         <optgroup label="Current Nationalities: (Please select these if you want to use them!)">
-                            <option v-for="nationality in profile.nationalities" :selected="true"
+                            <option v-for="nationality in profile.nationalities"
                                     :value="nationality.id">{{nationality.nationality}}
                             </option>
                         </optgroup>
@@ -144,6 +144,9 @@
                     </option>
                 </optgroup>
             </b-form-select>
+            <b-form-invalid-feedback :state="travTypeValidation"> Please select at least one traveller type.
+            </b-form-invalid-feedback>
+            <b-form-valid-feedback :state="travTypeValidation"> Looks Good</b-form-valid-feedback>
         </b-form-group>
         <b-alert v-model="showError" variant="danger" dismissible>The form contains errors!</b-alert>
         <b-button variant="success" size="lg" block @click="checkSaveProfile">Save Profile</b-button>
@@ -162,8 +165,8 @@
                     last_name: this.profile.lastName,
                     username: this.profile.username,
                     password: "",
-                    date_of_birth: new Date(this.profile.dateOfBirth + " 14:48").toISOString().substr(0, 10),
-                    gender: {},
+                    date_of_birth: this.profile.dateOfBirth,
+                    gender: this.profile.gender,
                     nationality: [],
                     passport_country: [],
                     traveller_type: []
@@ -235,7 +238,7 @@
             },
             nationalityValidation() {
                 if (this.saveProfile.nationality.length === 0) {
-                    return null;
+                    return false;
                 }
                 return this.saveProfile.nationality.length > 0;
             },
@@ -247,7 +250,7 @@
             },
             travTypeValidation() {
                 if (this.saveProfile.traveller_type.length === 0) {
-                    return null;
+                    return false;
                 }
                 return this.saveProfile.traveller_type.length > 0;
             }
@@ -267,7 +270,7 @@
             },
             checkSaveProfile() {
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
-                    && this.dateOfBirthValidation && this.genderValidation) {
+                    && this.dateOfBirthValidation && this.genderValidation && this.nationalityValidation && this.travTypeValidation) {
                     this.submitSaveProfile()
                 } else {
                     this.showError = true;
