@@ -23,11 +23,13 @@
             <b-table hover striped outlined
                      id="myFutureTrips"
                      ref="myFutureTrips"
-                     :items="trips"
+                     :items="futureTrips"
                      :fields="fields"
+                     :sort-by.sync="sortByUpcoming"
+                     :sort-desc.sync="sortDesc"
                      :per-page="perPageUpcoming"
                      :current-page="currentPageUpcoming"
-                     :busy="trips.length === 0"
+                     :busy="futureTrips.length === 0"
             >
                 <div slot="table-busy" class="text-center my-2">
                     <strong>Can't find any trips!</strong>
@@ -48,10 +50,10 @@
                     ref="destinationsTable"
                     :items="row.item.destinations"
                     :fields="subFields">
-                        <template v-if="trips.length > 0" slot="destInDate" slot-scope="data">
+                        <template v-if="futureTrips.length > 0" slot="destInDate" slot-scope="data">
                             {{data.item.startDate}}
                         </template>
-                        <template v-if="trips.length > 0" slot="destOutDate" slot-scope="data">
+                        <template v-if="futureTrips.length > 0" slot="destOutDate" slot-scope="data">
                             {{data.item.endDate}}
                         </template>
 
@@ -59,13 +61,13 @@
 
                 </b-card>
             </template>
-            <template v-if="trips.length > 0" slot="duration" slot-scope="data">
+            <template v-if="futureTrips.length > 0" slot="duration" slot-scope="data">
                 {{calculateDuration(data.item.destinations)}}
             </template>
             <template v-if="data.item.destinations[data.item.destinations.length -1].endDate" slot="tripEndDate" slot-scope="data">
                 {{data.item.destinations[data.item.destinations.length -1].endDate}}
             </template>
-            <template v-if="trips.length > 0" slot="tripEndDest" slot-scope="data">
+            <template v-if="futureTrips.length > 0" slot="tripEndDest" slot-scope="data">
                 {{data.item.destinations[data.item.destinations.length -1].destination.name}}
             </template>
 
@@ -73,7 +75,7 @@
             <b-row>
                 <b-col cols="1">
                     <b-form-group
-                            id="numUpcomingtems-field"
+                            id="numUpcomingItems-field"
                             label-for="perPageUpcoming">
                         <b-form-select id="perPageUpcoming" v-model="perPageUpcoming" :options="optionViews" size="sm" trim> </b-form-select>
                     </b-form-group>
@@ -91,7 +93,10 @@
                     ></b-pagination>
                 </b-col>
             </b-row>
+
+
         </div>
+
         <div id="pastTrips">
             <h1 class="page_title">Past Trips</h1>
             <p class="page_title"><i>Here are your past trips!</i></p>
@@ -100,11 +105,51 @@
                      ref="myPastTrips"
                      :items="pastTrips"
                      :fields="fields"
-                     :per-page="perPagePast"
-                     :current-page="currentPagePast"
-                     :sort-by="sortBy"
-                     :sort-desc="false"
+                     :sort-by.sync= "sortByPast"
+                     :sort-desc.sync="sortDesc"
+                     :per-page="perPageUpcoming"
+                     :current-page="currentPageUpcoming"
+                     :busy="pastTrips.length === 0"
             >
+                <div slot="table-busy" class="text-center my-2">
+                    <strong>Can't find any trips!</strong>
+                </div>
+                <template slot="more_details" slot-scope="row">
+                    <b-button size="sm" @click="row.toggleDetails" class="mr-2">
+                        {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+                    </b-button>
+                    <b-button size="sm" v-model="editButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)" variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
+                    </b-button>
+                    <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)" variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
+                    </b-button>
+                </template>
+                <template slot="row-details" slot-scope="row">
+                    <b-card>
+                        <b-table
+                                id="pastTripsDestinations"
+                                ref="pastDestinationsTable"
+                                :items="row.item.destinations"
+                                :fields="subFields">
+                            <template v-if="pastTrips.length > 0" slot="destInDate" slot-scope="data">
+                                {{data.item.startDate}}
+                            </template>
+                            <template v-if="pastTrips.length > 0" slot="destOutDate" slot-scope="data">
+                                {{data.item.endDate}}
+                            </template>
+
+                        </b-table>
+
+                    </b-card>
+                </template>
+                <template v-if="pastTrips.length > 0" slot="duration" slot-scope="data">
+                    {{calculateDuration(data.item.destinations)}}
+                </template>
+                <template v-if="data.item.destinations[data.item.destinations.length -1].endDate" slot="tripEndDate" slot-scope="data">
+                    {{data.item.destinations[data.item.destinations.length -1].endDate}}
+                </template>
+                <template v-if="pastTrips.length > 0" slot="tripEndDest" slot-scope="data">
+                    {{data.item.destinations[data.item.destinations.length -1].destination.name}}
+                </template>
             </b-table>
             <b-row>
                 <b-col cols="1">
@@ -128,7 +173,10 @@
                     ></b-pagination>
                 </b-col>
             </b-row>
+
         </div>
+
+
 
 
     </div>
@@ -145,9 +193,11 @@
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPageUpcoming: 5,
                 perPagePast: 5,
+                sortByUpcoming: 'destinations[0].startDate',
+                sortByPast: 'destinations[1].endDate',
+                sortDesc: true,
                 currentPageUpcoming: 1,
                 currentPagePast: 1,
-                sortBy: 'destinations[0].startDate',
                 fields: [
                     'name',
                     {key:'destinations[0].startDate', label: 'Start Date'},
@@ -166,7 +216,7 @@
                     {key: 'destInDate', label: "In Date"},
                     {key: 'destOutDate', label: "Out Date"}],
                 pastTrips: [],
-                trips:[],
+                futureTrips:[],
                 selectedTrip: "",
                 errorMessage: "",
                 showError: false,
@@ -176,15 +226,32 @@
             }
         },
         mounted () {
-            this.getAllTrips(trips => this.trips = trips)
+            this.getAllTrips(trips => {
+                let todayDate = new Date();
+                let self = this;
+                for (let i = 0; i < trips.length; i++) {
+                    if (trips[i].destinations[0].startDate === null) {
+                        self.futureTrips.push(trips[i]);
+                    }
+                    else if (new Date(trips[i].destinations[0].startDate) <= todayDate) {
+                        self.pastTrips.push(trips[i]);
+                    } else {
+                        self.futureTrips.push(trips[i]);
+                    }
+                }
+
+            });
+
+
+
         },
         computed: {
             rowsUpcoming() {
-                return this.trips.length
+                return this.futureTrips.length
             },
             rowsPast() {
                 return this.pastTrips.length
-            },
+            }
 
         },
         components: {
@@ -211,7 +278,7 @@
             },
             successfulDelete() {
                 this.validDelete = true;
-                this.getAllTrips(trips => this.trips = trips);
+                //location.reload();
             },
             sendTripToModal(trip) {
                 this.selectedTrip = trip;
@@ -224,6 +291,7 @@
                 fetch('/v1/trips/' + trip.id, {
                         method: 'DELETE',
                 }).then(function (response) {
+                    console.log(response);
                     if (response.ok) {
                         self.successfulDelete();
                     } else if (response.status === 403) {
