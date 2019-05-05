@@ -28,6 +28,7 @@
             <!-- Modal that uses the plan a trip page to edit a selected trip -->
             <b-modal ref="editTripModal" id="editTripModal" size="xl" hide-footer title="Edit Trip">
                 <plan-a-trip
+                        :destinations="destinations"
                         :inputTrip="selectedTrip"
                         :heading="'Edit a Trip'"
                         :subHeading="'Edit your trip using the form below'"
@@ -222,7 +223,7 @@
     import PlanATrip from './planATrip.vue'
     export default {
         name: "YourTrips",
-        props: ['profile', 'userProfile'],
+        props: ['profile', 'userProfile', 'destinations'],
         components: {
             PlanATrip
         },
