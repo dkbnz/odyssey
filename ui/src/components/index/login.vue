@@ -11,7 +11,6 @@
                     :state="userstate" >
                 <b-form-input id="username" v-model="username" :state="userstate" autofocus trim></b-form-input>
             </b-form-group>
-
             <b-form-group
                     id="password-field"
                     description="Please enter your password"
@@ -21,9 +20,7 @@
             </b-form-group>
             <b-button id="sign-in" variant="primary" block @click="login">Sign In</b-button>
         </b-form>
-
     </div>
-
 </template>
 
 <script>
@@ -32,7 +29,7 @@
         data: function() {
             return {
                 username: '',
-                password: ''
+                password: '',
             }
         },
         computed: {
@@ -66,19 +63,25 @@
              * Attempts to log user in and redirects to dash page if login is valid
              */
             login() {
+                let self = this;
                 fetch('/v1/login', {
                     method: 'POST',
-                    headers:{'content-type': 'application/json'},
+                    headers: {'content-type': 'application/json'},
                     body: JSON.stringify({username: this.username, password: this.password})
-                }).then(function(response) {
-                    window.location.pathname ="/dash";
-                    return response.json();
+                }).then(function (response) {
+                    if (response.ok) {
+                        self.showError = false;
+                        self.$router.go();
+                        return JSON.parse(JSON.stringify(response));
+                    } else {
+                        self.showError = true;
+                        return JSON.parse(JSON.stringify(response));
+                    }
                 })
+            },
+            parseJSON (response) {
+                return response.json();
             }
         }
     }
 </script>
-
-<style scoped>
-
-</style>

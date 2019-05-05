@@ -28,6 +28,7 @@
 
 <script>
     import YourTrips from "../trips/yourTrips.vue"
+
     export default {
         name: "viewProfile",
         props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'userProfile'],
@@ -38,13 +39,8 @@
         components: {
             YourTrips
         },
-        mounted () {
+        mounted() {
         },
-        methods: {
-        }
+        methods: {}
     }
 </script>
-
-<style scoped>
-
-</style>
