@@ -2,6 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# Redirect index to Vue frontend. Must stay at top of Routes for production.
+GET      /                              controllers.Assets.at(path="/public", file="index.html")
+
 # To convert
 DELETE  /api/profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
 PATCH   /api/trip/:id                   controllers.trips.TripController.edit(request: Request, id: Long)
@@ -32,5 +35,5 @@ POST    /v1/trip                        controllers.trips.TripController.create(
 GET     /v1/trip                        controllers.trips.TripController.fetch(request: Request)
 GET     /v1/trips/all                   controllers.trips.TripController.fetchAll(id: Long)
 
-# Map static resources from the /public folder to the file resource paths
-GET        /*file        controllers.Assets.at(path="/public", file)
+# Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
+GET     /*file                          controllers.Assets.at(path="/public", file)
