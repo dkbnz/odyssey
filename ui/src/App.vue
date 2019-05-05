@@ -8,6 +8,8 @@
 <script>
     import Index from './components/index/indexPage.vue'
     import assets from './assets'
+    import { EventBus } from './event-bus';
+
     export default {
         computed: {
             assets () {
@@ -20,6 +22,11 @@
             this.getTravTypes(travTypes => this.travTypeOptions = travTypes);
             this.getDestinations(destinations => this.destinations = destinations);
             this.getDestinationTypes(destinationT => this.destinationTypes = destinationT);
+
+            const logoutHandler = function() {
+                console.log("in log out handler");
+            };
+            EventBus.$on('logout', logoutHandler);
         },
         data () {
             return {
@@ -47,6 +54,7 @@
                     .then(updateDestinationTypes);
             },
             getProfile (updateProfile) {
+                console.log("in get profile");
                 return fetch(`/v1/profile`, {
                     accept: "application/json"
                 })
