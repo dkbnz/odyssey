@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <h1>{{ profile.firstName }} {{profile.middleName}} {{profile.lastName}}</h1>
-        <p v-if="profile.is_admin"><i>Administrator</i></p>
+        <p v-if="profile.isAdmin"><i>Administrator</i></p>
         <p v-else><i>Regular User</i></p>
         <h2>Personal Details</h2>
         <p> Username: {{ profile.username }}</p>

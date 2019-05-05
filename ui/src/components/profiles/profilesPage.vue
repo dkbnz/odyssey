@@ -78,13 +78,13 @@
                         <strong>Can't find any profiles!</strong>
                     </div>
                     <template slot="actions" slot-scope="row">
-                        <b-row class="text-center" v-if="profile.is_admin">
+                        <b-row class="text-center" v-if="profile.isAdmin">
                             <b-col align-self="center" md="5">
-                                <b-button v-if="profile.is_admin && !(row.item.is_admin) && row.item.id !== 1" size="sm"
+                                <b-button v-if="profile.isAdmin && !(row.item.isAdmin) && row.item.id !== 1" size="sm"
                                           @click="makeAdmin(row.item)" variant="success" class="mr-2">
                                     Make Admin
                                 </b-button>
-                                <b-button v-if="profile.is_admin && row.item.is_admin && row.item.id !== 1"
+                                <b-button v-if="profile.isAdmin && row.item.isAdmin && row.item.id !== 1"
                                           :disabled="row.item.id===1" variant="danger" size="sm"
                                           @click="removeAdmin(row.item)" class="mr-2">
                                     Remove Admin
@@ -97,7 +97,7 @@
                                 </b-button>
                             </b-col>
                             <b-col align-self="center" md="2">
-                                <b-button v-if="profile.is_admin && row.item.id !== 1" :disabled="row.item.id===1"
+                                <b-button v-if="profile.isAdmin && row.item.id !== 1" :disabled="row.item.id===1"
                                           size="sm" variant="danger" @click="deleteUser(row.item)" class="mr-2">
                                     Delete
                                 </b-button>
