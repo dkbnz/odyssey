@@ -80,10 +80,13 @@
                     <template slot="actions" slot-scope="row">
                         <b-row class="text-center" v-if="profile.is_admin">
                             <b-col align-self="center" md="5">
-                                <b-button v-if="profile.is_admin && !(row.item.is_admin) && row.item.id !== 1" size="sm" @click="makeAdmin(row.item)" variant="success" class="mr-2">
+                                <b-button v-if="profile.is_admin && !(row.item.is_admin) && row.item.id !== 1" size="sm"
+                                          @click="makeAdmin(row.item)" variant="success" class="mr-2">
                                     Make Admin
                                 </b-button>
-                                <b-button v-if="profile.is_admin && row.item.is_admin && row.item.id !== 1" :disabled="row.item.id===1" variant="danger" size="sm" @click="removeAdmin(row.item)" class="mr-2">
+                                <b-button v-if="profile.is_admin && row.item.is_admin && row.item.id !== 1"
+                                          :disabled="row.item.id===1" variant="danger" size="sm"
+                                          @click="removeAdmin(row.item)" class="mr-2">
                                     Remove Admin
                                 </b-button>
                             </b-col>
@@ -94,7 +97,8 @@
                                 </b-button>
                             </b-col>
                             <b-col align-self="center" md="2">
-                                <b-button v-if="profile.is_admin && row.item.id !== 1" :disabled="row.item.id===1" size="sm" variant="danger" @click="deleteUser(row.item)" class="mr-2">
+                                <b-button v-if="profile.is_admin && row.item.id !== 1" :disabled="row.item.id===1"
+                                          size="sm" variant="danger" @click="deleteUser(row.item)" class="mr-2">
                                     Delete
                                 </b-button>
                             </b-col>
@@ -175,9 +179,9 @@
                 perPage: 10,
                 currentPage: 1,
                 genderOptions: [
-                    {value: 'male', text: 'Male'},
-                    {value: 'female', text: 'Female'},
-                    {value: 'other', text: 'Other'}
+                    {value: 'Male', text: 'Male'},
+                    {value: 'Female', text: 'Female'},
+                    {value: 'Other', text: 'Other'}
                 ],
                 fields: [{key: 'firstName', label: "First Name", sortable: true}, {
                     key: 'lastName',
@@ -203,26 +207,44 @@
             parseJSON(response) {
                 return response.json();
             },
-            makeAdmin(aProfile) {
+
+            /**
+             * Method to make a user an admin. This method is only available if the currently logged in user is an
+             * admin. Backend validation ensures a user cannot bypass this.
+             * @param makeAdminProfile      the selected profile to be made an admin.
+             */
+            makeAdmin(makeAdminProfile) {
                 let self = this;
-                fetch('/v1/makeAdmin/' + aProfile.id, {
+                fetch('/v1/makeAdmin/' + makeAdminProfile.id, {
                     method: 'POST',
                 }).then(function() {
                     self.searchProfiles();
                 })
             },
-            removeAdmin(aProfile) {
+
+            /**
+             * Method to remove admin attribute from a user. This method is only available if the currently logged in
+             * user is an admin. Backend validation ensures a user cannot bypass this.
+             * @param makeAdminProfile      the selected profile to be removed as an admin.
+             */
+            removeAdmin(makeAdminProfile) {
                 let self = this;
-                fetch('/v1/removeAdmin/' + aProfile.id, {
+                fetch('/v1/removeAdmin/' + makeAdminProfile.id, {
                     method: 'POST',
                 }).then(function() {
                     location.reload();
                     self.searchProfiles();
                 })
             },
-            deleteUser(profile) {
+
+            /**
+             * Method to delete a user's profile. This method is only available if the currently logged in
+             * user is an admin. Backend validation ensures a user cannot bypass this.
+             * @param makeAdminProfile      the selected profile to be deleted.
+             */
+            deleteUser(makeAdminProfile) {
                 let self = this;
-                fetch('/v1/profile/' + profile.id, {
+                fetch('/v1/profile/' + makeAdminProfile.id, {
                     method: 'DELETE',
                 }).then(function() {
                     self.searchProfiles();

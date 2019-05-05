@@ -8,10 +8,7 @@ import models.trips.Trip;
 import play.data.format.Formats;
 import play.libs.Json;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
