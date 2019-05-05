@@ -415,7 +415,7 @@ public class ProfileController {
                     }
                     return ok("UPDATED");
                 })
-                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
     /**
@@ -452,6 +452,6 @@ public class ProfileController {
                     }
                     return ok("UPDATED");
                 })
-                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 }
