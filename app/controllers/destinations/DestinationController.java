@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.ExpressionList;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
-import models.destinations.DestinationTypeEnum;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -143,7 +142,6 @@ public class DestinationController extends Controller {
                 .ilike(NAME, name)
                 .ilike(DISTRICT, district)
                 .findList();
-        System.out.println("----------------3----------------------------------------------------" + destinations);
         return (destinations.isEmpty());
     }
 
@@ -163,7 +161,7 @@ public class DestinationController extends Controller {
         if (destinationDoesNotExist(json)) {
             Destination destination = createNewDestination(json);
             destination.save();
-            return ok("Created");
+            return created("Created");
         } else {
             return badRequest("A destination with the name [ " +json.get(NAME).asText() + " ] and district [ " + json.get(DISTRICT).asText() + " ] already exists.");
         }

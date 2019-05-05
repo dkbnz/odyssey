@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="profile.length !== 0">
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
 
         <div class="container">
@@ -17,7 +17,7 @@
                         label-for="nationality">
                     <b-form-select id="nationality" v-model="searchNationality" trim>
                         <template slot="first">
-                            <option :value="null" >-- Any --</option>
+                            <option :value="null">-- Any --</option>
                         </template>
                         <option v-for="nationality in nationalityOptions"
                                 :value="nationality.nationality">
@@ -31,7 +31,7 @@
                         label-for="gender">
                     <b-form-select id="gender" v-model="searchGender" :options="genderOptions" trim>
                         <template slot="first">
-                            <option :value="null" >-- Any --</option>
+                            <option :value="null">-- Any --</option>
                         </template>
                     </b-form-select>
                 </b-form-group>
@@ -148,7 +148,9 @@
         </div>
         <footer-main></footer-main>
     </div>
-
+    <div v-else>
+        <unauthorised-prompt></unauthorised-prompt>
+    </div>
 </template>
 
 <script>
@@ -156,6 +158,8 @@
     import Dash from '../dash/dashPage'
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
+    import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
+
     export default {
         name: "profilesPage",
         props: ['profile', 'nationalityOptions', 'travTypeOptions'],
@@ -195,7 +199,7 @@
                 profiles: []
             }
         },
-        mounted () {
+        mounted() {
             this.queryProfiles();
         },
         computed: {
@@ -240,7 +244,7 @@
              */
             searchProfiles() {
                 this.searchMinAge = parseInt(this.searchMinAge);
-                this.searchMaxAge =  parseInt(this.searchMaxAge);
+                this.searchMaxAge = parseInt(this.searchMaxAge);
                 if (isNaN(this.searchMinAge) || isNaN(this.searchMaxAge)) {
                     this.showError = true;
                 } else if (this.searchMinAge > this.searchMaxAge) {
@@ -307,7 +311,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>
