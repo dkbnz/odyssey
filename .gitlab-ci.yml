@@ -1,79 +1,75 @@
 image: java:8
 
 stages:
-  - clean
-  - build
-  - test
-  - deploy
-  - unzip
-  - run
-  
+- clean
+- build
+- test
+- deploy
+- deploy-server
+
 clean-build:
-    stage: clean
-    script:
-        - if [ -d "target" ]; then sudo rm -r target; fi
-        - if [ -d "project/project" ]; then sudo rm -r project/project; fi
-        - if [ -d "project/target" ]; then sudo rm -r project/target; fi
-    only:
-        - master@seng302-2019/team-100
-  
+  stage: clean
+  script:
+  - if [ -d "target" ]; then sudo rm -r target; fi
+  - if [ -d "project/project" ]; then sudo rm -r project/project; fi
+  - if [ -d "project/target" ]; then sudo rm -r project/target; fi
+  only:
+  - master@seng302-2019/team-100
+
 tag_checker:
   stage: build
   script:
-    - python tag_checker.py $CI_COMMIT_TAG
+  - python tag_checker.py $CI_COMMIT_TAG
   only:
-    - tags
+  - tags
 
 #junit:
 #  stage: test
 #  script:
 #    - sbt test
 
-
-
 recent-artifacts:
   stage: deploy
   script:
-    - sudo -u gitlab-runner sbt dist
+  - sudo -u gitlab-runner sbt dist
   artifacts:
     paths:
-      - target/universal/*.zip
+    - target/universal/*.zip
     expire_in: 1 week
   except:
-    - tags
+  - tags
 
 release-artifacts:
- stage: deploy
- script:
-    - sudo -u gitlab-runner sbt dist
- artifacts:
+  stage: deploy
+  script:
+  - sudo -u gitlab-runner sbt dist
+  artifacts:
     paths:
     - target/universal/*.zip
- only:
-    - tags
-    
+  only:
+  - tags
+
 update-sonar:
-    stage: deploy
-    script:
-    - echo $PATH
-    - sonar-scanner
-    only:
-        - master@seng302-2019/team-100
-        - dev_branch@seng302-2019/team-100
+  stage: deploy
+  script:
+  - echo $PATH
+  - sonar-scanner
+  only:
+  - master@seng302-2019/team-100
+  - dev_branch@seng302-2019/team-100
 
-unzip-project:
-    stage: unzip
-    script:
-        - cd target/universal
-        - sudo -u gitlab-runner unzip seng302-team-100-everyware-$SNAPSHOT_VERSION-SNAPSHOT.zip
-    only:
-        - master@seng302-2019/team-100
+deploy-master:
+  stage: deploy-server
+  script:
+  - mv target/universal/*.zip ${DEPLOY_DIR}/build/
+  - sudo -u gitlab-runner ./scripts/deploy production
+  only:
+  - master@seng302-2019/team-100
 
-#run-project:
-#    stage: run
-#    script: 
-#        - echo $(ls)
-#        - cd seng302-team-100-everyware-$SNAPSHOT_VERSION-SNAPSHOT/bin
-#        - ./seng-302-team-100-everyware console
-#    only:
-#        - master@seng302-2019/team-100 
+deploy-dev:
+  stage: deploy-server
+  script:
+  - target/universal/*.zip
+  - sudo -u gitlab-runner ./scripts/deploy development
+  only:
+  - dev_branch@seng302-2019/team-100

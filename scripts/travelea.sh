@@ -1,7 +1,12 @@
 #!/bin/bash
-start () {
-    cd /var/lib/gitlab-runner/builds/69a828c9/0/seng302-2019/team-100/target/universal/seng302-team-100-everyware-0.0.1-SNAPSHOT/bin/
-    case $1 in
+# Script is now located in /opt/travelea/travelea.sh
+# For regression purposes
+
+PROD_OR_DEV=$1
+
+startServer () {
+    cd "${DEPLOY_DIR}/${PROD_OR_DEV}/seng302-team-100-everyware-*-SNAPSHOT/bin/"
+    case $PROD_OR_DEV in
         production)
             echo Deploying production...
             sudo ./seng302-team-100-everyware -Dhttp.port=443
@@ -13,8 +18,9 @@ start () {
     esac
 }
 
-case $2 in
-    start)
-        start $1
-        ;;
-esac
+if [ -z "$PROD_OR_DEV" ]
+then
+    echo "Usage: travelea.sh <production/development>"
+else
+    startServer
+fi
