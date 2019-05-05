@@ -5,6 +5,26 @@
             <h1 class="page_title">Find Profiles</h1>
             <p class="page_title"><i>Search for other travellers using the form below</i></p>
             <b-alert v-model="showError" variant="danger" dismissible>There's something wrong in the form!</b-alert>
+
+
+            <!-- Confirmation modal for deleting a profile. -->
+            <b-modal ref="deleteModal" id="deleteModal" hide-footer title="Delete Profile">
+                <div class="d-block">
+                    Are you sure that you want to delete "{{selectedProfile.firstName}} {{selectedProfile.lastName}}"?
+                </div>
+                <b-button
+                        class="mr-2 float-right"
+                        variant="danger"
+                        @click="dismissModal()
+                         deleteUser(selectedProfile);">Delete
+                </b-button>
+                <b-button
+                        class="mr-2 float-right"
+                        @click="dismissModal()">Cancel
+                </b-button>
+            </b-modal>
+
+
             <div>
                 <b-form-group
                         id="nationalities-field"
@@ -98,7 +118,8 @@
                             </b-col>
                             <b-col align-self="center" md="2">
                                 <b-button v-if="profile.isAdmin && row.item.id !== 1" :disabled="row.item.id===1"
-                                          size="sm" variant="danger" @click="deleteUser(row.item)" class="mr-2">
+                                          size="sm" variant="danger" v-b-modal.deleteModal
+                                          @click="sendProfileToModal(row.item)" class="mr-2">
                                     Delete
                                 </b-button>
                             </b-col>
@@ -197,7 +218,8 @@
                     sortable: true
                 }, 'actions'],
                 profiles: [],
-                retrievingProfiles: false
+                retrievingProfiles: false,
+                selectedProfile: ""
             }
         },
         mounted() {
@@ -232,7 +254,6 @@
                 fetch('/v1/removeAdmin/' + makeAdminProfile.id, {
                     method: 'POST',
                 }).then(function() {
-                    location.reload();
                     self.searchProfiles();
                 })
             },
@@ -242,9 +263,9 @@
              * user is an admin. Backend validation ensures a user cannot bypass this.
              * @param makeAdminProfile      the selected profile to be deleted.
              */
-            deleteUser(makeAdminProfile) {
+            deleteUser(deleteUser) {
                 let self = this;
-                fetch('/v1/profile/' + makeAdminProfile.id, {
+                fetch('/v1/profile/' + deleteUser.id, {
                     method: 'DELETE',
                 }).then(function() {
                     self.searchProfiles();
@@ -289,6 +310,23 @@
                         this.profiles = data;
                     })
             },
+
+            /**
+             * Used to send a selected profile to a modal so the admin can confirm they want to delete the selected
+             * profile.
+             * @param profile, the profile that is selected to be deleted.
+             */
+            sendProfileToModal(profile) {
+                this.selectedProfile = profile;
+            },
+
+            /**
+             * Used to dismiss the delete a profile modal
+             */
+            dismissModal() {
+                this.$refs['deleteModal'].hide();
+            },
+
         },
         computed: {
             rows() {
