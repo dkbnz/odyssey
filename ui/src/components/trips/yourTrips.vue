@@ -232,7 +232,7 @@
                 perPageUpcoming: 10,
                 perPagePast: 10,
                 sortByUpcoming: 'destinations[0].startDate',
-                sortByPast: 'destinations[1].endDate',
+                sortByPast: 'destinations[this.destinations.length-1].endDate',
                 sortDesc: true,
                 currentPageUpcoming: 1,
                 currentPagePast: 1,
@@ -310,6 +310,8 @@
              */
             calculateDuration(destinations) {
                 if (destinations[destinations.length -1 ].endDate == null) {
+                    return ""
+                } else if (destinations[destinations.length -1].startDate == null) {
                     return ""
                 }
                 let calculateDur = Math.ceil((Math.abs(new Date(destinations[destinations.length -1 ].endDate).getTime()
