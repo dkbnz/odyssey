@@ -48,9 +48,12 @@ public class ProfileController {
     private static final String notSignedIn = "You are not logged in.";
 
     /**
-     * Creates a user based on given JSON body.
-     * If username exists, returns badRequest() (HTTP 400)
-     * If user is created, sets session and returns created() (HTTP 201)
+     * Creates a user based on given JSON body. All new users are not an admin by default. This is used on the Sign Up
+     * page when a user is making a new profile. All parameters are compulsory, except for passport country. When a user
+     * creates a new profile, a session is made and they are automatically logged in.
+     * @param request   HTTP Request containing JSON Body.
+     * @return          If username exists, returns badRequest() (HTTP 400), if user is created, sets session and
+     *                  returns created() (HTTP 201).
      */
     public Result create(Http.Request request) {
 
@@ -118,10 +121,13 @@ public class ProfileController {
 
 
     /**
-     * Field validation method checking whether a username already exists in the database
+     * Field validation method checking whether a username already exists in the database. This is to ensure their are
+     * no duplicate usernames (emails), as the login functionality requires a username. This is checked on profile
+     * creation in the ProfileController.
      *
-     * @param username the name being checked (inputted as a String)
-     * @return false if the username is unique (acceptable), or true if the profile username exists (unacceptable)
+     * @param username  the name being checked (inputted as a String).
+     * @return          false if the username is unique (acceptable), or true if the profile username exists
+     *                  (unacceptable).
      */
     private boolean profileExists(String username) {
         return Profile.find
@@ -133,10 +139,13 @@ public class ProfileController {
 
 
     /**
-     * Function called from the routes request and sends back a request based on the result
+     * Field validation method checking whether a username already exists in the database. This is to ensure there are
+     * no duplicate usernames (emails), as the login functionality requires a username. This error is shown to the
+     * user when validating their email on Sign Up.
      *
-     * @param request the json object of the form
-     * @return ok when there is no username in the database, or a bad request when there already is a user in the database
+     * @param request   HTTP Request containing JSON Body.
+     * @return          ok when there is no username in the database, or a bad request when there already is a user
+     *                  in the database.
      */
     public Result checkUsername(Http.Request request) {
         JsonNode json = request.body().asJson();
@@ -167,18 +176,15 @@ public class ProfileController {
                         return badRequest();
                     }
                 }); // User is not logged in
-
-
     }
 
-
     /**
-     * Fetches a single profile from the database.
-     * If the Id is specified in the JSON request, and the client is an admin, returns specified Id.
-     * If the Id is not specified, but the client is logged in, returns client profile
+     * Fetches a single profile from the database based on the HTTP Request body. This is used to display the currently
+     * logged in profile on the dash page, and used throughout the application wherever the logged in profile is
+     * referenced.
      *
-     * @param request HTTP request from client
-     * @return HTTP Result of the request
+     * @param request   HTTP request from client.
+     * @return          HTTP Result of the request.
      */
     public Result fetch(Http.Request request) {
         return request.session()
@@ -193,11 +199,12 @@ public class ProfileController {
 
 
     /**
-     * Deletes a currently logged in profile and invalidates their session
-     * If user is admin and the id is specified in the JSON body, delete specified id.
+     * Deletes a currently logged in profile and invalidates their session. If user is admin and the id is specified
+     * in the JSON body, delete specified id. Ensures the global admin (id number of one) cannot be deleted by any
+     * user, admin or not.
      *
-     * @param request HTTP Request containing JSON Body
-     * @return HTTP Result of the request
+     * @param request   HTTP Request containing JSON Body.
+     * @return          HTTP Result of the request.
      */
     public Result delete(Http.Request request, Long id) {
         return request.session()
@@ -234,10 +241,11 @@ public class ProfileController {
 
 
     /**
-     * Takes a Http request containing a Json body and finds logged in user, then updates said user
+     * Takes a HTTP request containing a Json body and finds a logged in user. Then uses a PUT request to update
+     * the logged in user based on the HTTP Request body. The validation is the same as creating a new profile.
      *
-     * @param request
-     * @return
+     * @param request   HTTP Request containing JSON Body.
+     * @return          HTTP Result of the request.
      */
     public Result update(Http.Request request) {
         return request.session()
@@ -314,11 +322,12 @@ public class ProfileController {
     }
 
     /**
-     * Performs an ebean find query on the database to search for profiles
-     * If no query is specified, it will return a list of all profiles
+     * Performs an Ebean find query on the database to search for profiles.
+     * If no query is specified in the HTTP request, it will return a list of all profiles. If a query is specified,
+     * uses the searchProfiles() method to execute a search based on the search query parameters. This is used on the
+     * Search Profiles page.
      *
-     * @return badRequest if propertyName is not valid
-     * List of profiles otherwise
+     * @return badRequest if propertyName is not valid, list of profiles otherwise (ok).
      */
     public Result list(Http.Request request) {
         return request.session()
@@ -342,10 +351,11 @@ public class ProfileController {
 
 
     /**
-     * Function to validate a query string and return a list of profiles
-     * If no profiles are found, return an empty list
-     * @param queryString
-     * @return
+     * Function to validate a query string and return a list of profiles based on the query string.
+     * If no profiles are found, return an empty list. This is used on the Search Profiles page.
+     *
+     * @param queryString   the query string of the search parameters that are used for searching for profiles.
+     * @return              the list of profiles found from the resulting query string (can be empty).
      */
     private List<Profile> searchProfiles(Map<String, String[]> queryString) {
         ExpressionList<Profile> profileExpressionList = Ebean.find(Profile.class).where();
@@ -379,10 +389,14 @@ public class ProfileController {
     }
 
     /**
-     * Makes a user an admin if the current logged in user is an admin
-     * @param request
-     * @param id
-     * @return ok if successful, unauthorized if they are not logged in or are not admin
+     * Makes another user (based on the HTTP request body) an admin if the currently logged in user is an admin.
+     * If user is not logged in they are unauthorised, if they are logged in and they are not admin they are forbidden
+     * to make another user an admin.
+     *
+     * @param request   HTTP Request containing JSON Body.
+     * @param id        the id of the user to made an admin.
+     * @return          ok if successful, unauthorized if they are not logged in, forbidden if logged in user is not an
+     *                  admin.
      */
     public Result makeAdmin(Http.Request request, Long id) {
         return request.session()
@@ -390,6 +404,7 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    // If profile logged in is admin, can make another user admin.
                     if (userProfile.getIs_admin()) {
                         Profile updateProfile = Profile.find.byId(Math.toIntExact(id));
                         updateProfile.setIs_admin(true);
@@ -403,10 +418,13 @@ public class ProfileController {
     }
 
     /**
-     * Removes an admin if you are an admin and are not trying to change the default admin
-     * @param request
-     * @param id
-     * @return forbidden if not admin, unauthorized if not logged in or ok if successful
+     * Removes the admin property from a specified user based on the user id. This can only be done if the currently
+     * logged in user is an admin and the user they are trying to change is not the global admin.
+     *
+     * @param request   HTTP Request containing JSON Body.
+     * @param id        the id of the user to be removed as an admin.
+     * @return          forbidden logged in user is not an admin or the profile trying to be changed is the global
+     *                  admin, unauthorized if the user is not logged in, ok if successfully updating admin property.
      */
     public Result removeAdmin(Http.Request request, Long id) {
         return request.session()
@@ -414,8 +432,10 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    // If the logged in user is admin
                     if (userProfile.getIs_admin()) {
                         Profile updateProfile = Profile.find.byId(Math.toIntExact(id));
+                        // If the profile trying to be changed is not the global admin (id number one).
                         if (!updateProfile.getId().equals(1)) {
                             if (updateProfile.getIs_admin()) {
                                 updateProfile.setIs_admin(false);
