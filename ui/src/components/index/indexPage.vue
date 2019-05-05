@@ -53,9 +53,6 @@
                 password: ''
             }
         },
-        methods: {
-
-        },
         components: {
             Signup,
             Login

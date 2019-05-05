@@ -43,6 +43,7 @@
             userstate() {
                 return !!(this.username.length >= 4) && this.username.includes('@')
             },
+
             /**
              * @returns {string} specific error messages depending on error
              */
@@ -60,6 +61,7 @@
             }
         },
         methods: {
+
             /**
              * Attempts to log user in and redirects to dash page if login is valid
              */
