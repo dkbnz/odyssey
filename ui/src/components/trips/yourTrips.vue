@@ -28,7 +28,9 @@
             <!-- Modal that uses the plan a trip page to edit a selected trip -->
             <b-modal ref="editTripModal" id="editTripModal" size="xl" hide-footer title="Edit Trip">
                 <plan-a-trip
-                        v-bind:inputTrip="selectedTrip"
+                        :inputTrip="selectedTrip"
+                        :heading="'Edit a Trip'"
+                        :subHeading="'Edit your trip using the form below'"
                         v-if="selectedTrip !== ''">
                 </plan-a-trip>
                 <b-button class="mr-2 float-right" @click="dismissModal('editTripModal')">Cancel</b-button>
@@ -140,8 +142,8 @@
                      :fields="fields"
                      :sort-by.sync= "sortByPast"
                      :sort-desc.sync="sortDesc"
-                     :per-page="perPageUpcoming"
-                     :current-page="currentPageUpcoming"
+                     :per-page="perPagePast"
+                     :current-page="currentPagePast"
                      :busy="pastTrips.length === 0"
             >
                 <div slot="table-busy" class="text-center my-2">
@@ -227,8 +229,8 @@
         data: function() {
             return {
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
-                perPageUpcoming: 5,
-                perPagePast: 5,
+                perPageUpcoming: 10,
+                perPagePast: 10,
                 sortByUpcoming: 'destinations[0].startDate',
                 sortByPast: 'destinations[1].endDate',
                 sortDesc: true,
@@ -244,13 +246,13 @@
                     'more_details'
                 ],
                 subFields:[
-                    {key: 'destination.name', label: "Destination Name"},
-                    {key: 'destination.type.destinationType', label: "Destination Type"},
-                    {key: 'destination.district', label: "Destination District"},
-                    {key: 'destination.latitude', label: "Destination Latitude"},
-                    {key: 'destination.longitude', label: "Destination Longitude"},
-                    {key: 'destInDate', label: "In Date"},
-                    {key: 'destOutDate', label: "Out Date"}],
+                    {key: 'destination.name', label: "Name"},
+                    {key: 'destination.type.destinationType', label: "Type"},
+                    {key: 'destination.district', label: "District"},
+                    {key: 'destination.latitude', label: "Latitude"},
+                    {key: 'destination.longitude', label: "Longitude"},
+                    {key: 'destInDate', label: "Start Date"},
+                    {key: 'destOutDate', label: "End Date"}],
                 pastTrips: [],
                 futureTrips:[],
                 selectedTrip: "",
@@ -301,14 +303,14 @@
         },
         methods: {
             /**
-             * Used to calculate the duration of the trip. Returns a hyphen if the last destination in the trip has no
-             * dates. Otherwise calculates the difference between the first and last destinations in the trip.
+             * Used to calculate the duration of the trip. Returns a blank string if the last destination in the trip
+             * has no dates. Otherwise calculates the difference between the first and last destinations in the trip.
              * @param destinations in the trip
              * @returns string of the trip duration
              */
             calculateDuration(destinations) {
                 if (destinations[destinations.length -1 ].endDate == null) {
-                    return "-"
+                    return ""
                 }
                 let calculateDur = Math.ceil((Math.abs(new Date(destinations[destinations.length -1 ].endDate).getTime()
                     - new Date(destinations[0].startDate).getTime())))/ (1000 * 3600 * 24);

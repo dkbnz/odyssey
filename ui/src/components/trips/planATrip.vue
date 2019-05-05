@@ -2,7 +2,7 @@
     <div class="container">
 
         <h1 class="page_title">{{ heading }}</h1>
-        <p class="page_title"><i>Book your next trip!</i></p>
+        <p class="page_title"><i>{{ subHeading }}</i></p>
 
         <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
 
@@ -151,7 +151,7 @@
                 </b-button>
                 <!--Removes destination from table-->
                 <b-button size="sm"
-                          @click="deleteDestination(row.item, row.index)"
+                          @click="deleteDestination(row.index)"
                           variant="danger"
                           class="mr-2">Delete
                 </b-button>
@@ -234,7 +234,7 @@
         </b-row>
         <b-button variant="primary"
                   block class="mr-2 float-right"
-                  @click="submitTrip">
+                  @click="validateTrip">
             <b-spinner small
                        v-if="savingTrip"
                        variant="dark"
@@ -260,11 +260,12 @@
                             destinations: []
                     }
                 }
-            }},
-
+            },
+            heading: String,
+            subHeading: String
+        },
         data() {
             return {
-                heading: 'Plan a Trip',
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPage: 10,
                 currentPage: 1,
@@ -322,6 +323,8 @@
 
                     if(startDate < endDate) {
                         this.addDestination()
+                    } else if (this.inDate.length === 0 || this.outDate.length === 0) {
+                        this.addDestination()
                     } else {
                         this.showError = true;
                         this.errorMessage = "Incorrect date ordering.";
@@ -334,7 +337,9 @@
             },
 
             /**
-             * Method to add the
+             * Method to add the destination to the list of trip destinations. This also adds the destination to the
+             * table so the destination can be reordered or edited. After the destination is added, the form for adding
+             * a destination is reset/cleared.
              */
             addDestination() {
                 this.showError = false;
@@ -354,56 +359,41 @@
                 });
                 this.resetDestForm();
             },
-            deleteDestination: function(row, rowIndex) {
-                if(this.inputTrip.destinations.length > 2) {
-                    if (rowIndex === this.inputTrip.destinations.length - 1) {
-                        this.inputTrip.destinations.splice(rowIndex, 1);
-                    }
-                    else if (this.inputTrip.destinations[rowIndex - 1].destination.id !== this.inputTrip.destinations[rowIndex + 1].destination.id) {
-                        this.inputTrip.destinations.splice(rowIndex, 1);
-                    } else {
-                        this.showDuplicateDestError("delete")
-                    }
-                } else {
-                    this.inputTrip.destinations.splice(rowIndex, 1);
-                }
+
+            /**
+             * Used after the destination is added, resets the form for adding a destination.
+             */
+            resetDestForm() {
+                this.tripDestination = "";
+                this.inDate = "";
+                this.outDate = "";
             },
+
+            /**
+             * Method to delete a destination from the list of trip destinations.
+             * @param rowIndex      the index of the row in the table
+             */
+            deleteDestination(rowIndex) {
+                    this.inputTrip.destinations.splice(rowIndex, 1);
+            },
+
+            /**
+             * Used to populate the modal to edit a destination dates in the trip.
+             * @param row           the selected row (destination) in the table.
+             */
             populateModal(row) {
                 this.rowEdit = row;
                 this.editInDate = row.startDate;
                 this.editOutDate = row.endDate;
             },
-            moveUp(rowIndex) {
-                let upIndex = rowIndex - 1;
-                let swapRow = this.inputTrip.destinations[rowIndex];
-                this.inputTrip.destinations[rowIndex] = this.inputTrip.destinations[upIndex];
-                this.inputTrip.destinations[upIndex] = swapRow;
-                this.$refs.tripDestTable.refresh();
-            },
-            moveDown(rowIndex) {
-                let upIndex = rowIndex + 1;
-                let swapRow = this.inputTrip.destinations[rowIndex];
-                this.inputTrip.destinations[rowIndex] = this.inputTrip.destinations[upIndex];
-                this.inputTrip.destinations[upIndex] = swapRow;
-                this.$refs.tripDestTable.refresh();
-            },
-            checkDuplicateDestinations() {
-                let result = [];
-                for (let i = 0; i < this.inputTrip.destinations.length-1; i++) {
-                    if (this.inputTrip.destinations[i].destination.id === this.inputTrip.destinations[i+1].destination.id) {
-                        result.push(true);
-                    } else {
-                        result.push(false);
-                    }
-                }
-                if(result.includes(true)) {
-                    return true;
-                }
-            },
-            showDuplicateDestError(error) {
-                this.showError = true;
-                this.errorMessage = "Can't have same destination next to another, please choose another destination to " + error;
-            },
+
+            /**
+             * Used to save the destination that is being edited.
+             * Checks the start date is before the end date.
+             * @param row           the row (destination) being edited.
+             * @param editInDate    the in date being edited.
+             * @param editOutDate   the out date being edited.
+             */
             saveDestination(row, editInDate, editOutDate) {
                 if (editInDate <= editOutDate) {
                     this.showDateError = false;
@@ -414,32 +404,51 @@
                     this.showDateError = true;
                     this.errorMessage = "Can't have the out date after the in date!"
                 }
-
             },
+
+            /**
+             * Used to dismiss the modal used to edit the destination.
+             */
             dismissModal() {
                 this.$refs['editModal'].hide()
             },
-            countDownChanged(dismissCountDown) {
-                this.dismissCountDown = dismissCountDown
+
+
+            /**
+             * Used to move a destination in the table up one place. The trip isn't checked for duplicates until it is
+             * saved.
+             * @param rowIndex      the row index of the destination in the table.
+             */
+            moveUp(rowIndex) {
+                let upIndex = rowIndex - 1;
+                let swapRow = this.inputTrip.destinations[rowIndex];
+                this.inputTrip.destinations[rowIndex] = this.inputTrip.destinations[upIndex];
+                this.inputTrip.destinations[upIndex] = swapRow;
+                this.$refs.tripDestTable.refresh();
             },
-            showAlert() {
-                this.dismissCountDown = this.dismissSecs
+
+            /**
+             * Used to move a destination in the table down one place. The trip isn't checked for duplicates until it is
+             * saved.
+             * @param rowIndex      the row index of the destination in the table.
+             */
+            moveDown(rowIndex) {
+                let downIndex = rowIndex + 1;
+                let swapRow = this.inputTrip.destinations[rowIndex];
+                this.inputTrip.destinations[rowIndex] = this.inputTrip.destinations[downIndex];
+                this.inputTrip.destinations[downIndex] = swapRow;
+                this.$refs.tripDestTable.refresh();
             },
-            checkDestinationDates() {
-                for (let i = 0; i < this.inputTrip.destinations.length; i++) {
-                    if(this.inputTrip.destinations[i].endDate > this.inputTrip.destinations[i+1].startDate) {
-                        return false
-                    } else {
-                        return true;
-                    }
-                }
-            },
-            resetDestForm() {
-                this.tripDestination = "";
-                this.inDate = "";
-                this.outDate = "";
-            },
-            submitTrip: function() {
+
+            /**
+             * Used to check the trip trying to be saved is valid.
+             * A valid trip has a name, has at least two destinations, has no duplicate destinations next to each other,
+             * each destination's dates are chronologically valid compared to its previous dates.
+             * If the trip is invalid, errors are shown. If the trip is valid then it is either given to the saveNewTrip
+             * method or the saveOldTrip method depending on if the trip is a new trip, or the trip is an old trip being
+             * edited.
+             */
+            validateTrip() {
                 if (this.inputTrip.name === null || this.inputTrip.name.length === 0) {
                     this.showError = true;
                     this.errorMessage = "No Trip Name";
@@ -448,7 +457,7 @@
                     this.errorMessage = "There must be at least 2 destinations";
                 } else if (this.checkDuplicateDestinations()) {
                     this.showDuplicateDestError("save");
-                } else if (!this.checkDestinationDates()) {
+                } else if (!this.checkValidDestinationDates()) {
                     this.showError = true;
                     this.errorMessage = "The ordering of the dates doesn't work!";
                 }
@@ -456,7 +465,9 @@
                     this.showError = false;
                     let tripDestinationsList = [];
                     for (let i = 0; i < this.inputTrip.destinations.length; i++) {
-                        tripDestinationsList.push({destination_id: this.inputTrip.destinations[i].destination.id, start_date: this.inputTrip.destinations[i].startDate, end_date: this.inputTrip.destinations[i].endDate})
+                        tripDestinationsList.push({destination_id: this.inputTrip.destinations[i].destination.id,
+                            start_date: this.inputTrip.destinations[i].startDate,
+                            end_date: this.inputTrip.destinations[i].endDate})
                     }
                     let trip = {
                         trip_name: this.inputTrip.name,
@@ -469,6 +480,57 @@
                     }
                 }
             },
+
+            /**
+             * Used to check if there are duplicate destinations next to one another in a trip upon the trip save.
+             * @returns {boolean}, true if there is duplicates, false otherwise.
+             */
+            checkDuplicateDestinations() {
+                let result = [];
+                for (let i = 0; i < this.inputTrip.destinations.length-1; i++) {
+                    if (this.inputTrip.destinations[i].destination.id ===
+                        this.inputTrip.destinations[i+1].destination.id) {
+                        result.push(true);
+                    } else {
+                        result.push(false);
+                    }
+                }
+                if(result.includes(true)) {
+                    return true;
+                }
+            },
+
+            /**
+             * Used to show an alert saying there are duplicate destinations next to one another in the trip.
+             * @param error
+             */
+            showDuplicateDestError(error) {
+                this.showError = true;
+                this.errorMessage = "Can't have same destination next to another, please choose another destination to "
+                    + error;
+            },
+
+            /**
+             * Checks all the destination dates in a trip to ensure that the end date of a destination is before its
+             * following destination start date.
+             * @returns {boolean} true if the dates are valid, false otherwise
+             */
+            checkValidDestinationDates() {
+                for (let i = 0; i < this.inputTrip.destinations.length; i++) {
+                    if(this.inputTrip.destinations[i].endDate > this.inputTrip.destinations[i+1].startDate) {
+                        return false
+                    } else {
+                        return true;
+                    }
+                }
+            },
+
+            /**
+             * Uses a fetch method (POST) o save a new trip. If there is an error for some reason, this is shown to the
+             * user.
+             * If the trip is successfully saved, then an alert is shown to the user and the trip form is reset.
+             * @param trip      the trip to be saved
+             */
             saveNewTrip(trip) {
                 this.savingTrip = true;
                 let self = this;
@@ -494,6 +556,14 @@
                     this.errorMessage = (error);
                 });
             },
+
+            /**
+             * Uses a fetch method (PATCH) to save an old trip. If there is an error for some reason, this is shown to
+             * the user.
+             * If the trip is successfully saved, then an alert is shown to the user and the trip form is reset.
+             * @param trip      the trip to be saved
+             * @param tripId    the id of the trip to be saved. This is required because the trip is being edited.
+             */
             saveOldTrip(trip, tripId) {
                 this.savingTrip = true;
                 let self = this;
@@ -520,13 +590,21 @@
 
                 });
             },
-            getDestinationRows() {
-                return this.inputTrips.destinations.length
+
+            /**
+             * Displays the countdown alert on the successful saving of a trip.
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
             },
+
+            /**
+             * Used to allow an alert to countdown on the successful saving of a trip.
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown
+            }
         }
     }
 </script>
-
-<style scoped>
-
-</style>
