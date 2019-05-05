@@ -28,6 +28,7 @@
             <!-- Modal that uses the plan a trip page to edit a selected trip -->
             <b-modal ref="editTripModal" id="editTripModal" size="xl" hide-footer title="Edit Trip">
                 <plan-a-trip
+                        v-on:tripSaved="getAllTrips()"
                         :destinations="destinations"
                         :inputTrip="selectedTrip"
                         :heading="'Edit a Trip'"
@@ -270,21 +271,7 @@
              *  This function also splits up the trips into past and future trips based on their date compared to
              *  today's date.
              */
-            this.getAllTrips(trips => {
-                let todayDate = new Date();
-                let self = this;
-                for (let i = 0; i < trips.length; i++) {
-                    if (trips[i].destinations[0].startDate === null) {
-                        self.futureTrips.push(trips[i]);
-                    }
-                    else if (new Date(trips[i].destinations[0].startDate) <= todayDate) {
-                        self.pastTrips.push(trips[i]);
-                    } else {
-                        self.futureTrips.push(trips[i]);
-                    }
-                }
-
-            });
+            this.getAllTrips();
         },
         computed: {
             /**
@@ -331,14 +318,29 @@
              * @param trips, populates the trips by using the mounted function
              * @returns {Promise<Response | never>}
              */
-            getAllTrips(trips) {
+            getAllTrips() {
                 let userId = this.profile.id;
                 return fetch(`/v1/trips/` + userId, {
                     accept: "application/json"
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
-                    .then(trips)
+                    .then(trips => {
+                        console.log(trips);
+                        let todayDate = new Date();
+                        let self = this;
+                        self.futureTrips = [];
+                        self.pastTrips = [];
+                        for (let i = 0; i < trips.length; i++) {
+                            if (trips[i].destinations[0].startDate === null) {
+                                self.futureTrips.push(trips[i]);
+                            } else if (new Date(trips[i].destinations[0].startDate) <= todayDate) {
+                                self.pastTrips.push(trips[i]);
+                            } else {
+                                self.futureTrips.push(trips[i]);
+                            }
+                        }
+                    })
             },
 
             /**
@@ -368,13 +370,6 @@
             },
 
             /**
-             * Makes a alert on the page visible after a trip is successfully deleted.
-             */
-            successfulDelete() {
-                this.validDelete = true;
-            },
-
-            /**
              * Used to send a selected trip to a modal that contains the plan a trip page, this is so the trip can be
              * edited.
              * @param trip, the trip that is selected to be edited in the modal.
@@ -398,7 +393,8 @@
                 }).then(function (response) {
                     console.log(response);
                     if (response.ok) {
-                        self.successfulDelete();
+                        self.validDelete = true;
+                        self.getAllTrips();
                     } else if (response.status === 403) {
                         throw new Error('You cannot delete another user\'s trips');
                     } else {
