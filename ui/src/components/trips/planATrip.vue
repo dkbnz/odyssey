@@ -502,7 +502,7 @@
 
             /**
              * Used to show an alert saying there are duplicate destinations next to one another in the trip.
-             * @param error
+             * @param error The error message to be displayed
              */
             showDuplicateDestError(error) {
                 this.showError = true;
