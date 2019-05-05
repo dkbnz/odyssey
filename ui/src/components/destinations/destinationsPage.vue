@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="profile.length !== 0">
         <!--Shows tabs for destination page-->
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
         <b-navbar variant="light">
@@ -9,9 +9,14 @@
             </b-navbar-nav>
         </b-navbar>
         <!--Displays currently selected page-->
-        <search-destinations v-if="searchDestinations" v-bind:profile="profile" v-bind:destinationTypes="destinationTypes"></search-destinations>
-        <add-destinations v-if="addDestinations" v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" ></add-destinations>
+        <search-destinations v-if="searchDestinations" v-bind:profile="profile"
+                             v-bind:destinationTypes="destinationTypes"></search-destinations>
+        <add-destinations v-if="addDestinations" v-bind:profile="profile" v-bind:destinations="destinations"
+                          v-bind:destinationTypes="destinationTypes"></add-destinations>
         <footer-main></footer-main>
+    </div>
+    <div v-else>
+        <unauthorised-prompt></unauthorised-prompt>
     </div>
 </template>
 
@@ -20,6 +25,8 @@
     import AddDestinations from './addDestinations.vue'
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
+    import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
+
     export default {
         name: "destinationsPage",
         props: ['profile', 'destinations', 'destinationTypes'],
@@ -30,11 +37,12 @@
             SearchDestinations,
             AddDestinations,
             NavBarMain,
-            FooterMain
+            FooterMain,
+            UnauthorisedPrompt
         },
-        mounted () {
+        mounted() {
         },
-        data: function() {
+        data: function () {
             return {
                 searchDestinations: true,
                 addDestinations: false,
@@ -54,7 +62,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>
