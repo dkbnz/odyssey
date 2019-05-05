@@ -44,7 +44,7 @@
                      ref="myFutureTrips"
                      :items="futureTrips"
                      :fields="fields"
-                     :sort-by.sync="sortByUpcoming"
+                     :sort-by.sync="sortBy"
                      :sort-desc.sync="sortDesc"
                      :per-page="perPageUpcoming"
                      :current-page="currentPageUpcoming"
@@ -142,8 +142,8 @@
                      ref="myPastTrips"
                      :items="pastTrips"
                      :fields="fields"
-                     :sort-by.sync= "sortByPast"
-                     :sort-desc.sync="sortDesc"
+                     :sort-by="sortBy"
+                     :sort-desc="sortDescPast"
                      :per-page="perPagePast"
                      :current-page="currentPagePast"
                      :busy="pastTrips.length === 0"
@@ -233,9 +233,9 @@
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPageUpcoming: 10,
                 perPagePast: 10,
-                sortByUpcoming: 'destinations[0].startDate',
-                sortByPast: 'destinations[this.destinations.length-1].endDate',
-                sortDesc: true,
+                sortBy: 'destinations[0].startDate',
+                sortDesc: false,
+                sortDescPast: true,
                 currentPageUpcoming: 1,
                 currentPagePast: 1,
                 fields: [
@@ -326,7 +326,6 @@
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(trips => {
-                        console.log(trips);
                         let todayDate = new Date();
                         let self = this;
                         self.futureTrips = [];
