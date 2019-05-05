@@ -14,7 +14,7 @@
                 variant="success"
                 @dismissed="dismissCountDown=0"
                 @dismiss-count-down="countDownChanged">
-            <p>Trip Successfully Added</p>
+            <p>Trip Successfully Saved</p>
             <b-progress
                     variant="success"
                     :max="dismissSecs"
@@ -572,13 +572,10 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)
                 }).then(function (response) {
-                    if (response.status === 201) {
+                    if (response.status === 200) {
                         self.savingTrip = false;
                         self.showAlert();
                         self.$emit('tripSaved', true);
-                        self.resetDestForm();
-                        self.inputTrip.name = "";
-                        self.inputTrip.destinations = [];
                         return JSON.parse(JSON.stringify(response));
                     } else {
                         throw new Error('Something went wrong, try again later.');
