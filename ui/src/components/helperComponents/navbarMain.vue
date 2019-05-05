@@ -32,7 +32,6 @@
 
 <script>
     import assets from '../../assets/index'
-    import { EventBus } from '../../event-bus';
 
     export default {
         name: "navbarMain",
@@ -60,8 +59,8 @@
                     .then(this.parseJSON)
                     .then(function (response) {
                         if (response.ok) {
-                            self.sendEventToParent();
                             self.$router.push("/");
+                            self.$router.go();
                             return response;
                         } else {
                             self.$router.push("/dash");
@@ -83,10 +82,6 @@
             },
             goToProfile() {
                 this.$router.push("/dash");
-            },
-            sendEventToParent() {
-                console.log("in send event to parent");
-                EventBus.$emit('logout');
             }
         }
     }

@@ -10,7 +10,6 @@
 <script>
     import Index from './components/index/indexPage.vue'
     import assets from './assets'
-    import {EventBus} from './event-bus';
 
     export default {
         computed: {
@@ -25,10 +24,6 @@
             this.getDestinations(destinations => this.destinations = destinations);
             this.getDestinationTypes(destinationT => this.destinationTypes = destinationT);
 
-            const logoutHandler = function () {
-                console.log("in log out handler");
-            };
-            EventBus.$on('logout', logoutHandler);
         },
         data() {
             return {
@@ -56,18 +51,10 @@
                     .then(updateDestinationTypes);
             },
             getProfile(updateProfile) {
-                console.log("in get profile");
                 return fetch(`/v1/profile`, {
                     accept: "application/json"
                 })
                     .then(this.parseJSON)
-                    // .then(function(response) {
-                    //     if (response.ok) {
-                    //         return JSON.parse(JSON.stringify(response));
-                    //     } else {
-                    //         console.log("You are not logged in.")
-                    //     }
-                    // })
                     .then(updateProfile);
             },
             getNationalities(updateNationalities) {
