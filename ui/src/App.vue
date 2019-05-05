@@ -1,34 +1,36 @@
 <template>
     <div class="App">
         <div>
-            <router-view  v-bind:profile="profile" v-bind:destinations="destinations" v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></router-view>
+            <router-view v-bind:profile="profile" v-bind:destinations="destinations"
+                         v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions"
+                         v-bind:travTypeOptions="travTypeOptions"></router-view>
         </div>
     </div>
 </template>
 <script>
     import Index from './components/index/indexPage.vue'
     import assets from './assets'
-    import { EventBus } from './event-bus';
+    import {EventBus} from './event-bus';
 
     export default {
         computed: {
-            assets () {
+            assets() {
                 return assets
             },
         },
-        mounted () {
+        mounted() {
             this.getProfile(profile => this.profile = profile);
             this.getNationalities(nationalities => this.nationalityOptions = nationalities);
             this.getTravTypes(travTypes => this.travTypeOptions = travTypes);
             this.getDestinations(destinations => this.destinations = destinations);
             this.getDestinationTypes(destinationT => this.destinationTypes = destinationT);
 
-            const logoutHandler = function() {
+            const logoutHandler = function () {
                 console.log("in log out handler");
             };
             EventBus.$on('logout', logoutHandler);
         },
-        data () {
+        data() {
             return {
                 profile: "",
                 nationalityOptions: [],
@@ -39,43 +41,50 @@
             }
         },
         methods: {
-            getDestinations (updateDestinations) {
+            getDestinations(updateDestinations) {
                 return fetch(`/v1/destinations`, {
                     accept: "application/json"
                 })
                     .then(this.parseJSON)
                     .then(updateDestinations);
             },
-            getDestinationTypes (updateDestinationTypes) {
+            getDestinationTypes(updateDestinationTypes) {
                 return fetch(`/v1/destinationTypes`, {
                     accept: "application/json"
                 })
                     .then(this.parseJSON)
                     .then(updateDestinationTypes);
             },
-            getProfile (updateProfile) {
+            getProfile(updateProfile) {
                 console.log("in get profile");
                 return fetch(`/v1/profile`, {
                     accept: "application/json"
                 })
                     .then(this.parseJSON)
+                    // .then(function(response) {
+                    //     if (response.ok) {
+                    //         return JSON.parse(JSON.stringify(response));
+                    //     } else {
+                    //         console.log("You are not logged in.")
+                    //     }
+                    // })
                     .then(updateProfile);
             },
-            getNationalities (updateNationalities) {
+            getNationalities(updateNationalities) {
                 return fetch(`/v1/nationalities`, {
                     accept: "application/json"
                 })
                     .then(this.parseJSON)
                     .then(updateNationalities);
             },
-            getTravTypes (updateTravellerTypes) {
+            getTravTypes(updateTravellerTypes) {
                 return fetch(`/v1/travtypes`, {
                     accept: "application/json"
                 })
                     .then(this.parseJSON)
                     .then(updateTravellerTypes);
             },
-            parseJSON (response) {
+            parseJSON(response) {
                 return response.json();
             }
         },
