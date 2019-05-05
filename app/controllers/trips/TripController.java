@@ -1,6 +1,7 @@
 package controllers.trips;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import models.Profile;
 import models.destinations.Destination;
