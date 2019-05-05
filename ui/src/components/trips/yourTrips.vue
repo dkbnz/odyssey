@@ -223,7 +223,15 @@
     import PlanATrip from './planATrip.vue'
     export default {
         name: "YourTrips",
-        props: ['profile', 'userProfile', 'destinations'],
+        props: ['profile', 'userProfile'],
+        props: {profile: Object,
+            userProfile: {
+                default: function() {
+                    return this.profile
+                }
+            },
+            destinations: Array
+        },
         components: {
             PlanATrip
         },
