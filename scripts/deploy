@@ -8,7 +8,8 @@ function cleanUp () {
     systemctl stop travelea-$PROD_OR_DEV.service
 
     # Delete files in webserver directory
-    rm -rf /opt/travelea/$PROD_OR_DEV/{*,.*}
+    rm -rf /opt/travelea/$PROD_OR_DEV/
+    mkdir /opt/travelea/$PROD_OR_DEV/
 }
 
 function deploy() {
@@ -20,7 +21,8 @@ function deploy() {
     systemctl start travelea-$PROD_OR_DEV.service
 
     # Clear build directory so it is ready to accept next zip file
-    rm -rf /opt/travelea/build/{*,.*}
+    rm -rf /opt/travelea/build/
+    mkdir /opt/travelea/build/
 }
 
 if [ -z "$PROD_OR_DEV" ]
