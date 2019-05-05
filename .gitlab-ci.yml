@@ -62,7 +62,7 @@ deploy-master:
   stage: deploy-server
   script:
   - sudo mv target/universal/*.zip ${DEPLOY_DIR}/build/
-  - sudo ./scripts/deploy production
+  - sudo bash scripts/deploy production
   only:
   - master@seng302-2019/team-100
 
@@ -70,6 +70,6 @@ deploy-dev:
   stage: deploy-server
   script:
   - sudo mv target/universal/*.zip ${DEPLOY_DIR}/build/
-  - sudo ./scripts/deploy development
+  - sudo bash scripts/deploy development
   only:
   - dev_branch@seng302-2019/team-100
