@@ -18,6 +18,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import javax.xml.bind.DatatypeConverter;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import static play.mvc.Results.*;
 
@@ -76,8 +80,14 @@ public class ProfileController {
 
         Profile newUser = new Profile();
 
+        // Tries to hash the users given password
+        try {
+            newUser.setPassword(hashProfilePassword(json.get(PASSFIELD).asText()));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
         newUser.setUsername(json.get(USERNAME).asText());
-        newUser.setPassword(json.get(PASSFIELD).asText());
         newUser.setFirstName(json.get(FIRST_NAME).asText());
         newUser.setMiddleName(json.get(MIDDLE_NAME).asText());
         newUser.setLastName(json.get(LAST_NAME).asText());
@@ -114,6 +124,17 @@ public class ProfileController {
         return created().addingToSession(request, AUTHORIZED, newUser.id.toString());
     }
 
+    /**
+     * Hashes a password string using the SHA 256 method from the MessageDigest library
+     * @param password the string you want to hash
+     * @return a string of the hashed binary array as a hexadecimal string
+     * @throws NoSuchAlgorithmException if the algorithm specified does not exist for the MessageDigest library
+     */
+    private String hashProfilePassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        String hash = DatatypeConverter.printHexBinary(digest.digest(password.getBytes(StandardCharsets.UTF_8)));
+        return hash;
+    }
 
     /**
      * Field validation method checking whether a username already exists in the database
@@ -258,7 +279,11 @@ public class ProfileController {
                     }
 
                     if (!json.get(PASSFIELD).asText().isEmpty()) { // Only update password if user has typed a new one
-                        userProfile.setPassword(json.get(PASSFIELD).asText());
+                        try {
+                            userProfile.setPassword(hashProfilePassword(json.get(PASSFIELD).asText()));
+                        } catch (NoSuchAlgorithmException e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     userProfile.setUsername(json.get(USERNAME).asText());
