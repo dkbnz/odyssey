@@ -124,6 +124,9 @@ public class TripController extends Controller {
             // Trip being modified
             Trip trip = Trip.find.byId(id.intValue());
 
+            if (trip == null)
+                return badRequest();
+
             String name = json.get(NAME).asText();
             trip.setName(name);
 
