@@ -7,7 +7,7 @@
                 <b-nav-item @click="togglePage(yourTrips)">Your Trips</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
-        <plan-a-trip v-if="planATrip" v-bind:destinations="destinations"></plan-a-trip>
+        <plan-a-trip v-if="planATrip" :heading="'Plan a Trip'" :subHeading="'Book your next trip!'" :destinations="destinations"></plan-a-trip>
         <your-trips  v-if="yourTrips" :profile="profile" :userProfile="profile"></your-trips>
         <footer-main></footer-main>
 
@@ -29,13 +29,15 @@
         data: function() {
             return {
                 planATrip: true,
-                yourTrips: false,
-                message: "Hi"
+                yourTrips: false
             }
         },
-        mounted() {
-        },
         methods: {
+
+            /**
+             * Used to toggle what page is currently being shown.
+             * @param viewPage
+             */
             togglePage: function(viewPage) {
                 if(!viewPage) {
                     this.planATrip = !this.planATrip;

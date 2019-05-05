@@ -41,6 +41,7 @@
                         label="Min Age: "
                         label-for="minAge">
                     <div class="mt-2">{{ searchMinAge }}</div>
+
                     <!--Range slider from 0 to 150-->
                     <b-form-input id="minAge" v-model="searchMinAge"
                                   :type="'range'"
@@ -81,7 +82,7 @@
 
             <!--Displays results from profile search in a table format-->
             <div style="margin-top: 40px">
-                <b-table hover striped outlined
+                <b-table hover striped outlined fixed
                          id="myFutureTrips"
                          :items="profiles"
                          :fields="fields"
@@ -95,6 +96,13 @@
                         <b-spinner class="align-middle"></b-spinner>
                         <strong>Loading...</strong>
                     </div>
+                    <template slot="nationalities" slot-scope="row">
+                        {{calculateNationalities(row.item.nationalities)}}
+                    </template>
+
+                    <template slot="travellerType" slot-scope="row">
+                        {{calculateTravTypes(row.item.travellerTypes)}}
+                    </template>
 
                     <!--Shows more details about any profile-->
                     <template slot="actions" slot-scope="row">
@@ -144,7 +152,7 @@
 </template>
 
 <script>
-    import viewProfile from '../dash/viewProfile.vue'
+    import ViewProfile from '../dash/viewProfile.vue'
     import Dash from '../dash/dashPage'
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
@@ -154,7 +162,12 @@
         created() {
             document.title = "TravelEA - Profiles";
         },
-
+        components: {
+            ViewProfile,
+            NavBarMain,
+            FooterMain,
+            Dash
+        },
         data: function() {
             return {
                 sortBy: 'firstName',
@@ -166,7 +179,7 @@
                 searchMaxAge: 100,
                 searchTravType: "",
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
-                perPage: 5,
+                perPage: 10,
                 currentPage: 1,
                 genderOptions: [
                     {value: 'male', text: 'Male'},
@@ -175,19 +188,50 @@
                 ],
                 fields: [{key:'firstName', label: "First Name", sortable: true},
                     {key:'lastName', label: "Last Name", sortable: true},
-                    {key:'nationalities[0].nationality', label: "Nationality", sortable: true},
+                    {key:'nationalities', label: "Nationalities", sortable: true, class: 'text-center'},
                     {key:'gender', value: 'gender', sortable: true}, {key:'age', value:'age', sortable: true},
-                    {key:'travellerTypes[0].travellerType', label: "Traveller Types" , sortable: true}, 'actions'],
+                    {key:'travellerType', label: "Traveller Types" , sortable: true, class: 'text-center'},
+                    'actions'],
                 profiles: []
             }
         },
         mounted () {
             this.queryProfiles();
-            //this.getProfiles(profiles => this.profiles = profiles);
+        },
+        computed: {
+            /**
+             * @returns {number} the number of rows required in the table based on number of profiles to be displayed
+             */
+            rows() {
+                return this.profiles.length
+            }
         },
         methods: {
-            parseJSON (response) {
-                return response.json();
+
+            /**
+             * Used to calculate a specific rows nationalities from their list of nationalities. Shows all the
+             * nationalities in the row.
+             * @param nationalities     the row's (profile) nationalities.
+             */
+            calculateNationalities (nationalities) {
+                let nationalityList = "";
+                for (let i = 0; i < nationalities.length; i++) {
+                    nationalityList += nationalities[i].nationality + ", ";
+                }
+                return nationalityList;
+            },
+
+            /**
+             * Used to calculate a specific rows traveller types from their list of traveller types. Shows all the
+             * traveller types in the row.
+             * @param travellerTypes     the row's (profile) traveller types.
+             */
+            calculateTravTypes (travellerTypes) {
+                let travTypeList = "";
+                for (let i = 0; i < travellerTypes.length; i++) {
+                    travTypeList += travellerTypes[i].travellerType + ", ";
+                }
+                return travTypeList;
             },
 
             /**
@@ -217,6 +261,7 @@
 
                 }
             },
+
             /**
              * Queries database for profiles which fit search criteria
              */
@@ -233,20 +278,32 @@
                         this.profiles = data;
                     })
             },
-        },
-        computed: {
+
             /**
-             * @returns {number} the number of rows required in the table based on number of profiles to be displayed
+             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
+             * console.
+             * @param response, passed back to the getAllTrips function to be parsed into a json.
+             * @returns throws the error.
              */
-            rows() {
-                return this.profiles.length
-            }
-        },
-        components: {
-            viewProfile,
-            NavBarMain,
-            FooterMain,
-            Dash
+            checkStatus (response) {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                }
+                const error = new Error(`HTTP Error ${response.statusText}`);
+                error.status = response.statusText;
+                error.response = response;
+                console.log(error); // eslint-disable-line no-console
+                throw error;
+            },
+
+            /**
+             * Used to turn the response of the fetch method into a usable JSON.
+             * @param response of the fetch method.
+             * @returns the json body of the response.
+             */
+            parseJSON (response) {
+                return response.json();
+            },
         }
     }
 </script>

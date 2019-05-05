@@ -335,6 +335,7 @@
                     this.showError = true;
                 }
             },
+
             /**
              * Runs second page validation and creates an object using all inputs
              */
@@ -355,6 +356,7 @@
                     this.saveProfile(profile);
                 }
             },
+
             /**
              * Checks that user does not already exist in database
              */
@@ -370,6 +372,7 @@
                 })
 
             },
+
             /**
              * Transfers to second page of sign-up
              */
@@ -377,6 +380,7 @@
                 this.showFirst = false;
                 this.showSecond = true;
             },
+
             /**
              * Transfers to first page of sign-up
              */
@@ -384,6 +388,7 @@
                 this.showFirst = true;
                 this.showSecond = false;
             },
+
             /**
              * Adds user to database
              * @param profile object created with all input values
@@ -397,10 +402,7 @@
                     location.reload();
                     return response.json();
                 })
-            },
-            parseJSON (response) {
-                return response.json();
-            },
+            }
         }
     }
 </script>
