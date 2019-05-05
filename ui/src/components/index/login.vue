@@ -49,6 +49,9 @@
                         return response.json();
                     }
                 })
+            },
+            parseJSON (response) {
+                return response.json();
             }
         }
     }
