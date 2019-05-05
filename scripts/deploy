@@ -1,0 +1,32 @@
+#!/bin/bash
+
+PROD_OR_DEV=$1
+
+function cleanUp () {
+
+    # Stop related webserver
+    systemctl stop travelea-$PROD_OR_DEV.service
+
+    # Delete files in webserver directory
+    rm -rf ${DEPLOY_DIR}/${PROD_OR_DEV}/{*,.*}
+}
+
+function deploy() {
+
+    # Unzip copied snapshot into production/development folder
+    unzip ${DEPLOY_DIR}/build/*.zip -d ${DEPLOY_DIR}/${PROD_OR_DEV}/
+
+    # Start service to launch webserver
+    systemctl start travelea-$PROD_OR_DEV.service
+
+    # Clear build directory so it is ready to accept next zip file
+    rm -rf ${DEPLOY_DIR}/build/{*,.*}
+}
+
+if [ -z "$PROD_OR_DEV" ]
+then
+    echo "Usage: deploy <production/development>"
+else
+    cleanUp
+    deploy
+fi
