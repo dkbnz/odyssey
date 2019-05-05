@@ -30,7 +30,7 @@ public class ProfileController {
 
 
     private static final String USERNAME = "username";
-    private static final String PASSFIELD = "password";
+    private static final String PASS_FIELD = "password";
     private static final String FIRST_NAME = "first_name";
     private static final String MIDDLE_NAME = "middle_name";
     private static final String LAST_NAME = "last_name";
@@ -45,7 +45,8 @@ public class ProfileController {
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
     private static final String IS_ADMIN = "is_admin";
     private static final String AUTHORIZED = "authorized";
-    private static final String notSignedIn = "You are not logged in.";
+    private static final String NOT_SIGNED_IN = "You are not logged in.";
+    private static final long AGE_SEARCH_OFFSET = 1;
 
     /**
      * Creates a user based on given JSON body. All new users are not an admin by default. This is used on the Sign Up
@@ -60,7 +61,7 @@ public class ProfileController {
         JsonNode json = request.body().asJson();
 
         if (!(json.has(USERNAME)
-                && json.has(PASSFIELD)
+                && json.has(PASS_FIELD)
                 && json.has(FIRST_NAME)
                 && json.has(MIDDLE_NAME)
                 && json.has(LAST_NAME)
@@ -81,7 +82,7 @@ public class ProfileController {
         Profile newUser = new Profile();
 
         newUser.setUsername(json.get(USERNAME).asText());
-        newUser.setPassword(json.get(PASSFIELD).asText());
+        newUser.setPassword(json.get(PASS_FIELD).asText());
         newUser.setFirstName(json.get(FIRST_NAME).asText());
         newUser.setMiddleName(json.get(MIDDLE_NAME).asText());
         newUser.setLastName(json.get(LAST_NAME).asText());
@@ -194,7 +195,7 @@ public class ProfileController {
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
                     return ok(userProfile.toJson());
                 })
-                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
 
@@ -236,7 +237,7 @@ public class ProfileController {
                     }
 
                 })
-                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
 
@@ -256,7 +257,7 @@ public class ProfileController {
                     JsonNode json = request.body().asJson();
 
                     if (!(json.has(USERNAME)
-                            && json.has(PASSFIELD)
+                            && json.has(PASS_FIELD)
                             && json.has(FIRST_NAME)
                             && json.has(MIDDLE_NAME)
                             && json.has(LAST_NAME)
@@ -274,8 +275,8 @@ public class ProfileController {
                         return badRequest();
                     }
 
-                    if (!json.get(PASSFIELD).asText().isEmpty()) { // Only update password if user has typed a new one
-                        userProfile.setPassword(json.get(PASSFIELD).asText());
+                    if (!json.get(PASS_FIELD).asText().isEmpty()) { // Only update password if user has typed a new one
+                        userProfile.setPassword(json.get(PASS_FIELD).asText());
                     }
 
                     userProfile.setUsername(json.get(USERNAME).asText());
@@ -318,7 +319,7 @@ public class ProfileController {
                     return ok("UPDATED");
 
                 })
-                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
     /**
@@ -346,7 +347,7 @@ public class ProfileController {
 
                     return ok(Json.toJson(profiles));
                 })
-                .orElseGet(() -> unauthorized(notSignedIn)); // User is not logged in
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
 
@@ -371,7 +372,7 @@ public class ProfileController {
             profileExpressionList.eq(GENDER, gender);
         }
         if ((maxAge.length() != 0)) {
-            minDate = LocalDate.now().minusYears(Integer.parseInt(maxAge));
+            minDate = LocalDate.now().minusYears(Integer.parseInt(maxAge) + AGE_SEARCH_OFFSET);
         }
         if ((minAge.length() != 0)) {
             maxDate = LocalDate.now().minusYears(Integer.parseInt(minAge));
