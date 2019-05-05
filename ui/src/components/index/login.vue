@@ -42,11 +42,11 @@
                 }).then(function (response) {
                     if (response.ok) {
                         self.showError = false;
-                        self.$router.push("/dash");
-                        return response.json();
+                        self.$router.go();
+                        return JSON.parse(JSON.stringify(response));
                     } else {
                         self.showError = true;
-                        return response.json();
+                        return JSON.parse(JSON.stringify(response));
                     }
                 })
             },
