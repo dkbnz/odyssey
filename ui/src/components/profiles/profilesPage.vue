@@ -218,7 +218,8 @@
             ViewProfile,
             NavBarMain,
             FooterMain,
-            Dash
+            Dash,
+            UnauthorisedPrompt
         },
         data: function() {
             return {
@@ -319,6 +320,7 @@
                     self.searchProfiles();
                 })
             },
+
             /**
              * Changes fields so that they can be used in searching
              * Runs validation on range fields
@@ -345,6 +347,7 @@
                     this.queryProfiles();
                 }
             },
+
             /**
              * Queries database for profiles which fit search criteria
              */
@@ -411,7 +414,7 @@
         computed: {
             rows() {
                 /**
-                 * @returns {number} the number of rows required in the table based on number of profiles to be displayed
+                 * @returns the number of rows required in the table based on number of profiles to be displayed
                  */
                 return this.profiles.length
             }

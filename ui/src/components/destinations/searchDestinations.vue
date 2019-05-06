@@ -153,8 +153,8 @@
         },
         methods: {
             /**
-             * Checks that latitude and longitude values are numbers
-             * @returns {boolean} true if fields are valid
+             * Checks that latitude and longitude values are numbers.
+             * @returns {boolean} true if fields are valid.
              */
             checkLatLong() {
                 let ok = true;
@@ -169,8 +169,9 @@
                 }
                 return ok;
             },
+
             /**
-             * Sets values for search
+             * Sets values for search.
              */
             searchDestinations() {
                 if (this.checkLatLong) {
@@ -184,9 +185,10 @@
                 }
 
             },
+
             /**
              * Runs a query which searches through the destinations in the database and returns all which
-             * follow the search criteria
+             * follow the search criteria.
              * @returns {Promise<Response | never>}
              */
             queryDestinations() {
@@ -208,10 +210,11 @@
                         this.retrievingDestinations = false;
                     })
             },
+
             /**
-             * Displays an error if search failed
-             * @param response from database search query
-             * @returns {*}
+             * Displays an error if search failed.
+             * @param response from database search query.
+             * @throws the error if it occurs.
              */
             checkStatus(response) {
                 if (response.status >= 200 && response.status < 300) {
@@ -223,6 +226,7 @@
                 console.log(error);
                 throw error;
             },
+
             parseJSON(response) {
                 return response.json();
             },

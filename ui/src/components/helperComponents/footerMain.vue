@@ -7,7 +7,3 @@
         name: "footerMain"
     }
 </script>
-
-<style scoped>
-
-</style>

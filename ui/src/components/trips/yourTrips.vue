@@ -224,7 +224,6 @@
     import PlanATrip from './planATrip.vue'
     export default {
         name: "YourTrips",
-        props: ['profile', 'userProfile'],
         props: {profile: Object,
             userProfile: {
                 default: function() {
@@ -276,8 +275,6 @@
         mounted () {
             /**
              *  Mounted function that uses the getAllTrips method to populate all a users trips on the page.
-             *  This function also splits up the trips into past and future trips based on their date compared to
-             *  today's date.
              */
             this.getAllTrips();
         },
@@ -322,8 +319,8 @@
 
             /**
              * Gets all the trips for a specific profile id. Uses the checkStatus and parseJSON functions to handle the
-             * response.
-             * @param trips, populates the trips by using the mounted function
+             * response. This function also splits up the trips into past and future trips based on their date compared
+             * to today's date.
              * @returns {Promise<Response | never>}
              */
             getAllTrips() {
@@ -334,14 +331,16 @@
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(trips => {
-                        let todayDate = new Date();
+                        let todaysDate = new Date();
                         let self = this;
                         self.futureTrips = [];
                         self.pastTrips = [];
                         for (let i = 0; i < trips.length; i++) {
-                            if (trips[i].destinations[0].startDate === null) {
+                            if (trips[i].destinations[0].startDate === null
+                                || trips[i].destinations[trips[i].destinations.length-1].endDate === null) {
                                 self.futureTrips.push(trips[i]);
-                            } else if (new Date(trips[i].destinations[0].startDate) <= todayDate) {
+                            } else if (new Date(trips[i].destinations[trips[i].destinations.length-1].endDate) <=
+                                todaysDate) {
                                 self.pastTrips.push(trips[i]);
                             } else {
                                 self.futureTrips.push(trips[i]);

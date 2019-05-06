@@ -148,7 +148,6 @@
             </b-form-valid-feedback>
         </b-form-group>
 
-
         <b-row>
             <!--Nationality field which displays user's current nationalities & all other nationalities.
             Validates inputted text-->
@@ -291,12 +290,10 @@
 
             }
         },
-        mounted() {
-        },
         computed: {
             /**
              * Validates input fields based on regular expression
-             * @returns {boolean} true if input is valid
+             * @returns {boolean} true if input is valid, false if invalid, or null if field remains unselected
              */
             fNameValidation() {
                 if (this.saveProfile.first_name.length === 0) {
@@ -324,15 +321,12 @@
                 this.checkUsername();
                 return (emailRegex.test(this.saveProfile.username) && this.validEmail);
             },
-            /**
-             * Validates input fields based on regular expression
-             * @returns {*} true if input is valid, false if invalid, or null if field remains unselected
-             */
             passwordValidation() {
                 if (this.saveProfile.password.length === 0) {
                     return null;
                 }
-                let passwordRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
+                let passwordRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])" +
+                    "(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
                 return passwordRegex.test(this.saveProfile.password)
             },
             rePasswordValidation() {
@@ -388,17 +382,20 @@
                 })
 
             },
+
             /**
              * Runs all field validation. If any errors occur, displays an error
              */
             checkSaveProfile() {
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
-                    && this.dateOfBirthValidation && this.genderValidation && this.nationalityValidation && this.travTypeValidation) {
+                    && this.dateOfBirthValidation && this.genderValidation && this.nationalityValidation
+                    && this.travTypeValidation) {
                     this.submitSaveProfile()
                 } else {
                     this.showError = true;
                 }
             },
+
             /**
              * Sends profile changes to profileController and reloads page
              */
@@ -412,6 +409,7 @@
                     return response.json();
                 })
             },
+
             /**
              * Check for duplicates of nationalities/passports/traveller types in order to
              * remove them from "other" option fields
