@@ -32,6 +32,10 @@
             }
         },
         methods: {
+            /**
+             * Used to log a user in based on the username and password that are entered. If the response is not ok()
+             * (HTTP 200), then an error is shown.
+             */
             login() {
                 let self = this;
                 fetch('/v1/login', {
@@ -48,9 +52,6 @@
                         return JSON.parse(JSON.stringify(response));
                     }
                 })
-            },
-            parseJSON (response) {
-                return response.json();
             }
         }
     }
