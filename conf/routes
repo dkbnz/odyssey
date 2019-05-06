@@ -2,69 +2,46 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+# Redirect index to Vue frontend. Must stay at top of Routes for production.
+GET      /                              controllers.Assets.at(path="/public", file="index.html")
 
-# Following routes are specifically for the JSON requests
-
-# Requests relating to profiles are as follows
-GET     /api/profiles                   controllers.ProfileController.list(request: Request)
-POST    /api/profiles                   controllers.ProfileController.create(request: Request)
-GET     /api/profile                    controllers.ProfileController.fetch(request: Request)
-PUT     /api/profile                    controllers.ProfileController.update(request: Request)
+# To convert
 DELETE  /api/profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
+PATCH   /api/trip/:id                   controllers.trips.TripController.edit(request: Request, id: Long)
 
-GET     /api/travtypes                  controllers.TravellerTypeController.list()
-GET     /api/nationalities              controllers.NationalityController.list()
-POST    /api/checkUsername              controllers.ProfileController.checkUsername(requestrun: Request)
-
-POST    /api/login                      controllers.AuthController.login(request: Request)
-POST    /api/logout                     controllers.AuthController.logout()
-
-# Requests relating to authorisation are as follows
-
-
-# DESTINATIONS
-# Get all destinations
-GET     /api/destinations               controllers.destinations.DestinationController.fetch(request: Request)
-
-# Add destination
-POST    /api/destinations               controllers.destinations.DestinationController.save(request: Request)
-
-#Delete a destination
-DELETE  /api/destination/:id            controllers.destinations.DestinationController.destroy(id: Long)
-
-#Update a destination
-PUT     /api/destination/:id            controllers.destinations.DestinationController.edit(id: Long, request: Request)
-
-# GET requests to serve the pages
-GET     /                               controllers.PageController.index(request: Request)
-GET     /dash                           controllers.PageController.dash(request: Request)
-GET     /destinations                   controllers.PageController.destinations(request: Request)
-GET     /searchProfile                  controllers.PageController.searchProfiles(request: Request)
-
-
-# Load index page
-GET        /             controllers.Assets.at(path="/public", file="index.html")
-
-# An example route
-GET     /v1/summary                     controllers.HomeController.appSummary()
+# Get lists
 GET     /v1/travtypes                   controllers.TravellerTypeController.list()
 GET     /v1/nationalities               controllers.NationalityController.list()
 
-GET     /v1/profile                     controllers.ProfileController.fetch(request: Request)
-PUT     /v1/profile                    controllers.ProfileController.update(request: Request)
-
-GET     /v1/profiles                    controllers.ProfileController.list(request: Request)
-POST    /v1/profiles                    controllers.ProfileController.create(request: Request)
-
-GET     /v1/destinations                controllers.destinations.DestinationController.fetch(request: Request)
-POST    /v1/destinations                controllers.destinations.DestinationController.save(request: Request)
-GET     /v1/destinationTypes            controllers.destinations.DestinationController.getTypes()
-
+# Authentication
 POST    /v1/login                       controllers.AuthController.login(request: Request)
 POST    /v1/logout                      controllers.AuthController.logout()
 POST    /v1/checkUsername               controllers.ProfileController.checkUsername(request: Request)
 
-# Map static resources from the /public folder to the file resource paths
-GET        /*file        controllers.Assets.at(path="/public", file)
+# Profile
+GET     /v1/profile                     controllers.ProfileController.fetch(request: Request)
+PUT     /v1/profile                     controllers.ProfileController.update(request: Request)
+DELETE  /v1/profile/:id                 controllers.ProfileController.delete(request: Request, id: Long)
+
+# User Profiles
+GET     /v1/profiles                    controllers.ProfileController.list(request: Request)
+POST    /v1/profiles                    controllers.ProfileController.create(request: Request)
+
+# Admin
+POST    /v1/makeAdmin/:id               controllers.ProfileController.makeAdmin(request: Request, id: Long)
+POST    /v1/removeAdmin/:id             controllers.ProfileController.removeAdmin(request: Request, id: Long)
+
+# Destinations
+GET     /v1/destinations                controllers.destinations.DestinationController.fetch(request: Request)
+POST    /v1/destinations                controllers.destinations.DestinationController.save(request: Request)
+GET     /v1/destinationTypes            controllers.destinations.DestinationController.getTypes()
+
+# Trips
+GET     /v1/trip:id                     controllers.trips.TripController.fetchAll(id: Long)
+POST    /v1/trip                        controllers.trips.TripController.create(request: Request)
+GET     /v1/trip                        controllers.trips.TripController.fetch(request: Request)
+GET     /v1/trips/all                   controllers.trips.TripController.fetchAll(id: Long)
+
+
+# Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
+GET     /*file                          controllers.Assets.at(path="/public", file)
