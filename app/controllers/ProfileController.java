@@ -43,14 +43,19 @@ public class ProfileController {
     private static final String DATE_OF_BIRTH = "date_of_birth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
+    private static final String IS_ADMIN = "is_admin";
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final long AGE_SEARCH_OFFSET = 1;
+    private static final int DEFAULT_ADMIN_ID = 1;
 
     /**
-     * Creates a user based on given JSON body.
-     * If username exists, returns badRequest() (HTTP 400)
-     * If user is created, sets session and returns created() (HTTP 201)
+     * Creates a user based on given JSON body. All new users are not an admin by default. This is used on the Sign Up
+     * page when a user is making a new profile. All parameters are compulsory, except for passport country. When a user
+     * creates a new profile, a session is made and they are automatically logged in.
+     * @param request   HTTP Request containing JSON Body.
+     * @return          If username exists, returns badRequest() (HTTP 400), if user is created, sets session and
+     *                  returns created() (HTTP 201).
      */
     public Result create(Http.Request request) {
 
@@ -83,9 +88,9 @@ public class ProfileController {
         newUser.setMiddleName(json.get(MIDDLE_NAME).asText());
         newUser.setLastName(json.get(LAST_NAME).asText());
         newUser.setGender(json.get(GENDER).asText());
-
         newUser.setDateOfBirth(LocalDate.parse(json.get(DATE_OF_BIRTH).asText()));
         newUser.setDateOfCreation(new Date());
+        newUser.setIsAdmin(false);
 
         newUser.save();
 
@@ -117,10 +122,13 @@ public class ProfileController {
 
 
     /**
-     * Field validation method checking whether a username already exists in the database
+     * Field validation method checking whether a username already exists in the database. This is to ensure there are
+     * no duplicate usernames (emails), as the login functionality requires a username. This is checked on profile
+     * creation in the ProfileController.
      *
-     * @param username the name being checked (inputted as a String)
-     * @return false if the username is unique (acceptable), or true if the profile username exists (unacceptable)
+     * @param username  the name being checked (inputted as a String).
+     * @return          false if the username is unique (acceptable), or true if the profile username exists
+     *                  (unacceptable).
      */
     private boolean profileExists(String username) {
         return Profile.find
@@ -132,10 +140,13 @@ public class ProfileController {
 
 
     /**
-     * Function called from the routes request and sends back a request based on the result
+     * Field validation method checking whether a username already exists in the database. This is to ensure there are
+     * no duplicate usernames (emails), as the login functionality requires a username. This error is shown to the
+     * user when validating their email on Sign Up.
      *
-     * @param request the json object of the form
-     * @return ok when there is no username in the database, or a bad request when there already is a user in the database
+     * @param request   HTTP Request containing JSON Body.
+     * @return          ok() (HTTP 200) when there is no username in the database, or a badRequest() (HTTP 400) when
+     *                  there is already is a user with that username in the database.
      */
     public Result checkUsername(Http.Request request) {
         JsonNode json = request.body().asJson();
@@ -166,18 +177,16 @@ public class ProfileController {
                         return badRequest();
                     }
                 }); // User is not logged in
-
-
     }
 
-
     /**
-     * Fetches a single profile from the database.
-     * If the Id is specified in the JSON request, and the client is an admin, returns specified Id.
-     * If the Id is not specified, but the client is logged in, returns client profile
+     * Fetches a single profile from the database based on the HTTP Request body. This is used to display the currently
+     * logged in profile on the dash page, and used throughout the application wherever the logged in profile is
+     * referenced.
      *
-     * @param request HTTP request from client
-     * @return HTTP Result of the request
+     * @param request   HTTP Request containing JSON Body.
+     * @return          If profile is successfully retrieved, returns ok() (HTTP 200) with the JSON body of the user
+     *                  profile. Otherwise returns unauthorized() (HTTP 401).
      */
     public Result fetch(Http.Request request) {
         return request.session()
@@ -185,7 +194,6 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-
                     return ok(userProfile.toJson());
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
@@ -193,11 +201,14 @@ public class ProfileController {
 
 
     /**
-     * Deletes a currently logged in profile and invalidates their session
-     * If user is admin and the id is specified in the JSON body, delete specified id.
+     * Deletes a currently logged in profile and invalidates their session. If user is admin and the id is specified
+     * in the JSON body, delete specified id. Ensures the global admin (id number of one) cannot be deleted by any
+     * user, admin or not.
      *
-     * @param request HTTP Request containing JSON Body
-     * @return HTTP Result of the request
+     * @param request   HTTP Request containing JSON Body.
+     * @return          ok() (HTTP 200) if the profile is successfully deleted. Returns unauthorized() (HTTP 401),
+     *                  if not logged in. Otherwise returns forbidden() (HTTP 403), this is logged in user is not
+     *                  and admin, or they are trying to delete the global admin (id number one).
      */
     public Result delete(Http.Request request, Long id) {
         return request.session()
@@ -205,19 +216,27 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
-                        if (true) { // TODO: Implement admin rights here
-                            Profile profileToDelete = Profile.find.byId(Integer.valueOf(userId));
-                            profileToDelete.delete();// TODO: Handle case where admin deletes currently logged in user.
-                            return ok("Delete successful");
+                        // If user is admin, they can delete other profiles
+                        if (userProfile.getIsAdmin()) {
+                            Profile profileToDelete = Profile.find.byId(Integer.valueOf(id.intValue()));
+                            if (profileToDelete.getId() == DEFAULT_ADMIN_ID) {
+                                return forbidden("You can not delete the default administrator");
+                            } else {
+                                profileToDelete.delete();
+                                return ok("Delete successful");
+                            }
                         } else {
-                            return unauthorized("You do not have admin rights to delete other users.");
+                            return forbidden("You do not have admin rights to delete other users.");
                         }
                     } else {
                         // User is deleting their own profile
-                        userProfile.delete();
-                        return ok("Delete successful").withNewSession();
+                        if (userProfile.getId() == DEFAULT_ADMIN_ID) {
+                            return forbidden("You can not delete the default administrator");
+                        } else {
+                            userProfile.delete();
+                            return ok("Delete successful").withNewSession();
+                        }
                     }
 
                 })
@@ -226,10 +245,12 @@ public class ProfileController {
 
 
     /**
-     * Takes a Http request containing a Json body and finds logged in user, then updates said user
+     * Takes a HTTP request containing a Json body and finds a logged in user. Then uses a PUT request to update
+     * the logged in user based on the HTTP Request body. The validation is the same as creating a new profile.
      *
-     * @param request
-     * @return
+     * @param request   HTTP Request containing JSON Body.
+     * @return          ok() (HTTP 200) if the profile is successfully updated. Returns unauthorized() (HTTP 401),
+     *                  if not logged in.
      */
     public Result update(Http.Request request) {
         return request.session()
@@ -306,11 +327,14 @@ public class ProfileController {
     }
 
     /**
-     * Performs an ebean find query on the database to search for profiles
-     * If no query is specified, it will return a list of all profiles
+     * Performs an Ebean find query on the database to search for profiles.
+     * If no query is specified in the HTTP request, it will return a list of all profiles. If a query is specified,
+     * uses the searchProfiles() method to execute a search based on the search query parameters. This is used on the
+     * Search Profiles page.
      *
-     * @return badRequest if propertyName is not valid
-     * List of profiles otherwise
+     * @param request  HTTP Request containing JSON Body.
+     * @return         unauthorized() (HTTP 401) if the user is not logged in. Otherwise returns ok() (HTTP 200) if the
+     *                 search is successfully done.
      */
     public Result list(Http.Request request) {
         return request.session()
@@ -334,10 +358,11 @@ public class ProfileController {
 
 
     /**
-     * Function to validate a query string and return a list of profiles
-     * If no profiles are found, return an empty list
-     * @param queryString
-     * @return
+     * Function to validate a query string and return a list of profiles based on the query string.
+     * If no profiles are found, return an empty list. This is used on the Search Profiles page.
+     *
+     * @param queryString   the query string of the search parameters that are used for searching for profiles.
+     * @return              the list of profiles found from the resulting query string (can be empty).
      */
     private List<Profile> searchProfiles(Map<String, String[]> queryString) {
         ExpressionList<Profile> profileExpressionList = Ebean.find(Profile.class).where();
@@ -370,4 +395,70 @@ public class ProfileController {
         return profileExpressionList.findList();
     }
 
+    /**
+     * Makes another user (based on the HTTP request body) an admin if the currently logged in user is an admin.
+     * If user is not logged in they are unauthorised, if they are logged in and they are not admin they are forbidden
+     * to make another user an admin.
+     *
+     * @param request   HTTP Request containing JSON Body.
+     * @param id        the id of the user to made an admin.
+     * @return          ok() (HTTP 200) if successfully making a user admin, unauthorized() (HTTP 401) if they are not
+     *                  logged in, forbidden() (HTTP 403) if logged in user is not an admin.
+     */
+    public Result makeAdmin(Http.Request request, Long id) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(userId -> {
+                    // User is logged in
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    // If profile logged in is admin, can make another user admin.
+                    if (userProfile.getIsAdmin()) {
+                        Profile updateProfile = Profile.find.byId(id.intValue());
+                        updateProfile.setIsAdmin(true);
+                        updateProfile.update();
+                    } else {
+                        return forbidden();
+                    }
+                    return ok("UPDATED");
+                })
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+    }
+
+    /**
+     * Removes the admin property from a specified user based on the user id. This can only be done if the currently
+     * logged in user is an admin and the user they are trying to change is not the global admin.
+     *
+     * @param request   HTTP Request containing JSON Body.
+     * @param id        the id of the user to be removed as an admin.
+     * @return          forbidden() (HTTP 403) if logged in user is not an admin or the profile trying to be changed is
+     *                  the global admin, unauthorized() (HTTP 401) if the user is not logged in, ok() (HTTP 200) if
+     *                  successfully updating the admin property of a profile.
+     */
+    public Result removeAdmin(Http.Request request, Long id) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(userId -> {
+                    // User is logged in
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    // If the logged in user is admin
+                    if (userProfile.getIsAdmin()) {
+                        Profile updateProfile = Profile.find.byId(id.intValue());
+                        // If the profile trying to be changed is not the global admin (id number one).
+                        if (!updateProfile.getId().equals(DEFAULT_ADMIN_ID)) {
+                            if (updateProfile.getIsAdmin()) {
+                                updateProfile.setIsAdmin(false);
+                                updateProfile.update();
+                            } else {
+                                return badRequest();
+                            }
+                        } else {
+                            return forbidden();
+                        }
+                    } else {
+                        return forbidden();
+                    }
+                    return ok("UPDATED");
+                })
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+    }
 }
