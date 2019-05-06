@@ -101,7 +101,7 @@
 
             <!--Displays results from profile search in a table format-->
             <div style="margin-top: 40px">
-                <b-table hover striped outlined
+                <b-table hover striped outlined fixed
                          id="profiles"
                          ref="profilesTable"
                          :items="profiles"
