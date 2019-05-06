@@ -91,6 +91,7 @@ create table profile (
   last_name                     varchar(255),
   gender                        varchar(255),
   date_of_birth                 date,
+  is_admin                      tinyint(1),
   date_of_creation              datetime(6),
   constraint pk_profile primary key (id)
 );
@@ -121,23 +122,6 @@ create table traveller_type (
   constraint pk_traveller_type primary key (id)
 );
 
-create table trip (
-  id                            bigint auto_increment not null,
-  profile_id                    bigint not null,
-  name                          varchar(255),
-  constraint pk_trip primary key (id)
-);
-
-create table trip_destination (
-  id                            bigint auto_increment not null,
-  start_date                    date,
-  end_date                      date,
-  list_order                    integer not null,
-  trip_id                       bigint,
-  destination_id                bigint,
-  constraint pk_trip_destination primary key (id)
-);
-
 create index ix_destination_type_id on destination (type_id);
 alter table destination add constraint fk_destination_type_id foreign key (type_id) references destination_type (id) on delete restrict on update restrict;
 
@@ -158,15 +142,6 @@ alter table profile_passport add constraint fk_profile_passport_profile foreign 
 
 create index ix_profile_passport_passport on profile_passport (passport_id);
 alter table profile_passport add constraint fk_profile_passport_passport foreign key (passport_id) references passport (id) on delete restrict on update restrict;
-
-create index ix_trip_profile_id on trip (profile_id);
-alter table trip add constraint fk_trip_profile_id foreign key (profile_id) references profile (id) on delete restrict on update restrict;
-
-create index ix_trip_destination_trip_id on trip_destination (trip_id);
-alter table trip_destination add constraint fk_trip_destination_trip_id foreign key (trip_id) references trip (id) on delete restrict on update restrict;
-
-create index ix_trip_destination_destination_id on trip_destination (destination_id);
-alter table trip_destination add constraint fk_trip_destination_destination_id foreign key (destination_id) references destination (id) on delete restrict on update restrict;
 
 
 # --- !Downs
@@ -192,15 +167,6 @@ drop index ix_profile_passport_profile on profile_passport;
 alter table profile_passport drop foreign key fk_profile_passport_passport;
 drop index ix_profile_passport_passport on profile_passport;
 
-alter table trip drop foreign key fk_trip_profile_id;
-drop index ix_trip_profile_id on trip;
-
-alter table trip_destination drop foreign key fk_trip_destination_trip_id;
-drop index ix_trip_destination_trip_id on trip_destination;
-
-alter table trip_destination drop foreign key fk_trip_destination_destination_id;
-drop index ix_trip_destination_destination_id on trip_destination;
-
 drop table if exists destination;
 
 drop table if exists destination_type;
@@ -218,8 +184,4 @@ drop table if exists profile_traveller_type;
 drop table if exists profile_passport;
 
 drop table if exists traveller_type;
-
-drop table if exists trip;
-
-drop table if exists trip_destination;
 
