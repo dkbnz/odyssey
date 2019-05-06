@@ -425,10 +425,5 @@
 </script>
 
 <style scoped>
-
-    #pastTrips {
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid black;
-    }
+    @import "../../css/yourTrips.css";
 </style>

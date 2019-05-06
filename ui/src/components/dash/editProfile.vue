@@ -266,7 +266,7 @@
     export default {
         name: "editProfile",
         props: ['profile', 'nationalityOptions', 'travTypeOptions'],
-        data: function () {
+        data: function() {
             return {
                 saveProfile: {
                     first_name: this.profile.firstName,
@@ -274,7 +274,7 @@
                     last_name: this.profile.lastName,
                     username: this.profile.username,
                     password: "",
-                    date_of_birth: new Date(this.profile.dateOfBirth + " 14:48").toISOString().substr(0, 10),
+                    date_of_birth: this.profile.dateOfBirth,
                     gender: this.profile.gender,
                     nationality: [],
                     passport_country: [],
@@ -383,7 +383,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify({'username': this.saveProfile.username})
 
-                }).then(function (response) {
+                }).then(function(response) {
                     self.validEmail = response.ok;
                 })
 
@@ -407,7 +407,7 @@
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.saveProfile)
-                }).then(function (response) {
+                }).then(function(response) {
                     location.reload();
                     return response.json();
                 })
@@ -443,7 +443,3 @@
         components: {}
     }
 </script>
-
-<style scoped>
-
-</style>
