@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="profile.length !== 0">
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
         <div class="container">
             <h1 class="page_title">Find Profiles</h1>
@@ -12,9 +12,11 @@
                         label-for="nationality">
                     <b-form-select id="nationality" v-model="searchNationality" trim>
                         <template slot="first">
-                            <option :value="null" >-- Any --</option>
+                            <option :value="null">-- Any --</option>
                         </template>
-                        <option v-for="nationality in nationalityOptions" :value="nationality.nationality">{{nationality.nationality}}</option>
+                        <option v-for="nationality in nationalityOptions" :value="nationality.nationality">
+                            {{nationality.nationality}}
+                        </option>
                     </b-form-select>
                 </b-form-group>
                 <b-form-group
@@ -23,7 +25,7 @@
                         label-for="gender">
                     <b-form-select id="gender" v-model="searchGender" :options="genderOptions" trim>
                         <template slot="first">
-                            <option :value="null" >-- Any --</option>
+                            <option :value="null">-- Any --</option>
                         </template>
                     </b-form-select>
                 </b-form-group>
@@ -32,7 +34,8 @@
                         label="Min Age: "
                         label-for="minAge">
                     <div class="mt-2">{{ searchMinAge }}</div>
-                    <b-form-input id="minAge" v-model="searchMinAge" :type="'range'" min="0" max="150" trim></b-form-input>
+                    <b-form-input id="minAge" v-model="searchMinAge" :type="'range'" min="0" max="150"
+                                  trim></b-form-input>
 
                 </b-form-group>
                 <b-form-group
@@ -40,7 +43,8 @@
                         label="Max Age:"
                         label-for="maxAge">
                     <div class="mt-2">{{ searchMaxAge }}</div>
-                    <b-form-input id="maxAge" v-model="searchMaxAge" :type="'range'" min="0" max="150" trim></b-form-input>
+                    <b-form-input id="maxAge" v-model="searchMaxAge" :type="'range'" min="0" max="150"
+                                  trim></b-form-input>
                 </b-form-group>
                 <b-form-group
                         id="travType-field"
@@ -50,7 +54,9 @@
                         <template>
                             <option :value="null" selected="selected">-- Any --</option>
                         </template>
-                        <option v-for="travType in travTypeOptions" :value="travType.travellerType">{{travType.travellerType}}</option>
+                        <option v-for="travType in travTypeOptions" :value="travType.travellerType">
+                            {{travType.travellerType}}
+                        </option>
                     </b-form-select>
                 </b-form-group>
                 <b-button block variant="primary" @click="searchProfiles">Search</b-button>
@@ -64,11 +70,11 @@
                          :current-page="currentPage"
                          :sort-by.sync="sortBy"
                          :sort-desc.sync="sortDesc"
-                         :busy="profiles.length === 0"
+                         :busy="this.profiles.length===0"
                 >
-                    <div slot="table-busy" class="text-center text-danger my-2">
-                        <b-spinner class="align-middle"></b-spinner>
-                        <strong>Loading...</strong>
+                    <div slot="table-busy" class="text-center my-2">
+                        <b-spinner v-if="retrievingProfiles" class="align-middle"></b-spinner>
+                        <strong>Can't find any profiles!</strong>
                     </div>
                     <template slot="actions" slot-scope="row">
                         <b-button size="sm" @click="row.toggleDetails" class="mr-2">
@@ -86,7 +92,8 @@
                         <b-form-group
                                 id="profiles-field"
                                 label-for="perPage">
-                            <b-form-select id="perPage" v-model="perPage" :options="optionViews" size="sm" trim> </b-form-select>
+                            <b-form-select id="perPage" v-model="perPage" :options="optionViews" size="sm"
+                                           trim></b-form-select>
                         </b-form-group>
                     </b-col>
                     <b-col cols="8">
@@ -106,13 +113,18 @@
         </div>
         <footer-main></footer-main>
     </div>
-
+    <div v-else>
+        <unauthorised-prompt></unauthorised-prompt>
+    </div>
 </template>
 
 <script>
     import viewProfile from '../dash/viewProfile.vue'
+    import Dash from '../dash/dashPage'
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
+    import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
+
     export default {
         name: "profilesPage",
         props: ['profile', 'nationalityOptions', 'travTypeOptions'],
@@ -120,7 +132,7 @@
             document.title = "TravelEA - Profiles";
         },
 
-        data: function() {
+        data: function () {
             return {
                 sortBy: 'firstName',
                 sortDesc: false,
@@ -130,7 +142,10 @@
                 searchMinAge: 0,
                 searchMaxAge: 100,
                 searchTravType: "",
-                optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
+                optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
+                    value: 15,
+                    text: "15"
+                }],
                 perPage: 5,
                 currentPage: 1,
                 genderOptions: [
@@ -138,24 +153,33 @@
                     {value: 'female', text: 'Female'},
                     {value: 'other', text: 'Other'}
                 ],
-                fields: [{key:'firstName', label: "First Name", sortable: true}, {key:'lastName', label: "Last Name", sortable: true}, {key:'nationalities[0].nationality', label: "Nationality", sortable: true}, {key:'gender', value: 'gender', sortable: true}, {key:'age', value:'age', sortable: true}, {key:'travellerTypes[0].travellerType', label: "Traveller Types" , sortable: true}, 'actions'],
-                profiles: []
+                fields: [{key: 'firstName', label: "First Name", sortable: true}, {
+                    key: 'lastName',
+                    label: "Last Name",
+                    sortable: true
+                }, {key: 'nationalities[0].nationality', label: "Nationality", sortable: true}, {
+                    key: 'gender',
+                    value: 'gender',
+                    sortable: true
+                }, {key: 'age', value: 'age', sortable: true}, {
+                    key: 'travellerTypes[0].travellerType',
+                    label: "Traveller Types",
+                    sortable: true
+                }, 'actions'],
+                profiles: [],
+                retrievingProfiles: false
             }
         },
-        mounted () {
+        mounted() {
             this.queryProfiles();
-            //this.getProfiles(profiles => this.profiles = profiles);
         },
         methods: {
-            parseJSON (response) {
+            parseJSON(response) {
                 return response.json();
             },
-
-
-
             searchProfiles() {
                 this.searchMinAge = parseInt(this.searchMinAge);
-                this.searchMaxAge =  parseInt(this.searchMaxAge);
+                this.searchMaxAge = parseInt(this.searchMaxAge);
                 if (isNaN(this.searchMinAge) || isNaN(this.searchMaxAge)) {
                     this.showError = true;
                 } else if (this.searchMinAge > this.searchMaxAge) {
@@ -176,14 +200,19 @@
 
                 }
             },
-            queryProfiles () {
-                let searchQuery = "?nationality=" + this.searchNationality + "&gender=" + this.searchGender + "&min_age=" + this.searchMinAge + "&max_age=" + this.searchMaxAge + "&traveller_type=" + this.searchTravType;
-                return fetch(`/v1/profiles` + searchQuery,  {
-
-                })
+            queryProfiles() {
+                this.retrievingProfiles = true;
+                let searchQuery =
+                    "?nationality=" + this.searchNationality +
+                    "&gender=" + this.searchGender +
+                    "&min_age=" + this.searchMinAge +
+                    "&max_age=" + this.searchMaxAge +
+                    "&traveller_type=" + this.searchTravType;
+                return fetch(`/v1/profiles` + searchQuery, {})
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
+                        this.retrievingProfiles = false;
                         this.profiles = data;
                     })
             },
@@ -196,11 +225,9 @@
         components: {
             viewProfile,
             NavBarMain,
-            FooterMain
+            FooterMain,
+            Dash,
+            UnauthorisedPrompt
         }
     }
 </script>
-
-<style scoped>
-
-</style>
