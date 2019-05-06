@@ -3,26 +3,16 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Module;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.*;
 import play.Application;
-import play.ApplicationLoader;
-import play.Environment;
-import play.inject.guice.GuiceApplicationBuilder;
-import play.inject.guice.GuiceApplicationLoader;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-
-import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,28 +23,28 @@ import static play.test.Helpers.*;
 
 public class DestinationTestSteps {
 
-    @Inject
-    Application application;
+    private Application application = fakeApplication();
 
     private int statusCode;
     private static final String DUPLICATE_NAME = "Duplicate";
     private static final String DUPLICATE_DISTRICT = "Nelson";
-    private static final String destinationUri = "/api/destinations";
+    private static final String DESTINATION_URI = "/v1/destinations";
 
 
-    @BeforeClass
+    @Before
     public void setUp() {
-        Module testModule = new AbstractModule() { };
+        Map<String, String> configuration = new HashMap<>();
+        configuration.put("db.default.driver", "org.h2.Driver");
+        configuration.put("db.default.url", "jdbc:h2:mem:play;MODE=MYSQL;");
+        configuration.put("play.evolutions.db.default.enabled", "true");
+        configuration.put("play.evolutions.autoApply", "true");
 
-        GuiceApplicationBuilder builder = new GuiceApplicationLoader()
-                .builder(new ApplicationLoader.Context(Environment.simple()))
-                .overrides(testModule);
-        Guice.createInjector(builder.applicationModule()).injectMembers(this);
-
+        //Set up the fake application to use the in memory database config
+        application = Helpers.fakeApplication(configuration);
         Helpers.start(application);
     }
 
-    @AfterClass
+    @After
     public void tearDown() {
         Helpers.stop(application);
     }
@@ -79,7 +69,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(destinationUri);
+                .uri(DESTINATION_URI);
         route(application, request);
     }
 
@@ -103,7 +93,7 @@ public class DestinationTestSteps {
     public void i_send_a_GET_request_to_the_destinations_endpoint() {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .uri(destinationUri);
+                .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -115,7 +105,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(destinationUri);
+                .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -151,7 +141,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(destinationUri);
+                .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -163,7 +153,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(destinationUri);
+                .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
     }
