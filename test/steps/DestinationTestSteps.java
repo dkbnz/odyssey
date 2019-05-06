@@ -8,12 +8,9 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.junit.*;
-import play.Application;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.Helpers;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,29 +21,19 @@ import static play.test.Helpers.*;
 
 public class DestinationTestSteps extends BaseTest {
 
-    private Application application = fakeApplication();
-
     private int statusCode;
     private static final String DUPLICATE_NAME = "Duplicate";
     private static final String DUPLICATE_DISTRICT = "Nelson";
     private static final String DESTINATION_URI = "/v1/destinations";
+    private static final String LOGIN_URI = "/v1/login";
+    private static final String VALID_USERNAME = "admin@travelea.com";
+    private static final String VALID_PASSWORD = "admin1";
 
 
     @Given("I have a running application")
     public void i_have_a_running_application() {
         Assert.assertTrue(application.isTest());
     }
-
-    @Then("the status code received is OK")
-    public void the_status_code_received_is_OK() {
-        assertEquals(OK, statusCode);
-    }
-
-    @Then("the status code received is BadRequest")
-    public void the_status_code_received_is_BadRequest() {
-        assertEquals(BAD_REQUEST, statusCode);
-    }
-
 
     @And("a destination already exists with the name \"Duplicate\" and district \"Nelson\"")
     public void a_destination_exists_with_name_and_district() {
@@ -72,14 +59,14 @@ public class DestinationTestSteps extends BaseTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("username", "TestUser");
-        ((ObjectNode) json).put("password", "Password123");
+        ((ObjectNode) json).put("username", VALID_USERNAME);
+        ((ObjectNode) json).put("password", VALID_PASSWORD);
 
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri("/api/login");
+                .uri(LOGIN_URI);
         route(application, request);
     }
 
@@ -151,4 +138,20 @@ public class DestinationTestSteps extends BaseTest {
         Result result = route(application, request);
         statusCode = result.status();
     }
+
+    @Then("the status code received is OK")
+    public void the_status_code_received_is_OK() {
+        assertEquals(OK, statusCode);
+    }
+
+    @Then("the status code received is BadRequest")
+    public void the_status_code_received_is_BadRequest() {
+        assertEquals(BAD_REQUEST, statusCode);
+    }
+
+    @Then("the status code received is Unauthorised")
+    public void the_status_code_received_is_Unauthorised() {
+        assertEquals(UNAUTHORIZED, statusCode);
+    }
+
 }
