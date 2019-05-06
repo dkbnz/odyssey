@@ -81,7 +81,7 @@ public class ProfileController {
 
         Profile newUser = new Profile();
 
-        // Tries to hash the users given password
+        // Uses the hashProfilePassword() method to hash the given password.
         try {
             newUser.setPassword(hashProfilePassword(json.get(PASS_FIELD).asText()));
         } catch (NoSuchAlgorithmException e) {
@@ -126,10 +126,10 @@ public class ProfileController {
     }
 
     /**
-     * Hashes a password string using the SHA 256 method from the MessageDigest library
-     * @param password the string you want to hash
-     * @return a string of the hashed binary array as a hexadecimal string
-     * @throws NoSuchAlgorithmException if the algorithm specified does not exist for the MessageDigest library
+     * Hashes a password string using the SHA 256 method from the MessageDigest library.
+     * @param password                  the string you want to hash.
+     * @return                          a string of the hashed binary array as a hexadecimal string.
+     * @throws NoSuchAlgorithmException if the algorithm specified does not exist for the MessageDigest library.
      */
     private String hashProfilePassword(String password) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -280,6 +280,8 @@ public class ProfileController {
                     }
 
                     if (!json.get(PASS_FIELD).asText().isEmpty()) { // Only update password if user has typed a new one
+
+                        // Uses the hashProfilePassword() method to hash the given password.
                         try {
                             userProfile.setPassword(hashProfilePassword(json.get(PASS_FIELD).asText()));
                         } catch (NoSuchAlgorithmException e) {
