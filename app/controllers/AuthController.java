@@ -49,7 +49,7 @@ public class AuthController extends Controller {
 
                     String username = json.get(USERNAME).asText();
 
-                    // Tries to hash the users password from the login
+                    // Uses the hashProfilePassword() method to hash the given password.
                     String password = null;
                     try {
                         password = hashProfilePassword(json.get(PASSFIELD).asText());
@@ -72,10 +72,10 @@ public class AuthController extends Controller {
     }
 
     /**
-     * Hashes a password string using the SHA 256 method from the MessageDigest library
-     * @param password the string you want to hash
-     * @return a string of the hashed binary array as a hexadecimal string
-     * @throws NoSuchAlgorithmException if the algorithm specified does not exist for the MessageDigest library
+     * Hashes a password string using the SHA 256 method from the MessageDigest library.
+     * @param password                  the string you want to hash.
+     * @return                          a string of the hashed binary array as a hexadecimal string.
+     * @throws NoSuchAlgorithmException if the algorithm specified does not exist for the MessageDigest library.
      */
     private String hashProfilePassword(String password) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
