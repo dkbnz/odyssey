@@ -21,8 +21,15 @@ POST    /v1/checkUsername               controllers.ProfileController.checkUsern
 # Profile
 GET     /v1/profile                     controllers.ProfileController.fetch(request: Request)
 PUT     /v1/profile                     controllers.ProfileController.update(request: Request)
+DELETE  /v1/profile/:id                 controllers.ProfileController.delete(request: Request, id: Long)
+
+# User Profiles
 GET     /v1/profiles                    controllers.ProfileController.list(request: Request)
 POST    /v1/profiles                    controllers.ProfileController.create(request: Request)
+
+# Admin
+POST    /v1/makeAdmin/:id               controllers.ProfileController.makeAdmin(request: Request, id: Long)
+POST    /v1/removeAdmin/:id             controllers.ProfileController.removeAdmin(request: Request, id: Long)
 
 # Destinations
 GET     /v1/destinations                controllers.destinations.DestinationController.fetch(request: Request)
@@ -34,6 +41,7 @@ GET     /v1/trip:id                     controllers.trips.TripController.fetchAl
 POST    /v1/trip                        controllers.trips.TripController.create(request: Request)
 GET     /v1/trip                        controllers.trips.TripController.fetch(request: Request)
 GET     /v1/trips/all                   controllers.trips.TripController.fetchAll(id: Long)
+
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
 GET     /*file                          controllers.Assets.at(path="/public", file)

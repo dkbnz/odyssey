@@ -5,6 +5,26 @@
             <h1 class="page_title">Find Profiles</h1>
             <p class="page_title"><i>Search for other travellers using the form below</i></p>
             <b-alert v-model="showError" variant="danger" dismissible>There's something wrong in the form!</b-alert>
+
+
+            <!-- Confirmation modal for deleting a profile. -->
+            <b-modal ref="deleteModal" id="deleteModal" hide-footer title="Delete Profile">
+                <div class="d-block">
+                    Are you sure that you want to delete "{{selectedProfile.firstName}} {{selectedProfile.lastName}}"?
+                </div>
+                <b-button
+                        class="mr-2 float-right"
+                        variant="danger"
+                        @click="dismissModal()
+                         deleteUser(selectedProfile);">Delete
+                </b-button>
+                <b-button
+                        class="mr-2 float-right"
+                        @click="dismissModal()">Cancel
+                </b-button>
+            </b-modal>
+
+
             <div>
                 <b-form-group
                         id="nationalities-field"
@@ -63,7 +83,8 @@
             </div>
             <div style="margin-top: 40px">
                 <b-table hover striped outlined
-                         id="myFutureTrips"
+                         id="profiles"
+                         ref="profilesTable"
                          :items="profiles"
                          :fields="fields"
                          :per-page="perPage"
@@ -77,9 +98,39 @@
                         <strong>Can't find any profiles!</strong>
                     </div>
                     <template slot="actions" slot-scope="row">
-                        <b-button size="sm" @click="row.toggleDetails" class="mr-2">
-                            {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
-                        </b-button>
+                        <b-row class="text-center" v-if="profile.isAdmin">
+                            <b-col align-self="center" md="5">
+                                <b-button v-if="profile.isAdmin && !(row.item.isAdmin) && row.item.id !== 1" size="sm"
+                                          @click="makeAdmin(row.item)" variant="success" class="mr-2">
+                                    Make Admin
+                                </b-button>
+                                <b-button v-if="profile.isAdmin && row.item.isAdmin && row.item.id !== 1"
+                                          :disabled="row.item.id===1" variant="danger" size="sm"
+                                          @click="removeAdmin(row.item)" class="mr-2">
+                                    Remove Admin
+                                </b-button>
+                            </b-col>
+
+                            <b-col align-self="center" md="4.5">
+                                <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2">
+                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
+                                </b-button>
+                            </b-col>
+                            <b-col align-self="center" md="2">
+                                <b-button v-if="profile.isAdmin && row.item.id !== 1" :disabled="row.item.id===1"
+                                          size="sm" variant="danger" v-b-modal.deleteModal
+                                          @click="sendProfileToModal(row.item)" class="mr-2">
+                                    Delete
+                                </b-button>
+                            </b-col>
+
+                        </b-row>
+                        <b-row v-else>
+                            <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2">
+                                {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
+                            </b-button>
+                        </b-row>
+
                     </template>
                     <template slot="row-details" slot-scope="row">
                         <b-card>
@@ -146,12 +197,12 @@
                     value: 15,
                     text: "15"
                 }],
-                perPage: 5,
+                perPage: 10,
                 currentPage: 1,
                 genderOptions: [
-                    {value: 'male', text: 'Male'},
-                    {value: 'female', text: 'Female'},
-                    {value: 'other', text: 'Other'}
+                    {value: 'Male', text: 'Male'},
+                    {value: 'Female', text: 'Female'},
+                    {value: 'Other', text: 'Other'}
                 ],
                 fields: [{key: 'firstName', label: "First Name", sortable: true}, {
                     key: 'lastName',
@@ -167,7 +218,8 @@
                     sortable: true
                 }, 'actions'],
                 profiles: [],
-                retrievingProfiles: false
+                retrievingProfiles: false,
+                selectedProfile: ""
             }
         },
         mounted() {
@@ -176,6 +228,48 @@
         methods: {
             parseJSON(response) {
                 return response.json();
+            },
+
+            /**
+             * Method to make a user an admin. This method is only available if the currently logged in user is an
+             * admin. Backend validation ensures a user cannot bypass this.
+             * @param makeAdminProfile      the selected profile to be made an admin.
+             */
+            makeAdmin(makeAdminProfile) {
+                let self = this;
+                fetch('/v1/makeAdmin/' + makeAdminProfile.id, {
+                    method: 'POST',
+                }).then(function() {
+                    self.searchProfiles();
+                })
+            },
+
+            /**
+             * Method to remove admin attribute from a user. This method is only available if the currently logged in
+             * user is an admin. Backend validation ensures a user cannot bypass this.
+             * @param makeAdminProfile      the selected profile to be removed as an admin.
+             */
+            removeAdmin(makeAdminProfile) {
+                let self = this;
+                fetch('/v1/removeAdmin/' + makeAdminProfile.id, {
+                    method: 'POST',
+                }).then(function() {
+                    self.searchProfiles();
+                })
+            },
+
+            /**
+             * Method to delete a user's profile. This method is only available if the currently logged in
+             * user is an admin. Backend validation ensures a user cannot bypass this.
+             * @param makeAdminProfile      the selected profile to be deleted.
+             */
+            deleteUser(deleteUser) {
+                let self = this;
+                fetch('/v1/profile/' + deleteUser.id, {
+                    method: 'DELETE',
+                }).then(function() {
+                    self.searchProfiles();
+                })
             },
             searchProfiles() {
                 this.searchMinAge = parseInt(this.searchMinAge);
@@ -216,6 +310,23 @@
                         this.profiles = data;
                     })
             },
+
+            /**
+             * Used to send a selected profile to a modal so the admin can confirm they want to delete the selected
+             * profile.
+             * @param profile, the profile that is selected to be deleted.
+             */
+            sendProfileToModal(profile) {
+                this.selectedProfile = profile;
+            },
+
+            /**
+             * Used to dismiss the delete a profile modal
+             */
+            dismissModal() {
+                this.$refs['deleteModal'].hide();
+            },
+
         },
         computed: {
             rows() {
