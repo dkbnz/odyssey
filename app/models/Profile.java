@@ -1,14 +1,14 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Finder;
+import models.trips.Trip;
 import play.data.format.Formats;
 import play.libs.Json;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -42,6 +42,9 @@ public class Profile extends BaseModel {
     @ManyToMany
     public List<Passport> passports = new ArrayList<Passport>();
 
+    @OneToMany(cascade=CascadeType.ALL)
+    public List<Trip> trips = new ArrayList<Trip>();
+
     public void addTravType(TravellerType travellerType) {
         this.travellerTypes.add(travellerType);
     }
@@ -53,6 +56,8 @@ public class Profile extends BaseModel {
     public void addPassport(Passport passport) {
         this.passports.add(passport);
     }
+
+    public void addTrip(Trip trip) {this.trips.add(trip);}
 
     /**
      * Converts a Profile object to a JSON readable format
@@ -77,6 +82,7 @@ public class Profile extends BaseModel {
         return middleName;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
@@ -107,6 +113,10 @@ public class Profile extends BaseModel {
 
     public List<TravellerType> getTravellerTypes() {
         return travellerTypes;
+    }
+
+    public List<Trip> getTrips() {
+        return trips;
     }
 
     public int getAge() {
