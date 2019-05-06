@@ -12,6 +12,7 @@ import play.Application;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
-public class DestinationTestSteps {
+public class DestinationTestSteps extends BaseTest {
 
     private Application application = fakeApplication();
 
@@ -31,28 +32,21 @@ public class DestinationTestSteps {
     private static final String DESTINATION_URI = "/v1/destinations";
 
 
-    @Before
-    public void setUp() {
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:play;MODE=MYSQL;");
-        configuration.put("play.evolutions.db.default.enabled", "true");
-        configuration.put("play.evolutions.autoApply", "true");
-
-        //Set up the fake application to use the in memory database config
-        application = Helpers.fakeApplication(configuration);
-        Helpers.start(application);
-    }
-
-    @After
-    public void tearDown() {
-        Helpers.stop(application);
-    }
-
     @Given("I have a running application")
     public void i_have_a_running_application() {
         Assert.assertTrue(application.isTest());
     }
+
+    @Then("the status code received is OK")
+    public void the_status_code_received_is_OK() {
+        assertEquals(OK, statusCode);
+    }
+
+    @Then("the status code received is BadRequest")
+    public void the_status_code_received_is_BadRequest() {
+        assertEquals(BAD_REQUEST, statusCode);
+    }
+
 
     @And("a destination already exists with the name \"Duplicate\" and district \"Nelson\"")
     public void a_destination_exists_with_name_and_district() {
@@ -156,16 +150,5 @@ public class DestinationTestSteps {
                 .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
-    }
-
-    @Then("the status code received is OK")
-    public void the_status_code_received_is_OK() {
-        assertEquals(OK, statusCode);
-    }
-
-
-    @Then("the status code received is BadRequest")
-    public void the_status_code_received_is_BadRequest() {
-        assertEquals(BAD_REQUEST, statusCode);
     }
 }
