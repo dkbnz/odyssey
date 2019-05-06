@@ -1,15 +1,13 @@
 <template>
     <div>
         <b-form>
+            <b-alert v-model="showError" variant="danger" dismissible>Invalid Username or Password</b-alert>
             <b-form-group
                     id="username-field"
                     description="Please enter your username (email)"
                     label="Username"
-                    label-for="username"
-                    :invalid-feedack="userinvalidFeedback"
-                    :valid-feedback="uservalidFeedback"
-                    :state="userstate" >
-                <b-form-input id="username" v-model="username" :state="userstate" autofocus trim></b-form-input>
+                    label-for="username">
+                <b-form-input id="username" v-model="username" autofocus trim></b-form-input>
             </b-form-group>
             <b-form-group
                     id="password-field"
@@ -26,42 +24,14 @@
 <script>
     export default {
         name: "login",
-        data: function() {
+        data: function () {
             return {
                 username: '',
                 password: '',
-            }
-        },
-        computed: {
-            /**
-             * Checks email validity
-             * @returns {boolean|*} true if email is valid
-             */
-            userstate() {
-                return !!(this.username.length >= 4) && this.username.includes('@')
-            },
-
-            /**
-             * @returns {string} specific error messages depending on error
-             */
-            userinvalidFeedback() {
-                if (this.username.length > 4) {
-                    return ''
-                } else if (this.username.length > 0) {
-                    return 'Enter at least 4 characters'
-                } else {
-                    return 'Please enter something'
-                }
-            },
-            uservalidFeedback() {
-                return this.userstate === true ? 'Thank you' : ''
+                showError: false
             }
         },
         methods: {
-
-            /**
-             * Attempts to log user in and redirects to dash page if login is valid
-             */
             login() {
                 let self = this;
                 fetch('/v1/login', {
