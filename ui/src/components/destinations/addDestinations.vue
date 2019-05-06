@@ -118,6 +118,7 @@
                 }
                 return ok;
             },
+
             /**
              * Checks that all fields are present and runs validation
              * On fail shows errors
@@ -133,6 +134,7 @@
                     this.showError = true;
                 }
             },
+
             /**
              * Sets all fields to blank
              */
@@ -144,6 +146,7 @@
                 this.dLongitude = "";
                 this.dCountry = "";
             },
+
             /**
              * Adds new destination to database, then resets form and shows success alert
              * Checks whether location is duplicate and displays error if so
@@ -183,9 +186,18 @@
                     });
                 return response;
             },
+
+            /**
+             * Used to allow an alert to countdown on the successful saving of a destination.
+             * @param dismissCountDown      the name of the alert.
+             */
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
             },
+
+            /**
+             * Displays the countdown alert on the successful saving of a destination.
+             */
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
             },

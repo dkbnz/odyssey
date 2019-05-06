@@ -51,7 +51,7 @@
         },
         methods: {
             /**
-             * Logs the user out and returns to the index page
+             * Logs the user out and returns to the index page.
              */
             logout() {
                 let self = this;
@@ -71,9 +71,16 @@
                         }
                     });
             },
+            /**
+             * Used to determine the current page, so current page detection is shown in the nav bar.
+             */
             getCurrentPage() {
                 this.currentPage = this.$router.currentRoute.fullPath;
             },
+
+            /**
+             * Methods to navigate to each page using the VueRouter.
+             */
             goToPeople() {
                 this.$router.push("/profiles");
             },

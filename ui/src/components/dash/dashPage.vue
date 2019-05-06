@@ -48,9 +48,6 @@
                 editProfile: false,
             }
         },
-        mounted() {
-
-        },
         methods: {
             /**
              * Switches the currently displayed tab on the page

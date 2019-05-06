@@ -54,12 +54,23 @@
             }
         },
         mounted() {
+            /**
+             * Mounted function that uses the getProfile function to fetch a profile.
+             */
             this.getProfile();
         },
         methods: {
+            /**
+             * Redirects the user to the dash page.
+             */
             redirectToDash() {
                 this.$router.replace("/dash");
             },
+
+            /**
+             * Used to retrieve a user's profile, determines if they should be redirected to the dash page or not.
+             * @returns {Promise<Response | never>}
+             */
             getProfile() {
                 let self = this;
                 return fetch(`/v1/profile`, {
