@@ -8,7 +8,7 @@
                     id="name-field"
                     label="Destination Name:"
                     label-for="name">
-               <b-form-input id="name" v-model="searchName"></b-form-input>
+                <b-form-input id="name" v-model="searchName"></b-form-input>
             </b-form-group>
 
             <b-form-group
@@ -17,9 +17,11 @@
                     label-for="type">
                 <b-form-select id="type" v-model="searchType" trim>
                     <template slot="first">
-                        <option :value="null" >-- Any --</option>
+                        <option :value="null">-- Any --</option>
                     </template>
-                    <option v-for="destination in destinationTypes" :value="destination.id">{{destination.destinationType}}</option>
+                    <option v-for="destination in destinationTypes" :value="destination.id">
+                        {{destination.destinationType}}
+                    </option>
                 </b-form-select>
             </b-form-group>
 
@@ -64,9 +66,9 @@
                      :sort-desc.sync="sortDesc"
                      :busy="destinations.length === 0"
             >
-                <div slot="table-busy" class="text-center text-danger my-2">
-                    <b-spinner class="align-middle"></b-spinner>
-                    <strong>Loading...</strong>
+                <div slot="table-busy" class="text-center my-2">
+                    <b-spinner v-if="retrievingDestinations" class="align-middle"></b-spinner>
+                    <strong>Can't find any destinations!</strong>
                 </div>
             </b-table>
             <b-row>
@@ -74,7 +76,8 @@
                     <b-form-group
                             id="profiles-field"
                             label-for="perPage">
-                        <b-form-select id="perPage" v-model="perPage" :options="optionViews" size="sm" trim> </b-form-select>
+                        <b-form-select id="perPage" v-model="perPage" :options="optionViews" size="sm"
+                                       trim></b-form-select>
                     </b-form-group>
                 </b-col>
                 <b-col cols="8">
@@ -98,11 +101,11 @@
     export default {
         name: "searchDestinations",
         props: ['destinationTypes'],
-        data () {
+        data() {
             return {
                 sortBy: 'name',
                 sortDesc: false,
-                searchName :"",
+                searchName: "",
                 destinations: [],
                 searchType: "",
                 searchDistrict: "",
@@ -110,12 +113,24 @@
                 searchLong: "",
                 searchCountry: "",
                 showError: false,
-                optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
+                optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
+                    value: 15,
+                    text: "15"
+                }],
                 perPage: 10,
                 currentPage: 1,
-                fields: [{key:'name', value:'name', sortable: true}, {key:'type.destinationType', label:'Type', sortable: true}, {key:'district', value:'district', sortable: true}, 'latitude', 'longitude', {key:'country', value:'country', sortable: true}],
+                fields: [{key: 'name', value: 'name', sortable: true}, {
+                    key: 'type.destinationType',
+                    label: 'Type',
+                    sortable: true
+                }, {key: 'district', value: 'district', sortable: true}, 'latitude', 'longitude', {
+                    key: 'country',
+                    value: 'country',
+                    sortable: true
+                }],
                 searchDestination: "",
-                errorMessage: ""
+                errorMessage: "",
+                retrievingDestinations: false
             }
         },
         computed: {
@@ -124,7 +139,7 @@
             }
 
         },
-        mounted () {
+        mounted() {
             this.queryDestinations();
         },
         methods: {
@@ -153,34 +168,38 @@
                 }
 
             },
-            queryDestinations () {
-                let searchQuery = "?name=" + this.searchName + "&type_id=" + this.searchType + "&district=" + this.searchDistrict + "&latitude=" + this.searchLat + "&longitude=" + this.searchLong + "&country=" + this.searchCountry;
-                return fetch(`/v1/destinations` + searchQuery,  {
+            queryDestinations() {
+                this.retrievingDestinations = true;
+                let searchQuery =
+                    "?name=" + this.searchName +
+                    "&type_id=" + this.searchType +
+                    "&district=" + this.searchDistrict +
+                    "&latitude=" + this.searchLat +
+                    "&longitude=" + this.searchLong +
+                    "&country=" + this.searchCountry;
+                return fetch(`/v1/destinations` + searchQuery, {
                     dataType: 'html',
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
                         this.destinations = data;
+                        this.retrievingDestinations = false;
                     })
             },
-            checkStatus (response) {
+            checkStatus(response) {
                 if (response.status >= 200 && response.status < 300) {
                     return response;
                 }
                 const error = new Error(`HTTP Error ${response.statusText}`);
                 error.status = response.statusText;
                 error.response = response;
-                console.log(error); // eslint-disable-line no-console
+                console.log(error);
                 throw error;
             },
-            parseJSON (response) {
+            parseJSON(response) {
                 return response.json();
             },
         }
     }
 </script>
-
-<style scoped>
-
-</style>
