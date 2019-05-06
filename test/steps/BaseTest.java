@@ -12,7 +12,7 @@ import static play.test.Helpers.fakeApplication;
 
 public class BaseTest {
 
-    private Application application = fakeApplication();
+    protected Application application = fakeApplication();
 
     @Before
     public void setUp() {
