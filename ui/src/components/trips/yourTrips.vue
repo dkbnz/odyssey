@@ -82,10 +82,10 @@
                         :items="row.item.destinations"
                         :fields="subFields">
                             <template v-if="futureTrips.length > 0" slot="destInDate" slot-scope="data">
-                                {{data.item.startDate}}
+                                {{formatDate(data.item.startDate)}}
                             </template>
                             <template v-if="futureTrips.length > 0" slot="destOutDate" slot-scope="data">
-                                {{data.item.endDate}}
+                                {{formatDate(data.item.endDate)}}
                             </template>
 
                         </b-table>
@@ -93,15 +93,22 @@
                     </b-card>
                 </template>
 
-                <template v-if="futureTrips.length > 0" slot="duration" slot-scope="data">
-                    {{calculateDuration(data.item.destinations)}}
+                <template v-if="data.item.destinations[0].startDate" slot="tripStartDate"
+                          slot-scope="data">
+                    {{formatDate(data.item.destinations[0].startDate)}}
                 </template>
+
                 <template v-if="data.item.destinations[data.item.destinations.length -1].endDate"
                           slot="tripEndDate" slot-scope="data">
-                    {{data.item.destinations[data.item.destinations.length -1].endDate}}
+                    {{formatDate(data.item.destinations[data.item.destinations.length -1].endDate)}}
                 </template>
+
                 <template v-if="futureTrips.length > 0" slot="tripEndDest" slot-scope="data">
                     {{data.item.destinations[data.item.destinations.length -1].destination.name}}
+                </template>
+
+                <template v-if="futureTrips.length > 0" slot="duration" slot-scope="data">
+                    {{calculateDuration(data.item.destinations)}}
                 </template>
 
             </b-table>
@@ -172,25 +179,33 @@
                                 :items="row.item.destinations"
                                 :fields="subFields">
                             <template v-if="pastTrips.length > 0" slot="destInDate" slot-scope="data">
-                                {{data.item.startDate}}
+                                {{formatDate(data.item.startDate)}}
                             </template>
                             <template v-if="pastTrips.length > 0" slot="destOutDate" slot-scope="data">
-                                {{data.item.endDate}}
+                                {{formatDate(data.item.endDate)}}
                             </template>
                         </b-table>
                     </b-card>
                 </template>
 
-                <template v-if="pastTrips.length > 0" slot="duration" slot-scope="data">
-                    {{calculateDuration(data.item.destinations)}}
+                <template v-if="data.item.destinations[0].startDate" slot="tripStartDate"
+                          slot-scope="data">
+                    {{formatDate(data.item.destinations[0].startDate)}}
                 </template>
+
                 <template v-if="data.item.destinations[data.item.destinations.length -1].endDate" slot="tripEndDate"
                           slot-scope="data">
-                    {{data.item.destinations[data.item.destinations.length -1].endDate}}
+                    {{formatDate(data.item.destinations[data.item.destinations.length -1].endDate)}}
                 </template>
+
                 <template v-if="pastTrips.length > 0" slot="tripEndDest" slot-scope="data">
                     {{data.item.destinations[data.item.destinations.length -1].destination.name}}
                 </template>
+
+                <template v-if="pastTrips.length > 0" slot="duration" slot-scope="data">
+                    {{calculateDuration(data.item.destinations)}}
+                </template>
+
             </b-table>
 
             <!-- Determines pagination and number of results per row of the table -->
@@ -247,7 +262,7 @@
                 currentPagePast: 1,
                 fields: [
                     'name',
-                    {key:'destinations[0].startDate', label: 'Start Date'},
+                    {key:'tripStartDate', label: 'Start Date'},
                     {key:'destinations[0].destination.name', label: 'Start Destination'},
                     {key:'tripEndDate', label: 'End Date'},
                     {key:'tripEndDest', label: 'End Destination'},
@@ -331,7 +346,7 @@
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(trips => {
-                        let todaysDate = new Date();
+                        let today = new Date();
                         let self = this;
                         self.futureTrips = [];
                         self.pastTrips = [];
@@ -340,7 +355,7 @@
                                 || trips[i].destinations[trips[i].destinations.length-1].endDate === null) {
                                 self.futureTrips.push(trips[i]);
                             } else if (new Date(trips[i].destinations[trips[i].destinations.length-1].endDate) <=
-                                todaysDate) {
+                                today) {
                                 self.pastTrips.push(trips[i]);
                             } else {
                                 self.futureTrips.push(trips[i]);
@@ -362,7 +377,7 @@
                 const error = new Error(`HTTP Error ${response.statusText}`);
                 error.status = response.statusText;
                 error.response = response;
-                console.log(error); // eslint-disable-line no-console
+                console.log(error);
                 throw error;
             },
 
@@ -419,6 +434,9 @@
             dismissModal(modal) {
                 this.$refs[modal].hide();
             },
+            formatDate(date) {
+                return date == null ? null : new Date(date).toLocaleDateString();
+            }
         }
     }
 </script>
