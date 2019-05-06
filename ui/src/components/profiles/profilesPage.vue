@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="profile.length !== 0">
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
 
         <div class="container">
@@ -9,6 +9,25 @@
 
             <b-alert v-model="showError" variant="danger" dismissible>There's something wrong in the form!</b-alert>
 
+
+            <!-- Confirmation modal for deleting a profile. -->
+            <b-modal ref="deleteModal" id="deleteModal" hide-footer title="Delete Profile">
+                <div class="d-block">
+                    Are you sure that you want to delete "{{selectedProfile.firstName}} {{selectedProfile.lastName}}"?
+                </div>
+                <b-button
+                        class="mr-2 float-right"
+                        variant="danger"
+                        @click="dismissModal()
+                         deleteUser(selectedProfile);">Delete
+                </b-button>
+                <b-button
+                        class="mr-2 float-right"
+                        @click="dismissModal()">Cancel
+                </b-button>
+            </b-modal>
+
+
             <div>
                 <!--Input fields for searching profiles-->
                 <b-form-group
@@ -17,7 +36,7 @@
                         label-for="nationality">
                     <b-form-select id="nationality" v-model="searchNationality" trim>
                         <template slot="first">
-                            <option :value="null" >-- Any --</option>
+                            <option :value="null">-- Any --</option>
                         </template>
                         <option v-for="nationality in nationalityOptions"
                                 :value="nationality.nationality">
@@ -31,7 +50,7 @@
                         label-for="gender">
                     <b-form-select id="gender" v-model="searchGender" :options="genderOptions" trim>
                         <template slot="first">
-                            <option :value="null" >-- Any --</option>
+                            <option :value="null">-- Any --</option>
                         </template>
                     </b-form-select>
                 </b-form-group>
@@ -82,19 +101,20 @@
 
             <!--Displays results from profile search in a table format-->
             <div style="margin-top: 40px">
-                <b-table hover striped outlined fixed
-                         id="myFutureTrips"
+                <b-table hover striped outlined
+                         id="profiles"
+                         ref="profilesTable"
                          :items="profiles"
                          :fields="fields"
                          :per-page="perPage"
                          :current-page="currentPage"
                          :sort-by.sync="sortBy"
                          :sort-desc.sync="sortDesc"
-                         :busy="profiles.length === 0">
-
-                    <div slot="table-busy" class="text-center text-danger my-2">
-                        <b-spinner class="align-middle"></b-spinner>
-                        <strong>Loading...</strong>
+                         :busy="this.profiles.length === 0"
+                >
+                    <div slot="table-busy" class="text-center my-2">
+                        <b-spinner v-if="retrievingProfiles" class="align-middle"></b-spinner>
+                        <strong>Can't find any profiles!</strong>
                     </div>
                     <template slot="nationalities" slot-scope="row">
                         {{calculateNationalities(row.item.nationalities)}}
@@ -106,9 +126,37 @@
 
                     <!--Shows more details about any profile-->
                     <template slot="actions" slot-scope="row">
-                        <b-button size="sm" @click="row.toggleDetails" class="mr-2">
-                            {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
-                        </b-button>
+
+                        <b-row class="text-center" v-if="profile.isAdmin">
+
+                            <b-col align-self="center" md="5">
+                                <b-button v-if="profile.isAdmin && !(row.item.isAdmin) && row.item.id !== 1" size="sm"
+                                          @click="makeAdmin(row.item)" variant="success" class="mr-2">
+                                    Make Admin
+                                </b-button>
+                                <b-button v-if="profile.isAdmin && row.item.isAdmin && row.item.id !== 1"
+                                          :disabled="row.item.id===1" variant="danger" size="sm"
+                                          @click="removeAdmin(row.item)" class="mr-2">
+                                    Remove Admin
+                                </b-button>
+                            </b-col>
+
+                            <b-col align-self="center" md="4.5">
+                                <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2">
+                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
+                                </b-button>
+                            </b-col>
+
+                            <b-col align-self="center" md="2">
+                                <b-button v-if="profile.isAdmin && row.item.id !== 1" :disabled="row.item.id===1"
+                                          size="sm" variant="danger" v-b-modal.deleteModal
+                                          @click="sendProfileToModal(row.item)" class="mr-2">
+                                    Delete
+                                </b-button>
+                            </b-col>
+
+                        </b-row>
+
                     </template>
                     <template slot="row-details" slot-scope="row">
                         <b-card>
@@ -148,7 +196,9 @@
         </div>
         <footer-main></footer-main>
     </div>
-
+    <div v-else>
+        <unauthorised-prompt></unauthorised-prompt>
+    </div>
 </template>
 
 <script>
@@ -156,6 +206,8 @@
     import Dash from '../dash/dashPage'
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
+    import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
+
     export default {
         name: "profilesPage",
         props: ['profile', 'nationalityOptions', 'travTypeOptions'],
@@ -182,9 +234,9 @@
                 perPage: 10,
                 currentPage: 1,
                 genderOptions: [
-                    {value: 'male', text: 'Male'},
-                    {value: 'female', text: 'Female'},
-                    {value: 'other', text: 'Other'}
+                    {value: 'Male', text: 'Male'},
+                    {value: 'Female', text: 'Female'},
+                    {value: 'Other', text: 'Other'}
                 ],
                 fields: [{key:'firstName', label: "First Name", sortable: true},
                     {key:'lastName', label: "Last Name", sortable: true},
@@ -192,22 +244,15 @@
                     {key:'gender', value: 'gender', sortable: true}, {key:'age', value:'age', sortable: true},
                     {key:'travellerType', label: "Traveller Types" , sortable: true, class: 'text-center'},
                     'actions'],
-                profiles: []
+                profiles: [],
+                retrievingProfiles: false,
+                selectedProfile: ""
             }
         },
-        mounted () {
+        mounted() {
             this.queryProfiles();
         },
-        computed: {
-            /**
-             * @returns {number} the number of rows required in the table based on number of profiles to be displayed
-             */
-            rows() {
-                return this.profiles.length
-            }
-        },
         methods: {
-
             /**
              * Used to calculate a specific rows nationalities from their list of nationalities. Shows all the
              * nationalities in the row.
@@ -233,14 +278,54 @@
                 }
                 return travTypeList;
             },
+            /**
+             * Method to make a user an admin. This method is only available if the currently logged in user is an
+             * admin. Backend validation ensures a user cannot bypass this.
+             * @param makeAdminProfile      the selected profile to be made an admin.
+             */
+            makeAdmin(makeAdminProfile) {
+                let self = this;
+                fetch('/v1/makeAdmin/' + makeAdminProfile.id, {
+                    method: 'POST',
+                }).then(function() {
+                    self.searchProfiles();
+                })
+            },
 
+            /**
+             * Method to remove admin attribute from a user. This method is only available if the currently logged in
+             * user is an admin. Backend validation ensures a user cannot bypass this.
+             * @param makeAdminProfile      the selected profile to be removed as an admin.
+             */
+            removeAdmin(makeAdminProfile) {
+                let self = this;
+                fetch('/v1/removeAdmin/' + makeAdminProfile.id, {
+                    method: 'POST',
+                }).then(function() {
+                    self.searchProfiles();
+                })
+            },
+
+            /**
+             * Method to delete a user's profile. This method is only available if the currently logged in
+             * user is an admin. Backend validation ensures a user cannot bypass this.
+             * @param makeAdminProfile      the selected profile to be deleted.
+             */
+            deleteUser(deleteUser) {
+                let self = this;
+                fetch('/v1/profile/' + deleteUser.id, {
+                    method: 'DELETE',
+                }).then(function() {
+                    self.searchProfiles();
+                })
+            },
             /**
              * Changes fields so that they can be used in searching
              * Runs validation on range fields
              */
             searchProfiles() {
                 this.searchMinAge = parseInt(this.searchMinAge);
-                this.searchMaxAge =  parseInt(this.searchMaxAge);
+                this.searchMaxAge = parseInt(this.searchMaxAge);
                 if (isNaN(this.searchMinAge) || isNaN(this.searchMaxAge)) {
                     this.showError = true;
                 } else if (this.searchMinAge > this.searchMaxAge) {
@@ -258,23 +343,24 @@
                     }
                     this.showError = false;
                     this.queryProfiles();
-
                 }
             },
-
             /**
              * Queries database for profiles which fit search criteria
              */
-            queryProfiles () {
-                let searchQuery = "?nationality=" + this.searchNationality +
-                    "&gender=" + this.searchGender + "&min_age=" + this.searchMinAge +
-                    "&max_age=" + this.searchMaxAge + "&traveller_type=" + this.searchTravType;
-                return fetch(`/v1/profiles` + searchQuery,  {
-
-                })
+            queryProfiles() {
+                this.retrievingProfiles = true;
+                let searchQuery =
+                    "?nationality=" + this.searchNationality +
+                    "&gender=" + this.searchGender +
+                    "&min_age=" + this.searchMinAge +
+                    "&max_age=" + this.searchMaxAge +
+                    "&traveller_type=" + this.searchTravType;
+                return fetch(`/v1/profiles` + searchQuery, {})
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
+                        this.retrievingProfiles = false;
                         this.profiles = data;
                     })
             },
@@ -304,10 +390,31 @@
             parseJSON (response) {
                 return response.json();
             },
+
+            /**
+             * Used to send a selected profile to a modal so the admin can confirm they want to delete the selected
+             * profile.
+             * @param profile, the profile that is selected to be deleted.
+             */
+            sendProfileToModal(profile) {
+                this.selectedProfile = profile;
+            },
+
+            /**
+             * Used to dismiss the delete a profile modal
+             */
+            dismissModal() {
+                this.$refs['deleteModal'].hide();
+            },
+
+        },
+        computed: {
+            rows() {
+                /**
+                 * @returns {number} the number of rows required in the table based on number of profiles to be displayed
+                 */
+                return this.profiles.length
+            }
         }
     }
 </script>
-
-<style scoped>
-
-</style>

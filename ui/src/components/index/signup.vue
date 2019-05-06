@@ -125,9 +125,8 @@
                     <b-form-valid-feedback :state="genderValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
-
                 <b-alert v-model="showError" variant="danger" dismissible>The form contains errors!</b-alert>
-                <b-button variant="primary" block @click="checkPersonalForm" >Next</b-button>
+                <b-button variant="primary" block @click="checkPersonalForm">Next</b-button>
 
             </b-form>
         </div>
@@ -155,7 +154,6 @@
                             <b-form-valid-feedback :state="nationalityValidation"> Looks Good </b-form-valid-feedback>
                         </b-form-group>
                     </b-col>
-
 
                     <b-col>
                         <b-form-group
@@ -209,13 +207,12 @@
                     </b-form-valid-feedback>
                 </b-form-group>
 
-
                 <b-button @click="previousPage">Back</b-button>
                 <b-button @click="checkAssociateForm" variant="primary" class="float-right">Sign Up</b-button>
             </b-form>
         </div>
 
-</div>
+    </div>
 </template>
 
 <script>
@@ -260,7 +257,7 @@
             },
             mNameValidation() {
                 let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
-                return nameRegex.test(this.middle_name) || this.middle_name.length === 0 ;
+                return nameRegex.test(this.middle_name) || this.middle_name.length === 0;
             },
             lNameValidation() {
                 if (this.last_name.length === 0) {
@@ -281,7 +278,8 @@
                 if (this.password.length === 0) {
                     return null;
                 }
-                let passwordRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
+                let passwordRegex =
+                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
                 return passwordRegex.test(this.password)
             },
             rePasswordValidation() {
@@ -327,8 +325,9 @@
              * Runs validation for all fields on first page
              */
             checkPersonalForm() {
-                if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
-                    && this.passwordValidation && this.rePasswordValidation && this.dateOfBirthValidation && this.genderValidation) {
+                if (this.fNameValidation && this.mNameValidation && this.lNameValidation
+                    && this.emailValidation && this.passwordValidation && this.rePasswordValidation
+                    && this.dateOfBirthValidation && this.genderValidation) {
                     this.showError = false;
                     this.nextPage();
                 } else {
@@ -364,10 +363,10 @@
                 let self = this;
                 fetch(`/v1/checkUsername`, {
                     method: 'POST',
-                    headers:{'content-type': 'application/json'},
+                    headers: {'content-type': 'application/json'},
                     body: JSON.stringify({'username': this.email})
 
-                }).then(function(response) {
+                }).then(function (response) {
                     self.validEmail = response.ok;
                 })
 
@@ -394,19 +393,17 @@
              * @param profile object created with all input values
              */
             saveProfile(profile) {
+                let self = this;
                 fetch('/v1/profiles', {
                     method: 'POST',
-                    headers:{'content-type': 'application/json'},
+                    headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
-                }).then(function(response) {
-                    location.reload();
+                }).then(function (response) {
+                    self.$router.go();
+                    self.$router.push("/dash");
                     return response.json();
                 })
             }
         }
     }
 </script>
-
-<style>
-
-</style>
