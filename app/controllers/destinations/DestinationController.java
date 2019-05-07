@@ -11,6 +11,8 @@ import play.mvc.Result;
 import java.util.List;
 import java.util.Map;
 
+import static util.QueryUtil.queryComparator;
+
 public class DestinationController extends Controller {
 
     private static final String NAME = "name";
@@ -83,16 +85,6 @@ public class DestinationController extends Controller {
         destinations = expressionList.findList();
 
         return ok(Json.toJson(destinations));
-    }
-
-    /**
-     * This function builds a string to use in an sql query in a like clause. It places percentage signs on either
-     * side of the given string parameter.
-     * @param field     The string to be concatenated with percentage signs on either side of the field.
-     * @return          A string containing the field wrapped in percentage signs.
-     */
-    private static String queryComparator(String field) {
-        return "%" + field + "%";
     }
 
     /**
