@@ -3,6 +3,7 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableMap;
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -12,6 +13,7 @@ import cucumber.api.java.Before;
 import org.junit.*;
 import play.Application;
 import play.db.Database;
+import play.db.Databases;
 import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -45,20 +47,25 @@ public class DestinationTestSteps {
 
     protected Application application;
     protected Database database;
+    private Databases databases;
 
     @Before
     public void setUp() {
+        //Map<String, String> configuration = new HashMap<>();
+        //ImmutableMap<> immutableMap = ImmutableMap.copyOf(configuration);
+        database = Databases.inMemory("test", ImmutableMap.of("MODE", "MYSQL"), ImmutableMap.of("logStatements", true));
+
         Map<String, String> configuration = new HashMap<>();
         configuration.put("db.default.driver", "org.h2.Driver");
         configuration.put("db.default.url", "jdbc:h2:mem:testDB;MODE=MYSQL;");
-        configuration.put("play.evolutions.db.default.enabled", "true");
+        configuration.put("play.evolutions.db.default.enable", "true");
         configuration.put("play.evolutions.autoApply", "false");
 
         //Set up the fake application to use the in memory database config
         application = fakeApplication(configuration);
         Helpers.start(application);
 
-        database = application.injector().instanceOf(Database.class);
+        //database = application.injector().instanceOf(Database.class);
 
         Evolutions.applyEvolutions(
                 database,
