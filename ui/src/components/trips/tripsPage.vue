@@ -7,8 +7,9 @@
                 <b-nav-item @click="togglePage(yourTrips)">Your Trips</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
-        <plan-a-trip v-if="planATrip" v-bind:destinations="destinations"></plan-a-trip>
-        <your-trips v-if="yourTrips" :profile="profile"></your-trips>
+
+        <plan-a-trip v-if="planATrip" :heading="'Plan a Trip'" :subHeading="'Book your next trip!'" :destinations="destinations"></plan-a-trip>
+        <your-trips v-if="yourTrips" :destinations="destinations" :profile="profile" :userProfile="profile"></your-trips>
         <footer-main></footer-main>
     </div>
     <div v-else>
@@ -29,17 +30,20 @@
         created() {
             document.title = "TravelEA - Trips";
         },
-        data: function () {
+        data: function() {
             return {
                 planATrip: true,
-                yourTrips: false,
+                yourTrips: false
             }
         },
-        mounted() {
-        },
         methods: {
-            togglePage: function (viewPage) {
-                if (!viewPage) {
+
+            /**
+             * Used to toggle what page is currently being shown.
+             * @param viewPage
+             */
+            togglePage: function(viewPage) {
+                if(!viewPage) {
                     this.planATrip = !this.planATrip;
                     this.yourTrips = !this.yourTrips;
                 }
