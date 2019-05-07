@@ -3,18 +3,14 @@ package steps;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Module;
-import controllers.ProfileController;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
-import models.Profile;
 import org.junit.Assert;
-import org.junit.runner.Request;
 import org.springframework.beans.BeansException;
-import org.springframework.context.annotation.Bean;
 import play.ApplicationLoader;
 import play.Environment;
 import play.Application;
@@ -25,9 +21,6 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -42,9 +35,12 @@ public class ProfileTestSteps {
 
     private Http.RequestBuilder request;
 
+    private int statusCode;
+    private static final String PROFILES_URI = "/v1/profiles";
+
 
     @Before
-    public void setUp() throws SQLException {
+    public void setUp() {
         Module testModule = new AbstractModule() { };
 
         GuiceApplicationBuilder builder = new GuiceApplicationLoader()
@@ -57,7 +53,7 @@ public class ProfileTestSteps {
 
 
     @After
-    public void tearDown() throws SQLException {
+    public void tearDown() {
         Helpers.stop(application);
     }
 
@@ -68,23 +64,21 @@ public class ProfileTestSteps {
     }
 
 
-    @When("I send a GET request to the \\/profiles endpoint")
+    @When("I send a GET request to the profiles endpoint")
     public void iSendAGETRequestToTheProfilesEndpoint() throws BeansException {
-        request = fakeRequest()
+
+        Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .uri("/profiles");
-        Assert.assertTrue(request instanceof Http.RequestBuilder);
-    }
-
-
-    @Then("the received status code is ok()")
-    public void theReceivedStatusCodeIs() throws BeansException{
+                .uri(PROFILES_URI);
         Result result = route(application, request);
-        Assert.assertEquals(ok(), result.status());
+        statusCode = result.status();
     }
 
 
-
+    @Then("the status code is OK")
+    public void theReceivedStatusCodeIs() throws BeansException{
+        Assert.assertEquals(OK, statusCode);
+    }
 
 
 

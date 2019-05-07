@@ -327,6 +327,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function (response) {
+                    self.$router.go();
                     self.$router.push("/dash");
                     return response.json();
                 })

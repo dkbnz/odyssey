@@ -187,6 +187,8 @@ public class DestinationController extends Controller {
         return destination;
     }
 
+
+
     /**
      * Deletes a destination.
      * @param id The id of the destination.
