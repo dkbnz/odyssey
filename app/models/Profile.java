@@ -8,7 +8,6 @@ import io.ebean.Finder;
 import models.trips.Trip;
 import play.data.format.Formats;
 import play.libs.Json;
-
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;

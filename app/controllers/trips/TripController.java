@@ -11,7 +11,6 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,9 +30,10 @@ public class TripController extends Controller {
 
 
     /**
-     * Creates a trips for a user based on information sent in the http request
-     * @param request json format of trip information
-     * @return OK response for successful creation, or badRequest.
+     * Creates a trips for a user based on information sent in the Http Request body. A trip will have a trip name,
+     * and at least two destinations.
+     * @param request   Http Request containing Json Body.
+     * @return          created() (Http 201) response for successful trip creation, or badRequest() (Http 400).
      */
     public Result create(Http.Request request) {
 
@@ -60,7 +60,8 @@ public class TripController extends Controller {
             // Create an empty List for TripDestination objects to be populated from the request.
             List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
             // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return OK.
-            if (destinationList != null) {
+
+            if (destinationList != null && isValidDateOrder(destinationList)) {
                 trip.setDestinations(destinationList);
                 profile.addTrip(trip);
                 profile.save();
@@ -73,12 +74,12 @@ public class TripController extends Controller {
         }
     }
 
-
     /**
-     * Method for looking at the contents of the main json body for a trip in a request.
+     * Method for looking at the contents of the main Json body for a trip in a request.
      * NOTE: Does not examine array contents.
-     * @param json the json body of a request received
-     * @return false json doesn't contain a name or an array of destinations with at least two nodes, or else return true.
+     * @param json      the Json body of a request received.
+     * @return          false if Json doesn't contain a name or an array of destinations with at least two nodes, else
+     *                  returns true.
      */
     private boolean isValidTrip(JsonNode json) {
 
@@ -91,16 +92,16 @@ public class TripController extends Controller {
         if (!(json.get(TRIP_DESTINATIONS) == null || json.get(TRIP_DESTINATIONS).size() >= MINIMUM_TRIP_DESTINATIONS)) {
             return false;
         }
-
         return true;
     }
 
-
     /**
-     * Updates a single trip for profile.
-     * @param request the request containing the new set of values for the trip to modify
-     * @param id the id of the trip being modified
-     * @return
+     * Updates a single trip for selected user's profile.
+     * @param request   Http Request containing Json Body of the selected trip to modify.
+     * @param id        the id of the trip being modified.
+     * @return          ok() (Http 200) if the trip has been successfully modified. If the trip is not valid, returns a
+     *                  badRequest() (Http 400). If the user is not logged in, returns a unauthorized()
+     *                  (Http 401).
      */
     public Result edit(Http.Request request, Long id) {
         String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
@@ -119,6 +120,9 @@ public class TripController extends Controller {
             // Trip being modified
             Trip trip = Trip.find.byId(id.intValue());
 
+            if (trip == null)
+                return badRequest();
+
             String name = json.get(NAME).asText();
             trip.setName(name);
 
@@ -130,7 +134,7 @@ public class TripController extends Controller {
             // Create an empty List for TripDestination objects to be populated from the request.
             List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
 
-            if (destinationList != null) {
+            if (destinationList != null && isValidDateOrder(destinationList)) {
                 trip.setDestinations(destinationList);
                 trip.update();
                 profile.update();
@@ -143,12 +147,11 @@ public class TripController extends Controller {
         return ok();
     }
 
-
     /**
-     * Parse the ArrayNode from a valid request's json body to create a list of TripDestination objects
+     * Parse the ArrayNode from a valid request's Json body to create a list of TripDestination objects
      * This method is used when creating a trip and when editing a trip
-     * @param tripDestinations the array of trip destinations
-     * @return an array of destinations
+     * @param tripDestinations      the array of trip destinations
+     * @return                      an array of destinations
      */
     private List<TripDestination> parseTripDestinations(ArrayNode tripDestinations) {
 
@@ -174,15 +177,16 @@ public class TripController extends Controller {
                 if (!isValidDates(destinationJson.get(START_DATE).asText(), destinationJson.get(END_DATE).asText())) {
                     return null;
                 }
-
                 // Parse the values contained in the current node of the array
                 Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATION_ID).asText());
                 LocalDate parsedStartDate = null;
-                if (destinationJson.get(START_DATE).asText().equals("") || destinationJson.get(START_DATE).asText() == null) {
+                if (!(destinationJson.get(START_DATE).asText().equals("null")
+                        || destinationJson.get(START_DATE).asText().equals(""))) {
                     parsedStartDate = LocalDate.parse(destinationJson.get(START_DATE).asText());
                 }
                 LocalDate parsedEndDate = null;
-                if (destinationJson.get(END_DATE).asText().equals("") || destinationJson.get(END_DATE).asText() == null) {
+                if (!(destinationJson.get(END_DATE).asText().equals("null")
+                        || destinationJson.get(END_DATE).asText().equals(""))) {
                     parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
                 }
                 Destination parsedDestination = Destination.find.byId(parsedDestinationId);
@@ -200,15 +204,16 @@ public class TripController extends Controller {
                 return null;
             }
         }
-
         return result;
     }
 
     /**
-     * Checks the start and end dates to make sure that the start date does not happen after the end date but if either is null this does not apply
-     * @param startDate starting date as string
-     * @param endDate ending date as string
-     * @return true if valid and false if invalid
+     * Checks the start and end dates to make sure that the start date does not happen after the end date but if either
+     * is null this does not apply
+     * @param startDate     starting date as string
+     * @param endDate       ending date as string
+     * @return              true if the dates are valid (blank, null, or start date occurs before or at the same time as
+     *                      end date), otherwise returns false.
      */
     private boolean isValidDates(String startDate, String endDate) {
         if (startDate.equals("") || startDate.equals("null")) {
@@ -216,16 +221,50 @@ public class TripController extends Controller {
         }else if (endDate.equals("") || endDate.equals("null")){
             return true;
         } else {
-            return LocalDate.parse(startDate).isBefore(LocalDate.parse(endDate));
+            return (LocalDate.parse(startDate).isBefore(LocalDate.parse(endDate))
+                    || LocalDate.parse(startDate).equals(LocalDate.parse(endDate)));
         }
     }
 
+    /**
+     * Checks if all of the start/end dates within a trip are in valid order, to be called after saving a reorder
+     * @param tripDestinations  array of all the destinations in the trip in the new order
+     * @return                  true if all the dates of destinations within a trip are in chronological order,
+     *                          false otherwise
+     */
+    private boolean isValidDateOrder(List<TripDestination> tripDestinations) {
+        // Adds all dates within the list of trip destinations to an array if they aren't null
+        List<LocalDate> allDates = new ArrayList<LocalDate>() {};
+        for(int i = 0; i < tripDestinations.size(); i++) {
+            LocalDate startDate = tripDestinations.get(i).getStartDate();
+            LocalDate endDate = tripDestinations.get(i).getEndDate();
+            if(startDate != null){
+                allDates.add(startDate);
+            }
+            if(endDate != null){
+                allDates.add(endDate);
+            }
+        }
+        // Iterate through from item 1 and 2 to n-1 and n. return false if any pair is not in order
+        for(int j=0; j<(allDates.size()-1); j++){
+            if (!(allDates.get(j) == null || (allDates.get(j+1) == null))) {
+                if((allDates.get(j).isAfter(allDates.get(j+1)))){
+                    if (!(allDates.get(j).equals(allDates.get(j+1)))) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
 
     /**
      * Fetches a single trip from the database for a logged in user.
      *
-     * @param request HTTP request from client
-     * @return an OK response rendering the fetched trip onto the page, or an unauthorised message.
+     * @param request   Http request from client
+     * @return          an ok() (Http 200) response rendering the fetched trip onto the page. If requested trip not
+     *                  valid then returns a badRequest() (Http 400). If the trip is not found then returns notFound()
+     *                  (Http 404).
      */
     public Result fetch(Http.Request request) {
 
@@ -252,14 +291,60 @@ public class TripController extends Controller {
         return ok(Json.toJson(returnedTrip));
     }
 
-
     /**
      * Fetches all the trips for a specified user
-     * @param id the id of the user requested
-     * @return the list of trips as a JSON
+     * @param id    the id of the user requested
+     * @return      the list of trips as a Json
      */
     public Result fetchAll(Long id) {
         List<Trip> trips = repository.fetchAllTrips(id);
         return ok(Json.toJson(trips));
+    }
+
+    /**
+     * Deletes a trip from the user currently logged in.
+     * @param request   Http request from the client, from which the current user profile can be obtained.
+     * @param id        the id of the trip being deleted from a profile
+     * @return          notFound() (Http 404) if no profile or no trip is found. If the trip is not in the user's list
+     *                  of trips, returns forbidden() (Http 403). If the user is not logged in, returns unauthorized(),
+     *                  (Http 401). Otherwise, if trip is successfully deleted, returns ok() (Http 200).
+     */
+    public Result destroy(Http.Request request, Long id) {
+
+        String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
+
+        // Check if a user is logged in.
+        if (userId != null) {
+
+            // Retrieve the profile having its trip removed.
+            Profile profile = Profile.find.byId(Integer.valueOf(userId));
+
+            // Retrieve the individual trip being deleted by its id.
+            Trip trip = Trip.find.byId(id.intValue());
+
+            // Check for query success.
+            if (profile == null || trip == null) {
+                return notFound();
+            }
+            boolean tripInProfile = false;
+            for (Trip tempTrip : profile.getTrips()) {
+                if (tempTrip.getId().equals(id)) {
+                    tripInProfile = true;
+                }
+            }
+            if (!tripInProfile) {
+                return forbidden();
+            }
+
+            // Repository method handling the database and object manipulation.
+            repository.deleteTripFromProfile(profile, trip);
+
+        } else {
+            return unauthorized();
+        }
+
+        // Deletion successful.
+        return ok();
+
     }
 }
