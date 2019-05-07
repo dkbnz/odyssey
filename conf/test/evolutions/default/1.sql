@@ -202,25 +202,24 @@ drop index ix_trip_destination_trip_id on trip_destination;
 alter table trip_destination drop foreign key fk_trip_destination_destination_id;
 drop index ix_trip_destination_destination_id on trip_destination;
 
+drop table if exists destination_type;
+
+drop table if exists trip_destination;
+
 drop table if exists destination;
 
-drop table if exists destination_type;
+drop table if exists profile_nationality;
+
+drop table if exists profile_passport;
+
+drop table if exists profile_traveller_type;
 
 drop table if exists nationality;
 
 drop table if exists passport;
 
-drop table if exists profile;
-
-drop table if exists profile_nationality;
-
-drop table if exists profile_traveller_type;
-
-drop table if exists profile_passport;
-
 drop table if exists traveller_type;
 
 drop table if exists trip;
 
-drop table if exists trip_destination;
-
+drop table if exists profile;
