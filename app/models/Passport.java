@@ -1,7 +1,6 @@
 package models;
 
 import io.ebean.Finder;
-
 import javax.persistence.Entity;
 
 @Entity

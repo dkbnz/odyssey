@@ -1,15 +1,13 @@
 package models.trips;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.ebean.Finder;
 import models.BaseModel;
 import models.destinations.Destination;
-
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.CascadeType;
-import javax.persistence.OneToMany;
 import java.time.LocalDate;
-import java.util.Date;
 
 /**
  * Class for holding a certain trips destinations, start and end dates
@@ -25,6 +23,7 @@ public class TripDestination extends BaseModel {
     /**
      * The ending date of the trip destination.
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate end_date;
 
     /**
@@ -45,6 +44,7 @@ public class TripDestination extends BaseModel {
     private Destination destination;
 
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     public LocalDate getStartDate() {
         return start_date;
     }
@@ -53,6 +53,7 @@ public class TripDestination extends BaseModel {
         this.start_date = start_date;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     public LocalDate getEndDate() {
         return end_date;
     }

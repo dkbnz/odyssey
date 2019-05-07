@@ -3,7 +3,6 @@ package models.trips;
 import io.ebean.Finder;
 import models.BaseModel;
 import play.data.validation.Constraints;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -24,8 +23,6 @@ public class Trip extends BaseModel {
     /**
      * The trips destinations for the trip
      */
-//    @Constraints.Required
-
     @OneToMany(mappedBy="trip", cascade=CascadeType.ALL)
     private List<TripDestination> destinations;
 
