@@ -2,18 +2,17 @@ Feature: Destination API Endpoint
 
   Scenario: Get all destinations
     Given I have a running application
-    And I am logged in
     When I send a GET request to the destinations endpoint
     Then the status code received is OK
 
   Scenario: Create a new destination with valid input
     Given I have a running application
-    And I am logged in
+    Given I am logged in
     When I create a new destination with the following valid values
-    | Name    | Type | District | Latitude  | Longitude| Country     |
-    | ASB     | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
-    Then the status code received is OK
-#
+      | Name    | Type | District | Latitude  | Longitude| Country     |
+      | CARLOS    | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
+    Then the status code received is Created
+
 #  Scenario: Create a new destination with invalid input
 #    Given I have a running application
 #    And I am logged in

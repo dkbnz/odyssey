@@ -8,6 +8,7 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import cucumber.api.java.Before;
 import org.junit.*;
 import play.Application;
 import play.db.Database;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
@@ -36,12 +38,15 @@ public class DestinationTestSteps {
     private static final String LOGOUT_URI = "/v1/logout";
 
     private static final String VALID_USERNAME = "admin@travelea.com";
-    private static final String VALID_PASSWORD = "25F43B1486AD95A1398E3EEB3D83BC4010015FCC9BEDB35B432E00298D5021F7";
+    private static final String VALID_PASSWORD = "admin1";
+
+    //private static final String VALID_USERNAME = "guestUser@travelea.com";
+    //private static final String VALID_PASSWORD = "guest123";
 
     protected Application application;
     protected Database database;
 
-    @cucumber.api.java.Before
+    @Before
     public void setUp() {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("db.default.driver", "org.h2.Driver");
@@ -71,6 +76,7 @@ public class DestinationTestSteps {
                 .uri(LOGOUT_URI);
         route(application, request);
         Evolutions.cleanupEvolutions(database);
+        database.shutdown();
         Helpers.stop(application);
     }
 
@@ -98,7 +104,7 @@ public class DestinationTestSteps {
         route(application, request);
     }
 
-    @And("I am logged in")
+    @Given("I am logged in")
     public void i_am_logged_in() {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode json = mapper.createObjectNode();
@@ -151,7 +157,7 @@ public class DestinationTestSteps {
         JsonNode json = mapper.createObjectNode();
 
         ((ObjectNode) json).put("name", name);
-        ((ObjectNode) json).put("type", type);
+        ((ObjectNode) json).put("type_id", type);
         ((ObjectNode) json).put("latitude", latitude);
         ((ObjectNode) json).put("longitude", longitude);
         ((ObjectNode) json).put("district", district);
@@ -187,6 +193,11 @@ public class DestinationTestSteps {
     @Then("the status code received is OK")
     public void the_status_code_received_is_OK() {
         assertEquals(OK, statusCode);
+    }
+
+    @Then("the status code received is Created")
+    public void the_status_code_received_is_Created() {
+        assertEquals(CREATED, statusCode);
     }
 
     @Then("the status code received is BadRequest")
