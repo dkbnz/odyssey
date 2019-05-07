@@ -6,7 +6,8 @@
                 placeholder="Choose files..."
                 drop-placeholder="Drop files here..."
         ></b-form-file>
-        <b-button @click="files = null">Clear Selected Files</b-button>
+        <b-button class="btn btn-info btn-lg" @click="files = null">Clear Selected Files</b-button>
+        <b-button class="btn btn-info btn-lg" @click="save()">Save</b-button>
     </div>
 </template>
 
@@ -31,6 +32,16 @@
             },
             save(){
                 //will close modal and send files away to backend?
+                let self = this;
+                console.log(self.files[0]);
+                fetch(`/v1/savePhotos`, {
+                    method: 'POST',
+                    headers:{'content-type': 'application/json'},
+                    body: JSON.stringify({'photos': self.files})
+
+                }).then(function(response) {
+                    self.files = null;
+                })
             }
         }
     }
