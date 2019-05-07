@@ -3,26 +3,14 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Module;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import play.Application;
-import play.ApplicationLoader;
-import play.Environment;
-import play.inject.guice.GuiceApplicationBuilder;
-import play.inject.guice.GuiceApplicationLoader;
+import org.junit.*;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.Helpers;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
@@ -31,33 +19,16 @@ import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
-public class DestinationTestSteps {
-
-    @Inject
-    Application application;
+public class DestinationTestSteps extends BaseTest {
 
     private int statusCode;
     private static final String DUPLICATE_NAME = "Duplicate";
     private static final String DUPLICATE_DISTRICT = "Nelson";
-    private static final String destinationUri = "/api/destinations";
+    private static final String DESTINATION_URI = "/v1/destinations";
+    private static final String LOGIN_URI = "/v1/login";
+    private static final String VALID_USERNAME = "admin@travelea.com";
+    private static final String VALID_PASSWORD = "admin1";
 
-
-    @BeforeClass
-    public void setUp() {
-        Module testModule = new AbstractModule() { };
-
-        GuiceApplicationBuilder builder = new GuiceApplicationLoader()
-                .builder(new ApplicationLoader.Context(Environment.simple()))
-                .overrides(testModule);
-        Guice.createInjector(builder.applicationModule()).injectMembers(this);
-
-        Helpers.start(application);
-    }
-
-    @AfterClass
-    public void tearDown() {
-        Helpers.stop(application);
-    }
 
     @Given("I have a running application")
     public void i_have_a_running_application() {
@@ -79,7 +50,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(destinationUri);
+                .uri(DESTINATION_URI);
         route(application, request);
     }
 
@@ -88,14 +59,14 @@ public class DestinationTestSteps {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("username", "TestUser");
-        ((ObjectNode) json).put("password", "Password123");
+        ((ObjectNode) json).put("username", VALID_USERNAME);
+        ((ObjectNode) json).put("password", VALID_PASSWORD);
 
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri("/api/login");
+                .uri(LOGIN_URI);
         route(application, request);
     }
 
@@ -103,7 +74,7 @@ public class DestinationTestSteps {
     public void i_send_a_GET_request_to_the_destinations_endpoint() {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .uri(destinationUri);
+                .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -115,7 +86,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(destinationUri);
+                .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -151,7 +122,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(destinationUri);
+                .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -163,7 +134,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(destinationUri);
+                .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -173,9 +144,14 @@ public class DestinationTestSteps {
         assertEquals(OK, statusCode);
     }
 
-
     @Then("the status code received is BadRequest")
     public void the_status_code_received_is_BadRequest() {
         assertEquals(BAD_REQUEST, statusCode);
     }
+
+    @Then("the status code received is Unauthorised")
+    public void the_status_code_received_is_Unauthorised() {
+        assertEquals(UNAUTHORIZED, statusCode);
+    }
+
 }

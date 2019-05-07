@@ -20,16 +20,6 @@ public class AuthControllerTest {
     /** Attempt to log in with no authorized token in the current session **/
     @Test
     public void loginNoToken() {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode json = mapper.createObjectNode();
-        json.put("username", "matt.j.kenny@gmail.com")
-                .put("password", "password");
-        Http.Cookie sessionCookie = Http.Cookie.builder("PLAY_SESSION", "f8hf43kfahf").build();
-        Http.Request request = fakeRequest(POST, "/api/login").bodyJson(json).cookie(sessionCookie).build();
-
-        AuthController auth = new AuthController();
-        Result result = auth.login(request);
-
 
 
 
