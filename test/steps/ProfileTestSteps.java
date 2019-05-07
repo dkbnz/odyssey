@@ -43,8 +43,9 @@ public class ProfileTestSteps {
     private int loginStatusCode;
     private static final String PROFILES_URI = "/v1/profiles";
     private static final String LOGIN_URI = "/v1/login";
+    private static final String LOGOUT_URI = "/v1/logout";
     private static final String VALID_USERNAME = "admin@travelea.com";
-    private static final String VALID_PASSWORD = "admin1";
+    private static final String VALID_PASSWORD = "25F43B1486AD95A1398E3EEB3D83BC4010015FCC9BEDB35B432E00298D5021F7";
 
 
 
@@ -63,6 +64,10 @@ public class ProfileTestSteps {
 
     @After
     public void tearDown() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(LOGOUT_URI);
+        route(application, request);
         Helpers.stop(application);
     }
 
