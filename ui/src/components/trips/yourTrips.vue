@@ -323,7 +323,7 @@
                     return ""
                 }
                 let calculateDur = Math.ceil((Math.abs(new Date(destinations[destinations.length -1 ].endDate).getTime()
-                    - new Date(destinations[0].startDate).getTime())))/ (1000 * 3600 * 24);
+                    - new Date(destinations[0].startDate).getTime())))/ (1000 * 3600 * 24) + 1;
                 if (calculateDur >= 365) {
                     return Math.floor(calculateDur/365) + " year(s)"
                 } else {
