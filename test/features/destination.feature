@@ -10,7 +10,7 @@ Feature: Destination API Endpoint
     Given I am logged in
     When I create a new destination with the following valid values
       | Name    | Type | District | Latitude  | Longitude| Country     |
-      | CARLOS    | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
+      | CARLOSE    | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
     Then the status code received is Created
 
 #  Scenario: Create a new destination with invalid input

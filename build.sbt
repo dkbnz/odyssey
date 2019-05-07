@@ -37,6 +37,8 @@ testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-Werror")
 
 
+
+
 //val framework = new TestFramework("com.waioeka.sbt.runner.CucumberFramework")
 //testFrameworks += framework
 //
