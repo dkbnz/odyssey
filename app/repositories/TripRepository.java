@@ -1,6 +1,7 @@
 package repositories;
 
 import io.ebean.ExpressionList;
+import models.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
@@ -29,6 +30,27 @@ public class TripRepository {
         }
 
     }
+
+
+    /**
+     * Removes a single trip from a profile's list of trips, and deletes the trip from the profile before updating the profile.
+     * This method is used in TripController inside the 'destroy' method.
+     * @param profile The profile having its trip deleted.
+     * @param trip The trip being deleted from a profile.
+     */
+    public void deleteTripFromProfile(Profile profile, Trip trip) {
+
+        // Remove the trip from the profile's list of trips.
+        profile.getTrips().remove(trip);
+
+        // Delete the trip from the database.
+        trip.delete();
+
+        // Update the profile at a database level.
+        profile.update();
+
+    }
+
 
 
     /**

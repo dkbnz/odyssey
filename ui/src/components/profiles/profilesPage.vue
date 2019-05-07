@@ -1,9 +1,12 @@
 <template>
     <div v-if="profile.length !== 0">
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
+
         <div class="container">
+
             <h1 class="page_title">Find Profiles</h1>
             <p class="page_title"><i>Search for other travellers using the form below</i></p>
+
             <b-alert v-model="showError" variant="danger" dismissible>There's something wrong in the form!</b-alert>
 
 
@@ -26,6 +29,7 @@
 
 
             <div>
+                <!--Input fields for searching profiles-->
                 <b-form-group
                         id="nationalities-field"
                         label="Nationality:"
@@ -34,11 +38,12 @@
                         <template slot="first">
                             <option :value="null">-- Any --</option>
                         </template>
-                        <option v-for="nationality in nationalityOptions" :value="nationality.nationality">
-                            {{nationality.nationality}}
-                        </option>
+                        <option v-for="nationality in nationalityOptions"
+                                :value="nationality.nationality">
+                            {{nationality.nationality}}</option>
                     </b-form-select>
                 </b-form-group>
+
                 <b-form-group
                         id="gender-field"
                         label="Gender:"
@@ -49,23 +54,34 @@
                         </template>
                     </b-form-select>
                 </b-form-group>
+
                 <b-form-group
                         id="minAge-field"
                         label="Min Age: "
                         label-for="minAge">
                     <div class="mt-2">{{ searchMinAge }}</div>
-                    <b-form-input id="minAge" v-model="searchMinAge" :type="'range'" min="0" max="150"
-                                  trim></b-form-input>
 
+                    <!--Range slider from 0 to 150-->
+                    <b-form-input id="minAge" v-model="searchMinAge"
+                                  :type="'range'"
+                                  min="0"
+                                  max="150"
+                                  trim></b-form-input>
                 </b-form-group>
+
                 <b-form-group
                         id="maxAge-field"
                         label="Max Age:"
                         label-for="maxAge">
                     <div class="mt-2">{{ searchMaxAge }}</div>
-                    <b-form-input id="maxAge" v-model="searchMaxAge" :type="'range'" min="0" max="150"
+                    <!--Range slider from 0 to 150-->
+                    <b-form-input id="maxAge" v-model="searchMaxAge"
+                                  :type="'range'"
+                                  min="0"
+                                  max="150"
                                   trim></b-form-input>
                 </b-form-group>
+
                 <b-form-group
                         id="travType-field"
                         label="Traveller Type:"
@@ -74,15 +90,18 @@
                         <template>
                             <option :value="null" selected="selected">-- Any --</option>
                         </template>
-                        <option v-for="travType in travTypeOptions" :value="travType.travellerType">
-                            {{travType.travellerType}}
-                        </option>
+                        <option v-for="travType in travTypeOptions"
+                                :value="travType.travellerType">
+                            {{travType.travellerType}}</option>
                     </b-form-select>
                 </b-form-group>
+
                 <b-button block variant="primary" @click="searchProfiles">Search</b-button>
             </div>
+
+            <!--Displays results from profile search in a table format-->
             <div style="margin-top: 40px">
-                <b-table hover striped outlined
+                <b-table hover striped outlined fixed
                          id="profiles"
                          ref="profilesTable"
                          :items="profiles"
@@ -91,14 +110,25 @@
                          :current-page="currentPage"
                          :sort-by.sync="sortBy"
                          :sort-desc.sync="sortDesc"
-                         :busy="this.profiles.length===0"
+                         :busy="this.profiles.length === 0"
                 >
                     <div slot="table-busy" class="text-center my-2">
                         <b-spinner v-if="retrievingProfiles" class="align-middle"></b-spinner>
                         <strong>Can't find any profiles!</strong>
                     </div>
+                    <template slot="nationalities" slot-scope="row">
+                        {{calculateNationalities(row.item.nationalities)}}
+                    </template>
+
+                    <template slot="travellerType" slot-scope="row">
+                        {{calculateTravTypes(row.item.travellerTypes)}}
+                    </template>
+
+                    <!--Shows more details about any profile-->
                     <template slot="actions" slot-scope="row">
+
                         <b-row class="text-center" v-if="profile.isAdmin">
+
                             <b-col align-self="center" md="5">
                                 <b-button v-if="profile.isAdmin && !(row.item.isAdmin) && row.item.id !== 1" size="sm"
                                           @click="makeAdmin(row.item)" variant="success" class="mr-2">
@@ -116,6 +146,7 @@
                                     {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
                                 </b-button>
                             </b-col>
+
                             <b-col align-self="center" md="2">
                                 <b-button v-if="profile.isAdmin && row.item.id !== 1" :disabled="row.item.id===1"
                                           size="sm" variant="danger" v-b-modal.deleteModal
@@ -125,26 +156,26 @@
                             </b-col>
 
                         </b-row>
-                        <b-row v-else>
-                            <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2">
-                                {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
-                            </b-button>
-                        </b-row>
 
                     </template>
                     <template slot="row-details" slot-scope="row">
                         <b-card>
-                            <view-profile :profile="row.item"></view-profile>
+                            <view-profile :profile="row.item" :userProfile="profile"></view-profile>
                         </b-card>
                     </template>
+
                 </b-table>
+
+                <!--Pagination and results per page settings-->
                 <b-row>
                     <b-col cols="1">
                         <b-form-group
                                 id="profiles-field"
                                 label-for="perPage">
-                            <b-form-select id="perPage" v-model="perPage" :options="optionViews" size="sm"
-                                           trim></b-form-select>
+                            <b-form-select id="perPage" v-model="perPage"
+                                           :options="optionViews"
+                                           size="sm"
+                                           trim> </b-form-select>
                         </b-form-group>
                     </b-col>
                     <b-col cols="8">
@@ -160,6 +191,7 @@
                         ></b-pagination>
                     </b-col>
                 </b-row>
+
             </div>
         </div>
         <footer-main></footer-main>
@@ -170,7 +202,7 @@
 </template>
 
 <script>
-    import viewProfile from '../dash/viewProfile.vue'
+    import ViewProfile from '../dash/viewProfile.vue'
     import Dash from '../dash/dashPage'
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
@@ -182,8 +214,14 @@
         created() {
             document.title = "TravelEA - Profiles";
         },
-
-        data: function () {
+        components: {
+            ViewProfile,
+            NavBarMain,
+            FooterMain,
+            Dash,
+            UnauthorisedPrompt
+        },
+        data: function() {
             return {
                 sortBy: 'firstName',
                 sortDesc: false,
@@ -193,10 +231,7 @@
                 searchMinAge: 0,
                 searchMaxAge: 100,
                 searchTravType: "",
-                optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
-                    value: 15,
-                    text: "15"
-                }],
+                optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 perPage: 10,
                 currentPage: 1,
                 genderOptions: [
@@ -204,19 +239,12 @@
                     {value: 'Female', text: 'Female'},
                     {value: 'Other', text: 'Other'}
                 ],
-                fields: [{key: 'firstName', label: "First Name", sortable: true}, {
-                    key: 'lastName',
-                    label: "Last Name",
-                    sortable: true
-                }, {key: 'nationalities[0].nationality', label: "Nationality", sortable: true}, {
-                    key: 'gender',
-                    value: 'gender',
-                    sortable: true
-                }, {key: 'age', value: 'age', sortable: true}, {
-                    key: 'travellerTypes[0].travellerType',
-                    label: "Traveller Types",
-                    sortable: true
-                }, 'actions'],
+                fields: [{key:'firstName', label: "First Name", sortable: true},
+                    {key:'lastName', label: "Last Name", sortable: true},
+                    {key:'nationalities', label: "Nationalities", sortable: true, class: 'text-center'},
+                    {key:'gender', value: 'gender', sortable: true}, {key:'age', value:'age', sortable: true},
+                    {key:'travellerType', label: "Traveller Types" , sortable: true, class: 'text-center'},
+                    'actions'],
                 profiles: [],
                 retrievingProfiles: false,
                 selectedProfile: ""
@@ -226,10 +254,31 @@
             this.queryProfiles();
         },
         methods: {
-            parseJSON(response) {
-                return response.json();
+            /**
+             * Used to calculate a specific rows nationalities from their list of nationalities. Shows all the
+             * nationalities in the row.
+             * @param nationalities     the row's (profile) nationalities.
+             */
+            calculateNationalities (nationalities) {
+                let nationalityList = "";
+                for (let i = 0; i < nationalities.length; i++) {
+                    nationalityList += nationalities[i].nationality + ", ";
+                }
+                return nationalityList;
             },
 
+            /**
+             * Used to calculate a specific rows traveller types from their list of traveller types. Shows all the
+             * traveller types in the row.
+             * @param travellerTypes     the row's (profile) traveller types.
+             */
+            calculateTravTypes (travellerTypes) {
+                let travTypeList = "";
+                for (let i = 0; i < travellerTypes.length; i++) {
+                    travTypeList += travellerTypes[i].travellerType + ", ";
+                }
+                return travTypeList;
+            },
             /**
              * Method to make a user an admin. This method is only available if the currently logged in user is an
              * admin. Backend validation ensures a user cannot bypass this.
@@ -271,6 +320,11 @@
                     self.searchProfiles();
                 })
             },
+
+            /**
+             * Changes fields so that they can be used in searching
+             * Runs validation on range fields
+             */
             searchProfiles() {
                 this.searchMinAge = parseInt(this.searchMinAge);
                 this.searchMaxAge = parseInt(this.searchMaxAge);
@@ -291,9 +345,12 @@
                     }
                     this.showError = false;
                     this.queryProfiles();
-
                 }
             },
+
+            /**
+             * Queries database for profiles which fit search criteria
+             */
             queryProfiles() {
                 this.retrievingProfiles = true;
                 let searchQuery =
@@ -309,6 +366,32 @@
                         this.retrievingProfiles = false;
                         this.profiles = data;
                     })
+            },
+
+            /**
+             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
+             * console.
+             * @param response, passed back to the getAllTrips function to be parsed into a json.
+             * @returns throws the error.
+             */
+            checkStatus (response) {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                }
+                const error = new Error(`HTTP Error ${response.statusText}`);
+                error.status = response.statusText;
+                error.response = response;
+                console.log(error); // eslint-disable-line no-console
+                throw error;
+            },
+
+            /**
+             * Used to turn the response of the fetch method into a usable JSON.
+             * @param response of the fetch method.
+             * @returns the json body of the response.
+             */
+            parseJSON (response) {
+                return response.json();
             },
 
             /**
@@ -330,15 +413,11 @@
         },
         computed: {
             rows() {
+                /**
+                 * @returns the number of rows required in the table based on number of profiles to be displayed
+                 */
                 return this.profiles.length
             }
-        },
-        components: {
-            viewProfile,
-            NavBarMain,
-            FooterMain,
-            Dash,
-            UnauthorisedPrompt
         }
     }
 </script>
