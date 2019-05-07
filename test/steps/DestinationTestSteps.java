@@ -28,6 +28,7 @@ import static play.test.Helpers.*;
 public class DestinationTestSteps {
 
     private int statusCode;
+    private int loginStatusCode;
     private static final String DUPLICATE_NAME = "Duplicate";
     private static final String DUPLICATE_DISTRICT = "Nelson";
     private static final String DESTINATION_URI = "/v1/destinations";
@@ -103,7 +104,9 @@ public class DestinationTestSteps {
                 .method(POST)
                 .bodyJson(json)
                 .uri(LOGIN_URI);
-        route(application, request);
+        Result loginResult = route(application, request);
+        loginStatusCode = loginResult.status();
+        assertEquals(OK, loginStatusCode);
     }
 
     @When("I send a GET request to the destinations endpoint")
