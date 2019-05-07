@@ -3,14 +3,20 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import cucumber.api.java.After;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.junit.*;
+import play.Application;
+import play.db.Database;
+import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.test.Helpers;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +25,7 @@ import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
-public class DestinationTestSteps extends BaseTest {
+public class DestinationTestSteps {
 
     private int statusCode;
     private static final String DUPLICATE_NAME = "Duplicate";
@@ -29,6 +35,36 @@ public class DestinationTestSteps extends BaseTest {
     private static final String VALID_USERNAME = "admin@travelea.com";
     private static final String VALID_PASSWORD = "admin1";
 
+    protected Application application;
+    protected Database database;
+
+    @cucumber.api.java.Before
+    public void setUp() {
+        Map<String, String> configuration = new HashMap<>();
+        configuration.put("db.default.driver", "org.h2.Driver");
+        configuration.put("db.default.url", "jdbc:h2:mem:testDB;MODE=MYSQL;");
+        configuration.put("play.evolutions.db.default.enabled", "true");
+        configuration.put("play.evolutions.autoApply", "false");
+
+        //Set up the fake application to use the in memory database config
+        application = fakeApplication(configuration);
+        Helpers.start(application);
+        database = application.injector().instanceOf(Database.class);
+
+        Evolutions.applyEvolutions(
+                database,
+                Evolutions.fromClassLoader(
+                        getClass().getClassLoader(),
+                        "test/evolutions/default/"
+                )
+        );
+    }
+
+    @After
+    public void cleanEvolutions() {
+        Evolutions.cleanupEvolutions(database);
+        Helpers.stop(application);
+    }
 
     @Given("I have a running application")
     public void i_have_a_running_application() {
