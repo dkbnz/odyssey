@@ -1,10 +1,14 @@
 package steps;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Module;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -24,11 +28,11 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static play.mvc.Results.ok;
 import static play.test.Helpers.*;
 
 public class ProfileTestSteps {
-
 
     @Inject
     Application application;
@@ -36,7 +40,12 @@ public class ProfileTestSteps {
     private Http.RequestBuilder request;
 
     private int statusCode;
+    private int loginStatusCode;
     private static final String PROFILES_URI = "/v1/profiles";
+    private static final String LOGIN_URI = "/v1/login";
+    private static final String VALID_USERNAME = "admin@travelea.com";
+    private static final String VALID_PASSWORD = "admin1";
+
 
 
     @Before
@@ -61,6 +70,24 @@ public class ProfileTestSteps {
     @Given("the application is running")
     public void theApplicationIsRunning() throws BeansException {
         Assert.assertTrue(application.isTest());
+    }
+
+    @And("I have logged in")
+    public void i_have_logged_in() {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode json = mapper.createObjectNode();
+
+        ((ObjectNode) json).put("username", VALID_USERNAME);
+        ((ObjectNode) json).put("password", VALID_PASSWORD);
+
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .bodyJson(json)
+                .uri(LOGIN_URI);
+        Result loginResult = route(application, request);
+        loginStatusCode = loginResult.status();
+        assertEquals(OK, loginStatusCode);
     }
 
 
