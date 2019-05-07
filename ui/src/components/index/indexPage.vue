@@ -10,24 +10,25 @@
                         <h3 id="subtitle" align="center">Your personal Travel Executive Assistant!</h3>
                     </div>
 
-                    <b-row>
-                        <b-col>
-                            <b-button v-b-modal.modalSignup class="btn btn-info btn-lg float-right">Signup</b-button>
-                            <b-modal id="modalSignup" centered hide-footer>
-                                <template slot="modal-title"><h2>Sign Up</h2></template>
-                                <signup v-bind:nationalityOptions="nationalityOptions"
-                                        v-bind:travTypeOptions="travTypeOptions"></signup>
-                            </b-modal>
-                        </b-col>
-                        <b-col>
-                            <b-button v-b-modal.modalLogin class="btn btn-info btn-lg float-left">Login</b-button>
-                            <b-modal id="modalLogin" hide-footer centered title="Login">
-                                <template slot="modal-title"><h2>Login</h2></template>
-                                <login></login>
-                            </b-modal>
-                        </b-col>
+                        <b-row>
+                            <b-col>
+                                <b-button v-b-modal.modalSignup class="btn btn-info btn-lg float-right">Signup</b-button>
+                                <b-modal id="modalSignup" centered hide-footer>
+                                    <template slot="modal-title"><h2>Sign Up</h2></template>
+                                    <signup v-bind:nationalityOptions="nationalityOptions"
+                                            v-bind:travTypeOptions="travTypeOptions"></signup>
+                                </b-modal>
+                            </b-col>
 
-                    </b-row>
+                            <b-col>
+                                <b-button v-b-modal.modalLogin  class="btn btn-info btn-lg float-left">Login</b-button>
+                                <b-modal id="modalLogin" hide-footer centered title="Login">
+                                    <template slot="modal-title"><h2>Login</h2></template>
+                                    <login></login>
+                                </b-modal>
+                            </b-col>
+
+                        </b-row>
 
                 </div>
             </div>
@@ -41,24 +42,35 @@
     import Login from "./login.vue"
 
     export default {
-        name: "indexPage",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
+        name: "Index.vue",
+        props: ['assets', 'nationalityOptions', 'travTypeOptions', 'profile'],
         created() {
             document.title = "Welcome to TravelEA";
         },
-        data: function () {
+        data: function() {
             return {
                 username: '',
                 password: ''
             }
         },
         mounted() {
+            /**
+             * Mounted function that uses the getProfile function to fetch a profile.
+             */
             this.getProfile();
         },
         methods: {
+            /**
+             * Redirects the user to the dash page.
+             */
             redirectToDash() {
                 this.$router.replace("/dash");
             },
+
+            /**
+             * Used to retrieve a user's profile, determines if they should be redirected to the dash page or not.
+             * @returns {Promise<Response | never>}
+             */
             getProfile() {
                 let self = this;
                 return fetch(`/v1/profile`, {

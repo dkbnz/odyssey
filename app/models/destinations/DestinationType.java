@@ -3,7 +3,6 @@ package models.destinations;
 import io.ebean.Finder;
 import models.BaseModel;
 import play.data.validation.Constraints;
-
 import javax.persistence.Entity;
 
 @Entity
@@ -14,6 +13,7 @@ public class DestinationType extends BaseModel {
     public DestinationType(String destinationType) {
         this.destinationType = destinationType;
     }
+
     /**
      * The name of a destination type
      */
