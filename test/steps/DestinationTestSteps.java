@@ -33,8 +33,10 @@ public class DestinationTestSteps {
     private static final String DUPLICATE_DISTRICT = "Nelson";
     private static final String DESTINATION_URI = "/v1/destinations";
     private static final String LOGIN_URI = "/v1/login";
+    private static final String LOGOUT_URI = "/v1/logout";
+
     private static final String VALID_USERNAME = "admin@travelea.com";
-    private static final String VALID_PASSWORD = "admin1";
+    private static final String VALID_PASSWORD = "25F43B1486AD95A1398E3EEB3D83BC4010015FCC9BEDB35B432E00298D5021F7";
 
     protected Application application;
     protected Database database;
@@ -50,6 +52,7 @@ public class DestinationTestSteps {
         //Set up the fake application to use the in memory database config
         application = fakeApplication(configuration);
         Helpers.start(application);
+
         database = application.injector().instanceOf(Database.class);
 
         Evolutions.applyEvolutions(
@@ -63,6 +66,10 @@ public class DestinationTestSteps {
 
     @After
     public void cleanEvolutions() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(LOGOUT_URI);
+        route(application, request);
         Evolutions.cleanupEvolutions(database);
         Helpers.stop(application);
     }
@@ -98,7 +105,6 @@ public class DestinationTestSteps {
 
         ((ObjectNode) json).put("username", VALID_USERNAME);
         ((ObjectNode) json).put("password", VALID_PASSWORD);
-
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
