@@ -100,8 +100,7 @@ public class TripController extends Controller {
      * @param request   Http Request containing Json Body of the selected trip to modify.
      * @param id        the id of the trip being modified.
      * @return          ok() (Http 200) if the trip has been successfully modified. If the trip is not valid, returns a
-     *                  badRequest() (Http 400). If the trip trying to be edited is not for the current user, returns a
-     *                  forbidden() (Http 403) response. If the user is not logged in, returns a unauthorized()
+     *                  badRequest() (Http 400). If the user is not logged in, returns a unauthorized()
      *                  (Http 401).
      */
     public Result edit(Http.Request request, Long id) {
@@ -120,12 +119,6 @@ public class TripController extends Controller {
 
             // Trip being modified
             Trip trip = Trip.find.byId(id.intValue());
-
-            for (Trip tempTrip : profile.getTrips()) {
-                if (!tempTrip.getId().equals(id)) {
-                    return forbidden();
-                }
-            }
 
             if (trip == null)
                 return badRequest();
