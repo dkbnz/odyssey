@@ -144,7 +144,6 @@
         },
         mounted () {
             this.queryProfiles();
-            //this.getProfiles(profiles => this.profiles = profiles);
         },
         methods: {
             parseJSON (response) {
@@ -196,7 +195,7 @@
         components: {
             viewProfile,
             NavBarMain,
-            FooterMain
+            FooterMain,
         }
     }
 </script>
