@@ -26,9 +26,6 @@ libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.25.2"
 // mySQL
 libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.15"
 
-// SQLite
-libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.23.1"
-
 libraryDependencies += "org.awaitility" % "awaitility" % "2.0.0" % Test
 libraryDependencies += "org.assertj" % "assertj-core" % "3.6.2" % Test
 libraryDependencies += "org.mockito" % "mockito-core" % "2.1.0" % Test
