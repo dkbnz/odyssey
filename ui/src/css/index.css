@@ -6,15 +6,15 @@ body {
 
 .bg {
     /* Background image used */
-    background-image: url("../../static/background_image.jpg");
+    background: url("../../static/background_image.jpg");
     /* Center and scale the image nicely */
+    position: fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     background-size: cover;
     -o-background-size: cover;
+    width: 100vw;
     height: 100vh;
-    overflow: hidden;
-
 }
 
 #subtitle {

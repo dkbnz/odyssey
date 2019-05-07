@@ -1,5 +1,6 @@
 <template>
     <div class="container">
+        <!-- Uses the received profile to display the profile's data on a page -->
         <h1>{{ profile.firstName }} {{profile.middleName}} {{profile.lastName}}</h1>
         <p v-if="profile.isAdmin"><i>Administrator</i></p>
         <p v-else><i>Regular User</i></p>
@@ -24,7 +25,8 @@
             <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
         </ul>
 
-        <your-trips :profile="profile"></your-trips>
+        <!-- Displays a profile's trips -->
+        <your-trips :userProfile="userProfile" :profile="profile"></your-trips>
     </div>
 </template>
 
@@ -33,15 +35,13 @@
 
     export default {
         name: "viewProfile",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
-        data() {
-            return {}
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'userProfile'],
+        data () {
+            return {
+            }
         },
         components: {
             YourTrips
-        },
-        mounted() {
-        },
-        methods: {}
+        }
     }
 </script>
