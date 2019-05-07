@@ -1,10 +1,11 @@
 Feature: Having a profile system
 
 
-#  Scenario: Get all profiles
-#    Given I have a running application
-#    When I send a GET request to the profiles endpoint
-#    Then the status code is OK
+  Scenario: Get all profiles
+    Given I have a running application
+    And I have logged in
+    When I send a GET request to the profiles endpoint
+    Then the status code is OK
 
 
 #  Scenario: Get all nationalities
