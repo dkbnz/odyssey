@@ -11,7 +11,7 @@ Feature: Destination API Endpoint
     And I am logged in
     When I create a new destination with the following valid values
     | Name    | Type | District | Latitude  | Longitude| Country     |
-    | ASB     | 2    | Nelson   | 24.5      | 34.6     | New Zealand |
+    | ASB     | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
     Then the status code received is OK
 #
 #  Scenario: Create a new destination with invalid input
