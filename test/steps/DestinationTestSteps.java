@@ -13,7 +13,7 @@ import cucumber.api.java.Before;
 import org.junit.*;
 import play.Application;
 import play.db.Database;
-import play.db.Databases;
+
 import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -74,7 +74,6 @@ public class DestinationTestSteps {
 
     protected Application application;
 
-    private Databases databases;
 
     /**
      * Database instance for the fake application.
@@ -90,9 +89,6 @@ public class DestinationTestSteps {
      */
     @Before
     public void setUp() {
-        //Map<String, String> configuration = new HashMap<>();
-        //ImmutableMap<> immutableMap = ImmutableMap.copyOf(configuration);
-        database = Databases.inMemory("test", ImmutableMap.of("MODE", "MYSQL"), ImmutableMap.of("logStatements", true));
 
         Map<String, String> configuration = new HashMap<>();
         configuration.put("db.default.driver", "org.h2.Driver");
@@ -104,7 +100,6 @@ public class DestinationTestSteps {
         application = fakeApplication(configuration);
         Helpers.start(application);
 
-        //database = application.injector().instanceOf(Database.class);
         database = application.injector().instanceOf(Database.class);
         applyEvolutions();
 
