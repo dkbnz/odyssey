@@ -1,17 +1,15 @@
 package controllers;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import org.junit.Before;
 import org.junit.Test;
 
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.Http.RequestImpl;
-import static org.junit.Assert.*;
-import play.mvc.Result;
-import static play.test.Helpers.POST;
-import static play.test.Helpers.fakeRequest;
+import play.Application;
+import play.db.Database;
+import play.db.evolutions.Evolutions;
+import play.test.Helpers;
+
+import static play.test.Helpers.fakeApplication;
 
 public class AuthControllerTest {
 
