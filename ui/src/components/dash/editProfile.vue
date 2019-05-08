@@ -397,7 +397,7 @@
             },
 
             /**
-             * Sends profile changes to profileController and reloads page
+             * Sends profile changes to profileController and reloads page using the Vue Router
              */
             submitSaveProfile() {
                 fetch('/v1/profile', {
