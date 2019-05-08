@@ -3,7 +3,6 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableMap;
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -19,7 +18,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +36,12 @@ public class DestinationTestSteps {
      * Variable to hold the status code of the result.
      */
     private int statusCode;
+
+
+    /**
+     * The Json body of the response.
+     */
+    private String responseBody;
 
 
     /**
@@ -91,13 +96,13 @@ public class DestinationTestSteps {
      * The fake application.
      */
 
-    protected Application application;
+    private Application application;
 
 
     /**
      * Database instance for the fake application.
      */
-    protected Database database;
+    private Database database;
 
     /**
      * Runs before each test scenario.
@@ -108,13 +113,6 @@ public class DestinationTestSteps {
      */
     @Before
     public void setUp() {
-
-//        Map<String, String> configuration = new HashMap<>();
-//        configuration.put("db.default.driver", "org.h2.Driver");
-//        configuration.put("db.default.url", "jdbc:h2:mem:testDB;MODE=MYSQL;");
-//        configuration.put("play.evolutions.db.default.enabled", "true");
-//        configuration.put("play.evolutions.autoApply", "false");
-
         //Set up the fake application to use the in memory database config
         application = fakeApplication();
 
@@ -210,6 +208,7 @@ public class DestinationTestSteps {
                 .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
+
     }
 
 
@@ -223,6 +222,8 @@ public class DestinationTestSteps {
                 .uri(DESTINATION_URI + query);
         Result result = route(application, request);
         statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
     }
 
 
@@ -230,7 +231,7 @@ public class DestinationTestSteps {
      * Asserts the fake application is in test mode.
      */
     @Given("I have a running application")
-    public void i_have_a_running_application() {
+    public void iHaveARunningApplication() {
         Assert.assertTrue(application.isTest());
     }
 
@@ -242,7 +243,7 @@ public class DestinationTestSteps {
      * Asserts the login was successful with a status code of OK (200).
      */
     @Given("I am logged in")
-    public void i_am_logged_in() {
+    public void iAmLoggedIn() {
         loginRequest(VALID_USERNAME, VALID_PASSWORD);
         assertEquals(OK, statusCode);
     }
@@ -254,7 +255,7 @@ public class DestinationTestSteps {
      * @param dataTable     The data table containing values to create the new destination.
      */
     @And("a destination already exists with the following values")
-    public void a_destination_exists_with_the_following_values(io.cucumber.datatable.DataTable dataTable) {
+    public void aDestinationExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         JsonNode json = convertDataTableToJsonNode(dataTable);
         createDestinationRequest(json);
     }
@@ -264,7 +265,7 @@ public class DestinationTestSteps {
      * Sends a request to get all destinations.
      */
     @When("I send a GET request to the destinations endpoint")
-    public void i_send_a_GET_request_to_the_destinations_endpoint() {
+    public void iSendAGetRequestToTheDestinationsEndpoint() {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri(DESTINATION_URI);
@@ -278,7 +279,7 @@ public class DestinationTestSteps {
      * @param dataTable     The data table containing values to create the new destination.
      */
     @When("I create a new destination with the following valid values")
-    public void i_create_a_new_destination_with_the_following_valid_values(io.cucumber.datatable.DataTable dataTable) {
+    public void iCreateANewDestinationWithTheFollowingValidValues(io.cucumber.datatable.DataTable dataTable) {
         JsonNode json = convertDataTableToJsonNode(dataTable);
         createDestinationRequest(json);
     }
@@ -319,7 +320,7 @@ public class DestinationTestSteps {
      * @param dataTable     The data table containing values to create the new destination.
      */
     @When("I create a new destination with the following invalid values")
-    public void i_create_a_new_destination_with_the_following_invalid_values(io.cucumber.datatable.DataTable dataTable) {
+    public void iCreateANewDestinationWithTheFollowingInvalidValues(io.cucumber.datatable.DataTable dataTable) {
         JsonNode json = convertDataTableToJsonNode(dataTable);
         createDestinationRequest(json);
     }
@@ -330,7 +331,7 @@ public class DestinationTestSteps {
      * @param dataTable     The data table containing values to create the new destination.
      */
     @When("I create a new destination with the following duplicated values")
-    public void i_create_a_new_destination_with_the_following_duplicated_values(io.cucumber.datatable.DataTable dataTable) {
+    public void iCreateANewDestinationWithTheFollowingDuplicatedValues(io.cucumber.datatable.DataTable dataTable) {
         JsonNode json = convertDataTableToJsonNode(dataTable);
         createDestinationRequest(json);
     }
@@ -341,10 +342,21 @@ public class DestinationTestSteps {
      * @param dataTable     The data table containing the field, name, and value for a destination search.
      */
     @When("I search for a destination with name")
-    public void i_search_for_a_destination_with_name(io.cucumber.datatable.DataTable dataTable) {
+    public void iSearchForADestinationWithName(io.cucumber.datatable.DataTable dataTable) {
         // Set up the search fields with given name
         String value = getValueFromDataTable("Name", dataTable);
         String query = createSearchDestinationQueryString(NAME, value);
+
+        //Send search destinations request
+        searchDestinationsRequest(query);
+    }
+
+
+    @When("I search for a destination with district")
+    public void iSearchForADestinationWithDistrict(io.cucumber.datatable.DataTable dataTable) {
+        // Set up the search fields with given district
+        String value = getValueFromDataTable("District", dataTable);
+        String query = createSearchDestinationQueryString(DISTRICT, value);
 
         //Send search destinations request
         searchDestinationsRequest(query);
@@ -436,8 +448,22 @@ public class DestinationTestSteps {
      *                      response.
      */
     @Then("the response contains at least one destination with name")
-    public void the_response_contains_at_least_one_destination_with_name(io.cucumber.datatable.DataTable dataTable) {
-        throw new cucumber.api.PendingException();
+    public void theResponseContainsAtLeastOneDestinationWithName(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        String value = getValueFromDataTable("Name", dataTable);
+        String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(NAME).asText();
+
+        //Send search destinations request
+        Assert.assertEquals(value, arrNode);
+    }
+
+
+    @Then("the response contains at least one destination with district")
+    public void theResponseContainsAtLeastOneDestinationWithDistrict(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        String value = getValueFromDataTable("District", dataTable);
+        String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(DISTRICT).asText();
+
+        //Send search destinations request
+        Assert.assertEquals(value, arrNode);
     }
 
 
@@ -445,7 +471,7 @@ public class DestinationTestSteps {
      * Checks if the status code received is OK (200).
      */
     @Then("the status code received is OK")
-    public void the_status_code_received_is_OK() {
+    public void theStatusCodeReceivedIsOk() {
         assertEquals(OK, statusCode);
     }
 
@@ -454,7 +480,7 @@ public class DestinationTestSteps {
      * Checks if the status code received is Created (201).
      */
     @Then("the status code received is Created")
-    public void the_status_code_received_is_Created() {
+    public void theStatusCodeReceivedIsCreated() {
         assertEquals(CREATED, statusCode);
     }
 
@@ -463,7 +489,7 @@ public class DestinationTestSteps {
      * Checks if the status code received is BadRequest (400).
      */
     @Then("the status code received is BadRequest")
-    public void the_status_code_received_is_BadRequest() {
+    public void theStatusCodeReceivedIsBadRequest() {
         assertEquals(BAD_REQUEST, statusCode);
     }
 
@@ -472,7 +498,7 @@ public class DestinationTestSteps {
      * Checks if the status code received is Unauthorised (401).
      */
     @Then("the status code received is Unauthorised")
-    public void the_status_code_received_is_Unauthorised() {
+    public void theStatusCodeReceivedIsUnauthorised() {
         assertEquals(UNAUTHORIZED, statusCode);
     }
 }
