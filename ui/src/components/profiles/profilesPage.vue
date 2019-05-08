@@ -5,7 +5,7 @@
         <div class="container">
 
             <h1 class="page_title">Find Profiles</h1>
-            <p class="page_title"><i>Search for other travellers using the form below</i></p>
+            <p class="page_title"><i>Search for other travellers using any of the fields in the form below</i></p>
 
             <b-alert v-model="showError" variant="danger" dismissible>There's something wrong in the form!</b-alert>
 
