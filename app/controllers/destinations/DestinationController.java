@@ -8,6 +8,8 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import scala.concurrent.java8.FuturesConvertersImpl;
+
 import java.util.List;
 import java.util.Map;
 
@@ -15,12 +17,12 @@ import static util.QueryUtil.queryComparator;
 
 public class DestinationController extends Controller {
 
-    private static final String NAME = "name";
-    private static final String TYPE = "type_id";
-    private static final String COUNTRY = "country";
-    private static final String DISTRICT = "district";
-    private static final String LATITUDE = "latitude";
-    private static final String LONGITUDE = "longitude";
+    public static final String NAME = "name";
+    public static final String TYPE = "type_id";
+    public static final String COUNTRY = "country";
+    public static final String DISTRICT = "district";
+    public static final String LATITUDE = "latitude";
+    public static final String LONGITUDE = "longitude";
 
     /**
      * Return a Json object listing all destination types in the database
@@ -62,6 +64,14 @@ public class DestinationController extends Controller {
         String longitude = queryString.get(LONGITUDE)[0];
         String district = queryString.get(DISTRICT)[0];
         String country = queryString.get(COUNTRY)[0];
+
+        //Null checks
+        name = name == null ? "" : name;
+        type = type == null ? "" : type;
+        latitude = latitude == null ? "" : latitude;
+        longitude = longitude == null ? "" : longitude;
+        district = district == null ? "" : district;
+        country = country == null ? "" : country;
 
         if (name.length() != 0) {
             expressionList.ilike(NAME, queryComparator(name));
