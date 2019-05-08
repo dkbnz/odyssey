@@ -400,6 +400,7 @@
              * Sends profile changes to profileController and reloads page using the Vue Router
              */
             submitSaveProfile() {
+                let self = this;
                 fetch('/v1/profile', {
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},
