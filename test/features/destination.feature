@@ -13,12 +13,20 @@ Feature: Destination API Endpoint
       | ASB     | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
     Then the status code received is Created
 
-  Scenario: Create a new destination with invalid input
+  Scenario: Create a new destination with invalid name input
     Given I have a running application
     And I am logged in
     When I create a new destination with the following invalid values
       | Name    | Type | District | Latitude  | Longitude| Country    |
       |         | 3    | Nelson   | 24.5      | 34.6     | New Zealand|
+    Then the status code received is BadRequest
+
+  Scenario: Create a new destination with invalid country input
+    Given I have a running application
+    And I am logged in
+    When I create a new destination with the following invalid values
+      | Name    | Type | District | Latitude  | Longitude| Country    |
+      | ASB     | 3    | Nelson   | 24.5      | 34.6     | New 1?!    |
     Then the status code received is BadRequest
 
   Scenario: Create a destination with duplicated input
@@ -59,3 +67,17 @@ Feature: Destination API Endpoint
     And the response contains at least one destination with district
       | District    |
       | Nelson      |
+
+  Scenario: Search for a destination by latitude that exists
+    Given I have a running application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name    | Type | District | Latitude  | Longitude| Country     |
+      | ASB     | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
+    When I search for a destination with latitude
+      | Latitude    |
+      | 24.5        |
+    Then the status code received is OK
+    And the response contains at least one destination with latitude
+      | Latitude    |
+      | 24.5        |

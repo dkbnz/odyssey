@@ -363,6 +363,17 @@ public class DestinationTestSteps {
     }
 
 
+    @When("I search for a destination with latitude")
+    public void iSearchForADestinationWithLatitude(io.cucumber.datatable.DataTable dataTable) {
+        // Set up the search fields with given district
+        String value = getValueFromDataTable("Latitude", dataTable);
+        String query = createSearchDestinationQueryString(LATITUDE, value);
+
+        //Send search destinations request
+        searchDestinationsRequest(query);
+    }
+
+
     /**
      * Gets a value associated with a given field from the given data table.
      * @param field         The title of the data table column to extract.
@@ -461,6 +472,16 @@ public class DestinationTestSteps {
     public void theResponseContainsAtLeastOneDestinationWithDistrict(io.cucumber.datatable.DataTable dataTable) throws IOException {
         String value = getValueFromDataTable("District", dataTable);
         String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(DISTRICT).asText();
+
+        //Send search destinations request
+        Assert.assertEquals(value, arrNode);
+    }
+
+
+    @Then("the response contains at least one destination with latitude")
+    public void theResponseContainsAtLeastOneDestinationWithLatitude(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        String value = getValueFromDataTable("Latitude", dataTable);
+        String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(LATITUDE).asText();
 
         //Send search destinations request
         Assert.assertEquals(value, arrNode);
