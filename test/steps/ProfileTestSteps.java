@@ -3,9 +3,6 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Module;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
@@ -15,54 +12,64 @@ import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
 import org.junit.Assert;
 import org.springframework.beans.BeansException;
-import play.ApplicationLoader;
-import play.Environment;
 import play.Application;
-import play.inject.guice.GuiceApplicationBuilder;
-import play.inject.guice.GuiceApplicationLoader;
+import play.db.Database;
+import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static play.mvc.Results.ok;
 import static play.test.Helpers.*;
 
 public class ProfileTestSteps {
 
     @Inject
     Application application;
+    protected Database database;
 
     private Http.RequestBuilder request;
 
     private int statusCode;
     private int loginStatusCode;
+    private List<Map<String,String>> profile;
     private static final String PROFILES_URI = "/v1/profiles";
+    private static final String TRAVTYPES_URI = "/v1/travtypes";
+    private static final String NATIONALITIES_URI = "/v1/nationalities";
     private static final String LOGIN_URI = "/v1/login";
     private static final String LOGOUT_URI = "/v1/logout";
 
     private static final String VALID_USERNAME = "admin@travelea.com";
     private static final String VALID_PASSWORD = "admin1";
 
-    //private static final String VALID_USERNAME = "guestUser@travelea.com";
-    //private static final String VALID_PASSWORD = "guest123";
-
 
 
     @Before
     public void setUp() {
-        Module testModule = new AbstractModule() { };
+        Map<String, String> configuration = new HashMap<>();
+        configuration.put("db.default.driver", "org.h2.Driver");
+        configuration.put("db.default.url", "jdbc:h2:mem:testDB;MODE=MYSQL;");
+        configuration.put("play.evolutions.db.default.enabled", "true");
+        configuration.put("play.evolutions.autoApply", "false");
 
-        GuiceApplicationBuilder builder = new GuiceApplicationLoader()
-                .builder(new ApplicationLoader.Context(Environment.simple()))
-                .overrides(testModule);
-        Guice.createInjector(builder.applicationModule()).injectMembers(this);
-
+        //Set up the fake application to use the in memory database config
+        application = fakeApplication(configuration);
         Helpers.start(application);
+
+        database = application.injector().instanceOf(Database.class);
+
+        Evolutions.applyEvolutions(
+                database,
+                Evolutions.fromClassLoader(
+                        getClass().getClassLoader(),
+                        "test/evolutions/default/"
+                )
+        );
     }
 
 
@@ -117,39 +124,26 @@ public class ProfileTestSteps {
     }
 
 
-
-    @Given("the application is running [2]")
-    public void theApplicationIsRunning2() throws BeansException {
-        Assert.assertTrue(application.isTest());
-    }
-
-
     @When("I send a GET request to the \\/travtypes endpoint")
     public void iSendAGETRequestToTheTravtypesEndpoint() throws BeansException {
         request = fakeRequest()
                 .method(GET)
-                .uri("/travtypes");
-        Assert.assertTrue(request instanceof Http.RequestBuilder);
-    }
-
-
-    @Then("the received status code is ok() [2]")
-    public void theReceivedStatusCodeIs2() throws BeansException {
+                .uri(TRAVTYPES_URI);
         Result result = route(application, request);
-        Assert.assertEquals(ok(), result.status());
+
+        String json = Helpers.contentAsString(result);
+
+        statusCode = result.status();
+        Assert.assertEquals("", json);
     }
 
-
-
-
-
-
-    private List<Map<String,String>> profile;
-
-    @Given("I am connected to the TravelEA database")
-    public void iAmConnectedToTheTravelEADatabase() {
-        // Write code here that turns the phrase above into concrete actions
-
+    @When("I send a GET request to the \\/nationalities endpoint")
+    public void iSendAGETRequestToTheNationalitiesEndpoint() {
+        request = fakeRequest()
+                .method(GET)
+                .uri(NATIONALITIES_URI);
+        Result result = route(application, request);
+        statusCode = result.status(); //Assert.assertTrue(request instanceof Http.RequestBuilder);
     }
 
 
@@ -163,12 +157,18 @@ public class ProfileTestSteps {
         //
         // For other transformations you can register a DataTableType.
         this.profile = dataTable.asMaps();
+        request = fakeRequest()
+                .method(GET)
+                .uri(PROFILES_URI);
+        //Response responses = route(application, request);
+        //String restultJSON = request.body();
+        //Assert.assertEquals("", restultJSON);
 
     }
 
 
-    @When("A user attempts to create a profile with the following field:")
-    public void aUserAttemptsToCreateAProfileWithTheFollowingField(DataTable dataTable) {
+    @When("A user attempts to create a profile with the following fields:")
+    public void aUserAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) {
         // Write code here that turns the phrase above into concrete actions
         // For automatic transformation, change DataTable to one of
         // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
@@ -178,39 +178,5 @@ public class ProfileTestSteps {
         // For other transformations you can register a DataTableType.
         throw new cucumber.api.PendingException();
     }
-
-
-
-
-
-
-
-//    @Given("I am connected to the TravelEA database")
-//    public void iAmConnectedToTheTravelEADatabase() {
-//        //throw new cucumber.api.PendingException();
-//        Assert.assertFalse(connection == null);
-//    }
-//
-//
-//    @Given("The username {string} exists within the TravelEA database")
-//    public void theUsernameExistsWithinTheTravelEADatabase(String existingUsername) {
-//        boolean usernameExists = controller.profileExists(existingUsername);
-//        Assert.assertTrue(usernameExists);
-//    }
-//
-//
-//    @When("A new username, {string}, is passed through the ProfileController")
-//    public void aNewUsernameIsPassedThroughTheProfileController(String newUsername) {
-//        request = fakeRequest()
-//                .method(POST)
-//                .uri("api/checkUsername");
-//    }
-//
-//    @Then("the status code received is {int}")
-//    public void theStatusCodeReceivedIs(Integer statusCode) {
-//
-//        throw new cucumber.api.PendingException();
-//    }
-
 
 }
