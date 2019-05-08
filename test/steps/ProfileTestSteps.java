@@ -46,8 +46,17 @@ public class ProfileTestSteps {
     private static final String LOGIN_URI = "/v1/login";
     private static final String LOGOUT_URI = "/v1/logout";
 
+    /**
+     * A valid username for login credentials for admin user.
+     */
     private static final String VALID_USERNAME = "admin@travelea.com";
+
+
+    /**
+     * A valid password for login credentials for admin user.
+     */
     private static final String VALID_PASSWORD = "admin1";
+
     private static final int NUMBER_OF_TRAVELTYPES = 7;
     private static final int NUMBER_OF_NATIONALITIES = 108;
 
@@ -113,6 +122,27 @@ public class ProfileTestSteps {
         route(application, request);
     }
 
+    /**
+     * Sends a fake request to the application to login.
+     * @param username      The string of the username to complete the login with.
+     * @param password      The string of the password to complete the login with.
+     */
+    private void loginRequest(String username, String password) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode json = mapper.createObjectNode();
+
+        ((ObjectNode) json).put("username", username);
+        ((ObjectNode) json).put("password", password);
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .bodyJson(json)
+                .uri(LOGIN_URI);
+        Result loginResult = route(application, request);
+
+        statusCode = loginResult.status();
+    }
+
 
     /**
      * Applies up evolutions to the database from the test/evolutions/default directory.
@@ -129,21 +159,16 @@ public class ProfileTestSteps {
         Assert.assertTrue(application.isTest());
     }
 
+    /**
+     * Attempts to send a log in request with user credentials from constants VALID_USERNAME
+     * and VALID_PASSWORD.
+     *
+     * Asserts the login was successful with a status code of OK (200).
+     */
     @And("I have logged in")
-    public void i_have_logged_in() {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
-
-        ((ObjectNode) json).put("username", VALID_USERNAME);
-        ((ObjectNode) json).put("password", VALID_PASSWORD);
-
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .bodyJson(json)
-                .uri(LOGIN_URI);
-        Result loginResult = route(application, request);
-
-        statusCode = loginResult.status();
+    public void iAmLoggedIn() {
+        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        assertEquals(OK, statusCode);
     }
 
 
