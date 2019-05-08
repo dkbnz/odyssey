@@ -405,7 +405,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.saveProfile)
                 }).then(function(response) {
-                    location.reload();
+                    self.$router.go();
                     return response.json();
                 })
             },
