@@ -24,6 +24,7 @@ import static play.test.Helpers.*;
 
 import play.db.evolutions.Evolutions;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -102,8 +103,17 @@ public class TripTestSteps {
     @Before
     public void setUp() {
 
+        Map<String, String> configuration = new HashMap<>();
+        configuration.put("play.db.config", "db");
+        configuration.put("play.db.default", "default");
+        configuration.put("db.default.driver", "org.h2.Driver");
+        configuration.put("db.default.url", "jdbc:h2:mem:testDBTrip;MODE=MYSQL;");
+        configuration.put("ebean.default", "models.*");
+        configuration.put("play.evolutions.db.default.enabled", "true");
+        configuration.put("play.evolutions.autoApply", "false");
+
         //Set up the fake application to use the in memory database config
-        application = fakeApplication();
+        application = fakeApplication(configuration);
 
         database = application.injector().instanceOf(Database.class);
         applyEvolutions();
@@ -218,13 +228,13 @@ public class TripTestSteps {
         // Double, Byte, Short, Long, BigInteger or BigDecimal.
         //
         // For other transformations you can register a DataTableType.
-
-        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String tripName = list.get(0).get("Name");
-
-
-
         throw new cucumber.api.PendingException();
+//        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+//        String tripName = list.get(0).get("Name");
+
+
+
+
     }
 
 
