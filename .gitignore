@@ -1,3 +1,6 @@
+# Ignore node_modules (frontend nodejs libraries)
+ui/node_modules
+
 # Ignore Play! working directory #
 bin/
 /db
@@ -91,7 +94,6 @@ Temporary Items
 
 # Netbeans
 nbproject/private/
-build/
 nbbuild/
 dist/
 nbdist/
