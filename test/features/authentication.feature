@@ -10,4 +10,9 @@ Feature: Authentication API Endpoint
     When I send a POST request to the login endpoint with the following credentials
       | Username          | Password |
       | ohno@travelea.com | badpass1 |
-    Then the recieved status code is BadRequest
+    Then the received status code is BadRequest
+
+  Scenario: Logging out
+    Given I am running the application
+    When I send a POST request to the logout endpoint
+    Then I receive an OK status code
