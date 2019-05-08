@@ -45,3 +45,17 @@ Feature: Destination API Endpoint
     And the response contains at least one destination with name
       | Name    |
       | ASB     |
+
+  Scenario: Search for a destination by district that exists
+    Given I have a running application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name    | Type | District | Latitude  | Longitude| Country     |
+      | ASB     | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
+    When I search for a destination with district
+      | District    |
+      | Nelson      |
+    Then the status code received is OK
+    And the response contains at least one destination with district
+      | District    |
+      | Nelson      |

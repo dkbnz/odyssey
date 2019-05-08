@@ -124,7 +124,6 @@ public class BaseTest {
      */
     @After
     public void tearDown() {
-        logoutRequest();
         cleanEvolutions();
         database.shutdown();
         Helpers.stop(application);
@@ -139,38 +138,5 @@ public class BaseTest {
      */
     private void cleanEvolutions() {
         Evolutions.cleanupEvolutions(database);
-    }
-
-
-    /**
-     * Sends a fake request to the application to login.
-     * @param username      The string of the username to complete the login with.
-     * @param password      The string of the password to complete the login with.
-     */
-    private void loginRequest(String username, String password) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
-
-        ((ObjectNode) json).put("username", username);
-        ((ObjectNode) json).put("password", password);
-
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .bodyJson(json)
-                .uri(LOGIN_URI);
-        Result loginResult = route(application, request);
-
-        statusCode = loginResult.status();
-    }
-
-
-    /**
-     * Sends a fake request to the application to logout.
-     */
-    private void logoutRequest() {
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .uri(LOGOUT_URI);
-        route(application, request);
     }
 }
