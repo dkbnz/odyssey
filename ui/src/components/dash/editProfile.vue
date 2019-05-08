@@ -390,22 +390,24 @@
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
                     && this.dateOfBirthValidation && this.genderValidation && this.nationalityValidation
                     && this.travTypeValidation) {
-                    this.submitSaveProfile()
+                    this.submitSaveProfile();
+                    this.$emit('profileSaved', true);
                 } else {
                     this.showError = true;
                 }
             },
 
             /**
-             * Sends profile changes to profileController and reloads page
+             * Sends profile changes to profileController and reloads page using the Vue Router
              */
             submitSaveProfile() {
+                let self = this;
                 fetch('/v1/profile', {
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.saveProfile)
                 }).then(function(response) {
-                    location.reload();
+                    self.$router.push("/");
                     return response.json();
                 })
             },
