@@ -1,31 +1,31 @@
-Feature: Having a profile system
-
-
-  Scenario: Get all profiles
-    Given I have a running application
-    And I have logged in
-    When I send a GET request to the profiles endpoint
-    Then the status code is OK
-
-  Scenario: Get all nationalities
-    Given the application is running
-    When I send a GET request to the /nationalities endpoint
-    Then the status code is OK
-
-  Scenario: Get all traveller types
-    Given the application is running
-    When I send a GET request to the /travtypes endpoint
-    Then the status code is OK
-
-  Scenario: Attempting to sign up with an existing username
-    Given I have a running application
-    And The following profile exists within the TravelEA database:
-      | username               | password    | first_name | middle_name | last_name | date_of_birth | gender |
-      | guestUser@travelea.com | TestPass123 | Test       |             | Dummy     | 2000-01-01    | Other  |
-    When A user attempts to create a profile with the following fields:
-      | username               | password    | first_name | middle_name | last_name | date_of_birth | gender |
-      | guestUser@travelea.com | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  |
-    Then the status code received is BadRequest
+#Feature: Having a profile system
+#
+#
+#  Scenario: Get all profiles
+#    Given I have a running application
+#    And I have logged in
+#    When I send a GET request to the profiles endpoint
+#    Then the status code is OK
+#
+#  Scenario: Get all nationalities
+#    Given the application is running
+#    When I send a GET request to the /nationalities endpoint
+#    Then the status code is OK
+#
+#  Scenario: Get all traveller types
+#    Given the application is running
+#    When I send a GET request to the /travtypes endpoint
+#    Then the status code is OK
+#
+#  Scenario: Attempting to sign up with an existing username
+#    Given I have a running application
+#    And The following profile exists within the TravelEA database:
+#      | username               | password    | first_name | middle_name | last_name | date_of_birth | gender |
+#      | guestUser@travelea.com | TestPass123 | Test       |             | Dummy     | 2000-01-01    | Other  |
+#    When A user attempts to create a profile with the following fields:
+#      | username               | password    | first_name | middle_name | last_name | date_of_birth | gender |
+#      | guestUser@travelea.com | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  |
+#    Then the status code received is BadRequest
 #
 #  Scenario: Attempting to sign up with a new username
 #    Given I am connected to the TravelEA database

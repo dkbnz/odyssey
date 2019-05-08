@@ -354,14 +354,12 @@ public class DestinationTestSteps {
 
     @When("I search for a destination with district")
     public void iSearchForADestinationWithDistrict(io.cucumber.datatable.DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-        throw new cucumber.api.PendingException();
+        // Set up the search fields with given district
+        String value = getValueFromDataTable("District", dataTable);
+        String query = createSearchDestinationQueryString(DISTRICT, value);
+
+        //Send search destinations request
+        searchDestinationsRequest(query);
     }
 
 
@@ -452,7 +450,7 @@ public class DestinationTestSteps {
     @Then("the response contains at least one destination with name")
     public void theResponseContainsAtLeastOneDestinationWithName(io.cucumber.datatable.DataTable dataTable) throws IOException {
         String value = getValueFromDataTable("Name", dataTable);
-        String arrNode = new ObjectMapper().readTree(responseBody).get(0).get("name").asText();
+        String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(NAME).asText();
 
         //Send search destinations request
         Assert.assertEquals(value, arrNode);
@@ -460,15 +458,12 @@ public class DestinationTestSteps {
 
 
     @Then("the response contains at least one destination with district")
-    public void theResponseContainsAtLeastOneDestinationWithDistrict(io.cucumber.datatable.DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-        throw new cucumber.api.PendingException();
+    public void theResponseContainsAtLeastOneDestinationWithDistrict(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        String value = getValueFromDataTable("District", dataTable);
+        String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(DISTRICT).asText();
+
+        //Send search destinations request
+        Assert.assertEquals(value, arrNode);
     }
 
 
