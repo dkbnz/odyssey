@@ -182,7 +182,7 @@
                     })
                     .catch(() => {
                         this.showError = true;
-                        this.errorMessage = ("'" + this.dName + "' already exists as a destination!");
+                        this.errorMessage = ("Invalid input. Please try again!");
                     });
                 return response;
             },
