@@ -25,9 +25,9 @@ public class AuthController extends Controller {
 
     /**
      * Checks if client is authorized, if authorized, return ok() (Http 200) .If not, checks if user exists in the
-     * database. If exists, set session and return ok() (Http 200)
+     * database. If exists, set session and return ok() (Http 200).
      *
-     * @param request   Http request from the client
+     * @param request   Http request from the client.
      * @return          ok() (Http 200) if the user is logged in/successfully logged in, badRequest() (Http 400) if the
      *                  user credentials are invalid, unauthorized() (Http 401) if no profile matching the user's
      *                  credentials can be found.
