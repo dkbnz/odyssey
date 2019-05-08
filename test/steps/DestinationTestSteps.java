@@ -18,7 +18,9 @@ import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import scala.App;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,12 @@ public class DestinationTestSteps {
      * Variable to hold the status code of the result.
      */
     private int statusCode;
+
+
+    /**
+     * The Json body of the response.
+     */
+    private String responseBody;
 
 
     /**
@@ -210,6 +218,7 @@ public class DestinationTestSteps {
                 .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
+
     }
 
 
@@ -223,6 +232,8 @@ public class DestinationTestSteps {
                 .uri(DESTINATION_URI + query);
         Result result = route(application, request);
         statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
     }
 
 
@@ -436,8 +447,12 @@ public class DestinationTestSteps {
      *                      response.
      */
     @Then("the response contains at least one destination with name")
-    public void the_response_contains_at_least_one_destination_with_name(io.cucumber.datatable.DataTable dataTable) {
-        throw new cucumber.api.PendingException();
+    public void the_response_contains_at_least_one_destination_with_name(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        String value = getValueFromDataTable("Name", dataTable);
+        String arrNode = new ObjectMapper().readTree(responseBody).get(0).get("name").asText();
+
+        //Send search destinations request
+        Assert.assertEquals(value, arrNode);
     }
 
 
