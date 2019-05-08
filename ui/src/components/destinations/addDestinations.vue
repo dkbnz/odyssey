@@ -109,10 +109,10 @@
                 } else if (isNaN(this.dLongitude)) {
                     this.errorMessage = ("Longitude: '" + this.dLongitude + "' is not a number!");
                     ok = false;
-                } else if (abs(this.dLatitude) > 90) {
+                } else if (this.dLatitude > 90 || this.dLatitude < -90) {
                     this.errorMessage = ("Latitude: '" + this.dLatitude + "' must be between -90 and 90");
                     ok = false;
-                } else if (abs(this.dLongitude) > 180) {
+                } else if (this.dLongitude > 180 || this.dLongitude < -180) {
                     this.errorMessage = ("Longitude: '" + this.dLongitude + "' must be between -180 and 180");
                     ok = false;
                 }
@@ -182,7 +182,7 @@
                     })
                     .catch(() => {
                         this.showError = true;
-                        this.errorMessage = ("'" + this.dName + "' already exists as a destination!");
+                        this.errorMessage = ("Invalid input. Please try again!");
                     });
                 return response;
             },
