@@ -1,0 +1,48 @@
+html {
+    /* The html and body elements cannot have any padding or margin. */
+    height: 100%;
+}
+
+body {
+    background-color: #e2e6ea;
+    padding-bottom: 50px;
+
+}
+.container {
+    margin-top: 20px;
+    padding-top: 20px;
+    padding-bottom: 50px;
+    background-color: white;
+    border-radius: 5px;
+}
+
+/* Imports the Bauman's Regular Font */
+@font-face
+{
+    font-family: Baumans;
+    src: url('../../static/Baumans-Regular.ttf');
+}
+
+/* Sets the font styling for headings*/
+h1, h2, h3, h4 {
+    font-family: Baumans, sans-serif;
+    font-weight: bold;
+}
+
+
+#footer {
+    background-color: white;
+    text-align: center;
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+    height: 40px;
+    width: 100%;
+    font-size: 0.7em;
+}
+
+
+/* Page Titles and Subtitles*/
+.page_title {
+    text-align: center;
+}
