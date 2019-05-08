@@ -57,34 +57,70 @@ public class ProfileTestSteps {
     @Before
     public void setUp() {
         Map<String, String> configuration = new HashMap<>();
+        configuration.put("play.db.config", "db");
+        configuration.put("play.db.default", "default");
         configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:testDB;MODE=MYSQL;");
+        configuration.put("db.default.url", "jdbc:h2:mem:testDBProfile;MODE=MYSQL;");
+        configuration.put("ebean.default", "models.*");
         configuration.put("play.evolutions.db.default.enabled", "true");
         configuration.put("play.evolutions.autoApply", "false");
 
         //Set up the fake application to use the in memory database config
         application = fakeApplication(configuration);
-        Helpers.start(application);
 
         database = application.injector().instanceOf(Database.class);
+        applyEvolutions();
 
+        Helpers.start(application);
+    }
+
+    /**
+     * Applies down evolutions to the database from the test/evolutions/default directory.
+     *
+     * This drops tables and data from the database.
+     */
+    private void applyEvolutions() {
         Evolutions.applyEvolutions(
                 database,
                 Evolutions.fromClassLoader(
                         getClass().getClassLoader(),
-                        "test/evolutions/default/"
+                        "test/"
                 )
         );
     }
 
-
+    /**
+     * Runs after each test scenario.
+     * Sends a logout request.
+     * Cleans up the database by cleaning up evolutions and shutting it down.
+     * Stops running the fake application.
+     */
     @After
     public void tearDown() {
+        logoutRequest();
+        cleanEvolutions();
+        database.shutdown();
+        Helpers.stop(application);
+    }
+
+    /**
+     * Sends a fake request to the application to logout.
+     */
+    private void logoutRequest() {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .uri(LOGOUT_URI);
         route(application, request);
-        Helpers.stop(application);
+    }
+
+
+    /**
+     * Applies up evolutions to the database from the test/evolutions/default directory.
+     *
+     * This populates the database with necessary tables and values.
+     */
+    private void cleanEvolutions() {
+        Evolutions.cleanupEvolutions(database);
     }
 
 
