@@ -390,7 +390,8 @@
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
                     && this.dateOfBirthValidation && this.genderValidation && this.nationalityValidation
                     && this.travTypeValidation) {
-                    this.submitSaveProfile()
+                    this.submitSaveProfile();
+                    this.$emit('profileSaved', true);
                 } else {
                     this.showError = true;
                 }
@@ -406,7 +407,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.saveProfile)
                 }).then(function(response) {
-                    self.$router.go();
+                    self.$router.push("/");
                     return response.json();
                 })
             },
