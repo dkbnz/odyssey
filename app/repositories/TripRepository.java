@@ -2,7 +2,6 @@ package repositories;
 
 import io.ebean.ExpressionList;
 import models.Profile;
-import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
 import java.util.List;
@@ -11,7 +10,7 @@ import java.util.List;
 public class TripRepository {
 
 
-    private final String PROFILE_ID = "profile_id";
+    private static final String PROFILE_ID = "profile_id";
 
 
     /**
@@ -50,7 +49,6 @@ public class TripRepository {
         profile.update();
 
     }
-
 
 
     /**
