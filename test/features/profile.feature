@@ -19,12 +19,11 @@ Feature: Having a profile system
 
   Scenario: Attempting to sign up with an existing username
     Given I have a running application
-    And The following profile exists within the TravelEA database:
-      | username               | password    | first_name | middle_name | last_name | date_of_birth | gender |
-      | guestUser@travelea.com | TestPass123 | Test       |             | Dummy     | 2000-01-01    | Other  |
+    And I have logged in
+    And The following profile exists with username "guestUser@travelea.com" within the TravelEA database:
     When A user attempts to create a profile with the following fields:
-      | username               | password    | first_name | middle_name | last_name | date_of_birth | gender |
-      | guestUser@travelea.com | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  |
+      | username               | password    | first_name | middle_name | last_name | date_of_birth | gender | nationality | traveller_type |
+      | guestUser@travelea.com | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  | Chinese     | Groupie        |
     Then the status code received is BadRequest
 #
 #  Scenario: Attempting to sign up with a new username
