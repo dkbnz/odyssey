@@ -3,8 +3,7 @@ package models.destinations;
 import io.ebean.Finder;
 import models.BaseModel;
 import play.data.validation.Constraints;
-
-import javax.persistence.Entity;
+import javax.persistence.*;
 
 /**
  * Class for destinations that users signify an interest in.
@@ -22,6 +21,7 @@ public class Destination extends BaseModel {
      * The type of destination (monument, natural landmark, building, event, etc...).
      */
     @Constraints.Required
+    @ManyToOne
     private DestinationType type;
 
     /**
