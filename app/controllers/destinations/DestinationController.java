@@ -24,6 +24,10 @@ public class DestinationController extends Controller {
     public static final String LATITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
 
+    private static final Double LATITUDE_LIMIT = 90.0;
+    private static final Double LONGITUDE_LIMIT = 180.0;
+
+
     /**
      * Return a Json object listing all destination types in the database
      * @return ok() (Http 200) response containing all the different types of destinations.
@@ -114,14 +118,31 @@ public class DestinationController extends Controller {
             return false;
         }
 
-        //Ensure latitude and longitude can be converted to doubles.
+        Double latitudeValue;
+        Double longitudeValue;
+
+        // Ensure latitude and longitude can be converted to doubles.
         try {
-            Double.parseDouble(latitude);
-            Double.parseDouble(longitude);
+            latitudeValue = Double.parseDouble(latitude);
+            longitudeValue = Double.parseDouble(longitude);
         } catch (NumberFormatException e) {
             return false;
         }
 
+        // Check range for latitude and longitude
+        if (latitudeValue > LATITUDE_LIMIT || latitudeValue < -LATITUDE_LIMIT) {
+            return false;
+        }
+        if (longitudeValue > LONGITUDE_LIMIT || longitudeValue < -LONGITUDE_LIMIT) {
+            return false;
+        }
+
+        // Check string inputs against regex
+        String nameRegEx = "^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$";
+
+        if (!(name.matches(nameRegEx) && country.matches(nameRegEx) && district.matches(nameRegEx))) {
+            return false;
+        }
         return true;
     }
 
