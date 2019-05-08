@@ -214,6 +214,20 @@ public class AuthenticationTestSteps {
     }
 
     /**
+     * Logs out a user using the logout endpoint
+     */
+    @When("I send a POST request to the logout endpoint")
+    public void iSendaPostRequestToLogout() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(LOGOUT_URI);
+        Result loginResult = route(application, request);
+
+        statusCode = loginResult.status();
+    }
+
+
+    /**
      * Checks if the status code received is OK (200).
      */
     @Then("I receive an OK status code")
@@ -224,7 +238,7 @@ public class AuthenticationTestSteps {
     /**
      * Checks if the status code received is BAD_REQUEST (400).
      */
-    @Then("the recieved status code is BadRequest")
+    @Then("the received status code is BadRequest")
     public void theRecievedStatusCodeIsBadRequest() {
         assertEquals(BAD_REQUEST, statusCode);
     }
