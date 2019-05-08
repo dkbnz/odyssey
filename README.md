@@ -1,25 +1,34 @@
 # SENG302 Team 100 - Everyware
 See the User Manual inside the project Wiki for how to setup the the application to run.
 
-## How to run using SBT
-Either:  
-a) Double click on the runTravelEA.sh file in the root directory.  
-OR  
-b) Open the root directory in terminal and type sbt run.
-Upon compile, open your local browser and navigate to localhost:9000
+## Dependencies
 
-## Extracting using SBT dist
-1. Download the ZIP Folder from the Repo.
-2. Extract the ZIP Folder into a folder.
-3. Navigate to the newly extracted folder in terminal.
-4. Type `sbt dist`.
-5. Navigate to `team-100-sprint_2.2/target/universal`
-6. Extract the `seng302-team-100-everyware-0.0.1-SNAPSHOT` ZIP Folder onto your Desktop or other location.
-7. Navigate into the newly extracted `seng302-team-100-everyware-0.0.1-SNAPSHOT/bin` folder in terminal.
-8. Right click on `seng302-team-100-everyware` file. Click `Permissions` and click tick the `Allow executing file as a program` button.
-9. Double click on the `seng302-team-100-everyware` file.
-10. Upon compile, open your local browser and navigate to localhost:9000
+Everyware's TravelEA requires the following dependencies to run
 
+#### Operating system
+TravelEA may be run on Windows or Linux/OSX. The build instructions for each operating system are explained below.
+
+#### Programs
+
+* [sbt 1.2.8](https://www.scala-sbt.org/download.html)
+* [JRE/JDK 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
+
+## Build instructions (Windows/Linux)
+1. Clone the repository by running `git clone https://eng-git.canterbury.ac.nz/seng302-2019/team-100.git`
+2. Enter the cloned git repository using `cd team-100`
+3. Run `sbt dist`.
+4. Navigate to `team-100-sprint_*/target/universal`
+5. Extract the `seng302-team-100-everyware-0.0.1-SNAPSHOT.zip` into your desired install location.
+
+## Run instructions
+
+#### Windows
+1. Navigate into the newly extracted `${INSTALL_LOCATION}/seng302-team-100-everyware-0.0.1-SNAPSHOT/bin` folder
+2. Execute the `seng302-team-100-everyware.bat` file
+
+#### Linux
+1. Navigate into the newly extracted `${INSTALL_LOCATION}/seng302-team-100-everyware-0.0.1-SNAPSHOT/bin` folder
+2. Execute the `seng302-team-100-everyware` file
 
 Congratulations, TravelEA should now be running, you can now Create a Profile or Login.
 

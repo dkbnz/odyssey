@@ -1,57 +1,6 @@
-# --- Created by Ebean DDL
-# To stop Ebean DDL generation, remove this comment and start using Evolutions
 
 # --- !Ups
 
--- init script create procs
--- Inital script to create stored procedures etc for mysql platform
-DROP PROCEDURE IF EXISTS usp_ebean_drop_foreign_keys;
-
-delimiter $$
---
--- PROCEDURE: usp_ebean_drop_foreign_keys TABLE, COLUMN
--- deletes all constraints and foreign keys referring to TABLE.COLUMN
---
-CREATE PROCEDURE usp_ebean_drop_foreign_keys(IN p_table_name VARCHAR(255), IN p_column_name VARCHAR(255))
-BEGIN
-  DECLARE done INT DEFAULT FALSE;
-  DECLARE c_fk_name CHAR(255);
-  DECLARE curs CURSOR FOR SELECT CONSTRAINT_NAME from information_schema.KEY_COLUMN_USAGE
-    WHERE TABLE_SCHEMA = DATABASE() and TABLE_NAME = p_table_name and COLUMN_NAME = p_column_name
-      AND REFERENCED_TABLE_NAME IS NOT NULL;
-  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-
-  OPEN curs;
-
-  read_loop: LOOP
-    FETCH curs INTO c_fk_name;
-    IF done THEN
-      LEAVE read_loop;
-    END IF;
-    SET @sql = CONCAT('ALTER TABLE ', p_table_name, ' DROP FOREIGN KEY ', c_fk_name);
-    PREPARE stmt FROM @sql;
-    EXECUTE stmt;
-  END LOOP;
-
-  CLOSE curs;
-END
-$$
-
-DROP PROCEDURE IF EXISTS usp_ebean_drop_column;
-
-delimiter $$
---
--- PROCEDURE: usp_ebean_drop_column TABLE, COLUMN
--- deletes the column and ensures that all indices and constraints are dropped first
---
-CREATE PROCEDURE usp_ebean_drop_column(IN p_table_name VARCHAR(255), IN p_column_name VARCHAR(255))
-BEGIN
-  CALL usp_ebean_drop_foreign_keys(p_table_name, p_column_name);
-  SET @sql = CONCAT('ALTER TABLE ', p_table_name, ' DROP COLUMN ', p_column_name);
-  PREPARE stmt FROM @sql;
-  EXECUTE stmt;
-END
-$$
 create table destination (
   id                            bigint auto_increment not null,
   name                          varchar(255),
@@ -91,8 +40,8 @@ create table profile (
   last_name                     varchar(255),
   gender                        varchar(255),
   date_of_birth                 date,
-  is_admin                      tinyint(1),
-  date_of_creation              datetime(6),
+  is_admin                      boolean,
+  date_of_creation              timestamp,
   constraint pk_profile primary key (id)
 );
 
@@ -122,6 +71,23 @@ create table traveller_type (
   constraint pk_traveller_type primary key (id)
 );
 
+create table trip (
+  id                            bigint auto_increment not null,
+  profile_id                    bigint not null,
+  name                          varchar(255),
+  constraint pk_trip primary key (id)
+);
+
+create table trip_destination (
+  id                            bigint auto_increment not null,
+  start_date                    date,
+  end_date                      date,
+  list_order                    integer not null,
+  trip_id                       bigint,
+  destination_id                bigint,
+  constraint pk_trip_destination primary key (id)
+);
+
 create index ix_destination_type_id on destination (type_id);
 alter table destination add constraint fk_destination_type_id foreign key (type_id) references destination_type (id) on delete restrict on update restrict;
 
@@ -143,29 +109,47 @@ alter table profile_passport add constraint fk_profile_passport_profile foreign 
 create index ix_profile_passport_passport on profile_passport (passport_id);
 alter table profile_passport add constraint fk_profile_passport_passport foreign key (passport_id) references passport (id) on delete restrict on update restrict;
 
+create index ix_trip_profile_id on trip (profile_id);
+alter table trip add constraint fk_trip_profile_id foreign key (profile_id) references profile (id) on delete restrict on update restrict;
+
+create index ix_trip_destination_trip_id on trip_destination (trip_id);
+alter table trip_destination add constraint fk_trip_destination_trip_id foreign key (trip_id) references trip (id) on delete restrict on update restrict;
+
+create index ix_trip_destination_destination_id on trip_destination (destination_id);
+alter table trip_destination add constraint fk_trip_destination_destination_id foreign key (destination_id) references destination (id) on delete restrict on update restrict;
+
 
 # --- !Downs
 
-alter table destination drop foreign key fk_destination_type_id;
-drop index ix_destination_type_id on destination;
+alter table destination drop constraint if exists fk_destination_type_id;
+drop index if exists ix_destination_type_id;
 
-alter table profile_nationality drop foreign key fk_profile_nationality_profile;
-drop index ix_profile_nationality_profile on profile_nationality;
+alter table profile_nationality drop constraint if exists fk_profile_nationality_profile;
+drop index if exists ix_profile_nationality_profile;
 
-alter table profile_nationality drop foreign key fk_profile_nationality_nationality;
-drop index ix_profile_nationality_nationality on profile_nationality;
+alter table profile_nationality drop constraint if exists fk_profile_nationality_nationality;
+drop index if exists ix_profile_nationality_nationality;
 
-alter table profile_traveller_type drop foreign key fk_profile_traveller_type_profile;
-drop index ix_profile_traveller_type_profile on profile_traveller_type;
+alter table profile_traveller_type drop constraint if exists fk_profile_traveller_type_profile;
+drop index if exists ix_profile_traveller_type_profile;
 
-alter table profile_traveller_type drop foreign key fk_profile_traveller_type_traveller_type;
-drop index ix_profile_traveller_type_traveller_type on profile_traveller_type;
+alter table profile_traveller_type drop constraint if exists fk_profile_traveller_type_traveller_type;
+drop index if exists ix_profile_traveller_type_traveller_type;
 
-alter table profile_passport drop foreign key fk_profile_passport_profile;
-drop index ix_profile_passport_profile on profile_passport;
+alter table profile_passport drop constraint if exists fk_profile_passport_profile;
+drop index if exists ix_profile_passport_profile;
 
-alter table profile_passport drop foreign key fk_profile_passport_passport;
-drop index ix_profile_passport_passport on profile_passport;
+alter table profile_passport drop constraint if exists fk_profile_passport_passport;
+drop index if exists ix_profile_passport_passport;
+
+alter table trip drop constraint if exists fk_trip_profile_id;
+drop index if exists ix_trip_profile_id;
+
+alter table trip_destination drop constraint if exists fk_trip_destination_trip_id;
+drop index if exists ix_trip_destination_trip_id;
+
+alter table trip_destination drop constraint if exists fk_trip_destination_destination_id;
+drop index if exists ix_trip_destination_destination_id;
 
 drop table if exists destination;
 
@@ -184,4 +168,8 @@ drop table if exists profile_traveller_type;
 drop table if exists profile_passport;
 
 drop table if exists traveller_type;
+
+drop table if exists trip;
+
+drop table if exists trip_destination;
 
