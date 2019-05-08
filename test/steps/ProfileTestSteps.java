@@ -1,64 +1,156 @@
 package steps;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Module;
-import controllers.ProfileController;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
-import models.Profile;
 import org.junit.Assert;
-import org.junit.runner.Request;
 import org.springframework.beans.BeansException;
-import org.springframework.context.annotation.Bean;
-import play.ApplicationLoader;
-import play.Environment;
 import play.Application;
-import play.inject.guice.GuiceApplicationBuilder;
-import play.inject.guice.GuiceApplicationLoader;
+import play.db.Database;
+import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static play.mvc.Results.ok;
+import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.*;
 
 public class ProfileTestSteps {
 
-
     @Inject
     Application application;
+    protected Database database;
 
     private Http.RequestBuilder request;
 
+    private int statusCode;
+    private int loginStatusCode;
+    private static final String PROFILES_URI = "/v1/profiles";
+    private static final String TRAVTYPES_URI = "/v1/travtypes";
+    private static final String NATIONALITIES_URI = "/v1/nationalities";
+    private static final String LOGIN_URI = "/v1/login";
+    private static final String LOGOUT_URI = "/v1/logout";
+
+    /**
+     * A valid username for login credentials for admin user.
+     */
+    private static final String VALID_USERNAME = "admin@travelea.com";
+
+
+    /**
+     * A valid password for login credentials for admin user.
+     */
+    private static final String VALID_PASSWORD = "admin1";
+
+    private static final int NUMBER_OF_TRAVELTYPES = 7;
+    private static final int NUMBER_OF_NATIONALITIES = 108;
+
+
+
 
     @Before
-    public void setUp() throws SQLException {
-        Module testModule = new AbstractModule() { };
+    public void setUp() {
+        Map<String, String> configuration = new HashMap<>();
+        configuration.put("play.db.config", "db");
+        configuration.put("play.db.default", "default");
+        configuration.put("db.default.driver", "org.h2.Driver");
+        configuration.put("db.default.url", "jdbc:h2:mem:testDBProfile;MODE=MYSQL;");
+        configuration.put("ebean.default", "models.*");
+        configuration.put("play.evolutions.db.default.enabled", "true");
+        configuration.put("play.evolutions.autoApply", "false");
 
-        GuiceApplicationBuilder builder = new GuiceApplicationLoader()
-                .builder(new ApplicationLoader.Context(Environment.simple()))
-                .overrides(testModule);
-        Guice.createInjector(builder.applicationModule()).injectMembers(this);
+        //Set up the fake application to use the in memory database config
+        application = fakeApplication(configuration);
+
+        database = application.injector().instanceOf(Database.class);
+        applyEvolutions();
 
         Helpers.start(application);
     }
 
+    /**
+     * Applies down evolutions to the database from the test/evolutions/default directory.
+     *
+     * This drops tables and data from the database.
+     */
+    private void applyEvolutions() {
+        Evolutions.applyEvolutions(
+                database,
+                Evolutions.fromClassLoader(
+                        getClass().getClassLoader(),
+                        "test/"
+                )
+        );
+    }
 
+    /**
+     * Runs after each test scenario.
+     * Sends a logout request.
+     * Cleans up the database by cleaning up evolutions and shutting it down.
+     * Stops running the fake application.
+     */
     @After
-    public void tearDown() throws SQLException {
+    public void tearDown() {
+        //logoutRequest();
+        cleanEvolutions();
+        database.shutdown();
         Helpers.stop(application);
+    }
+
+    /**
+     * Sends a fake request to the application to logout.
+     */
+    private void logoutRequest() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(LOGOUT_URI);
+        route(application, request);
+    }
+
+    /**
+     * Sends a fake request to the application to login.
+     * @param username      The string of the username to complete the login with.
+     * @param password      The string of the password to complete the login with.
+     */
+    private void loginRequest(String username, String password) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode json = mapper.createObjectNode();
+
+        ((ObjectNode) json).put("username", username);
+        ((ObjectNode) json).put("password", password);
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .bodyJson(json)
+                .uri(LOGIN_URI);
+        Result loginResult = route(application, request);
+
+        statusCode = loginResult.status();
+    }
+
+
+    /**
+     * Applies up evolutions to the database from the test/evolutions/default directory.
+     *
+     * This populates the database with necessary tables and values.
+     */
+    private void cleanEvolutions() {
+        Evolutions.cleanupEvolutions(database);
     }
 
 
@@ -67,120 +159,190 @@ public class ProfileTestSteps {
         Assert.assertTrue(application.isTest());
     }
 
+    /**
+     * Attempts to send a log in request with user credentials from constants VALID_USERNAME
+     * and VALID_PASSWORD.
+     *
+     * Asserts the login was successful with a status code of OK (200).
+     */
+    @And("I have logged in")
+    public void iAmLoggedIn() {
+        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        assertEquals(OK, statusCode);
+    }
 
-    @When("I send a GET request to the \\/profiles endpoint")
+
+    @When("I send a GET request to the profiles endpoint")
     public void iSendAGETRequestToTheProfilesEndpoint() throws BeansException {
-        request = fakeRequest()
-                .method(GET)
-                .uri("/profiles");
-        Assert.assertTrue(request instanceof Http.RequestBuilder);
+
+//        Http.RequestBuilder request = fakeRequest()
+//                .method(GET)
+//                .uri(PROFILES_URI);
+//        Result result = route(application, request);
+//        statusCode = result.status();
+//        String json = Helpers.contentAsString(result);
+//        Assert.assertEquals("", json);
+        throw new cucumber.api.PendingException();
+
     }
 
 
-    @Then("the received status code is ok()")
+    @Then("the status code is OK")
     public void theReceivedStatusCodeIs() throws BeansException{
-        Result result = route(application, request);
-        Assert.assertEquals(ok(), result.status());
-    }
-
-
-
-
-
-
-    @Given("the application is running [2]")
-    public void theApplicationIsRunning2() throws BeansException {
-        Assert.assertTrue(application.isTest());
+        Assert.assertEquals(OK, statusCode);
     }
 
 
     @When("I send a GET request to the \\/travtypes endpoint")
     public void iSendAGETRequestToTheTravtypesEndpoint() throws BeansException {
+        // Does the request to back end
         request = fakeRequest()
                 .method(GET)
-                .uri("/travtypes");
-        Assert.assertTrue(request instanceof Http.RequestBuilder);
-    }
-
-
-    @Then("the received status code is ok() [2]")
-    public void theReceivedStatusCodeIs2() throws BeansException {
+                .uri(TRAVTYPES_URI);
         Result result = route(application, request);
-        Assert.assertEquals(ok(), result.status());
+
+        // Gets the response
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+
+        // Checks the response for Holidaymaker and length of 7 traveller types
+        boolean passTraveltypes = false;
+        int count = 0;
+        while (iterator.hasNext()) {
+            JsonNode jsonTravellerType = iterator.next();
+            count++;
+            if (jsonTravellerType.get("id").asText().equals("5")) {
+                if (jsonTravellerType.get("travellerType").asText().equals("Holidaymaker")) {
+                    passTraveltypes = true;
+                }
+            }
+        }
+        if (count != NUMBER_OF_TRAVELTYPES) {
+            passTraveltypes = false;
+        }
+        statusCode = result.status();
+        Assert.assertEquals(true, passTraveltypes);
     }
 
+    @When("I send a GET request to the \\/nationalities endpoint")
+    public void iSendAGETRequestToTheNationalitiesEndpoint() {
+        // Does the fake request to back end
+        request = fakeRequest()
+                .method(GET)
+                .uri(NATIONALITIES_URI);
+        Result result = route(application, request);
 
+        // Gets the response
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
 
+        // Checks the response for the nationality
+        boolean passNationalities = false;
+        int count = 0;
+        while (iterator.hasNext()) {
+            JsonNode jsonTravellerType = iterator.next();
+            count++;
+            if (jsonTravellerType.get("id").asText().equals("16")) {
+                if (jsonTravellerType.get("nationality").asText().equals("Chinese")) {
+                    passNationalities = true;
+                }
+            }
+        }
+        if (count != NUMBER_OF_NATIONALITIES) {
+            passNationalities = false;
+        }
 
-
-
-    private List<Map<String,String>> profile;
-
-    @Given("I am connected to the TravelEA database")
-    public void iAmConnectedToTheTravelEADatabase() {
-        // Write code here that turns the phrase above into concrete actions
-
+        statusCode = result.status();
+        Assert.assertEquals(true, passNationalities);
     }
 
-
-    @Given("The following profile exists within the TravelEA database:")
-    public void theFollowingProfileExistsWithinTheTravelEADatabase(DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-        this.profile = dataTable.asMaps();
-
+    /**
+     * Gets the response as an iterator array Node from any fake request so that you can iterate over the response data
+     * @param content the string of the result using helper content as string
+     * @return an Array node iterator
+     */
+    private Iterator<JsonNode> getTheResponseIterator(String content) {
+        JsonNode arrNode = null;
+        try {
+            arrNode = new ObjectMapper().readTree(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return arrNode.elements();
     }
 
-
-    @When("A user attempts to create a profile with the following field:")
-    public void aUserAttemptsToCreateAProfileWithTheFollowingField(DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-        throw new cucumber.api.PendingException();
-    }
-
-
-
-
-
-
-
-//    @Given("I am connected to the TravelEA database")
-//    public void iAmConnectedToTheTravelEADatabase() {
-//        //throw new cucumber.api.PendingException();
-//        Assert.assertFalse(connection == null);
-//    }
-//
-//
-//    @Given("The username {string} exists within the TravelEA database")
-//    public void theUsernameExistsWithinTheTravelEADatabase(String existingUsername) {
-//        boolean usernameExists = controller.profileExists(existingUsername);
-//        Assert.assertTrue(usernameExists);
-//    }
-//
-//
-//    @When("A new username, {string}, is passed through the ProfileController")
-//    public void aNewUsernameIsPassedThroughTheProfileController(String newUsername) {
+    @Given("The following profile exists with username {string} within the TravelEA database:")
+    public void theFollowingProfileExistsWithUsernameWithinTheTravelEADatabase(String username) {
+//        // Sends the fake request
 //        request = fakeRequest()
-//                .method(POST)
-//                .uri("api/checkUsername");
-//    }
+//                .method(GET)
+//                .uri(PROFILES_URI);
+//        Result result = route(application, request);
+//        statusCode = result.status();
 //
-//    @Then("the status code received is {int}")
-//    public void theStatusCodeReceivedIs(Integer statusCode) {
+//        // Gets the response
+//        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
 //
-//        throw new cucumber.api.PendingException();
-//    }
+//        // Finds profile from the iterator
+//        boolean foundProfile = false;
+//        while (iterator.hasNext() && !foundProfile) {
+//            JsonNode jsonProfile = iterator.next();
+//            if (jsonProfile.get("username").equals(username)) {
+//                foundProfile = true;
+//            }
+//        }
+//
+//        Assert.assertTrue(foundProfile);
+        throw new cucumber.api.PendingException();
 
+    }
+
+
+    @When("A user attempts to create a profile with the following fields:")
+    public void aUserAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) {
+        // Creates the json for the profile
+        JsonNode json = convertDataTableToJsonNode(dataTable);
+
+        // Sending the fake request to the back end
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .bodyJson(json)
+                .uri(PROFILES_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
+
+    /**
+     * Converts given data table information and creates a profile json for creating a profile
+     * @param dataTable the data table from cucumber
+     * @return the json formatted string of the profile
+     */
+    private JsonNode convertDataTableToJsonNode(io.cucumber.datatable.DataTable dataTable) {
+        //Get all input from the data table
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        String username = list.get(0).get("username");
+        String password = list.get(0).get("password");
+        String firstName = list.get(0).get("first_name");
+        String middleName = list.get(0).get("middle_name");
+        String lastName = list.get(0).get("last_name");
+        String gender = list.get(0).get("gender");
+        String dateOfBirth = list.get(0).get("date_of_birth");
+        String nationality = list.get(0).get("nationality");
+        String traveller_type = list.get(0).get("traveller_type");
+
+        //Add values to a JsonNode
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode json = mapper.createObjectNode();
+
+        ((ObjectNode) json).put("username", username);
+        ((ObjectNode) json).put("password", password);
+        ((ObjectNode) json).put("first_name", firstName);
+        ((ObjectNode) json).put("middle_name", middleName);
+        ((ObjectNode) json).put("last_name", lastName);
+        ((ObjectNode) json).put("gender", gender);
+        ((ObjectNode) json).put("date_of_birth", dateOfBirth);
+        ((ObjectNode) json).put("nationality", nationality);
+        ((ObjectNode) json).put("traveller_type", traveller_type);
+
+        return json;
+    }
 
 }

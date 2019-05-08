@@ -18,14 +18,14 @@ import java.util.List;
 
 public class TripController extends Controller {
 
-    private final String AUTHORIZED = "authorized";
-    private final String NAME = "trip_name";
-    private final String TRIP_DESTINATIONS = "trip_destinations";
-    private final String START_DATE = "start_date";
-    private final String END_DATE = "end_date";
-    private final String DESTINATION_ID = "destination_id";
-    private final String TRIP_ID = "trip_id";
-    private final int MINIMUM_TRIP_DESTINATIONS = 2;
+    private static final String AUTHORIZED = "authorized";
+    private static final String NAME = "trip_name";
+    private static final String TRIP_DESTINATIONS = "trip_destinations";
+    private static final String START_DATE = "start_date";
+    private static final String END_DATE = "end_date";
+    private static final String DESTINATION_ID = "destination_id";
+    private static final String TRIP_ID = "trip_id";
+    private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private TripRepository repository = new TripRepository();
 
 
