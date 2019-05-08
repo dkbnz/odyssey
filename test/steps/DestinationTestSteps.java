@@ -109,19 +109,19 @@ public class DestinationTestSteps {
     @Before
     public void setUp() {
 
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:testDB;MODE=MYSQL;");
-        configuration.put("play.evolutions.db.default.enabled", "true");
-        configuration.put("play.evolutions.autoApply", "false");
+//        Map<String, String> configuration = new HashMap<>();
+//        configuration.put("db.default.driver", "org.h2.Driver");
+//        configuration.put("db.default.url", "jdbc:h2:mem:testDB;MODE=MYSQL;");
+//        configuration.put("play.evolutions.db.default.enabled", "true");
+//        configuration.put("play.evolutions.autoApply", "false");
 
         //Set up the fake application to use the in memory database config
-        application = fakeApplication(configuration);
-        Helpers.start(application);
+        application = fakeApplication();
 
         database = application.injector().instanceOf(Database.class);
         applyEvolutions();
 
+        Helpers.start(application);
     }
 
 
@@ -150,7 +150,7 @@ public class DestinationTestSteps {
                 database,
                 Evolutions.fromClassLoader(
                         getClass().getClassLoader(),
-                        "test/evolutions/default/"
+                        "test/"
                 )
         );
     }
@@ -183,6 +183,7 @@ public class DestinationTestSteps {
                 .bodyJson(json)
                 .uri(LOGIN_URI);
         Result loginResult = route(application, request);
+
         statusCode = loginResult.status();
     }
 
