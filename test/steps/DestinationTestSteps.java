@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static controllers.destinations.DestinationController.*;
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.CREATED;
@@ -64,6 +65,24 @@ public class DestinationTestSteps {
      * A valid password for login credentials for admin user.
      */
     private static final String VALID_PASSWORD = "admin1";
+
+
+    /**
+     * String to add the equals character (=) to build a query string.
+     */
+    private static final String EQUALS = "=";
+
+
+    /**
+     * String to add the ampersand character (&) to build a query string.
+     */
+    private static final String AND = "&";
+
+
+    /**
+     * String to add the question mark character (?) to build a query string.
+     */
+    private static final String QUESTION_MARK = "?";
 
 
     /**
@@ -191,6 +210,19 @@ public class DestinationTestSteps {
 
 
     /**
+     * Sends a request to search for a destination with the given query string.
+     * @param query     A String containing the query parameters for the search.
+     */
+    private void searchDestinationsRequest(String query) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(DESTINATION_URI + query);
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
+
+
+    /**
      * Asserts the fake application is in test mode.
      */
     @Given("I have a running application")
@@ -267,12 +299,12 @@ public class DestinationTestSteps {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("name", name);
-        ((ObjectNode) json).put("type_id", type);
-        ((ObjectNode) json).put("latitude", latitude);
-        ((ObjectNode) json).put("longitude", longitude);
-        ((ObjectNode) json).put("district", district);
-        ((ObjectNode) json).put("country", country);
+        ((ObjectNode) json).put(NAME, name);
+        ((ObjectNode) json).put(TYPE, type);
+        ((ObjectNode) json).put(LATITUDE, latitude);
+        ((ObjectNode) json).put(LONGITUDE, longitude);
+        ((ObjectNode) json).put(DISTRICT, district);
+        ((ObjectNode) json).put(COUNTRY, country);
 
         return json;
     }
@@ -297,6 +329,111 @@ public class DestinationTestSteps {
     public void i_create_a_new_destination_with_the_following_duplicated_values(io.cucumber.datatable.DataTable dataTable) {
         JsonNode json = convertDataTableToJsonNode(dataTable);
         createDestinationRequest(json);
+    }
+
+
+    /**
+     * Sends a request to search for a destination with name value given in the data table.
+     * @param dataTable     The data table containing the field, name, and value for a destination search.
+     */
+    @When("I search for a destination with name")
+    public void i_search_for_a_destination_with_name(io.cucumber.datatable.DataTable dataTable) {
+        // Set up the search fields with given name
+        String value = getValueFromDataTable("Name", dataTable);
+        String query = createSearchDestinationQueryString(NAME, value);
+
+        //Send search destinations request
+        searchDestinationsRequest(query);
+    }
+
+
+    /**
+     * Gets a value associated with a given field from the given data table.
+     * @param field         The title of the data table column to extract.
+     * @param dataTable     The data table containing the value to extract.
+     * @return              A String of the value extracted.
+     */
+    private String getValueFromDataTable(String field, io.cucumber.datatable.DataTable dataTable) {
+        //Get all input from the data table
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        return list.get(0).get(field);
+    }
+
+
+    /**
+     * Creates a query string for the search destination request.
+     * Builds this query string with empty values except for the given search value associated
+     * with the given search field.
+     * @param searchField       The search field name for the given value.
+     * @param searchValue       The given search value for associated field.
+     * @return                  The complete query string.
+     */
+    private String createSearchDestinationQueryString(String searchField, String searchValue) {
+        String name = getValue(NAME, searchField, searchValue);
+        String type = getValue(TYPE, searchField, searchValue);
+        String latitude = getValue(LATITUDE, searchField, searchValue);
+        String longitude = getValue(LONGITUDE, searchField, searchValue);
+        String district = getValue(DISTRICT, searchField, searchValue);
+        String country = getValue(COUNTRY, searchField, searchValue);
+
+
+        StringBuilder stringBuilder = new StringBuilder()
+                .append(QUESTION_MARK)
+
+                .append(NAME)
+                .append(EQUALS)
+                .append(name)
+
+                .append(AND)
+                .append(TYPE)
+                .append(EQUALS)
+                .append(type)
+
+                .append(AND)
+                .append(LATITUDE)
+                .append(EQUALS)
+                .append(latitude)
+
+                .append(AND)
+                .append(LONGITUDE)
+                .append(EQUALS)
+                .append(longitude)
+
+                .append(AND)
+                .append(DISTRICT)
+                .append(EQUALS)
+                .append(district)
+
+                .append(AND)
+                .append(COUNTRY)
+                .append(EQUALS)
+                .append(country);
+
+        return stringBuilder.toString();
+    }
+
+
+    /**
+     * Returns a string that is either empty or containing the given value.
+     * Checks if the given field matches the search field. If so, returns the given value to search.
+     * @param searchField       The search field name as defined by the application.
+     * @param givenField        The field name given to the test.
+     * @param givenValue        The value to search for if the search and given fields match.
+     * @return
+     */
+    private String getValue(String searchField, String givenField, String givenValue) {
+        return searchField.equals(givenField) ? givenValue : "";
+    }
+
+
+    /**
+     * Checks if the response body from the previous query contains at least one destination with a given name.
+     * @param dataTable     The data table containing the name of the destination that should exist in the
+     *                      response.
+     */
+    @Then("the response contains at least one destination with name")
+    public void the_response_contains_at_least_one_destination_with_name(io.cucumber.datatable.DataTable dataTable) {
+        throw new cucumber.api.PendingException();
     }
 
 
