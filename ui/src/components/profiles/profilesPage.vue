@@ -126,7 +126,7 @@
 
                     <!--Shows more details about any profile-->
                     <template slot="actions" slot-scope="row">
-
+                        <!-- If user is admin, can delete, make/remove admin rights and delete other users -->
                         <b-row class="text-center" v-if="profile.isAdmin">
 
                             <b-col align-self="center" md="5">
@@ -156,7 +156,14 @@
                             </b-col>
 
                         </b-row>
-
+                        <!-- If user is not admin, can only see other profiles -->
+                        <b-row class="text-center" v-else>
+                            <b-col align-self="center" md="4.5">
+                                <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2">
+                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
+                                </b-button>
+                            </b-col>
+                        </b-row>
                     </template>
                     <template slot="row-details" slot-scope="row">
                         <b-card>
