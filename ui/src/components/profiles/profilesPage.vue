@@ -110,8 +110,7 @@
                          :current-page="currentPage"
                          :sort-by.sync="sortBy"
                          :sort-desc.sync="sortDesc"
-                         :busy="this.profiles.length === 0"
-                >
+                         :busy="this.profiles.length === 0">
                     <div slot="table-busy" class="text-center my-2">
                         <b-spinner v-if="retrievingProfiles" class="align-middle"></b-spinner>
                         <strong>Can't find any profiles!</strong>
@@ -128,41 +127,32 @@
                     <template slot="actions" slot-scope="row">
                         <!-- If user is admin, can delete, make/remove admin rights and delete other users -->
                         <b-row class="text-center" v-if="profile.isAdmin">
-
-                            <b-col align-self="center" md="5">
                                 <b-button v-if="profile.isAdmin && !(row.item.isAdmin) && row.item.id !== 1" size="sm"
-                                          @click="makeAdmin(row.item)" variant="success" class="mr-2">
+                                          @click="makeAdmin(row.item)" variant="success" class="mr-2" block>
                                     Make Admin
                                 </b-button>
                                 <b-button v-if="profile.isAdmin && row.item.isAdmin && row.item.id !== 1"
                                           :disabled="row.item.id===1" variant="danger" size="sm"
-                                          @click="removeAdmin(row.item)" class="mr-2">
+                                          @click="removeAdmin(row.item)" class="mr-2" block>
                                     Remove Admin
                                 </b-button>
-                            </b-col>
 
-                            <b-col align-self="center" md="4.5">
-                                <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2">
+                                <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2" block>
                                     {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
                                 </b-button>
-                            </b-col>
 
-                            <b-col align-self="center" md="2">
                                 <b-button v-if="profile.isAdmin && row.item.id !== 1" :disabled="row.item.id===1"
                                           size="sm" variant="danger" v-b-modal.deleteModal
-                                          @click="sendProfileToModal(row.item)" class="mr-2">
+                                          @click="sendProfileToModal(row.item)" class="mr-2" block>
                                     Delete
                                 </b-button>
-                            </b-col>
 
                         </b-row>
                         <!-- If user is not admin, can only see other profiles -->
                         <b-row class="text-center" v-else>
-                            <b-col align-self="center" md="4.5">
-                                <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2">
+                                <b-button size="sm" block @click="row.toggleDetails" variant="warning" class="mr-2">
                                     {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
                                 </b-button>
-                            </b-col>
                         </b-row>
                     </template>
                     <template slot="row-details" slot-scope="row">
@@ -246,12 +236,13 @@
                     {value: 'Female', text: 'Female'},
                     {value: 'Other', text: 'Other'}
                 ],
-                fields: [{key:'firstName', label: "First Name", sortable: true},
-                    {key:'lastName', label: "Last Name", sortable: true},
-                    {key:'nationalities', label: "Nationalities", sortable: true, class: 'text-center'},
-                    {key:'gender', value: 'gender', sortable: true}, {key:'age', value:'age', sortable: true},
-                    {key:'travellerType', label: "Traveller Types" , sortable: true, class: 'text-center'},
-                    'actions'],
+                fields: [{key:'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
+                    {key:'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
+                    {key:'nationalities', label: "Nationalities", sortable: true, class: 'tableWidthMedium'},
+                    {key:'gender', value: 'gender', sortable: true, class: 'tableWidthSmall'},
+                    {key:'age', value:'age', sortable: true, class: 'tableWidthSmall'},
+                    {key:'travellerType', label: "Traveller Types" , sortable: true, class: 'tableWidthMedium'},
+                    {key:'actions', class: 'tableWidthMedium'}],
                 profiles: [],
                 retrievingProfiles: false,
                 selectedProfile: ""
@@ -269,7 +260,12 @@
             calculateNationalities (nationalities) {
                 let nationalityList = "";
                 for (let i = 0; i < nationalities.length; i++) {
-                    nationalityList += nationalities[i].nationality + ", ";
+                    if (nationalities[i+1] !== undefined) {
+                        nationalityList += nationalities[i].nationality + ", ";
+                    } else {
+                        nationalityList += nationalities[i].nationality;
+                    }
+
                 }
                 return nationalityList;
             },
@@ -282,7 +278,12 @@
             calculateTravTypes (travellerTypes) {
                 let travTypeList = "";
                 for (let i = 0; i < travellerTypes.length; i++) {
-                    travTypeList += travellerTypes[i].travellerType + ", ";
+                    if (travellerTypes[i+1] !== undefined) {
+                        travTypeList += travellerTypes[i].travellerType + ", ";
+                    } else {
+                        travTypeList += travellerTypes[i].travellerType;
+                    }
+
                 }
                 return travTypeList;
             },
@@ -415,7 +416,7 @@
              */
             dismissModal() {
                 this.$refs['deleteModal'].hide();
-            },
+            }
 
         },
         computed: {
@@ -428,3 +429,20 @@
         }
     }
 </script>
+<style>
+    .tableWidthSmall {
+        max-width: 8%;
+        width: 8%;
+        text-align: center;
+    }
+    .tableWidthMedium {
+        max-width: 8%;
+        width: 15%;
+        text-align: center;
+    }
+    .tableWidthLarge {
+        max-width: 8%;
+        width: 25%;
+        text-align: center;
+    }
+</style>
