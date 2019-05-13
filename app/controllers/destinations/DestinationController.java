@@ -8,17 +8,25 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import scala.concurrent.java8.FuturesConvertersImpl;
+
 import java.util.List;
 import java.util.Map;
 
+import static util.QueryUtil.queryComparator;
+
 public class DestinationController extends Controller {
 
-    private static final String NAME = "name";
-    private static final String TYPE = "type_id";
-    private static final String COUNTRY = "country";
-    private static final String DISTRICT = "district";
-    private static final String LATITUDE = "latitude";
-    private static final String LONGITUDE = "longitude";
+    public static final String NAME = "name";
+    public static final String TYPE = "type_id";
+    public static final String COUNTRY = "country";
+    public static final String DISTRICT = "district";
+    public static final String LATITUDE = "latitude";
+    public static final String LONGITUDE = "longitude";
+
+    private static final Double LATITUDE_LIMIT = 90.0;
+    private static final Double LONGITUDE_LIMIT = 180.0;
+
 
     /**
      * Return a Json object listing all destination types in the database
@@ -61,6 +69,14 @@ public class DestinationController extends Controller {
         String district = queryString.get(DISTRICT)[0];
         String country = queryString.get(COUNTRY)[0];
 
+        //Null checks
+        name = name == null ? "" : name;
+        type = type == null ? "" : type;
+        latitude = latitude == null ? "" : latitude;
+        longitude = longitude == null ? "" : longitude;
+        district = district == null ? "" : district;
+        country = country == null ? "" : country;
+
         if (name.length() != 0) {
             expressionList.ilike(NAME, queryComparator(name));
         }
@@ -86,16 +102,6 @@ public class DestinationController extends Controller {
     }
 
     /**
-     * This function builds a string to use in an sql query in a like clause. It places percentage signs on either
-     * side of the given string parameter.
-     * @param field     The string to be concatenated with percentage signs on either side of the field.
-     * @return          A string containing the field wrapped in percentage signs.
-     */
-    private static String queryComparator(String field) {
-        return "%" + field + "%";
-    }
-
-    /**
      * Looks at all the input fields for creating a destination and determines if the input is valid or not.
      * @param json      the Json of the destination inputs.
      * @return          a boolean true if the input is valid.
@@ -112,14 +118,31 @@ public class DestinationController extends Controller {
             return false;
         }
 
-        //Ensure latitude and longitude can be converted to doubles.
+        Double latitudeValue;
+        Double longitudeValue;
+
+        // Ensure latitude and longitude can be converted to doubles.
         try {
-            Double.parseDouble(latitude);
-            Double.parseDouble(longitude);
+            latitudeValue = Double.parseDouble(latitude);
+            longitudeValue = Double.parseDouble(longitude);
         } catch (NumberFormatException e) {
             return false;
         }
 
+        // Check range for latitude and longitude
+        if (latitudeValue > LATITUDE_LIMIT || latitudeValue < -LATITUDE_LIMIT) {
+            return false;
+        }
+        if (longitudeValue > LONGITUDE_LIMIT || longitudeValue < -LONGITUDE_LIMIT) {
+            return false;
+        }
+
+        // Check string inputs against regex
+        String nameRegEx = "^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$";
+
+        if (!(name.matches(nameRegEx) && country.matches(nameRegEx) && district.matches(nameRegEx))) {
+            return false;
+        }
         return true;
     }
 
@@ -180,6 +203,8 @@ public class DestinationController extends Controller {
 
         return destination;
     }
+
+
 
     /**
      * Deletes a destination from the database using the given destination id number.
