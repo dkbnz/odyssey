@@ -278,17 +278,22 @@ public class ProfileController {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
+
+                    Profile profileToUpdate;
+                    Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
                     // User is logged in
-                    Profile profileToUpdate = Profile.find.byId(Integer.valueOf(userId));
+
                     JsonNode json = request.body().asJson();
 
-                    if(json.has(ID) && profileToUpdate.getIsAdmin()) { // Admin has defined an id to update
+                    if(json.has(ID) && loggedInUser.getIsAdmin()) { // Admin has defined an id to update
                         profileToUpdate = Profile.find.byId(json.get(ID).asInt());
                         if (profileToUpdate == null) {
                             return badRequest(); // User does not exist in the system.
                         }
                     } else if(json.has(ID)) { // User has specified an id, but is not admin
                         return forbidden();
+                    } else { // User has not specified an id, but is trying to update their own profile
+                        profileToUpdate = loggedInUser;
                     }
 
                     if (!(json.has(USERNAME)
