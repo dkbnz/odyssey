@@ -13,6 +13,9 @@
                     <b-nav-item :class="{active: currentPage==='/destinations'}" v-on:click="goToDestinations()">
                         Destinations
                     </b-nav-item>
+                    <b-nav-item :class="{active: currentPage==='/admin'}" v-if="profile.isAdmin" v-on:click="goToAdminPanel()">
+                        Admin
+                    </b-nav-item>
                 </b-navbar-nav>
 
                 <b-navbar-nav class="ml-auto">
@@ -92,6 +95,9 @@
             },
             goToProfile() {
                 this.$router.push("/dash");
+            },
+            goToAdminPanel() {
+                this.$router.push("/admin");
             }
         }
     }

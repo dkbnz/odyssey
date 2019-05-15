@@ -1,11 +1,11 @@
 <template>
     <div v-if="profile.length !== 0">
-        <nav-bar-main v-bind:profile="profile"></nav-bar-main>
+        <nav-bar-main v-if="!adminView" v-bind:profile="profile"></nav-bar-main>
 
         <div class="container">
 
-            <h1 class="page_title">Find Profiles</h1>
-            <p class="page_title"><i>Search for other travellers using any of the fields in the form below</i></p>
+            <h1 class="page_title" v-if="!adminView">Find Profiles</h1>
+            <p class="page_title" v-if="!adminView"><i>Search for other travellers using any of the fields in the form below</i></p>
 
             <b-alert v-model="showError" variant="danger" dismissible>There's something wrong in the form!</b-alert>
 
@@ -126,7 +126,7 @@
                     <!--Shows more details about any profile-->
                     <template slot="actions" slot-scope="row">
                         <!-- If user is admin, can delete, make/remove admin rights and delete other users -->
-                        <b-row class="text-center" v-if="profile.isAdmin">
+                        <b-row class="text-center" v-if="profile.isAdmin && adminView">
                                 <b-button v-if="profile.isAdmin && !(row.item.isAdmin) && row.item.id !== 1" size="sm"
                                           @click="makeAdmin(row.item)" variant="success" class="mr-2" block>
                                     Make Admin
@@ -136,7 +136,6 @@
                                           @click="removeAdmin(row.item)" class="mr-2" block>
                                     Remove Admin
                                 </b-button>
-
                                 <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2" block>
                                     {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
                                 </b-button>
@@ -156,7 +155,7 @@
                         </b-row>
                     </template>
                     <template slot="row-details" slot-scope="row">
-                        <b-card>
+                        <b-card v-if="!adminView">
                             <view-profile :profile="row.item" :userProfile="profile"></view-profile>
                         </b-card>
                     </template>
@@ -207,7 +206,7 @@
 
     export default {
         name: "profilesPage",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'adminView'],
         created() {
             document.title = "TravelEA - Profiles";
         },
