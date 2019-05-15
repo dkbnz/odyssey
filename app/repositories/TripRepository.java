@@ -15,8 +15,8 @@ public class TripRepository {
 
     /**
      * Saves a new trip to a profile's list of trips, which is persisted to our database.
-     * @param profile           The profile having a new trip created.
-     * @param trip              The new trip being created for profile.
+     * @param profile       The profile having a new trip created.
+     * @param trip          The new trip being created for profile.
      */
     public void saveNewTrip(Profile profile, Trip trip) {
 
@@ -32,7 +32,7 @@ public class TripRepository {
     /**
      * Removes the existing TripDestinations from a trip being edited.
      * Is used before parsing the request body in edit which will contain all the updated trips, "cleaning the slate".
-     * @param trip the trip having its destinations deleted before editing
+     * @param trip          The trip having its destinations deleted before editing
      */
     public void removeTripDestinations(Trip trip) {
 
@@ -49,8 +49,8 @@ public class TripRepository {
     /**
      * Removes a single trip from a profile's list of trips, and deletes the trip from the profile before updating the profile.
      * This method is used in TripController inside the 'destroy' method.
-     * @param profile The profile having its trip deleted.
-     * @param trip The trip being deleted from a profile.
+     * @param profile       The profile having its trip deleted.
+     * @param trip          The trip being deleted from a profile.
      */
     public void deleteTripFromProfile(Profile profile, Trip trip) {
 
@@ -66,9 +66,9 @@ public class TripRepository {
 
 
     /**
-     * Finds all the trips with a specified user id
-     * @param id the profile id
-     * @return the list of trips
+     * Finds all the trips with a specified user id.
+     * @param id            The profile id.
+     * @return              The list of trips.
      */
     public List<Trip> fetchAllTrips(Long id) {
 
