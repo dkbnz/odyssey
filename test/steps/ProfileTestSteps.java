@@ -57,6 +57,11 @@ public class ProfileTestSteps {
      */
     private static final String VALID_PASSWORD = "admin1";
 
+    /**
+     * The session used for keeping logged in users
+     */
+    private Map<String, String> session;
+
     private static final int NUMBER_OF_TRAVELTYPES = 7;
     private static final int NUMBER_OF_NATIONALITIES = 108;
 
@@ -139,7 +144,7 @@ public class ProfileTestSteps {
                 .bodyJson(json)
                 .uri(LOGIN_URI);
         Result loginResult = route(application, request);
-
+        session = request.session();
         statusCode = loginResult.status();
     }
 
@@ -174,14 +179,14 @@ public class ProfileTestSteps {
 
     @When("I send a GET request to the profiles endpoint")
     public void iSendAGETRequestToTheProfilesEndpoint() throws BeansException {
-
-//        Http.RequestBuilder request = fakeRequest()
-//                .method(GET)
-//                .uri(PROFILES_URI);
-//        Result result = route(application, request);
-//        statusCode = result.status();
-//        String json = Helpers.contentAsString(result);
-//        Assert.assertEquals("", json);
+        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(PROFILES_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
+        String json = Helpers.contentAsString(result);
+        Assert.assertEquals("", json);
         throw new cucumber.api.PendingException();
 
     }
