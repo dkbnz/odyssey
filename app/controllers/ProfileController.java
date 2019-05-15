@@ -53,6 +53,7 @@ public class ProfileController {
     private static final long AGE_SEARCH_OFFSET = 1;
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String UPDATED = "UPDATED";
+    private static final String ID = "id";
 
     /**
      * Creates a user based on given Json body. All new users are not an admin by default. This is used on the Sign Up
@@ -278,8 +279,17 @@ public class ProfileController {
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in
-                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    Profile profileToUpdate = Profile.find.byId(Integer.valueOf(userId));
                     JsonNode json = request.body().asJson();
+
+                    if(json.has(ID) && profileToUpdate.getIsAdmin()) { // Admin has defined an id to update
+                        profileToUpdate = Profile.find.byId(json.get(ID).asInt());
+                        if (profileToUpdate == null) {
+                            return badRequest(); // User does not exist in the system.
+                        }
+                    } else if(json.has(ID)) { // User has specified an id, but is not admin
+                        return forbidden();
+                    }
 
                     if (!(json.has(USERNAME)
                             && json.has(PASS_FIELD)
@@ -304,48 +314,48 @@ public class ProfileController {
 
                         // Uses the hashProfilePassword() method to hash the given password.
                         try {
-                            userProfile.setPassword(hashProfilePassword(json.get(PASS_FIELD).asText()));
+                            profileToUpdate.setPassword(hashProfilePassword(json.get(PASS_FIELD).asText()));
                         } catch (NoSuchAlgorithmException e) {
                             LOGGER.log(Level.SEVERE, "Unable to hash the user password", e);
                         }
                     }
 
-                    userProfile.setUsername(json.get(USERNAME).asText());
-                    userProfile.setFirstName(json.get(FIRST_NAME).asText());
-                    userProfile.setMiddleName(json.get(MIDDLE_NAME).asText());
-                    userProfile.setLastName(json.get(LAST_NAME).asText());
-                    userProfile.setDateOfBirth(LocalDate.parse(json.get(DATE_OF_BIRTH).asText()));
-                    userProfile.setGender(json.get(GENDER).asText());
+                    profileToUpdate.setUsername(json.get(USERNAME).asText());
+                    profileToUpdate.setFirstName(json.get(FIRST_NAME).asText());
+                    profileToUpdate.setMiddleName(json.get(MIDDLE_NAME).asText());
+                    profileToUpdate.setLastName(json.get(LAST_NAME).asText());
+                    profileToUpdate.setDateOfBirth(LocalDate.parse(json.get(DATE_OF_BIRTH).asText()));
+                    profileToUpdate.setGender(json.get(GENDER).asText());
 
-                    userProfile.clearNationalities();
-                    userProfile.clearPassports();
-                    userProfile.clearTravellerTypes();
+                    profileToUpdate.clearNationalities();
+                    profileToUpdate.clearPassports();
+                    profileToUpdate.clearTravellerTypes();
 
                     // Save user profile to clear nationalities, travellerTypes and passports
-                    userProfile.update();
+                    profileToUpdate.update();
 
                     Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
                         Nationality newNat = Nationality.find.byId(node.asInt());
-                        userProfile.addNationality(newNat);
+                        profileToUpdate.addNationality(newNat);
                     };
 
                     json.get(NATIONALITY).forEach(nationalityAction);
 
                     Consumer<JsonNode> passportAction = (JsonNode node) -> {
                         Passport newPass = Passport.find.byId(node.asInt());
-                        userProfile.addPassport(newPass);
+                        profileToUpdate.addPassport(newPass);
                     };
 
                     json.get(PASSPORT).forEach(passportAction);
 
                     Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
                         TravellerType travType = TravellerType.find.byId(node.asInt());
-                        userProfile.addTravType(travType);
+                        profileToUpdate.addTravType(travType);
                     };
 
                     json.get(TRAVELLER_TYPE).forEach(travTypeAction);
 
-                    userProfile.update();
+                    profileToUpdate.update();
 
                     return ok(UPDATED);
 
