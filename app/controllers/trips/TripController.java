@@ -25,6 +25,7 @@ public class TripController extends Controller {
     private static final String END_DATE = "end_date";
     private static final String DESTINATION_ID = "destination_id";
     private static final String TRIP_ID = "trip_id";
+    private static final String AFFECTED_USER_ID = "create_for_id";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private TripRepository repository = new TripRepository();
 
@@ -37,12 +38,14 @@ public class TripController extends Controller {
      */
     public Result create(Http.Request request) {
 
-        String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
+        // Retrieve the id of the current user from the session.
+        String loggedUserId = request.session().getOptional(AUTHORIZED).orElseGet(null);
 
-        if (userId != null) {
+        if (loggedUserId != null) {
+
 
             // User is logged in
-            Profile profile = Profile.find.byId(Integer.valueOf(userId));
+            Profile loggedProfile = Profile.find.byId(Integer.valueOf(loggedUserId));
 
             JsonNode json = request.body().asJson();
 
@@ -50,25 +53,37 @@ public class TripController extends Controller {
                 return badRequest();
             }
 
-            // Create a trip object and give it the name extracted from the request.
-            Trip trip = new Trip();
-            trip.setName(json.get(NAME).asText());
+            // Retrieve the id of the profile having a trip created for it.
+            String affectedUserId = json.get(AFFECTED_USER_ID).asText();
 
-            // Create a json node for the destinations contained in the trip to use for iteration.
-            ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
 
-            // Create an empty List for TripDestination objects to be populated from the request.
-            List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
-            // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return OK.
+            if (affectedUserId.equals(loggedUserId) || loggedProfile.isAdmin) {
 
-            if (destinationList != null && isValidDateOrder(destinationList)) {
-                trip.setDestinations(destinationList);
-                profile.addTrip(trip);
-                profile.save();
-                return created();
+                Profile affectedProfile = Profile.find.byId(Integer.valueOf(affectedUserId));
+
+                // Create a trip object and give it the name extracted from the request.
+                Trip trip = new Trip();
+                trip.setName(json.get(NAME).asText());
+
+                // Create a json node for the destinations contained in the trip to use for iteration.
+                ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
+
+                // Create an empty List for TripDestination objects to be populated from the request.
+                List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
+                // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return OK.
+
+                if (destinationList != null && isValidDateOrder(destinationList)) {
+                    trip.setDestinations(destinationList);
+                    affectedProfile.addTrip(trip);
+                    affectedProfile.save();
+                    return created();
+                } else {
+                    return badRequest();
+                }
             } else {
                 return badRequest();
             }
+
         } else {
             return unauthorized();
         }
@@ -82,6 +97,10 @@ public class TripController extends Controller {
      *                  returns true.
      */
     private boolean isValidTrip(JsonNode json) {
+
+        if (!(json.has(AFFECTED_USER_ID))) {
+            return false;
+        }
 
         // Check if the request contains a trip name and an array of destinations.
         if (!(json.has(NAME) && json.has(TRIP_DESTINATIONS))) {
