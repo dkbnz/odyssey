@@ -74,8 +74,7 @@ public class TripController extends Controller {
 
                 if (destinationList != null && isValidDateOrder(destinationList)) {
                     trip.setDestinations(destinationList);
-                    affectedProfile.addTrip(trip);
-                    affectedProfile.save();
+                    repository.saveNewTrip(affectedProfile, trip);
                     return created();
                 } else {
                     return badRequest();
