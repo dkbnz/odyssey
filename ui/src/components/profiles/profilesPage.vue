@@ -155,7 +155,7 @@
                         </b-row>
                     </template>
                     <template slot="row-details" slot-scope="row">
-                        <b-card v-if="!adminView">
+                        <b-card>
                             <view-profile :profile="row.item" :userProfile="profile"></view-profile>
                         </b-card>
                     </template>
