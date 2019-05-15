@@ -12,7 +12,7 @@
 
                         <b-row>
                             <b-col>
-                                <b-button v-b-modal.modalSignup class="btn btn-info btn-lg float-right">Signup</b-button>
+                                <b-button v-b-modal.modalSignup class="btn btn-info btn-lg float-right">Sign Up</b-button>
                                 <b-modal id="modalSignup" centered hide-footer>
                                     <template slot="modal-title"><h2>Sign Up</h2></template>
                                     <signup v-bind:nationalityOptions="nationalityOptions"
