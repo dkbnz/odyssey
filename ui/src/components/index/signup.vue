@@ -15,7 +15,6 @@
                     <b-form-invalid-feedback :state="fNameValidation">
                         Your first name must be between 1-100 characters and contain no numbers.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="fNameValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
@@ -27,7 +26,6 @@
                     <b-form-invalid-feedback :state="mNameValidation">
                         Your middle name must be less than 100 characters and contain no numbers.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="mNameValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
@@ -42,7 +40,6 @@
                     <b-form-invalid-feedback :state="lNameValidation">
                         Your last name must be between 1-100 characters and contain no numbers.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="lNameValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
@@ -58,7 +55,6 @@
                     <b-form-invalid-feedback :state="emailValidation">
                         Your email must be valid and unique!
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="emailValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
@@ -76,7 +72,6 @@
                     <b-form-invalid-feedback :state="passwordValidation">
                         Your password must contain 2/3 of: Uppercase, Lowercase, Number.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="passwordValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
@@ -92,7 +87,6 @@
                     <b-form-invalid-feedback :state="rePasswordValidation">
                         This isn't the same as the password!
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="rePasswordValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
@@ -105,9 +99,8 @@
                                   :state="dateOfBirthValidation"
                                   trim required></b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
-                        You need a date of birth.
+                        You need a date of birth before today.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="dateOfBirthValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
@@ -122,7 +115,6 @@
                     <b-form-invalid-feedback :state="genderValidation">
                         Please select a gender.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="genderValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-alert v-model="showError" variant="danger" dismissible>The form contains errors!</b-alert>
@@ -151,7 +143,6 @@
                             <b-form-invalid-feedback :state="nationalityValidation">
                                 Please select at least one nationality.
                             </b-form-invalid-feedback>
-                            <b-form-valid-feedback :state="nationalityValidation"> Looks Good </b-form-valid-feedback>
                         </b-form-group>
                     </b-col>
 
@@ -171,7 +162,6 @@
                             <b-form-invalid-feedback :state="passportValidation">
                                 Please select at least one passport country.
                             </b-form-invalid-feedback>
-                            <b-form-valid-feedback :state="passportValidation"> Looks Good </b-form-valid-feedback>
                         </b-form-group>
                     </b-col>
                 </b-row>
@@ -183,7 +173,6 @@
                         label-for="travellerTypeCarousel">
                     <b-carousel
                             id="travellerTypeCarousel"
-                            :interval="10000"
                             controls
                             indicators
                             background="#ababab"
@@ -202,9 +191,6 @@
                     <b-form-invalid-feedback :state="travTypeValidation" align="center">
                         Please select at least one traveller type.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="travTypeValidation" align="center">
-                        Looks Good
-                    </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-button @click="previousPage">Back</b-button>
@@ -240,7 +226,9 @@
                 nationalities: [],
                 passports: [],
                 travTypes: [],
-                validEmail: false
+                validEmail: false,
+                showSuccess: false,
+                successMessage: ""
             }
         },
         computed: {
@@ -292,7 +280,7 @@
                 if (this.dateOfBirth.length === 0) {
                     return null;
                 }
-                return this.dateOfBirth.length > 0;
+                return this.dateOfBirth.length > 0 && this.dateOfBirth < this.todaysDate;
             },
             genderValidation() {
                 if (this.gender.length === 0) {
@@ -317,6 +305,20 @@
                     return null;
                 }
                 return this.travTypes.length > 0;
+            },
+            todaysDate() {
+                let today = new Date();
+                let dd = today.getDate();
+                let mm = today.getMonth()+1; //January is 0!
+                let yyyy = today.getFullYear();
+                if(dd<10){
+                    dd='0'+dd
+                }
+                if(mm<10){
+                    mm='0'+mm
+                }
+                today = yyyy+'-'+mm+'-'+dd;
+                return today
             }
 
         },
@@ -390,7 +392,8 @@
             },
 
             /**
-             * Adds user to database
+             * Adds user to database. If the person creating the profile is an administrator, then the page is not
+             * automatically redirected to the dash.
              * @param profile object created with all input values
              */
             saveProfile(profile) {
@@ -400,9 +403,14 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function (response) {
-                    self.$router.go();
-                    self.$router.push("/dash");
-                    return response.json();
+                    if (response.status === 201 && self.createdByAdmin) {
+                        self.$emit('profile-created', true);
+                    } else {
+                        self.$router.go();
+                        self.$router.push("/dash");
+                        return response.json();
+                    }
+
                 })
             }
         }
