@@ -16,7 +16,8 @@
                                 <b-modal id="modalSignup" centered hide-footer>
                                     <template slot="modal-title"><h2>Sign Up</h2></template>
                                     <signup v-bind:nationalityOptions="nationalityOptions"
-                                            v-bind:travTypeOptions="travTypeOptions"></signup>
+                                            v-bind:travTypeOptions="travTypeOptions"
+                                            :createdByAdmin="false"></signup>
                                 </b-modal>
                             </b-col>
 

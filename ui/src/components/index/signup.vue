@@ -218,7 +218,7 @@
 <script>
     export default {
         name: "Signup",
-        props: ['nationalityOptions', 'travTypeOptions'],
+        props: {nationalityOptions: Array, travTypeOptions: Array, createdByAdmin: false},
         data: function() {
             return {
                 showError: false,
@@ -350,7 +350,8 @@
                         gender: this.gender,
                         nationality: this.nationalities,
                         passport_country: this.passports,
-                        traveller_type: this.travTypes
+                        traveller_type: this.travTypes,
+                        createdByAdmin: this.createdByAdmin
                     };
                     this.saveProfile(profile);
                 }

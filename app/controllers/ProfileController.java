@@ -47,6 +47,7 @@ public class ProfileController {
     private static final String DATE_OF_BIRTH = "date_of_birth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
+    private static final String CREATED_BY_ADMIN = "createdByAdmin";
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final long AGE_SEARCH_OFFSET = 1;
@@ -127,7 +128,11 @@ public class ProfileController {
 
         newUser.save();
 
-        return created().addingToSession(request, AUTHORIZED, newUser.id.toString());
+        if (json.get(CREATED_BY_ADMIN).asText().equals("true")) {
+            return created();
+        } else {
+            return created().addingToSession(request, AUTHORIZED, newUser.id.toString());
+        }
     }
 
     /**
