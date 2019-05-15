@@ -253,6 +253,7 @@
         name: "PlanATrip",
         props: {
             destinations: Array,
+            profile: Object,
             inputTrip: {
                 default: function () {
                     return {id: null,
@@ -471,7 +472,8 @@
                     }
                     let trip = {
                         trip_name: this.inputTrip.name,
-                        trip_destinations: tripDestinationsList
+                        trip_destinations: tripDestinationsList,
+                        create_for_id: this.profile.id
                     };
                     if(this.inputTrip.id === null) {
                         this.saveNewTrip(trip);
@@ -526,7 +528,7 @@
             },
 
             /**
-             * Uses a fetch method (POST) o save a new trip. If there is an error for some reason, this is shown to the
+             * Uses a fetch method (POST) to save a new trip. If there is an error for some reason, this is shown to the
              * user.
              * If the trip is successfully saved, then an alert is shown to the user and the trip form is reset.
              * @param trip      the trip to be saved
