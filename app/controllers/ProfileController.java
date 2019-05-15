@@ -270,6 +270,8 @@ public class ProfileController {
      * Takes a Http request containing a Json body and finds a logged in user. Then uses a PUT request to update
      * the logged in user based on the Http Request body. The validation is the same as creating a new profile.
      *
+     * If the Id is specified in the Json body, and the logged in user is an admin, then edit the specified Id.
+     *
      * @param request   Http Request containing Json Body.
      * @return          ok() (Http 200) if the profile is successfully updated. Returns unauthorized() (Http 401),
      *                  if not logged in.
