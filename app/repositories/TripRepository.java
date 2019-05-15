@@ -14,6 +14,22 @@ public class TripRepository {
 
 
     /**
+     * Saves a new trip to a profile's list of trips, which is persisted to our database.
+     * @param profile           The profile having a new trip created.
+     * @param trip              The new trip being created for profile.
+     */
+    public void saveNewTrip(Profile profile, Trip trip) {
+
+        // Add the new trip to the profile.
+        profile.addTrip(trip);
+
+        // Update the profile which cascades to save the trip and its contained destinations.
+        profile.save();
+    }
+
+
+
+    /**
      * Removes the existing TripDestinations from a trip being edited.
      * Is used before parsing the request body in edit which will contain all the updated trips, "cleaning the slate".
      * @param trip the trip having its destinations deleted before editing
@@ -27,7 +43,6 @@ public class TripRepository {
         for (TripDestination destination : destinations) {
             destination.delete();
         }
-
     }
 
 
@@ -47,7 +62,6 @@ public class TripRepository {
 
         // Update the profile at a database level.
         profile.update();
-
     }
 
 
