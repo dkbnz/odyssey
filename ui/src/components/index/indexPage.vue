@@ -65,7 +65,12 @@
              * Redirects the user to the dash page.
              */
             redirectToDash() {
-                this.$router.replace("/dash");
+                if (this.profile.isAdmin) {
+                    this.$router.replace("/admin");
+                } else {
+                    this.$router.replace("/dash");
+                }
+
             },
 
             /**
