@@ -568,7 +568,7 @@
             saveOldTrip(trip, tripId) {
                 this.savingTrip = true;
                 let self = this;
-                fetch('/v1/trips/' + tripId, {
+                fetch('/v1/trips/' + tripId + "/" + this.profile.id, {
                     method: 'PATCH',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)

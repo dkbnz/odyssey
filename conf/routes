@@ -7,7 +7,7 @@ GET      /                              controllers.Assets.at(path="/public", fi
 
 # To convert
 DELETE  /api/profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
-PATCH   /api/trip/:id                   controllers.trips.TripController.edit(request: Request, id: Long)
+#PATCH   /api/trip/:id/:userId           controllers.trips.TripController.edit(request: Request, id: Long, userId: Long)
 
 # Get lists
 GET     /v1/travtypes                   controllers.TravellerTypeController.list()
@@ -40,7 +40,7 @@ GET     /v1/destinationTypes            controllers.destinations.DestinationCont
 GET     /v1/trips/:userId               controllers.trips.TripController.fetchAll(userId: Long)
 POST    /v1/trips/:userId               controllers.trips.TripController.create(request: Request, userId: Long)
 DELETE  /v1/trips/:tripId/:userId       controllers.trips.TripController.destroy(request: Request, tripId: Long, userId: Long)
-PATCH   /v1/trips/:id                   controllers.trips.TripController.edit(request: Request, id: Long)
+PATCH   /v1/trips/:tripId/:userId       controllers.trips.TripController.edit(request: Request, tripId: Long, userId: Long)
 
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.

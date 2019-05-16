@@ -25,6 +25,7 @@
                 <view-profile v-if="currentDisplay === 0"
                               :trips="trips"
                               :profile="editProfile"
+                              :destinations="destinations"
                               :nationalityOptions="nationalityOptions"
                               :travTypeOptions="travTypeOptions">
                 </view-profile>
@@ -65,7 +66,8 @@
             profile: Object,
             editProfile: Object,
             nationalityOptions: Array,
-            travTypeOptions: Array
+            travTypeOptions: Array,
+            destinations: Array,
 
         },
         components: {
