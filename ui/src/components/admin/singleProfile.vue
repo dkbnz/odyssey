@@ -63,6 +63,7 @@
 
     .singleProfileNav {
         background: white;
+        padding: 15px;
     }
 
     a {
