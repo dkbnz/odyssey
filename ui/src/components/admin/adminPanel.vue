@@ -5,6 +5,7 @@
         <admin-actions :profile="profile"
                        :nationalityOptions="nationalityOptions"
                        :travTypeOptions="travTypeOptions"
+                       :destinations="destinations"
                         @admin-edit="setProfileToEdit"
                        v-if="editProfile === null">
         </admin-actions>
@@ -24,7 +25,7 @@
 
     export default {
         name: "adminPanel",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'destinations'],
         data() {
             return {
                 showSingleProfile: false,
