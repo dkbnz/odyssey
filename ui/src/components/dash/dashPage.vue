@@ -39,9 +39,6 @@
     export default {
         name: "dashPage",
         props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips'],
-        created() {
-            document.title = "TravelEA - Dashboard";
-        },
         data: function() {
             return {
                 viewProfile: true,

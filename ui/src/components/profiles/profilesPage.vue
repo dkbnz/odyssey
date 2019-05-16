@@ -30,57 +30,66 @@
 
             <div>
                 <!--Input fields for searching profiles-->
-                <b-form-group
-                        id="nationalities-field"
-                        label="Nationality:"
-                        label-for="nationality">
-                    <b-form-select id="nationality" v-model="searchNationality" trim>
-                        <template slot="first">
-                            <option :value="null">-- Any --</option>
-                        </template>
-                        <option v-for="nationality in nationalityOptions"
-                                :value="nationality.nationality">
-                            {{nationality.nationality}}</option>
-                    </b-form-select>
-                </b-form-group>
-
-                <b-form-group
-                        id="gender-field"
-                        label="Gender:"
-                        label-for="gender">
-                    <b-form-select id="gender" v-model="searchGender" :options="genderOptions" trim>
-                        <template slot="first">
-                            <option :value="null">-- Any --</option>
-                        </template>
-                    </b-form-select>
-                </b-form-group>
-
-                <b-form-group
+                <b-row>
+                    <b-col>
+                        <b-form-group
+                                id="nationalities-field"
+                                label="Nationality:"
+                                label-for="nationality">
+                            <b-form-select id="nationality" v-model="searchNationality" trim>
+                                <template slot="first">
+                                    <option :value="null">-- Any --</option>
+                                </template>
+                                <option v-for="nationality in nationalityOptions"
+                                        :value="nationality.nationality">
+                                    {{nationality.nationality}}</option>
+                            </b-form-select>
+                        </b-form-group>
+                    </b-col>
+                    <b-col>
+                        <b-form-group
+                                id="gender-field"
+                                label="Gender:"
+                                label-for="gender">
+                            <b-form-select id="gender" v-model="searchGender" :options="genderOptions" trim>
+                                <template slot="first">
+                                    <option :value="null">-- Any --</option>
+                                </template>
+                            </b-form-select>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
+                <b-row>
+                    <b-col>
+                        <b-form-group
                         id="minAge-field"
                         label="Min Age: "
                         label-for="minAge">
-                    <div class="mt-2">{{ searchMinAge }}</div>
+                        <div class="mt-2">{{ searchMinAge }}</div>
 
-                    <!--Range slider from 0 to 150-->
-                    <b-form-input id="minAge" v-model="searchMinAge"
-                                  :type="'range'"
-                                  min="0"
-                                  max="150"
-                                  trim></b-form-input>
-                </b-form-group>
-
-                <b-form-group
+                        <!--Range slider from 0 to 110-->
+                        <b-form-input id="minAge" v-model="searchMinAge"
+                                      :type="'range'"
+                                      min="0"
+                                      max="110"
+                                      trim></b-form-input>
+                        </b-form-group>
+                    </b-col>
+                    <b-col>
+                        <b-form-group
                         id="maxAge-field"
                         label="Max Age:"
                         label-for="maxAge">
-                    <div class="mt-2">{{ searchMaxAge }}</div>
-                    <!--Range slider from 0 to 150-->
-                    <b-form-input id="maxAge" v-model="searchMaxAge"
-                                  :type="'range'"
-                                  min="0"
-                                  max="150"
-                                  trim></b-form-input>
-                </b-form-group>
+                        <div class="mt-2">{{ searchMaxAge }}</div>
+                        <!--Range slider from 0 to 110-->
+                        <b-form-input id="maxAge" v-model="searchMaxAge"
+                                      :type="'range'"
+                                      min="0"
+                                      max="110"
+                                      trim></b-form-input>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
 
                 <b-form-group
                         id="travType-field"
@@ -136,8 +145,8 @@
                                           @click="removeAdmin(row.item)" class="mr-2" block>
                                     Remove Admin
                                 </b-button>
-                                <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2" block>
-                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
+                                <b-button size="sm" @click="emitAdminEdit(row.item)" variant="warning" class="mr-2" block>
+                                    Show More Details
                                 </b-button>
 
                                 <b-button v-if="profile.isAdmin && row.item.id !== 1" :disabled="row.item.id===1"
@@ -206,9 +215,16 @@
 
     export default {
         name: "profilesPage",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'adminView'],
-        created() {
-            document.title = "TravelEA - Profiles";
+        props: {
+            profile: String,
+            nationalityOptions: Array,
+            travTypeOptions: Array,
+            adminView: Boolean,
+            perPage: {
+                default: function() {
+                    return 10;
+                }
+            }
         },
         components: {
             ViewProfile,
@@ -228,7 +244,6 @@
                 searchMaxAge: 100,
                 searchTravType: "",
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
-                perPage: 10,
                 currentPage: 1,
                 genderOptions: [
                     {value: 'Male', text: 'Male'},
@@ -415,6 +430,13 @@
              */
             dismissModal() {
                 this.$refs['deleteModal'].hide();
+            },
+
+            /**
+             * Emits the event that the admin is viewing a profile to edit, this will navigate to the edit page.
+             */
+            emitAdminEdit(profile) {
+                this.$emit('admin-edit', profile);
             }
 
         },

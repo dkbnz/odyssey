@@ -4,6 +4,7 @@ import Destinations from './components/destinations/destinationsPage'
 import Profiles from './components/profiles/profilesPage'
 import Trips from './components/trips/tripsPage'
 import AdminPanel from './components/admin/adminPanel'
+import SingleProfile from './components/admin/singleProfile'
 
 import VueRouter from 'vue-router';
 
@@ -37,6 +38,11 @@ const routes = [
         path:"/admin",
         name: "admin",
         component: AdminPanel
+    },
+    {
+        path:"/singleProfile",
+        name: "singleProfile",
+        component: SingleProfile
     }
 ];
 
