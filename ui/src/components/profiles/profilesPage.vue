@@ -216,7 +216,7 @@
     export default {
         name: "profilesPage",
         props: {
-            profile: String,
+            profile: Object,
             nationalityOptions: Array,
             travTypeOptions: Array,
             adminView: Boolean,
