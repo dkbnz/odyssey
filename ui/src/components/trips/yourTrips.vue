@@ -63,14 +63,14 @@
                               @click="sendTripToModal(row.item)"
                               variant="primary"
                               class="mr-2"
-                              v-if="userProfile.id === profile.id">Edit</b-button>
+                              v-if="hasPermission">Edit</b-button>
                     <b-button size="sm"
                               v-model="deleteButton"
                               v-b-modal.deleteModal
                               @click="sendTripToModal(row.item)"
                               variant="danger"
                               class="mr-2"
-                              v-if="userProfile.id === profile.id">Delete</b-button>
+                              v-if="hasPermission">Delete</b-button>
                 </template>
 
                 <!-- Shows all the trip destinations in a separate nested table -->
@@ -163,10 +163,10 @@
                         {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                     </b-button>
                     <b-button size="sm" v-model="editButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)"
-                              variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
+                              variant="primary" class="mr-2" v-if="hasPermission">Edit
                     </b-button>
                     <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)"
-                              variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
+                              variant="danger" class="mr-2" v-if="hasPermission">Delete
                     </b-button>
                 </template>
 
@@ -245,7 +245,8 @@
                     return this.profile
                 }
             },
-            destinations: Array
+            destinations: Array,
+            adminView: Boolean,
         },
         components: {
             PlanATrip
@@ -285,6 +286,7 @@
                 validDelete: false,
                 editButton: false,
                 deleteButton: false,
+                hasPermission: false,
             }
         },
         mounted () {
@@ -292,6 +294,7 @@
              *  Mounted function that uses the getAllTrips method to populate all a users trips on the page.
              */
             this.getAllTrips();
+            this.getPermissions();
         },
         computed: {
             /**
@@ -425,6 +428,13 @@
                     this.showError = true;
                     this.errorMessage = (error);
                 });
+            },
+
+            getPermissions() {
+                console.log("---------------------------");
+                console.log(this.adminView);
+                this.hasPermission = (this.userProfile.id === this.profile.id ||
+                    (this.userProfile.isAdmin && this.adminView));
             },
 
             /**
