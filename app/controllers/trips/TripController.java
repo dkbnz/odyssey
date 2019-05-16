@@ -345,7 +345,7 @@ public class TripController extends Controller {
      *                  If the user is not logged in, returns unauthorized() (Http 401).
      *                  Otherwise, if trip is successfully deleted, returns ok() (Http 200).
      */
-    public Result destroy(Http.Request request, Long tripId) {
+    public Result destroy(Http.Request request, Long tripId, Long userId) {
 
         Integer userId = getLoggedInUserId(request);
 

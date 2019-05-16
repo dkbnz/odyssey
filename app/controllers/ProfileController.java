@@ -317,6 +317,12 @@ public class ProfileController {
                         return badRequest();
                     }
 
+                    // If the username has been changed, and the changed username exists return badRequest();
+                    if(!json.get(USERNAME).asText().equals(profileToUpdate.getUsername())
+                            && profileExists(json.get(USERNAME).asText())) {
+                        return badRequest();
+                    }
+
                     if (!json.get(PASS_FIELD).asText().isEmpty()) { // Only update password if user has typed a new one
 
                         // Uses the hashProfilePassword() method to hash the given password.
