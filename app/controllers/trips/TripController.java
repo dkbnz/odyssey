@@ -176,6 +176,7 @@ public class TripController extends Controller {
     private List<TripDestination> parseTripDestinations(ArrayNode tripDestinations) {
 
         List<TripDestination> result = new ArrayList<>();
+        List<TripDestination> badResult = new ArrayList<>();
 
         // Simple integer for incrementing the list_order attribute for trip destinations.
         int order = 0;
@@ -195,7 +196,7 @@ public class TripController extends Controller {
             ) {
                 // Checks the dates are done correctly
                 if (!isValidDates(destinationJson.get(START_DATE).asText(), destinationJson.get(END_DATE).asText())) {
-                    return null;
+                    return badResult;
                 }
                 // Parse the values contained in the current node of the array
                 Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATION_ID).asText());
@@ -221,7 +222,7 @@ public class TripController extends Controller {
                 result.add(newTripDestination);
                 previousDestination = id;
             } else {
-                return null;
+                return badResult;
             }
         }
         return result;
@@ -291,7 +292,7 @@ public class TripController extends Controller {
         JsonNode json = request.body().asJson();
 
         // The id taken from the json node, initialised as null for validation purposes.
-        Integer parsedTripId;
+        int parsedTripId;
 
         // Retrieving the id of the trip being fetched
         try {
