@@ -254,6 +254,7 @@
         props: {
             destinations: Array,
             profile: Object,
+            userProfile: Object,
             inputTrip: {
                 default: function () {
                     return {id: null,
@@ -470,6 +471,7 @@
                             start_date: this.inputTrip.destinations[i].startDate,
                             end_date: this.inputTrip.destinations[i].endDate})
                     }
+                    console.log(this.profile);
                     let trip = {
                         trip_name: this.inputTrip.name,
                         trip_destinations: tripDestinationsList,
