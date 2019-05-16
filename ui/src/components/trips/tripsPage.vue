@@ -13,13 +13,11 @@
                      :subHeading="'Book your next trip!'"
                      :destinations="destinations"
                      :profile="profile"
-                     :userProfile="userProfile"
                      :adminView="adminView">
         </plan-a-trip>
         <your-trips v-if="yourTrips"
                     :destinations="destinations"
                     :profile="profile"
-                    :userProfile="userProfile"
                     :adminView="adminView">
         </your-trips>
         <footer-main></footer-main>
@@ -39,11 +37,6 @@
     export default {
         name: "Trips",
         props: {profile: Object,
-            userProfile: {
-                default: function() {
-                    return this.profile
-                }
-            },
             destinations: Array,
             adminView: Boolean,
         },
