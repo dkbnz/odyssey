@@ -332,7 +332,7 @@
             /**
              * Method to delete a user's profile. This method is only available if the currently logged in
              * user is an admin. Backend validation ensures a user cannot bypass this.
-             * @param makeAdminProfile      the selected profile to be deleted.
+             * @param deleteUser      the selected profile to be deleted.
              */
             deleteUser(deleteUser) {
                 let self = this;

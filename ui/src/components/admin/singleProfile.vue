@@ -21,8 +21,27 @@
 
             </b-col>
 
-            <b-col cols="8" class="singleProfile">
-                Rest of the page
+            <b-col cols="9" class="singleProfile">
+                <view-profile v-if="currentDisplay === 0"
+                              :trips="trips"
+                              v-bind:profile="profile"
+                              v-bind:nationalityOptions="nationalityOptions"
+                v-bind:travTypeOptions="travTypeOptions"></view-profile>
+                <plan-a-trip v-if="currentDisplay === 1"
+                             :heading="'Plan a Trip'"
+                             :subHeading="'Book your next trip!'"
+                             :destinations="destinations"
+                             :profile="profile"
+                :adminView="adminView"></plan-a-trip>
+                <your-trips v-if="currentDisplay === 2"
+                            :destinations="destinations"
+                            :profile="profile"
+                            :userProfile="profile"
+                :admin-view="adminView"></your-trips>
+                <edit-profile v-if="editProfile"
+                              v-bind:profile="profile"
+                              v-bind:nationalityOptions="nationalityOptions"
+                              v-bind:travTypeOptions="travTypeOptions"></edit-profile>
             </b-col>
         </b-row>
     </div>
@@ -30,6 +49,10 @@
 
 <script>
     import NavBarMain from '../helperComponents/navbarMain.vue'
+    import ViewProfile from "./../dash/viewProfile.vue"
+    import PlanATrip from './../trips/planATrip.vue'
+    import YourTrips from './../trips/yourTrips.vue'
+    import EditProfile from "./../dash/editProfile.vue"
 
     export default {
         name: "singleProfile",
@@ -39,11 +62,16 @@
             editProfile: Object
         },
         components: {
-            NavBarMain
+            ViewProfile,
+            PlanATrip,
+            YourTrips,
+            EditProfile,
+            NavBarMain,
         },
         data() {
             return {
-                profileImage: {blank: true, width: 75, height: 75, class: 'm1'}
+                profileImage: {blank: true, width: 75, height: 75, class: 'm1'},
+                currentDisplay: 0,
             }
         },
         methods: {

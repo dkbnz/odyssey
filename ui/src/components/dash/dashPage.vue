@@ -19,7 +19,8 @@
         <edit-profile v-if="editProfile"
                       v-bind:profile="profile"
                       v-bind:nationalityOptions="nationalityOptions"
-                      v-bind:travTypeOptions="travTypeOptions"></edit-profile>
+                      v-bind:travTypeOptions="travTypeOptions"
+                      v-bind:admin-view="adminView"></edit-profile>
 
         <footer-main></footer-main>
     </div>
@@ -38,7 +39,7 @@
 
     export default {
         name: "dashPage",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips'],
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'adminView'],
         data: function() {
             return {
                 viewProfile: true,
