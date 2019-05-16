@@ -27,6 +27,18 @@ public class TripRepository {
         profile.save();
     }
 
+    /**
+     * Updates a trip with new attributes and destinations
+     * @param profile           The profile which is having a trip be updated
+     * @param trip              The updated trip
+     * @param destinationList   List of destinations to be added to the trip
+     */
+    public void updateTrip(Profile profile, Trip trip, List<TripDestination> destinationList) {
+        trip.setDestinations(destinationList);
+        trip.update();
+        profile.update();
+    }
+
 
 
     /**

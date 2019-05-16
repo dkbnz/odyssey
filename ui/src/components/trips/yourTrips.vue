@@ -153,8 +153,8 @@
                      :sort-desc="sortDescPast"
                      :per-page="perPagePast"
                      :current-page="currentPagePast"
-                     :busy="pastTrips.length === 0"
-            >
+                     :busy="pastTrips.length === 0">
+
                 <div slot="table-busy" class="text-center my-2">
                     <strong>Can't find any trips!</strong>
                 </div>
@@ -239,12 +239,9 @@
     import PlanATrip from './planATrip.vue'
     export default {
         name: "YourTrips",
-        props: {profile: Object,
-            userProfile: {
-                default: function() {
-                    return this.profile
-                }
-            },
+        props: {
+            profile: Object,
+            userProfile: Object,
             destinations: Array,
             adminView: Boolean,
         },
@@ -415,7 +412,6 @@
                 fetch('/v1/trips/' + trip.id + "/" + this.profile.id, {
                         method: 'DELETE',
                 }).then(function (response) {
-                    console.log(response);
                     if (response.ok) {
                         self.validDelete = true;
                         self.getAllTrips();
@@ -430,9 +426,10 @@
                 });
             },
 
+            /**
+             *
+             */
             getPermissions() {
-                console.log("---------------------------");
-                console.log(this.adminView);
                 this.hasPermission = (this.userProfile.id === this.profile.id ||
                     (this.userProfile.isAdmin && this.adminView));
             },
