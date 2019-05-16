@@ -26,7 +26,11 @@
         </ul>
 
         <!-- Displays a profile's trips -->
-        <your-trips :userProfile="userProfile" :profile="profile"></your-trips>
+        <your-trips :userProfile="userProfile"
+                    :profile="profile"
+                    :adminView="adminView"
+                    :destinations="destinations">
+        </your-trips>
     </div>
 </template>
 
@@ -35,7 +39,7 @@
 
     export default {
         name: "viewProfile",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'userProfile', 'adminView'],
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'userProfile', 'adminView', 'destinations'],
         data () {
             return {
             }
