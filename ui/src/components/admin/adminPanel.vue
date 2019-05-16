@@ -15,6 +15,7 @@
             :profile="profile"
             :nationalityOptions="nationalityOptions"
             :travTypeOptions="travTypeOptions"
+            :destinations="destinations"
             @go-back="setProfileToEdit">
         </single-profile>
     </div>
@@ -41,7 +42,6 @@
              * user.
              */
             setProfileToEdit(editProfile) {
-                console.log(editProfile);
                 this.editProfile = editProfile;
                 this.viewSingleProfile = true;
                 //this.$router.push('/singleProfile')
