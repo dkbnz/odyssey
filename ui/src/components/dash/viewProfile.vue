@@ -35,7 +35,7 @@
 
     export default {
         name: "viewProfile",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'userProfile'],
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'userProfile', 'adminView'],
         data () {
             return {
             }
