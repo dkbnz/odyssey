@@ -9,7 +9,7 @@
         </b-navbar>
 
         <plan-a-trip v-if="planATrip" :heading="'Plan a Trip'" :subHeading="'Book your next trip!'" :destinations="destinations" :profile="profile" :adminView="adminView"></plan-a-trip>
-        <your-trips v-if="yourTrips" :destinations="destinations" :profile="profile" :userProfile="profile" :admin-view="adminView"></your-trips>
+        <your-trips v-if="yourTrips" :destinations="destinations" :profile="profile" :userProfile="profile" :adminView="adminView"></your-trips>
         <footer-main></footer-main>
     </div>
     <div v-else>
