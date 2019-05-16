@@ -12,8 +12,9 @@
                             header="Search for Profiles"
                             header-tag="header">
                         <!-- Display the search profiles component -->
-                        <profiles-page :key="refreshProfiles" :perPage=5 :adminView="true" :profile="profile"
-                                       :nationalityOptions="nationalityOptions" :travTypeOptions="travTypeOptions">
+                        <profiles-page :key="refreshProfiles" @admin-edit="navigateToSingleProfile" :perPage=5
+                                       :adminView="true" :profile="profile" :nationalityOptions="nationalityOptions"
+                                       :travTypeOptions="travTypeOptions">
                         </profiles-page>
 
                     </b-card>
@@ -53,6 +54,7 @@
                     </b-col>
                 </b-row>
             </b-modal>
+            <single-profile v-if="showSingleProfile"></single-profile>
         </div>
 
     </div>
@@ -62,12 +64,14 @@
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import ProfilesPage from '../profiles/profilesPage.vue'
     import SignUp from '../index/signup.vue'
+    import SingleProfile from './singleProfile.vue'
     export default {
         name: "adminPanel",
         props: ['profile', 'nationalityOptions', 'travTypeOptions'],
         data() {
             return {
-                refreshProfiles: 0
+                refreshProfiles: 0,
+                showSingleProfile: false
             }
         },
         methods: {
@@ -91,14 +95,16 @@
              * Navigates to the single profile page where an admin can achieve all functionality of the selected
              * user.
              */
-            navigateToSingleProfile() {
-
+            navigateToSingleProfile(profile) {
+                console.log(profile);
+                this.showSingleProfile = true;
             }
         },
         components: {
             NavBarMain,
             ProfilesPage,
-            SignUp
+            SignUp,
+            SingleProfile
         }
     }
 </script>
