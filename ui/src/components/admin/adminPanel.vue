@@ -97,7 +97,7 @@
              */
             navigateToSingleProfile(profile) {
                 console.log(profile);
-                this.showSingleProfile = true;
+                this.$router.push('/singleProfile')
             }
         },
         components: {
