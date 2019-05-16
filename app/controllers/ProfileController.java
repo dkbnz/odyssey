@@ -35,16 +35,16 @@ public class ProfileController {
     private static final Logger LOGGER = Logger.getLogger( ProfileController.class.getName() );
     private static final String USERNAME = "username";
     private static final String PASS_FIELD = "password";
-    private static final String FIRST_NAME = "first_name";
-    private static final String MIDDLE_NAME = "middle_name";
-    private static final String LAST_NAME = "last_name";
-    private static final String PASSPORT = "passport_country";
-    private static final String NATIONALITY = "nationality";
+    private static final String FIRST_NAME = "firstName";
+    private static final String MIDDLE_NAME = "middleName";
+    private static final String LAST_NAME = "lastName";
+    private static final String PASSPORT = "passports";
+    private static final String NATIONALITY = "nationalities";
     private static final String GENDER = "gender";
     private static final String MIN_AGE = "min_age";
     private static final String MAX_AGE = "max_age";
-    private static final String TRAVELLER_TYPE = "traveller_type";
-    private static final String DATE_OF_BIRTH = "date_of_birth";
+    private static final String TRAVELLER_TYPE = "travellerTypes";
+    private static final String DATE_OF_BIRTH = "dateOfBirth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
     private static final String CREATED_BY_ADMIN = "createdByAdmin";
@@ -219,7 +219,7 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-                    return ok(userProfile.toJson());
+                    return ok(Json.toJson(userProfile));
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }

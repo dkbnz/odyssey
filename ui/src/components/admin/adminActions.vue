@@ -96,7 +96,6 @@
             },
             getSingleProfile(editProfile) {
                 this.$emit('admin-edit', editProfile);
-                //console.log(editProfile);
             }
         },
         components: {
