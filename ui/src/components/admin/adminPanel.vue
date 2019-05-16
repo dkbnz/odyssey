@@ -5,13 +5,14 @@
         <admin-actions :profile="profile"
                        :nationalityOptions="nationalityOptions"
                        :travTypeOptions="travTypeOptions"
-                        @admin-edit="navigateToSingleProfile"
+                        @admin-edit="setProfileToEdit"
                        v-if="editProfile === null">
         </admin-actions>
         <single-profile
-        :editProfile="editProfile"
-        :profile="profile"
-        v-else>
+            :editProfile="editProfile"
+            :profile="profile"
+            v-else
+            @go-back="setProfileToEdit">
         </single-profile>
     </div>
 </template>
@@ -36,7 +37,7 @@
              * Navigates to the single profile page where an admin can achieve all functionality of the selected
              * user.
              */
-            navigateToSingleProfile(editProfile) {
+            setProfileToEdit(editProfile) {
                 console.log(editProfile);
                 this.editProfile = editProfile;
                 this.viewSingleProfile = true;
