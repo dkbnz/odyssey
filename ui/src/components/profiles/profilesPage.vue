@@ -148,8 +148,8 @@
                                 <!--<b-button size="sm" @click="emitAdminEdit(row.item)" variant="warning" class="mr-2" block>-->
                                     <!--Show More Details-->
                                 <!--</b-button>-->
-                                <b-button size="sm" block @click="row.toggleDetails" variant="warning" class="mr-2">
-                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
+                                <b-button size="sm" block @click="emitAdminEdit(row.item)" variant="warning" class="mr-2">
+                                    Show More Details
                                 </b-button>
 
                                 <b-button v-if="profile.isAdmin && row.item.id !== 1" :disabled="row.item.id===1"

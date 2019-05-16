@@ -352,7 +352,7 @@ public class TripController extends Controller {
         Integer loggedInUserId = getLoggedInUserId(request);
 
         // Check if a user is logged in.
-        if (loggedInUserId != null) {
+        if (userId != null) {
 
             // Retrieve the profile having its trip removed.
             // Use the trip to find the user.
