@@ -26,7 +26,7 @@
         </ul>
 
         <!-- Displays a profile's trips -->
-        <your-trips :userProfile="userProfile" :profile="profile"></your-trips>
+        <your-trips :userProfile="userProfile" :profile="profile" :adminView="adminView"></your-trips>
     </div>
 </template>
 
