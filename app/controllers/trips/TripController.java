@@ -47,6 +47,9 @@ public class TripController extends Controller {
 
             // User is logged in
             Profile loggedProfile = Profile.find.byId(Integer.valueOf(loggedUserId));
+            if (loggedProfile == null) {
+                return unauthorized();
+            }
 
             JsonNode json = request.body().asJson();
 
@@ -119,16 +122,19 @@ public class TripController extends Controller {
      * @param request   Http Request containing Json Body of the selected trip to modify.
      * @param id        the id of the trip being modified.
      * @return          ok() (Http 200) if the trip has been successfully modified. If the trip is not valid, returns a
-     *                  badRequest() (Http 400). If the user is not logged in, returns a unauthorized()
+     *                  badRequest() (Http 400). If the user is not logged in, returns an unauthorized()
      *                  (Http 401).
      */
     public Result edit(Http.Request request, Long id) {
-        String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
+        String loggedUserId = request.session().getOptional(AUTHORIZED).orElseGet(null);
 
-        if (userId != null ) {
+        if (loggedUserId != null ) {
 
             // Current profile
-            Profile profile = Profile.find.byId(Integer.valueOf(userId));
+            Profile loggedProfile = Profile.find.byId(Integer.valueOf(loggedUserId));
+            if (loggedProfile == null) {
+                return unauthorized();
+            }
 
             JsonNode json = request.body().asJson();
 
@@ -136,28 +142,36 @@ public class TripController extends Controller {
                 return badRequest();
             }
 
-            // Trip being modified
-            Trip trip = Trip.find.byId(id.intValue());
+            // Retrieve the id of the profile having a trip created for it.
+            String affectedUserId = json.get(AFFECTED_USER_ID).asText();
 
-            if (trip == null)
-                return badRequest();
+            if (affectedUserId.equals(loggedUserId) || loggedProfile.isAdmin) {
 
-            String name = json.get(NAME).asText();
-            trip.setName(name);
+                Profile affectedProfile = Profile.find.byId(Integer.valueOf(affectedUserId));
 
-            repository.removeTripDestinations(trip);
+                // Trip being modified
+                Trip trip = Trip.find.byId(id.intValue());
 
-            // Create a json node for the destinations contained in the trip to use for iteration.
-            ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
+                if (trip == null)
+                    return badRequest();
 
-            // Create an empty List for TripDestination objects to be populated from the request.
-            List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
+                String name = json.get(NAME).asText();
+                trip.setName(name);
 
-            if (destinationList != null && isValidDateOrder(destinationList)) {
-                trip.setDestinations(destinationList);
-                trip.update();
-                profile.update();
-            } else {
+                repository.removeTripDestinations(trip);
+
+                // Create a json node for the destinations contained in the trip to use for iteration.
+                ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
+
+                // Create an empty List for TripDestination objects to be populated from the request.
+                List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
+
+                if (destinationList != null && isValidDateOrder(destinationList)) {
+                    repository.updateTrip(affectedProfile, trip, destinationList);
+                } else {
+                    return badRequest();
+                }
+            } else{
                 return badRequest();
             }
         } else {
