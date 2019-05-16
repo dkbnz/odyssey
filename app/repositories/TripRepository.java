@@ -28,6 +28,20 @@ public class TripRepository {
     }
 
 
+    /**
+     * Updates an existing trip as well as the profile it belongs to within the database.
+     * @param profile       The profile having its trip updated with an edited trip.
+     * @param trip          The existing trip being updated after editing.
+     */
+    public void updateOldTrip(Profile profile, Trip trip) {
+
+        // Update the trip on the database with its edited details.
+        trip.update();
+
+        // Update the profile containing the trip.
+        profile.update();
+    }
+
 
     /**
      * Removes the existing TripDestinations from a trip being edited.
