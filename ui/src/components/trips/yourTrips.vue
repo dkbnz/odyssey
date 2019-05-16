@@ -30,6 +30,7 @@
                 <plan-a-trip
                         v-on:tripSaved="getAllTrips()"
                         :destinations="destinations"
+                        :profile="profile"
                         :inputTrip="selectedTrip"
                         :heading="'Edit a Trip'"
                         :subHeading="'Edit your trip using the form below'"
@@ -241,7 +242,11 @@
         name: "YourTrips",
         props: {
             profile: Object,
-            userProfile: Object,
+            userProfile: {
+                default: function() {
+                    return this.profile
+                }
+            },
             destinations: Array,
             adminView: Boolean,
         },
