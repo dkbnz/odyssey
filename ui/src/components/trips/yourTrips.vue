@@ -412,7 +412,7 @@
                 this.showError = false;
                 this.validDelete = false;
                 let self = this;
-                fetch('/v1/trips/' + trip.id, {
+                fetch('/v1/trips/' + trip.id + "/" + this.profile.id, {
                         method: 'DELETE',
                 }).then(function (response) {
                     console.log(response);
