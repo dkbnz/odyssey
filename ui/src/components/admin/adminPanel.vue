@@ -2,16 +2,19 @@
     <div>
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
         <!--<single-profile></single-profile>-->
-        <admin-actions :profile="profile"
-                       :nationalityOptions="nationalityOptions"
-                       :travTypeOptions="travTypeOptions"
-                        @admin-edit="setProfileToEdit"
-                       v-if="editProfile === null">
+        <admin-actions
+            v-if="editProfile === null"
+            :profile="profile"
+            :nationalityOptions="nationalityOptions"
+            :travTypeOptions="travTypeOptions"
+            @admin-edit="setProfileToEdit">
         </admin-actions>
         <single-profile
+            v-else
             :editProfile="editProfile"
             :profile="profile"
-            v-else
+            :nationalityOptions="nationalityOptions"
+            :travTypeOptions="travTypeOptions"
             @go-back="setProfileToEdit">
         </single-profile>
     </div>

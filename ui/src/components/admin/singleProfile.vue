@@ -63,7 +63,10 @@
         props: {
             adminView: Boolean,
             profile: Object,
-            editProfile: Object
+            editProfile: Object,
+            nationalityOptions: Array,
+            travTypeOptions: Array
+
         },
         components: {
             ViewProfile,
