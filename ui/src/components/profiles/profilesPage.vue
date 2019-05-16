@@ -145,8 +145,8 @@
                                           @click="removeAdmin(row.item)" class="mr-2" block>
                                     Remove Admin
                                 </b-button>
-                                <b-button size="sm" @click="row.toggleDetails" variant="warning" class="mr-2" block>
-                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
+                                <b-button size="sm" @click="emitAdminEdit(row.item)" variant="warning" class="mr-2" block>
+                                    Show More Details
                                 </b-button>
 
                                 <b-button v-if="profile.isAdmin && row.item.id !== 1" :disabled="row.item.id===1"
@@ -216,7 +216,7 @@
     export default {
         name: "profilesPage",
         props: {
-            profile: Object,
+            profile: String,
             nationalityOptions: Array,
             travTypeOptions: Array,
             adminView: Boolean,
@@ -225,9 +225,6 @@
                     return 10;
                 }
             }
-        },
-        created() {
-            document.title = "TravelEA - Profiles";
         },
         components: {
             ViewProfile,
@@ -433,6 +430,13 @@
              */
             dismissModal() {
                 this.$refs['deleteModal'].hide();
+            },
+
+            /**
+             * Emits the event that the admin is viewing a profile to edit, this will navigate to the edit page.
+             */
+            emitAdminEdit(profile) {
+                this.$emit('admin-edit', profile);
             }
 
         },
