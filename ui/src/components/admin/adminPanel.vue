@@ -2,12 +2,12 @@
     <div>
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
         <!--<single-profile></single-profile>-->
-        <admin-actions
-            v-if="editProfile === null"
-            :profile="profile"
-            :nationalityOptions="nationalityOptions"
-            :travTypeOptions="travTypeOptions"
-            @admin-edit="setProfileToEdit">
+        <admin-actions :profile="profile"
+                       :nationalityOptions="nationalityOptions"
+                       :travTypeOptions="travTypeOptions"
+                       :destinations="destinations"
+                        @admin-edit="setProfileToEdit"
+                       v-if="editProfile === null">
         </admin-actions>
         <single-profile
             v-else
@@ -27,7 +27,7 @@
 
     export default {
         name: "adminPanel",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'destinations'],
         data() {
             return {
                 showSingleProfile: false,

@@ -145,8 +145,11 @@
                                           @click="removeAdmin(row.item)" class="mr-2" block>
                                     Remove Admin
                                 </b-button>
-                                <b-button size="sm" @click="emitAdminEdit(row.item)" variant="warning" class="mr-2" block>
-                                    Show More Details
+                                <!--<b-button size="sm" @click="emitAdminEdit(row.item)" variant="warning" class="mr-2" block>-->
+                                    <!--Show More Details-->
+                                <!--</b-button>-->
+                                <b-button size="sm" block @click="row.toggleDetails" variant="warning" class="mr-2">
+                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
                                 </b-button>
 
                                 <b-button v-if="profile.isAdmin && row.item.id !== 1" :disabled="row.item.id===1"
@@ -165,7 +168,7 @@
                     </template>
                     <template slot="row-details" slot-scope="row">
                         <b-card>
-                            <view-profile :profile="row.item" :userProfile="profile"></view-profile>
+                            <view-profile :profile="row.item" :userProfile="profile" :admin-view="adminView" :destinations="destinations"></view-profile>
                         </b-card>
                     </template>
 
@@ -220,6 +223,7 @@
             nationalityOptions: Array,
             travTypeOptions: Array,
             adminView: Boolean,
+            destinations: Array,
             perPage: {
                 default: function() {
                     return 10;
