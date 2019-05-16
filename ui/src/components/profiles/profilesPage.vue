@@ -168,7 +168,11 @@
                     </template>
                     <template slot="row-details" slot-scope="row">
                         <b-card>
-                            <view-profile :profile="row.item" :userProfile="profile" :admin-view="adminView" :destinations="destinations"></view-profile>
+                            <view-profile :profile="row.item"
+                                          :userProfile="profile"
+                                          :admin-view="adminView"
+                                          :destinations="destinations">
+                            </view-profile>
                         </b-card>
                     </template>
 
