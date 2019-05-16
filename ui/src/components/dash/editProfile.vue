@@ -378,7 +378,7 @@
                     body: JSON.stringify({'username': this.saveProfile.username})
 
                 }).then(function(response) {
-                    self.validEmail = response.ok;
+                    self.validEmail = response.ok || (self.saveProfile.username === self.profile.username)
                 })
 
             },
