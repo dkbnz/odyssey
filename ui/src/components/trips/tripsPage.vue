@@ -27,9 +27,6 @@
     export default {
         name: "Trips",
         props: ['profile', 'destinations'],
-        created() {
-            document.title = "TravelEA - Trips";
-        },
         data: function() {
             return {
                 planATrip: true,
