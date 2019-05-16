@@ -81,4 +81,14 @@ public class TripRepository {
 
         return trips;
     }
+
+
+    /**
+     * Finds a single trip with a given id. Returns null if no such trip was found.
+     * @param tripId        The id of the trip.
+     * @return              The Trip object associated with the id. Null if no trip was found.
+     */
+    public Trip fetchSingleTrip(Long tripId) {
+        return Trip.find.byId(tripId.intValue());
+    }
 }
