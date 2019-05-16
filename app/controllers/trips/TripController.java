@@ -34,8 +34,9 @@ public class TripController extends Controller {
     /**
      * Creates a trips for a user based on information sent in the Http Request body. A trip will have a trip name,
      * and at least two destinations.
-     * @param request   Http Request containing Json Body.
-     * @return          created() (Http 201) response for successful trip creation, or badRequest() (Http 400).
+     * @param request           Http Request containing Json Body.
+     * @param affectedUserId
+     * @return                  created() (Http 201) response for successful trip creation, or badRequest() (Http 400).
      */
     public Result create(Http.Request request, Long affectedUserId) {
         return request.session()
@@ -82,56 +83,6 @@ public class TripController extends Controller {
                 })
                 .orElseGet(() -> unauthorized());
     }
-//
-//
-//        // Retrieve the id of the current user from the session.
-//        Long loggedUserId = Long.valueOf(request.session().getOptional(AUTHORIZED).orElseGet(null));
-//
-//        if (loggedUserId != null) {
-//
-//            // User is logged in
-//            Profile loggedProfile = Profile.find.byId(loggedUserId);
-//
-//            JsonNode json = request.body().asJson();
-//
-//            if (!isValidTrip(json)) {
-//                return badRequest();
-//            }
-//
-//            // Retrieve the id of the profile having a trip created for it.
-//            String affectedUserId = request;
-//
-//
-//            if (affectedUserId.equals(loggedUserId) || loggedProfile.isAdmin) {
-//
-//                Profile affectedProfile = Profile.find.byId(Integer.valueOf(affectedUserId));
-//
-//                // Create a trip object and give it the name extracted from the request.
-//                Trip trip = new Trip();
-//                trip.setName(json.get(NAME).asText());
-//
-//                // Create a json node for the destinations contained in the trip to use for iteration.
-//                ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
-//
-//                // Create an empty List for TripDestination objects to be populated from the request.
-//                List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
-//                // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return OK.
-//
-//                if (destinationList != null && isValidDateOrder(destinationList)) {
-//                    trip.setDestinations(destinationList);
-//                    repository.saveNewTrip(affectedProfile, trip);
-//                    return created();
-//                } else {
-//                    return badRequest();
-//                }
-//            } else {
-//                return badRequest();
-//            }
-//
-//        } else {
-//            return unauthorized();
-//        }
-//    }
 
     /**
      * Method for looking at the contents of the main Json body for a trip in a request.
@@ -141,10 +92,6 @@ public class TripController extends Controller {
      *                  returns true.
      */
     private boolean isValidTrip(JsonNode json) {
-
-        if (!(json.has(AFFECTED_USER_ID))) {
-            return false;
-        }
 
         // Check if the request contains a trip name and an array of destinations.
         if (!(json.has(NAME) && json.has(TRIP_DESTINATIONS))) {
