@@ -6,6 +6,7 @@ import models.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
+import repositories.ProfileRepository;
 import repositories.TripRepository;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -319,34 +320,54 @@ public class TripController extends Controller {
         return ok(Json.toJson(trips));
     }
 
+
+    /**
+     * Gets the logged in user id from a given request.
+     * @param request       The Http request that was received.
+     * @return              An integer value of the logged in user id, null if there is no logged in user.
+     */
+    private Integer getLoggedInUserId(Http.Request request) {
+        String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
+        try {
+            return Integer.valueOf(userId);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+
     /**
      * Deletes a trip from the user currently logged in.
      * @param request   Http request from the client, from which the current user profile can be obtained.
-     * @param id        the id of the trip being deleted from a profile
-     * @return          notFound() (Http 404) if no profile or no trip is found. If the trip is not in the user's list
-     *                  of trips, returns forbidden() (Http 403). If the user is not logged in, returns unauthorized(),
-     *                  (Http 401). Otherwise, if trip is successfully deleted, returns ok() (Http 200).
+     * @param tripId    the id of the trip being deleted from a profile
+     * @return          If no profile or no trip is found, returns notFound() (Http 404).
+     *                  If the trip is not in the user's list of trips, returns forbidden() (Http 403).
+     *                  If the user is not logged in, returns unauthorized() (Http 401).
+     *                  Otherwise, if trip is successfully deleted, returns ok() (Http 200).
      */
-    public Result destroy(Http.Request request, Long id) {
+    public Result destroy(Http.Request request, Long tripId) {
 
-        String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
+        Integer userId = getLoggedInUserId(request);
 
         // Check if a user is logged in.
         if (userId != null) {
 
             // Retrieve the profile having its trip removed.
-            Profile profile = Profile.find.byId(Integer.valueOf(userId));
+            // Use the trip to find the user.
+
+            Profile loggedInUser = ProfileRepository.fetchSingleProfile(userId);
 
             // Retrieve the individual trip being deleted by its id.
-            Trip trip = Trip.find.byId(id.intValue());
+            Trip trip = repository.fetchSingleTrip(tripId);
+
 
             // Check for query success.
-            if (profile == null || trip == null) {
+            if (loggedInUser == null || trip == null) {
                 return notFound();
             }
             boolean tripInProfile = false;
-            for (Trip tempTrip : profile.getTrips()) {
-                if (tempTrip.getId().equals(id)) {
+            for (Trip tempTrip : loggedInUser.getTrips()) {
+                if (tempTrip.getId().equals(tripId)) {
                     tripInProfile = true;
                 }
             }
@@ -355,7 +376,7 @@ public class TripController extends Controller {
             }
 
             // Repository method handling the database and object manipulation.
-            repository.deleteTripFromProfile(profile, trip);
+            repository.deleteTripFromProfile(loggedInUser, trip);
 
         } else {
             return unauthorized();
