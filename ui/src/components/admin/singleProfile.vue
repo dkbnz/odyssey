@@ -6,14 +6,14 @@
                     <b-collapse id="nav-collapse-admin" is-nav>
                         <b-nav vertical class="singleProfileNav">
                             <b-nav-item @click="goBack">Go Back</b-nav-item>
-                            <b-navbar-brand>
+                            <b-navbar-brand @click="currentDisplay = 0">
                                 <b-img v-bind="profileImage" blank-color="#777" rounded="circle" alt="Circle image">
                                 </b-img>
                                 {{editProfile.firstName}}
                             </b-navbar-brand>
-                            <b-nav-item>Add Trips</b-nav-item>
-                            <b-nav-item>View Trips</b-nav-item>
-                            <b-nav-item>Edit Profile</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 1">Edit Profile</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 2">View Trips</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 3">Add Trips</b-nav-item>
                         </b-nav>
                     </b-collapse>
                     <b-navbar-toggle target="nav-collapse-admin"></b-navbar-toggle>
@@ -24,24 +24,28 @@
             <b-col cols="9" class="singleProfile">
                 <view-profile v-if="currentDisplay === 0"
                               :trips="trips"
-                              v-bind:profile="profile"
-                              v-bind:nationalityOptions="nationalityOptions"
-                v-bind:travTypeOptions="travTypeOptions"></view-profile>
-                <plan-a-trip v-if="currentDisplay === 1"
+                              :profile="editProfile"
+                              :nationalityOptions="nationalityOptions"
+                              :travTypeOptions="travTypeOptions">
+                </view-profile>
+                <edit-profile v-if="currentDisplay === 1"
+                              :profile="editProfile"
+                              :nationalityOptions="nationalityOptions"
+                              :travTypeOptions="travTypeOptions">
+                </edit-profile>
+                <your-trips v-if="currentDisplay === 2"
+                            :destinations="destinations"
+                            :profile="editProfile"
+                            :userProfile="editProfile"
+                            :admin-view="adminView">
+                </your-trips>
+                <plan-a-trip v-if="currentDisplay === 3"
                              :heading="'Plan a Trip'"
                              :subHeading="'Book your next trip!'"
                              :destinations="destinations"
-                             :profile="profile"
-                :adminView="adminView"></plan-a-trip>
-                <your-trips v-if="currentDisplay === 2"
-                            :destinations="destinations"
-                            :profile="profile"
-                            :userProfile="profile"
-                :admin-view="adminView"></your-trips>
-                <edit-profile v-if="editProfile"
-                              v-bind:profile="profile"
-                              v-bind:nationalityOptions="nationalityOptions"
-                              v-bind:travTypeOptions="travTypeOptions"></edit-profile>
+                             :profile="editProfile"
+                             :adminView="adminView">
+                </plan-a-trip>
             </b-col>
         </b-row>
     </div>
