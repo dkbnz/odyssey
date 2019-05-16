@@ -5,9 +5,11 @@
                 <b-navbar toggleable="lg">
                     <b-collapse id="nav-collapse-admin" is-nav>
                         <b-nav vertical class="singleProfileNav">
+                            <b-nav-item @click="goBack">Go Back</b-nav-item>
                             <b-navbar-brand>
                                 <b-img v-bind="profileImage" blank-color="#777" rounded="circle" alt="Circle image">
                                 </b-img>
+                                {{editProfile.firstName}}
                             </b-navbar-brand>
                             <b-nav-item>Add Trips</b-nav-item>
                             <b-nav-item>View Trips</b-nav-item>
@@ -31,13 +33,22 @@
 
     export default {
         name: "singleProfile",
-        props: ['adminView', 'profile', 'editProfile'],
+        props: {
+            adminView: Boolean,
+            profile: Object,
+            editProfile: Object
+        },
         components: {
             NavBarMain
         },
         data() {
             return {
                 profileImage: {blank: true, width: 75, height: 75, class: 'm1'}
+            }
+        },
+        methods: {
+            goBack() {
+                this.$emit('go-back', null);
             }
         }
     }
