@@ -402,7 +402,7 @@
              */
             submitSaveProfile() {
                 let self = this;
-                fetch('/v1/profile', {
+                fetch('/v1/profile/' + this.profile.id, {
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.saveProfile)
