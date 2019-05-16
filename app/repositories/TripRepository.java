@@ -27,6 +27,18 @@ public class TripRepository {
         profile.save();
     }
 
+    /**
+     * Updates a trip with new attributes and destinations
+     * @param profile           The profile which is having a trip be updated
+     * @param trip              The updated trip
+     * @param destinationList   List of destinations to be added to the trip
+     */
+    public void updateTrip(Profile profile, Trip trip, List<TripDestination> destinationList) {
+        trip.setDestinations(destinationList);
+        trip.update();
+        profile.update();
+    }
+
 
     /**
      * Updates an existing trip as well as the profile it belongs to within the database.
@@ -94,5 +106,15 @@ public class TripRepository {
         trips = expressionList.findList();
 
         return trips;
+    }
+
+
+    /**
+     * Finds a single trip with a given id. Returns null if no such trip was found.
+     * @param tripId        The id of the trip.
+     * @return              The Trip object associated with the id. Null if no trip was found.
+     */
+    public Trip fetchSingleTrip(Long tripId) {
+        return Trip.find.byId(tripId.intValue());
     }
 }
