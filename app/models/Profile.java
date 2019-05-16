@@ -23,8 +23,10 @@ import java.util.List;
 public class Profile extends BaseModel {
 
     public String username;
+
     @JsonIgnore
     public String password;
+
     public String firstName;
     public String middleName;
     public String lastName;
@@ -62,17 +64,6 @@ public class Profile extends BaseModel {
     }
 
     public void addTrip(Trip trip) {this.trips.add(trip);}
-
-    /**
-     * Converts a Profile object to a JSON readable format
-     *
-     * @return JsonNode object of profile
-     */
-    public JsonNode toJson() {
-        ObjectNode profile = (ObjectNode) Json.toJson(this);
-        profile.remove("password");
-        return profile;
-    }
 
     public String getUsername() {
         return username;

@@ -384,11 +384,11 @@
             queryProfiles() {
                 this.retrievingProfiles = true;
                 let searchQuery =
-                    "?nationality=" + this.searchNationality +
+                    "?nationalities=" + this.searchNationality +
                     "&gender=" + this.searchGender +
                     "&min_age=" + this.searchMinAge +
                     "&max_age=" + this.searchMaxAge +
-                    "&traveller_type=" + this.searchTravType;
+                    "&travellerTypes=" + this.searchTravType;
                 return fetch(`/v1/profiles` + searchQuery, {})
                     .then(this.checkStatus)
                     .then(this.parseJSON)
@@ -401,7 +401,7 @@
             /**
              * Used to check the response of a fetch method. If there is an error code, the code is printed to the
              * console.
-             * @param response, passed back to the getAllTrips function to be parsed into a json.
+             * @param response, passed back to the getAllTrips function to be parsed into a Json.
              * @returns throws the error.
              */
             checkStatus (response) {
@@ -416,9 +416,9 @@
             },
 
             /**
-             * Used to turn the response of the fetch method into a usable JSON.
+             * Used to turn the response of the fetch method into a usable Json.
              * @param response of the fetch method.
-             * @returns the json body of the response.
+             * @returns the Json body of the response.
              */
             parseJSON (response) {
                 return response.json();
@@ -449,11 +449,11 @@
 
         },
         computed: {
+            /**
+             * @returns the number of rows required in the table based on number of profiles to be displayed
+             */
             rows() {
-                /**
-                 * @returns the number of rows required in the table based on number of profiles to be displayed
-                 */
-                return this.profiles.length
+                return this.profiles.length;
             }
         }
     }
