@@ -276,27 +276,27 @@ public class ProfileController {
      * @return          ok() (Http 200) if the profile is successfully updated. Returns unauthorized() (Http 401),
      *                  if not logged in.
      */
-    public Result update(Http.Request request) {
+    public Result update(Http.Request request, Long editUserId) {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
-
-                    Profile profileToUpdate;
                     Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
-                    // User is logged in
+                    Profile profileToUpdate;
+
+                    // If user is admin, or if they are editing their own profile then allow them to edit.
+                    if(loggedInUser.getIsAdmin() || editUserId == Long.valueOf(userId)) {
+                        profileToUpdate = Profile.find.byId(editUserId.intValue());
+                    } else if (editUserId != Long.valueOf(userId)) {
+                        return forbidden(); // User has specified an id which is not their own, but is not admin
+                    } else {
+                        return badRequest(); // User has not specified an id, but is trying to update their own profile
+                    }
+
+                    if (profileToUpdate == null) {
+                        return badRequest(); // User does not exist in the system.
+                    }
 
                     JsonNode json = request.body().asJson();
-
-                    if(json.has(ID) && loggedInUser.getIsAdmin()) { // Admin has defined an id to update
-                        profileToUpdate = Profile.find.byId(json.get(ID).asInt());
-                        if (profileToUpdate == null) {
-                            return badRequest(); // User does not exist in the system.
-                        }
-                    } else if(json.has(ID)) { // User has specified an id, but is not admin
-                        return forbidden();
-                    } else { // User has not specified an id, but is trying to update their own profile
-                        profileToUpdate = loggedInUser;
-                    }
 
                     if (!(json.has(USERNAME)
                             && json.has(PASS_FIELD)
@@ -314,6 +314,12 @@ public class ProfileController {
 
                     if(json.get(NATIONALITY).size() == 0
                             || json.get(TRAVELLER_TYPE).size() == 0) {
+                        return badRequest();
+                    }
+
+                    // If the username has been changed, and the changed username exists return badRequest();
+                    if(!json.get(USERNAME).asText().equals(profileToUpdate.getUsername())
+                            && profileExists(json.get(USERNAME).asText())) {
                         return badRequest();
                     }
 

@@ -30,9 +30,6 @@
     export default {
         name: "destinationsPage",
         props: ['profile', 'destinations', 'destinationTypes'],
-        created() {
-            document.title = "TravelEA - Destinations";
-        },
         components: {
             SearchDestinations,
             AddDestinations,
