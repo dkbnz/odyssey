@@ -44,7 +44,7 @@ public class TripController extends Controller {
         if (loggedUserId != null) {
 
 
-            // User is logged in
+            // The logged in user who'll be checked for
             Profile loggedProfile = Profile.find.byId(Integer.valueOf(loggedUserId));
 
             JsonNode json = request.body().asJson();
@@ -56,7 +56,7 @@ public class TripController extends Controller {
             // Retrieve the id of the profile having a trip created for it.
             String affectedUserId = json.get(AFFECTED_USER_ID).asText();
 
-
+            // Check for a normal user making their own trip, or an admin making another user's trip.
             if (affectedUserId.equals(loggedUserId) || loggedProfile.isAdmin) {
 
                 Profile affectedProfile = Profile.find.byId(Integer.valueOf(affectedUserId));
@@ -80,7 +80,7 @@ public class TripController extends Controller {
                     return badRequest();
                 }
             } else {
-                return badRequest();
+                return unauthorized();
             }
 
         } else {
@@ -138,12 +138,14 @@ public class TripController extends Controller {
             // Trip being modified
             Trip trip = Trip.find.byId(id.intValue());
 
-            if (trip == null)
+            if (trip == null) {
                 return badRequest();
+            }
 
             String name = json.get(NAME).asText();
             trip.setName(name);
 
+            // Clear the trip's existing destinations before re-parsing the json array.
             repository.removeTripDestinations(trip);
 
             // Create a json node for the destinations contained in the trip to use for iteration.
@@ -152,10 +154,10 @@ public class TripController extends Controller {
             // Create an empty List for TripDestination objects to be populated from the request.
             List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
 
+            // Final validity check before updating the trip and the profile.
             if (destinationList != null && isValidDateOrder(destinationList)) {
                 trip.setDestinations(destinationList);
-                trip.update();
-                profile.update();
+                repository.updateOldTrip(profile, trip);
             } else {
                 return badRequest();
             }
