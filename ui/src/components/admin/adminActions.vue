@@ -11,9 +11,13 @@
                             header="Search for Profiles"
                             header-tag="header">
                         <!-- Display the search profiles component -->
-                        <profiles-page :key="refreshProfiles" @admin-edit="getSingleProfile" :perPage=5
-                                       :adminView="true" :profile="profile" :nationalityOptions="nationalityOptions"
-                                       :travTypeOptions="travTypeOptions">
+                        <profiles-page :key="refreshProfiles" @admin-edit="getSingleProfile"
+                                       :perPage=5
+                                       :adminView="true"
+                                       :profile="profile"
+                                       :nationalityOptions="nationalityOptions"
+                                       :travTypeOptions="travTypeOptions"
+                                       :destinations="destinations">
                         </profiles-page>
 
                     </b-card>
@@ -23,8 +27,10 @@
                         <b-button v-b-toggle.signUpPage block variant="success">Create a New Profile</b-button>
                         <!-- The collapsible that uses the sign up page to create a new profile -->
                         <b-collapse id="signUpPage" class="mt-2">
-                            <sign-up :nationalityOptions="nationalityOptions" :travTypeOptions="travTypeOptions"
-                                     :createdByAdmin="true" @profile-created="showOptions">
+                            <sign-up :nationalityOptions="nationalityOptions"
+                                     :travTypeOptions="travTypeOptions"
+                                     :createdByAdmin="true"
+                                     @profile-created="showOptions">
                             </sign-up>
                         </b-collapse>
                     </b-card>
@@ -65,7 +71,7 @@
 
     export default {
         name: "adminActions",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'destinations'],
         data() {
             return {
                 refreshProfiles: 0,
