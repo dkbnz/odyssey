@@ -347,15 +347,15 @@ public class TripController extends Controller {
      */
     public Result destroy(Http.Request request, Long tripId, Long userId) {
 
-        Integer userId = getLoggedInUserId(request);
+        Integer loggedInUserId = getLoggedInUserId(request);
 
         // Check if a user is logged in.
-        if (userId != null) {
+        if (loggedInUserId != null) {
 
             // Retrieve the profile having its trip removed.
             // Use the trip to find the user.
 
-            Profile loggedInUser = ProfileRepository.fetchSingleProfile(userId);
+            Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
 
             // Retrieve the individual trip being deleted by its id.
             Trip trip = repository.fetchSingleTrip(tripId);
