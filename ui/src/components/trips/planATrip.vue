@@ -472,8 +472,7 @@
                     }
                     let trip = {
                         trip_name: this.inputTrip.name,
-                        trip_destinations: tripDestinationsList,
-                        create_for_id: this.profile.id
+                        trip_destinations: tripDestinationsList
                     };
                     if(this.inputTrip.id === null) {
                         this.saveNewTrip(trip);
@@ -536,7 +535,7 @@
             saveNewTrip(trip) {
                 this.savingTrip = true;
                 let self = this;
-                fetch('/v1/trips', {
+                fetch('/v1/trips/' + this.profile.id, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)
@@ -569,7 +568,7 @@
             saveOldTrip(trip, tripId) {
                 this.savingTrip = true;
                 let self = this;
-                fetch('/v1/trips/' + tripId, {
+                fetch('/v1/trips/' + tripId + "/" + this.profile.id, {
                     method: 'PATCH',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)

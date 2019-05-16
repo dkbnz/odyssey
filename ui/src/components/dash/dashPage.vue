@@ -13,13 +13,17 @@
         <!--Tab Elements-->
         <view-profile v-if="viewProfile"
                       :trips="trips"
-                      v-bind:profile="profile"
-                      v-bind:nationalityOptions="nationalityOptions"
-                      v-bind:travTypeOptions="travTypeOptions"></view-profile>
+                      :profile="profile"
+                      :nationalityOptions="nationalityOptions"
+                      :travTypeOptions="travTypeOptions"
+                      :destinations="destinations">
+        </view-profile>
         <edit-profile v-if="editProfile"
-                      v-bind:profile="profile"
-                      v-bind:nationalityOptions="nationalityOptions"
-                      v-bind:travTypeOptions="travTypeOptions"></edit-profile>
+                      :profile="profile"
+                      :nationalityOptions="nationalityOptions"
+                      :travTypeOptions="travTypeOptions"
+                      :admin-view="adminView">
+        </edit-profile>
 
         <footer-main></footer-main>
     </div>
@@ -38,10 +42,7 @@
 
     export default {
         name: "dashPage",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips'],
-        created() {
-            document.title = "TravelEA - Dashboard";
-        },
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'adminView', 'destinations'],
         data: function() {
             return {
                 viewProfile: true,

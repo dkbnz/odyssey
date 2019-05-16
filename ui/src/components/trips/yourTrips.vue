@@ -30,6 +30,7 @@
                 <plan-a-trip
                         v-on:tripSaved="getAllTrips()"
                         :destinations="destinations"
+                        :profile="profile"
                         :inputTrip="selectedTrip"
                         :heading="'Edit a Trip'"
                         :subHeading="'Edit your trip using the form below'"
@@ -63,14 +64,14 @@
                               @click="sendTripToModal(row.item)"
                               variant="primary"
                               class="mr-2"
-                              v-if="userProfile.id === profile.id">Edit</b-button>
+                              v-if="hasPermission">Edit</b-button>
                     <b-button size="sm"
                               v-model="deleteButton"
                               v-b-modal.deleteModal
                               @click="sendTripToModal(row.item)"
                               variant="danger"
                               class="mr-2"
-                              v-if="userProfile.id === profile.id">Delete</b-button>
+                              v-if="hasPermission">Delete</b-button>
                 </template>
 
                 <!-- Shows all the trip destinations in a separate nested table -->
@@ -153,8 +154,8 @@
                      :sort-desc="sortDescPast"
                      :per-page="perPagePast"
                      :current-page="currentPagePast"
-                     :busy="pastTrips.length === 0"
-            >
+                     :busy="pastTrips.length === 0">
+
                 <div slot="table-busy" class="text-center my-2">
                     <strong>Can't find any trips!</strong>
                 </div>
@@ -163,10 +164,10 @@
                         {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                     </b-button>
                     <b-button size="sm" v-model="editButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)"
-                              variant="primary" class="mr-2" v-if="userProfile.id === profile.id">Edit
+                              variant="primary" class="mr-2" v-if="hasPermission">Edit
                     </b-button>
                     <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)"
-                              variant="danger" class="mr-2" v-if="userProfile.id === profile.id">Delete
+                              variant="danger" class="mr-2" v-if="hasPermission">Delete
                     </b-button>
                 </template>
 
@@ -239,13 +240,15 @@
     import PlanATrip from './planATrip.vue'
     export default {
         name: "YourTrips",
-        props: {profile: Object,
+        props: {
+            profile: Object,
             userProfile: {
                 default: function() {
                     return this.profile
                 }
             },
-            destinations: Array
+            destinations: Array,
+            adminView: Boolean,
         },
         components: {
             PlanATrip
@@ -285,6 +288,7 @@
                 validDelete: false,
                 editButton: false,
                 deleteButton: false,
+                hasPermission: false,
             }
         },
         mounted () {
@@ -292,6 +296,7 @@
              *  Mounted function that uses the getAllTrips method to populate all a users trips on the page.
              */
             this.getAllTrips();
+            this.getPermissions();
         },
         computed: {
             /**
@@ -409,10 +414,9 @@
                 this.showError = false;
                 this.validDelete = false;
                 let self = this;
-                fetch('/v1/trips/' + trip.id, {
+                fetch('/v1/trips/' + trip.id + "/" + this.profile.id, {
                         method: 'DELETE',
                 }).then(function (response) {
-                    console.log(response);
                     if (response.ok) {
                         self.validDelete = true;
                         self.getAllTrips();
@@ -425,6 +429,14 @@
                     this.showError = true;
                     this.errorMessage = (error);
                 });
+            },
+
+            /**
+             *
+             */
+            getPermissions() {
+                this.hasPermission = (this.userProfile.id === this.profile.id ||
+                    (this.userProfile.isAdmin && this.adminView));
             },
 
             /**
