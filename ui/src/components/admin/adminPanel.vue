@@ -21,8 +21,7 @@
                 :nationalityOptions="nationalityOptions"
                 :travTypeOptions="travTypeOptions"
                 :destinations="destinations"
-                @go-back="setProfileToEdit"
-                @profile-saved="refreshPage">
+                @go-back="setProfileToEdit">
         </single-profile>
     </div>
 </template>
@@ -53,13 +52,6 @@
                 this.editProfile = editProfile;
                 this.viewSingleProfile = true;
                 window.scrollTo(0, 0);
-            },
-
-            /**
-             * Refreshes the single profile when a profile has been successfully saved.
-             */
-            refreshPage() {
-                this.refreshSingleProfile += 1;
             }
         },
         components: {
