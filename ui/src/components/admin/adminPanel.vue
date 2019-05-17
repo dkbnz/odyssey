@@ -1,22 +1,27 @@
 <template>
     <div>
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
-        <!--<single-profile></single-profile>-->
-        <admin-actions :profile="profile"
-                       :nationalityOptions="nationalityOptions"
-                       :travTypeOptions="travTypeOptions"
-                       :destinations="destinations"
-                        @admin-edit="setProfileToEdit"
-                       v-if="editProfile === null">
+        <!-- The admin actions panel, which acts as the Admin Dashboard -->
+        <admin-actions
+                v-if="editProfile === null"
+                :profile="profile"
+                :nationalityOptions="nationalityOptions"
+                :travTypeOptions="travTypeOptions"
+                :destinations="destinations"
+                @admin-edit="setProfileToEdit">
         </admin-actions>
+
+        <!-- Once the admin has selected a profile to work on, this page becomes visible -->
         <single-profile
-            v-else
-            :editProfile="editProfile"
-            :profile="profile"
-            :nationalityOptions="nationalityOptions"
-            :travTypeOptions="travTypeOptions"
-            :destinations="destinations"
-            @go-back="setProfileToEdit">
+                v-else
+                :key="refreshSingleProfile"
+                :adminView="adminView"
+                :editProfile="editProfile"
+                :profile="profile"
+                :nationalityOptions="nationalityOptions"
+                :travTypeOptions="travTypeOptions"
+                :destinations="destinations"
+                @go-back="setProfileToEdit">
         </single-profile>
     </div>
 </template>
@@ -33,7 +38,9 @@
             return {
                 showSingleProfile: false,
                 editProfile: null,
-                viewSingleProfile: false
+                viewSingleProfile: false,
+                adminView: true,
+                refreshSingleProfile: 0
             }
         },
         methods: {
@@ -44,7 +51,7 @@
             setProfileToEdit(editProfile) {
                 this.editProfile = editProfile;
                 this.viewSingleProfile = true;
-                //this.$router.push('/singleProfile')
+                window.scrollTo(0, 0);
             }
         },
         components: {

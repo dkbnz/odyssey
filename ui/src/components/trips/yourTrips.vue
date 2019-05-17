@@ -55,7 +55,11 @@
                     <strong>Can't find any trips!</strong>
                 </div>
                 <template slot="more_details" slot-scope="row">
-                    <b-button size="sm" @click="row.toggleDetails" class="mr-2">
+                    <b-button size="sm"
+                              @click="row.toggleDetails"
+                              variant="warning"
+                              class="mr-2"
+                              block>
                         {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                     </b-button>
                     <b-button size="sm"
@@ -64,14 +68,20 @@
                               @click="sendTripToModal(row.item)"
                               variant="primary"
                               class="mr-2"
-                              v-if="hasPermission">Edit</b-button>
+                              v-if="hasPermission"
+                              block>
+                        Edit
+                    </b-button>
                     <b-button size="sm"
                               v-model="deleteButton"
                               v-b-modal.deleteModal
                               @click="sendTripToModal(row.item)"
                               variant="danger"
                               class="mr-2"
-                              v-if="hasPermission">Delete</b-button>
+                              v-if="hasPermission"
+                              block>
+                        Delete
+                    </b-button>
                 </template>
 
                 <!-- Shows all the trip destinations in a separate nested table -->
@@ -160,14 +170,32 @@
                     <strong>Can't find any trips!</strong>
                 </div>
                 <template slot="more_details" slot-scope="row">
-                    <b-button size="sm" @click="row.toggleDetails" class="mr-2">
+                    <b-button size="sm"
+                              @click="row.toggleDetails"
+                              variant="warning"
+                              class="mr-2"
+                              block>
                         {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                     </b-button>
-                    <b-button size="sm" v-model="editButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)"
-                              variant="primary" class="mr-2" v-if="hasPermission">Edit
+                    <b-button size="sm"
+                              v-model="editButton"
+                              v-b-modal.editTripModal
+                              @click="sendTripToModal(row.item)"
+                              variant="primary"
+                              class="mr-2"
+                              v-if="hasPermission"
+                              block>
+                        Edit
                     </b-button>
-                    <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)"
-                              variant="danger" class="mr-2" v-if="hasPermission">Delete
+                    <b-button size="sm"
+                              v-model="deleteButton"
+                              v-b-modal.deleteModal
+                              @click="sendTripToModal(row.item)"
+                              variant="danger"
+                              class="mr-2"
+                              v-if="hasPermission"
+                              block>
+                        Delete
                     </b-button>
                 </template>
 

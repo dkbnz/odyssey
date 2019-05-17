@@ -11,18 +11,22 @@
         </b-navbar>
 
         <!--Tab Elements-->
-        <view-profile v-if="viewProfile"
-                      :trips="trips"
-                      :profile="profile"
-                      :nationalityOptions="nationalityOptions"
-                      :travTypeOptions="travTypeOptions"
-                      :destinations="destinations">
+        <view-profile
+                v-if="viewProfile"
+                :trips="trips"
+                :profile="profile"
+                :nationalityOptions="nationalityOptions"
+                :travTypeOptions="travTypeOptions"
+                :destinations="destinations">
         </view-profile>
-        <edit-profile v-if="editProfile"
-                      :profile="profile"
-                      :nationalityOptions="nationalityOptions"
-                      :travTypeOptions="travTypeOptions"
-                      :admin-view="adminView">
+        <edit-profile
+                v-if="editProfile"
+                :showSaved="showSaved"
+                @profile-saved="showSavedProfile"
+                :profile="profile"
+                :nationalityOptions="nationalityOptions"
+                :travTypeOptions="travTypeOptions"
+                :admin-view="adminView">
         </edit-profile>
 
         <footer-main></footer-main>
@@ -47,6 +51,7 @@
             return {
                 viewProfile: true,
                 editProfile: false,
+                showSaved: false
             }
         },
         methods: {
@@ -60,6 +65,15 @@
                     this.editProfile = !this.editProfile;
                 }
             },
+
+            /**
+             * Shows the profile has been successfully saved alert.
+             */
+            showSavedProfile() {
+                this.showSaved = true;
+                this.togglePage(this.viewProfile);
+            }
+
         },
         components: {
             ViewProfile,
