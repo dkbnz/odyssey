@@ -22,30 +22,37 @@
             </b-col>
 
             <b-col cols="9" class="singleProfile">
-                <view-profile v-if="currentDisplay === 0"
-                              :trips="trips"
-                              :profile="editProfile"
-                              :destinations="destinations"
-                              :nationalityOptions="nationalityOptions"
-                              :travTypeOptions="travTypeOptions">
+                <view-profile
+                        v-if="currentDisplay === 0"
+                        :trips="trips"
+                        :profile="editProfile"
+                        :destinations="destinations"
+                        :nationalityOptions="nationalityOptions"
+                        :travTypeOptions="travTypeOptions"
+                        :showSaved="showSaved">
                 </view-profile>
-                <edit-profile v-if="currentDisplay === 1"
-                              :profile="editProfile"
-                              :nationalityOptions="nationalityOptions"
-                              :travTypeOptions="travTypeOptions">
+                <edit-profile
+                        v-if="currentDisplay === 1"
+                        @profile-saved="redirectToViewProfile"
+                        :profile="editProfile"
+                        :nationalityOptions="nationalityOptions"
+                        :travTypeOptions="travTypeOptions"
+                        :adminView="adminView">
                 </edit-profile>
-                <your-trips v-if="currentDisplay === 2"
-                            :destinations="destinations"
-                            :profile="editProfile"
-                            :userProfile="editProfile"
-                            :admin-view="adminView">
+                <your-trips
+                        v-if="currentDisplay === 2"
+                        :destinations="destinations"
+                        :profile="editProfile"
+                        :userProfile="editProfile"
+                        :admin-view="adminView">
                 </your-trips>
-                <plan-a-trip v-if="currentDisplay === 3"
-                             :heading="'Plan a Trip'"
-                             :subHeading="'Book your next trip!'"
-                             :destinations="destinations"
-                             :profile="editProfile"
-                             :adminView="adminView">
+                <plan-a-trip
+                        v-if="currentDisplay === 3"
+                        :heading="'Plan a Trip'"
+                        :subHeading="'Book your next trip!'"
+                        :destinations="destinations"
+                        :profile="editProfile"
+                        :adminView="adminView">
                 </plan-a-trip>
             </b-col>
         </b-row>
@@ -70,23 +77,37 @@
             destinations: Array,
 
         },
+        data() {
+            return {
+                profileImage: {blank: true, width: 75, height: 75, class: 'm1'},
+                currentDisplay: 0,
+                showSaved: false,
+            }
+        },
+        methods: {
+            /**
+             * Emits an event to the admin panel page, this will redirect the admin back to the admin dashboard when the
+             * go back button is clicked.
+             */
+            goBack() {
+                this.$emit('go-back', null);
+            },
+
+            /**
+             * If the profile is successfully saved, then redirect to the view profile page.
+             */
+            redirectToViewProfile(editProfile) {
+                this.editProfile = editProfile;
+                this.currentDisplay = 0;
+                this.showSaved = true;
+            }
+        },
         components: {
             ViewProfile,
             PlanATrip,
             YourTrips,
             EditProfile,
             NavBarMain,
-        },
-        data() {
-            return {
-                profileImage: {blank: true, width: 75, height: 75, class: 'm1'},
-                currentDisplay: 0,
-            }
-        },
-        methods: {
-            goBack() {
-                this.$emit('go-back', null);
-            }
         }
     }
 </script>

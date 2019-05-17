@@ -141,19 +141,24 @@
                 <b-button size="sm"
                           v-b-modal.editModal
                           @click="populateModal(row.item)"
-                          class="mr-2">Edit
+                          variant="success"
+                          class="mr-2"
+                          block>Edit
                 </b-button>
                 <!-- Shows additional details about the selected destination -->
                 <b-button size="sm"
                           @click="row.toggleDetails"
-                          class="mr-2">
+                          variant="warning"
+                          class="mr-2"
+                          block>
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                 </b-button>
                 <!--Removes destination from table-->
                 <b-button size="sm"
                           @click="deleteDestination(row.index)"
                           variant="danger"
-                          class="mr-2">Delete
+                          class="mr-2"
+                          block>Delete
                 </b-button>
             </template>
 
