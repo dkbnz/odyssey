@@ -38,7 +38,7 @@ public class ProfileTestSteps {
     private int statusCode;
     private int loginStatusCode;
     private static final String PROFILES_URI = "/v1/profiles";
-    private static final String PROFILES_UPDATE__URI = "/v1/profile";
+    private static final String PROFILES_UPDATE__URI = "/v1/profile/";
     private static final String TRAVTYPES_URI = "/v1/travtypes";
     private static final String NATIONALITIES_URI = "/v1/nationalities";
     private static final String LOGIN_URI = "/v1/login";
@@ -330,8 +330,8 @@ public class ProfileTestSteps {
         statusCode = result.status();
     }
 
-    @Given("The following profile does not exist with username {string} within the TravelEA database")
-    public void theFollowingProfileDoesNotExistWithUsernameWithinTheTravelEADatabase(String username) {
+    @Given("The following profile does not exist with the username {string} within the TravelEA database")
+    public void theFollowingProfileDoesNotExistWithTheUsernameWithinTheTravelEADatabase(String username) {
         // Sends the fake request
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
@@ -355,8 +355,8 @@ public class ProfileTestSteps {
         Assert.assertFalse(foundProfile);
     }
 
-    @Then("the status code is Created")
-    public void theStatusCodeIsCreated() throws BeansException{
+    @Then("the status code recieved is Created")
+    public void theStatusCodeRecievedIsCreated() throws BeansException{
         Assert.assertEquals(CREATED, statusCode);
     }
 
@@ -375,7 +375,7 @@ public class ProfileTestSteps {
                 .method(PUT)
                 .session(AUTHORIZED, "2")
                 .bodyJson(json)
-                .uri(PROFILES_UPDATE__URI);
+                .uri(PROFILES_UPDATE__URI + 2);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -416,14 +416,14 @@ public class ProfileTestSteps {
 
         ((ObjectNode) json).put("username", username);
         ((ObjectNode) json).put("password", password);
-        ((ObjectNode) json).put("first_name", firstName);
-        ((ObjectNode) json).put("middle_name", middleName);
-        ((ObjectNode) json).put("last_name", lastName);
+        ((ObjectNode) json).put("firstName", firstName);
+        ((ObjectNode) json).put("middleName", middleName);
+        ((ObjectNode) json).put("lastName", lastName);
         ((ObjectNode) json).put("gender", gender);
-        ((ObjectNode) json).put("date_of_birth", dateOfBirth);
-        ((ObjectNode) json).putArray("nationality").addAll(nationalityNode);
-        ((ObjectNode) json).putArray("traveller_type").addAll(traveller_typeNode);
-        ((ObjectNode) json).putArray("passport_country").addAll(passportNode);
+        ((ObjectNode) json).put("dateOfBirth", dateOfBirth);
+        ((ObjectNode) json).putArray("nationalities").addAll(nationalityNode);
+        ((ObjectNode) json).putArray("travellerTypes").addAll(traveller_typeNode);
+        ((ObjectNode) json).putArray("passports").addAll(passportNode);
 
         return json;
     }

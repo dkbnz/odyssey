@@ -47,13 +47,13 @@ public class ProfileController {
     private static final String DATE_OF_BIRTH = "dateOfBirth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
-    private static final String CREATED_BY_ADMIN = "createdByAdmin";
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final long AGE_SEARCH_OFFSET = 1;
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String UPDATED = "UPDATED";
     private static final String ID = "id";
+    boolean createdByAdmin = false;
 
     /**
      * Creates a user based on given Json body. All new users are not an admin by default. This is used on the Sign Up
@@ -129,11 +129,34 @@ public class ProfileController {
 
         newUser.save();
 
-        if (json.get(CREATED_BY_ADMIN).asText().equals("true")) {
-            return created();
+        createdByAdmin = false;
+
+        Result sendBackRequest = request.session()
+                .getOptional(AUTHORIZED)
+                .map(userId -> {
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    if(userProfile != null) {
+                        if (userProfile.getIsAdmin()) {
+                            createdByAdmin = true;
+                            return created();
+                        } else {
+                            return badRequest();
+                        }
+                    } else {
+                        return badRequest();
+                    }
+                })
+                .orElseGet(() -> {
+                    // returns created as no user is logged in
+                    return created();
+                });
+
+        if (createdByAdmin) {
+            return sendBackRequest.addingToSession(request, AUTHORIZED, newUser.id.toString());
         } else {
-            return created().addingToSession(request, AUTHORIZED, newUser.id.toString());
+            return sendBackRequest;
         }
+
     }
 
     /**
