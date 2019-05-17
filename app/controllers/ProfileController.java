@@ -35,23 +35,25 @@ public class ProfileController {
     private static final Logger LOGGER = Logger.getLogger( ProfileController.class.getName() );
     private static final String USERNAME = "username";
     private static final String PASS_FIELD = "password";
-    private static final String FIRST_NAME = "first_name";
-    private static final String MIDDLE_NAME = "middle_name";
-    private static final String LAST_NAME = "last_name";
-    private static final String PASSPORT = "passport_country";
-    private static final String NATIONALITY = "nationality";
+    private static final String FIRST_NAME = "firstName";
+    private static final String MIDDLE_NAME = "middleName";
+    private static final String LAST_NAME = "lastName";
+    private static final String PASSPORT = "passports";
+    private static final String NATIONALITY = "nationalities";
     private static final String GENDER = "gender";
     private static final String MIN_AGE = "min_age";
     private static final String MAX_AGE = "max_age";
-    private static final String TRAVELLER_TYPE = "traveller_type";
-    private static final String DATE_OF_BIRTH = "date_of_birth";
+    private static final String TRAVELLER_TYPE = "travellerTypes";
+    private static final String DATE_OF_BIRTH = "dateOfBirth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
+    private static final String CREATED_BY_ADMIN = "createdByAdmin";
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final long AGE_SEARCH_OFFSET = 1;
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String UPDATED = "UPDATED";
+    private static final String ID = "id";
 
     /**
      * Creates a user based on given Json body. All new users are not an admin by default. This is used on the Sign Up
@@ -127,7 +129,11 @@ public class ProfileController {
 
         newUser.save();
 
-        return created().addingToSession(request, AUTHORIZED, newUser.id.toString());
+        if (json.get(CREATED_BY_ADMIN).asText().equals("true")) {
+            return created();
+        } else {
+            return created().addingToSession(request, AUTHORIZED, newUser.id.toString());
+        }
     }
 
     /**
@@ -213,7 +219,7 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-                    return ok(userProfile.toJson());
+                    return ok(Json.toJson(userProfile));
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
@@ -264,16 +270,32 @@ public class ProfileController {
      * Takes a Http request containing a Json body and finds a logged in user. Then uses a PUT request to update
      * the logged in user based on the Http Request body. The validation is the same as creating a new profile.
      *
+     * If the Id is specified in the Json body, and the logged in user is an admin, then edit the specified Id.
+     *
      * @param request   Http Request containing Json Body.
      * @return          ok() (Http 200) if the profile is successfully updated. Returns unauthorized() (Http 401),
      *                  if not logged in.
      */
-    public Result update(Http.Request request) {
+    public Result update(Http.Request request, Long editUserId) {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
-                    // User is logged in
-                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
+                    Profile profileToUpdate;
+
+                    // If user is admin, or if they are editing their own profile then allow them to edit.
+                    if(loggedInUser.getIsAdmin() || editUserId == Long.valueOf(userId)) {
+                        profileToUpdate = Profile.find.byId(editUserId.intValue());
+                    } else if (editUserId != Long.valueOf(userId)) {
+                        return forbidden(); // User has specified an id which is not their own, but is not admin
+                    } else {
+                        return badRequest(); // User has not specified an id, but is trying to update their own profile
+                    }
+
+                    if (profileToUpdate == null) {
+                        return badRequest(); // User does not exist in the system.
+                    }
+
                     JsonNode json = request.body().asJson();
 
                     if (!(json.has(USERNAME)
@@ -295,52 +317,58 @@ public class ProfileController {
                         return badRequest();
                     }
 
+                    // If the username has been changed, and the changed username exists return badRequest();
+                    if(!json.get(USERNAME).asText().equals(profileToUpdate.getUsername())
+                            && profileExists(json.get(USERNAME).asText())) {
+                        return badRequest();
+                    }
+
                     if (!json.get(PASS_FIELD).asText().isEmpty()) { // Only update password if user has typed a new one
 
                         // Uses the hashProfilePassword() method to hash the given password.
                         try {
-                            userProfile.setPassword(hashProfilePassword(json.get(PASS_FIELD).asText()));
+                            profileToUpdate.setPassword(hashProfilePassword(json.get(PASS_FIELD).asText()));
                         } catch (NoSuchAlgorithmException e) {
                             LOGGER.log(Level.SEVERE, "Unable to hash the user password", e);
                         }
                     }
 
-                    userProfile.setUsername(json.get(USERNAME).asText());
-                    userProfile.setFirstName(json.get(FIRST_NAME).asText());
-                    userProfile.setMiddleName(json.get(MIDDLE_NAME).asText());
-                    userProfile.setLastName(json.get(LAST_NAME).asText());
-                    userProfile.setDateOfBirth(LocalDate.parse(json.get(DATE_OF_BIRTH).asText()));
-                    userProfile.setGender(json.get(GENDER).asText());
+                    profileToUpdate.setUsername(json.get(USERNAME).asText());
+                    profileToUpdate.setFirstName(json.get(FIRST_NAME).asText());
+                    profileToUpdate.setMiddleName(json.get(MIDDLE_NAME).asText());
+                    profileToUpdate.setLastName(json.get(LAST_NAME).asText());
+                    profileToUpdate.setDateOfBirth(LocalDate.parse(json.get(DATE_OF_BIRTH).asText()));
+                    profileToUpdate.setGender(json.get(GENDER).asText());
 
-                    userProfile.clearNationalities();
-                    userProfile.clearPassports();
-                    userProfile.clearTravellerTypes();
+                    profileToUpdate.clearNationalities();
+                    profileToUpdate.clearPassports();
+                    profileToUpdate.clearTravellerTypes();
 
                     // Save user profile to clear nationalities, travellerTypes and passports
-                    userProfile.update();
+                    profileToUpdate.update();
 
                     Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
-                        Nationality newNat = Nationality.find.byId(node.asInt());
-                        userProfile.addNationality(newNat);
+                        Nationality newNat = Nationality.find.byId(node.get(ID).asInt());
+                        profileToUpdate.addNationality(newNat);
                     };
 
                     json.get(NATIONALITY).forEach(nationalityAction);
 
                     Consumer<JsonNode> passportAction = (JsonNode node) -> {
-                        Passport newPass = Passport.find.byId(node.asInt());
-                        userProfile.addPassport(newPass);
+                        Passport newPass = Passport.find.byId(node.get(ID).asInt());
+                        profileToUpdate.addPassport(newPass);
                     };
 
                     json.get(PASSPORT).forEach(passportAction);
 
                     Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
-                        TravellerType travType = TravellerType.find.byId(node.asInt());
-                        userProfile.addTravType(travType);
+                        TravellerType travType = TravellerType.find.byId(node.get(ID).asInt());
+                        profileToUpdate.addTravType(travType);
                     };
 
                     json.get(TRAVELLER_TYPE).forEach(travTypeAction);
 
-                    userProfile.update();
+                    profileToUpdate.update();
 
                     return ok(UPDATED);
 
@@ -369,12 +397,49 @@ public class ProfileController {
                         // No query string given. retrieve all profiles
                         profiles = Profile.find.all();
                     } else {
-                        profiles = searchProfiles(request.queryString());
+                        String getError = validQueryString(request.queryString());
+                        if (getError.isEmpty()) {
+                            profiles = searchProfiles(request.queryString());
+                        } else {
+                            return badRequest(getError);
+                        }
                     }
 
                     return ok(Json.toJson(profiles));
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+    }
+
+    /**
+     * Validates the search query string for profiles.
+     *
+     * @param queryString the query string from the request body, given by the user.
+     * @return String message of error in query string, empty if no error present.
+     */
+    private String validQueryString(Map<String, String[]> queryString) {
+        Integer minAge;
+        Integer maxAge;
+
+        try {
+            minAge = Integer.valueOf(queryString.get(MIN_AGE)[0]);
+            maxAge = Integer.valueOf(queryString.get(MAX_AGE)[0]);
+        } catch (Exception e) {
+            return "Ages cannot be converted to Integers";
+        }
+
+        if ((maxAge < 0) || (maxAge > 120)) {
+            return "Max age must be between 0 and 120";
+        }
+
+        if ((minAge < 0) || (minAge > 120)) {
+            return "Min age must be between 0 and 120";
+        }
+
+        if (minAge > maxAge) {
+            return "Min age must be less than or equal to max age";
+        }
+
+        return "";
     }
 
     /**

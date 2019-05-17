@@ -1,17 +1,20 @@
 <template>
     <div>
         <b-navbar variant="light" toggleable="lg">
-            <b-navbar-brand v-on:click="goToProfile()"><img :src="assets.appLogo" ></b-navbar-brand>
+            <b-navbar-brand @click="goToProfile()"><img :src="assets.appLogo" ></b-navbar-brand>
 
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
-                    <b-nav-item :class="{active: currentPage==='/profiles'}" v-on:click="goToPeople()">People
+                    <b-nav-item :class="{active: currentPage==='/profiles'}" @click="goToPeople()">People
                     </b-nav-item>
-                    <b-nav-item :class="{active: currentPage==='/trips'}" v-on:click="goToTrips()">Trips</b-nav-item>
-                    <b-nav-item :class="{active: currentPage==='/destinations'}" v-on:click="goToDestinations()">
+                    <b-nav-item :class="{active: currentPage==='/trips'}" @click="goToTrips()">Trips</b-nav-item>
+                    <b-nav-item :class="{active: currentPage==='/destinations'}" @click="goToDestinations()">
                         Destinations
+                    </b-nav-item>
+                    <b-nav-item :class="{active: currentPage==='/admin'}" v-if="profile.isAdmin" @click="goToAdminPanel()">
+                        Admin
                     </b-nav-item>
                 </b-navbar-nav>
 
@@ -19,7 +22,7 @@
                     <b-nav-item-dropdown right>
                         <!-- Using 'button-content' slot -->
                         <template slot="button-content"><em>{{ profile.firstName }}</em></template>
-                        <b-dropdown-item :class="{active: currentPage==='/dash'}" v-on:click="goToProfile()">Profile
+                        <b-dropdown-item :class="{active: currentPage==='/dash'}" @click="goToProfile()">Profile
                         </b-dropdown-item>
                         <b-dropdown-item @click="logout">Logout</b-dropdown-item>
                     </b-nav-item-dropdown>
@@ -92,6 +95,9 @@
             },
             goToProfile() {
                 this.$router.push("/dash");
+            },
+            goToAdminPanel() {
+                this.$router.push("/admin");
             }
         }
     }
