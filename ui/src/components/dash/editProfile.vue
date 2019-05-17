@@ -163,7 +163,7 @@
                         <optgroup label="Current Nationalities: (Please select these if you want to use them!)">
                             <option v-for="nationality in profile.nationalities"
                                     :selected="true"
-                                    :value="nationality.id">
+                                    :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}">
                                 {{nationality.nationality}}
                             </option>
                         </optgroup>
@@ -171,7 +171,7 @@
                         <optgroup label="Other Nationalities:">
                             <option v-for="nationality in nationalityOptions"
                                     v-if="!duplicateNationality(nationality.id)"
-                                    :value="nationality.id">
+                                    :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}">
                                 {{nationality.nationality}}
                             </option>
                         </optgroup>
@@ -199,7 +199,7 @@
                         <optgroup label="Current Passports: (Please select these if you want to use them!)">
                             <option v-for="passport in profile.passports"
                                     :selected="true"
-                                    :value="passport.id">
+                                    :value="{id: passport.id, country: passport.country}">
                                 {{passport.country}}
                             </option>
                         </optgroup>
@@ -207,7 +207,7 @@
                         <optgroup label="Other Passports:">
                             <option v-for="nationality in nationalityOptions"
                                     v-if="!duplicatePassport(nationality.id)"
-                                    :value="nationality.id">
+                                    :value="{id: nationality.id, country: nationality.country}">
                                 {{nationality.country}}
                             </option>
                         </optgroup>
@@ -233,7 +233,7 @@
                            :state="travTypeValidation" multiple trim>
                 <optgroup label="Current Traveller Types: (Please select these if you want to use them!)">
                     <option v-for="travType in profile.travellerTypes"
-                            :value="travType.id">
+                            :value="{id: travType.id, travellerType: travType.travellerType}">
                         {{travType.travellerType}}
                     </option>
                 </optgroup>
@@ -241,7 +241,7 @@
                 <optgroup label="Other Traveller Types">
                     <option v-for="travType in travTypeOptions"
                             v-if="!duplicateTravType(travType.id)"
-                            :value="travType.id">
+                            :value="{id: travType.id, travellerType: travType.travellerType}">
                         {{travType.travellerType}}
                     </option>
                 </optgroup>
@@ -419,7 +419,6 @@
                     if (!self.adminView) {
                         self.$router.go();
                     }
-                    console.log(self.saveProfile);
                     self.$emit('profile-saved', self.saveProfile);
                     window.scrollTo(0, 0);
                     return response.json();
