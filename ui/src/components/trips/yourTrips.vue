@@ -3,8 +3,8 @@
 
         <!-- Div for all the user's future trips -->
         <div id="upcomingTrips">
-            <h1 class="page_title">Upcoming Trips</h1>
-            <p class="page_title"><i>Here are your upcoming trips!</i></p>
+            <h1 class="page-title">Upcoming Trips</h1>
+            <p class="page-title"><i>Here are your upcoming trips!</i></p>
             <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
             <b-alert v-model="validDelete" variant="success" dismissible>Trip Deleted</b-alert>
 
