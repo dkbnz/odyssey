@@ -1,7 +1,7 @@
 <template>
     <div class="container">
-        <h1 class="page_title">Add a Destination</h1>
-        <p class="page_title"><i>Add a destination using the form below</i></p>
+        <h1 class="page-title">Add a Destination</h1>
+        <p class="page-title"><i>Add a destination using the form below</i></p>
         <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act

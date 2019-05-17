@@ -6,7 +6,7 @@
                     <b-collapse id="nav-collapse-admin" is-nav>
                         <b-nav vertical class="singleProfileNav">
                             <b-nav-item @click="goBack">Go Back</b-nav-item>
-                            <b-navbar-brand @click="currentDisplay = 0">
+                            <b-navbar-brand @click="currentDisplay = 0" class="nav-bar-brand">
                                 <b-img v-bind="profileImage" blank-color="#777" rounded="circle" alt="Circle image">
                                 </b-img>
                                 {{editProfile.firstName}}
