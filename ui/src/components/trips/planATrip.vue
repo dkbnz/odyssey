@@ -1,8 +1,8 @@
 <template>
     <div class="container">
 
-        <h1 class="page_title">{{ heading }}</h1>
-        <p class="page_title"><i>{{ subHeading }}</i></p>
+        <h1 class="page-title">{{ heading }}</h1>
+        <p class="page-title"><i>{{ subHeading }}</i></p>
 
         <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
 
