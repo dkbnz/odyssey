@@ -348,21 +348,21 @@ public class ProfileController {
                     profileToUpdate.update();
 
                     Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
-                        Nationality newNat = Nationality.find.byId(node.asInt());
+                        Nationality newNat = Nationality.find.byId(node.get(ID).asInt());
                         profileToUpdate.addNationality(newNat);
                     };
 
                     json.get(NATIONALITY).forEach(nationalityAction);
 
                     Consumer<JsonNode> passportAction = (JsonNode node) -> {
-                        Passport newPass = Passport.find.byId(node.asInt());
+                        Passport newPass = Passport.find.byId(node.get(ID).asInt());
                         profileToUpdate.addPassport(newPass);
                     };
 
                     json.get(PASSPORT).forEach(passportAction);
 
                     Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
-                        TravellerType travType = TravellerType.find.byId(node.asInt());
+                        TravellerType travType = TravellerType.find.byId(node.get(ID).asInt());
                         profileToUpdate.addTravType(travType);
                     };
 
