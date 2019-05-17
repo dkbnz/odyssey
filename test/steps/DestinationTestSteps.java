@@ -19,6 +19,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -113,8 +114,17 @@ public class DestinationTestSteps {
      */
     @Before
     public void setUp() {
+        Map<String, String> configuration = new HashMap<>();
+        configuration.put("play.db.config", "db");
+        configuration.put("play.db.default", "default");
+        configuration.put("db.default.driver", "org.h2.Driver");
+        configuration.put("db.default.url", "jdbc:h2:mem:testDBDestination;MODE=MYSQL;");
+        configuration.put("ebean.default", "models.*");
+        configuration.put("play.evolutions.db.default.enabled", "true");
+        configuration.put("play.evolutions.autoApply", "false");
+
         //Set up the fake application to use the in memory database config
-        application = fakeApplication();
+        application = fakeApplication(configuration);
 
         database = application.injector().instanceOf(Database.class);
         applyEvolutions();

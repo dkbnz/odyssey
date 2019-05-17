@@ -53,7 +53,7 @@ public class AdminTestSteps {
         configuration.put("play.db.config", "db");
         configuration.put("play.db.default", "default");
         configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:testDBProfile;MODE=MYSQL;");
+        configuration.put("db.default.url", "jdbc:h2:mem:testDBAdmin;MODE=MYSQL;");
         configuration.put("ebean.default", "models.*");
         configuration.put("play.evolutions.db.default.enabled", "true");
         configuration.put("play.evolutions.autoApply", "false");
@@ -190,7 +190,7 @@ public class AdminTestSteps {
 
     @Then("the status code is Created")
     public void theStatusCodeIsCreated() {
-        Assert.assertEquals(OK, statusCode);
+        Assert.assertEquals(CREATED, statusCode);
     }
 
     /**
@@ -226,17 +226,16 @@ public class AdminTestSteps {
 
         //Add values to a JsonNode
         JsonNode json = mapper.createObjectNode();
-
         ((ObjectNode) json).put("username", username);
         ((ObjectNode) json).put("password", password);
-        ((ObjectNode) json).put("first_name", firstName);
-        ((ObjectNode) json).put("middle_name", middleName);
-        ((ObjectNode) json).put("last_name", lastName);
+        ((ObjectNode) json).put("firstName", firstName);
+        ((ObjectNode) json).put("middleName", middleName);
+        ((ObjectNode) json).put("lastName", lastName);
         ((ObjectNode) json).put("gender", gender);
-        ((ObjectNode) json).put("date_of_birth", dateOfBirth);
-        ((ObjectNode) json).putArray("nationality").addAll(nationalityNode);
-        ((ObjectNode) json).putArray("traveller_type").addAll(traveller_typeNode);
-        ((ObjectNode) json).putArray("passport_country").addAll(passportNode);
+        ((ObjectNode) json).put("dateOfBirth", dateOfBirth);
+        ((ObjectNode) json).putArray("nationalities").addAll(nationalityNode);
+        ((ObjectNode) json).putArray("travellerTypes").addAll(traveller_typeNode);
+        ((ObjectNode) json).putArray("passports").addAll(passportNode);
 
         return json;
     }
