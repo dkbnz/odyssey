@@ -55,6 +55,11 @@ public class ProfileTestSteps {
      */
     private static final String VALID_PASSWORD = "admin1";
 
+    /**
+     * The session used for keeping logged in users
+     */
+    private Map<String, String> session;
+
     private static final int NUMBER_OF_TRAVELTYPES = 7;
     private static final int NUMBER_OF_NATIONALITIES = 108;
     private static final int NUMBER_OF_PROFILES = 2;
@@ -138,7 +143,7 @@ public class ProfileTestSteps {
                 .bodyJson(json)
                 .uri(LOGIN_URI);
         Result loginResult = route(application, request);
-
+        session = request.session();
         statusCode = loginResult.status();
     }
 

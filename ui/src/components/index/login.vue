@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-form>
+        <b-form @submit.prevent="login">
             <b-alert v-model="showError" variant="danger" dismissible>Invalid Username or Password</b-alert>
             <b-form-group
                     id="username-field"
@@ -16,7 +16,7 @@
                     label-for="password">
                 <b-form-input id="password" v-model="password" :type="'password'" trim></b-form-input>
             </b-form-group>
-            <b-button id="sign-in" variant="primary" block @click="login">Sign In</b-button>
+            <b-button id="sign-in" type="submit" variant="primary" block @click="login">Sign In</b-button>
         </b-form>
     </div>
 </template>
