@@ -11,15 +11,23 @@
         </b-navbar>
 
         <!--Tab Elements-->
-        <view-profile v-if="viewProfile"
-                      :trips="trips"
-                      v-bind:profile="profile"
-                      v-bind:nationalityOptions="nationalityOptions"
-                      v-bind:travTypeOptions="travTypeOptions"></view-profile>
-        <edit-profile v-if="editProfile"
-                      v-bind:profile="profile"
-                      v-bind:nationalityOptions="nationalityOptions"
-                      v-bind:travTypeOptions="travTypeOptions"></edit-profile>
+        <view-profile
+                v-if="viewProfile"
+                :trips="trips"
+                :profile="profile"
+                :nationalityOptions="nationalityOptions"
+                :travTypeOptions="travTypeOptions"
+                :destinations="destinations">
+        </view-profile>
+        <edit-profile
+                v-if="editProfile"
+                :showSaved="showSaved"
+                @profile-saved="showSavedProfile"
+                :profile="profile"
+                :nationalityOptions="nationalityOptions"
+                :travTypeOptions="travTypeOptions"
+                :admin-view="adminView">
+        </edit-profile>
 
         <footer-main></footer-main>
     </div>
@@ -38,14 +46,12 @@
 
     export default {
         name: "dashPage",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips'],
-        created() {
-            document.title = "TravelEA - Dashboard";
-        },
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'adminView', 'destinations'],
         data: function() {
             return {
                 viewProfile: true,
                 editProfile: false,
+                showSaved: false
             }
         },
         methods: {
@@ -59,6 +65,15 @@
                     this.editProfile = !this.editProfile;
                 }
             },
+
+            /**
+             * Shows the profile has been successfully saved alert.
+             */
+            showSavedProfile() {
+                this.showSaved = true;
+                this.togglePage(this.viewProfile);
+            }
+
         },
         components: {
             ViewProfile,
