@@ -7,7 +7,7 @@
             <h1 class="page_title" v-if="!adminView">Find Profiles</h1>
             <p class="page_title" v-if="!adminView"><i>Search for other travellers using any of the fields in the form below</i></p>
 
-            <b-alert v-model="showError" variant="danger" dismissible>There's something wrong in the form!</b-alert>
+            <b-alert v-model="showError" variant="danger" dismissible>{{alertMessage}}</b-alert>
 
 
             <!-- Confirmation modal for deleting a profile. -->
@@ -85,7 +85,7 @@
                         <b-form-input id="maxAge" v-model="searchMaxAge"
                                       :type="'range'"
                                       min="0"
-                                      max="110"
+                                      max="120"
                                       trim></b-form-input>
                         </b-form-group>
                     </b-col>
@@ -249,7 +249,7 @@
                 searchNationality: "",
                 searchGender: "",
                 searchMinAge: 0,
-                searchMaxAge: 100,
+                searchMaxAge: 120,
                 searchTravType: "",
                 optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
                 currentPage: 1,
@@ -267,7 +267,8 @@
                     {key:'actions', class: 'tableWidthMedium'}],
                 profiles: [],
                 retrievingProfiles: false,
-                selectedProfile: ""
+                selectedProfile: "",
+                alertMessage: ""
             }
         },
         mounted() {
@@ -360,8 +361,10 @@
                 this.searchMaxAge = parseInt(this.searchMaxAge);
                 if (isNaN(this.searchMinAge) || isNaN(this.searchMaxAge)) {
                     this.showError = true;
+                    this.alertMessage = "Min or Max Age are not numbers";
                 } else if (this.searchMinAge > this.searchMaxAge) {
                     this.showError = true;
+                    this.alertMessage = "Min age is greater than max age";
                 }
                 else {
                     if (this.searchTravType === null) {
@@ -384,11 +387,11 @@
             queryProfiles() {
                 this.retrievingProfiles = true;
                 let searchQuery =
-                    "?nationality=" + this.searchNationality +
+                    "?nationalities=" + this.searchNationality +
                     "&gender=" + this.searchGender +
                     "&min_age=" + this.searchMinAge +
                     "&max_age=" + this.searchMaxAge +
-                    "&traveller_type=" + this.searchTravType;
+                    "&travellerTypes=" + this.searchTravType;
                 return fetch(`/v1/profiles` + searchQuery, {})
                     .then(this.checkStatus)
                     .then(this.parseJSON)
@@ -401,7 +404,7 @@
             /**
              * Used to check the response of a fetch method. If there is an error code, the code is printed to the
              * console.
-             * @param response, passed back to the getAllTrips function to be parsed into a json.
+             * @param response, passed back to the getAllTrips function to be parsed into a Json.
              * @returns throws the error.
              */
             checkStatus (response) {
@@ -411,14 +414,18 @@
                 const error = new Error(`HTTP Error ${response.statusText}`);
                 error.status = response.statusText;
                 error.response = response;
+                this.showError = true;
+                response.clone().text().then(text => {
+                    this.alertMessage = text;
+                });
                 console.log(error); // eslint-disable-line no-console
                 throw error;
             },
 
             /**
-             * Used to turn the response of the fetch method into a usable JSON.
+             * Used to turn the response of the fetch method into a usable Json.
              * @param response of the fetch method.
-             * @returns the json body of the response.
+             * @returns the Json body of the response.
              */
             parseJSON (response) {
                 return response.json();
@@ -449,11 +456,11 @@
 
         },
         computed: {
+            /**
+             * @returns the number of rows required in the table based on number of profiles to be displayed
+             */
             rows() {
-                /**
-                 * @returns the number of rows required in the table based on number of profiles to be displayed
-                 */
-                return this.profiles.length
+                return this.profiles.length;
             }
         }
     }
