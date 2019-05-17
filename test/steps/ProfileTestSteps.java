@@ -11,6 +11,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
+import org.apache.http.auth.AUTH;
 import org.junit.Assert;
 import org.springframework.beans.BeansException;
 import play.Application;
@@ -22,10 +23,7 @@ import play.test.Helpers;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.*;
@@ -36,11 +34,11 @@ public class ProfileTestSteps {
     Application application;
     protected Database database;
 
-    private Http.RequestBuilder request;
-
+    private static final String AUTHORIZED = "authorized";
     private int statusCode;
     private int loginStatusCode;
     private static final String PROFILES_URI = "/v1/profiles";
+    private static final String PROFILES_UPDATE__URI = "/v1/profile";
     private static final String TRAVTYPES_URI = "/v1/travtypes";
     private static final String NATIONALITIES_URI = "/v1/nationalities";
     private static final String LOGIN_URI = "/v1/login";
@@ -59,6 +57,7 @@ public class ProfileTestSteps {
 
     private static final int NUMBER_OF_TRAVELTYPES = 7;
     private static final int NUMBER_OF_NATIONALITIES = 108;
+    private static final int NUMBER_OF_PROFILES = 2;
 
 
 
@@ -106,7 +105,7 @@ public class ProfileTestSteps {
      */
     @After
     public void tearDown() {
-        //logoutRequest();
+        logoutRequest();
         cleanEvolutions();
         database.shutdown();
         Helpers.stop(application);
@@ -174,15 +173,32 @@ public class ProfileTestSteps {
 
     @When("I send a GET request to the profiles endpoint")
     public void iSendAGETRequestToTheProfilesEndpoint() throws BeansException {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, "1")
+                .uri(PROFILES_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
 
-//        Http.RequestBuilder request = fakeRequest()
-//                .method(GET)
-//                .uri(PROFILES_URI);
-//        Result result = route(application, request);
-//        statusCode = result.status();
-//        String json = Helpers.contentAsString(result);
-//        Assert.assertEquals("", json);
-        throw new cucumber.api.PendingException();
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+
+        // Checks the response for admin profile and length of 2 users
+        boolean passProfiles = false;
+        int count = 0;
+        while (iterator.hasNext()) {
+            JsonNode jsonProfile = iterator.next();
+            count++;
+            if (jsonProfile.get("id").asText().equals("1")) {
+                if (jsonProfile.get("username").asText().equals("admin@travelea.com")) {
+                    passProfiles = true;
+                }
+            }
+        }
+        if (count != NUMBER_OF_PROFILES) {
+            passProfiles = false;
+        }
+        statusCode = result.status();
+        Assert.assertEquals(true, passProfiles);
 
     }
 
@@ -196,7 +212,7 @@ public class ProfileTestSteps {
     @When("I send a GET request to the \\/travtypes endpoint")
     public void iSendAGETRequestToTheTravtypesEndpoint() throws BeansException {
         // Does the request to back end
-        request = fakeRequest()
+        Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri(TRAVTYPES_URI);
         Result result = route(application, request);
@@ -226,7 +242,7 @@ public class ProfileTestSteps {
     @When("I send a GET request to the \\/nationalities endpoint")
     public void iSendAGETRequestToTheNationalitiesEndpoint() {
         // Does the fake request to back end
-        request = fakeRequest()
+        Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri(NATIONALITIES_URI);
         Result result = route(application, request);
@@ -271,28 +287,27 @@ public class ProfileTestSteps {
 
     @Given("The following profile exists with username {string} within the TravelEA database:")
     public void theFollowingProfileExistsWithUsernameWithinTheTravelEADatabase(String username) {
-//        // Sends the fake request
-//        request = fakeRequest()
-//                .method(GET)
-//                .uri(PROFILES_URI);
-//        Result result = route(application, request);
-//        statusCode = result.status();
-//
-//        // Gets the response
-//        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
-//
-//        // Finds profile from the iterator
-//        boolean foundProfile = false;
-//        while (iterator.hasNext() && !foundProfile) {
-//            JsonNode jsonProfile = iterator.next();
-//            if (jsonProfile.get("username").equals(username)) {
-//                foundProfile = true;
-//            }
-//        }
-//
-//        Assert.assertTrue(foundProfile);
-        throw new cucumber.api.PendingException();
+        // Sends the fake request
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, "1")
+                .uri(PROFILES_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
 
+        // Gets the response
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+
+        // Finds profile from the iterator
+        boolean foundProfile = false;
+        while (iterator.hasNext() && !foundProfile) {
+            JsonNode jsonProfile = iterator.next();
+            if (jsonProfile.get("username").asText().equals(username)) {
+                foundProfile = true;
+            }
+        }
+
+        Assert.assertTrue(foundProfile);
     }
 
 
@@ -306,6 +321,56 @@ public class ProfileTestSteps {
                 .method(POST)
                 .bodyJson(json)
                 .uri(PROFILES_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
+
+    @Given("The following profile does not exist with username {string} within the TravelEA database")
+    public void theFollowingProfileDoesNotExistWithUsernameWithinTheTravelEADatabase(String username) {
+        // Sends the fake request
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, "1")
+                .uri(PROFILES_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        // Gets the response
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+
+        // Finds profile from the iterator
+        boolean foundProfile = false;
+        while (iterator.hasNext() && !foundProfile) {
+            JsonNode jsonProfile = iterator.next();
+            if (jsonProfile.get("username").asText().equals(username)) {
+                foundProfile = true;
+            }
+        }
+
+        Assert.assertFalse(foundProfile);
+    }
+
+    @Then("the status code is Created")
+    public void theStatusCodeIsCreated() throws BeansException{
+        Assert.assertEquals(CREATED, statusCode);
+    }
+
+    @Then("the status code is BadRequest")
+    public void theStatusCodeIsBadRequest() throws BeansException{
+        Assert.assertEquals(BAD_REQUEST, statusCode);
+    }
+
+    @When("The user attempts to update their profile information within the TravelEA database:")
+    public void theUserAttemptsToUpdateTheirProfileInformationWithinTheTravelEADatabase(io.cucumber.datatable.DataTable dataTable) {
+        // Creates the json for the profile
+        JsonNode json = convertDataTableToJsonNode(dataTable);
+
+        // Sending the fake request to the back end for updating
+        Http.RequestBuilder request = fakeRequest()
+                .method(PUT)
+                .session(AUTHORIZED, "2")
+                .bodyJson(json)
+                .uri(PROFILES_UPDATE__URI);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -325,11 +390,23 @@ public class ProfileTestSteps {
         String lastName = list.get(0).get("last_name");
         String gender = list.get(0).get("gender");
         String dateOfBirth = list.get(0).get("date_of_birth");
-        String nationality = list.get(0).get("nationality");
-        String traveller_type = list.get(0).get("traveller_type");
+
+        // complex json
+        ObjectMapper mapper = new ObjectMapper();
+
+        List<String> nationality = new ArrayList<String>();
+        List<String> traveller_type = new ArrayList<String>();
+        List<String> passport = new ArrayList<String>();
+
+        nationality.add(list.get(0).get("nationality"));
+        traveller_type.add(list.get(0).get("traveller_type"));
+        passport.add(list.get(0).get("passport_country"));
+
+        ArrayNode nationalityNode = mapper.valueToTree(nationality);
+        ArrayNode traveller_typeNode = mapper.valueToTree(traveller_type);
+        ArrayNode passportNode = mapper.valueToTree(passport);
 
         //Add values to a JsonNode
-        ObjectMapper mapper = new ObjectMapper();
         JsonNode json = mapper.createObjectNode();
 
         ((ObjectNode) json).put("username", username);
@@ -339,8 +416,9 @@ public class ProfileTestSteps {
         ((ObjectNode) json).put("last_name", lastName);
         ((ObjectNode) json).put("gender", gender);
         ((ObjectNode) json).put("date_of_birth", dateOfBirth);
-        ((ObjectNode) json).put("nationality", nationality);
-        ((ObjectNode) json).put("traveller_type", traveller_type);
+        ((ObjectNode) json).putArray("nationality").addAll(nationalityNode);
+        ((ObjectNode) json).putArray("traveller_type").addAll(traveller_typeNode);
+        ((ObjectNode) json).putArray("passport_country").addAll(passportNode);
 
         return json;
     }
