@@ -44,7 +44,7 @@ public class AdminTestSteps {
     /**
      * A valid password for login credentials for admin user.
      */
-    private static final String VALID_PASSWORD = "admin1";
+    private static final String VALID_AUTHPASS = "admin1";
 
 
     @Before
@@ -169,7 +169,7 @@ public class AdminTestSteps {
 
     @Given("An admin is logged in")
     public void anAdminIsLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         Assert.assertEquals(OK, statusCode);
     }
 
