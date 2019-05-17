@@ -35,25 +35,25 @@ public class ProfileController {
     private static final Logger LOGGER = Logger.getLogger( ProfileController.class.getName() );
     private static final String USERNAME = "username";
     private static final String PASS_FIELD = "password";
-    private static final String FIRST_NAME = "first_name";
-    private static final String MIDDLE_NAME = "middle_name";
-    private static final String LAST_NAME = "last_name";
-    private static final String PASSPORT = "passport_country";
-    private static final String NATIONALITY = "nationality";
+    private static final String FIRST_NAME = "firstName";
+    private static final String MIDDLE_NAME = "middleName";
+    private static final String LAST_NAME = "lastName";
+    private static final String PASSPORT = "passports";
+    private static final String NATIONALITY = "nationalities";
     private static final String GENDER = "gender";
     private static final String MIN_AGE = "min_age";
     private static final String MAX_AGE = "max_age";
-    private static final String TRAVELLER_TYPE = "traveller_type";
-    private static final String DATE_OF_BIRTH = "date_of_birth";
+    private static final String TRAVELLER_TYPE = "travellerTypes";
+    private static final String DATE_OF_BIRTH = "dateOfBirth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
-    private static final String CREATED_BY_ADMIN = "createdByAdmin";
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final long AGE_SEARCH_OFFSET = 1;
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String UPDATED = "UPDATED";
     private static final String ID = "id";
+    boolean createdByAdmin = false;
 
     /**
      * Creates a user based on given Json body. All new users are not an admin by default. This is used on the Sign Up
@@ -129,11 +129,34 @@ public class ProfileController {
 
         newUser.save();
 
-        if (json.get(CREATED_BY_ADMIN).asText().equals("true")) {
-            return created();
+        createdByAdmin = false;
+
+        Result sendBackRequest = request.session()
+                .getOptional(AUTHORIZED)
+                .map(userId -> {
+                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    if(userProfile != null) {
+                        if (userProfile.getIsAdmin()) {
+                            createdByAdmin = true;
+                            return created();
+                        } else {
+                            return badRequest();
+                        }
+                    } else {
+                        return badRequest();
+                    }
+                })
+                .orElseGet(() -> {
+                    // returns created as no user is logged in
+                    return created();
+                });
+
+        if (createdByAdmin) {
+            return sendBackRequest.addingToSession(request, AUTHORIZED, newUser.id.toString());
         } else {
-            return created().addingToSession(request, AUTHORIZED, newUser.id.toString());
+            return sendBackRequest;
         }
+
     }
 
     /**
@@ -219,7 +242,7 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-                    return ok(userProfile.toJson());
+                    return ok(Json.toJson(userProfile));
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
@@ -348,21 +371,21 @@ public class ProfileController {
                     profileToUpdate.update();
 
                     Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
-                        Nationality newNat = Nationality.find.byId(node.asInt());
+                        Nationality newNat = Nationality.find.byId(node.get(ID).asInt());
                         profileToUpdate.addNationality(newNat);
                     };
 
                     json.get(NATIONALITY).forEach(nationalityAction);
 
                     Consumer<JsonNode> passportAction = (JsonNode node) -> {
-                        Passport newPass = Passport.find.byId(node.asInt());
+                        Passport newPass = Passport.find.byId(node.get(ID).asInt());
                         profileToUpdate.addPassport(newPass);
                     };
 
                     json.get(PASSPORT).forEach(passportAction);
 
                     Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
-                        TravellerType travType = TravellerType.find.byId(node.asInt());
+                        TravellerType travType = TravellerType.find.byId(node.get(ID).asInt());
                         profileToUpdate.addTravType(travType);
                     };
 
@@ -397,12 +420,49 @@ public class ProfileController {
                         // No query string given. retrieve all profiles
                         profiles = Profile.find.all();
                     } else {
-                        profiles = searchProfiles(request.queryString());
+                        String getError = validQueryString(request.queryString());
+                        if (getError.isEmpty()) {
+                            profiles = searchProfiles(request.queryString());
+                        } else {
+                            return badRequest(getError);
+                        }
                     }
 
                     return ok(Json.toJson(profiles));
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+    }
+
+    /**
+     * Validates the search query string for profiles.
+     *
+     * @param queryString the query string from the request body, given by the user.
+     * @return String message of error in query string, empty if no error present.
+     */
+    private String validQueryString(Map<String, String[]> queryString) {
+        Integer minAge;
+        Integer maxAge;
+
+        try {
+            minAge = Integer.valueOf(queryString.get(MIN_AGE)[0]);
+            maxAge = Integer.valueOf(queryString.get(MAX_AGE)[0]);
+        } catch (Exception e) {
+            return "Ages cannot be converted to Integers";
+        }
+
+        if ((maxAge < 0) || (maxAge > 120)) {
+            return "Max age must be between 0 and 120";
+        }
+
+        if ((minAge < 0) || (minAge > 120)) {
+            return "Min age must be between 0 and 120";
+        }
+
+        if (minAge > maxAge) {
+            return "Min age must be less than or equal to max age";
+        }
+
+        return "";
     }
 
     /**
