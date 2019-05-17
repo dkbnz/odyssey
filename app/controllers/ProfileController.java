@@ -397,12 +397,49 @@ public class ProfileController {
                         // No query string given. retrieve all profiles
                         profiles = Profile.find.all();
                     } else {
-                        profiles = searchProfiles(request.queryString());
+                        String getError = validQueryString(request.queryString());
+                        if (getError.isEmpty()) {
+                            profiles = searchProfiles(request.queryString());
+                        } else {
+                            return badRequest(getError);
+                        }
                     }
 
                     return ok(Json.toJson(profiles));
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+    }
+
+    /**
+     * Validates the search query string for profiles.
+     *
+     * @param queryString the query string from the request body, given by the user.
+     * @return String message of error in query string, empty if no error present.
+     */
+    private String validQueryString(Map<String, String[]> queryString) {
+        Integer minAge;
+        Integer maxAge;
+
+        try {
+            minAge = Integer.valueOf(queryString.get(MIN_AGE)[0]);
+            maxAge = Integer.valueOf(queryString.get(MAX_AGE)[0]);
+        } catch (Exception e) {
+            return "Ages cannot be converted to Integers";
+        }
+
+        if ((maxAge < 0) || (maxAge > 120)) {
+            return "Max age must be between 0 and 120";
+        }
+
+        if ((minAge < 0) || (minAge > 120)) {
+            return "Min age must be between 0 and 120";
+        }
+
+        if (minAge > maxAge) {
+            return "Min age must be less than or equal to max age";
+        }
+
+        return "";
     }
 
     /**
