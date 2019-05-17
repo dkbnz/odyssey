@@ -523,10 +523,8 @@
              */
             checkValidDestinationDates() {
                 for (let i = 0; i < this.inputTrip.destinations.length; i++) {
-                    if(this.inputTrip.destinations[i].endDate > this.inputTrip.destinations[i+1].startDate) {
+                    if(this.inputTrip.destinations[i].endDate < this.inputTrip.destinations[i+1].startDate) {
                         return false
-                    } else {
-                        return true;
                     }
                 }
             },

@@ -2,7 +2,6 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Nationality;
@@ -307,9 +306,9 @@ public class ProfileController {
                     Profile profileToUpdate;
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if(loggedInUser.getIsAdmin() || editUserId == Long.valueOf(userId)) {
+                    if(loggedInUser.getIsAdmin() || editUserId.equals(Long.valueOf(userId))) {
                         profileToUpdate = Profile.find.byId(editUserId.intValue());
-                    } else if (editUserId != Long.valueOf(userId)) {
+                    } else if (!editUserId.equals(Long.valueOf(userId))) {
                         return forbidden(); // User has specified an id which is not their own, but is not admin
                     } else {
                         return badRequest(); // User has not specified an id, but is trying to update their own profile
@@ -340,7 +339,7 @@ public class ProfileController {
                         return badRequest();
                     }
 
-                    // If the username has been changed, and the changed username exists return badRequest();
+                    // If the username has been changed, and the changed username exists return badRequest()
                     if(!json.get(USERNAME).asText().equals(profileToUpdate.getUsername())
                             && profileExists(json.get(USERNAME).asText())) {
                         return badRequest();
@@ -413,7 +412,6 @@ public class ProfileController {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
-                    ObjectMapper mapper = new ObjectMapper();
                     List<Profile> profiles;
 
                     if (request.queryString().isEmpty()) {
