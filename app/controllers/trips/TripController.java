@@ -12,6 +12,8 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import util.AuthenticationUtil;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,7 +28,6 @@ public class TripController extends Controller {
     private static final String END_DATE = "end_date";
     private static final String DESTINATION_ID = "destination_id";
     private static final String TRIP_ID = "trip_id";
-    private static final String AFFECTED_USER_ID = "create_for_id";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private TripRepository repository = new TripRepository();
 
@@ -35,9 +36,9 @@ public class TripController extends Controller {
      * Creates a trips for a user based on information sent in the Http Request body. A trip will have a trip name,
      * and at least two destinations.
      *
-     * @param request        Http Request containing Json Body.
-     * @param affectedUserId
-     * @return created() (Http 201) response for successful trip creation, or badRequest() (Http 400).
+     * @param request           Http Request containing Json Body.
+     * @param affectedUserId    The user id of the user who will own the new trip.
+     * @return                  created() (Http 201) response for successful trip creation, or badRequest() (Http 400).
      */
     public Result create(Http.Request request, Long affectedUserId) {
         return request.session()
@@ -52,12 +53,10 @@ public class TripController extends Controller {
                     }
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if (loggedInUser.getIsAdmin() || affectedUserId == Long.valueOf(userId)) {
-                        affectedProfile = Profile.find.byId(affectedUserId.intValue());
-                    } else if (affectedUserId != Long.valueOf(userId)) {
-                        return forbidden(); // User has specified an id which is not their own, but is not admin
+                    if (AuthenticationUtil.validUser(loggedInUser, affectedUserId)) {
+                        affectedProfile = ProfileRepository.fetchSingleProfile(affectedUserId.intValue());
                     } else {
-                        return badRequest(); // User has not specified an id, but is trying to update their own profile
+                        return forbidden();
                     }
 
                     if (affectedProfile == null) {
@@ -137,12 +136,10 @@ public class TripController extends Controller {
                     }
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if (loggedInUser.getIsAdmin() || affectedUserId == Long.valueOf(userId)) {
-                        affectedProfile = Profile.find.byId(affectedUserId.intValue());
-                    } else if (affectedUserId != Long.valueOf(userId)) {
-                        return forbidden(); // User has specified an id which is not their own, but is not admin
+                    if (AuthenticationUtil.validUser(loggedInUser, affectedUserId)) {
+                        affectedProfile = ProfileRepository.fetchSingleProfile(affectedUserId.intValue());
                     } else {
-                        return badRequest(); // User has not specified an id, but is trying to update their own profile
+                        return forbidden();
                     }
 
                     if (affectedProfile == null) {
