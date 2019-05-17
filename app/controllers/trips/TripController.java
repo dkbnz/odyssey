@@ -12,6 +12,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import util.AuthenticationUtil;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,7 +28,6 @@ public class TripController extends Controller {
     private static final String END_DATE = "end_date";
     private static final String DESTINATION_ID = "destination_id";
     private static final String TRIP_ID = "trip_id";
-    private static final String AFFECTED_USER_ID = "create_for_id";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private TripRepository repository = new TripRepository();
 
@@ -36,9 +36,9 @@ public class TripController extends Controller {
      * Creates a trips for a user based on information sent in the Http Request body. A trip will have a trip name,
      * and at least two destinations.
      *
-     * @param request        Http Request containing Json Body.
-     * @param affectedUserId
-     * @return created() (Http 201) response for successful trip creation, or badRequest() (Http 400).
+     * @param request           Http Request containing Json Body.
+     * @param affectedUserId    The user id of the user who will own the new trip.
+     * @return                  created() (Http 201) response for successful trip creation, or badRequest() (Http 400).
      */
     public Result create(Http.Request request, Long affectedUserId) {
         return request.session()
@@ -53,12 +53,10 @@ public class TripController extends Controller {
                     }
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if (loggedInUser.getIsAdmin() || affectedUserId == Long.valueOf(userId)) {
-                        affectedProfile = Profile.find.byId(affectedUserId.intValue());
-                    } else if (affectedUserId != Long.valueOf(userId)) {
-                        return forbidden(); // User has specified an id which is not their own, but is not admin
+                    if (AuthenticationUtil.validUser(loggedInUser, affectedUserId)) {
+                        affectedProfile = ProfileRepository.fetchSingleProfile(affectedUserId.intValue());
                     } else {
-                        return badRequest(); // User has not specified an id, but is trying to update their own profile
+                        return forbidden();
                     }
 
                     if (affectedProfile == null) {
@@ -98,9 +96,9 @@ public class TripController extends Controller {
      * Method for looking at the contents of the main Json body for a trip in a request.
      * NOTE: Does not examine array contents.
      *
-     * @param json the Json body of a request received.
-     * @return false if Json doesn't contain a name or an array of destinations with at least two nodes, else
-     * returns true.
+     * @param json      the Json body of a request received.
+     * @return          false if Json doesn't contain a name or an array of destinations with at least two nodes, else
+     *                  returns true.
      */
     private boolean isValidTrip(JsonNode json) {
 
@@ -119,11 +117,11 @@ public class TripController extends Controller {
     /**
      * Updates a single trip for selected user's profile.
      *
-     * @param request Http Request containing Json Body of the selected trip to modify.
-     * @param id      the id of the trip being modified.
-     * @return ok() (Http 200) if the trip has been successfully modified. If the trip is not valid, returns a
-     * badRequest() (Http 400). If the user is not logged in, returns an unauthorized()
-     * (Http 401).
+     * @param request   Http Request containing Json Body of the selected trip to modify.
+     * @param id        the id of the trip being modified.
+     * @return          ok() (Http 200) if the trip has been successfully modified. If the trip is not valid, returns a
+     *                  badRequest() (Http 400). If the user is not logged in, returns a unauthorized()
+     *                  (Http 401).
      */
     public Result edit(Http.Request request, Long id, Long affectedUserId) {
         return request.session()
@@ -138,12 +136,10 @@ public class TripController extends Controller {
                     }
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if (loggedInUser.getIsAdmin() || affectedUserId == Long.valueOf(userId)) {
-                        affectedProfile = Profile.find.byId(affectedUserId.intValue());
-                    } else if (affectedUserId != Long.valueOf(userId)) {
-                        return forbidden(); // User has specified an id which is not their own, but is not admin
+                    if (AuthenticationUtil.validUser(loggedInUser, affectedUserId)) {
+                        affectedProfile = ProfileRepository.fetchSingleProfile(affectedUserId.intValue());
                     } else {
-                        return badRequest(); // User has not specified an id, but is trying to update their own profile
+                        return forbidden();
                     }
 
                     if (affectedProfile == null) {
@@ -189,8 +185,8 @@ public class TripController extends Controller {
      * Parse the ArrayNode from a valid request's Json body to create a list of TripDestination objects
      * This method is used when creating a trip and when editing a trip
      *
-     * @param tripDestinations the array of trip destinations
-     * @return an array of destinations
+     * @param tripDestinations      the array of trip destinations
+     * @return                      an array of destinations
      */
     private List<TripDestination> parseTripDestinations(ArrayNode tripDestinations) {
 
@@ -251,10 +247,10 @@ public class TripController extends Controller {
      * Checks the start and end dates to make sure that the start date does not happen after the end date but if either
      * is null this does not apply
      *
-     * @param startDate starting date as string
-     * @param endDate   ending date as string
-     * @return true if the dates are valid (blank, null, or start date occurs before or at the same time as
-     * end date), otherwise returns false.
+     * @param startDate     starting date as string
+     * @param endDate       ending date as string
+     * @return              true if the dates are valid (blank, null, or start date occurs before or at the same time as
+     *                      end date), otherwise returns false.
      */
     private boolean isValidDates(String startDate, String endDate) {
         if (startDate.equals("") || startDate.equals("null")) {
@@ -270,14 +266,13 @@ public class TripController extends Controller {
     /**
      * Checks if all of the start/end dates within a trip are in valid order, to be called after saving a reorder
      *
-     * @param tripDestinations array of all the destinations in the trip in the new order
-     * @return true if all the dates of destinations within a trip are in chronological order,
-     * false otherwise
+     *  @param tripDestinations  array of all the destinations in the trip in the new order
+     * @return                  true if all the dates of destinations within a trip are in chronological order,
+     *                          false otherwise
      */
     private boolean isValidDateOrder(List<TripDestination> tripDestinations) {
         // Adds all dates within the list of trip destinations to an array if they aren't null
-        List<LocalDate> allDates = new ArrayList<LocalDate>() {
-        };
+        List<LocalDate> allDates = new ArrayList<LocalDate>() {};
         for (int i = 0; i < tripDestinations.size(); i++) {
             LocalDate startDate = tripDestinations.get(i).getStartDate();
             LocalDate endDate = tripDestinations.get(i).getEndDate();
@@ -304,10 +299,10 @@ public class TripController extends Controller {
     /**
      * Fetches a single trip from the database for a logged in user.
      *
-     * @param request Http request from client
-     * @return an ok() (Http 200) response rendering the fetched trip onto the page. If requested trip not
-     * valid then returns a badRequest() (Http 400). If the trip is not found then returns notFound()
-     * (Http 404).
+     * @param request   Http request from client
+     * @return          an ok() (Http 200) response rendering the fetched trip onto the page. If requested trip not
+     *                  valid then returns a badRequest() (Http 400). If the trip is not found then returns notFound()
+     *                  (Http 404).
      */
     public Result fetch(Http.Request request) {
 
@@ -337,8 +332,8 @@ public class TripController extends Controller {
     /**
      * Fetches all the trips for a specified user
      *
-     * @param id the id of the user requested
-     * @return the list of trips as a Json
+     * @param id    the id of the user requested
+     * @return      the list of trips as a Json
      */
     public Result fetchAll(Long id) {
         List<Trip> trips = repository.fetchAllTrips(id);
@@ -349,8 +344,8 @@ public class TripController extends Controller {
     /**
      * Gets the logged in user id from a given request.
      *
-     * @param request The Http request that was received.
-     * @return An integer value of the logged in user id, null if there is no logged in user.
+     * @param request       The Http request that was received.
+     * @return              An integer value of the logged in user id, null if there is no logged in user.
      */
     private Integer getLoggedInUserId(Http.Request request) {
         String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
@@ -365,14 +360,14 @@ public class TripController extends Controller {
     /**
      * Deletes a trip from the user currently logged in.
      *
-     * @param request Http request from the client, from which the current user profile can be obtained.
-     * @param tripId  the id of the trip being deleted from a profile
+     * @param request   Http request from the client, from which the current user profile can be obtained.
+     * @param tripId    the id of the trip being deleted from a profile
      * @param userId  The id of the trip owner.
-     * @return If no profile or no trip is found, returns notFound() (Http 404).
-     * If the trip is not in the user's list of trips, returns forbidden() (Http 403).
-     * If the user is not logged in, returns unauthorized() (Http 401).
-     * If the user is not the trip owner or an admin, returns unauthorized() (Http 401).
-     * Otherwise, if trip is successfully deleted, returns ok() (Http 200).
+     * @return          If no profile or no trip is found, returns notFound() (Http 404).
+     *                  If the trip is not in the user's list of trips, returns forbidden() (Http 403).
+     *                  If the user is not logged in, returns unauthorized() (Http 401).
+     *                  If the user is not the trip owner or an admin, returns unauthorized() (Http 401).
+     *                  Otherwise, if trip is successfully deleted, returns ok() (Http 200).
      */
     public Result destroy(Http.Request request, Long tripId, Long userId) {
 
@@ -380,12 +375,13 @@ public class TripController extends Controller {
 
         // Check if a user is logged in.
         if (userId != null) {
+            // Get the profile of the currently logged in user.
+            Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
 
             // Retrieve the profile having its trip removed.
             // Use the trip to find the user.
-
-            Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
             Profile tripOwner = ProfileRepository.fetchSingleProfile(userId.intValue());
+
             // Retrieve the individual trip being deleted by its id.
             Trip trip = repository.fetchSingleTrip(tripId);
 
@@ -393,7 +389,6 @@ public class TripController extends Controller {
             if (!loggedInUser.isAdmin && !profilesAreEqual) {
                 return unauthorized();
             }
-
 
             // Check for query success.
             if (loggedInUser == null || trip == null) {
