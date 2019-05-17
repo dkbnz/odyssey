@@ -100,7 +100,6 @@
                 this.editProfile = editProfile;
                 this.currentDisplay = 0;
                 this.showSaved = true;
-                this.emit('profile-saved', true);
             }
         },
         components: {
