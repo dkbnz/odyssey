@@ -400,7 +400,7 @@
              * @param editOutDate   the out date being edited.
              */
             saveDestination(row, editInDate, editOutDate) {
-                if (editInDate <= editOutDate) {
+                if (editInDate <= editOutDate || editInDate === null) {
                     this.showDateError = false;
                     row.startDate = editInDate;
                     row.endDate = editOutDate;
