@@ -518,11 +518,17 @@
 
             /**
              * Checks all the destination dates in a trip to ensure that the end date of a destination is before its
-             * following destination start date.
+             * following destination start date, or if the dates are null.
              * @returns {boolean} true if the dates are valid, false otherwise
              */
             checkValidDestinationDates() {
                 for (let i = 0; i < this.inputTrip.destinations.length; i++) {
+                    if(this.inputTrip.destinations[i].endDate === null
+                        || this.inputTrip.destinations[i+1].startDate === null
+                        || this.inputTrip.destinations[i].endDate.length === 0
+                        || this.inputTrip.destinations[i+1].startDate.length === 0) {
+                        return true;
+                    }
                     if(this.inputTrip.destinations[i].endDate < this.inputTrip.destinations[i+1].startDate) {
                         return false
                     }
