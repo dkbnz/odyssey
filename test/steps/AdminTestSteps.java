@@ -22,6 +22,8 @@ import play.test.Helpers;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static play.test.Helpers.*;
 
@@ -45,7 +47,9 @@ public class AdminTestSteps {
     /**
      * A valid password for login credentials for admin user.
      */
-    private static final String VALID_PASSWORD = "admin1";
+    private static final String VALID_AUTHPASS = "admin1";
+
+    private static final Logger LOGGER = Logger.getLogger( AdminTestSteps.class.getName() );
 
 
     /**
@@ -147,7 +151,8 @@ public class AdminTestSteps {
         try {
             arrNode = new ObjectMapper().readTree(content);
         } catch (IOException e) {
-            e.printStackTrace();
+
+            LOGGER.log(Level.SEVERE, "Unable to get response iterator for fake request.", e);
         }
         return arrNode.elements();
     }
@@ -181,7 +186,7 @@ public class AdminTestSteps {
 
     @Given("An admin is logged in")
     public void anAdminIsLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         Assert.assertEquals(OK, statusCode);
     }
 

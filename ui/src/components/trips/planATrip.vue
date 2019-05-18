@@ -1,8 +1,8 @@
 <template>
     <div class="container">
 
-        <h1 class="page_title">{{ heading }}</h1>
-        <p class="page_title"><i>{{ subHeading }}</i></p>
+        <h1 class="page-title">{{ heading }}</h1>
+        <p class="page-title"><i>{{ subHeading }}</i></p>
 
         <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
 
@@ -339,7 +339,6 @@
                     this.showError = true;
                     this.errorMessage = "No Destination Selected";
                 }
-
             },
 
             /**
@@ -518,11 +517,17 @@
 
             /**
              * Checks all the destination dates in a trip to ensure that the end date of a destination is before its
-             * following destination start date.
+             * following destination start date, or if the dates are null.
              * @returns {boolean} true if the dates are valid, false otherwise
              */
             checkValidDestinationDates() {
                 for (let i = 0; i < this.inputTrip.destinations.length; i++) {
+                    if(this.inputTrip.destinations[i].endDate === null
+                        || this.inputTrip.destinations[i+1].startDate === null
+                        || this.inputTrip.destinations[i].endDate.length === 0
+                        || this.inputTrip.destinations[i+1].startDate.length === 0) {
+                        return true;
+                    }
                     if(this.inputTrip.destinations[i].endDate < this.inputTrip.destinations[i+1].startDate) {
                         return false
                     }

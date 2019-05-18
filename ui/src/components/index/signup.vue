@@ -125,6 +125,7 @@
 
         <!--Fields for inputting nationalities, passports & traveller types-->
         <div v-if="showSecond" id="secondSignup">
+            <b-alert v-model="showError" variant="danger" dismissible>{{alertMessage}}</b-alert>
             <b-form>
                 <b-row>
                     <b-col>
@@ -176,6 +177,7 @@
                             controls
                             indicators
                             background="#ababab"
+                            :interval="0"
                             img-width="1920"
                             img-height="1080"
                             style="text-shadow: 1px 1px 2px #333;">
@@ -228,7 +230,10 @@
                 travellerTypes: [],
                 validEmail: false,
                 showSuccess: false,
-                successMessage: ""
+                alertMessage: "",
+                successMessage: "",
+
+
             }
         },
         computed: {
@@ -405,7 +410,13 @@
                 }).then(function (response) {
                     if (response.status === 201 && self.createdByAdmin) {
                         self.$emit('profile-created', true);
-                    } else {
+                    } else if (response.status === 400) {
+                        self.showError = true;
+                        response.clone().text().then(text => {
+                            self.alertMessage = text;
+                        });
+                    }
+                    else {
                         self.$router.go();
                         self.$router.push("/dash");
                         return response.json();
