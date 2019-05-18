@@ -16,6 +16,9 @@
             assets() {
                 return assets
             },
+            // destinationsSorted() {
+            //     return this.destinations.sort
+            // }
         },
         created() {
             document.title = "TravelEA";
@@ -24,7 +27,7 @@
             this.getProfile(profile => this.profile = profile);
             this.getNationalities(nationalities => this.nationalityOptions = nationalities);
             this.getTravTypes(travTypes => this.travTypeOptions = travTypes);
-            this.getDestinations(destinations => this.destinations = destinations);
+            this.getDestinations();
             this.getDestinationTypes(destinationT => this.destinationTypes = destinationT);
 
         },
@@ -39,13 +42,36 @@
             }
         },
         methods: {
-            getDestinations(updateDestinations) {
+            getDestinations() {
+                let self = this;
                 return fetch(`/v1/destinations`, {
                     accept: "application/json"
                 })
                     .then(this.parseJSON)
-                    .then(updateDestinations);
+                    .then(function(response) {
+                        self.destinations = (response.sort(self.compare));
+                    });
             },
+
+            /**
+             * Sorts the destinations based on the name of the destination.
+             * @param first      for each destination, current destination
+             * @param next       for each destination, next destination
+             * @returns {number} depending on if destinations should be swapped or not -1, 1, 0
+             */
+            compare(first, next) {
+                const nameFirst = first.name.toUpperCase(); // ignore upper and lowercase
+                const nameSecond = next.name.toUpperCase(); // ignore upper and lowercase
+
+                if (nameFirst < nameSecond ) {
+                    return -1;
+                } else if (nameFirst > nameSecond ) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            },
+
             getDestinationTypes(updateDestinationTypes) {
                 return fetch(`/v1/destinationTypes`, {
                     accept: "application/json"
