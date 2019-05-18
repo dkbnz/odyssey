@@ -24,6 +24,8 @@ import play.test.Helpers;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.*;
@@ -53,7 +55,7 @@ public class ProfileTestSteps {
     /**
      * A valid password for login credentials for admin user.
      */
-    private static final String VALID_PASSWORD = "admin1";
+    private static final String VALID_AUTHPASS = "admin1";
 
     /**
      * The session used for keeping logged in users
@@ -63,6 +65,8 @@ public class ProfileTestSteps {
     private static final int NUMBER_OF_TRAVELTYPES = 7;
     private static final int NUMBER_OF_NATIONALITIES = 108;
     private static final int NUMBER_OF_PROFILES = 6;
+
+    private static final Logger LOGGER = Logger.getLogger( ProfileTestSteps.class.getName() );
 
 
 
@@ -165,13 +169,13 @@ public class ProfileTestSteps {
 
     /**
      * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_PASSWORD.
+     * and VALID_AUTHPASS.
      *
      * Asserts the login was successful with a status code of OK (200).
      */
     @And("I have logged in")
     public void iAmLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         assertEquals(OK, statusCode);
     }
 
@@ -284,7 +288,7 @@ public class ProfileTestSteps {
         try {
             arrNode = new ObjectMapper().readTree(content);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Unable to get response iterator for fake request.", e);
         }
         return arrNode.elements();
     }
