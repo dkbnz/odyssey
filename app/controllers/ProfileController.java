@@ -151,10 +151,8 @@ public class ProfileController {
                         return badRequest();
                     }
                 })
-                .orElseGet(() -> {
-                    // returns created as no user is logged in
-                    return created();
-                });
+                .orElseGet(() -> created()); // returns created as no user is logged in
+
 
         if (!createdByAdmin) {
             return sendBackRequest.addingToSession(request, AUTHORIZED, newUser.id.toString());
@@ -187,8 +185,8 @@ public class ProfileController {
             return validateName(firstName, "First Name");
         }
 
-        if (!validateName(middleName, "Middle Name").isEmpty()) {
-            return validateName(middleName, "Middle Name");
+        if (!validateName(middleName, MIDDLE_NAME).isEmpty()) {
+            return validateName(middleName, MIDDLE_NAME);
         }
 
         if (!validateName(lastName, "Last Name").isEmpty()) {
@@ -231,9 +229,9 @@ public class ProfileController {
      *                      empty string.
      */
     private String validateName(String nameValue, String nameType) {
-        if (nameType.equals("Middle Name")) {
+        if (nameType.equals(MIDDLE_NAME)) {
             if (nameValue.length() > 100) {
-                return nameType + " must be less than 100 characters.";
+                return "Middle Name must be less than 100 characters.";
             }
             if (nameValue.matches(".*\\d.*")) {
                 return nameType + " must not contain any numbers.";

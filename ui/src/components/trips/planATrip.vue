@@ -339,7 +339,6 @@
                     this.showError = true;
                     this.errorMessage = "No Destination Selected";
                 }
-
             },
 
             /**
