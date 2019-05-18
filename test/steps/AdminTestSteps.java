@@ -1,5 +1,6 @@
 package steps;
 
+import akka.event.Logging;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -9,6 +10,7 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import models.Profile;
 import org.junit.Assert;
 import org.springframework.beans.BeansException;
 import play.Application;
@@ -35,7 +37,12 @@ public class AdminTestSteps {
     private static final String AUTHORIZED = "authorized";
     private int statusCode;
     private static final String PROFILES_URI = "/v1/profiles";
+    private static final String PROFILES_UPDATE_URI = "/v1/profile/";
+    private static final String SINGLE_PROFILE_URI = "/v1/profile";
     private static final String LOGIN_URI = "/v1/login";
+    private static final String USERNAME = "username";
+    private static final String PASS_FIELD = "password";
+
 
     /**
      * A valid username for login credentials for admin user.
@@ -47,9 +54,25 @@ public class AdminTestSteps {
      * A valid password for login credentials for admin user.
      */
     private static final String VALID_AUTHPASS = "admin1";
+    private static final String ADMIN_ID = "1";
 
     private static final Logger LOGGER = Logger.getLogger( AdminTestSteps.class.getName() );
 
+
+    /**
+     * A valid username for login credentials for a regular user.
+     */
+    private static final String REG_USER = "guestUser@travelea.com";
+
+
+    /**
+     * A valid password for login credentials for a regular user.
+     */
+    private static final String REG_PASS = "guest123";
+    private static final String REG_ID = "2";
+
+
+    private String userId;
 
     @Before
     public void setUp() {
@@ -190,7 +213,7 @@ public class AdminTestSteps {
                 .uri(PROFILES_URI);
         Result result = route(application, request);
         statusCode = result.status();
-        ;
+
     }
 
     @Then("the status code is Created")
@@ -217,20 +240,18 @@ public class AdminTestSteps {
         // complex json
         ObjectMapper mapper = new ObjectMapper();
 
-        List<String> nationality = new ArrayList<String>();
-        List<String> traveller_type = new ArrayList<String>();
-        List<String> passport = new ArrayList<String>();
-
-        nationality.add(list.get(0).get("nationality"));
-        traveller_type.add(list.get(0).get("traveller_type"));
-        passport.add(list.get(0).get("passport_country"));
-
-        ArrayNode nationalityNode = mapper.valueToTree(nationality);
-        ArrayNode traveller_typeNode = mapper.valueToTree(traveller_type);
-        ArrayNode passportNode = mapper.valueToTree(passport);
-
         //Add values to a JsonNode
         JsonNode json = mapper.createObjectNode();
+
+        ObjectNode nationalityNode = mapper.createObjectNode();
+        nationalityNode.put("id", Integer.valueOf(list.get(0).get("nationality")));
+
+        ObjectNode travellerTypeNode = mapper.createObjectNode();
+        travellerTypeNode.put("id", Integer.valueOf(list.get(0).get("traveller_type")));
+
+        ObjectNode passportNode = mapper.createObjectNode();
+        passportNode.put("id", Integer.valueOf(list.get(0).get("passport_country")));
+
         ((ObjectNode) json).put("username", username);
         ((ObjectNode) json).put("password", password);
         ((ObjectNode) json).put("firstName", firstName);
@@ -238,12 +259,81 @@ public class AdminTestSteps {
         ((ObjectNode) json).put("lastName", lastName);
         ((ObjectNode) json).put("gender", gender);
         ((ObjectNode) json).put("dateOfBirth", dateOfBirth);
-        ((ObjectNode) json).putArray("nationalities").addAll(nationalityNode);
-        ((ObjectNode) json).putArray("travellerTypes").addAll(traveller_typeNode);
-        ((ObjectNode) json).putArray("passports").addAll(passportNode);
+        ((ObjectNode) json).putArray("nationalities").add(nationalityNode);
+        ((ObjectNode) json).putArray("travellerTypes").add(travellerTypeNode);
+        ((ObjectNode) json).putArray("passports").add(passportNode);
 
         return json;
     }
 
+
+    @Given("I am logged in as an admin")
+    public void iAmLoggedInAsAnAdmin() {
+        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
+        Assert.assertEquals(OK, statusCode);
+        userId = ADMIN_ID;
+    }
+
+    @Given("a user exists in the database with the id {int} and username {string}")
+    public void aUserExistsInTheDatabaseWithTheIdAndUsername(Integer id, String username) {
+        Profile profile = Profile.find.byId(id);
+        Assert.assertNotNull(profile);
+        Assert.assertEquals(profile.getUsername(), username);
+    }
+
+    @Given("a user does not exist with the username {string}")
+    public void aUserDoesNotExistWithTheUsername(String username) {
+        Assert.assertNull(Profile.find
+                .query()
+                .where()
+                .like(USERNAME, username)
+                .findOne());
+    }
+
+    @When("I change the username of the user with id {int} to {string}")
+    public void iChangeTheUsernameOfTheUserWithIdTo(Integer idTochange, String newUsername) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, String.valueOf(idTochange))
+                .uri(SINGLE_PROFILE_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        Assert.assertEquals(OK, statusCode);
+
+        ObjectNode profileToEdit = null;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            profileToEdit = (ObjectNode) objectMapper.readTree(Helpers.contentAsString(result));
+            profileToEdit.put(USERNAME, newUsername);
+            profileToEdit.put(PASS_FIELD, "");
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error converting string to Json", e);
+        }
+
+        // Sending the fake request to the back end for updating
+        request = fakeRequest()
+                .method(PUT)
+                .session(AUTHORIZED, userId)
+                .bodyJson(profileToEdit)
+                .uri(PROFILES_UPDATE_URI + idTochange);
+
+        result = route(application, request);
+        statusCode = result.status();
+    }
+
+    @Given("I am logged in as a regular user")
+    public void iAmLoggedInAsARegularUser() {
+        loginRequest(REG_USER, REG_PASS);
+        Assert.assertEquals(OK, statusCode);
+        userId = REG_ID;
+    }
+
+    @Then("I receive a status code of {int}")
+    public void iReceiveAStatusCodeOf(int expectedStatus) {
+        Assert.assertEquals(expectedStatus, statusCode);
+    }
 
 }
