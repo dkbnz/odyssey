@@ -20,8 +20,8 @@ import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static play.mvc.Results.*;
 
@@ -31,7 +31,8 @@ import static play.mvc.Results.*;
  */
 public class ProfileController {
 
-    private static final Logger LOGGER = Logger.getLogger( ProfileController.class.getName() );
+    //private static final Logger LOGGER = Logger.getLogger( ProfileController.class.getName() );
+    final Logger log = LoggerFactory.getLogger(this.getClass());
     private static final String USERNAME = "username";
     private static final String PASS_FIELD = "password";
     private static final String FIRST_NAME = "firstName";
@@ -91,7 +92,7 @@ public class ProfileController {
         try {
             newUser.setPassword(hashProfilePassword(json.get(PASS_FIELD).asText()));
         } catch (NoSuchAlgorithmException e) {
-            LOGGER.log(Level.SEVERE, "Unable to hash the user password", e);
+            log.error("Unable to hash the user password", e);
         }
 
         newUser.setUsername(json.get(USERNAME).asText());
@@ -106,25 +107,28 @@ public class ProfileController {
         newUser.save();
 
         Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
-            Nationality newNat = Nationality.find.byId(node.asInt());
+            Nationality newNat = Nationality.find.byId(node.get(ID).asInt());
             newUser.addNationality(newNat);
         };
 
         json.get(NATIONALITY).forEach(nationalityAction);
 
         Consumer<JsonNode> passportAction = (JsonNode node) -> {
-            Passport newPass = Passport.find.byId(node.asInt());
+            Passport newPass = Passport.find.byId(node.get(ID).asInt());
             newUser.addPassport(newPass);
         };
 
         json.get(PASSPORT).forEach(passportAction);
 
         Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
-            TravellerType travType = TravellerType.find.byId(node.asInt());
+            TravellerType travType = TravellerType.find.byId(node.get(ID).asInt());
             newUser.addTravType(travType);
         };
 
         json.get(TRAVELLER_TYPE).forEach(travTypeAction);
+
+        log.info("Input: " + json.toString());
+        log.info("USER: " + Json.toJson(newUser).toString());
 
         newUser.save();
 
@@ -351,7 +355,7 @@ public class ProfileController {
                         try {
                             profileToUpdate.setPassword(hashProfilePassword(json.get(PASS_FIELD).asText()));
                         } catch (NoSuchAlgorithmException e) {
-                            LOGGER.log(Level.SEVERE, "Unable to hash the user password", e);
+                            log.error("Unable to hash the user password", e);
                         }
                     }
 

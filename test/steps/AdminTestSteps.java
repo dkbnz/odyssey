@@ -9,6 +9,7 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import models.Profile;
 import org.junit.Assert;
 import org.springframework.beans.BeansException;
 import play.Application;
@@ -46,6 +47,17 @@ public class AdminTestSteps {
      */
     private static final String VALID_PASSWORD = "admin1";
 
+
+    /**
+     * A valid username for login credentials for a regular user.
+     */
+    private static final String REG_USER = "guestUser@travelea.com";
+
+
+    /**
+     * A valid password for login credentials for a regular user.
+     */
+    private static final String REG_PASS = "admin1";
 
     @Before
     public void setUp() {
@@ -185,7 +197,7 @@ public class AdminTestSteps {
                 .uri(PROFILES_URI);
         Result result = route(application, request);
         statusCode = result.status();
-        ;
+
     }
 
     @Then("the status code is Created")
@@ -212,20 +224,18 @@ public class AdminTestSteps {
         // complex json
         ObjectMapper mapper = new ObjectMapper();
 
-        List<String> nationality = new ArrayList<String>();
-        List<String> traveller_type = new ArrayList<String>();
-        List<String> passport = new ArrayList<String>();
-
-        nationality.add(list.get(0).get("nationality"));
-        traveller_type.add(list.get(0).get("traveller_type"));
-        passport.add(list.get(0).get("passport_country"));
-
-        ArrayNode nationalityNode = mapper.valueToTree(nationality);
-        ArrayNode traveller_typeNode = mapper.valueToTree(traveller_type);
-        ArrayNode passportNode = mapper.valueToTree(passport);
-
         //Add values to a JsonNode
         JsonNode json = mapper.createObjectNode();
+
+        ObjectNode nationalityNode = mapper.createObjectNode();
+        nationalityNode.put("id", Integer.valueOf(list.get(0).get("nationality")));
+
+        ObjectNode travellerTypeNode = mapper.createObjectNode();
+        travellerTypeNode.put("id", Integer.valueOf(list.get(0).get("traveller_type")));
+
+        ObjectNode passportNode = mapper.createObjectNode();
+        passportNode.put("id", Integer.valueOf(list.get(0).get("passport_country")));
+
         ((ObjectNode) json).put("username", username);
         ((ObjectNode) json).put("password", password);
         ((ObjectNode) json).put("firstName", firstName);
@@ -233,12 +243,66 @@ public class AdminTestSteps {
         ((ObjectNode) json).put("lastName", lastName);
         ((ObjectNode) json).put("gender", gender);
         ((ObjectNode) json).put("dateOfBirth", dateOfBirth);
-        ((ObjectNode) json).putArray("nationalities").addAll(nationalityNode);
-        ((ObjectNode) json).putArray("travellerTypes").addAll(traveller_typeNode);
-        ((ObjectNode) json).putArray("passports").addAll(passportNode);
+        ((ObjectNode) json).putArray("nationalities").add(nationalityNode);
+        ((ObjectNode) json).putArray("travellerTypes").add(travellerTypeNode);
+        ((ObjectNode) json).putArray("passports").add(passportNode);
 
         return json;
     }
 
+
+
+
+
+
+
+    @Given("I am logged in as an admin")
+    public void iAmLoggedInAsAnAdmin() {
+        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        Assert.assertEquals(OK, statusCode);
+    }
+
+    @Given("a user exists in the database with the id {int} and username {string}")
+    public void aUserExistsInTheDatabaseWithTheIdAndUsername(Integer id, String username) {
+        Profile profile = Profile.find.byId(id);
+        Assert.assertNotNull(profile);
+        Assert.assertEquals(profile.getUsername(), username);
+    }
+
+    @Given("a user does not exist with the username {string}")
+    public void aUserDoesNotExistWithTheUsername(String string) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+    @When("I change the username of the user with id {int} to {string}")
+    public void iChangeTheUsernameOfTheUserWithIdTo(Integer int1, String string) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+    @Then("I receive a status code of {int} # \\(OK)")
+    public void iReceiveAStatusCodeOfOK(Integer int1) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+    @Then("I receive a status code of {int} # \\(Bad Request)")
+    public void iReceiveAStatusCodeOfBadRequest(Integer int1) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+    @Given("I am logged in as a regular user")
+    public void iAmLoggedInAsARegularUser() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+    @Then("I receive a status code of {int} # \\(Forbidden)")
+    public void iReceiveAStatusCodeOfForbidden(Integer int1) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
 
 }
