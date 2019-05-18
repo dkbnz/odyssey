@@ -186,7 +186,7 @@ public class AdminTestSteps {
         boolean foundProfile = false;
         while (iterator.hasNext() && !foundProfile) {
             JsonNode jsonProfile = iterator.next();
-            if (jsonProfile.get("username").asText().equals(username)) {
+            if (jsonProfile.get(USERNAME).asText().equals(username)) {
                 foundProfile = true;
             }
         }
