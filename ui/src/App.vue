@@ -3,7 +3,7 @@
         <div>
             <router-view v-bind:profile="profile" v-bind:destinations="destinations"
                          v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions"
-                         v-bind:travTypeOptions="travTypeOptions"></router-view>
+                         v-bind:travTypeOptions="travTypeOptions" @data-changed="refreshData"></router-view>
         </div>
     </div>
 </template>
@@ -102,6 +102,13 @@
             },
             parseJSON(response) {
                 return response.json();
+            },
+
+            /**
+             * Refreshes data when data has been changed.
+             */
+            refreshData() {
+                this.getDestinations();
             }
         },
         components: {
