@@ -31,7 +31,6 @@ import static play.mvc.Results.*;
  */
 public class ProfileController {
 
-    //private static final Logger LOGGER = Logger.getLogger( ProfileController.class.getName() );
     final Logger log = LoggerFactory.getLogger(this.getClass());
     private static final String USERNAME = "username";
     private static final String PASS_FIELD = "password";
@@ -132,9 +131,6 @@ public class ProfileController {
         };
 
         json.get(TRAVELLER_TYPE).forEach(travTypeAction);
-
-        log.info("Input: " + json.toString());
-        log.info("USER: " + Json.toJson(newUser).toString());
 
         newUser.save();
 
@@ -426,6 +422,8 @@ public class ProfileController {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
+
+
                     Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
                     Profile profileToUpdate;
 
@@ -439,10 +437,12 @@ public class ProfileController {
                     }
 
                     if (profileToUpdate == null) {
-                        return badRequest(); // User does not exist in the system.
+                        return badRequest("No profile found"); // User does not exist in the system.
                     }
 
                     JsonNode json = request.body().asJson();
+
+                    log.info("Input: " + json.toString());
 
                     if (!(json.has(USERNAME)
                             && json.has(PASS_FIELD)
@@ -455,7 +455,7 @@ public class ProfileController {
                             && json.has(PASSPORT)
                             && json.has(TRAVELLER_TYPE)
                     )) {
-                        return badRequest();
+                        return badRequest("Invalid Json");
                     }
 
                     String getError = userDataValid(json);
@@ -466,13 +466,13 @@ public class ProfileController {
 
                     if(json.get(NATIONALITY).size() == 0
                             || json.get(TRAVELLER_TYPE).size() == 0) {
-                        return badRequest();
+                        return badRequest("Invalid number of Nationalities/Traveller Types");
                     }
 
                     // If the username has been changed, and the changed username exists return badRequest()
                     if(!json.get(USERNAME).asText().equals(profileToUpdate.getUsername())
                             && profileExists(json.get(USERNAME).asText())) {
-                        return badRequest();
+                        return badRequest("Username exists");
                     }
 
                     if (!json.get(PASS_FIELD).asText().isEmpty()) { // Only update password if user has typed a new one
