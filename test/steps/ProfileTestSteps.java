@@ -62,7 +62,7 @@ public class ProfileTestSteps {
 
     private static final int NUMBER_OF_TRAVELTYPES = 7;
     private static final int NUMBER_OF_NATIONALITIES = 108;
-    private static final int NUMBER_OF_PROFILES = 2;
+    private static final int NUMBER_OF_PROFILES = 6;
 
 
 
@@ -204,7 +204,6 @@ public class ProfileTestSteps {
         }
         statusCode = result.status();
         Assert.assertEquals(true, passProfiles);
-
     }
 
 
@@ -399,20 +398,17 @@ public class ProfileTestSteps {
         // complex json
         ObjectMapper mapper = new ObjectMapper();
 
-        List<String> nationality = new ArrayList<String>();
-        List<String> traveller_type = new ArrayList<String>();
-        List<String> passport = new ArrayList<String>();
-
-        nationality.add(list.get(0).get("nationality"));
-        traveller_type.add(list.get(0).get("traveller_type"));
-        passport.add(list.get(0).get("passport_country"));
-
-        ArrayNode nationalityNode = mapper.valueToTree(nationality);
-        ArrayNode traveller_typeNode = mapper.valueToTree(traveller_type);
-        ArrayNode passportNode = mapper.valueToTree(passport);
-
         //Add values to a JsonNode
         JsonNode json = mapper.createObjectNode();
+
+        ObjectNode nationalityNode = mapper.createObjectNode();
+        nationalityNode.put("id", Integer.valueOf(list.get(0).get("nationality")));
+
+        ObjectNode travellerTypeNode = mapper.createObjectNode();
+        travellerTypeNode.put("id", Integer.valueOf(list.get(0).get("traveller_type")));
+
+        ObjectNode passportNode = mapper.createObjectNode();
+        passportNode.put("id", Integer.valueOf(list.get(0).get("passport_country")));
 
         ((ObjectNode) json).put("username", username);
         ((ObjectNode) json).put("password", password);
@@ -421,9 +417,9 @@ public class ProfileTestSteps {
         ((ObjectNode) json).put("lastName", lastName);
         ((ObjectNode) json).put("gender", gender);
         ((ObjectNode) json).put("dateOfBirth", dateOfBirth);
-        ((ObjectNode) json).putArray("nationalities").addAll(nationalityNode);
-        ((ObjectNode) json).putArray("travellerTypes").addAll(traveller_typeNode);
-        ((ObjectNode) json).putArray("passports").addAll(passportNode);
+        ((ObjectNode) json).putArray("nationalities").add(nationalityNode);
+        ((ObjectNode) json).putArray("travellerTypes").add(travellerTypeNode);
+        ((ObjectNode) json).putArray("passports").add(passportNode);
 
         return json;
     }
