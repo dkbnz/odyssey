@@ -51,7 +51,7 @@ public class AuthenticationTestSteps {
     /**
      * A valid password for login credentials for admin user.
      */
-    private static final String VALID_PASSWORD = "admin1";
+    private static final String VALID_AUTHPASS = "admin1";
 
 
     /**
@@ -162,7 +162,7 @@ public class AuthenticationTestSteps {
         JsonNode json = mapper.createObjectNode();
 
         ((ObjectNode) json).put(VALID_USERNAME, username);
-        ((ObjectNode) json).put(VALID_PASSWORD, password);
+        ((ObjectNode) json).put(VALID_AUTHPASS, password);
 
         return json;
     }
@@ -185,7 +185,7 @@ public class AuthenticationTestSteps {
         JsonNode json = mapper.createObjectNode();
 
         ((ObjectNode) json).put("username", VALID_USERNAME);
-        ((ObjectNode) json).put("password", VALID_PASSWORD);
+        ((ObjectNode) json).put("password", VALID_AUTHPASS);
 
         Http.RequestBuilder request = fakeRequest()
                 .bodyJson(json)
