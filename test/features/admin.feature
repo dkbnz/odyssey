@@ -11,21 +11,21 @@ Feature: Having a admin system
 
   Scenario: Admin updating a non-admin user successfully
     Given I am logged in as an admin
-    And a user exists in the database with the id 3 and username "testUser1@email.com"
-    And a user does not exist with the username "testUser10@email.com"
-    When I change the username of the user with id 3 to "testUser10@email.com"
-    Then I receive a status code of 200 # (OK)
+    And a user exists in the database with the id 3 and username "testuser1@email.com"
+    And a user does not exist with the username "testuser10@email.com"
+    When I change the username of the user with id 3 to "testuser10@email.com"
+    Then I receive a status code of 200
 
   Scenario: Admin updating a non-admin user unsuccessfully
     Given I am logged in as an admin
-    And a user exists in the database with the id 3 and username "testUser1@email.com"
-    And a user exists in the database with the id 4 and username "testUser2@email.com"
-    When I change the username of the user with id 2 to "testUser2@email.com"
-    Then I receive a status code of 400 # (Bad Request)
+    And a user exists in the database with the id 3 and username "testuser1@email.com"
+    And a user exists in the database with the id 4 and username "testuser2@email.com"
+    When I change the username of the user with id 2 to "testuser2@email.com"
+    Then I receive a status code of 400
 
   Scenario: Regular user updating another user unsuccessfully
     Given I am logged in as a regular user
-    And a user exists in the database with the id 3 and username "testUser1@email.com"
-    And a user does not exist with the username "testUser10@email.com"
-    When I change the username of the user with id 3 to "testUser10@email.com"
-    Then I receive a status code of 401 # (Forbidden)
+    And a user exists in the database with the id 3 and username "testuser1@email.com"
+    And a user does not exist with the username "testuser10@email.com"
+    When I change the username of the user with id 3 to "testuser10@email.com"
+    Then I receive a status code of 403
