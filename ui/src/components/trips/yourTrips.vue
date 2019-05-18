@@ -151,8 +151,8 @@
 
         <!-- Div for all the user's past trips -->
         <div id="pastTrips">
-            <h1 class="page_title">Past Trips</h1>
-            <p class="page_title"><i>Here are your past trips!</i></p>
+            <h1 class="page-title">Past Trips</h1>
+            <p class="page-title"><i>Here are your past trips!</i></p>
 
             <!-- Table to show all a profile's past trips -->
             <b-table hover striped outlined
@@ -350,18 +350,38 @@
              * @returns string of the trip duration
              */
             calculateDuration(destinations) {
-                if (destinations[destinations.length -1 ].endDate == null) {
-                    return ""
-                } else if (destinations[destinations.length -1].startDate == null) {
-                    return ""
+                let tripStartDates = [];
+                let tripEndDates = [];
+                for (let i = 0; i < destinations.length; i++ ) {
+                    if (destinations[i].startDate !== null) {
+                        tripStartDates.push(destinations[i].startDate);
+                    }
+                    if (destinations[i].endDate !== null) {
+                        tripEndDates.push(destinations[i].endDate);
+                    }
                 }
-                let calculateDur = Math.ceil((Math.abs(new Date(destinations[destinations.length -1 ].endDate).getTime()
-                    - new Date(destinations[0].startDate).getTime())))/ (1000 * 3600 * 24) + 1;
-                if (calculateDur >= 365) {
-                    return Math.floor(calculateDur/365) + " year(s)"
-                } else {
-                    return calculateDur + " days"
+                console.log("Start " + tripStartDates);
+                console.log("End " + tripEndDates);
+
+                if (tripStartDates.length > 0 && tripEndDates.length > 0) {
+                    let calculateDur = Math.ceil((Math.abs(new Date(tripEndDates[tripEndDates.length -1 ]).getTime()
+                        - new Date(tripStartDates[0]).getTime())))/ (1000 * 3600 * 24) + 1;
+                    return calculateDur + " days";
+
                 }
+
+                // if (destinations[destinations.length -1 ].endDate == null) {
+                //     return ""
+                // } else if (destinations[destinations.length -1].startDate == null) {
+                //     return ""
+                // }
+                // let calculateDur = Math.ceil((Math.abs(new Date(destinations[destinations.length -1 ].endDate).getTime()
+                //     - new Date(destinations[0].startDate).getTime())))/ (1000 * 3600 * 24) + 1;
+                // if (calculateDur >= 365) {
+                //     return Math.floor(calculateDur/365) + " year(s)"
+                // } else {
+                //     return calculateDur + " days"
+                // }
 
             },
 
