@@ -175,6 +175,7 @@
                         if (response.ok) {
                             self.resetDestForm();
                             self.showAlert();
+                            self.emit('data-changed', true);
                             return JSON.parse(JSON.stringify(response));
                         } else {
                             throw new Error('Something is wrong!');

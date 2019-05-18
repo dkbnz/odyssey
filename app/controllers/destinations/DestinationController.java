@@ -114,7 +114,8 @@ public class DestinationController extends Controller {
         String longitude = json.get(LONGITUDE).asText();
 
         // Checks all fields contain data
-        if (name.length() == 0 || country.length() == 0 || district.length() == 0 || latitude.length() == 0 || longitude.length() == 0) {
+        if (name.length() == 0 || country.length() == 0 || district.length() == 0 || latitude.length() == 0
+                || longitude.length() == 0) {
             return false;
         }
 
@@ -140,7 +141,7 @@ public class DestinationController extends Controller {
         // Check string inputs against regex
         String nameRegEx = "^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$";
 
-        if (!(name.matches(nameRegEx) && country.matches(nameRegEx) && district.matches(nameRegEx))) {
+        if (!(country.matches(nameRegEx))) {
             return false;
         }
         return true;
