@@ -382,7 +382,7 @@
             calculateEndDate(destinations) {
                 let tripEndDates = [];
                 for (let i = 0; i < destinations.length; i++) {
-                    if (destinations[i].startDate !== null) {
+                    if (destinations[i].endDate !== null) {
                         tripEndDates.push(destinations[i].endDate);
                     }
                 }
