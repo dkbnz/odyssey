@@ -40,7 +40,7 @@ public class ProfileTestSteps {
     private int statusCode;
     private int loginStatusCode;
     private static final String PROFILES_URI = "/v1/profiles";
-    private static final String PROFILES_UPDATE__URI = "/v1/profile/";
+    private static final String PROFILES_UPDATE_URI = "/v1/profile/";
     private static final String TRAVTYPES_URI = "/v1/travtypes";
     private static final String NATIONALITIES_URI = "/v1/nationalities";
     private static final String LOGIN_URI = "/v1/login";
@@ -378,7 +378,7 @@ public class ProfileTestSteps {
                 .method(PUT)
                 .session(AUTHORIZED, "2")
                 .bodyJson(json)
-                .uri(PROFILES_UPDATE__URI + 2);
+                .uri(PROFILES_UPDATE_URI + 2);
         Result result = route(application, request);
         statusCode = result.status();
     }
