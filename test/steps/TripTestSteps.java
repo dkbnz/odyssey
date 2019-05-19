@@ -2,6 +2,7 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -26,7 +27,9 @@ import static play.test.Helpers.*;
 import play.db.evolutions.Evolutions;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import static play.test.Helpers.fakeApplication;
@@ -249,4 +252,25 @@ public class TripTestSteps {
         return json;
     }
 
+
+
+    private JsonNode parseAllJsonDates(JsonNode json) {
+        ArrayNode destinations = (ArrayNode) json.get("trip_destinations");
+        Iterator<JsonNode> iterator = destinations.elements();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        while (iterator.hasNext()) {
+            ObjectNode destination = (ObjectNode) iterator.next();
+
+//            destination.put("start_date", parseSingleJsonDate(destination.get("start_date").asText()));
+//            destination.put("end_date", parseSingleJsonDate(destination.get("start_date").asText()));
+        }
+        return json;
+    }
+
+
+    private LocalDate parseSingleJsonDate(String json) {
+        return null;
+    }
 }
