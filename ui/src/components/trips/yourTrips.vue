@@ -414,7 +414,7 @@
                 this.showError = false;
                 this.validDelete = false;
                 let self = this;
-                fetch('/v1/trips/' + trip.id + "/" + this.profile.id, {
+                fetch('/v1/trips/' + trip.id, {
                         method: 'DELETE',
                 }).then(function (response) {
                     if (response.ok) {
