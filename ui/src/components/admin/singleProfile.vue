@@ -2,6 +2,7 @@
     <div>
         <b-row>
             <b-col cols="2">
+                <!-- Nav bar for admin to display the selected page they wish to work on. -->
                 <b-navbar toggleable="lg">
                     <b-collapse id="nav-collapse-admin" is-nav>
                         <b-nav vertical class="singleProfileNav">
@@ -21,6 +22,7 @@
 
             </b-col>
 
+            <!-- Inserts each of the components needed for admin to edit a selected profile. -->
             <b-col cols="9" class="singleProfile">
                 <view-profile
                         v-if="currentDisplay === 0"
