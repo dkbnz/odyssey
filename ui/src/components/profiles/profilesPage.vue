@@ -110,7 +110,7 @@
 
             <!--Displays results from profile search in a table format-->
             <div style="margin-top: 40px">
-                <b-table hover striped outlined fixed
+                <b-table hover striped outlined responsive
                          id="profiles"
                          ref="profilesTable"
                          :items="profiles"

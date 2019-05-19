@@ -8,7 +8,6 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import scala.concurrent.java8.FuturesConvertersImpl;
 
 import java.util.List;
 import java.util.Map;
@@ -141,10 +140,7 @@ public class DestinationController extends Controller {
         // Check string inputs against regex
         String nameRegEx = "^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$";
 
-        if (!(country.matches(nameRegEx))) {
-            return false;
-        }
-        return true;
+        return country.matches(nameRegEx);
     }
 
     /**
@@ -180,8 +176,8 @@ public class DestinationController extends Controller {
             destination.save();
             return created("Created");
         } else {
-            return badRequest("A destination with the name [ " +json.get(NAME).asText() + " ] and district [ "
-                    + json.get(DISTRICT).asText() + " ] already exists.");
+            return badRequest("A destination with the name '" +json.get(NAME).asText() + "' and district '"
+                    + json.get(DISTRICT).asText() + "' already exists.");
         }
     }
 
