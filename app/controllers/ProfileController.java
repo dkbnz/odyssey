@@ -1,7 +1,6 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Nationality;
@@ -32,7 +31,7 @@ import static play.mvc.Results.*;
  */
 public class ProfileController {
 
-    final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private static final String USERNAME = "username";
     private static final String PASS_FIELD = "password";
     private static final String FIRST_NAME = "firstName";
@@ -53,7 +52,7 @@ public class ProfileController {
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String UPDATED = "UPDATED";
     private static final String ID = "id";
-    boolean createdByAdmin = false;
+    private boolean createdByAdmin = false;
 
     /**
      * Creates a user based on given Json body. All new users are not an admin by default. This is used on the Sign Up
@@ -386,7 +385,7 @@ public class ProfileController {
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
                         // If user is admin, they can delete other profiles
                         if (userProfile.getIsAdmin()) {
-                            Profile profileToDelete = Profile.find.byId(Integer.valueOf(id.intValue()));
+                            Profile profileToDelete = Profile.find.byId(id.intValue());
                             if (profileToDelete.getId() == DEFAULT_ADMIN_ID) {
                                 return forbidden("You can not delete the default administrator");
                             } else {
