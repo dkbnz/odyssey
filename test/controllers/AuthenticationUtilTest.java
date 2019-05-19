@@ -1,16 +1,24 @@
 package controllers;
 
-import models.Profile;
 import org.junit.Assert;
 import org.junit.Test;
 import util.AuthenticationUtil;
 
+
+/**
+ *
+ *
+ * ========== TESTS ARE FAILING AS WE REQUIRE POWERMOCK TO MOCK STATIC AND PRIVATE METHODS ============
+ * =============================== BUSINESS CASE PENDING... ==================================
+ *
+ *
+ */
 public class AuthenticationUtilTest {
 
     @Test
     public void validUserTestIsAdmin() {
         //Arrange
-        Integer admin = null;
+        Integer admin = 1;
         Integer ownerId = 1234;
 
         //Act
@@ -23,7 +31,7 @@ public class AuthenticationUtilTest {
     @Test
     public void validUserTestIsNotAdmin() {
         //Arrange
-        Integer notAdmin = null;
+        Integer notAdmin = 2;
         Integer ownerId = 1234;
 
         //Act
@@ -49,7 +57,7 @@ public class AuthenticationUtilTest {
     @Test
     public void validUserTestIsNotOwner() {
         //Arrange
-        Integer notOwner = null;
+        Integer notOwner = 5;
         Integer ownerId = 1234;
 
         //Act
