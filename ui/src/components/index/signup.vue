@@ -357,8 +357,7 @@
                         gender: this.gender,
                         nationalities: this.nationalities,
                         passports: this.passports,
-                        travellerTypes: this.travellerTypes,
-                        createdByAdmin: this.createdByAdmin
+                        travellerTypes: this.travellerTypes
                     };
                     this.saveProfile(profile);
                 }
