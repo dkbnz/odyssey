@@ -245,6 +245,14 @@ public class TripTestSteps {
         assertEquals(CREATED, statusCode);
     }
 
+
+    /**
+     * Checks if the status code received is BadRequest (400).
+     */
+    @Then("the received status code corresponds with a BadRequest response")
+    public void the_received_status_code_corresponds_with_a_BadRequest_response() { assertEquals(BAD_REQUEST, statusCode); }
+
+
     private JsonNode convertTripStringToJson(String docString) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode json = mapper.readTree(docString);
@@ -253,23 +261,4 @@ public class TripTestSteps {
 
 
 
-    private JsonNode parseAllJsonDates(JsonNode json) {
-        ArrayNode destinations = (ArrayNode) json.get("trip_destinations");
-        Iterator<JsonNode> iterator = destinations.elements();
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        while (iterator.hasNext()) {
-            ObjectNode destination = (ObjectNode) iterator.next();
-
-//            destination.put("start_date", parseSingleJsonDate(destination.get("start_date").asText()));
-//            destination.put("end_date", parseSingleJsonDate(destination.get("start_date").asText()));
-        }
-        return json;
-    }
-
-
-    private LocalDate parseSingleJsonDate(String json) {
-        return null;
-    }
 }
