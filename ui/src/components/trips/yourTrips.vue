@@ -16,8 +16,7 @@
                 <b-button
                         class="mr-2 float-right"
                         variant="danger"
-                        @click="dismissModal('deleteModal')
-                         deleteTrip(selectedTrip);">Delete
+                        @click="deleteTrip(selectedTrip)">Delete
                 </b-button>
                 <b-button
                         class="mr-2 float-right"
@@ -311,7 +310,7 @@
                 validDelete: false,
                 editButton: false,
                 deleteButton: false,
-                hasPermission: false,
+                hasPermission: false
             }
         },
         mounted () {
@@ -516,6 +515,7 @@
                 }).then(function (response) {
                     if (response.ok) {
                         self.validDelete = true;
+                        self.dismissModal('deleteModal');
                         self.getAllTrips();
                     } else if (response.status === 403) {
                         throw new Error('You cannot delete another user\'s trips');
