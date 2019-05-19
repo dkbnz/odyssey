@@ -1,7 +1,8 @@
 <template>
     <div class="container">
+        <b-alert v-model="showSaved" variant="success" dismissible>Profile Successfully Saved</b-alert>
         <!-- Uses the received profile to display the profile's data on a page -->
-        <h1>{{ profile.firstName }} {{profile.middleName}} {{profile.lastName}}</h1>
+        <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
         <p v-if="profile.isAdmin"><i>Administrator</i></p>
         <p v-else><i>Regular User</i></p>
         <h2>Personal Details</h2>
@@ -39,7 +40,20 @@
 
     export default {
         name: "viewProfile",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'userProfile', 'adminView', 'destinations'],
+        props: {
+            profile: Object,
+            nationalityOptions: Array,
+            travTypeOptions: Array,
+            trips: Array,
+            userProfile: Object,
+            adminView: Boolean,
+            destinations: Array,
+            showSaved: {
+                default: function() {
+                    return false;
+                }
+            }
+        },
         data () {
             return {
             }
