@@ -320,6 +320,13 @@
              */
             this.getAllTrips();
             this.getPermissions();
+
+            /**
+             * When a modal is hidden, refreshes the trips. This is so the list of trips table is up to date.
+             */
+            this.$root.$on('bv::modal::hide', () => {
+                this.getAllTrips();
+            });
         },
         computed: {
             /**
