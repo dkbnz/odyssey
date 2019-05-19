@@ -1,28 +1,38 @@
 <template>
     <div>
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
-        <!-- The admin actions panel, which acts as the Admin Dashboard -->
-        <admin-actions
-                v-if="editProfile === null"
-                :profile="profile"
-                :nationalityOptions="nationalityOptions"
-                :travTypeOptions="travTypeOptions"
-                :destinations="destinations"
-                @admin-edit="setProfileToEdit">
-        </admin-actions>
 
-        <!-- Once the admin has selected a profile to work on, this page becomes visible -->
-        <single-profile
-                v-else
-                :key="refreshSingleProfile"
-                :adminView="adminView"
-                :editProfile="editProfile"
-                :profile="profile"
-                :nationalityOptions="nationalityOptions"
-                :travTypeOptions="travTypeOptions"
-                :destinations="destinations"
-                @go-back="setProfileToEdit">
-        </single-profile>
+        <!-- Can only be seen if logged in user is an admin -->
+        <div v-if="profile.isAdmin">
+            <!-- The admin actions panel, which acts as the Admin Dashboard -->
+            <admin-actions
+                    v-if="editProfile === null"
+                    :profile="profile"
+                    :nationalityOptions="nationalityOptions"
+                    :travTypeOptions="travTypeOptions"
+                    :destinations="destinations"
+                    @admin-edit="setProfileToEdit">
+            </admin-actions>
+
+            <!-- Once the admin has selected a profile to work on, this page becomes visible -->
+            <single-profile
+                    v-else
+                    :key="refreshSingleProfile"
+                    :adminView="adminView"
+                    :editProfile="editProfile"
+                    :profile="profile"
+                    :nationalityOptions="nationalityOptions"
+                    :travTypeOptions="travTypeOptions"
+                    :destinations="destinations"
+                    @go-back="setProfileToEdit">
+            </single-profile>
+        </div>
+
+        <!-- If logged in user is not an admin, then display an error -->
+        <div v-else>
+            You do not have permission to access this page!
+        </div>
+
     </div>
 </template>
 
