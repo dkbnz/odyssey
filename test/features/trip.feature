@@ -1,8 +1,10 @@
 Feature: Trip API Endpoint
 
   Scenario: Add a new trip with two destinations
-    Given The state of the application is that it is running
-    And I am logged into the application which is running
+    Given I have an application running
+    And I am logged in with credentials
+      | Username                | Password  |
+      | admin@travelea.com      | admin1    |
     When the following json containing a trip is sent:
       """
         {
@@ -21,10 +23,10 @@ Feature: Trip API Endpoint
           ]
         }
       """
-    Then the received status code corresponds with a Created response
+    Then the response status code is Created
 
   Scenario: Delete a trip as the trip's owner
-    Given I have a running application
+    Given I have an application running
     And I am logged in with credentials
       | Username                | Password  |
       | guestUser@travelea.com  | guest123  |
@@ -37,7 +39,7 @@ Feature: Trip API Endpoint
     Then the response status code is OK
 
   Scenario: Delete other user's trip as an admin
-    Given I have a running application
+    Given I have an application running
     And I am logged in with credentials
       | Username                | Password  |
       | admin@travelea.com      | admin1    |
@@ -50,7 +52,7 @@ Feature: Trip API Endpoint
     Then the response status code is OK
 
   Scenario: Delete a another user's trip as a standard user
-    Given I have a running application
+    Given I have an application running
     And I am logged in with credentials
       | Username                | Password  |
       | guestUser@travelea.com  | guest123  |
