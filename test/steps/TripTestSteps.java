@@ -69,7 +69,7 @@ public class TripTestSteps {
     /**
      * A valid password for login credentials for admin user.
      */
-    private static final String VALID_PASSWORD = "admin1";
+    private static final String VALID_AUTHPASS = "admin1";
 
 
     /**
@@ -211,13 +211,13 @@ public class TripTestSteps {
 
     /**
      * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_PASSWORD.
+     * and VALID_AUTHPASS.
      *
      * Asserts the login was successful with a status code of OK (200).
      */
     @Given("I am logged into the application which is running")
     public void i_am_logged_into_the_application_which_is_running() {
-        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         assertEquals(OK, statusCode);
     }
 

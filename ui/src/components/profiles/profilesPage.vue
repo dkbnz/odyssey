@@ -4,8 +4,8 @@
 
         <div class="container">
 
-            <h1 class="page_title" v-if="!adminView">Find Profiles</h1>
-            <p class="page_title" v-if="!adminView"><i>Search for other travellers using any of the fields in the form below</i></p>
+            <h1 class="page-title" v-if="!adminView">Find Profiles</h1>
+            <p class="page-title" v-if="!adminView"><i>Search for other travellers using any of the fields in the form below</i></p>
 
             <b-alert v-model="showError" variant="danger" dismissible>{{alertMessage}}</b-alert>
 
@@ -110,7 +110,7 @@
 
             <!--Displays results from profile search in a table format-->
             <div style="margin-top: 40px">
-                <b-table hover striped outlined fixed
+                <b-table hover striped outlined responsive
                          id="profiles"
                          ref="profilesTable"
                          :items="profiles"

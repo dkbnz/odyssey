@@ -72,7 +72,7 @@ public class DestinationTestSteps {
     /**
      * A valid password for login credentials for admin user.
      */
-    private static final String VALID_PASSWORD = "admin1";
+    private static final String VALID_AUTHPASS = "admin1";
 
 
     /**
@@ -248,13 +248,13 @@ public class DestinationTestSteps {
 
     /**
      * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_PASSWORD.
+     * and VALID_AUTHPASS.
      *
      * Asserts the login was successful with a status code of OK (200).
      */
     @Given("I am logged in")
     public void iAmLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         assertEquals(OK, statusCode);
     }
 

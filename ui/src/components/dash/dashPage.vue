@@ -2,7 +2,7 @@
     <div v-if="profile.length !== 0">
 
         <!--Navigation Bar-->
-        <nav-bar-main v-bind:profile="profile"></nav-bar-main>
+        <nav-bar-main :profile="profile"></nav-bar-main>
         <b-navbar variant="light">
             <b-navbar-nav>
                 <b-nav-item @click="togglePage(viewProfile)">Profile</b-nav-item>
