@@ -9,6 +9,7 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import gherkin.ast.DataTable;
 import gherkin.deps.com.google.gson.Gson;
 import jdk.nashorn.internal.parser.JSONParser;
 import org.junit.Assert;
@@ -29,6 +30,7 @@ import play.db.evolutions.Evolutions;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -44,11 +46,6 @@ public class TripTestSteps {
 
     private static final String AUTHORIZED = "authorized";
 
-    /**
-     * The destination endpoint uri.
-     */
-    private static final String DESTINATION_URI = "/v1/destinations";
-
 
     /**
      * The login endpoint uri.
@@ -60,50 +57,24 @@ public class TripTestSteps {
      * The logout endpoint uri.
      */
     private static final String LOGOUT_URI = "/v1/logout";
+
+
+    /**
+     * The trips endpoint uri.
+     */
     private static final String TRIPS_URI = "/v1/trips/";
-
-
-    /**
-     * A valid username for login credentials for admin user.
-     */
-    private static final String VALID_USERNAME = "admin@travelea.com";
-
-
-    /**
-     * A valid password for login credentials for admin user.
-     */
-    private static final String VALID_AUTHPASS = "admin1";
-
-
-    /**
-     * String to add the equals character (=) to build a query string.
-     */
-    private static final String EQUALS = "=";
-
-
-    /**
-     * String to add the ampersand character (&) to build a query string.
-     */
-    private static final String AND = "&";
-
-
-    /**
-     * String to add the question mark character (?) to build a query string.
-     */
-    private static final String QUESTION_MARK = "?";
 
 
     /**
      * The fake application.
      */
-
-    protected Application application;
+    private Application application;
 
 
     /**
      * Database instance for the fake application.
      */
-    protected Database database;
+    private Database database;
 
 
     @Before
@@ -206,22 +177,22 @@ public class TripTestSteps {
     /**
      * Asserts the fake application is in test mode.
      */
-    @Given("The state of the application is that it is running")
-    public void the_state_of_the_application_is_that_it_is_running () {
+    @Given("I have an application running")
+    public void iHaveAnApplicationRunning() {
         Assert.assertTrue(application.isTest());
     }
 
 
     /**
-     * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_AUTHPASS.
-     *
-     * Asserts the login was successful with a status code of OK (200).
+     * Gets log in credentials from the information in the data table and sends a log in request.
+     * @param dataTable     the data table containing the log in credentials
      */
-    @Given("I am logged into the application which is running")
-    public void i_am_logged_into_the_application_which_is_running() {
-        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
-        assertEquals(OK, statusCode);
+    @Given("I am logged in with credentials")
+    public void iAmLoggedInWithCredentials(io.cucumber.datatable.DataTable dataTable) {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        String username = list.get(0).get("Username");
+        String pass = list.get(0).get("Password");
+        loginRequest(username, pass);
     }
 
 
@@ -237,13 +208,8 @@ public class TripTestSteps {
     }
 
 
-    /**
-     * Checks if the status code received is Created (201).
-     */
-    @Then("the received status code corresponds with a Created response")
-    public void the_received_status_code_corresponds_with_a_Created_response() {
-        assertEquals(CREATED, statusCode);
-    }
+
+
 
 
     /**
@@ -260,5 +226,78 @@ public class TripTestSteps {
     }
 
 
+
+
+
+    @Given("I own the trip with the following name")
+    public void iOwnTheTripWithTheFollowingName(io.cucumber.datatable.DataTable dataTable) {
+        // Write code here that turns the phrase above into concrete actions
+        // For automatic transformation, change DataTable to one of
+        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+        // Double, Byte, Short, Long, BigInteger or BigDecimal.
+        //
+        // For other transformations you can register a DataTableType.
+        throw new cucumber.api.PendingException();
+    }
+
+    @When("I delete the trip with the following name")
+    public void iDeleteTheTripWithTheFollowingName(io.cucumber.datatable.DataTable dataTable) {
+
+        throw new cucumber.api.PendingException();
+    }
+
+
+    /**
+     * Gets the trip name from a given data table.
+     * @param dataTable     The data table containing the trip name.
+     * @return              A string of the trip name.
+     */
+    private String getTripNameFromDataTable(io.cucumber.datatable.DataTable dataTable) {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        return list.get(0).get("Name");
+    }
+
+
+    @Given("I do not own the trip with the following name")
+    public void iDoNotOwnTheTripWithTheFollowingName(io.cucumber.datatable.DataTable dataTable) {
+        // Write code here that turns the phrase above into concrete actions
+        // For automatic transformation, change DataTable to one of
+        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+        // Double, Byte, Short, Long, BigInteger or BigDecimal.
+        //
+        // For other transformations you can register a DataTableType.
+        throw new cucumber.api.PendingException();
+    }
+
+
+    /**
+     * Checks if the status code received is Unauthorised (401).
+     */
+    @Then("the response status code is Unauthorised")
+    public void theResponseStatusCodeIsUnauthorised() {
+        // Write code here that turns the phrase above into concrete actions
+        assertEquals(UNAUTHORIZED, statusCode);
+    }
+
+
+    /**
+     * Checks if the status code received is OK (200).
+     */
+    @Then("the response status code is OK")
+    public void theResponseStatusCodeIsOK() {
+        // Write code here that turns the phrase above into concrete actions
+        assertEquals(OK, statusCode);
+    }
+
+
+    /**
+     * Checks if the status code received is Created (201).
+     */
+    @Then("the response status code is Created")
+    public void theResponseStatusCodeIsCreated() {
+        assertEquals(CREATED, statusCode);
+    }
 
 }
