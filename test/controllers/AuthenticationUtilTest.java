@@ -10,8 +10,8 @@ public class AuthenticationUtilTest {
     @Test
     public void validUserTestIsAdmin() {
         //Arrange
-        Profile admin = null;
-        Long ownerId = 1234L;
+        Integer admin = null;
+        Integer ownerId = 1234;
 
         //Act
         boolean result = AuthenticationUtil.validUser(admin, ownerId);
@@ -23,8 +23,8 @@ public class AuthenticationUtilTest {
     @Test
     public void validUserTestIsNotAdmin() {
         //Arrange
-        Profile notAdmin = null;
-        Long ownerId = 1234L;
+        Integer notAdmin = null;
+        Integer ownerId = 1234;
 
         //Act
         boolean result = AuthenticationUtil.validUser(notAdmin, ownerId);
@@ -36,8 +36,8 @@ public class AuthenticationUtilTest {
     @Test
     public void validUserTestIsOwner() {
         //Arrange
-        Profile owner = null;
-        Long ownerId = 1234L;
+        Integer owner = 1234;
+        Integer ownerId = 1234;
 
         //Act
         boolean result = AuthenticationUtil.validUser(owner, ownerId);
@@ -49,8 +49,8 @@ public class AuthenticationUtilTest {
     @Test
     public void validUserTestIsNotOwner() {
         //Arrange
-        Profile notOwner = null;
-        Long ownerId = 1234L;
+        Integer notOwner = null;
+        Integer ownerId = 1234;
 
         //Act
         boolean result = AuthenticationUtil.validUser(notOwner, ownerId);
