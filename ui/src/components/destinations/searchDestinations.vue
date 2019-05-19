@@ -1,7 +1,7 @@
 <template>
     <div class="container">
-        <h1 class="page_title">Search Destinations</h1>
-        <p class="page_title"><i>Search for a destination using any of the fields in the the form below</i></p>
+        <h1 class="page-title">Search Destinations</h1>
+        <p class="page-title"><i>Search for a destination using any of the fields in the the form below</i></p>
         <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
         <div>
             <!--Input fields for searching for destinations-->
@@ -60,7 +60,7 @@
 
         <!--Table for displaying search results-->
         <div style="margin-top: 40px">
-            <b-table hover striped outlined
+            <b-table hover striped outlined responsive
                      id="myFutureTrips"
                      :items="destinations"
                      :fields="fields"
