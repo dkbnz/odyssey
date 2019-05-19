@@ -19,6 +19,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +72,7 @@ public class DestinationTestSteps {
     /**
      * A valid password for login credentials for admin user.
      */
-    private static final String VALID_PASSWORD = "admin1";
+    private static final String VALID_AUTHPASS = "admin1";
 
 
     /**
@@ -113,8 +114,17 @@ public class DestinationTestSteps {
      */
     @Before
     public void setUp() {
+        Map<String, String> configuration = new HashMap<>();
+        configuration.put("play.db.config", "db");
+        configuration.put("play.db.default", "default");
+        configuration.put("db.default.driver", "org.h2.Driver");
+        configuration.put("db.default.url", "jdbc:h2:mem:testDBDestination;MODE=MYSQL;");
+        configuration.put("ebean.default", "models.*");
+        configuration.put("play.evolutions.db.default.enabled", "true");
+        configuration.put("play.evolutions.autoApply", "false");
+
         //Set up the fake application to use the in memory database config
-        application = fakeApplication();
+        application = fakeApplication(configuration);
 
         database = application.injector().instanceOf(Database.class);
         applyEvolutions();
@@ -238,13 +248,13 @@ public class DestinationTestSteps {
 
     /**
      * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_PASSWORD.
+     * and VALID_AUTHPASS.
      *
      * Asserts the login was successful with a status code of OK (200).
      */
     @Given("I am logged in")
     public void iAmLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         assertEquals(OK, statusCode);
     }
 

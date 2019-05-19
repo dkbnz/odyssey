@@ -3,8 +3,8 @@
 
         <!-- Div for all the user's future trips -->
         <div id="upcomingTrips">
-            <h1 class="page_title">Upcoming Trips</h1>
-            <p class="page_title"><i>Here are your upcoming trips!</i></p>
+            <h1 class="page-title">Upcoming Trips</h1>
+            <p class="page-title"><i>Here are your upcoming trips!</i></p>
             <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
             <b-alert v-model="validDelete" variant="success" dismissible>Trip Deleted</b-alert>
 
@@ -45,8 +45,6 @@
                      ref="myFutureTrips"
                      :items="futureTrips"
                      :fields="fields"
-                     :sort-by.sync="sortBy"
-                     :sort-desc.sync="sortDesc"
                      :per-page="perPageUpcoming"
                      :current-page="currentPageUpcoming"
                      :busy="futureTrips.length === 0"
@@ -55,7 +53,11 @@
                     <strong>Can't find any trips!</strong>
                 </div>
                 <template slot="more_details" slot-scope="row">
-                    <b-button size="sm" @click="row.toggleDetails" class="mr-2">
+                    <b-button size="sm"
+                              @click="row.toggleDetails"
+                              variant="warning"
+                              class="mr-2"
+                              block>
                         {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                     </b-button>
                     <b-button size="sm"
@@ -64,14 +66,20 @@
                               @click="sendTripToModal(row.item)"
                               variant="primary"
                               class="mr-2"
-                              v-if="hasPermission">Edit</b-button>
+                              v-if="hasPermission"
+                              block>
+                        Edit
+                    </b-button>
                     <b-button size="sm"
                               v-model="deleteButton"
                               v-b-modal.deleteModal
                               @click="sendTripToModal(row.item)"
                               variant="danger"
                               class="mr-2"
-                              v-if="hasPermission">Delete</b-button>
+                              v-if="hasPermission"
+                              block>
+                        Delete
+                    </b-button>
                 </template>
 
                 <!-- Shows all the trip destinations in a separate nested table -->
@@ -94,14 +102,13 @@
                     </b-card>
                 </template>
 
-                <template v-if="data.item.destinations[0].startDate" slot="tripStartDate"
+                <template slot="tripStartDate"
                           slot-scope="data">
-                    {{formatDate(data.item.destinations[0].startDate)}}
+                    {{formatDate(calculateStartDate(data.item.destinations))}}
                 </template>
 
-                <template v-if="data.item.destinations[data.item.destinations.length -1].endDate"
-                          slot="tripEndDate" slot-scope="data">
-                    {{formatDate(data.item.destinations[data.item.destinations.length -1].endDate)}}
+                <template slot="tripEndDate" slot-scope="data">
+                    {{formatDate(calculateEndDate(data.item.destinations))}}
                 </template>
 
                 <template v-if="futureTrips.length > 0" slot="tripEndDest" slot-scope="data">
@@ -141,8 +148,8 @@
 
         <!-- Div for all the user's past trips -->
         <div id="pastTrips">
-            <h1 class="page_title">Past Trips</h1>
-            <p class="page_title"><i>Here are your past trips!</i></p>
+            <h1 class="page-title">Past Trips</h1>
+            <p class="page-title"><i>Here are your past trips!</i></p>
 
             <!-- Table to show all a profile's past trips -->
             <b-table hover striped outlined
@@ -160,14 +167,32 @@
                     <strong>Can't find any trips!</strong>
                 </div>
                 <template slot="more_details" slot-scope="row">
-                    <b-button size="sm" @click="row.toggleDetails" class="mr-2">
+                    <b-button size="sm"
+                              @click="row.toggleDetails"
+                              variant="warning"
+                              class="mr-2"
+                              block>
                         {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                     </b-button>
-                    <b-button size="sm" v-model="editButton" v-b-modal.editTripModal @click="sendTripToModal(row.item)"
-                              variant="primary" class="mr-2" v-if="hasPermission">Edit
+                    <b-button size="sm"
+                              v-model="editButton"
+                              v-b-modal.editTripModal
+                              @click="sendTripToModal(row.item)"
+                              variant="primary"
+                              class="mr-2"
+                              v-if="hasPermission"
+                              block>
+                        Edit
                     </b-button>
-                    <b-button size="sm" v-model="deleteButton" v-b-modal.deleteModal @click="sendTripToModal(row.item)"
-                              variant="danger" class="mr-2" v-if="hasPermission">Delete
+                    <b-button size="sm"
+                              v-model="deleteButton"
+                              v-b-modal.deleteModal
+                              @click="sendTripToModal(row.item)"
+                              variant="danger"
+                              class="mr-2"
+                              v-if="hasPermission"
+                              block>
+                        Delete
                     </b-button>
                 </template>
 
@@ -189,14 +214,12 @@
                     </b-card>
                 </template>
 
-                <template v-if="data.item.destinations[0].startDate" slot="tripStartDate"
-                          slot-scope="data">
-                    {{formatDate(data.item.destinations[0].startDate)}}
+                <template slot="tripStartDate" slot-scope="data">
+                    {{formatDate(calculateStartDate(data.item.destinations))}}
                 </template>
 
-                <template v-if="data.item.destinations[data.item.destinations.length -1].endDate" slot="tripEndDate"
-                          slot-scope="data">
-                    {{formatDate(data.item.destinations[data.item.destinations.length -1].endDate)}}
+                <template slot="tripEndDate" slot-scope="data">
+                    {{formatDate(calculateEndDate(data.item.destinations))}}
                 </template>
 
                 <template v-if="pastTrips.length > 0" slot="tripEndDest" slot-scope="data">
@@ -297,6 +320,13 @@
              */
             this.getAllTrips();
             this.getPermissions();
+
+            /**
+             * When a modal is hidden, refreshes the trips. This is so the list of trips table is up to date.
+             */
+            this.$root.$on('bv::modal::hide', () => {
+                this.getAllTrips();
+            });
         },
         computed: {
             /**
@@ -311,7 +341,7 @@
              */
             rowsPast() {
                 return this.pastTrips.length
-            }
+            },
 
         },
         methods: {
@@ -322,19 +352,48 @@
              * @returns string of the trip duration
              */
             calculateDuration(destinations) {
-                if (destinations[destinations.length -1 ].endDate == null) {
-                    return ""
-                } else if (destinations[destinations.length -1].startDate == null) {
-                    return ""
+                let tripStartDates = [];
+                let tripEndDates = [];
+                for (let i = 0; i < destinations.length; i++ ) {
+                    if (destinations[i].startDate !== null) {
+                        tripStartDates.push(destinations[i].startDate);
+                    }
+                    if (destinations[i].endDate !== null) {
+                        tripEndDates.push(destinations[i].endDate);
+                    }
                 }
-                let calculateDur = Math.ceil((Math.abs(new Date(destinations[destinations.length -1 ].endDate).getTime()
-                    - new Date(destinations[0].startDate).getTime())))/ (1000 * 3600 * 24) + 1;
-                if (calculateDur >= 365) {
-                    return Math.floor(calculateDur/365) + " year(s)"
-                } else {
-                    return calculateDur + " days"
-                }
+                if (tripStartDates.length > 0 && tripEndDates.length > 0) {
+                    let calculateDur = Math.ceil((Math.abs(new Date(tripEndDates[tripEndDates.length -1 ]).getTime()
+                        - new Date(tripStartDates[0]).getTime())))/ (1000 * 3600 * 24) + 1;
+                    return calculateDur + " days";
 
+                }
+            },
+
+            /**
+             * Calculates the trips start date by the first start date it can find.
+             */
+            calculateStartDate(destinations) {
+                let tripStartDates = [];
+                for (let i = 0; i < destinations.length; i++) {
+                    if (destinations[i].startDate !== null) {
+                        tripStartDates.push(destinations[i].startDate);
+                    }
+                }
+                return (tripStartDates[0]);
+            },
+
+            /**
+             * Calculates the trips end date by the last end date it can find.
+             */
+            calculateEndDate(destinations) {
+                let tripEndDates = [];
+                for (let i = 0; i < destinations.length; i++) {
+                    if (destinations[i].endDate !== null) {
+                        tripEndDates.push(destinations[i].endDate);
+                    }
+                }
+                return (tripEndDates[tripEndDates.length - 1]);
             },
 
             /**
@@ -353,20 +412,58 @@
                     .then(trips => {
                         let today = new Date();
                         let self = this;
+
                         self.futureTrips = [];
                         self.pastTrips = [];
                         for (let i = 0; i < trips.length; i++) {
-                            if (trips[i].destinations[0].startDate === null
-                                || trips[i].destinations[trips[i].destinations.length-1].endDate === null) {
+                            let destinationsStartDates = [];
+                            let destinationsEndDates = [];
+                            for (let j = 0; j < trips[i].destinations.length; j++) {
+                                if (trips[i].destinations[j].startDate !== null) {
+                                    destinationsStartDates.push(trips[i].destinations[j].startDate)
+                                }
+                                if (trips[i].destinations[j].endDate !== null) {
+                                    destinationsEndDates.push(trips[i].destinations[j].endDate)
+                                }
+                            }
+                            if (destinationsStartDates.length === 0 && destinationsEndDates.length === 0) {
                                 self.futureTrips.push(trips[i]);
-                            } else if (new Date(trips[i].destinations[trips[i].destinations.length-1].endDate) <=
-                                today) {
+                            }
+                            else if (new Date(destinationsEndDates[destinationsEndDates.length - 1]) <= today) {
                                 self.pastTrips.push(trips[i]);
                             } else {
                                 self.futureTrips.push(trips[i]);
                             }
+                            self.futureTrips.sort(self.sortFutureTrips);
                         }
-                    })
+                    });
+            },
+
+            /**
+             * Orders the future trips by the dates. If there are no dates then they will be at the top. If there are
+             * dates, then trips will be ordered chronologically.
+             */
+            sortFutureTrips(first, next) {
+                let firstDestinationsStart = [];
+                let nextDestinationsStart = [];
+                for (let i = 0; i < first.destinations.length; i++) {
+                    if(first.destinations[i].startDate !== null) {
+                        firstDestinationsStart.push(first.destinations[i].startDate)
+                    }
+                }
+                for (let i = 0; i < next.destinations.length; i++) {
+                    if(next.destinations[i].startDate !== null) {
+                        nextDestinationsStart.push(next.destinations[i].startDate)
+                    }
+                }
+                if(firstDestinationsStart[0] < nextDestinationsStart[0] || firstDestinationsStart[0] === undefined) {
+                    return -1;
+                }
+
+                if(firstDestinationsStart[0] > nextDestinationsStart[0]) {
+                    return 1;
+                }
+                return 0;
             },
 
             /**

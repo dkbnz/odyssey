@@ -9,7 +9,7 @@
                         label="First Name(s):"
                         label-for="first_name">
                     <b-form-input id="first_name"
-                                  v-model="first_name" type="text"
+                                  v-model="firstName" type="text"
                                   :state="fNameValidation"
                                   trim autofocus required></b-form-input>
                     <b-form-invalid-feedback :state="fNameValidation">
@@ -21,7 +21,7 @@
                         id="mname-field"
                         label="Middle Name(s):"
                         label-for="middle_name">
-                    <b-form-input id="middle_name" v-model="middle_name" type="text"
+                    <b-form-input id="middle_name" v-model="middleName" type="text"
                                   :state="mNameValidation" trim placeholder="Optional"></b-form-input>
                     <b-form-invalid-feedback :state="mNameValidation">
                         Your middle name must be less than 100 characters and contain no numbers.
@@ -33,7 +33,7 @@
                         label="Last Name(s):"
                         label-for="last_name">
                     <b-form-input id="last_name"
-                                  v-model="last_name"
+                                  v-model="lastName"
                                   type="text"
                                   :state="lNameValidation"
                                   trim required></b-form-input>
@@ -48,7 +48,7 @@
                         label="Email:"
                         label-for="email">
                     <b-form-input id="email"
-                                  v-model="email"
+                                  v-model="username"
                                   type="text"
                                   :state="emailValidation"
                                   trim required></b-form-input>
@@ -125,6 +125,7 @@
 
         <!--Fields for inputting nationalities, passports & traveller types-->
         <div v-if="showSecond" id="secondSignup">
+            <b-alert v-model="showError" variant="danger" dismissible>{{alertMessage}}</b-alert>
             <b-form>
                 <b-row>
                     <b-col>
@@ -176,6 +177,7 @@
                             controls
                             indicators
                             background="#ababab"
+                            :interval="0"
                             img-width="1920"
                             img-height="1080"
                             style="text-shadow: 1px 1px 2px #333;">
@@ -185,7 +187,7 @@
                                           :text="travType.description"
                                           :img-src="travType.imgUrl"
                                           :state="travTypeValidation">
-                            <b-form-checkbox :value="travType.id" v-model="travTypes"></b-form-checkbox>
+                            <b-form-checkbox :value="travType.id" v-model="travellerTypes"></b-form-checkbox>
                         </b-carousel-slide>
                     </b-carousel>
                     <b-form-invalid-feedback :state="travTypeValidation" align="center">
@@ -208,10 +210,10 @@
         data: function() {
             return {
                 showError: false,
-                first_name: '',
-                middle_name: '',
-                last_name: '',
-                email: '',
+                firstName: '',
+                middleName: '',
+                lastName: '',
+                username: '',
                 password: '',
                 rePassword: '',
                 dateOfBirth: '',
@@ -225,10 +227,13 @@
                 showSecond: false,
                 nationalities: [],
                 passports: [],
-                travTypes: [],
+                travellerTypes: [],
                 validEmail: false,
                 showSuccess: false,
-                successMessage: ""
+                alertMessage: "",
+                successMessage: "",
+
+
             }
         },
         computed: {
@@ -237,30 +242,30 @@
              * @returns {*} true if input is valid
              */
             fNameValidation() {
-                if (this.first_name.length === 0) {
+                if (this.firstName.length === 0) {
                     return null;
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
-                return nameRegex.test(this.first_name);
+                return nameRegex.test(this.firstName);
             },
             mNameValidation() {
                 let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
-                return nameRegex.test(this.middle_name) || this.middle_name.length === 0;
+                return nameRegex.test(this.middleName) || this.middleName.length === 0;
             },
             lNameValidation() {
-                if (this.last_name.length === 0) {
+                if (this.lastName.length === 0) {
                     return null;
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
-                return nameRegex.test(this.last_name);
+                return nameRegex.test(this.lastName);
             },
             emailValidation() {
-                if (this.email.length === 0) {
+                if (this.username.length === 0) {
                     return null;
                 }
                 let emailRegex = new RegExp("^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})");
                 this.checkUsername();
-                return (emailRegex.test(this.email) && this.validEmail);
+                return (emailRegex.test(this.username) && this.validEmail);
             },
             passwordValidation() {
                 if (this.password.length === 0) {
@@ -301,10 +306,10 @@
                 return this.passports.length > 0;
             },
             travTypeValidation() {
-                if (this.travTypes.length === 0) {
+                if (this.travellerTypes.length === 0) {
                     return null;
                 }
-                return this.travTypes.length > 0;
+                return this.travellerTypes.length > 0;
             },
             todaysDate() {
                 let today = new Date();
@@ -343,16 +348,16 @@
             checkAssociateForm() {
                 if (this.nationalityValidation && this.passportValidation && this.travTypeValidation) {
                     let profile = {
-                        first_name: this.first_name,
-                        middle_name: this.middle_name,
-                        last_name: this.last_name,
-                        username: this.email,
+                        firstName: this.firstName,
+                        middleName: this.middleName,
+                        lastName: this.lastName,
+                        username: this.username,
                         password: this.password,
-                        date_of_birth: this.dateOfBirth,
+                        dateOfBirth: this.dateOfBirth,
                         gender: this.gender,
-                        nationality: this.nationalities,
-                        passport_country: this.passports,
-                        traveller_type: this.travTypes,
+                        nationalities: this.nationalities,
+                        passports: this.passports,
+                        travellerTypes: this.travellerTypes,
                         createdByAdmin: this.createdByAdmin
                     };
                     this.saveProfile(profile);
@@ -367,7 +372,7 @@
                 fetch(`/v1/checkUsername`, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
-                    body: JSON.stringify({'username': this.email})
+                    body: JSON.stringify({'username': this.username})
 
                 }).then(function (response) {
                     self.validEmail = response.ok;
@@ -405,7 +410,13 @@
                 }).then(function (response) {
                     if (response.status === 201 && self.createdByAdmin) {
                         self.$emit('profile-created', true);
-                    } else {
+                    } else if (response.status === 400) {
+                        self.showError = true;
+                        response.clone().text().then(text => {
+                            self.alertMessage = text;
+                        });
+                    }
+                    else {
                         self.$router.go();
                         self.$router.push("/dash");
                         return response.json();

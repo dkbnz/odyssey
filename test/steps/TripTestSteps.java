@@ -8,6 +8,8 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import gherkin.deps.com.google.gson.Gson;
+import jdk.nashorn.internal.parser.JSONParser;
 import org.junit.Assert;
 import play.Application;
 import play.db.Database;
@@ -17,15 +19,14 @@ import play.test.Helpers;
 
 
 import static org.junit.Assert.assertEquals;
-import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 import play.db.evolutions.Evolutions;
 
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static play.test.Helpers.fakeApplication;
@@ -38,6 +39,7 @@ public class TripTestSteps {
      */
     private int statusCode;
 
+    private static final String AUTHORIZED = "authorized";
 
     /**
      * The destination endpoint uri.
@@ -55,6 +57,7 @@ public class TripTestSteps {
      * The logout endpoint uri.
      */
     private static final String LOGOUT_URI = "/v1/logout";
+    private static final String TRIPS_URI = "/v1/trips/";
 
 
     /**
@@ -66,7 +69,7 @@ public class TripTestSteps {
     /**
      * A valid password for login credentials for admin user.
      */
-    private static final String VALID_PASSWORD = "admin1";
+    private static final String VALID_AUTHPASS = "admin1";
 
 
     /**
@@ -208,33 +211,27 @@ public class TripTestSteps {
 
     /**
      * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_PASSWORD.
+     * and VALID_AUTHPASS.
      *
      * Asserts the login was successful with a status code of OK (200).
      */
     @Given("I am logged into the application which is running")
     public void i_am_logged_into_the_application_which_is_running() {
-        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         assertEquals(OK, statusCode);
     }
 
 
-    @When("the following json containing a trip is sent")
-    public void the_following_json_containing_a_trip_is_sent(io.cucumber.datatable.DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-        throw new cucumber.api.PendingException();
-//        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-//        String tripName = list.get(0).get("Name");
-
-
-
-
+    @When("the following json containing a trip is sent:")
+    public void theFollowingJsonContainingATripIsSent(String docString) throws IOException {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED, "1")
+                .bodyJson(convertTripStringToJson(docString))
+                .uri(TRIPS_URI + 1);
+        Result result = route(application, request);
+        statusCode = result.status();
+        //Assert.assertEquals("", convertTripStringToJson(docString));
     }
 
 
@@ -244,6 +241,12 @@ public class TripTestSteps {
     @Then("the received status code corresponds with a Created response")
     public void the_received_status_code_corresponds_with_a_Created_response() {
         assertEquals(CREATED, statusCode);
+    }
+
+    private JsonNode convertTripStringToJson(String docString) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode json = mapper.readTree(docString);
+        return json;
     }
 
 }

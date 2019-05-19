@@ -2,11 +2,11 @@
     <div class="container">
         <!--First name field, with default set to the user's current first name. Validates inputted text-->
         <b-form-group
-                id="first_name-field"
+                id="firstName-field"
                 label="First Name(s):"
-                label-for="first_name">
-            <b-form-input id="first_name"
-                          v-model="saveProfile.first_name"
+                label-for="firstName">
+            <b-form-input id="firstName"
+                          v-model="saveProfile.firstName"
                           :state="fNameValidation"
                           type="text" trim>
             </b-form-input>
@@ -20,11 +20,11 @@
 
         <!--Middle name field with default set to the user's current middle name. Validates inputted text-->
         <b-form-group
-                id="middle_name-field"
+                id="middleName-field"
                 label="Middle Name(s):"
-                label-for="middle_name">
-            <b-form-input id="middle_name"
-                          v-model="saveProfile.middle_name"
+                label-for="middleName">
+            <b-form-input id="middleName"
+                          v-model="saveProfile.middleName"
                           :state="mNameValidation"
                           type="text" trim>
             </b-form-input>
@@ -38,11 +38,11 @@
 
         <!--Last name field with default set to the user's current last name. Validates inputted text-->
         <b-form-group
-                id="last_name-field"
+                id="lastName-field"
                 label="Last Name(s):"
-                label-for="last_name">
-            <b-form-input id="last_name"
-                          v-model="saveProfile.last_name"
+                label-for="lastName">
+            <b-form-input id="lastName"
+                          v-model="saveProfile.lastName"
                           :state="lNameValidation"
                           type="text" trim>
             </b-form-input>
@@ -118,7 +118,7 @@
                 label="Date of Birth:"
                 label-for="dateOfBirth">
             <b-form-input id="dateOfBirth"
-                          v-model="saveProfile.date_of_birth"
+                          v-model="saveProfile.dateOfBirth"
                           :state="dateOfBirthValidation"
                           :type="'date'" trim>
             </b-form-input>
@@ -157,13 +157,13 @@
                         label="Nationality:"
                         label-for="nationality">
                     <b-form-select id="nationality"
-                                   v-model="saveProfile.nationality"
+                                   v-model="saveProfile.nationalities"
                                    :state="nationalityValidation"
                                    :required="true" multiple trim>
                         <optgroup label="Current Nationalities: (Please select these if you want to use them!)">
                             <option v-for="nationality in profile.nationalities"
                                     :selected="true"
-                                    :value="nationality.id">
+                                    :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}">
                                 {{nationality.nationality}}
                             </option>
                         </optgroup>
@@ -171,7 +171,7 @@
                         <optgroup label="Other Nationalities:">
                             <option v-for="nationality in nationalityOptions"
                                     v-if="!duplicateNationality(nationality.id)"
-                                    :value="nationality.id">
+                                    :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}">
                                 {{nationality.nationality}}
                             </option>
                         </optgroup>
@@ -193,13 +193,13 @@
                         label="Passport:"
                         label-for="passports">
                     <b-form-select id="passports"
-                                   v-model="saveProfile.passport_country"
+                                   v-model="saveProfile.passports"
                                    :state="passportValidation"
                                    :required="true" trim multiple>
                         <optgroup label="Current Passports: (Please select these if you want to use them!)">
                             <option v-for="passport in profile.passports"
                                     :selected="true"
-                                    :value="passport.id">
+                                    :value="{id: passport.id, country: passport.country}">
                                 {{passport.country}}
                             </option>
                         </optgroup>
@@ -207,7 +207,7 @@
                         <optgroup label="Other Passports:">
                             <option v-for="nationality in nationalityOptions"
                                     v-if="!duplicatePassport(nationality.id)"
-                                    :value="nationality.id">
+                                    :value="{id: nationality.id, country: nationality.country}">
                                 {{nationality.country}}
                             </option>
                         </optgroup>
@@ -229,11 +229,11 @@
                 label="Traveller Type(s):"
                 label-for="travType">
             <b-form-select lg id="travType"
-                           v-model="saveProfile.traveller_type"
+                           v-model="saveProfile.travellerTypes"
                            :state="travTypeValidation" multiple trim>
                 <optgroup label="Current Traveller Types: (Please select these if you want to use them!)">
                     <option v-for="travType in profile.travellerTypes"
-                            :value="travType.id">
+                            :value="{id: travType.id, travellerType: travType.travellerType}">
                         {{travType.travellerType}}
                     </option>
                 </optgroup>
@@ -241,7 +241,7 @@
                 <optgroup label="Other Traveller Types">
                     <option v-for="travType in travTypeOptions"
                             v-if="!duplicateTravType(travType.id)"
-                            :value="travType.id">
+                            :value="{id: travType.id, travellerType: travType.travellerType}">
                         {{travType.travellerType}}
                     </option>
                 </optgroup>
@@ -264,20 +264,29 @@
 <script>
     export default {
         name: "editProfile",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
+        props: {
+            profile: Object,
+            nationalityOptions: Array,
+            travTypeOptions: Array,
+            adminView: {
+                default: function() {
+                    return false;
+                }
+            }
+        },
         data: function() {
             return {
                 saveProfile: {
-                    first_name: this.profile.firstName,
-                    middle_name: this.profile.middleName,
-                    last_name: this.profile.lastName,
+                    firstName: this.profile.firstName,
+                    middleName: this.profile.middleName,
+                    lastName: this.profile.lastName,
                     username: this.profile.username,
                     password: "",
-                    date_of_birth: this.profile.dateOfBirth,
+                    dateOfBirth: this.profile.dateOfBirth,
                     gender: this.profile.gender,
-                    nationality: [],
-                    passport_country: [],
-                    traveller_type: []
+                    nationalities: [],
+                    passports: [],
+                    travellerTypes: []
                 },
                 rePassword: "",
                 validEmail: false,
@@ -296,22 +305,22 @@
              * @returns {boolean} true if input is valid, false if invalid, or null if field remains unselected
              */
             fNameValidation() {
-                if (this.saveProfile.first_name.length === 0) {
+                if (this.saveProfile.firstName.length === 0) {
                     return false;
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
-                return nameRegex.test(this.saveProfile.first_name);
+                return nameRegex.test(this.saveProfile.firstName);
             },
             mNameValidation() {
                 let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
-                return nameRegex.test(this.saveProfile.middle_name) || this.saveProfile.middle_name.length === 0;
+                return nameRegex.test(this.saveProfile.middleName) || this.saveProfile.middleName.length === 0;
             },
             lNameValidation() {
-                if (this.saveProfile.last_name.length === 0) {
+                if (this.saveProfile.lastName.length === 0) {
                     return false;
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
-                return nameRegex.test(this.saveProfile.last_name);
+                return nameRegex.test(this.saveProfile.lastName);
             },
             emailValidation() {
                 if (this.saveProfile.username.length === 0) {
@@ -336,10 +345,10 @@
                 return this.saveProfile.password.length > 0 && this.rePassword === this.saveProfile.password;
             },
             dateOfBirthValidation() {
-                if (this.saveProfile.date_of_birth.length === 0) {
+                if (this.saveProfile.dateOfBirth.length === 0) {
                     return false;
                 }
-                return this.saveProfile.date_of_birth.length > 0;
+                return this.saveProfile.dateOfBirth.length > 0;
             },
             genderValidation() {
                 if (this.saveProfile.gender.length === 0) {
@@ -348,22 +357,22 @@
                 return this.saveProfile.gender.length > 0;
             },
             nationalityValidation() {
-                if (this.saveProfile.nationality.length === 0) {
+                if (this.saveProfile.nationalities.length === 0) {
                     return false;
                 }
-                return this.saveProfile.nationality.length > 0;
+                return this.saveProfile.nationalities.length > 0;
             },
             passportValidation() {
-                if (this.saveProfile.passport_country.length === 0) {
+                if (this.saveProfile.passports.length === 0) {
                     return null;
                 }
-                return this.saveProfile.passport_country.length > 0;
+                return this.saveProfile.passports.length > 0;
             },
             travTypeValidation() {
-                if (this.saveProfile.traveller_type.length === 0) {
+                if (this.saveProfile.travellerTypes.length === 0) {
                     return false;
                 }
-                return this.saveProfile.traveller_type.length > 0;
+                return this.saveProfile.travellerTypes.length > 0;
             }
         },
         methods: {
@@ -407,7 +416,11 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.saveProfile)
                 }).then(function(response) {
-                    self.$router.push("/");
+                    if (!self.adminView) {
+                        self.$router.go();
+                    }
+                    self.$emit('profile-saved', self.saveProfile);
+                    window.scrollTo(0, 0);
                     return response.json();
                 })
             },
