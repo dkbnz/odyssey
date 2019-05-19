@@ -60,7 +60,7 @@
 
         <!--Table for displaying search results-->
         <div style="margin-top: 40px">
-            <b-table hover striped outlined
+            <b-table hover striped outlined responsive
                      id="myFutureTrips"
                      :items="destinations"
                      :fields="fields"
