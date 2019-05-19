@@ -25,6 +25,7 @@ Feature: Trip API Endpoint
       """
     Then the response status code is Created
 
+
   Scenario: Delete a trip as the trip's owner
     Given I have an application running
     And I am logged in with credentials
@@ -38,6 +39,7 @@ Feature: Trip API Endpoint
       | Test Adventure  |
     Then the response status code is OK
 
+
   Scenario: Delete other user's trip as an admin
     Given I have an application running
     And I am logged in with credentials
@@ -50,6 +52,7 @@ Feature: Trip API Endpoint
       | Name            |
       | Test Adventure  |
     Then the response status code is OK
+
 
   Scenario: Delete a another user's trip as a standard user
     Given I have an application running
@@ -66,8 +69,10 @@ Feature: Trip API Endpoint
 
 
   Scenario: Attempt to add a trip with one destination
-    Given The state of the application is that it is running
-    And I am logged into the application which is running
+    Given I have an application running
+    And I am logged in with credentials
+      | Username                | Password  |
+      | guestUser@travelea.com  | guest123  |
     When the following json containing a trip is sent:
       """
         {
@@ -81,12 +86,14 @@ Feature: Trip API Endpoint
           ]
         }
       """
-    Then the received status code corresponds with a BadRequest response
+    Then the response status code is BadRequest
 
 
   Scenario: Attempt to add a trip with no name
-    Given The state of the application is that it is running
-    And I am logged into the application which is running
+    Given I have an application running
+    And I am logged in with credentials
+      | Username                | Password  |
+      | guestUser@travelea.com  | guest123  |
     When the following json containing a trip is sent:
       """
         {
@@ -104,12 +111,14 @@ Feature: Trip API Endpoint
           ]
         }
       """
-    Then the received status code corresponds with a BadRequest response
+    Then the response status code is BadRequest
 
 
   Scenario: Attempt to add a trip with duplicate destinations in series
-    Given The state of the application is that it is running
-    And I am logged into the application which is running
+    Given I have an application running
+    And I am logged in with credentials
+      | Username                | Password  |
+      | guestUser@travelea.com  | guest123  |
     When the following json containing a trip is sent:
       """
         {
@@ -128,12 +137,14 @@ Feature: Trip API Endpoint
           ]
         }
       """
-    Then the received status code corresponds with a BadRequest response
+    Then the response status code is BadRequest
 
 
   Scenario: Attempt to add a trip with inappropriately ordered dates
-    Given The state of the application is that it is running
-    And I am logged into the application which is running
+    Given I have an application running
+    And I am logged in with credentials
+      | Username                | Password  |
+      | guestUser@travelea.com  | guest123  |
     When the following json containing a trip is sent:
       """
         {
@@ -152,6 +163,6 @@ Feature: Trip API Endpoint
           ]
         }
       """
-    Then the received status code corresponds with a BadRequest response
+    Then the response status code is BadRequest
 
 
