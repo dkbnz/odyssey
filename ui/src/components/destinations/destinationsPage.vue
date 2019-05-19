@@ -9,10 +9,10 @@
             </b-navbar-nav>
         </b-navbar>
         <!--Displays currently selected page-->
-        <search-destinations v-if="searchDestinations" v-bind:profile="profile"
-                             v-bind:destinationTypes="destinationTypes"></search-destinations>
-        <add-destinations v-if="addDestinations" v-bind:profile="profile" v-bind:destinations="destinations"
-                          v-bind:destinationTypes="destinationTypes"></add-destinations>
+        <search-destinations v-if="searchDestinations" :profile="profile"
+                             :destinationTypes="destinationTypes"></search-destinations>
+        <add-destinations @data-changed="emitDataChanged" v-if="addDestinations" :profile="profile"
+                          :destinations="destinations" :destinationTypes="destinationTypes"></add-destinations>
         <footer-main></footer-main>
     </div>
     <div v-else>
@@ -56,6 +56,13 @@
                     this.addDestinations = !this.addDestinations;
                 }
             },
+
+            /**
+             * Emits to the App Vue component to refresh the data when data has been changed.
+             */
+            emitDataChanged() {
+                this.emit('data-changed', true);
+            }
         }
     }
 </script>

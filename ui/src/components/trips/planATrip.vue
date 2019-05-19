@@ -1,8 +1,8 @@
 <template>
     <div class="container">
 
-        <h1 class="page_title">{{ heading }}</h1>
-        <p class="page_title"><i>{{ subHeading }}</i></p>
+        <h1 class="page-title">{{ heading }}</h1>
+        <p class="page-title"><i>{{ subHeading }}</i></p>
 
         <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
 
@@ -141,19 +141,24 @@
                 <b-button size="sm"
                           v-b-modal.editModal
                           @click="populateModal(row.item)"
-                          class="mr-2">Edit
+                          variant="success"
+                          class="mr-2"
+                          block>Edit
                 </b-button>
                 <!-- Shows additional details about the selected destination -->
                 <b-button size="sm"
                           @click="row.toggleDetails"
-                          class="mr-2">
+                          variant="warning"
+                          class="mr-2"
+                          block>
                     {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                 </b-button>
                 <!--Removes destination from table-->
                 <b-button size="sm"
                           @click="deleteDestination(row.index)"
                           variant="danger"
-                          class="mr-2">Delete
+                          class="mr-2"
+                          block>Delete
                 </b-button>
             </template>
 
@@ -334,7 +339,6 @@
                     this.showError = true;
                     this.errorMessage = "No Destination Selected";
                 }
-
             },
 
             /**
@@ -396,7 +400,7 @@
              * @param editOutDate   the out date being edited.
              */
             saveDestination(row, editInDate, editOutDate) {
-                if (editInDate <= editOutDate) {
+                if (editInDate === null || editOutDate === null || editInDate <= editOutDate) {
                     this.showDateError = false;
                     row.startDate = editInDate;
                     row.endDate = editOutDate;
@@ -513,15 +517,19 @@
 
             /**
              * Checks all the destination dates in a trip to ensure that the end date of a destination is before its
-             * following destination start date.
+             * following destination start date, or if the dates are null.
              * @returns {boolean} true if the dates are valid, false otherwise
              */
             checkValidDestinationDates() {
                 for (let i = 0; i < this.inputTrip.destinations.length; i++) {
-                    if(this.inputTrip.destinations[i].endDate > this.inputTrip.destinations[i+1].startDate) {
-                        return false
-                    } else {
+                    if(this.inputTrip.destinations[i].endDate === null
+                        || this.inputTrip.destinations[i+1].startDate === null
+                        || this.inputTrip.destinations[i].endDate.length === 0
+                        || this.inputTrip.destinations[i+1].startDate.length === 0) {
                         return true;
+                    }
+                    if(this.inputTrip.destinations[i].endDate < this.inputTrip.destinations[i+1].startDate) {
+                        return false
                     }
                 }
             },

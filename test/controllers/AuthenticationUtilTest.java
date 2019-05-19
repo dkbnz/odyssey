@@ -30,7 +30,7 @@ public class AuthenticationUtilTest {
         boolean result = AuthenticationUtil.validUser(notAdmin, ownerId);
 
         //Assert
-        Assert.assertTrue(result);
+        Assert.assertFalse(result);
     }
 
     @Test
@@ -56,6 +56,6 @@ public class AuthenticationUtilTest {
         boolean result = AuthenticationUtil.validUser(notOwner, ownerId);
 
         //Assert
-        Assert.assertTrue(result);
+        Assert.assertFalse(result);
     }
 }

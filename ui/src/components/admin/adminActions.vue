@@ -1,8 +1,8 @@
 <template>
     <div>
         <div class="adminActions">
-            <h1 class="page_title">Welcome to the Admin Panel</h1>
-            <p class="page_title">
+            <h1 class="page-title">Welcome to the Admin Panel</h1>
+            <p class="page-title">
                 <i>Because you are an admin, you can achieve all functionality in the application!</i>
             </p>
             <b-row>
@@ -24,10 +24,11 @@
                 </b-col>
                 <b-col>
                     <b-card header="Create a Profile">
-                        <b-button v-b-toggle.signUpPage block variant="success">Create a New Profile</b-button>
+                        <b-button @click="showCollapse = !showCollapse" block variant="success">Create a New Profile</b-button>
                         <!-- The collapsible that uses the sign up page to create a new profile -->
-                        <b-collapse id="signUpPage" class="mt-2">
-                            <sign-up :nationalityOptions="nationalityOptions"
+                        <b-collapse id="signUpPage" class="mt-2" v-model="showCollapse">
+                            <sign-up :key="refreshSignUp"
+                                     :nationalityOptions="nationalityOptions"
                                      :travTypeOptions="travTypeOptions"
                                      :createdByAdmin="true"
                                      @profile-created="showOptions">
@@ -75,7 +76,9 @@
         data() {
             return {
                 refreshProfiles: 0,
-                showSingleProfile: false
+                refreshSignUp: 0,
+                showSingleProfile: false,
+                showCollapse: false
             }
         },
         methods: {
@@ -84,7 +87,9 @@
              * is shown). Will then hide the sign up modal and show the what to do next modal.
              */
             showOptions() {
+                this.showCollapse = false;
                 this.refreshProfiles += 1;
+                this.refreshSignUp += 1;
                 this.$refs['optionModal'].show();
             },
 
@@ -94,9 +99,13 @@
             hideOptionModal() {
                 this.$refs['optionModal'].hide();
             },
+
+            /**
+             * Emits the selected profile to the adminPanel page, this is so an admin can modify the profile.
+             * @param editProfile   the selected profile to be modified by an admin.
+             */
             getSingleProfile(editProfile) {
                 this.$emit('admin-edit', editProfile);
-                //console.log(editProfile);
             }
         },
         components: {
