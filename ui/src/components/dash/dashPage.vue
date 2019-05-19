@@ -53,33 +53,29 @@
             return {
                 viewProfile: true,
                 editProfile: false,
-                photoGallery: false
+                photoGallery: false,
                 editProfile: false,
                 showSaved: false
             }
         },
         methods: {
-            togglePage: function(pageState, pageName) {
-                if(pageName === 'view') {
-                    this.viewProfile = true;
-                    this.editProfile = false;
-                    this.photoGallery = false;
-                } else if(pageName === 'edit') {
-                    this.viewProfile = false;
-                    this.editProfile = true;
-                    this.photoGallery = false;
-                } else if(pageName === 'photos') {
-                    this.viewProfile = false;
-                    this.editProfile = false;
-                    this.photoGallery = true;
             /**
              * Switches the currently displayed tab on the page
              * @param viewPage the page to be displayed
              */
-            togglePage: function (viewPage) {
-                if (!viewPage) {
-                    this.viewProfile = !this.viewProfile;
-                    this.editProfile = !this.editProfile;
+            togglePage: function(pageState, pageName) {
+                if (pageName === 'view') {
+                    this.viewProfile = true;
+                    this.editProfile = false;
+                    this.photoGallery = false;
+                } else if (pageName === 'edit') {
+                    this.viewProfile = false;
+                    this.editProfile = true;
+                    this.photoGallery = false;
+                } else if (pageName === 'photos') {
+                    this.viewProfile = false;
+                    this.editProfile = false;
+                    this.photoGallery = true;
                 }
             },
 
