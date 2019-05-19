@@ -2,12 +2,9 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Finder;
 import models.trips.Trip;
 import play.data.format.Formats;
-import play.libs.Json;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
