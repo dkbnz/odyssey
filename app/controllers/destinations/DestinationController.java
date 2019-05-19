@@ -4,27 +4,33 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.ExpressionList;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
-import models.destinations.DestinationTypeEnum;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import scala.concurrent.java8.FuturesConvertersImpl;
 
 import java.util.List;
 import java.util.Map;
 
+import static util.QueryUtil.queryComparator;
+
 public class DestinationController extends Controller {
 
-    private static final String NAME = "name";
-    private static final String TYPE = "type_id";
-    private static final String COUNTRY = "country";
-    private static final String DISTRICT = "district";
-    private static final String LATITUDE = "latitude";
-    private static final String LONGITUDE = "longitude";
+    public static final String NAME = "name";
+    public static final String TYPE = "type_id";
+    public static final String COUNTRY = "country";
+    public static final String DISTRICT = "district";
+    public static final String LATITUDE = "latitude";
+    public static final String LONGITUDE = "longitude";
+
+    private static final Double LATITUDE_LIMIT = 90.0;
+    private static final Double LONGITUDE_LIMIT = 180.0;
+
 
     /**
-     * Return a json object listing all destination types in the database
-     * @return
+     * Return a Json object listing all destination types in the database
+     * @return ok() (Http 200) response containing all the different types of destinations.
      */
     public Result getTypes() {
         List<DestinationType> destinationTypes = DestinationType.find.all();
@@ -33,7 +39,7 @@ public class DestinationController extends Controller {
 
     /**
      * Fetches all destinations.
-     * @return HTTP response containing the destinations found in the response body.
+     * @return ok() (Http 200) response containing the destinations found in the response body.
      */
     private Result fetch() {
         List<Destination> destinations = Destination.find.all();
@@ -41,9 +47,9 @@ public class DestinationController extends Controller {
     }
 
     /**
-     * Fetches all destinations based on HTTP request query parameters.
-     * @param request HTTP request containing query parameters to filter results.
-     * @return HTTP response containing the destinations found in the response body.
+     * Fetches all destinations based on Http request query parameters.
+     * @param request   Http request containing query parameters to filter results.
+     * @return          ok() (Http 200) response containing the destinations found in the response body.
      */
     public Result fetch(Http.Request request) {
         //If there are no query parameters, return all destinations.
@@ -51,11 +57,9 @@ public class DestinationController extends Controller {
             return fetch();
         }
 
-
         //Filter destinations based on query parameters.
         Map<String, String[]> queryString = request.queryString();
         List<Destination> destinations;
-
 
         ExpressionList<Destination> expressionList = Destination.find.query().where();
         String name = queryString.get(NAME)[0];
@@ -64,6 +68,14 @@ public class DestinationController extends Controller {
         String longitude = queryString.get(LONGITUDE)[0];
         String district = queryString.get(DISTRICT)[0];
         String country = queryString.get(COUNTRY)[0];
+
+        //Null checks
+        name = name == null ? "" : name;
+        type = type == null ? "" : type;
+        latitude = latitude == null ? "" : latitude;
+        longitude = longitude == null ? "" : longitude;
+        district = district == null ? "" : district;
+        country = country == null ? "" : country;
 
         if (name.length() != 0) {
             expressionList.ilike(NAME, queryComparator(name));
@@ -90,19 +102,9 @@ public class DestinationController extends Controller {
     }
 
     /**
-     * This function builds a string to use in an sql query in a like clause. It places percentage signs on either
-     * side of the given string parameter.
-     * @param field The string to be concatenated with percentage signs on either side of the field.
-     * @return A string containing the field wrapped in percentage signs.
-     */
-    private static String queryComparator(String field) {
-        return "%" + field + "%";
-    }
-
-    /**
      * Looks at all the input fields for creating a destination and determines if the input is valid or not.
-     * @param json the json of the destination inputs.
-     * @return a boolean true if the input is valid.
+     * @param json      the Json of the destination inputs.
+     * @return          a boolean true if the input is valid.
      */
     private boolean validInput(JsonNode json) {
         String name = json.get(NAME).asText();
@@ -116,41 +118,55 @@ public class DestinationController extends Controller {
             return false;
         }
 
-        //Ensure latitude and longitude can be converted to doubles.
+        Double latitudeValue;
+        Double longitudeValue;
+
+        // Ensure latitude and longitude can be converted to doubles.
         try {
-            Double.parseDouble(latitude);
-            Double.parseDouble(longitude);
+            latitudeValue = Double.parseDouble(latitude);
+            longitudeValue = Double.parseDouble(longitude);
         } catch (NumberFormatException e) {
             return false;
         }
 
+        // Check range for latitude and longitude
+        if (latitudeValue > LATITUDE_LIMIT || latitudeValue < -LATITUDE_LIMIT) {
+            return false;
+        }
+        if (longitudeValue > LONGITUDE_LIMIT || longitudeValue < -LONGITUDE_LIMIT) {
+            return false;
+        }
 
+        // Check string inputs against regex
+        String nameRegEx = "^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$";
+
+        if (!(name.matches(nameRegEx) && country.matches(nameRegEx) && district.matches(nameRegEx))) {
+            return false;
+        }
         return true;
     }
 
-
     /**
-     * Determines if a given json input for creating a new destination already exists in the database.
-     * @param json the json of the destination inputs.
-     * @return true if the destination does not exist in the database.
+     * Determines if a given Json input for creating a new destination already exists in the database.
+     * @param json      the Json of the destination inputs.
+     * @return          true if the destination does not exist in the database.
      */
     private boolean destinationDoesNotExist(JsonNode json) {
         String name = json.get(NAME).asText();
         String district = json.get(DISTRICT).asText();
 
-
         List<Destination> destinations = Destination.find.query().where()
                 .ilike(NAME, name)
                 .ilike(DISTRICT, district)
                 .findList();
-        System.out.println("----------------3----------------------------------------------------" + destinations);
         return (destinations.isEmpty());
     }
 
     /**
-     * Saves a new destination.
-     * @param request HTTP request containing a json body of the new destination details.
-     * @return HTTP response ok when the destination is saved.
+     * Saves a new destination. Checks the destination to be saved doesn't already exist in the database.
+     * @param request   Http request containing a Json body of the new destination details.
+     * @return          Http response created() (Http 201) when the destination is saved. If a destination with
+     *                  the same name and district already exists in the database, returns badRequest() (Http 400).
      */
     public Result save(Http.Request request) {
         JsonNode json = request.body().asJson();
@@ -158,21 +174,20 @@ public class DestinationController extends Controller {
         if (!validInput(json)) {
             return badRequest("Invalid input.");
         }
-
-
         if (destinationDoesNotExist(json)) {
             Destination destination = createNewDestination(json);
             destination.save();
-            return ok("Created");
+            return created("Created");
         } else {
-            return badRequest("A destination with the name [ " +json.get(NAME).asText() + " ] and district [ " + json.get(DISTRICT).asText() + " ] already exists.");
+            return badRequest("A destination with the name [ " +json.get(NAME).asText() + " ] and district [ "
+                    + json.get(DISTRICT).asText() + " ] already exists.");
         }
     }
 
     /**
-     * Creates a new destination object given a json object.
-     * @param json The json of the destination object.
-     * @return the new destination object.
+     * Creates a new destination object given a Json object.
+     * @param json  the Json of the destination object.
+     * @return      the new destination object.
      */
     private Destination createNewDestination(JsonNode json) {
         Destination destination = new Destination();
@@ -189,10 +204,12 @@ public class DestinationController extends Controller {
         return destination;
     }
 
+
+
     /**
-     * Deletes a destination.
-     * @param id The id of the destination.
-     * @return HTTP response not found response if destination could not be found, ok if deleted.
+     * Deletes a destination from the database using the given destination id number.
+     * @param id    the id of the destination.
+     * @return      notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully deleted.
      */
     public Result destroy(Long id) {
         Destination destination = Destination.find.byId(id.intValue());
@@ -206,10 +223,10 @@ public class DestinationController extends Controller {
     }
 
     /**
-     * Updates a destination based on input in the HTTP request body.
-     * @param id The id of the destination.
-     * @param request HTTP request containing a json body of fields to update in the destination.
-     * @return HTTP response not found if destination could not be found, ok if updated.
+     * Updates a destination based on input in the Http request body.
+     * @param id        the id of the destination.
+     * @param request   Http request containing a Json body of fields to update in the destination.
+     * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
      */
     public Result edit(Long id, Http.Request request) {
         JsonNode json = request.body().asJson();

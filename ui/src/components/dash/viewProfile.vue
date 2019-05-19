@@ -1,6 +1,10 @@
 <template>
     <div class="container">
-        <h1>{{ profile.firstName }} {{profile.middleName}} {{profile.lastName}}</h1>
+        <b-alert v-model="showSaved" variant="success" dismissible>Profile Successfully Saved</b-alert>
+        <!-- Uses the received profile to display the profile's data on a page -->
+        <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
+        <p v-if="profile.isAdmin"><i>Administrator</i></p>
+        <p v-else><i>Regular User</i></p>
         <h2>Personal Details</h2>
         <p> Username: {{ profile.username }}</p>
         <p> Date of Creation: {{ new Date(profile.dateOfCreation).toUTCString()}}</p>
@@ -22,35 +26,40 @@
             <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
         </ul>
 
-
-
-        <your-trips></your-trips>
-
+        <!-- Displays a profile's trips -->
+        <your-trips :userProfile="userProfile"
+                    :profile="profile"
+                    :adminView="adminView"
+                    :destinations="destinations">
+        </your-trips>
     </div>
 </template>
 
 <script>
     import YourTrips from "../trips/yourTrips.vue"
+
     export default {
         name: "viewProfile",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
+        props: {
+            profile: Object,
+            nationalityOptions: Array,
+            travTypeOptions: Array,
+            trips: Array,
+            userProfile: Object,
+            adminView: Boolean,
+            destinations: Array,
+            showSaved: {
+                default: function() {
+                    return false;
+                }
+            }
+        },
         data () {
             return {
-
             }
         },
         components: {
             YourTrips
-        },
-        mounted () {
-
-        },
-        methods: {
-
         }
     }
 </script>
-
-<style scoped>
-
-</style>
