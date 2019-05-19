@@ -10,8 +10,8 @@ Feature: Trip API Endpoint
           "trip_destinations" : [
             {
               "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
+              "start_date" : "1990-12-12",
+              "end_date" : "1991-12-12"
             },
             {
               "destination_id" : "567",
