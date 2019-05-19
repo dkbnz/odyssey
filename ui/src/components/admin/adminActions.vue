@@ -99,6 +99,11 @@
             hideOptionModal() {
                 this.$refs['optionModal'].hide();
             },
+
+            /**
+             * Emits the selected profile to the adminPanel page, this is so an admin can modify the profile.
+             * @param editProfile   the selected profile to be modified by an admin.
+             */
             getSingleProfile(editProfile) {
                 this.$emit('admin-edit', editProfile);
             }
