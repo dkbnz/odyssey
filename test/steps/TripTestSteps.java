@@ -234,7 +234,6 @@ public class TripTestSteps {
                 .uri(TRIPS_URI + 1);
         Result result = route(application, request);
         statusCode = result.status();
-        //Assert.assertEquals("", convertTripStringToJson(docString));
     }
 
 
