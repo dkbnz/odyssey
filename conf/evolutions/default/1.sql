@@ -124,8 +124,8 @@ create table traveller_type (
 
 create table trip (
   id                            bigint auto_increment not null,
-  profile_id                    bigint not null,
   name                          varchar(255),
+  profile_id                    bigint,
   constraint pk_trip primary key (id)
 );
 

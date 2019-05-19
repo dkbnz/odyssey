@@ -11,7 +11,7 @@ public class TripRepository {
 
 
     private static final String PROFILE_ID = "profile_id";
-
+    private static final String TRIP_ID = "id";
 
     /**
      * Saves a new trip to a profile's list of trips, which is persisted to our database.
@@ -116,5 +116,15 @@ public class TripRepository {
      */
     public Trip fetchSingleTrip(Long tripId) {
         return Trip.find.byId(tripId.intValue());
+    }
+
+
+    /**
+     * Finds the profile id of the trip's owner.
+     * @param tripId        The id of the trip.
+     * @return              The profile id of the owner of the trip.
+     */
+    public static Long fetchTripOwner(Long tripId) {
+        return Trip.find.query().select("profile.id").where().eq(TRIP_ID, tripId).findSingleAttribute();
     }
 }
