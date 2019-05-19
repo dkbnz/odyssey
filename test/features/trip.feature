@@ -49,7 +49,6 @@ Feature: Trip API Endpoint
     When the following json containing a trip is sent:
       """
         {
-          "trip_name": "A Holiday Away",
           "trip_destinations" : [
             {
               "destination_id" : "1155",
@@ -58,6 +57,30 @@ Feature: Trip API Endpoint
             },
             {
               "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    Then the received status code corresponds with a BadRequest response
+
+
+  Scenario: Attempt to add a trip with duplicate destinations in series
+    Given The state of the application is that it is running
+    And I am logged into the application which is running
+    When the following json containing a trip is sent:
+      """
+        {
+          "trip_name": "There and there again.",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "1155",
               "start_date" : null,
               "end_date" : null
             }
