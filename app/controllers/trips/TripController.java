@@ -78,9 +78,9 @@ public class TripController extends Controller {
 
                     // Create an empty List for TripDestination objects to be populated from the request.
                     List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
-                    // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return OK.
 
-                    if (destinationList != null && isValidDateOrder(destinationList)) {
+                    // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return 201.
+                    if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
                         trip.setDestinations(destinationList);
                         repository.saveNewTrip(affectedProfile, trip);
                         return created();
