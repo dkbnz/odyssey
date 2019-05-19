@@ -53,7 +53,7 @@ public class TripController extends Controller {
                     }
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if (AuthenticationUtil.validUser(loggedInUser, affectedUserId)) {
+                    if (AuthenticationUtil.validUser(loggedInUser.getId().intValue(), affectedUserId.intValue())) {
                         affectedProfile = ProfileRepository.fetchSingleProfile(affectedUserId.intValue());
                     } else {
                         return forbidden();
@@ -136,7 +136,7 @@ public class TripController extends Controller {
                     }
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if (AuthenticationUtil.validUser(loggedInUser, affectedUserId)) {
+                    if (AuthenticationUtil.validUser(loggedInUser.getId().intValue(), affectedUserId.intValue())) {
                         affectedProfile = ProfileRepository.fetchSingleProfile(affectedUserId.intValue());
                     } else {
                         return forbidden();
@@ -341,20 +341,7 @@ public class TripController extends Controller {
     }
 
 
-    /**
-     * Gets the logged in user id from a given request.
-     *
-     * @param request       The Http request that was received.
-     * @return              An integer value of the logged in user id, null if there is no logged in user.
-     */
-    private Integer getLoggedInUserId(Http.Request request) {
-        String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
-        try {
-            return Integer.valueOf(userId);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
+
 
 
     /**
@@ -362,55 +349,38 @@ public class TripController extends Controller {
      *
      * @param request   Http request from the client, from which the current user profile can be obtained.
      * @param tripId    the id of the trip being deleted from a profile
-     * @param userId  The id of the trip owner.
      * @return          If no profile or no trip is found, returns notFound() (Http 404).
-     *                  If the trip is not in the user's list of trips, returns forbidden() (Http 403).
+     *                  If the trip id is not associated with any profile, returns badRequest() (Http 400).
      *                  If the user is not logged in, returns unauthorized() (Http 401).
      *                  If the user is not the trip owner or an admin, returns unauthorized() (Http 401).
      *                  Otherwise, if trip is successfully deleted, returns ok() (Http 200).
      */
-    public Result destroy(Http.Request request, Long tripId, Long userId) {
+    public Result destroy(Http.Request request, Long tripId) {
 
-        Integer loggedInUserId = getLoggedInUserId(request);
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+        // Retrieve the individual trip being deleted by its id.
+        Trip trip = repository.fetchSingleTrip(tripId);
 
-        // Check if a user is logged in.
-        if (userId != null) {
-            // Get the profile of the currently logged in user.
-            Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
+        if (trip == null) {
+            return notFound();
+        }
 
-            // Retrieve the profile having its trip removed.
-            // Use the trip to find the user.
-            Profile tripOwner = ProfileRepository.fetchSingleProfile(userId.intValue());
+        // Retrieve the profile having its trip removed from the trip id.
+        Long ownerId = TripRepository.fetchTripOwner(tripId);
+        if (ownerId == null) {
+            return badRequest();
+        }
+        Profile tripOwner = ProfileRepository.fetchSingleProfile(ownerId.intValue());
 
-            // Retrieve the individual trip being deleted by its id.
-            Trip trip = repository.fetchSingleTrip(tripId);
-
-            boolean profilesAreEqual = loggedInUser.getId().equals(tripOwner.getId());
-            if (!loggedInUser.isAdmin && !profilesAreEqual) {
-                return unauthorized();
-            }
-
-            // Check for query success.
-            if (loggedInUser == null || trip == null) {
-                return notFound();
-            }
-            boolean tripInProfile = false;
-            for (Trip tempTrip : tripOwner.getTrips()) {
-                if (tempTrip.getId().equals(tripId)) {
-                    tripInProfile = true;
-                }
-            }
-            if (!tripInProfile) {
-                return forbidden();
-            }
-
-            // Repository method handling the database and object manipulation.
-            repository.deleteTripFromProfile(loggedInUser, trip);
-
-        } else {
+        if (!AuthenticationUtil.validUser(loggedInUserId, tripOwner.getId().intValue())) {
             return unauthorized();
         }
 
+        // Repository method handling the database and object manipulation.
+        repository.deleteTripFromProfile(tripOwner, trip);
         // Deletion successful.
         return ok();
 

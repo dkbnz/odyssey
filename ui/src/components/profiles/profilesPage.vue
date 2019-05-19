@@ -11,7 +11,7 @@
 
 
             <!-- Confirmation modal for deleting a profile. -->
-            <b-modal ref="deleteModal" id="deleteModal" hide-footer title="Delete Profile">
+            <b-modal ref="deleteProfileModal" id="deleteProfileModal" hide-footer title="Delete Profile">
                 <div class="d-block">
                     Are you sure that you want to delete "{{selectedProfile.firstName}} {{selectedProfile.lastName}}"?
                 </div>
@@ -444,7 +444,7 @@
              * Used to dismiss the delete a profile modal
              */
             dismissModal() {
-                this.$refs['deleteModal'].hide();
+                this.$refs['deleteProfileModal'].hide();
             },
 
             /**
