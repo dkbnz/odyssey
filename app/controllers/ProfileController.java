@@ -442,7 +442,7 @@ public class ProfileController {
 
                     JsonNode json = request.body().asJson();
 
-                    log.info("Input: " + json.toString());
+                    log.info(String.format("Input: %s", json.toString()));
 
                     if (!(json.has(USERNAME)
                             && json.has(PASS_FIELD)
