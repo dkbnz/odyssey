@@ -27,23 +27,12 @@
                     return `${files.length} images selected`
                 }
             },
-            convertFiles(files){
-                //conversion from array of file objects to desired form for backend sending?
-            },
             save(){
-                //will close modal and send files away to backend?
-                let self = this;
-                console.log(self.files[0]);
-                fetch(`/v1/savePhotos`, {
-                    method: 'POST',
-                    headers:{'content-type': 'application/json'},
-                    body: JSON.stringify({'photos': self.files})
-
-                }).then(function(response) {
-                    self.files = null;
-                })
+                this.$emit('save-photos', this.files);
+                this.files = null;
+                }
             }
-        }
+
     }
 </script>
 
