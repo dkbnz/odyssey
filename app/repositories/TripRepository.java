@@ -101,7 +101,7 @@ public class TripRepository {
         List<Trip> trips;
 
         // Creates a list of trips from a query based on profile id
-        ExpressionList<Trip> expressionList = Trip.find.query().where();
+        ExpressionList<Trip> expressionList = Trip.getFind().query().where();
         expressionList.eq(PROFILE_ID, id);
         trips = expressionList.findList();
 
@@ -115,7 +115,7 @@ public class TripRepository {
      * @return              The Trip object associated with the id. Null if no trip was found.
      */
     public Trip fetchSingleTrip(Long tripId) {
-        return Trip.find.byId(tripId.intValue());
+        return Trip.getFind().byId(tripId.intValue());
     }
 
 
@@ -125,6 +125,6 @@ public class TripRepository {
      * @return              The profile id of the owner of the trip.
      */
     public static Long fetchTripOwner(Long tripId) {
-        return Trip.find.query().select("profile.id").where().eq(TRIP_ID, tripId).findSingleAttribute();
+        return Trip.getFind().query().select("profile.id").where().eq(TRIP_ID, tripId).findSingleAttribute();
     }
 }
