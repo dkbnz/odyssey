@@ -6,12 +6,25 @@ html {
 body {
     background-color: #e2e6ea;
     padding-bottom: 50px;
+    z-index: 1;
 
 }
-.container {
-    margin-top: 20px;
-    padding-top: 20px;
-    padding-bottom: 50px;
+.containerMain {
+    margin: 10vh 10vw 0 10vw;
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.containerWithNav {
+    margin: 15vh 10vw 0 10vw;
+    padding: 1vh 3vw 3vw 3vw;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.adminContainer {
+    padding: 20px;
     background-color: white;
     border-radius: 5px;
 }
@@ -45,4 +58,19 @@ h1, h2, h3, h4 {
 /* Page Titles and Subtitles*/
 .page_title {
     text-align: center;
+}
+
+/* Used for all nav bars or divs that need to remain fixed on page */
+.stickyMain {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 3;
+}
+
+.stickyMinorNav {
+    position: fixed;
+    width: 100%;
+    top: 6vh;
+    z-index: 2;
 }

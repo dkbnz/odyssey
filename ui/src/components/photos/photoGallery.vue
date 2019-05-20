@@ -1,8 +1,11 @@
 <template>
+    <div class="containerWithNav">
+        <h1 class="page_title">Personal Media</h1>
+        <p class="page_title"><i>Here are your photos</i></p>
+        <b-button class="btn btn-info" v-b-modal.modalAddPhoto>Add Photo</b-button>
 
-    <div>
+    </div>
         <div> Hello World this is Photo time!</div>
-        <b-button v-b-modal.modalAddPhoto class="btn btn-info btn-lg" >Add Photo</b-button>
         <b-modal ref="uploaderModal" id="modalAddPhoto" hide-footer centered title="Add Photo">
             <template slot="modal-title"><h2>Add Photo</h2></template>
             <photoUploader v-on:save-photos="sendPhotosToBackend"></photoUploader>
@@ -14,11 +17,11 @@
 
 <script>
     import photoUploader from "../photos/photoUploader"
+
     export default {
         name: "photoGallery",
-        data: function() {
-            return {
-            }
+        data: function () {
+            return {}
         },
         components: {
             photoUploader
