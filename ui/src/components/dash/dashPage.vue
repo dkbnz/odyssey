@@ -54,7 +54,6 @@
                 viewProfile: true,
                 editProfile: false,
                 photoGallery: false,
-                editProfile: false,
                 showSaved: false
             }
         },
