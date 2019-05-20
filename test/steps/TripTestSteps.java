@@ -281,8 +281,8 @@ public class TripTestSteps {
     /**
      * Checks if the status code received is BadRequest (400).
      */
-    @Then("the received status code corresponds with a BadRequest response")
-    public void the_received_status_code_corresponds_with_a_BadRequest_response() { assertEquals(BAD_REQUEST, statusCode); }
+    @Then("the response status code is BadRequest")
+    public void theResponseStatusCodeIsBadRequest() { assertEquals(BAD_REQUEST, statusCode); }
 
 
     private JsonNode convertTripStringToJson(String docString) throws IOException {
