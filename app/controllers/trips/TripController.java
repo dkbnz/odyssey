@@ -154,7 +154,7 @@ public class TripController extends Controller {
                     }
 
                     // Trip being modified
-                    Trip trip = Trip.find.byId(id.intValue());
+                    Trip trip = repository.fetchSingleTrip(id);
 
                     if (trip == null) {
                         return badRequest();
@@ -309,7 +309,7 @@ public class TripController extends Controller {
         JsonNode json = request.body().asJson();
 
         // The id taken from the json node, initialised as null for validation purposes.
-        int parsedTripId;
+        long parsedTripId;
 
         // Retrieving the id of the trip being fetched
         try {
@@ -319,7 +319,7 @@ public class TripController extends Controller {
         }
 
         // Retrieving the trip which corresponds to the id parsed.
-        Trip returnedTrip = Trip.find.byId(parsedTripId);
+        Trip returnedTrip = repository.fetchSingleTrip(parsedTripId);
 
         // Verifying the existence of the trip being retrieved.
         if (returnedTrip == null) {
@@ -339,10 +339,6 @@ public class TripController extends Controller {
         List<Trip> trips = repository.fetchAllTrips(id);
         return ok(Json.toJson(trips));
     }
-
-
-
-
 
     /**
      * Deletes a trip from the user currently logged in.
