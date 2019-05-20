@@ -27,12 +27,27 @@ Feature: Trip API Endpoint
 
   Scenario: Delete a trip as the trip's owner
     Given I have an application running
-    And I am logged in with credentials
-      | Username                | Password  |
-      | guestUser@travelea.com  | guest123  |
-    And I own the trip with the following name
-      | Name            |
-      | Test Adventure  |
+    And I am logged as the following user
+      | Username                |
+      | guestUser@travelea.com  |
+    And I own the trip with the following data
+      """
+        {
+          "trip_name": "Test Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
     When I delete the trip with the following name
       | Name            |
       | Test Adventure  |
@@ -40,12 +55,27 @@ Feature: Trip API Endpoint
 
   Scenario: Delete other user's trip as an admin
     Given I have an application running
-    And I am logged in with credentials
-      | Username                | Password  |
-      | admin@travelea.com      | admin1    |
-    And I do not own the trip with the following name
-      | Name            |
-      | Test Adventure  |
+    And I am logged as the following user
+      | Username                |
+      | admin@travelea.com      |
+    And I do not own the trip with the following data
+      """
+        {
+          "trip_name": "Test Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
     When I delete the trip with the following name
       | Name            |
       | Test Adventure  |
@@ -53,12 +83,27 @@ Feature: Trip API Endpoint
 
   Scenario: Delete a another user's trip as a standard user
     Given I have an application running
-    And I am logged in with credentials
-      | Username                | Password  |
-      | guestUser@travelea.com  | guest123  |
-    And I do not own the trip with the following name
-      | Name            |
-      | Test Adventure  |
+    And I am logged as the following user
+      | Username                |
+      | guestUser@travelea.com  |
+    And I do not own the trip with the following data
+      """
+        {
+          "trip_name": "Test Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
     When I delete the trip with the following name
       | Name            |
       | Test Adventure  |

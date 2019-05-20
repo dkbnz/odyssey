@@ -12,6 +12,7 @@ import cucumber.api.java.en.When;
 import gherkin.ast.DataTable;
 import gherkin.deps.com.google.gson.Gson;
 import jdk.nashorn.internal.parser.JSONParser;
+import models.trips.Trip;
 import org.junit.Assert;
 import play.Application;
 import play.db.Database;
@@ -26,6 +27,7 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 import play.db.evolutions.Evolutions;
+import scala.Int;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -75,6 +77,48 @@ public class TripTestSteps {
      * Database instance for the fake application.
      */
     private Database database;
+
+
+    /**
+     * The id of the currently logged in user to send with the request.
+     */
+    private Integer loggedInUserId;
+
+
+    /**
+     * The username for the default admin user.
+     */
+    private static final String ADMIN_USERNAME = "admin@travelea.com";
+
+
+    /**
+     * The username for the default guest user.
+     */
+    private static final String GUEST_USERNAME = "guestUser@travelea.com";
+
+
+    /**
+     * The admin user id.
+     */
+    private static final Integer ADMIN_ID = 1;
+
+
+    /**
+     * The guest user id.
+     */
+    private static final Integer GUEST_ID = 2;
+
+
+    /**
+     * The field for the trip id.
+     */
+    private static final String TRIP_ID_FIELD = "id";
+
+
+    /**
+     * The field for the trip name.
+     */
+    private static final String TRIP_NAME_FIELD = "name";
 
 
     @Before
@@ -196,6 +240,32 @@ public class TripTestSteps {
     }
 
 
+    /**
+     * Gets log in credentials from the information in the data table and sends a log in request.
+     * @param dataTable     the data table containing the log in credentials
+     */
+    @Given("I am logged as the following user")
+    public void iAmLoggedAsTheFollowingUser(io.cucumber.datatable.DataTable dataTable) {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        String username = list.get(0).get("Username");
+        switch (username) {
+            case ADMIN_USERNAME:
+                loggedInUserId = ADMIN_ID;
+                break;
+            case GUEST_USERNAME:
+                loggedInUserId = GUEST_ID;
+                break;
+            default:
+                throw new Error();
+        }
+    }
+
+
+    /**
+     * Sends a request to create a trip with the given trip data.
+     * @param docString     The string containing the trip data.
+     * @throws IOException  If the docString is formatted incorrectly.
+     */
     @When("the following json containing a trip is sent:")
     public void theFollowingJsonContainingATripIsSent(String docString) throws IOException {
         Http.RequestBuilder request = fakeRequest()
@@ -206,10 +276,6 @@ public class TripTestSteps {
         Result result = route(application, request);
         statusCode = result.status();
     }
-
-
-
-
 
 
     /**
@@ -226,28 +292,6 @@ public class TripTestSteps {
     }
 
 
-
-
-
-    @Given("I own the trip with the following name")
-    public void iOwnTheTripWithTheFollowingName(io.cucumber.datatable.DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-        throw new cucumber.api.PendingException();
-    }
-
-    @When("I delete the trip with the following name")
-    public void iDeleteTheTripWithTheFollowingName(io.cucumber.datatable.DataTable dataTable) {
-
-        throw new cucumber.api.PendingException();
-    }
-
-
     /**
      * Gets the trip name from a given data table.
      * @param dataTable     The data table containing the trip name.
@@ -259,16 +303,77 @@ public class TripTestSteps {
     }
 
 
-    @Given("I do not own the trip with the following name")
-    public void iDoNotOwnTheTripWithTheFollowingName(io.cucumber.datatable.DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-        throw new cucumber.api.PendingException();
+    /**
+     * Creates a new trip with the data given for the currently logged in user.
+     * @param trip              The string containing the trip data.
+     * @throws IOException      If the trip is formatted incorrectly.
+     */
+    @Given("I own the trip with the following data")
+    public void iOwnTheTripWithTheFollowingData(String trip) throws IOException {
+        createTripGenericRequest(trip, loggedInUserId);
+    }
+
+
+    /**
+     * Creates a new trip with the data given for another user.
+     * @param trip              The string containing the trip data.
+     * @throws IOException      If the trip is formatted incorrectly.
+     */
+    @Given("I do not own the trip with the following data")
+    public void iDoNotOwnTheTripWithTheFollowingName(String trip) throws IOException {
+        createTripGenericRequest(trip, 3);
+    }
+
+
+    /**
+     * Creates a trip with the given data and for the given user.
+     * @param tripData          The data for the new trip to create.
+     * @param ownerId           The id for the owner of the new trip.
+     * @throws IOException      If the trip is formatted incorrectly.
+     */
+    private void createTripGenericRequest(String tripData, Integer ownerId) throws IOException {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED, ownerId.toString())
+                .bodyJson(convertTripStringToJson(tripData))
+                .uri(TRIPS_URI + ownerId.toString());
+        route(application, request);
+    }
+
+
+    /**
+     * Sends a request to delete the trip with the name specified in the data table.
+     * @param dataTable     The data table containing the trip name to delete.
+     */
+    @When("I delete the trip with the following name")
+    public void iDeleteTheTripWithTheFollowingName(io.cucumber.datatable.DataTable dataTable) {
+        String tripName = getTripNameFromDataTable(dataTable);
+        Integer tripId = getTripIdFromTripName(tripName).intValue();
+        deleteTripRequest(tripId);
+    }
+
+
+    /**
+     * Gets the trip id for the trip with the given name.
+     * @param tripName  The name of the trip to get the id for.
+     * @return          The id of the trip.
+     */
+    private Long getTripIdFromTripName(String tripName) {
+        return Trip.find.query().select(TRIP_ID_FIELD).where().eq(TRIP_NAME_FIELD, tripName).findSingleAttribute();
+    }
+
+
+    /**
+     * Sends a delete trip request for a given trip id. The session is set to the currently logged in user.
+     * @param tripId    The id for the trip to be deleted.
+     */
+    private void deleteTripRequest(Integer tripId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(DELETE)
+                .session(AUTHORIZED, loggedInUserId.toString())
+                .uri(TRIPS_URI + tripId.toString());
+        Result result = route(application, request);
+        statusCode = result.status();
     }
 
 
@@ -277,7 +382,6 @@ public class TripTestSteps {
      */
     @Then("the response status code is Unauthorised")
     public void theResponseStatusCodeIsUnauthorised() {
-        // Write code here that turns the phrase above into concrete actions
         assertEquals(UNAUTHORIZED, statusCode);
     }
 
@@ -287,7 +391,6 @@ public class TripTestSteps {
      */
     @Then("the response status code is OK")
     public void theResponseStatusCodeIsOK() {
-        // Write code here that turns the phrase above into concrete actions
         assertEquals(OK, statusCode);
     }
 
