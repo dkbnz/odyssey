@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="showFirst" id="firstSignup">
+        <div id="firstSignup" v-if="showFirst">
 
             <!--Input fields for sign-up. Validates automatically-->
             <b-form>
@@ -8,10 +8,10 @@
                         id="fname-field"
                         label="First Name(s):"
                         label-for="first_name">
-                    <b-form-input id="first_name"
-                                  v-model="firstName" type="text"
-                                  :state="fNameValidation"
-                                  trim autofocus required></b-form-input>
+                    <b-form-input :state="fNameValidation"
+                                  autofocus id="first_name"
+                                  required
+                                  trim type="text" v-model="firstName"></b-form-input>
                     <b-form-invalid-feedback :state="fNameValidation">
                         Your first name must be between 1-100 characters and contain no numbers.
                     </b-form-invalid-feedback>
@@ -21,8 +21,8 @@
                         id="mname-field"
                         label="Middle Name(s):"
                         label-for="middle_name">
-                    <b-form-input id="middle_name" v-model="middleName" type="text"
-                                  :state="mNameValidation" trim placeholder="Optional"></b-form-input>
+                    <b-form-input :state="mNameValidation" id="middle_name" placeholder="Optional"
+                                  trim type="text" v-model="middleName"></b-form-input>
                     <b-form-invalid-feedback :state="mNameValidation">
                         Your middle name must be less than 100 characters and contain no numbers.
                     </b-form-invalid-feedback>
@@ -32,26 +32,26 @@
                         id="lname-field"
                         label="Last Name(s):"
                         label-for="last_name">
-                    <b-form-input id="last_name"
-                                  v-model="lastName"
-                                  type="text"
-                                  :state="lNameValidation"
-                                  trim required></b-form-input>
+                    <b-form-input :state="lNameValidation"
+                                  id="last_name"
+                                  required
+                                  trim
+                                  type="text" v-model="lastName"></b-form-input>
                     <b-form-invalid-feedback :state="lNameValidation">
                         Your last name must be between 1-100 characters and contain no numbers.
                     </b-form-invalid-feedback>
                 </b-form-group>
 
                 <b-form-group
-                        id="email-field"
                         description="Note: this will be your username"
+                        id="email-field"
                         label="Email:"
                         label-for="email">
-                    <b-form-input id="email"
-                                  v-model="username"
-                                  type="text"
-                                  :state="emailValidation"
-                                  trim required></b-form-input>
+                    <b-form-input :state="emailValidation"
+                                  id="email"
+                                  required
+                                  trim
+                                  type="text" v-model="username"></b-form-input>
                     <b-form-invalid-feedback :state="emailValidation">
                         Your email must be valid and unique!
                     </b-form-invalid-feedback>
@@ -61,11 +61,11 @@
                         id="password-field"
                         label="Password:"
                         label-for="newPassword">
-                    <b-form-input id="newPassword"
-                                  v-model="password"
-                                  type="password"
-                                  :state="passwordValidation"
-                                  trim required></b-form-input>
+                    <b-form-input :state="passwordValidation"
+                                  id="newPassword"
+                                  required
+                                  trim
+                                  type="password" v-model="password"></b-form-input>
                     <b-form-invalid-feedback :state="passwordValidation">
                         Your password must be between 5 and 15 characters.
                     </b-form-invalid-feedback>
@@ -75,15 +75,15 @@
                 </b-form-group>
 
                 <b-form-group
-                        id="rePassword-field"
                         description="Please re-enter your password"
+                        id="rePassword-field"
                         label="Retype Password:"
                         label-for="rePassword">
-                    <b-form-input id="rePassword"
-                                  v-model="rePassword"
-                                  type="password"
-                                  :state="rePasswordValidation"
-                                  trim required></b-form-input>
+                    <b-form-input :state="rePasswordValidation"
+                                  id="rePassword"
+                                  required
+                                  trim
+                                  type="password" v-model="rePassword"></b-form-input>
                     <b-form-invalid-feedback :state="rePasswordValidation">
                         This isn't the same as the password!
                     </b-form-invalid-feedback>
@@ -93,11 +93,11 @@
                         id="dateOfBirth-field"
                         label="Date of Birth:"
                         label-for="dateOfBirth">
-                    <b-form-input id="dateOfBirth"
-                                  v-model="dateOfBirth"
-                                  type="date"
-                                  :state="dateOfBirthValidation"
-                                  trim required></b-form-input>
+                    <b-form-input :state="dateOfBirthValidation"
+                                  id="dateOfBirth"
+                                  required
+                                  trim
+                                  type="date" v-model="dateOfBirth"></b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
                         You need a date of birth before today.
                     </b-form-invalid-feedback>
@@ -107,24 +107,24 @@
                         id="gender-field"
                         label="Gender:"
                         label-for="gender">
-                    <b-form-select id="gender"
-                                   v-model="gender"
-                                   :options="genderOptions"
+                    <b-form-select :options="genderOptions"
                                    :state="genderValidation"
-                                   trim required></b-form-select>
+                                   id="gender"
+                                   required
+                                   trim v-model="gender"></b-form-select>
                     <b-form-invalid-feedback :state="genderValidation">
                         Please select a gender.
                     </b-form-invalid-feedback>
                 </b-form-group>
 
-                <b-alert v-model="showError" variant="danger" dismissible>The form contains errors!</b-alert>
-                <b-button variant="primary" block @click="checkPersonalForm">Next</b-button>
+                <b-alert dismissible v-model="showError" variant="danger">The form contains errors!</b-alert>
+                <b-button @click="checkPersonalForm" block variant="primary">Next</b-button>
 
             </b-form>
         </div>
 
         <!--Fields for inputting nationalities, passports & traveller types-->
-        <div v-if="showSecond" id="secondSignup">
+        <div id="secondSignup" v-if="showSecond">
             <b-form>
                 <b-row>
                     <b-col>
@@ -132,13 +132,14 @@
                                 id="nationalities-field"
                                 label="Nationality:"
                                 label-for="nationality">
-                            <b-form-select id="nationality"
-                                           v-model="nationalities"
-                                           :state="nationalityValidation"
-                                           multiple trim>
-                                <option v-for="nationality in nationalityOptions"
-                                        :value="nationality.id">
-                                    {{nationality.nationality}}</option>
+                            <b-form-select :state="nationalityValidation"
+                                           id="nationality"
+                                           multiple
+                                           trim v-model="nationalities">
+                                <option :value="nationality.id"
+                                        v-for="nationality in nationalityOptions">
+                                    {{nationality.nationality}}
+                                </option>
                             </b-form-select>
                             <b-form-invalid-feedback :state="nationalityValidation">
                                 Please select at least one nationality.
@@ -151,13 +152,14 @@
                                 id="passports-field"
                                 label="Passport Country:"
                                 label-for="passports">
-                            <b-form-select id="passports"
-                                           v-model="passports"
-                                           :state="passportValidation"
-                                           trim multiple>
-                                <option v-for="nationality in nationalityOptions"
-                                        :value="nationality.id">
-                                    {{nationality.country}}</option>
+                            <b-form-select :state="passportValidation"
+                                           id="passports"
+                                           multiple
+                                           trim v-model="passports">
+                                <option :value="nationality.id"
+                                        v-for="nationality in nationalityOptions">
+                                    {{nationality.country}}
+                                </option>
                             </b-form-select>
                             <b-form-invalid-feedback :state="passportValidation">
                                 Please select at least one passport country.
@@ -172,19 +174,19 @@
                         label="Traveller Type:"
                         label-for="travellerTypeCarousel">
                     <b-carousel
-                            id="travellerTypeCarousel"
-                            controls
-                            indicators
                             background="#ababab"
-                            img-width="1920"
+                            controls
+                            id="travellerTypeCarousel"
                             img-height="1080"
+                            img-width="1920"
+                            indicators
                             style="text-shadow: 1px 1px 2px #333;">
-                        <b-carousel-slide v-for="travType in travTypeOptions"
-                                          :key="travType.id"
-                                          :caption="travType.travellerType"
-                                          :text="travType.description"
+                        <b-carousel-slide :caption="travType.travellerType"
                                           :img-src="travType.imgUrl"
-                                          :state="travTypeValidation">
+                                          :key="travType.id"
+                                          :state="travTypeValidation"
+                                          :text="travType.description"
+                                          v-for="travType in travTypeOptions">
                             <b-form-checkbox :value="travType.id" v-model="travellerTypes"></b-form-checkbox>
                         </b-carousel-slide>
                     </b-carousel>
@@ -194,7 +196,7 @@
                 </b-form-group>
 
                 <b-button @click="previousPage">Back</b-button>
-                <b-button @click="checkAssociateForm" variant="primary" class="float-right">Sign Up</b-button>
+                <b-button @click="checkAssociateForm" class="float-right" variant="primary">Sign Up</b-button>
             </b-form>
         </div>
 
@@ -205,7 +207,7 @@
     export default {
         name: "Signup",
         props: {nationalityOptions: Array, travTypeOptions: Array, createdByAdmin: false},
-        data: function() {
+        data: function () {
             return {
                 showError: false,
                 firstName: '',
@@ -309,15 +311,15 @@
             todaysDate() {
                 let today = new Date();
                 let dd = today.getDate();
-                let mm = today.getMonth()+1; //January is 0!
+                let mm = today.getMonth() + 1; //January is 0!
                 let yyyy = today.getFullYear();
-                if(dd<10){
-                    dd='0'+dd
+                if (dd < 10) {
+                    dd = '0' + dd
                 }
-                if(mm<10){
-                    mm='0'+mm
+                if (mm < 10) {
+                    mm = '0' + mm
                 }
-                today = yyyy+'-'+mm+'-'+dd;
+                today = yyyy + '-' + mm + '-' + dd;
                 return today
             }
 

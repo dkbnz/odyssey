@@ -1,14 +1,14 @@
 <template>
-    <div class="container">
+    <div :class="containerClass">
         <!--First name field, with default set to the user's current first name. Validates inputted text-->
         <b-form-group
                 id="firstName-field"
                 label="First Name(s):"
                 label-for="firstName">
-            <b-form-input id="firstName"
-                          v-model="saveProfile.firstName"
-                          :state="fNameValidation"
-                          type="text" trim>
+            <b-form-input :state="fNameValidation"
+                          id="firstName"
+                          trim
+                          type="text" v-model="saveProfile.firstName">
             </b-form-input>
             <b-form-invalid-feedback :state="fNameValidation">
                 Your first name must be between 1-100 characters and contain no numbers.
@@ -23,10 +23,10 @@
                 id="middleName-field"
                 label="Middle Name(s):"
                 label-for="middleName">
-            <b-form-input id="middleName"
-                          v-model="saveProfile.middleName"
-                          :state="mNameValidation"
-                          type="text" trim>
+            <b-form-input :state="mNameValidation"
+                          id="middleName"
+                          trim
+                          type="text" v-model="saveProfile.middleName">
             </b-form-input>
             <b-form-invalid-feedback :state="mNameValidation">
                 Your middle name must be less than 100 characters and contain no numbers.
@@ -41,10 +41,10 @@
                 id="lastName-field"
                 label="Last Name(s):"
                 label-for="lastName">
-            <b-form-input id="lastName"
-                          v-model="saveProfile.lastName"
-                          :state="lNameValidation"
-                          type="text" trim>
+            <b-form-input :state="lNameValidation"
+                          id="lastName"
+                          trim
+                          type="text" v-model="saveProfile.lastName">
             </b-form-input>
             <b-form-invalid-feedback :state="lNameValidation">
                 Your last name must be between 1-100 characters and contain no numbers.
@@ -59,10 +59,10 @@
                 id="email-field"
                 label="Email:"
                 label-for="email">
-            <b-form-input id="email"
-                          v-model="saveProfile.username"
-                          :state="emailValidation"
-                          type="email" trim>
+            <b-form-input :state="emailValidation"
+                          id="email"
+                          trim
+                          type="email" v-model="saveProfile.username">
             </b-form-input>
             <b-form-invalid-feedback :state="emailValidation">
                 Your email must be valid and unique!
@@ -77,11 +77,11 @@
                 id="password-field"
                 label="Password:"
                 label-for="password">
-            <b-form-input id="password"
-                          v-model="saveProfile.password"
-                          :state="passwordValidation"
-                          type="password"
-                          placeholder="Unchanged" trim>
+            <b-form-input :state="passwordValidation"
+                          id="password"
+                          placeholder="Unchanged"
+                          trim
+                          type="password" v-model="saveProfile.password">
             </b-form-input>
             <b-form-invalid-feedback :state="passwordValidation">
                 Your password must be between 5 and 15 characters and password must contain two of: Uppercase,
@@ -98,11 +98,11 @@
                 label="Retype Password:"
                 label-for="passwordre">
             <b-form-input
-                    id="passwordre"
-                    v-model="rePassword"
                     :state="rePasswordValidation"
-                    type="password"
-                    placeholder="Unchanged" trim>
+                    id="passwordre"
+                    placeholder="Unchanged"
+                    trim
+                    type="password" v-model="rePassword">
             </b-form-input>
             <b-form-invalid-feedback :state="rePasswordValidation">
                 This isn't the same as the password!
@@ -117,10 +117,10 @@
                 id="DOB-field"
                 label="Date of Birth:"
                 label-for="dateOfBirth">
-            <b-form-input id="dateOfBirth"
-                          v-model="saveProfile.dateOfBirth"
-                          :state="dateOfBirthValidation"
-                          :type="'date'" trim>
+            <b-form-input :state="dateOfBirthValidation"
+                          :type="'date'"
+                          id="dateOfBirth"
+                          trim v-model="saveProfile.dateOfBirth">
             </b-form-input>
             <b-form-invalid-feedback :state="dateOfBirthValidation">
                 You need a date of birth.
@@ -135,10 +135,10 @@
                 id="gender-field"
                 label="Gender:"
                 label-for="gender">
-            <b-form-select id="gender"
-                           v-model="saveProfile.gender"
+            <b-form-select :options=genderOptions
                            :state="genderValidation"
-                           :options=genderOptions trim required>
+                           id="gender"
+                           required trim v-model="saveProfile.gender">
             </b-form-select>
             <b-form-invalid-feedback :state="genderValidation">
                 Please select a gender.
@@ -156,22 +156,22 @@
                         id="nationalities-field"
                         label="Nationality:"
                         label-for="nationality">
-                    <b-form-select id="nationality"
-                                   v-model="saveProfile.nationalities"
+                    <b-form-select :required="true"
                                    :state="nationalityValidation"
-                                   :required="true" multiple trim>
+                                   id="nationality"
+                                   multiple trim v-model="saveProfile.nationalities">
                         <optgroup label="Current Nationalities: (Please select these if you want to use them!)">
-                            <option v-for="nationality in profile.nationalities"
-                                    :selected="true"
-                                    :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}">
+                            <option :selected="true"
+                                    :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}"
+                                    v-for="nationality in profile.nationalities">
                                 {{nationality.nationality}}
                             </option>
                         </optgroup>
                         <!--Removes user's current nationalities from options-->
                         <optgroup label="Other Nationalities:">
-                            <option v-for="nationality in nationalityOptions"
-                                    v-if="!duplicateNationality(nationality.id)"
-                                    :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}">
+                            <option :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}"
+                                    v-for="nationality in nationalityOptions"
+                                    v-if="!duplicateNationality(nationality.id)">
                                 {{nationality.nationality}}
                             </option>
                         </optgroup>
@@ -192,22 +192,22 @@
                         id="passports-field"
                         label="Passport:"
                         label-for="passports">
-                    <b-form-select id="passports"
-                                   v-model="saveProfile.passports"
+                    <b-form-select :required="true"
                                    :state="passportValidation"
-                                   :required="true" trim multiple>
+                                   id="passports"
+                                   multiple trim v-model="saveProfile.passports">
                         <optgroup label="Current Passports: (Please select these if you want to use them!)">
-                            <option v-for="passport in profile.passports"
-                                    :selected="true"
-                                    :value="{id: passport.id, country: passport.country}">
+                            <option :selected="true"
+                                    :value="{id: passport.id, country: passport.country}"
+                                    v-for="passport in profile.passports">
                                 {{passport.country}}
                             </option>
                         </optgroup>
                         <!--Removes user's current passports from options-->
                         <optgroup label="Other Passports:">
-                            <option v-for="nationality in nationalityOptions"
-                                    v-if="!duplicatePassport(nationality.id)"
-                                    :value="{id: nationality.id, country: nationality.country}">
+                            <option :value="{id: nationality.id, country: nationality.country}"
+                                    v-for="nationality in nationalityOptions"
+                                    v-if="!duplicatePassport(nationality.id)">
                                 {{nationality.country}}
                             </option>
                         </optgroup>
@@ -228,20 +228,20 @@
                 id="travType-field"
                 label="Traveller Type(s):"
                 label-for="travType">
-            <b-form-select lg id="travType"
-                           v-model="saveProfile.travellerTypes"
-                           :state="travTypeValidation" multiple trim>
+            <b-form-select :state="travTypeValidation" id="travType"
+                           lg
+                           multiple trim v-model="saveProfile.travellerTypes">
                 <optgroup label="Current Traveller Types: (Please select these if you want to use them!)">
-                    <option v-for="travType in profile.travellerTypes"
-                            :value="{id: travType.id, travellerType: travType.travellerType}">
+                    <option :value="{id: travType.id, travellerType: travType.travellerType}"
+                            v-for="travType in profile.travellerTypes">
                         {{travType.travellerType}}
                     </option>
                 </optgroup>
                 <!--Removes user's current traveller types from options-->
                 <optgroup label="Other Traveller Types">
-                    <option v-for="travType in travTypeOptions"
-                            v-if="!duplicateTravType(travType.id)"
-                            :value="{id: travType.id, travellerType: travType.travellerType}">
+                    <option :value="{id: travType.id, travellerType: travType.travellerType}"
+                            v-for="travType in travTypeOptions"
+                            v-if="!duplicateTravType(travType.id)">
                         {{travType.travellerType}}
                     </option>
                 </optgroup>
@@ -255,9 +255,9 @@
         </b-form-group>
 
         <!--Displayed if there are input errors when "Save Profile" is clicked-->
-        <b-alert v-model="showError" variant="danger" dismissible>The form contains errors!</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger">The form contains errors!</b-alert>
         <!--Validates inputs then updates user data if valid-->
-        <b-button variant="success" size="lg" block @click="checkSaveProfile">Save Profile</b-button>
+        <b-button @click="checkSaveProfile" block size="lg" variant="success">Save Profile</b-button>
     </div>
 </template>
 
@@ -269,12 +269,17 @@
             nationalityOptions: Array,
             travTypeOptions: Array,
             adminView: {
-                default: function() {
+                default: function () {
                     return false;
+                }
+            },
+            containerClass: {
+                default: function() {
+                    return 'containerWithNav';
                 }
             }
         },
-        data: function() {
+        data: function () {
             return {
                 saveProfile: {
                     firstName: this.profile.firstName,
@@ -386,7 +391,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify({'username': this.saveProfile.username})
 
-                }).then(function(response) {
+                }).then(function (response) {
                     self.validEmail = response.ok || (self.saveProfile.username === self.profile.username)
                 })
 
@@ -415,7 +420,7 @@
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.saveProfile)
-                }).then(function(response) {
+                }).then(function (response) {
                     if (!self.adminView) {
                         self.$router.go();
                     }

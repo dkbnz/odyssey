@@ -1,24 +1,24 @@
 <template>
-    <div class="container">
+    <div class="containerWithNav">
         <h1 class="page_title">Add a Destination</h1>
         <p class="page_title"><i>Add a destination using the form below</i></p>
-        <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act
         as a buffer for destination being added-->
         <b-alert
                 :show="dismissCountDown"
+                @dismiss-count-down="countDownChanged"
+                @dismissed="dismissCountDown=0"
                 dismissible
                 variant="success"
-                @dismissed="dismissCountDown=0"
-                @dismiss-count-down="countDownChanged"
         >
             <p>Destination Successfully Added</p>
             <b-progress
-                    variant="success"
                     :max="dismissSecs"
                     :value="dismissCountDown"
                     height="4px"
+                    variant="success"
             ></b-progress>
         </b-alert>
 
@@ -29,15 +29,15 @@
                         id="name-field"
                         label="Destination Name:"
                         label-for="dName">
-                    <b-form-input id="dName" v-model="dName" type="text" required></b-form-input>
+                    <b-form-input id="dName" required type="text" v-model="dName"></b-form-input>
                 </b-form-group>
 
                 <b-form-group
                         id="type-field"
                         label="Destination Type:"
                         label-for="type">
-                    <b-form-select id="type" v-model="dType" trim>
-                        <option v-for="destination in destinationTypes" :value="destination.id">
+                    <b-form-select id="type" trim v-model="dType">
+                        <option :value="destination.id" v-for="destination in destinationTypes">
                             {{destination.destinationType}}
                         </option>
                     </b-form-select>
@@ -47,31 +47,31 @@
                         id="district-field"
                         label="District:"
                         label-for="district">
-                    <b-form-input id="district" v-model="dDistrict" type="text" trim required></b-form-input>
+                    <b-form-input id="district" required trim type="text" v-model="dDistrict"></b-form-input>
                 </b-form-group>
 
                 <b-form-group
                         id="latitude-field"
                         label="Latitude:"
                         label-for="latitude">
-                    <b-form-input id="latitude" v-model="dLatitude" type="text" trim required></b-form-input>
+                    <b-form-input id="latitude" required trim type="text" v-model="dLatitude"></b-form-input>
                 </b-form-group>
 
                 <b-form-group
                         id="longitude-field"
                         label="Longitude:"
                         label-for="longitude">
-                    <b-form-input id="longitude" v-model="dLongitude" type="text" trim required></b-form-input>
+                    <b-form-input id="longitude" required trim type="text" v-model="dLongitude"></b-form-input>
                 </b-form-group>
 
                 <b-form-group
                         id="country-field"
                         label="Country:"
                         label-for="country">
-                    <b-form-input id="country" v-model="dCountry" type="text" trim required></b-form-input>
+                    <b-form-input id="country" required trim type="text" v-model="dCountry"></b-form-input>
                 </b-form-group>
 
-                <b-button block variant="primary" @click="checkDestinationFields">Add Destination</b-button>
+                <b-button @click="checkDestinationFields" block variant="primary">Add Destination</b-button>
             </b-form>
         </div>
     </div>
@@ -171,7 +171,7 @@
                     .then(this.parseJSON)
                     .then(cb)
 
-                    .then(function(response) {
+                    .then(function (response) {
                         if (response.ok) {
                             self.resetDestForm();
                             self.showAlert();

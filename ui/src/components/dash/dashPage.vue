@@ -2,34 +2,32 @@
     <div v-if="profile.length !== 0">
 
         <!--Navigation Bar-->
-        <nav-bar-main v-bind:profile="profile"></nav-bar-main>
-        <b-navbar variant="light">
+        <nav-bar-main :profile="profile"></nav-bar-main>
+        <b-navbar class="stickyMinorNav" variant="light">
             <b-navbar-nav>
                 <b-nav-item @click="togglePage(viewProfile, 'view')">Profile</b-nav-item>
                 <b-nav-item @click="togglePage(editProfile, 'edit')">Edit Profile</b-nav-item>
-                <b-nav-item @click="togglePage(photoGallery, 'photos')">Photo Gallery</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
 
         <!--Tab Elements-->
         <view-profile
-                v-if="viewProfile"
-                :trips="trips"
-                :profile="profile"
+                :destinations="destinations"
                 :nationalityOptions="nationalityOptions"
+                :profile="profile"
                 :travTypeOptions="travTypeOptions"
-                :destinations="destinations">
+                :trips="trips"
+                v-if="viewProfile">
         </view-profile>
         <edit-profile
-                v-if="editProfile"
-                :showSaved="showSaved"
-                @profile-saved="showSavedProfile"
-                :profile="profile"
+                :admin-view="adminView"
                 :nationalityOptions="nationalityOptions"
+                :profile="profile"
+                :showSaved="showSaved"
                 :travTypeOptions="travTypeOptions"
-                :admin-view="adminView">
+                @profile-saved="showSavedProfile"
+                v-if="editProfile">
         </edit-profile>
-        <photo-gallery v-if="photoGallery" v-bind:profile="profile"></photo-gallery>
         <footer-main></footer-main>
     </div>
     <div v-else>
@@ -43,13 +41,12 @@
     import EditProfile from "./editProfile.vue"
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
-    import PhotoGallery from "../photos/photoGallery";
     import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
 
     export default {
         name: "dashPage",
         props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'adminView', 'destinations'],
-        data: function() {
+        data: function () {
             return {
                 viewProfile: true,
                 editProfile: false,
@@ -58,23 +55,15 @@
             }
         },
         methods: {
+
             /**
-             * Switches the currently displayed tab on the page
-             * @param viewPage the page to be displayed
+             * Switches between tabs
+             * @param viewPage page to be displayed
              */
-            togglePage: function(pageState, pageName) {
-                if (pageName === 'view') {
-                    this.viewProfile = true;
-                    this.editProfile = false;
-                    this.photoGallery = false;
-                } else if (pageName === 'edit') {
-                    this.viewProfile = false;
-                    this.editProfile = true;
-                    this.photoGallery = false;
-                } else if (pageName === 'photos') {
-                    this.viewProfile = false;
-                    this.editProfile = false;
-                    this.photoGallery = true;
+            togglePage: function (viewPage) {
+                if (!viewPage) {
+                    this.viewProfile = !this.viewProfile;
+                    this.editProfile = !this.editProfile;
                 }
             },
 
@@ -88,7 +77,6 @@
 
         },
         components: {
-            PhotoGallery,
             ViewProfile,
             EditProfile,
             NavBarMain,
