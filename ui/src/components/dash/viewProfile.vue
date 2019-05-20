@@ -1,8 +1,8 @@
 <template>
     <div>
         <b-row>
-            <b-col cols="2">
-                <div class="containerWithNav sideNav">
+            <b-col>
+                <div class="sideNav">
                     <b-alert dismissible v-model="showSaved" variant="success">Profile Successfully Saved</b-alert>
                     <!-- Uses the received profile to display the profile's data on a page -->
                     <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
@@ -32,7 +32,7 @@
 
                 </div>
             </b-col>
-            <b-col cols="8" v-if="!adminView">
+            <b-col cols="11">
                 <photo-gallery :profile="profile"></photo-gallery>
                 <!-- Displays a profile's trips -->
                 <your-trips :adminView="adminView"
@@ -94,7 +94,6 @@
         border-radius: 5px;
         margin: 12vh 0 0 1vw;
         padding: 10px;
-        height: 60vh;
         position: fixed;
     }
 </style>
