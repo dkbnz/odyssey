@@ -1,7 +1,7 @@
 <template>
     <div>
-        <b-navbar variant="light" toggleable="lg">
-            <b-navbar-brand @click="goToProfile()"><img :src="assets.appLogo" ></b-navbar-brand>
+        <b-navbar class="stickyMain" toggleable="lg" variant="light">
+            <b-navbar-brand @click="goToProfile()"><img :src="assets.appLogo"></b-navbar-brand>
 
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -13,7 +13,8 @@
                     <b-nav-item :class="{active: currentPage==='/destinations'}" @click="goToDestinations()">
                         Destinations
                     </b-nav-item>
-                    <b-nav-item :class="{active: currentPage==='/admin'}" v-if="profile.isAdmin" @click="goToAdminPanel()">
+                    <b-nav-item :class="{active: currentPage==='/admin'}" @click="goToAdminPanel()"
+                                v-if="profile.isAdmin">
                         Admin
                     </b-nav-item>
                 </b-navbar-nav>
