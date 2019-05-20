@@ -24,7 +24,14 @@ body {
 }
 
 .adminContainer {
-    padding: 20px;
+    margin: 10vh 10vw 0 2vw;
+    padding: 1vh 3vw 3vw 3vw;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.adminProfilesContainer {
+    padding: 1vh 3vw 3vw 3vw;
     background-color: white;
     border-radius: 5px;
 }
@@ -73,4 +80,8 @@ h1, h2, h3, h4 {
     width: 100%;
     top: 6vh;
     z-index: 2;
+}
+
+a {
+    color: grey;
 }

@@ -12,7 +12,7 @@
                             header-tag="header">
                         <!-- Display the search profiles component -->
                         <profiles-page :adminView="true"
-                                       :containerClass="'adminContainer'"
+                                       :containerClass="'adminProfilesContainer'"
                                        :destinations="destinations"
                                        :key="refreshProfiles"
                                        :nationalityOptions="nationalityOptions"

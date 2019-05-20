@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-row>
-            <b-col cols="2">
+            <b-col>
                 <b-navbar toggleable="lg" class="stickyMinorNav">
                     <b-collapse id="nav-collapse-admin" is-nav>
                         <b-nav class="singleProfileNav" vertical>
@@ -21,7 +21,7 @@
 
             </b-col>
 
-            <b-col class="containerMain" cols="9">
+            <b-col cols="10">
                 <view-profile
                         :adminView="adminView"
                         :destinations="destinations"
@@ -115,9 +115,3 @@
         }
     }
 </script>
-
-<style scoped>
-    a {
-        color: grey;
-    }
-</style>
