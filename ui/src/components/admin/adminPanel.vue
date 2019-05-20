@@ -3,25 +3,25 @@
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
         <!-- The admin actions panel, which acts as the Admin Dashboard -->
         <admin-actions
-                v-if="editProfile === null"
-                :profile="profile"
-                :nationalityOptions="nationalityOptions"
-                :travTypeOptions="travTypeOptions"
                 :destinations="destinations"
-                @admin-edit="setProfileToEdit">
+                :nationalityOptions="nationalityOptions"
+                :profile="profile"
+                :travTypeOptions="travTypeOptions"
+                @admin-edit="setProfileToEdit"
+                v-if="editProfile === null">
         </admin-actions>
 
         <!-- Once the admin has selected a profile to work on, this page becomes visible -->
         <single-profile
-                v-else
-                :key="refreshSingleProfile"
                 :adminView="adminView"
-                :editProfile="editProfile"
-                :profile="profile"
-                :nationalityOptions="nationalityOptions"
-                :travTypeOptions="travTypeOptions"
                 :destinations="destinations"
-                @go-back="setProfileToEdit">
+                :editProfile="editProfile"
+                :key="refreshSingleProfile"
+                :nationalityOptions="nationalityOptions"
+                :profile="profile"
+                :travTypeOptions="travTypeOptions"
+                @go-back="setProfileToEdit"
+                v-else>
         </single-profile>
     </div>
 </template>

@@ -1,29 +1,30 @@
 <template>
     <div v-if="profile.length !== 0">
-        <nav-bar-main v-if="!adminView" v-bind:profile="profile"></nav-bar-main>
+        <nav-bar-main v-bind:profile="profile" v-if="!adminView"></nav-bar-main>
 
-        <div class="container">
+        <div :class="containerClass">
 
             <h1 class="page_title" v-if="!adminView">Find Profiles</h1>
-            <p class="page_title" v-if="!adminView"><i>Search for other travellers using any of the fields in the form below</i></p>
+            <p class="page_title" v-if="!adminView"><i>Search for other travellers using any of the fields in the form
+                below</i></p>
 
-            <b-alert v-model="showError" variant="danger" dismissible>{{alertMessage}}</b-alert>
+            <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
 
 
             <!-- Confirmation modal for deleting a profile. -->
-            <b-modal ref="deleteModal" id="deleteModal" hide-footer title="Delete Profile">
+            <b-modal hide-footer id="deleteModal" ref="deleteModal" title="Delete Profile">
                 <div class="d-block">
                     Are you sure that you want to delete "{{selectedProfile.firstName}} {{selectedProfile.lastName}}"?
                 </div>
                 <b-button
-                        class="mr-2 float-right"
-                        variant="danger"
                         @click="dismissModal()
-                         deleteUser(selectedProfile);">Delete
+                         deleteUser(selectedProfile);"
+                        class="mr-2 float-right"
+                        variant="danger">Delete
                 </b-button>
                 <b-button
-                        class="mr-2 float-right"
-                        @click="dismissModal()">Cancel
+                        @click="dismissModal()"
+                        class="mr-2 float-right">Cancel
                 </b-button>
             </b-modal>
 
@@ -36,13 +37,14 @@
                                 id="nationalities-field"
                                 label="Nationality:"
                                 label-for="nationality">
-                            <b-form-select id="nationality" v-model="searchNationality" trim>
+                            <b-form-select id="nationality" trim v-model="searchNationality">
                                 <template slot="first">
                                     <option :value="null">-- Any --</option>
                                 </template>
-                                <option v-for="nationality in nationalityOptions"
-                                        :value="nationality.nationality">
-                                    {{nationality.nationality}}</option>
+                                <option :value="nationality.nationality"
+                                        v-for="nationality in nationalityOptions">
+                                    {{nationality.nationality}}
+                                </option>
                             </b-form-select>
                         </b-form-group>
                     </b-col>
@@ -51,7 +53,7 @@
                                 id="gender-field"
                                 label="Gender:"
                                 label-for="gender">
-                            <b-form-select id="gender" v-model="searchGender" :options="genderOptions" trim>
+                            <b-form-select :options="genderOptions" id="gender" trim v-model="searchGender">
                                 <template slot="first">
                                     <option :value="null">-- Any --</option>
                                 </template>
@@ -62,31 +64,31 @@
                 <b-row>
                     <b-col>
                         <b-form-group
-                        id="minAge-field"
-                        label="Min Age: "
-                        label-for="minAge">
-                        <div class="mt-2">{{ searchMinAge }}</div>
+                                id="minAge-field"
+                                label="Min Age: "
+                                label-for="minAge">
+                            <div class="mt-2">{{ searchMinAge }}</div>
 
-                        <!--Range slider from 0 to 110-->
-                        <b-form-input id="minAge" v-model="searchMinAge"
-                                      :type="'range'"
-                                      min="0"
-                                      max="110"
-                                      trim></b-form-input>
+                            <!--Range slider from 0 to 110-->
+                            <b-form-input :type="'range'" id="minAge"
+                                          max="110"
+                                          min="0"
+                                          trim
+                                          v-model="searchMinAge"></b-form-input>
                         </b-form-group>
                     </b-col>
                     <b-col>
                         <b-form-group
-                        id="maxAge-field"
-                        label="Max Age:"
-                        label-for="maxAge">
-                        <div class="mt-2">{{ searchMaxAge }}</div>
-                        <!--Range slider from 0 to 110-->
-                        <b-form-input id="maxAge" v-model="searchMaxAge"
-                                      :type="'range'"
-                                      min="0"
-                                      max="120"
-                                      trim></b-form-input>
+                                id="maxAge-field"
+                                label="Max Age:"
+                                label-for="maxAge">
+                            <div class="mt-2">{{ searchMaxAge }}</div>
+                            <!--Range slider from 0 to 110-->
+                            <b-form-input :type="'range'" id="maxAge"
+                                          max="120"
+                                          min="0"
+                                          trim
+                                          v-model="searchMaxAge"></b-form-input>
                         </b-form-group>
                     </b-col>
                 </b-row>
@@ -95,33 +97,34 @@
                         id="travType-field"
                         label="Traveller Type:"
                         label-for="travType">
-                    <b-form-select id="travType" v-model="searchTravType" trim>
+                    <b-form-select id="travType" trim v-model="searchTravType">
                         <template>
                             <option :value="null" selected="selected">-- Any --</option>
                         </template>
-                        <option v-for="travType in travTypeOptions"
-                                :value="travType.travellerType">
-                            {{travType.travellerType}}</option>
+                        <option :value="travType.travellerType"
+                                v-for="travType in travTypeOptions">
+                            {{travType.travellerType}}
+                        </option>
                     </b-form-select>
                 </b-form-group>
 
-                <b-button block variant="primary" @click="searchProfiles">Search</b-button>
+                <b-button @click="searchProfiles" block variant="primary">Search</b-button>
             </div>
 
             <!--Displays results from profile search in a table format-->
             <div style="margin-top: 40px">
-                <b-table hover striped outlined fixed
-                         id="profiles"
-                         ref="profilesTable"
-                         :items="profiles"
-                         :fields="fields"
+                <b-table :busy="this.profiles.length === 0" :current-page="currentPage" :fields="fields" :items="profiles"
                          :per-page="perPage"
-                         :current-page="currentPage"
                          :sort-by.sync="sortBy"
                          :sort-desc.sync="sortDesc"
-                         :busy="this.profiles.length === 0">
-                    <div slot="table-busy" class="text-center my-2">
-                        <b-spinner v-if="retrievingProfiles" class="align-middle"></b-spinner>
+                         fixed
+                         hover
+                         id="profiles"
+                         outlined
+                         ref="profilesTable"
+                         striped>
+                    <div class="text-center my-2" slot="table-busy">
+                        <b-spinner class="align-middle" v-if="retrievingProfiles"></b-spinner>
                         <strong>Can't find any profiles!</strong>
                     </div>
                     <template slot="nationalities" slot-scope="row">
@@ -136,42 +139,42 @@
                     <template slot="actions" slot-scope="row">
                         <!-- If user is admin, can delete, make/remove admin rights and delete other users -->
                         <b-row class="text-center" v-if="profile.isAdmin && adminView">
-                                <b-button v-if="profile.isAdmin && !(row.item.isAdmin) && row.item.id !== 1" size="sm"
-                                          @click="makeAdmin(row.item)" variant="success" class="mr-2" block>
-                                    Make Admin
-                                </b-button>
-                                <b-button v-if="profile.isAdmin && row.item.isAdmin && row.item.id !== 1"
-                                          :disabled="row.item.id===1" variant="danger" size="sm"
-                                          @click="removeAdmin(row.item)" class="mr-2" block>
-                                    Remove Admin
-                                </b-button>
-                                <!--<b-button size="sm" @click="emitAdminEdit(row.item)" variant="warning" class="mr-2" block>-->
-                                    <!--Show More Details-->
-                                <!--</b-button>-->
-                                <b-button size="sm" block @click="emitAdminEdit(row.item)" variant="warning" class="mr-2">
-                                    Show More Details
-                                </b-button>
+                            <b-button @click="makeAdmin(row.item)" block
+                                      class="mr-2" size="sm" v-if="profile.isAdmin && !(row.item.isAdmin) && row.item.id !== 1" variant="success">
+                                Make Admin
+                            </b-button>
+                            <b-button :disabled="row.item.id===1"
+                                      @click="removeAdmin(row.item)" block class="mr-2"
+                                      size="sm" v-if="profile.isAdmin && row.item.isAdmin && row.item.id !== 1" variant="danger">
+                                Remove Admin
+                            </b-button>
+                            <!--<b-button size="sm" @click="emitAdminEdit(row.item)" variant="warning" class="mr-2" block>-->
+                            <!--Show More Details-->
+                            <!--</b-button>-->
+                            <b-button @click="emitAdminEdit(row.item)" block class="mr-2" size="sm" variant="warning">
+                                Show More Details
+                            </b-button>
 
-                                <b-button v-if="profile.isAdmin && row.item.id !== 1" :disabled="row.item.id===1"
-                                          size="sm" variant="danger" v-b-modal.deleteModal
-                                          @click="sendProfileToModal(row.item)" class="mr-2" block>
-                                    Delete
-                                </b-button>
+                            <b-button :disabled="row.item.id===1" @click="sendProfileToModal(row.item)"
+                                      block class="mr-2" size="sm"
+                                      v-b-modal.deleteModal v-if="profile.isAdmin && row.item.id !== 1" variant="danger">
+                                Delete
+                            </b-button>
 
                         </b-row>
                         <!-- If user is not admin, can only see other profiles -->
                         <b-row class="text-center" v-else>
-                                <b-button size="sm" block @click="row.toggleDetails" variant="warning" class="mr-2">
-                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
-                                </b-button>
+                            <b-button @click="row.toggleDetails" block class="mr-2" size="sm" variant="warning">
+                                {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
+                            </b-button>
                         </b-row>
                     </template>
                     <template slot="row-details" slot-scope="row">
                         <b-card>
-                            <view-profile :profile="row.item"
-                                          :userProfile="profile"
-                                          :admin-view="adminView"
-                                          :destinations="destinations">
+                            <view-profile :admin-view="adminView"
+                                          :destinations="destinations"
+                                          :profile="row.item"
+                                          :userProfile="profile">
                             </view-profile>
                         </b-card>
                     </template>
@@ -184,22 +187,22 @@
                         <b-form-group
                                 id="profiles-field"
                                 label-for="perPage">
-                            <b-form-select id="perPage" v-model="perPage"
-                                           :options="optionViews"
+                            <b-form-select :options="optionViews" id="perPage"
                                            size="sm"
-                                           trim> </b-form-select>
+                                           trim
+                                           v-model="perPage"></b-form-select>
                         </b-form-group>
                     </b-col>
                     <b-col cols="8">
                         <b-pagination
-                                v-model="currentPage"
-                                :total-rows="rows"
                                 :per-page="perPage"
+                                :total-rows="rows"
+                                align="center"
                                 aria-controls="my-table"
                                 first-text="First"
                                 last-text="Last"
-                                align="center"
                                 size="sm"
+                                v-model="currentPage"
                         ></b-pagination>
                     </b-col>
                 </b-row>
@@ -229,8 +232,13 @@
             adminView: Boolean,
             destinations: Array,
             perPage: {
-                default: function() {
+                default: function () {
                     return 10;
+                }
+            },
+            containerClass: {
+                default: function() {
+                    return 'containerMain';
                 }
             }
         },
@@ -241,7 +249,7 @@
             Dash,
             UnauthorisedPrompt
         },
-        data: function() {
+        data: function () {
             return {
                 sortBy: 'firstName',
                 sortDesc: false,
@@ -251,20 +259,23 @@
                 searchMinAge: 0,
                 searchMaxAge: 120,
                 searchTravType: "",
-                optionViews: [{value:1, text:"1"}, {value:5, text:"5"}, {value:10, text:"10"}, {value:15, text:"15"}],
+                optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
+                    value: 15,
+                    text: "15"
+                }],
                 currentPage: 1,
                 genderOptions: [
                     {value: 'Male', text: 'Male'},
                     {value: 'Female', text: 'Female'},
                     {value: 'Other', text: 'Other'}
                 ],
-                fields: [{key:'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
-                    {key:'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
-                    {key:'nationalities', label: "Nationalities", sortable: true, class: 'tableWidthMedium'},
-                    {key:'gender', value: 'gender', sortable: true, class: 'tableWidthSmall'},
-                    {key:'age', value:'age', sortable: true, class: 'tableWidthSmall'},
-                    {key:'travellerType', label: "Traveller Types" , sortable: true, class: 'tableWidthMedium'},
-                    {key:'actions', class: 'tableWidthMedium'}],
+                fields: [{key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'nationalities', label: "Nationalities", sortable: true, class: 'tableWidthMedium'},
+                    {key: 'gender', value: 'gender', sortable: true, class: 'tableWidthSmall'},
+                    {key: 'age', value: 'age', sortable: true, class: 'tableWidthSmall'},
+                    {key: 'travellerType', label: "Traveller Types", sortable: true, class: 'tableWidthMedium'},
+                    {key: 'actions', class: 'tableWidthMedium'}],
                 profiles: [],
                 retrievingProfiles: false,
                 selectedProfile: "",
@@ -280,10 +291,10 @@
              * nationalities in the row.
              * @param nationalities     the row's (profile) nationalities.
              */
-            calculateNationalities (nationalities) {
+            calculateNationalities(nationalities) {
                 let nationalityList = "";
                 for (let i = 0; i < nationalities.length; i++) {
-                    if (nationalities[i+1] !== undefined) {
+                    if (nationalities[i + 1] !== undefined) {
                         nationalityList += nationalities[i].nationality + ", ";
                     } else {
                         nationalityList += nationalities[i].nationality;
@@ -298,10 +309,10 @@
              * traveller types in the row.
              * @param travellerTypes     the row's (profile) traveller types.
              */
-            calculateTravTypes (travellerTypes) {
+            calculateTravTypes(travellerTypes) {
                 let travTypeList = "";
                 for (let i = 0; i < travellerTypes.length; i++) {
-                    if (travellerTypes[i+1] !== undefined) {
+                    if (travellerTypes[i + 1] !== undefined) {
                         travTypeList += travellerTypes[i].travellerType + ", ";
                     } else {
                         travTypeList += travellerTypes[i].travellerType;
@@ -319,7 +330,7 @@
                 let self = this;
                 fetch('/v1/makeAdmin/' + makeAdminProfile.id, {
                     method: 'POST',
-                }).then(function() {
+                }).then(function () {
                     self.searchProfiles();
                 })
             },
@@ -333,7 +344,7 @@
                 let self = this;
                 fetch('/v1/removeAdmin/' + makeAdminProfile.id, {
                     method: 'POST',
-                }).then(function() {
+                }).then(function () {
                     self.searchProfiles();
                 })
             },
@@ -347,7 +358,7 @@
                 let self = this;
                 fetch('/v1/profile/' + deleteUser.id, {
                     method: 'DELETE',
-                }).then(function() {
+                }).then(function () {
                     self.searchProfiles();
                 })
             },
@@ -365,8 +376,7 @@
                 } else if (this.searchMinAge > this.searchMaxAge) {
                     this.showError = true;
                     this.alertMessage = "Min age is greater than max age";
-                }
-                else {
+                } else {
                     if (this.searchTravType === null) {
                         this.searchTravType = "";
                     }
@@ -407,7 +417,7 @@
              * @param response, passed back to the getAllTrips function to be parsed into a Json.
              * @returns throws the error.
              */
-            checkStatus (response) {
+            checkStatus(response) {
                 if (response.status >= 200 && response.status < 300) {
                     return response;
                 }
@@ -427,7 +437,7 @@
              * @param response of the fetch method.
              * @returns the Json body of the response.
              */
-            parseJSON (response) {
+            parseJSON(response) {
                 return response.json();
             },
 
@@ -471,11 +481,13 @@
         width: 8%;
         text-align: center;
     }
+
     .tableWidthMedium {
         max-width: 8%;
         width: 15%;
         text-align: center;
     }
+
     .tableWidthLarge {
         max-width: 8%;
         width: 25%;

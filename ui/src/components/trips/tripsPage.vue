@@ -1,24 +1,24 @@
 <template>
     <div v-if="profile.length !== 0">
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
-        <b-navbar variant="light">
+        <b-navbar class="stickyMinorNav" variant="light">
             <b-navbar-nav>
                 <b-nav-item @click="togglePage(planATrip)">Plan a Trip</b-nav-item>
                 <b-nav-item @click="togglePage(yourTrips)">Your Trips</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
 
-        <plan-a-trip v-if="planATrip"
-                     :heading="'Plan a Trip'"
-                     :subHeading="'Book your next trip!'"
+        <plan-a-trip :adminView="adminView"
                      :destinations="destinations"
+                     :heading="'Plan a Trip'"
                      :profile="profile"
-                     :adminView="adminView">
+                     :subHeading="'Book your next trip!'"
+                     v-if="planATrip">
         </plan-a-trip>
-        <your-trips v-if="yourTrips"
+        <your-trips :adminView="adminView"
                     :destinations="destinations"
                     :profile="profile"
-                    :adminView="adminView">
+                    v-if="yourTrips">
         </your-trips>
         <footer-main></footer-main>
     </div>
@@ -36,11 +36,12 @@
 
     export default {
         name: "Trips",
-        props: {profile: Object,
+        props: {
+            profile: Object,
             destinations: Array,
             adminView: Boolean,
         },
-        data: function() {
+        data: function () {
             return {
                 planATrip: true,
                 yourTrips: false
@@ -52,8 +53,8 @@
              * Used to toggle what page is currently being shown.
              * @param viewPage
              */
-            togglePage: function(viewPage) {
-                if(!viewPage) {
+            togglePage: function (viewPage) {
+                if (!viewPage) {
                     this.planATrip = !this.planATrip;
                     this.yourTrips = !this.yourTrips;
                 }
