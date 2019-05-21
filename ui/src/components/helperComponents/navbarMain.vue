@@ -20,13 +20,12 @@
                 </b-navbar-nav>
 
                 <b-navbar-nav class="ml-auto">
-                    <b-nav-item-dropdown right>
-                        <!-- Using 'button-content' slot -->
-                        <template slot="button-content"><em>{{ profile.firstName }}</em></template>
-                        <b-dropdown-item :class="{active: currentPage==='/dash'}" @click="goToProfile()">Profile
-                        </b-dropdown-item>
-                        <b-dropdown-item @click="logout">Logout</b-dropdown-item>
-                    </b-nav-item-dropdown>
+                    <b-nav-item right:class="{active: currentPage==='/dash'}" @click="goToProfile()">
+                        {{ profile.firstName }}
+                    </b-nav-item>
+                    <b-nav-item @click="logout">
+                        Logout
+                    </b-nav-item>
                 </b-navbar-nav>
 
             </b-collapse>

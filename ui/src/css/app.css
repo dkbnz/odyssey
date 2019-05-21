@@ -78,7 +78,7 @@ h1, h2, h3, h4 {
 .stickyMinorNav {
     position: fixed;
     width: 100%;
-    top: 6vh;
+    top: 8%;
     z-index: 2;
 }
 

@@ -2,7 +2,7 @@
     <div>
         <b-row>
             <b-col>
-                <div class="sideNav">
+                <div :class="containerClass">
                     <b-alert dismissible v-model="showSaved" variant="success">Profile Successfully Saved</b-alert>
                     <!-- Uses the received profile to display the profile's data on a page -->
                     <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
@@ -32,7 +32,7 @@
 
                 </div>
             </b-col>
-            <b-col cols="11">
+            <b-col cols="11" class="profileContent">
                 <photo-gallery :profile="profile"></photo-gallery>
                 <!-- Displays a profile's trips -->
                 <your-trips :adminView="adminView"
@@ -77,6 +77,11 @@
                 default: function () {
                     return false;
                 }
+            },
+            containerClass: {
+                default: function() {
+                    return 'sideNavFixed'
+                }
             }
         },
         data() {
@@ -89,11 +94,21 @@
     }
 </script>
 <style>
-    .sideNav {
+    .sideNavFixed {
         background-color: white;
         border-radius: 5px;
-        margin: 12vh 0 0 1vw;
+        margin: 8% 0 0 1%;
         padding: 10px;
         position: fixed;
+    }
+    .sideNavRelative {
+        background-color: white;
+        border-radius: 5px;
+        padding: 10px;
+        position: absolute;
+    }
+
+    .profileContent {
+        margin: 1% 0 0 15%;
     }
 </style>
