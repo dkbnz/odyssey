@@ -170,11 +170,13 @@
                         </b-row>
                     </template>
                     <template slot="row-details" slot-scope="row">
-                        <b-card>
-                            <view-profile :admin-view="adminView"
-                                          :destinations="destinations"
-                                          :profile="row.item"
-                                          :userProfile="profile">
+                        <b-card bg-variant="secondary">
+                            <view-profile
+                                    :containerClass="'sideNavRelative'"
+                                    :admin-view="adminView"
+                                    :destinations="destinations"
+                                    :profile="row.item"
+                                    :userProfile="profile">
                             </view-profile>
                         </b-card>
                     </template>
