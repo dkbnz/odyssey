@@ -1,15 +1,12 @@
 package models.photos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Finder;
 import models.BaseModel;
 import models.Profile;
-import play.data.validation.Constraints;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * Class for holding a photo
@@ -20,7 +17,7 @@ public class Photo extends BaseModel {
     /**
      * The randomly generated filename of the photo.
      */
-    private String photoFilename;
+    private String mainFilename;
 
     /**
      * The randomly generated filename of the photo's thumbnail.
@@ -33,18 +30,18 @@ public class Photo extends BaseModel {
     private LocalDate uploadDate;
 
     /**
-     * The profile ID that the photo belongs to.
+     * The profile that added the photo.
      */
+    @JsonIgnore
     @ManyToOne
-    private Profile profile;
+    private Profile uploadProfile;
 
-
-    public String getPhotoFilename() {
-        return photoFilename;
+    public String getMainFilename() {
+        return mainFilename;
     }
 
-    public void setPhotoFilename(String photoFilename) {
-        this.photoFilename = photoFilename;
+    public void setMainFilename(String mainFilename) {
+        this.mainFilename = mainFilename;
     }
 
     public String getThumbnailFilename() {
@@ -63,5 +60,13 @@ public class Photo extends BaseModel {
         this.uploadDate = uploadDate;
     }
 
+    public Profile getUploadProfile() {
+        return uploadProfile;
+    }
 
+    public void setUploadProfile(Profile uploadProfile) {
+        this.uploadProfile = uploadProfile;
+    }
+
+    public static Finder<Integer, Photo> find = new Finder<>(Photo.class);
 }
