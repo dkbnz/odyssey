@@ -13,4 +13,6 @@ public class ProfileRepository {
     public static Profile fetchSingleProfile(Integer userId) {
         return Profile.find.byId(userId);
     }
+
+    public void save(Profile profile) {profile.save();};
 }
