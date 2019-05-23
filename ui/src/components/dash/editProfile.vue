@@ -399,6 +399,7 @@
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
                     && this.dateOfBirthValidation && this.genderValidation && this.nationalityValidation
                     && this.travTypeValidation) {
+
                     this.submitSaveProfile();
                     this.$emit('profileSaved', true);
                 } else {

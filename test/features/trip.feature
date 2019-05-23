@@ -110,7 +110,7 @@ Feature: Trip API Endpoint
     When I delete the trip with the following name
       | Name            |
       | Test Adventure  |
-    Then the response status code is Unauthorised
+    Then the response status code is Forbidden
 
 
   Scenario: Attempt to add a trip with one destination
@@ -209,5 +209,277 @@ Feature: Trip API Endpoint
         }
       """
     Then the response status code is BadRequest
+
+
+  Scenario: Edit a trip as the trip's owner with valid name
+    Given I have an application running
+    And I am logged as the following user
+      | Username                |
+      | guestUser@travelea.com  |
+    And I own the trip with the following data
+      """
+        {
+          "trip_name": "Edit Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    When I change the trip, "Edit Adventure" to contain the following data
+      """
+        {
+          "trip_name": "Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    Then the response status code is OK
+
+  Scenario: Edit a trip as the trip's owner with valid destinations
+    Given I have an application running
+    And I am logged as the following user
+      | Username                |
+      | guestUser@travelea.com  |
+    And I own the trip with the following data
+      """
+        {
+          "trip_name": "Edit Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    When I change the trip, "Edit Adventure" to contain the following data
+      """
+        {
+          "trip_name": "Edit Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    Then the response status code is OK
+
+  Scenario: Edit a trip as the trip's owner with invalid name
+    Given I have an application running
+    And I am logged as the following user
+      | Username                |
+      | guestUser@travelea.com  |
+    And I own the trip with the following data
+      """
+        {
+          "trip_name": "Edit Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    When I change the trip, "Edit Adventure" to contain the following data
+      """
+        {
+          "trip_name": "",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    Then the response status code is BadRequest
+
+
+  Scenario: Edit a trip as the trip's owner with invalid destinations
+    Given I have an application running
+    And I am logged as the following user
+      | Username                |
+      | guestUser@travelea.com  |
+    And I own the trip with the following data
+      """
+        {
+          "trip_name": "Edit Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    When I change the trip, "Edit Adventure" to contain the following data
+      """
+        {
+          "trip_name": "Edit Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    Then the response status code is BadRequest
+
+
+  Scenario: Edit other user's trip as an admin
+    Given I have an application running
+    And I am logged as the following user
+      | Username                |
+      | admin@travelea.com      |
+    And I do not own the trip with the following data
+      """
+        {
+          "trip_name": "Edit Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    When I change the trip, "Edit Adventure" to contain the following data
+      """
+        {
+          "trip_name": "Edit Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    Then the response status code is OK
+
+
+  Scenario: Edit a another user's trip as a standard user
+    Given I have an application running
+    And I am logged as the following user
+      | Username                |
+      | guestUser@travelea.com  |
+    And I do not own the trip with the following data
+      """
+        {
+          "trip_name": "Edit Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    When I change the trip, "Edit Adventure" to contain the following data
+      """
+        {
+          "trip_name": "Adventure",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : null,
+              "end_date" : null
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    Then the response status code is Forbidden
 
 

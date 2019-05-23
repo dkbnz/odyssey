@@ -22,6 +22,7 @@ import play.test.Helpers;
 
 
 import static org.junit.Assert.assertEquals;
+import static play.mvc.Http.HttpVerbs.PATCH;
 import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
@@ -287,8 +288,7 @@ public class TripTestSteps {
 
     private JsonNode convertTripStringToJson(String docString) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.readTree(docString);
-        return json;
+        return mapper.readTree(docString);
     }
 
 
@@ -376,13 +376,29 @@ public class TripTestSteps {
         statusCode = result.status();
     }
 
+    private void editTripRequest(Integer tripId, String tripData) throws IOException {
+        Http.RequestBuilder request = fakeRequest()
+                .method(PATCH)
+                .session(AUTHORIZED, loggedInUserId.toString())
+                .bodyJson(convertTripStringToJson(tripData))
+                .uri(TRIPS_URI + tripId.toString());
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
+
+    @When("I change the trip, {string} to contain the following data")
+    public void iChangeTheTripToContainTheFollowingData(String tripName, String tripData) throws IOException {
+        Integer tripId = getTripIdFromTripName(tripName).intValue();
+        editTripRequest(tripId, tripData);
+    }
+
 
     /**
-     * Checks if the status code received is Unauthorised (401).
+     * Checks if the status code received is Forbidden (403).
      */
-    @Then("the response status code is Unauthorised")
-    public void theResponseStatusCodeIsUnauthorised() {
-        assertEquals(UNAUTHORIZED, statusCode);
+    @Then("the response status code is Forbidden")
+    public void theResponseStatusCodeIsForbidden() {
+        assertEquals(FORBIDDEN, statusCode);
     }
 
 

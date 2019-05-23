@@ -46,16 +46,14 @@ public class TripController extends Controller {
                 .map(userId -> {
 
                     Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
-                    Profile affectedProfile; // Profile to add trip to
+                    Profile affectedProfile = ProfileRepository.fetchSingleProfile(affectedUserId.intValue());
 
                     if (loggedInUser == null) {
                         return unauthorized();
                     }
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if (AuthenticationUtil.validUser(loggedInUser.getId().intValue(), affectedUserId.intValue())) {
-                        affectedProfile = ProfileRepository.fetchSingleProfile(affectedUserId.intValue());
-                    } else {
+                    if (!AuthenticationUtil.validUser(loggedInUser, affectedProfile)) {
                         return forbidden();
                     }
 
@@ -107,6 +105,11 @@ public class TripController extends Controller {
             return false;
         }
 
+        // Check that the trip name is not empty
+        if (json.get(NAME).asText().length() <= 0) {
+            return false;
+        }
+
         // Check if the array of destinations in the request contains at least two destinations.
         if (!(json.get(TRIP_DESTINATIONS) == null || json.get(TRIP_DESTINATIONS).size() >= MINIMUM_TRIP_DESTINATIONS)) {
             return false;
@@ -118,67 +121,60 @@ public class TripController extends Controller {
      * Updates a single trip for selected user's profile.
      *
      * @param request   Http Request containing Json Body of the selected trip to modify.
-     * @param id        the id of the trip being modified.
+     * @param tripId        the id of the trip being modified.
      * @return          ok() (Http 200) if the trip has been successfully modified. If the trip is not valid, returns a
      *                  badRequest() (Http 400). If the user is not logged in, returns a unauthorized()
      *                  (Http 401).
      */
-    public Result edit(Http.Request request, Long id, Long affectedUserId) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(userId -> {
+    public Result edit(Http.Request request, Long tripId) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+        // Retrieve the individual trip being deleted by its id.
+        Trip trip = repository.fetchSingleTrip(tripId);
 
-                    Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
-                    Profile affectedProfile; // Profile to add trip to
+        if (trip == null) {
+            return notFound();
+        }
 
-                    if (loggedInUser == null) {
-                        return unauthorized();
-                    }
+        // Retrieve the profile having its trip removed from the trip id.
+        Long ownerId = TripRepository.fetchTripOwner(tripId);
+        if (ownerId == null) {
+            return badRequest();
+        }
 
-                    // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if (AuthenticationUtil.validUser(loggedInUser.getId().intValue(), affectedUserId.intValue())) {
-                        affectedProfile = ProfileRepository.fetchSingleProfile(affectedUserId.intValue());
-                    } else {
-                        return forbidden();
-                    }
+        Profile tripOwner = ProfileRepository.fetchSingleProfile(ownerId.intValue());
+        Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
 
-                    if (affectedProfile == null) {
-                        return badRequest();
-                    }
+        if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
+            return forbidden();
+        }
+
+        JsonNode json = request.body().asJson();
+
+        if (!isValidTrip(json)) {
+            return badRequest();
+        }
 
 
-                    JsonNode json = request.body().asJson();
+        String name = json.get(NAME).asText();
+        trip.setName(name);
 
-                    if (!isValidTrip(json)) {
-                        return badRequest();
-                    }
+        repository.removeTripDestinations(trip);
 
-                    // Trip being modified
-                    Trip trip = repository.fetchSingleTrip(id);
+        // Create a json node for the destinations contained in the trip to use for iteration.
+        ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
 
-                    if (trip == null) {
-                        return badRequest();
-                    }
+        // Create an empty List for TripDestination objects to be populated from the request.
+        List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
 
-                    String name = json.get(NAME).asText();
-                    trip.setName(name);
-
-                    repository.removeTripDestinations(trip);
-
-                    // Create a json node for the destinations contained in the trip to use for iteration.
-                    ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
-
-                    // Create an empty List for TripDestination objects to be populated from the request.
-                    List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
-
-                    if (destinationList != null && isValidDateOrder(destinationList)) {
-                        repository.updateTrip(affectedProfile, trip, destinationList);
-                        return ok();
-                    } else {
-                        return badRequest();
-                    }
-                })
-                .orElseGet(() -> unauthorized());
+        if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
+            repository.updateTrip(tripOwner, trip, destinationList);
+            return ok();
+        } else {
+            return badRequest();
+        }
     }
 
     /**
@@ -370,9 +366,10 @@ public class TripController extends Controller {
             return badRequest();
         }
         Profile tripOwner = ProfileRepository.fetchSingleProfile(ownerId.intValue());
+        Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
 
-        if (!AuthenticationUtil.validUser(loggedInUserId, tripOwner.getId().intValue())) {
-            return unauthorized();
+        if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
+            return forbidden();
         }
 
         // Repository method handling the database and object manipulation.
