@@ -27,10 +27,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class PhotoController extends Controller {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private static final String IMAGE_DIRECTORY = "temp/";
     private static final String THUMBNAIL_DIRECTORY = "temp/thumbnail/";
     private static final Long MAX_IMG_SIZE = 5000000L;
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private static final String AUTHORIZED = "authorized";
+    private static final String NOT_SIGNED_IN = "You are not logged in.";
 
     private ProfileRepository profileRepo;
     private PhotoRepository photoRepo;
@@ -57,14 +60,16 @@ public class PhotoController extends Controller {
     /**
      * Returns whether or not an uploaded image is valid.
      *
-     * TODO: Accept different filetypes
-     *
      * @param fileSize      file size in bytes of subject image.
      * @param contentType   content type of uploaded file.
      * @return              true if file is valid.
      */
     private boolean validImage(Long fileSize, String contentType) {
-        return (fileSize < MAX_IMG_SIZE) && (contentType.equals("image/jpeg"));
+        ArrayList<String> validFileTypes = new ArrayList<>();
+        validFileTypes.add("image/jpeg");
+        validFileTypes.add("image/png");
+
+        return (fileSize < MAX_IMG_SIZE) && (validFileTypes.contains(contentType));
     }
 
     /**
@@ -97,56 +102,75 @@ public class PhotoController extends Controller {
      * Creates thumbnails for all files. Saves a full sized copy and a thumbnail of each photo.
      * Adds photos to the profile of the specified userId.
      *
-     * TODO: Need to authenticate profile. Add session code.
-     *
      * @param request   http request containing multipart form data.
      * @param userId    id of the user to add the photos to.
-     * @return          created() (Http 201) if successful. badRequest() (Http 400) if image is invalid.
+     * @return          created() (Http 201) if successful. badRequest() (Http 400) if image is invalid, or no profile
+     *                  found. forbidden() (Http 403) if the logged in user isn't admin or adding photo for themselves.
      *                  internalServerError() (Http 500) if image cannot be converted to a thumbnail.
      */
     public Result upload(Http.Request request, Long userId) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(loggedInUserId -> {
+                    Profile loggedInUser = Profile.find.byId(Integer.valueOf(loggedInUserId));
+                    Profile profileToAdd;
 
-        Profile profileToAdd = profileRepo.fetchSingleProfile(userId.intValue());
+                    // If user is admin, or if they are editing their own profile then allow them to edit.
+                    if(loggedInUser.getIsAdmin() || userId.equals(Long.valueOf(loggedInUserId))) {
+                        profileToAdd = profileRepo.fetchSingleProfile(userId.intValue());
+                    } else if (!userId.equals(Long.valueOf(loggedInUserId))) {
+                        return forbidden(); // User has specified an id which is not their own, but is not admin
+                    } else {
+                        return badRequest();
+                    }
 
-        Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
-        List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures = body.getFiles(); // Name field of the HTML data
+                    if (profileToAdd == null) {
+                        return badRequest(); // User does not exist in the system.
+                    }
 
-        if (!pictures.isEmpty()) {
-            Collection<TemporaryFile> picturesToAdd = new ArrayList<>();
+                    Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
+                    // Name field of the HTML data
+                    List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures = body.getFiles();
 
-            for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
-                String fileName = picture.getFilename();
-                Long fileSize = picture.getFileSize();
-                String contentType = picture.getContentType();
+                    if (!pictures.isEmpty()) {
+                        Collection<TemporaryFile> picturesToAdd = new ArrayList<>();
 
-                if (!validImage(fileSize, contentType))
-                    return badRequest("Invalid Image: " + fileName);
+                        for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
+                            String fileName = picture.getFilename();
+                            Long fileSize = picture.getFileSize();
+                            String contentType = picture.getContentType();
 
-                picturesToAdd.add(picture.getRef());
-            }
+                            if (!validImage(fileSize, contentType))
+                                return badRequest("Invalid Image: " + fileName);
 
-            for (TemporaryFile tempFile : picturesToAdd) {
-                String filename = generateFilename();
+                            picturesToAdd.add(picture.getRef());
+                        }
 
-                tempFile.copyTo(Paths.get(IMAGE_DIRECTORY, filename), true);
+                        for (TemporaryFile tempFile : picturesToAdd) {
+                            String filename = generateFilename();
 
-                try {
-                    BufferedImage img = ImageIO.read(new File(IMAGE_DIRECTORY + filename));
-                    BufferedImage croppedImage = makeSquare(img);
-                    BufferedImage thumbnail = scale(croppedImage);
-                    ImageIO.write(thumbnail, "jpg", new File(THUMBNAIL_DIRECTORY + filename));
-                } catch (IOException e) {
-                    log.error("Unable to convert image to thumbnail", e);
-                    return internalServerError("Unable to convert image to thumbnail");
-                }
+                            tempFile.copyTo(Paths.get(IMAGE_DIRECTORY, filename), true);
 
-                addImageToProfile(profileToAdd, filename, true);
-            }
+                            try {
+                                BufferedImage img = ImageIO.read(new File(IMAGE_DIRECTORY + filename));
+                                BufferedImage croppedImage = makeSquare(img);
+                                BufferedImage thumbnail = scale(croppedImage);
+                                ImageIO.write(thumbnail, "jpg", new File(THUMBNAIL_DIRECTORY
+                                        + filename));
+                            } catch (IOException e) {
+                                log.error("Unable to convert image to thumbnail", e);
+                                return internalServerError("Unable to convert image to thumbnail");
+                            }
 
-            return created("Files uploaded");
-        } else {
-            return badRequest();
-        }
+                            addImageToProfile(profileToAdd, filename, true);
+                        }
+
+                        return created("Files uploaded");
+                    } else {
+                        return badRequest();
+                    }
+                })
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
     /**
