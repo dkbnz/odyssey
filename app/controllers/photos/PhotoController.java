@@ -23,16 +23,17 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public class PhotoController extends Controller {
     private static final String IMAGE_DIRECTORY = "temp/";
     private static final String THUMBNAIL_DIRECTORY = "temp/thumbnail/";
+    private static final Long MAX_IMG_SIZE = 5000000L;
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    ProfileRepository profileRepo;
-    PhotoRepository photoRepo;
+    private ProfileRepository profileRepo;
+    private PhotoRepository photoRepo;
 
     @Inject
     public PhotoController(
@@ -44,8 +45,9 @@ public class PhotoController extends Controller {
     }
 
     /**
+     * Generates a UUID for a filename.
      *
-     * @return
+     * @return universally unique identifier for saving a file.
      */
     private String generateFilename() {
         UUID uuid = UUID.randomUUID();
@@ -54,19 +56,24 @@ public class PhotoController extends Controller {
 
     /**
      * Returns whether or not an uploaded image is valid.
-     * @param fileSize
-     * @param contentType
-     * @return
+     *
+     * TODO: Accept different filetypes
+     *
+     * @param fileSize      file size in bytes of subject image.
+     * @param contentType   content type of uploaded file.
+     * @return              true if file is valid.
      */
     private boolean validImage(Long fileSize, String contentType) {
-        return (fileSize < 1000L) && (contentType.equals("image/jpeg"));
+        return (fileSize < MAX_IMG_SIZE) && (contentType.equals("image/jpeg"));
     }
 
     /**
+     * Takes a profile, filename of a previously saved image and boolean flag.
+     * Creates photo object and personal photo object, saves them to profile.
      *
-     * @param profileToAdd
-     * @param filename
-     * @param isPublic
+     * @param profileToAdd  profile to add the photo to.
+     * @param filename      filename of saved photo.
+     * @param isPublic      boolean flag of if photo is public.
      */
     private void addImageToProfile(Profile profileToAdd, String filename, Boolean isPublic) {
         Photo photoToAdd = new Photo();
@@ -86,62 +93,57 @@ public class PhotoController extends Controller {
 
     /**
      * Takes a multipart form data request to upload an image.
+     * Validates all given files in the form data.
+     * Creates thumbnails for all files. Saves a full sized copy and a thumbnail of each photo.
+     * Adds photos to the profile of the specified userId.
      *
-     * @param request
-     * @param userId
-     * @return
+     * TODO: Need to authenticate profile. Add session code.
+     *
+     * @param request   http request containing multipart form data.
+     * @param userId    id of the user to add the photos to.
+     * @return          created() (Http 201) if successful. badRequest() (Http 400) if image is invalid.
+     *                  internalServerError() (Http 500) if image cannot be converted to a thumbnail.
      */
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
-
     public Result upload(Http.Request request, Long userId) {
 
         Profile profileToAdd = profileRepo.fetchSingleProfile(userId.intValue());
-
-        System.out.println(profileToAdd.getFirstName());
 
         Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
         List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures = body.getFiles(); // Name field of the HTML data
 
         if (!pictures.isEmpty()) {
-            Collection<TemporaryFile> picturesToAdd = new ArrayList<TemporaryFile>();
+            Collection<TemporaryFile> picturesToAdd = new ArrayList<>();
 
-            // Validate images
             for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
                 String fileName = picture.getFilename();
                 Long fileSize = picture.getFileSize();
                 String contentType = picture.getContentType();
 
-                TemporaryFile file = picture.getRef();
-                file.copyTo(Paths.get("tmp/" + picture.getFilename()), true);
-                try {
-                    BufferedImage img = ImageIO.read(new File("tmp/" + picture.getFilename()));
-                    BufferedImage croppedImage = makeSquare(img);
-                    BufferedImage thumbnail = scale(croppedImage);
-                    ImageIO.write(thumbnail, "jpg", new File("./tmp/test_thumb.jpg"));
-                } catch (IOException e) {
-                    log.error("Unable to convert image to thumbnail", e);
-                }
-            }
-
-
-            return ok("File uploaded");
                 if (!validImage(fileSize, contentType))
                     return badRequest("Invalid Image: " + fileName);
 
                 picturesToAdd.add(picture.getRef());
             }
 
-            // Crop Images
-
-            // Save images
             for (TemporaryFile tempFile : picturesToAdd) {
-
                 String filename = generateFilename();
-                tempFile.copyTo(Paths.get("temp/", filename), true);
-                addImageToProfile(filename, );
+
+                tempFile.copyTo(Paths.get(IMAGE_DIRECTORY, filename), true);
+
+                try {
+                    BufferedImage img = ImageIO.read(new File(IMAGE_DIRECTORY + filename));
+                    BufferedImage croppedImage = makeSquare(img);
+                    BufferedImage thumbnail = scale(croppedImage);
+                    ImageIO.write(thumbnail, "jpg", new File(THUMBNAIL_DIRECTORY + filename));
+                } catch (IOException e) {
+                    log.error("Unable to convert image to thumbnail", e);
+                    return internalServerError("Unable to convert image to thumbnail");
+                }
+
+                addImageToProfile(profileToAdd, filename, true);
             }
-            TemporaryFile file = picture.getRef();
-            return ok("Files uploaded");
+
+            return created("Files uploaded");
         } else {
             return badRequest();
         }
@@ -149,6 +151,7 @@ public class PhotoController extends Controller {
 
     /**
      * Gets a middle section of the image and makes it into a square.
+     *
      * @param img   the BufferedImage object of the uploaded image
      * @return      a new BufferedImage subImage object of the square section of the image.
      */
@@ -165,6 +168,7 @@ public class PhotoController extends Controller {
      * the Graphics2D class to do this. A new image is created using the GraphicsEnvironment, GraphicsDevice and
      * GraphicsConfiguration. A new Graphics2D object is then created, and filled with a white background in case of
      * transparent images. The image is then scaled and transformed using the AffineTransformation class.
+     *
      * @param sourceImage the BufferedImage to be scaled down.
      * @return            a new BufferedImage scaled to the appropriate size.
      */

@@ -8,10 +8,4 @@ public class PhotoRepository {
         photo.save();
     }
 
-    public Photo getNewPhoto() {
-        Photo photoToReturn = new Photo();
-        save(photoToReturn);
-        return photoToReturn;
-    }
-
 }
