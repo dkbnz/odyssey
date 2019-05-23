@@ -46,16 +46,14 @@ public class TripController extends Controller {
                 .map(userId -> {
 
                     Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
-                    Profile affectedProfile; // Profile to add trip to
+                    Profile affectedProfile = ProfileRepository.fetchSingleProfile(affectedUserId.intValue());
 
                     if (loggedInUser == null) {
                         return unauthorized();
                     }
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if (AuthenticationUtil.validUser(loggedInUser.getId().intValue(), affectedUserId.intValue())) {
-                        affectedProfile = ProfileRepository.fetchSingleProfile(affectedUserId.intValue());
-                    } else {
+                    if (!AuthenticationUtil.validUser(loggedInUser, affectedProfile)) {
                         return forbidden();
                     }
 
@@ -145,9 +143,11 @@ public class TripController extends Controller {
         if (ownerId == null) {
             return badRequest();
         }
-        Profile tripOwner = ProfileRepository.fetchSingleProfile(ownerId.intValue());
 
-        if (!AuthenticationUtil.validUser(loggedInUserId, tripOwner.getId().intValue())) {
+        Profile tripOwner = ProfileRepository.fetchSingleProfile(ownerId.intValue());
+        Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
             return forbidden();
         }
 
@@ -366,8 +366,9 @@ public class TripController extends Controller {
             return badRequest();
         }
         Profile tripOwner = ProfileRepository.fetchSingleProfile(ownerId.intValue());
+        Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
 
-        if (!AuthenticationUtil.validUser(loggedInUserId, tripOwner.getId().intValue())) {
+        if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
             return forbidden();
         }
 
