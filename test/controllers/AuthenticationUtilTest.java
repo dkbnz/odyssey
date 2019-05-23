@@ -1,28 +1,25 @@
 package controllers;
 
+import models.Profile;
 import org.junit.Assert;
 import org.junit.Test;
 import util.AuthenticationUtil;
 
 
-/**
- *
- *
- * ========== TESTS ARE FAILING AS WE REQUIRE POWERMOCK TO MOCK STATIC AND PRIVATE METHODS ============
- * =============================== BUSINESS CASE PENDING... ==================================
- *
- *
- */
 public class AuthenticationUtilTest {
 
     @Test
     public void validUserTestIsAdmin() {
         //Arrange
-        Integer admin = 1;
-        Integer ownerId = 1234;
+        Profile admin = new Profile();
+        admin.setId(12L);
+        admin.setIsAdmin(true);
+
+        Profile owner = new Profile();
+        owner.setId(17L);
 
         //Act
-        boolean result = AuthenticationUtil.validUser(admin, ownerId);
+        boolean result = AuthenticationUtil.validUser(admin, owner);
 
         //Assert
         Assert.assertTrue(result);
@@ -31,11 +28,15 @@ public class AuthenticationUtilTest {
     @Test
     public void validUserTestIsNotAdmin() {
         //Arrange
-        Integer notAdmin = 2;
-        Integer ownerId = 1234;
+        Profile notAdmin = new Profile();
+        notAdmin.setId(12L);
+        notAdmin.setIsAdmin(false);
+
+        Profile owner = new Profile();
+        owner.setId(17L);
 
         //Act
-        boolean result = AuthenticationUtil.validUser(notAdmin, ownerId);
+        boolean result = AuthenticationUtil.validUser(notAdmin, owner);
 
         //Assert
         Assert.assertFalse(result);
@@ -44,11 +45,15 @@ public class AuthenticationUtilTest {
     @Test
     public void validUserTestIsOwner() {
         //Arrange
-        Integer owner = 1234;
-        Integer ownerId = 1234;
+        Profile user = new Profile();
+        user.setId(12L);
+        user.setIsAdmin(false);
+
+        Profile owner = new Profile();
+        owner.setId(12L);
 
         //Act
-        boolean result = AuthenticationUtil.validUser(owner, ownerId);
+        boolean result = AuthenticationUtil.validUser(user, owner);
 
         //Assert
         Assert.assertTrue(result);
@@ -57,11 +62,15 @@ public class AuthenticationUtilTest {
     @Test
     public void validUserTestIsNotOwner() {
         //Arrange
-        Integer notOwner = 5;
-        Integer ownerId = 1234;
+        Profile notOwner = new Profile();
+        notOwner.setId(17L);
+        notOwner.setIsAdmin(false);
+
+        Profile owner = new Profile();
+        owner.setId(12L);
 
         //Act
-        boolean result = AuthenticationUtil.validUser(notOwner, ownerId);
+        boolean result = AuthenticationUtil.validUser(notOwner, owner);
 
         //Assert
         Assert.assertFalse(result);

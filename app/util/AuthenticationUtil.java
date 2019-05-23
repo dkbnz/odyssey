@@ -19,23 +19,12 @@ public final class AuthenticationUtil {
     /**
      * Returns true if the logged in user is either an admin, or is attempting to perform an action on their own
      * data.
-     * @param loggedInUserId    The profile id of the currently logged in user.
-     * @param ownerId           The profile id of the owner of the data that is being manipulated.
+     * @param loggedInUser      The profile of the currently logged in user.
+     * @param owner             The profile of the owner of the data that is being manipulated.
      * @return                  True if the logged in user is allowed to manipulate the owners data.
      */
-    public static boolean validUser(Integer loggedInUserId, Integer ownerId) {
-        return userIsAdmin(loggedInUserId) || ownerId.equals(loggedInUserId);
-    }
-
-
-    /**
-     * Returns true if a user is an admin, false otherwise.
-     * @param userId        The profile id of the user.
-     * @return              True if the user is an admin.
-     */
-    private static boolean userIsAdmin(Integer userId) {
-        Profile user = ProfileRepository.fetchSingleProfile(userId);
-        return user.getIsAdmin();
+    public static boolean validUser(Profile loggedInUser, Profile owner) {
+        return loggedInUser.getIsAdmin()|| owner.getId().equals(loggedInUser.getId());
     }
 
 
