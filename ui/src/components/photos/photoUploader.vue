@@ -16,7 +16,6 @@
         name: "photoUploader",
         data: function () {
             return {
-                files: null
             }
         },
         props: ['files'],
