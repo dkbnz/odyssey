@@ -14,35 +14,32 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class PhotoController extends Controller {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public Result upload(Http.Request request, Long userId) {
-        System.out.println(request.body().asRaw());
 
         Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<TemporaryFile> picture = body.getFile("photo1"); // Name field of the HTML data
-        body.asFormUrlEncoded().forEach((k, v) -> {
-            System.out.println(k);
-            System.out.println(v);
+        List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures = body.getFiles(); // Name field of the HTML data
+
+        if (!pictures.isEmpty()) {
+            for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
+                String fileName = picture.getFilename();
+                long fileSize = picture.getFileSize();
+                String contentType = picture.getContentType();
+
+                TemporaryFile file = picture.getRef();
+                file.copyTo(Paths.get("temp/" + picture.getFilename()), true);
+                try {
+                    BufferedImage img = ImageIO.read(new File("./tmp/destination.jpg"));
+                    BufferedImage thumbnail = scale(img, 0.1);
+                    ImageIO.write(thumbnail, "jpg", new File("./tmp/test_thumb.jpg"));
+                } catch (IOException e) {
+                    log.error("Unable to convert image to thumbnail", e);
                 }
-        );
-
-        if (picture != null) {
-            String fileName = picture.getFilename();
-            long fileSize = picture.getFileSize();
-            String contentType = picture.getContentType();
-
-            TemporaryFile file = picture.getRef();
-            file.copyTo(Paths.get("./tmp/destination.jpg"), true);
-            try {
-                BufferedImage img = ImageIO.read(new File("./tmp/destination.jpg"));
-                BufferedImage thumbnail = scale(img, 0.1);
-                ImageIO.write(thumbnail, "jpg", new File("./tmp/test_thumb.jpg"));
-            } catch (IOException e) {
-                log.error("Unable to convert image to thumbnail", e);
             }
 
 
