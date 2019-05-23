@@ -3,7 +3,7 @@
 
         <!--Navigation Bar-->
         <nav-bar-main :profile="profile"></nav-bar-main>
-        <b-navbar class="stickyMinorNav" variant="light">
+        <b-navbar variant="light">
             <b-navbar-nav>
                 <b-nav-item @click="togglePage(viewProfile, 'view')">Profile</b-nav-item>
                 <b-nav-item @click="togglePage(editProfile, 'edit')">Edit Profile</b-nav-item>

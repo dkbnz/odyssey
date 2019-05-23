@@ -2,7 +2,7 @@
     <div v-if="profile.length !== 0">
         <!--Shows tabs for destination page-->
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
-        <b-navbar class="stickyMinorNav" variant="light">
+        <b-navbar variant="light">
             <b-navbar-nav>
                 <b-nav-item @click="togglePage(searchDestinations)">Search for a Destination</b-nav-item>
                 <b-nav-item @click="togglePage(addDestinations)">Add a Destination</b-nav-item>

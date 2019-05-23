@@ -1,24 +1,88 @@
 html {
     /* The html and body elements cannot have any padding or margin. */
-    height: 100%;
+    box-sizing: border-box;
+    overflow: auto;
 }
 
 body {
     background-color: #e2e6ea;
     padding-bottom: 50px;
     z-index: 1;
-
 }
-.containerMain {
-    margin: 10vh 10vw 0 10vw;
+
+/* Styling for your profile page with fixed side bar */
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+.cf:before, .cf:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.cf:after {
+    clear: both;
+}
+
+.scroll {
+    height: 80vh;
+    overflow-y: scroll;
+    padding: 0 10px;
+    width: 100%;
+    margin: 1vh auto 1vh auto;
+}
+
+.wrapper {
+    margin-top: 0.5vh;
+}
+.content {
+    width: 80%;
+}
+.sidebar {
     padding: 20px;
+    background-color: white;
+    border-radius: 5px
+}
+.sidebar h3 {
+    margin: 0;
+}
+.content,
+.sidebar {
+    float: left;
+}
+.sidebar {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+}
+
+/* When the screen is of max-width 2100px, change the layout of the page */
+@media screen and (max-width: 2100px) {
+    .cf:after {
+        clear: initial;
+        display: block;
+    }
+    .sidebar {
+        float: none;
+        margin: 5vh 10vw 0 10vw;
+        padding: 50px;
+        background-color: white;
+        border-radius: 5px;
+    }
+}
+
+/* Styling for other pages */
+
+.containerMain {
+    margin: 5vh 10vw 0 10vw;
+    padding: 50px;
     background-color: white;
     border-radius: 5px;
 }
 
 .containerWithNav {
-    margin: 15vh 10vw 0 10vw;
-    padding: 1vh 3vw 3vw 3vw;
+    margin: 7vh 10vw 0 10vw;
+    padding: 50px 3vw 3vw 3vw;
     background-color: white;
     border-radius: 5px;
 }
@@ -54,8 +118,8 @@ h1, h2, h3, h4 {
     background-color: white;
     text-align: center;
     position: fixed;
-    left: 0px;
-    bottom: 0px;
+    left: 0;
+    bottom: 0;
     height: 40px;
     width: 100%;
     font-size: 0.7em;
@@ -67,19 +131,23 @@ h1, h2, h3, h4 {
     text-align: center;
 }
 
-/* Used for all nav bars or divs that need to remain fixed on page */
-.stickyMain {
-    position: fixed;
+/* Used for main nav bar that needs to remain fixed at top of page */
+.mainNav {
     top: 0;
     width: 100%;
     z-index: 3;
 }
+/* Profile information in collapsible */
+.profilesSubSectionProfile {
+    background-color: white;
+    border-radius: 5px;
+    padding: 10px;
+}
 
-.stickyMinorNav {
-    position: fixed;
-    width: 100%;
-    top: 8%;
-    z-index: 2;
+/* Profile page content in collapsible */
+.profilesSubSectionContent {
+    background-color: white;
+    border-radius: 5px;
 }
 
 a {
