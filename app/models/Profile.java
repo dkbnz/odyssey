@@ -2,12 +2,11 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Finder;
+import models.photos.PersonalPhoto;
 import models.trips.Trip;
 import play.data.format.Formats;
-import play.libs.Json;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
@@ -34,7 +33,8 @@ public class Profile extends BaseModel {
     public LocalDate dateOfBirth;
     public Boolean isAdmin;
 
-
+    @OneToMany(cascade=CascadeType.ALL)
+    private List<PersonalPhoto> photoGallery = new ArrayList<PersonalPhoto>();
 
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     public Date dateOfCreation;
@@ -169,6 +169,22 @@ public class Profile extends BaseModel {
 
     public void setIsAdmin(Boolean isAdmin) {
         this.isAdmin = isAdmin;
+    }
+
+    public List<PersonalPhoto> getPhotoGallery() {
+        return photoGallery;
+    }
+
+    public void setPhotoGallery(List<PersonalPhoto> photoGallery) {
+        this.photoGallery = photoGallery;
+    }
+
+    public boolean addPhotoToGallery(PersonalPhoto photoToAdd) {
+        return photoGallery.add(photoToAdd);
+    }
+
+    public boolean removePhotoFromGallery(PersonalPhoto photoToRemove) {
+        return photoGallery.remove(photoToRemove);
     }
 
     public static Finder<Integer, Profile> find = new Finder<>(Profile.class);
