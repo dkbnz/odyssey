@@ -522,20 +522,26 @@
              */
             checkValidDestinationDates() {
                 let destinationList = this.inputTrip.destinations;
-                for (let i = 1; i < destinationList.length; i++) {
-                    // If previous destination has no end date.
-                    if (destinationList[i-1].endDate == null) {
-                        // Check previous and current start dates
-                        if (destinationList[i-1].startDate > destinationList[i].startDate) {
+                let dateList = [];
+                let previousDate = null;
+                // Put all dates into a queue based array.
+                for (let i = 0; i < destinationList.length; i++) {
+                    dateList.push(destinationList[i].startDate);
+                    dateList.push(destinationList[i].endDate);
+                }
+                console.log(dateList);
+
+                // Go through the list sequentially to see if the dates are in order.
+                for (let i = 0; i < dateList.length; i++) {
+                    if (dateList[i].length > 1) {
+                        if (dateList[i] < previousDate) {
                             return false;
-                        }
-                    } else {
-                        // Check previous end date against current start date
-                        if (destinationList[i-1].endDate > destinationList[i].startDate) {
-                            return false;
+                        } else {
+                            previousDate = dateList[i];
                         }
                     }
                 }
+                // All good, return true
                 return true;
             },
 
