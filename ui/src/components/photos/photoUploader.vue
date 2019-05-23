@@ -16,9 +16,9 @@
         name: "photoUploader",
         data: function () {
             return {
-                files: null
             }
         },
+        props: ['files'],
         methods: {
             formatNames(files) {
                 if (files.length === 1) {
