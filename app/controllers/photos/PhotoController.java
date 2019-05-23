@@ -6,28 +6,25 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 import java.nio.file.Paths;
+import java.util.List;
 
 public class PhotoController extends Controller {
 
     public Result upload(Http.Request request, Long userId) {
-        System.out.println(request.body().asRaw());
 
         Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<TemporaryFile> picture = body.getFile("photo1"); // Name field of the HTML data
-        body.asFormUrlEncoded().forEach((k, v) -> {
-            System.out.println(k);
-            System.out.println(v);
-                }
-        );
+        List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures = body.getFiles(); // Name field of the HTML data
 
-        if (picture != null) {
-            String fileName = picture.getFilename();
-            long fileSize = picture.getFileSize();
-            String contentType = picture.getContentType();
+        if (!pictures.isEmpty()) {
+            for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
+                String fileName = picture.getFilename();
+                long fileSize = picture.getFileSize();
+                String contentType = picture.getContentType();
 
-            TemporaryFile file = picture.getRef();
-            file.copyTo(Paths.get("./tmp/destination.jpg"), true);
-            return ok("File uploaded");
+                TemporaryFile file = picture.getRef();
+                file.copyTo(Paths.get("temp/" + picture.getFilename()), true);
+            }
+            return ok("Files uploaded");
         } else {
             return badRequest();
         }
