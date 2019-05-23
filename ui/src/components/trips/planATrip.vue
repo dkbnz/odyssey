@@ -521,17 +521,22 @@
              * @returns {boolean} true if the dates are valid, false otherwise
              */
             checkValidDestinationDates() {
-                for (let i = 0; i < this.inputTrip.destinations.length; i++) {
-                    if(this.inputTrip.destinations[i].endDate === null
-                        || this.inputTrip.destinations[i+1].startDate === null
-                        || this.inputTrip.destinations[i].endDate.length === 0
-                        || this.inputTrip.destinations[i+1].startDate.length === 0) {
-                        return true;
-                    }
-                    if(this.inputTrip.destinations[i].endDate < this.inputTrip.destinations[i+1].startDate) {
-                        return false
+                let destinationList = this.inputTrip.destinations;
+                for (let i = 1; i < destinationList.length; i++) {
+                    // If previous destination has no end date.
+                    if (destinationList[i-1].endDate == null) {
+                        // Check previous and current start dates
+                        if (destinationList[i-1].startDate > destinationList[i].startDate) {
+                            return false;
+                        }
+                    } else {
+                        // Check previous end date against current start date
+                        if (destinationList[i-1].endDate > destinationList[i].startDate) {
+                            return false;
+                        }
                     }
                 }
+                return true;
             },
 
             /**
