@@ -15,7 +15,7 @@ public class PersonalPhoto extends BaseModel {
     /**
      * The instance of the actual photo.
      */
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.PERSIST)
     private Photo photo;
 
     /**
@@ -54,5 +54,5 @@ public class PersonalPhoto extends BaseModel {
         isPublic = aPublic;
     }
 
-    public static Finder<Integer, PersonalPhoto> find = new Finder<>(PersonalPhoto.class);
+    public static final Finder<Integer, PersonalPhoto> find = new Finder<>(PersonalPhoto.class);
 }
