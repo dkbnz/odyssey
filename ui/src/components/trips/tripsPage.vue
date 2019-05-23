@@ -1,7 +1,7 @@
 <template>
     <div v-if="profile.length !== 0">
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
-        <b-navbar class="stickyMinorNav" variant="light">
+        <b-navbar variant="light">
             <b-navbar-nav>
                 <b-nav-item @click="togglePage(planATrip)">Plan a Trip</b-nav-item>
                 <b-nav-item @click="togglePage(yourTrips)">Your Trips</b-nav-item>

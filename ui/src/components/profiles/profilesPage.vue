@@ -172,7 +172,8 @@
                     <template slot="row-details" slot-scope="row">
                         <b-card bg-variant="secondary">
                             <view-profile
-                                    :containerClass="'sideNavRelative'"
+                                    :containerClass="'profilesSubSectionProfile'"
+                                    :containerClassContent="'profilesSubSectionContent'"
                                     :admin-view="adminView"
                                     :destinations="destinations"
                                     :profile="row.item"

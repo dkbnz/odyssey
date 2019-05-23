@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-navbar class="stickyMain" toggleable="lg" variant="light">
+        <b-navbar class="mainNav" toggleable="lg" variant="light">
             <b-navbar-brand @click="goToProfile()"><img :src="assets.appLogo"></b-navbar-brand>
 
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
@@ -20,7 +20,7 @@
                 </b-navbar-nav>
 
                 <b-navbar-nav class="ml-auto">
-                    <b-nav-item right:class="{active: currentPage==='/dash'}" @click="goToProfile()">
+                    <b-nav-item right :class="{active: currentPage==='/dash'}" @click="goToProfile()">
                         {{ profile.firstName }}
                     </b-nav-item>
                     <b-nav-item @click="logout">

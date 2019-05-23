@@ -50,6 +50,7 @@
                      outlined
                      ref="myFutureTrips"
                      striped
+                     responsive
             >
                 <div class="text-center my-2" slot="table-busy">
                     <b-spinner class="align-middle" v-if="retrievingTrips"></b-spinner>
@@ -158,7 +159,8 @@
                          id="myPastTrips"
                          outlined
                          ref="myPastTrips"
-                         striped>
+                         striped
+                         responsive>
 
                     <div class="text-center my-2" slot="table-busy">
                         <b-spinner class="align-middle" v-if="retrievingTrips"></b-spinner>
