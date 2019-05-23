@@ -40,7 +40,7 @@ GET     /v1/destinationTypes            controllers.destinations.DestinationCont
 GET     /v1/trips/:userId               controllers.trips.TripController.fetchAll(userId: Long)
 POST    /v1/trips/:userId               controllers.trips.TripController.create(request: Request, userId: Long)
 DELETE  /v1/trips/:tripId               controllers.trips.TripController.destroy(request: Request, tripId: Long)
-PATCH   /v1/trips/:tripId/:userId       controllers.trips.TripController.edit(request: Request, tripId: Long, userId: Long)
+PATCH   /v1/trips/:tripId               controllers.trips.TripController.edit(request: Request, tripId: Long)
 
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
