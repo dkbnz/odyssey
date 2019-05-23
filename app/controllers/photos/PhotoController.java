@@ -102,6 +102,8 @@ public class PhotoController extends Controller {
      * Creates thumbnails for all files. Saves a full sized copy and a thumbnail of each photo.
      * Adds photos to the profile of the specified userId.
      *
+     * TODO: reduce the cognitive complexity of this method.
+     *
      * @param request   http request containing multipart form data.
      * @param userId    id of the user to add the photos to.
      * @return          created() (Http 201) if successful. badRequest() (Http 400) if image is invalid, or no profile
