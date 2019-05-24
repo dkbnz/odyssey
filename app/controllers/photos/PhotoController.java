@@ -256,4 +256,26 @@ public class PhotoController extends Controller {
         return scaledImage;
     }
 
+
+
+
+    public Result fetch(Http.Request request, Long personalPhotoId) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(userId -> {
+
+                    PersonalPhoto personalPhoto = photoRepo.fetch(personalPhotoId);
+
+                    if (personalPhoto.getPublic())
+                        return ok().as("image/jpeg");
+
+                    return ok();
+                }).orElseGet(() -> unauthorized());
+
+
+        AuthenticationUtil.validUser();
+
+        return null;
+    }
+
 }
