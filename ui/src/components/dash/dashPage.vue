@@ -1,70 +1,87 @@
 <template>
-    <div>
-        <nav-bar-main v-bind:profile="profile"></nav-bar-main>
+    <div v-if="profile.length !== 0">
+
+        <!--Navigation Bar-->
+        <nav-bar-main :profile="profile"></nav-bar-main>
         <b-navbar variant="light">
             <b-navbar-nav>
                 <b-nav-item @click="togglePage(viewProfile, 'view')">Profile</b-nav-item>
                 <b-nav-item @click="togglePage(editProfile, 'edit')">Edit Profile</b-nav-item>
-                <b-nav-item @click="togglePage(photoGallery, 'photos')">Photo Gallery</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
-        <view-profile v-if="viewProfile" v-bind:profile="profile" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></view-profile>
-        <edit-profile v-if="editProfile" v-bind:profile="profile" v-bind:nationalityOptions="nationalityOptions" v-bind:travTypeOptions="travTypeOptions"></edit-profile>
-        <photo-gallery v-if="photoGallery" v-bind:profile="profile"></photo-gallery>
+
+        <!--Tab Elements-->
+        <view-profile
+                :destinations="destinations"
+                :nationalityOptions="nationalityOptions"
+                :profile="profile"
+                :travTypeOptions="travTypeOptions"
+                :trips="trips"
+                v-if="viewProfile">
+        </view-profile>
+        <edit-profile
+                :admin-view="adminView"
+                :nationalityOptions="nationalityOptions"
+                :profile="profile"
+                :showSaved="showSaved"
+                :travTypeOptions="travTypeOptions"
+                @profile-saved="showSavedProfile"
+                v-if="editProfile">
+        </edit-profile>
         <footer-main></footer-main>
     </div>
-
+    <div v-else>
+        <unauthorised-prompt></unauthorised-prompt>
+    </div>
 </template>
 
 <script>
+
     import ViewProfile from "./viewProfile.vue"
     import EditProfile from "./editProfile.vue"
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
-    import PhotoGallery from "../photos/photoGallery";
+    import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
+
     export default {
         name: "dashPage",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions'],
-        created() {
-            document.title = "TravelEA - Dashboard";
-        },
-        data: function() {
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'adminView', 'destinations'],
+        data: function () {
             return {
                 viewProfile: true,
                 editProfile: false,
-                photoGallery: false
+                photoGallery: false,
+                showSaved: false
             }
         },
-        mounted () {
-
-        },
         methods: {
-            togglePage: function(pageState, pageName) {
-                if(pageName === 'view') {
-                    this.viewProfile = true;
-                    this.editProfile = false;
-                    this.photoGallery = false;
-                } else if(pageName === 'edit') {
-                    this.viewProfile = false;
-                    this.editProfile = true;
-                    this.photoGallery = false;
-                } else if(pageName === 'photos') {
-                    this.viewProfile = false;
-                    this.editProfile = false;
-                    this.photoGallery = true;
+
+            /**
+             * Switches between tabs
+             * @param viewPage page to be displayed
+             */
+            togglePage: function (viewPage) {
+                if (!viewPage) {
+                    this.viewProfile = !this.viewProfile;
+                    this.editProfile = !this.editProfile;
                 }
             },
+
+            /**
+             * Shows the profile has been successfully saved alert.
+             */
+            showSavedProfile() {
+                this.showSaved = true;
+                this.togglePage(this.viewProfile);
+            }
+
         },
         components: {
-            PhotoGallery,
             ViewProfile,
             EditProfile,
             NavBarMain,
-            FooterMain
+            FooterMain,
+            UnauthorisedPrompt
         }
     }
 </script>
-
-<style scoped>
-
-</style>

@@ -1,14 +1,13 @@
 package models;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Finder;
+import models.photos.PersonalPhoto;
+import models.trips.Trip;
 import play.data.format.Formats;
-import play.libs.Json;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -23,24 +22,34 @@ import java.util.List;
 public class Profile extends BaseModel {
 
     public String username;
+
+    @JsonIgnore
     public String password;
+
     public String firstName;
     public String middleName;
     public String lastName;
     public String gender;
     public LocalDate dateOfBirth;
+    public Boolean isAdmin;
+
+    @OneToMany(cascade=CascadeType.ALL)
+    private List<PersonalPhoto> photoGallery = new ArrayList<PersonalPhoto>();
 
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     public Date dateOfCreation;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     public List<Nationality> nationalities = new ArrayList<Nationality>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     public List<Passport> passports = new ArrayList<Passport>();
+
+    @OneToMany(cascade=CascadeType.ALL)
+    public List<Trip> trips = new ArrayList<Trip>();
 
     public void addTravType(TravellerType travellerType) {
         this.travellerTypes.add(travellerType);
@@ -54,16 +63,7 @@ public class Profile extends BaseModel {
         this.passports.add(passport);
     }
 
-    /**
-     * Converts a Profile object to a JSON readable format
-     *
-     * @return JsonNode object of profile
-     */
-    public JsonNode toJson() {
-        ObjectNode profile = (ObjectNode) Json.toJson(this);
-        profile.remove("password");
-        return profile;
-    }
+    public void addTrip(Trip trip) {this.trips.add(trip);}
 
     public String getUsername() {
         return username;
@@ -77,6 +77,7 @@ public class Profile extends BaseModel {
         return middleName;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
@@ -107,6 +108,10 @@ public class Profile extends BaseModel {
 
     public List<TravellerType> getTravellerTypes() {
         return travellerTypes;
+    }
+
+    public List<Trip> getTrips() {
+        return trips;
     }
 
     public int getAge() {
@@ -156,6 +161,30 @@ public class Profile extends BaseModel {
 
     public void setDateOfCreation(Date dateOfCreation) {
         this.dateOfCreation = dateOfCreation;
+    }
+
+    public Boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(Boolean isAdmin) {
+        this.isAdmin = isAdmin;
+    }
+
+    public List<PersonalPhoto> getPhotoGallery() {
+        return photoGallery;
+    }
+
+    public void setPhotoGallery(List<PersonalPhoto> photoGallery) {
+        this.photoGallery = photoGallery;
+    }
+
+    public boolean addPhotoToGallery(PersonalPhoto photoToAdd) {
+        return photoGallery.add(photoToAdd);
+    }
+
+    public boolean removePhotoFromGallery(PersonalPhoto photoToRemove) {
+        return photoGallery.remove(photoToRemove);
     }
 
     public static Finder<Integer, Profile> find = new Finder<>(Profile.class);
