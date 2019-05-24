@@ -19,8 +19,8 @@
                 :total-rows="rows"
                 :per-page="perPage"
         ></b-pagination>
-        <b-modal centered hide-footer ref="modalImage">
-            <b-img :src="getFullPhoto"></b-img>
+        <b-modal size="lg" centered hide-footer ref="modalImage">
+            <b-img-lazy :src="getFullPhoto()" center fluid></b-img-lazy>
         </b-modal>
     </div>
 </template>
@@ -50,7 +50,11 @@
         },
         props: {
             profile: Object,
-            userProfile: Object
+            userProfile: {
+                default: function () {
+                    return this.profile
+                }
+            }
         },
         components: {
             photoUploader
@@ -117,6 +121,7 @@
             getPhotos() {
                 this.checkAuth();
                 for(let i=0; i < this.profile.photoGallery.length; i++) {
+                    console.log(this.profile.photoGallery[i]);
                     if(this.profile.photoGallery[i].public || this.auth) {
                         this.photos.push(this.profile.photoGallery[i].id);
                     }

@@ -10,7 +10,6 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.photos.PersonalPhotoRepository;
-import repositories.photos.PhotoRepository;
 import repositories.ProfileRepository;
 import util.AuthenticationUtil;
 
@@ -60,11 +59,10 @@ public class PhotoController extends Controller {
     }
 
     /**
-     * Returns whether or not an uploaded image is valid.
+     * Returns whether or not a list of uploaded images are valid.
      *
-     * @param fileSize      file size in bytes of subject image.
-     * @param contentType   content type of uploaded file.
-     * @return              true if file is valid.
+     * @param pictures  list of pictures to be validated
+     * @return          true if all image files are valid.
      */
     private boolean validateImages(List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures) {
 
@@ -76,7 +74,7 @@ public class PhotoController extends Controller {
             Long fileSize = picture.getFileSize();
             String contentType = picture.getContentType();
 
-            if (!(fileSize < MAX_IMG_SIZE) && (validFileTypes.contains(contentType)))
+            if (!((fileSize < MAX_IMG_SIZE) && (validFileTypes.contains(contentType))))
                 return false;
         }
 
@@ -142,13 +140,36 @@ public class PhotoController extends Controller {
 //        return ok();
 //    }
 
+
+    /**
+     * Saves a list of images given in multipart form data in the application.
+     * Creates thumbnails for all files. Saves a full sized copy and a thumbnail of each photo.
+     *
+     * @param profileToAdd  profile to add the photos to
+     * @param pictures      list of pictures to add the the profile
+     * @return              created() (Http 201) if upload was successful.
+     *                      internalServerError() (Http 500) if there was an error with thumbnail creation
+     */
+    private Result saveImages(Profile profileToAdd, Collection<Http.MultipartFormData.FilePart<TemporaryFile>> pictures) {
+        for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
+            TemporaryFile tempFile = picture.getRef();
+            String filename = generateFilename();
+            tempFile.copyTo(Paths.get(IMAGE_DIRECTORY, filename), true);
+            try {
+                saveThumbnail(filename);
+            } catch (IOException e) {
+                log.error("Unable to convert image to thumbnail", e);
+                return internalServerError("Unable to convert image to thumbnail");
+            }
+            addImageToProfile(profileToAdd, filename, picture.getContentType(), true);
+        }
+        return created("Files uploaded");
+    }
+
     /**
      * Takes a multipart form data request to upload an image.
      * Validates all given files in the form data.
-     * Creates thumbnails for all files. Saves a full sized copy and a thumbnail of each photo.
      * Adds photos to the profile of the specified userId.
-     *
-     * TODO: reduce the cognitive complexity of this method.
      *
      * @param request   http request containing multipart form data.
      * @param userId    id of the user to add the photos to.
@@ -160,11 +181,11 @@ public class PhotoController extends Controller {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
-                    Profile loggedInUser = Profile.find.byId(Integer.valueOf(loggedInUserId));
+                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
                     Profile profileToAdd;
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if(loggedInUser.getIsAdmin() || userId.equals(Long.valueOf(loggedInUserId))) {
+                    if(AuthenticationUtil.validUser(loggedInUser, userId)) {
                         profileToAdd = profileRepo.fetchSingleProfile(userId.intValue());
                     } else if (!userId.equals(Long.valueOf(loggedInUserId))) {
                         return forbidden(); // User has specified an id which is not their own, but is not admin
@@ -177,41 +198,35 @@ public class PhotoController extends Controller {
                     }
 
                     Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
-                    // Name field of the HTML data
                     List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures = body.getFiles();
 
-                    if (!pictures.isEmpty()) {
+                    // Validate images
+                    if (!validateImages(pictures))
+                        return badRequest("Invalid image size/type.");
 
-                        if (!validateImages(pictures))
-                            return badRequest("Contains Invalid Image");
+                    // Images are valid, if we have images, then add them to profile
+                    if (!pictures.isEmpty())
+                        return saveImages(profileToAdd, pictures);
 
-                        for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
-
-                            TemporaryFile tempFile = picture.getRef();
-                            String filename = generateFilename();
-
-                            tempFile.copyTo(Paths.get(IMAGE_DIRECTORY, filename), true);
-
-                            try {
-                                BufferedImage img = ImageIO.read(new File(IMAGE_DIRECTORY + filename));
-                                BufferedImage croppedImage = makeSquare(img);
-                                BufferedImage thumbnail = scale(croppedImage);
-                                ImageIO.write(thumbnail, "jpg", new File(THUMBNAIL_DIRECTORY
-                                        + filename));
-                            } catch (IOException e) {
-                                log.error("Unable to convert image to thumbnail", e);
-                                return internalServerError("Unable to convert image to thumbnail");
-                            }
-
-                            addImageToProfile(profileToAdd, filename, picture.getContentType(), true);
-                        }
-
-                        return created("Files uploaded");
-                    } else {
-                        return badRequest();
-                    }
+                    // Images are empty
+                    return badRequest("No images to upload.");
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+    }
+
+    /**
+     * Takes a filename of a previously saved image and creates a thumbnail from it.
+     * After creation, it will save into the specified thumbnail directory.
+     *
+     * @param filename      filename of the fullsized image to create a thumbnail from.
+     * @throws IOException  if there is an error with saving the thumbnail.
+     */
+    private void saveThumbnail(String filename) throws IOException {
+        BufferedImage img = ImageIO.read(new File(IMAGE_DIRECTORY + filename));
+        BufferedImage croppedImage = makeSquare(img);
+        BufferedImage thumbnail = scale(croppedImage);
+        ImageIO.write(thumbnail, "jpg", new File(THUMBNAIL_DIRECTORY
+                + filename));
     }
 
     /**
@@ -259,6 +274,14 @@ public class PhotoController extends Controller {
         return scaledImage;
     }
 
+    /**
+     * Retrieves an image file from a path specified in the given photo object.
+     * If getThumbnail is true, it will return the thumbnail version from the given photo object.
+     *
+     * @param photoToRetrieve   photo object containing the filepath to get the image from.
+     * @param getThumbnail      boolean to specify if a thumbnail version is required.
+     * @return                  result containing an image file.
+     */
     private Result getImageResult(Photo photoToRetrieve, Boolean getThumbnail) {
 
         String contentType = photoToRetrieve.getContentType();
@@ -270,6 +293,16 @@ public class PhotoController extends Controller {
         return ok(new File(filename)).as(contentType);
     }
 
+    /**
+     * Fetches a personal photo from the application based on the specified Id.
+     *
+     * @param request           http request from the client.
+     * @param personalPhotoId   id of the personal photo to be returned.
+     * @param getThumbnail      boolean to dictate if a thumbnail is to be returned.
+     * @return                  unauthorized() (Http 401) if a user is not logged in.
+     *                          forbidden() (Http 403) if a user is requesting a resource they do not have access to.
+     *                          ok() (Http 200) containing the image if user is authorized to receive it.
+     */
     public Result fetch(Http.Request request, Long personalPhotoId, Boolean getThumbnail) {
         return request.session()
                 .getOptional(AUTHORIZED)
