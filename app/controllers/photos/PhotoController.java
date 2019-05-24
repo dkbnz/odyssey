@@ -262,7 +262,7 @@ public class PhotoController extends Controller {
     private Result getImageResult(Photo photoToRetrieve, Boolean getThumbnail) {
 
         String contentType = photoToRetrieve.getContentType();
-        // If get thumbnail is true, set filename to thumbnail file, otherwise set it to main filename
+        // If get thumbnail is true, set filename to thumbnail filename, otherwise set it to main filename
         String filename = getThumbnail
                 ? photoToRetrieve.getThumbnailFilename()
                 : photoToRetrieve.getMainFilename();
