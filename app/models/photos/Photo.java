@@ -17,16 +17,25 @@ public class Photo extends BaseModel {
     /**
      * The randomly generated filename of the photo.
      */
+    @JsonIgnore
     private String mainFilename;
 
     /**
      * The randomly generated filename of the photo's thumbnail.
      */
+    @JsonIgnore
     private String thumbnailFilename;
+
+    /**
+     * Content type of the saved image
+     */
+    @JsonIgnore
+    private String contentType;
 
     /**
      * The date the photo was uploaded.
      */
+    @JsonIgnore
     private LocalDate uploadDate;
 
     /**
@@ -68,10 +77,20 @@ public class Photo extends BaseModel {
         this.uploadProfile = uploadProfile;
     }
 
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
     public static Finder<Integer, Photo> find = new Finder<>(Photo.class);
 
     public static Finder<Integer, Photo> getFind() {
         return find;
     }
+
+
 
 }
