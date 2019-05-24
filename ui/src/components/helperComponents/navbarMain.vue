@@ -34,14 +34,14 @@
 </template>
 
 <script>
-    import assets from '../../assets/index'
+    import Assets from '../../assets/index'
 
     export default {
         name: "navbarMain",
         props: ['profile'],
         computed: {
             assets() {
-                return assets
+                return Assets
             },
         },
         data() {
