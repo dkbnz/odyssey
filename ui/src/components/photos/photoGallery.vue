@@ -90,7 +90,7 @@
             },
 
             getThumbImage(id) {
-                return 'v1/photos/thumbnail/' + id;
+                return 'v1/photos/thumb/' + id;
             },
 
             /**
