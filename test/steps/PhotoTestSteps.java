@@ -1,9 +1,10 @@
 package steps;
 
-import akka.event.Logging;
+import akka.http.impl.util.JavaMapping;
+import akka.stream.javadsl.FileIO;
+import akka.stream.javadsl.Source;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -11,20 +12,27 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.Profile;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
+import play.libs.Files;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static play.test.Helpers.*;
 
@@ -55,7 +63,7 @@ public class PhotoTestSteps {
     private static final String VALID_AUTHPASS = "admin1";
     private static final String ADMIN_ID = "1";
 
-    private static final Logger LOGGER = Logger.getLogger( PhotoTestSteps.class.getName() );
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 
     /**
@@ -161,10 +169,28 @@ public class PhotoTestSteps {
         try {
             arrNode = new ObjectMapper().readTree(content);
         } catch (IOException e) {
-
-            LOGGER.log(Level.SEVERE, "Unable to get response iterator for fake request.", e);
+            log.error("Unable to get response iterator for fake request.", e);
         }
         return arrNode.elements();
+    }
+
+    private JsonNode createJson() {
+        // complex json
+        ObjectMapper mapper = new ObjectMapper();
+
+        //Add values to a JsonNode
+        JsonNode json = mapper.createObjectNode();
+        ObjectNode photoNode = mapper.createObjectNode();
+        photoNode.put("id", 1);
+        photoNode.put("mainFilename", "temp/1e699f1f-dc7f-448c-a673-dc49c30cee65");
+        photoNode.put("thumbnailFilename", "temp/1e699f1f-dc7f-448c-a673-dc49c30cee65");
+        photoNode.put("uploadDate", "2019-05-24");
+
+        ((ObjectNode) json).put("id", 1);
+        ((ObjectNode) json).putArray("photos").add(photoNode);
+        ((ObjectNode) json).put("public", true);
+
+        return json;
     }
 
     @Given("I am logged in as an admin")
@@ -196,8 +222,58 @@ public class PhotoTestSteps {
 
     @When("I upload a valid jpeg photo to my own profile")
     public void iUploadAValidJpegPhotoToMyOwnProfile() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+
+//        JsonNode json = createJson();
+//        File testFile = null;
+//
+//        Files.TemporaryFile newFile = null;
+//
+//
+//        try {
+//            newFile = create("testPhoto", "png");
+//        } catch (IOException e) {
+//            log.error("Unable to create test file", e);
+//        }
+//        FileBody fileBody = new FileBody(testFile);
+//
+//        MultipartEntityBuilder formData = null;
+//        try {
+//            formData.addPart("photo0", fileBody);
+//        } catch (NullPointerException e) {
+//            log.error("Unable to add test file to file body", e);
+//        }
+
+        BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+        File file = new File("image.png");
+        try {
+            ImageIO.write(image, "png", file);
+        } catch (IOException e) {
+            log.error("Unable to create test file", e);
+        }
+
+
+//        Http.MultipartFormData.Part<Source<JavaMapping.ByteString, ?>> part = new Http.MultipartFormData.FilePart<>(
+//                "photo0",
+//                FileIO.fromPath(file.toPath()),
+//                Files.size(file.toPath()));
+//        try {
+//            file.createNewFile("testPhoto", "png");
+//        } catch (IOException e) {
+//            log.error("Unable to create test file", e);
+//        }
+
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+//                .bodyRaw(
+//                        Collections.singletonList(part),
+//                        Files.singletonTemporaryFileCreator(),
+//                        application.asScala().materializer())
+                .session(AUTHORIZED, String.valueOf(REG_ID))
+                .uri(UPLOAD_PHOTOS_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
+        Assert.assertEquals("true", UPLOAD_PHOTOS_URI + REG_ID);
     }
 
     @When("I upload a valid jpeg photo to another user's profile")
@@ -208,8 +284,7 @@ public class PhotoTestSteps {
 
 
     @Then("the status code I get is Created")
-    public void theStatusCodeIsCreated()
-    {
+    public void theStatusCodeIsCreated() {
         Assert.assertEquals(CREATED, statusCode);
     }
 

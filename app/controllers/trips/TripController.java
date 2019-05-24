@@ -14,6 +14,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import util.AuthenticationUtil;
 
+import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,7 +30,12 @@ public class TripController extends Controller {
     private static final String DESTINATION_ID = "destination_id";
     private static final String TRIP_ID = "trip_id";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
-    private TripRepository repository = new TripRepository();
+    private TripRepository repository;
+
+    @Inject
+    public TripController(TripRepository tripRepo) {
+        this.repository = tripRepo;
+    }
 
 
     /**
