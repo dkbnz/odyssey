@@ -31,6 +31,23 @@ create table passport (
   constraint pk_passport primary key (id)
 );
 
+create table personal_photo (
+  id                            bigint auto_increment not null,
+  photo_id                      bigint,
+  profile_id                    bigint,
+  is_public                     boolean,
+  constraint pk_personal_photo primary key (id)
+);
+
+create table photo (
+  id                            bigint auto_increment not null,
+  main_filename                 varchar(255),
+  thumbnail_filename            varchar(255),
+  upload_date                   date,
+  upload_profile_id             bigint,
+  constraint pk_photo primary key (id)
+);
+
 create table profile (
   id                            bigint auto_increment not null,
   username                      varchar(255),
@@ -91,6 +108,15 @@ create table trip_destination (
 create index ix_destination_type_id on destination (type_id);
 alter table destination add constraint fk_destination_type_id foreign key (type_id) references destination_type (id) on delete restrict on update restrict;
 
+create index ix_personal_photo_photo_id on personal_photo (photo_id);
+alter table personal_photo add constraint fk_personal_photo_photo_id foreign key (photo_id) references photo (id) on delete restrict on update restrict;
+
+create index ix_personal_photo_profile_id on personal_photo (profile_id);
+alter table personal_photo add constraint fk_personal_photo_profile_id foreign key (profile_id) references profile (id) on delete restrict on update restrict;
+
+create index ix_photo_upload_profile_id on photo (upload_profile_id);
+alter table photo add constraint fk_photo_upload_profile_id foreign key (upload_profile_id) references profile (id) on delete restrict on update restrict;
+
 create index ix_profile_nationality_profile on profile_nationality (profile_id);
 alter table profile_nationality add constraint fk_profile_nationality_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
 
@@ -123,6 +149,15 @@ alter table trip_destination add constraint fk_trip_destination_destination_id f
 
 alter table destination drop constraint if exists fk_destination_type_id;
 drop index if exists ix_destination_type_id;
+
+alter table personal_photo drop constraint if exists fk_personal_photo_photo_id;
+drop index if exists ix_personal_photo_photo_id;
+
+alter table personal_photo drop constraint if exists fk_personal_photo_profile_id;
+drop index if exists ix_personal_photo_profile_id;
+
+alter table photo drop constraint if exists fk_photo_upload_profile_id;
+drop index if exists ix_photo_upload_profile_id;
 
 alter table profile_nationality drop constraint if exists fk_profile_nationality_profile;
 drop index if exists ix_profile_nationality_profile;
@@ -158,6 +193,10 @@ drop table if exists destination_type;
 drop table if exists nationality;
 
 drop table if exists passport;
+
+drop table if exists personal_photo;
+
+drop table if exists photo;
 
 drop table if exists profile;
 
