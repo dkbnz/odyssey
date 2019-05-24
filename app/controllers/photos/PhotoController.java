@@ -66,12 +66,21 @@ public class PhotoController extends Controller {
      * @param contentType   content type of uploaded file.
      * @return              true if file is valid.
      */
-    private boolean validImage(Long fileSize, String contentType) {
+    private boolean validateImages(List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures) {
+
         ArrayList<String> validFileTypes = new ArrayList<>();
         validFileTypes.add("image/jpeg");
         validFileTypes.add("image/png");
 
-        return (fileSize < MAX_IMG_SIZE) && (validFileTypes.contains(contentType));
+        for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
+            Long fileSize = picture.getFileSize();
+            String contentType = picture.getContentType();
+
+            if (!(fileSize < MAX_IMG_SIZE) && (validFileTypes.contains(contentType)))
+                return false;
+        }
+
+        return true;
     }
 
     /**
@@ -82,10 +91,11 @@ public class PhotoController extends Controller {
      * @param filename      filename of saved photo.
      * @param isPublic      boolean flag of if photo is public.
      */
-    private void addImageToProfile(Profile profileToAdd, String filename, Boolean isPublic) {
+    private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic) {
         Photo photoToAdd = new Photo();
         photoToAdd.setMainFilename(IMAGE_DIRECTORY + filename);
         photoToAdd.setThumbnailFilename(THUMBNAIL_DIRECTORY + filename);
+        photoToAdd.setContentType(contentType);
         photoToAdd.setUploadDate(LocalDate.now());
         photoToAdd.setUploadProfile(profileToAdd);
 
@@ -106,31 +116,31 @@ public class PhotoController extends Controller {
      * @return          notFound() (Http 404) if no image exists, badRequest() (Http 400) if the id number of the photo
      *                  owner is not th
      */
-    public Result destroy(Http.Request request, Long photoId) {
-
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-
-        PersonalPhoto photo = personalPhotoRepo.fetch(photoId);
-
-        if (photo == null) {
-            return notFound();
-        }
-
-        Profile photoOwner = photo.getProfile();
-        Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
-
-        if (!AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
-            return forbidden();
-        }
-
-        personalPhotoRepo.delete(photoOwner, photo);
-
-        return ok();
-    }
+//    public Result destroy(Http.Request request, Long photoId) {
+//
+//        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+//
+//        if (loggedInUserId == null) {
+//            return unauthorized();
+//        }
+//
+//        PersonalPhoto photo = personalPhotoRepo.fetch(photoId);
+//
+//        if (photo == null) {
+//            return notFound();
+//        }
+//
+//        Profile photoOwner = photo.getProfile();
+//        Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
+//
+//        if (!AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
+//            return forbidden();
+//        }
+//
+//        personalPhotoRepo.delete(photoOwner, photo);
+//
+//        return ok();
+//    }
 
     /**
      * Takes a multipart form data request to upload an image.
@@ -171,20 +181,13 @@ public class PhotoController extends Controller {
                     List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures = body.getFiles();
 
                     if (!pictures.isEmpty()) {
-                        Collection<TemporaryFile> picturesToAdd = new ArrayList<>();
+
+                        if (!validateImages(pictures))
+                            return badRequest("Contains Invalid Image");
 
                         for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
-                            String fileName = picture.getFilename();
-                            Long fileSize = picture.getFileSize();
-                            String contentType = picture.getContentType();
 
-                            if (!validImage(fileSize, contentType))
-                                return badRequest("Invalid Image: " + fileName);
-
-                            picturesToAdd.add(picture.getRef());
-                        }
-
-                        for (TemporaryFile tempFile : picturesToAdd) {
+                            TemporaryFile tempFile = picture.getRef();
                             String filename = generateFilename();
 
                             tempFile.copyTo(Paths.get(IMAGE_DIRECTORY, filename), true);
@@ -200,7 +203,7 @@ public class PhotoController extends Controller {
                                 return internalServerError("Unable to convert image to thumbnail");
                             }
 
-                            addImageToProfile(profileToAdd, filename, true);
+                            addImageToProfile(profileToAdd, filename, picture.getContentType(), true);
                         }
 
                         return created("Files uploaded");
@@ -256,26 +259,38 @@ public class PhotoController extends Controller {
         return scaledImage;
     }
 
+    private Result getImageResult(Photo photoToRetrieve, Boolean getThumbnail) {
 
+        String contentType = photoToRetrieve.getContentType();
+        // If get thumbnail is true, set filename to thumbnail file, otherwise set it to main filename
+        String filename = getThumbnail
+                ? photoToRetrieve.getThumbnailFilename()
+                : photoToRetrieve.getMainFilename();
 
+        return ok(new File(filename)).as(contentType);
+    }
 
-    public Result fetch(Http.Request request, Long personalPhotoId) {
+    public Result fetch(Http.Request request, Long personalPhotoId, Boolean getThumbnail) {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
 
-                    PersonalPhoto personalPhoto = photoRepo.fetch(personalPhotoId);
+                    PersonalPhoto personalPhoto = personalPhotoRepo.fetch(personalPhotoId);
+
+                    if (personalPhoto == null)
+                        return notFound("Image could not be found.");
 
                     if (personalPhoto.getPublic())
-                        return ok().as("image/jpeg");
+                        return getImageResult(personalPhoto.getPhoto(), getThumbnail);
 
-                    return ok();
+                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(userId));
+                    Long ownerId = personalPhoto.getProfile().getId();
+
+                    if(AuthenticationUtil.validUser(loggedInUser, ownerId))
+                        return getImageResult(personalPhoto.getPhoto(), getThumbnail);
+
+                    return forbidden();
                 }).orElseGet(() -> unauthorized());
-
-
-        AuthenticationUtil.validUser();
-
-        return null;
     }
 
 }
