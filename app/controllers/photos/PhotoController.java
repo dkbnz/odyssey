@@ -59,20 +59,20 @@ public class PhotoController extends Controller {
     }
 
     /**
-     * Returns whether or not a list of uploaded images are valid.
+     * Returns whether or not a list of uploaded photos are valid.
      *
-     * @param pictures  list of pictures to be validated
-     * @return          true if all image files are valid.
+     * @param photos    list of photos to be validated
+     * @return          true if all photo files are valid.
      */
-    private boolean validateImages(List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures) {
+    private boolean validatePhotos(List<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
 
         ArrayList<String> validFileTypes = new ArrayList<>();
         validFileTypes.add("image/jpeg");
         validFileTypes.add("image/png");
 
-        for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
-            Long fileSize = picture.getFileSize();
-            String contentType = picture.getContentType();
+        for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
+            Long fileSize = photo.getFileSize();
+            String contentType = photo.getContentType();
 
             if (!((fileSize < MAX_IMG_SIZE) && (validFileTypes.contains(contentType))))
                 return false;
@@ -82,7 +82,7 @@ public class PhotoController extends Controller {
     }
 
     /**
-     * Takes a profile, filename of a previously saved image and boolean flag.
+     * Takes a profile, filename of a previously saved photo and boolean flag.
      * Creates photo object and personal photo object, saves them to profile.
      *
      * @param profileToAdd  profile to add the photo to.
@@ -140,19 +140,33 @@ public class PhotoController extends Controller {
 //        return ok();
 //    }
 
+    /**
+     * Change the privacy of the selected image from private to public, or public to private. Public means all users can
+     * see the image, private means only the logged in user or an admin can see the image.
+     *
+     * @param request   the Http request body containing the image to change from public to private.
+     * @return          ok() (Http 200) if the image is successfully changed. notFound() (Http 404) if the specified
+     *                  image cannot be found. forbidden() (Http 403) if the person trying to change the privacy of the
+     *                  image is not the owner of the image or an admin.
+     */
+    private Result changePrivacy(Http.Request request) {
+
+        return ok();
+    }
+
 
     /**
      * Saves a list of images given in multipart form data in the application.
      * Creates thumbnails for all files. Saves a full sized copy and a thumbnail of each photo.
      *
      * @param profileToAdd  profile to add the photos to
-     * @param pictures      list of pictures to add the the profile
+     * @param photos        list of images to add the the profile
      * @return              created() (Http 201) if upload was successful.
      *                      internalServerError() (Http 500) if there was an error with thumbnail creation
      */
-    private Result saveImages(Profile profileToAdd, Collection<Http.MultipartFormData.FilePart<TemporaryFile>> pictures) {
-        for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
-            TemporaryFile tempFile = picture.getRef();
+    private Result savePhotos(Profile profileToAdd, Collection<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
+        for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
+            TemporaryFile tempFile = photo.getRef();
             String filename = generateFilename();
             tempFile.copyTo(Paths.get(IMAGE_DIRECTORY, filename), true);
             try {
@@ -161,7 +175,7 @@ public class PhotoController extends Controller {
                 log.error("Unable to convert image to thumbnail", e);
                 return internalServerError("Unable to convert image to thumbnail");
             }
-            addImageToProfile(profileToAdd, filename, picture.getContentType(), true);
+            addImageToProfile(profileToAdd, filename, photo.getContentType(), true);
         }
         return created("Files uploaded");
     }
@@ -173,9 +187,9 @@ public class PhotoController extends Controller {
      *
      * @param request   http request containing multipart form data.
      * @param userId    id of the user to add the photos to.
-     * @return          created() (Http 201) if successful. badRequest() (Http 400) if image is invalid, or no profile
+     * @return          created() (Http 201) if successful. badRequest() (Http 400) if photo is invalid, or no profile
      *                  found. forbidden() (Http 403) if the logged in user isn't admin or adding photo for themselves.
-     *                  internalServerError() (Http 500) if image cannot be converted to a thumbnail.
+     *                  internalServerError() (Http 500) if photo cannot be converted to a thumbnail.
      */
     public Result upload(Http.Request request, Long userId) {
         return request.session()
@@ -198,15 +212,15 @@ public class PhotoController extends Controller {
                     }
 
                     Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
-                    List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures = body.getFiles();
+                    List<Http.MultipartFormData.FilePart<TemporaryFile>> photos = body.getFiles();
 
                     // Validate images
-                    if (!validateImages(pictures))
+                    if (!validatePhotos(photos))
                         return badRequest("Invalid image size/type.");
 
                     // Images are valid, if we have images, then add them to profile
-                    if (!pictures.isEmpty())
-                        return saveImages(profileToAdd, pictures);
+                    if (!photos.isEmpty())
+                        return savePhotos(profileToAdd, photos);
 
                     // Images are empty
                     return badRequest("No images to upload.");
@@ -222,8 +236,8 @@ public class PhotoController extends Controller {
      * @throws IOException  if there is an error with saving the thumbnail.
      */
     private void saveThumbnail(String filename) throws IOException {
-        BufferedImage img = ImageIO.read(new File(IMAGE_DIRECTORY + filename));
-        BufferedImage croppedImage = makeSquare(img);
+        BufferedImage photo = ImageIO.read(new File(IMAGE_DIRECTORY + filename));
+        BufferedImage croppedImage = makeSquare(photo);
         BufferedImage thumbnail = scale(croppedImage);
         ImageIO.write(thumbnail, "jpg", new File(THUMBNAIL_DIRECTORY
                 + filename));
@@ -232,15 +246,15 @@ public class PhotoController extends Controller {
     /**
      * Gets a middle section of the image and makes it into a square.
      *
-     * @param img   the BufferedImage object of the uploaded image
+     * @param photo the BufferedImage object of the uploaded image
      * @return      a new BufferedImage subImage object of the square section of the image.
      */
-    private BufferedImage makeSquare(BufferedImage img) {
-        int width = img.getWidth();
-        int height = img.getHeight();
+    private BufferedImage makeSquare(BufferedImage photo) {
+        int width = photo.getWidth();
+        int height = photo.getHeight();
         int size = Math.min(width, height);
 
-        return img.getSubimage((width/2) - (size/2), (height/2) - (size/2), size, size);
+        return photo.getSubimage((width/2) - (size/2), (height/2) - (size/2), size, size);
     }
 
     /**
