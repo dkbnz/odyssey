@@ -55,4 +55,8 @@ public class PersonalPhoto extends BaseModel {
     }
 
     public static final Finder<Integer, PersonalPhoto> find = new Finder<>(PersonalPhoto.class);
+
+    public static Finder<Integer, PersonalPhoto> getFind() {
+        return find;
+    }
 }

@@ -9,7 +9,8 @@ import play.libs.Files.TemporaryFile;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.PhotoRepository;
+import repositories.photos.PersonalPhotoRepository;
+import repositories.photos.PhotoRepository;
 import repositories.ProfileRepository;
 import util.AuthenticationUtil;
 
@@ -37,16 +38,15 @@ public class PhotoController extends Controller {
     private static final String NOT_SIGNED_IN = "You are not logged in.";
 
     private ProfileRepository profileRepo;
-    private PhotoRepository photoRepo;
-    private AuthenticationUtil authUtil;
+    private PersonalPhotoRepository personalPhotoRepo;
 
     @Inject
     public PhotoController(
             ProfileRepository profileRepo,
-            PhotoRepository photoRepo
+            PersonalPhotoRepository personalPhotoRepo
                            ) {
         this.profileRepo = profileRepo;
-        this.photoRepo = photoRepo;
+        this.personalPhotoRepo = personalPhotoRepo;
     }
 
     /**
@@ -96,6 +96,40 @@ public class PhotoController extends Controller {
 
         profileToAdd.addPhotoToGallery(personalPhoto);
         profileRepo.save(profileToAdd);
+    }
+
+    /**
+     * Deletes a photo from a specified user, based on the id number of the photo.
+     *
+     * @param request   the Http request body.
+     * @param photoId   the ID number of the photo to be deleted.
+     * @return          notFound() (Http 404) if no image exists, badRequest() (Http 400) if the id number of the photo
+     *                  owner is not th
+     */
+    public Result destroy(Http.Request request, Long photoId) {
+
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        PersonalPhoto photo = personalPhotoRepo.fetch(photoId);
+
+        if (photo == null) {
+            return notFound();
+        }
+
+        Profile photoOwner = photo.getProfile();
+        Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
+            return forbidden();
+        }
+
+        personalPhotoRepo.delete(photoOwner, photo);
+
+        return ok();
     }
 
     /**

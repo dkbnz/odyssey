@@ -1,6 +1,7 @@
 package steps;
 
 import akka.http.impl.util.JavaMapping;
+import akka.util.ByteString;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,16 +13,14 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.Profile;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import play.Application;
+import play.api.mvc.MultipartFormData;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
-import play.libs.Files;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -31,8 +30,11 @@ import javax.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.logging.Level;
+
+import akka.stream.Materializer;
 
 import static play.test.Helpers.*;
 
@@ -193,14 +195,14 @@ public class PhotoTestSteps {
         return json;
     }
 
-    @Given("I am logged in as an admin")
-    public void anAdminIsLoggedIn() {
+    @Given("I am logged in as an admin with id {int}")
+    public void anAdminIsLoggedIn(int loggedInId) {
         loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         Assert.assertEquals(OK, statusCode);
     }
 
-    @Given("I am logged in as a non-admin")
-    public void iAmLoggedInAsARegularUser() {
+    @Given("I am logged in as a non-admin with id {int}")
+    public void iAmLoggedInAsARegularUser(int loggedInId) {
         loginRequest(REG_USER, REG_PASS);
         Assert.assertEquals(OK, statusCode);
         userId = REG_ID;
@@ -220,29 +222,8 @@ public class PhotoTestSteps {
     }
 
 
-    @When("I upload a valid jpeg photo to my own profile")
-    public void iUploadAValidJpegPhotoToMyOwnProfile() {
-
-//        JsonNode json = createJson();
-//        File testFile = null;
-//
-//        Files.TemporaryFile newFile = null;
-//
-//
-//        try {
-//            newFile = create("testPhoto", "png");
-//        } catch (IOException e) {
-//            log.error("Unable to create test file", e);
-//        }
-//        FileBody fileBody = new FileBody(testFile);
-//
-//        MultipartEntityBuilder formData = null;
-//        try {
-//            formData.addPart("photo0", fileBody);
-//        } catch (NullPointerException e) {
-//            log.error("Unable to add test file to file body", e);
-//        }
-
+    @When("I upload a valid jpeg photo to a profile with id {int}")
+    public void iUploadAValidJpegPhotoToMyOwnProfile(int uploadUserId) throws IOException {
         BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
         File file = new File("image.png");
         try {
@@ -251,35 +232,26 @@ public class PhotoTestSteps {
             log.error("Unable to create test file", e);
         }
 
+        Http.MultipartFormData.Part<Source<ByteString, ?>> part =
+                new Http.MultipartFormData.FilePart<>(
+                        "photo0",
+                        "helloworld.jpg",
+                        "image/jpeg",
+                        FileIO.fromPath(file.toPath()),
+                        Files.size(file.toPath()));
 
-//        Http.MultipartFormData.Part<Source<JavaMapping.ByteString, ?>> part = new Http.MultipartFormData.FilePart<>(
-//                "photo0",
-//                FileIO.fromPath(file.toPath()),
-//                Files.size(file.toPath()));
-//        try {
-//            file.createNewFile("testPhoto", "png");
-//        } catch (IOException e) {
-//            log.error("Unable to create test file", e);
-//        }
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                        .uri(UPLOAD_PHOTOS_URI + uploadUserId)
+                        .method("POST")
+                        .bodyRaw(
+                                Collections.singletonList(part),
+                                play.libs.Files.singletonTemporaryFileCreator(),
+                                application.asScala().materializer())
+                        .session(AUTHORIZED, REG_ID);
 
-
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-//                .bodyRaw(
-//                        Collections.singletonList(part),
-//                        Files.singletonTemporaryFileCreator(),
-//                        application.asScala().materializer())
-                .session(AUTHORIZED, String.valueOf(REG_ID))
-                .uri(UPLOAD_PHOTOS_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
-        Assert.assertEquals("true", UPLOAD_PHOTOS_URI + REG_ID);
-    }
-
-    @When("I upload a valid jpeg photo to another user's profile")
-    public void iUploadAValidJpegPhotoToAnotherUserSProfile() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+        Result createPhotoResult = route(application, request);
+        statusCode = createPhotoResult.status();
     }
 
 
