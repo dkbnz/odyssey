@@ -27,7 +27,7 @@
                 </ul>
             </div>
             <div :class="containerClassContent">
-                <photo-gallery :profile="profile"></photo-gallery>
+                <photo-gallery :profile="profile" :userProfile="userProfile" ></photo-gallery>
                 <!-- Displays a profile's trips -->
                 <your-trips :adminView="adminView"
                             :destinations="destinations"
