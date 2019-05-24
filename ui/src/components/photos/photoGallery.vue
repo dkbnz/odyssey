@@ -10,7 +10,8 @@
         <table style="margin-top:20px">
             <tr v-for="rowNumber in (amountOfRows)">
                 <td v-for="photo in getRowPhotos(rowNumber)">
-                    <b-img :src="getThumbImage(photo)" thumbnail @click="showImage(photo)" alt="Image not Found"></b-img>
+                    <b-img :src="getThumbImage(photo)" thumbnail @click="showImage(photo)" alt="Image not Found">
+                    </b-img>
                 </td>
             </tr>
         </table>
