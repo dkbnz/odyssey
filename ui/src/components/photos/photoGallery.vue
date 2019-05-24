@@ -10,7 +10,7 @@
         <table style="margin-top:20px">
             <tr v-for="rowNumber in (amountOfRows)">
                 <td v-for="photo in getRowPhotos(rowNumber)">
-                    <b-img :src="photo.imgUrl" thumbnail></b-img>
+                    <b-img :src="photo.imgUrl" thumbnail @click="showImage(photo.id)"></b-img>
                 </td>
             </tr>
         </table>
@@ -19,6 +19,9 @@
                 :total-rows="rows"
                 :per-page="perPage"
         ></b-pagination>
+        <b-modal centered hide-footer ref="modalImage">
+            <b-img :src="getFullPhoto"></b-img>
+        </b-modal>
     </div>
 </template>
 
@@ -30,9 +33,10 @@
         data: function () {
             return {
                 photos: [],
-                rowSize: 2,
-                amountOfRows: 1,
+                rowSize: 6,
+                amountOfRows: 3,
                 currentPage: 0,
+                currentViewingID: 0
             }
         },
         computed: {
@@ -72,6 +76,14 @@
 
                 });
                 this.$refs['uploaderModal'].hide()
+            },
+
+            showImage() {
+                this.$refs['modalImage'].show();
+            },
+
+            getFullPhoto(id) {
+                return 'v1/photos/' + id;
             },
 
             /**
