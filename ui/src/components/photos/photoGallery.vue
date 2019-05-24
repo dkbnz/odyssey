@@ -63,10 +63,9 @@
              */
             sendPhotosToBackend: function(files) {
                 let self = this;
-                fetch(`/v1/photos/` + self.profile.id, {
+                fetch(`/v1/photos/` + this.profile.id, {
                     method: 'POST',
-                    headers:{'content-type': 'application/json'},
-                    body: JSON.stringify(this.getFormData(files))
+                    body: this.getFormData(files)
 
                 }).then(response =>  {
                     if (response.status === 201) {
@@ -82,9 +81,11 @@
             showImage() {
                 this.$refs['modalImage'].show();
             },
+
             getFullPhoto(id) {
                 return 'v1/photos/' + id;
             },
+
             /**
              * Creates the form data to send as the body of the POST request to the backend.
              * @param files             The photo(s) uploaded from the personal photos component.
@@ -97,6 +98,7 @@
                 }
                 return personalPhotos;
             },
+
             /**
              * TODO: Link to the backend then comment.
              * @returns {Promise<Response | never>}
@@ -109,6 +111,7 @@
                     .then(this.parseJSON)
                     .then((data) => self.photos = data);
             },
+
             /**
              * Retrieves a json body from a response.
              * @param response      The response parsed into json.
@@ -117,6 +120,7 @@
             parseJSON(response) {
                 return response.json();
             },
+
             /**
              * Calculates the positions of photos within a gallery grid row.
              * @param rowNumber     The row currently having photos positioned within it.
