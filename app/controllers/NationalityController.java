@@ -1,12 +1,9 @@
 package controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import models.Nationality;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
-
 import java.util.List;
 
 /**
@@ -17,9 +14,9 @@ import java.util.List;
 public class NationalityController extends Controller {
 
     /**
-     * Pulls a list of Nationalities from the database and returns it as a JSON list
+     * Pulls a list of Nationalities from the database and returns it as a Json list
      *
-     * @return Http Result with a json body
+     * @return ok() (Http 200) with the result as a Json body
      */
     public Result list() {
 

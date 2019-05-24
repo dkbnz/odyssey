@@ -1,71 +1,58 @@
 <template>
     <div>
-        <b-form>
+        <b-form @submit.prevent="login">
+            <b-alert dismissible v-model="showError" variant="danger">Invalid Username or Password</b-alert>
             <b-form-group
-                    id="username-field"
                     description="Please enter your username (email)"
+                    id="username-field"
                     label="Username"
-                    label-for="username"
-                    :invalid-feedack="userinvalidFeedback"
-                    :valid-feedback="uservalidFeedback"
-                    :state="userstate" >
-                <b-form-input id="username" v-model="username" :state="userstate" autofocus trim></b-form-input>
+                    label-for="username">
+                <b-form-input autofocus id="username" trim v-model="username"></b-form-input>
             </b-form-group>
             <b-form-group
-                    id="password-field"
                     description="Please enter your password"
+                    id="password-field"
                     label="Password"
                     label-for="password">
-                <b-form-input id="password" v-model="password" :type="'password'" trim></b-form-input>
+                <b-form-input :type="'password'" id="password" trim v-model="password"></b-form-input>
             </b-form-group>
-            <b-button id="sign-in" variant="primary" block @click="login">Sign In</b-button>
+            <b-button @click="login" block id="sign-in" type="submit" variant="primary">Sign In</b-button>
         </b-form>
-
     </div>
-
 </template>
 
 <script>
     export default {
         name: "login",
-        data: function() {
+        data: function () {
             return {
                 username: '',
-                password: ''
-            }
-        },
-        computed: {
-            userstate() {
-                return !!(this.username.length >= 4) && this.username.includes('@')
-            },
-            userinvalidFeedback() {
-                if (this.username.length > 4) {
-                    return ''
-                } else if (this.username.length > 0) {
-                    return 'Enter at least 4 characters'
-                } else {
-                    return 'Please enter something'
-                }
-            },
-            uservalidFeedback() {
-                return this.userstate === true ? 'Thank you' : ''
+                password: '',
+                showError: false
             }
         },
         methods: {
+            /**
+             * Used to log a user in based on the username and password that are entered. If the response is not ok()
+             * (HTTP 200), then an error is shown.
+             */
             login() {
+                let self = this;
                 fetch('/v1/login', {
                     method: 'POST',
-                    headers:{'content-type': 'application/json'},
+                    headers: {'content-type': 'application/json'},
                     body: JSON.stringify({username: this.username, password: this.password})
-                }).then(function(response) {
-                    window.location.pathname ="/dash";
-                    return response.json();
+                }).then(function (response) {
+                    if (response.ok) {
+                        self.showError = false;
+                        self.$router.go();
+                        return JSON.parse(JSON.stringify(response));
+                    } else {
+                        self.showError = true;
+                        return JSON.parse(JSON.stringify(response));
+                    }
                 })
             }
         }
     }
 </script>
-
-<style scoped>
-
-</style>

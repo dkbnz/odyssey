@@ -1,38 +1,45 @@
 <template>
-    <div class="container">
+    <div class="containerWithNav">
         <h1 class="page_title">Add a Destination</h1>
         <p class="page_title"><i>Add a destination using the form below</i></p>
-        <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+
+        <!--Displays a progress bar alert on submission which ticks down time to act
+        as a buffer for destination being added-->
         <b-alert
                 :show="dismissCountDown"
+                @dismiss-count-down="countDownChanged"
+                @dismissed="dismissCountDown=0"
                 dismissible
                 variant="success"
-                @dismissed="dismissCountDown=0"
-                @dismiss-count-down="countDownChanged"
         >
             <p>Destination Successfully Added</p>
             <b-progress
-                    variant="success"
                     :max="dismissSecs"
                     :value="dismissCountDown"
                     height="4px"
+                    variant="success"
             ></b-progress>
         </b-alert>
+
+        <!--Form for adding a destination-->
         <div>
             <b-form>
                 <b-form-group
                         id="name-field"
                         label="Destination Name:"
                         label-for="dName">
-                    <b-form-input id="dName" v-model="dName" type="text" required></b-form-input>
+                    <b-form-input id="dName" required type="text" v-model="dName"></b-form-input>
                 </b-form-group>
 
                 <b-form-group
                         id="type-field"
                         label="Destination Type:"
                         label-for="type">
-                    <b-form-select id="type" v-model="dType" trim>
-                        <option v-for="destination in destinationTypes" :value="destination.id">{{destination.destinationType}}</option>
+                    <b-form-select id="type" trim v-model="dType">
+                        <option :value="destination.id" v-for="destination in destinationTypes">
+                            {{destination.destinationType}}
+                        </option>
                     </b-form-select>
                 </b-form-group>
 
@@ -40,31 +47,31 @@
                         id="district-field"
                         label="District:"
                         label-for="district">
-                    <b-form-input id="district" v-model="dDistrict" type="text" trim required></b-form-input>
+                    <b-form-input id="district" required trim type="text" v-model="dDistrict"></b-form-input>
                 </b-form-group>
 
                 <b-form-group
                         id="latitude-field"
                         label="Latitude:"
                         label-for="latitude">
-                    <b-form-input id="latitude" v-model="dLatitude" type="text" trim required></b-form-input>
+                    <b-form-input id="latitude" required trim type="text" v-model="dLatitude"></b-form-input>
                 </b-form-group>
 
                 <b-form-group
                         id="longitude-field"
                         label="Longitude:"
                         label-for="longitude">
-                    <b-form-input id="longitude" v-model="dLongitude" type="text" trim required></b-form-input>
+                    <b-form-input id="longitude" required trim type="text" v-model="dLongitude"></b-form-input>
                 </b-form-group>
 
                 <b-form-group
                         id="country-field"
                         label="Country:"
                         label-for="country">
-                    <b-form-input id="country" v-model="dCountry" type="text" trim required></b-form-input>
+                    <b-form-input id="country" required trim type="text" v-model="dCountry"></b-form-input>
                 </b-form-group>
 
-                <b-button block variant="primary" @click="checkDestinationFields">Add Destination</b-button>
+                <b-button @click="checkDestinationFields" block variant="primary">Add Destination</b-button>
             </b-form>
         </div>
     </div>
@@ -74,7 +81,7 @@
     export default {
         name: "addDestinations",
         props: ['profile', 'destinations', 'destinationTypes'],
-        data () {
+        data() {
             return {
                 dName: "",
                 dType: "",
@@ -90,6 +97,10 @@
             }
         },
         methods: {
+            /**
+             * Checks that latitude and longitude values are numbers and are between standard lat/long ranges
+             * @returns {boolean} true if fields are valid
+             */
             checkLatLong() {
                 let ok = true;
                 if (isNaN(this.dLatitude)) {
@@ -98,9 +109,20 @@
                 } else if (isNaN(this.dLongitude)) {
                     this.errorMessage = ("Longitude: '" + this.dLongitude + "' is not a number!");
                     ok = false;
+                } else if (this.dLatitude > 90 || this.dLatitude < -90) {
+                    this.errorMessage = ("Latitude: '" + this.dLatitude + "' must be between -90 and 90");
+                    ok = false;
+                } else if (this.dLongitude > 180 || this.dLongitude < -180) {
+                    this.errorMessage = ("Longitude: '" + this.dLongitude + "' must be between -180 and 180");
+                    ok = false;
                 }
                 return ok;
             },
+
+            /**
+             * Checks that all fields are present and runs validation
+             * On fail shows errors
+             */
             checkDestinationFields() {
                 if (!this.checkLatLong()) {
                     this.showError = true;
@@ -110,9 +132,12 @@
                 } else {
                     this.errorMessage = ("Please enter in all fields!");
                     this.showError = true;
-
                 }
             },
+
+            /**
+             * Sets all fields to blank
+             */
             resetDestForm() {
                 this.dName = "";
                 this.dType = "";
@@ -121,18 +146,32 @@
                 this.dLongitude = "";
                 this.dCountry = "";
             },
-            addDestination (cb) {
+
+            /**
+             * Adds new destination to database, then resets form and shows success alert
+             * Checks whether location is duplicate and displays error if so
+             * @param cb
+             * @returns {Promise<Response | never>}
+             */
+            addDestination(cb) {
                 let self = this;
                 let response = fetch(`/v1/destinations`, {
                     method: 'POST',
-                    headers:{'content-type': 'application/json'},
-                    body: (JSON.stringify({"name": this.dName, "type_id": this.dType, "district": this.dDistrict, "latitude": parseFloat(this.dLatitude), "longitude": parseFloat(this.dLongitude), "country": this.dCountry}))
+                    headers: {'content-type': 'application/json'},
+                    body: (JSON.stringify({
+                        "name": this.dName,
+                        "type_id": this.dType,
+                        "district": this.dDistrict,
+                        "latitude": parseFloat(this.dLatitude),
+                        "longitude": parseFloat(this.dLongitude),
+                        "country": this.dCountry
+                    }))
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(cb)
 
-                    .then(function(response) {
+                    .then(function (response) {
                         if (response.ok) {
                             self.resetDestForm();
                             self.showAlert();
@@ -140,25 +179,28 @@
                         } else {
                             throw new Error('Something is wrong!');
                         }
-                })
+                    })
                     .catch(() => {
                         this.showError = true;
-                        this.errorMessage = ("'" + this.dName + "' already exists as a destination!");
-
+                        this.errorMessage = ("Invalid input. Please try again!");
                     });
-
                 return response;
             },
+
+            /**
+             * Used to allow an alert to countdown on the successful saving of a destination.
+             * @param dismissCountDown      the name of the alert.
+             */
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
             },
+
+            /**
+             * Displays the countdown alert on the successful saving of a destination.
+             */
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
             },
         }
     }
 </script>
-
-<style scoped>
-
-</style>
