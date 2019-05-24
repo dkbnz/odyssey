@@ -10,7 +10,7 @@
         <table style="margin-top:20px">
             <tr v-for="rowNumber in (amountOfRows)">
                 <td v-for="photo in getRowPhotos(rowNumber)">
-                    <b-img :src="photo.imgUrl" thumbnail @click="showImage(photo.id)"></b-img>
+                    <b-img :src="getThumbImage(photo)" thumbnail @click="showImage(photo)"></b-img>
                 </td>
             </tr>
         </table>
@@ -36,7 +36,8 @@
                 rowSize: 6,
                 amountOfRows: 3,
                 currentPage: 0,
-                currentViewingID: 0
+                currentViewingID: 0,
+                auth: false
             }
         },
         computed: {
@@ -48,7 +49,8 @@
             }
         },
         props: {
-            profile: Object
+            profile: Object,
+            userProfile: Object
         },
         components: {
             photoUploader
@@ -78,12 +80,17 @@
                 this.$refs['uploaderModal'].hide()
             },
 
-            showImage() {
+            showImage(id) {
+                this.currentViewingID = id;
                 this.$refs['modalImage'].show();
             },
 
-            getFullPhoto(id) {
-                return 'v1/photos/' + id;
+            getFullPhoto() {
+                return 'v1/photos/' + this.currentViewingID;
+            },
+
+            getThumbImage(id) {
+                return 'v1/photos/thumbnail/' + id;
             },
 
             /**
@@ -99,17 +106,21 @@
                 return personalPhotos;
             },
 
+            checkAuth() {
+                this.auth = (this.userProfile.id === this.profile.id || this.userProfile.isAdmin);
+            },
+
             /**
              * TODO: Link to the backend then comment.
              * @returns {Promise<Response | never>}
              */
             getPhotos() {
-                let self = this;
-                return fetch(`/v1/travtypes`, {
-                    accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then((data) => self.photos = data);
+                this.checkAuth();
+                for(let i=0; i < this.profile.photoGallery.length; i++) {
+                    if(this.profile.photoGallery[i].public || this.auth) {
+                        this.photos.push(this.profile.photoGallery[i].id);
+                    }
+                }
             },
 
             /**
