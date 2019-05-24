@@ -11,6 +11,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repositories.PhotoRepository;
 import repositories.ProfileRepository;
+import util.AuthenticationUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -37,6 +38,7 @@ public class PhotoController extends Controller {
 
     private ProfileRepository profileRepo;
     private PhotoRepository photoRepo;
+    private AuthenticationUtil authUtil;
 
     @Inject
     public PhotoController(
