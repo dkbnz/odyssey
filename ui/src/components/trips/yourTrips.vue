@@ -529,8 +529,6 @@
             },
 
             getPermissions() {
-                console.log("---------------------------");
-                console.log(this.adminView);
                 this.hasPermission = (this.userProfile.id === this.profile.id ||
                     (this.userProfile.isAdmin && this.adminView));
             },
