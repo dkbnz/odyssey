@@ -499,22 +499,22 @@ public class ProfileController {
                     profileToUpdate.update();
 
                     Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
-                        Nationality newNat = Nationality.find.byId(node.get(ID).asInt());
-                        profileToUpdate.addNationality(newNat);
+                        Nationality newNationality = Nationality.find.byId(node.get(ID).asInt());
+                        profileToUpdate.addNationality(newNationality);
                     };
 
                     json.get(NATIONALITY).forEach(nationalityAction);
 
                     Consumer<JsonNode> passportAction = (JsonNode node) -> {
-                        Passport newPass = Passport.find.byId(node.get(ID).asInt());
-                        profileToUpdate.addPassport(newPass);
+                        Passport newPassport = Passport.find.byId(node.get(ID).asInt());
+                        profileToUpdate.addPassport(newPassport);
                     };
 
                     json.get(PASSPORT).forEach(passportAction);
 
                     Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
-                        TravellerType travType = TravellerType.find.byId(node.get(ID).asInt());
-                        profileToUpdate.addTravType(travType);
+                        TravellerType newTravellerType = TravellerType.find.byId(node.get(ID).asInt());
+                        profileToUpdate.addTravType(newTravellerType);
                     };
 
                     json.get(TRAVELLER_TYPE).forEach(travTypeAction);
