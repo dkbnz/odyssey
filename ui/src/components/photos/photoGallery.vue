@@ -21,6 +21,7 @@
         <b-button v-if="auth" class="btn btn-info" block v-b-modal.modalAddPhoto>Add Photo</b-button>
         <b-modal ref="uploaderModal" id="modalAddPhoto" hide-footer centered title="Add Photo">
             <template slot="modal-title"><h2>Add Photo</h2></template>
+            <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
             <photoUploader v-on:save-photos="sendPhotosToBackend" :acceptTypes="'image/jpeg, image/jpg, image/png'"></photoUploader>
         </b-modal>
         <photo-table v-bind:photos="photos"
@@ -47,7 +48,9 @@
                 currentViewingID: 0,
                 auth: false,
                 dismissSecs: 3,
-                dismissCountDown: 0
+                dismissCountDown: 0,
+                showError: false,
+                errorMessage: ""
             }
         },
 
@@ -78,6 +81,8 @@
              * @param files     The photo(s) uploaded from the personal photos component.
              */
             sendPhotosToBackend: function(files) {
+                this.showError = false;
+                this.errorMessage = "";
                 let self = this;
                 fetch(`/v1/photos/` + this.profile.id, {
                     method: 'POST',
@@ -88,7 +93,6 @@
                         this.addPhotos(data);
                         this.showAlert();
                     });
-                this.$refs['uploaderModal'].hide();
             },
 
 
@@ -185,6 +189,10 @@
             parseJSON(response) {
                 if (response.status === 201) {
                     this.files = null;
+                    this.$refs['uploaderModal'].hide();
+                } else {
+                    this.showError = true;
+                    this.errorMessage = "Invalid image size/type"
                 }
                 return response.json();
             },
