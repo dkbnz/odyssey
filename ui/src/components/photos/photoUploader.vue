@@ -7,7 +7,7 @@
                      v-model="files"
         ></b-form-file>
         <b-button @click="files = null" class="btn btn-info">Clear Selected Files</b-button>
-        <b-button @click="save()" class="btn btn-info">Save</b-button>
+        <b-button :disabled="files == null || files.length === 0" @click="save()" class="btn btn-info">Save</b-button>
     </div>
 </template>
 
