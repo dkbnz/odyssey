@@ -23,7 +23,14 @@
             <template slot="modal-title"><h2>Add Photo</h2></template>
             <photoUploader v-on:save-photos="sendPhotosToBackend" :acceptTypes="'image/jpeg, image/jpg, image/png'"></photoUploader>
         </b-modal>
-        <photo-table v-bind:photos="photos" v-bind:profile="profile" v-bind:userProfile="userProfile" :adminView="adminView" v-on:changePrivacy="updatePhotoPrivacyList"></photo-table>
+        <photo-table v-bind:photos="photos"
+                     v-bind:profile="profile"
+                     v-bind:userProfile="userProfile"
+                     :adminView="adminView"
+                     v-on:changePrivacy="updatePhotoPrivacyList"
+                     v-on:removePhoto="deletePhoto">
+
+        </photo-table>
     </div>
 </template>
 
@@ -137,7 +144,8 @@
             },
 
             /**
-             * When a photo is added it only adds the photos to the gallery that are changed
+             * When a photo is added it refreshes the photos list without needing a refresh of the page or profile
+             * @param data          the json response from adding photos from the backend to give id's and public status
              */
             addPhotos(data) {
                 this.checkAuth();
@@ -153,11 +161,17 @@
              * Deletes the photo from the photos list so it updates the table in the front end without
              * requiring a refresh of the profile
              */
-            deletePhoto() {
+            deletePhoto: function(photoId) {
                 this.checkAuth();
+                let change = false;
                 for(let i=0; i < this.photos.length; i++) {
-                    if(this.photos[i] === this.currentViewingID) {
-                        this.photos.splice(i, i-1);
+                    if(this.photos[i].id === photoId || change) {
+                        change = true;
+                        if (i+1 === this.photos.length) {
+                            this.photos.pop();
+                        } else {
+                            this.photos[i] = this.photos[i+1];
+                        }
                     }
                 }
             },

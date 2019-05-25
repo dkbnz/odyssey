@@ -27,7 +27,8 @@
     <b-modal centered hide-footer ref="modalImage">
         <b-img-lazy :src="getFullPhoto()" center fluid></b-img-lazy>
         <b-button  class="mr-2" size="sm"
-                   v-b-modal.deletePhotoModal
+                   v-b-modal.deletePhotoModal block
+                   style="margin-top: 10px"
                    v-if="auth" variant="danger">Delete
         </b-button>
         <b-modal hide-footer id="deletePhotoModal" ref="deletePhotoModal" title="Delete Photo">
@@ -151,7 +152,7 @@
                 });
                 this.$refs['deletePhotoModal'].hide();
                 this.$refs['modalImage'].hide();
-                this.deletePhoto();
+                this.$emit('removePhoto', this.currentViewingID);
             },
 
             /**
