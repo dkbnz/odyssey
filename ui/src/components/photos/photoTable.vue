@@ -125,8 +125,33 @@
                 this.$refs['modalImage'].show();
             },
 
+            /**
+             * When an image isn't shown show this default profile image
+             */
             imageAlt(event) {
                 event.target.src = "../../../static/default_profile_picture.png"
+            },
+
+            /**
+             * Closes the delete photo modal
+             */
+            dismissConfirmDelete() {
+                this.$refs['deletePhotoModal'].hide();
+            },
+
+            /**
+             * Sends the DELETE request to the backend for the selected image and closes the two modals
+             * and refreshes the list of photos in the photo gallery
+             */
+            deleteImage() {
+                fetch(`/v1/photos/` + this.currentViewingID, {
+                    method: 'DELETE'
+                }).then(response =>  {
+                    this.error = (response.status === 200);
+                });
+                this.$refs['deletePhotoModal'].hide();
+                this.$refs['modalImage'].hide();
+                this.deletePhoto();
             },
 
             /**
@@ -150,7 +175,6 @@
                         console.log("ERROR");
                     }
                 });
-                // location.reload();
             },
 
             /**

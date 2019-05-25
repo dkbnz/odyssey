@@ -37,22 +37,10 @@
         data: function () {
             return {
                 photos: [],
-                rowSize: 3,
-                amountOfRows: 3,
-                currentPage: 1,
                 currentViewingID: 0,
                 auth: false,
                 dismissSecs: 3,
                 dismissCountDown: 0
-            }
-        },
-
-        computed: {
-            rows() {
-                return this.photos.length
-            },
-            perPage() {
-                return this.rowSize * this.amountOfRows
             }
         },
 
@@ -96,73 +84,6 @@
                 this.$refs['uploaderModal'].hide();
             },
 
-
-            /**
-             * Updates the privacy for a photo between privet and public and sends PACTH
-             * request to the backend
-             */
-            updatePrivacy(photoId, isPublic) {
-                let json = {
-                    "id" : photoId,
-                    "public" : isPublic
-                };
-
-                fetch('/v1/photos', {
-                    method: 'PATCH',
-                    headers: {'content-type': 'application/json'},
-                    body: JSON.stringify(json)
-                }).then(response => {
-                    if (response.status === 200) {
-                        self.files = null;
-                    } else {
-                        console.log("ERROR");
-                    }
-                });
-            },
-
-            /**
-             * Shows the image in the larger modal and sets the current viewing image
-             */
-            showImage(id) {
-                this.currentViewingID = id;
-                this.$refs['modalImage'].show();
-            },
-
-            /**
-             * Sends a GET request to get the full sized image from the backend
-             */
-            getFullPhoto() {
-                return 'v1/photos/' + this.currentViewingID;
-            },
-
-            /**
-             * Sends a GET request to get a thumbnail image from the backend
-             */
-            getThumbImage(id) {
-                return 'v1/photos/thumb/' + id;
-            },
-
-            /**
-             * Closes the delete photo modal
-             */
-            dismissConfirmDelete() {
-                this.$refs['deletePhotoModal'].hide();
-            },
-
-            /**
-             * Sends the DELETE request to the backend for the selected image and closes the two modals
-             * and refreshes the list of photos in the photo gallery
-             */
-            deleteImage() {
-                fetch(`/v1/photos/` + this.currentViewingID, {
-                    method: 'DELETE'
-                }).then(response =>  {
-                    this.error = (response.status === 200);
-                });
-                this.$refs['deletePhotoModal'].hide();
-                this.$refs['modalImage'].hide();
-                this.deletePhoto();
-            },
 
             /**
              * Creates the form data to send as the body of the POST request to the backend.
@@ -228,6 +149,10 @@
                 }
             },
 
+            /**
+             * Deletes the photo from the photos list so it updates the table in the front end without
+             * requiring a refresh of the profile
+             */
             deletePhoto() {
                 this.checkAuth();
                 for(let i=0; i < this.photos.length; i++) {
@@ -248,27 +173,6 @@
                     this.files = null;
                 }
                 return response.json();
-            },
-
-
-            /**
-             * Calculates the positions of photos within a gallery grid row.
-             *
-             * @param rowNumber     The row currently having photos positioned within it.
-             */
-            getRowPhotos(rowNumber) {
-                let numberOfPhotos = (this.photos.length);
-                let endRowIndex = ((rowNumber * this.rowSize) + ((this.currentPage - 1) * this.perPage));
-                let startRowIndex = (rowNumber - 1) * this.rowSize  + ((this.currentPage - 1) * this.perPage);
-
-                // Check preventing an IndexOutOfRangeError, before filling the row with photos indexed from the list.
-                if (endRowIndex > numberOfPhotos) {
-                    let viewPhotos =  this.photos;
-                    return viewPhotos.slice(startRowIndex);
-                } else {
-                    let viewPhotos =  this.photos;
-                    return viewPhotos.slice(startRowIndex, endRowIndex);
-                }
             },
 
             /**
