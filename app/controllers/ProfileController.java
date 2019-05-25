@@ -87,7 +87,7 @@ public class ProfileController {
 
         String getError = userDataValid(json);
 
-        if(getError == null) {
+        if(getError != null) {
             return badRequest(getError);
         }
 
@@ -459,7 +459,7 @@ public class ProfileController {
 
                     String getError = userDataValid(json);
 
-                    if(getError == null) {
+                    if(getError != null) {
                         return badRequest(getError);
                     }
 
