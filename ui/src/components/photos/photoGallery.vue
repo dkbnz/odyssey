@@ -20,8 +20,27 @@
                 :total-rows="rows"
                 :per-page="perPage"
         ></b-pagination>
-        <b-modal size="lg" centered hide-footer ref="modalImage">
+        <b-modal centered hide-footer ref="modalImage">
             <b-img-lazy :src="getFullPhoto()" center fluid></b-img-lazy>
+            <b-button  class="mr-2" size="sm"
+                       v-b-modal.deleteModal
+                       v-if="auth" v-model="deleteButton" variant="danger">Delete
+            </b-button>
+            <b-modal hide-footer id="deleteModal" ref="deleteModal" title="Delete Trip">
+                <div class="d-block">
+                    Are you sure that you want to delete this image?
+                </div>
+                <b-button
+                        @click="dismissModal('deleteModal')
+                         deleteImage(selectedTrip);"
+                        class="mr-2 float-right"
+                        variant="danger">Delete
+                </b-button>
+                <b-button
+                        @click="dismissModal('deleteModal')"
+                        class="mr-2 float-right">Cancel
+                </b-button>
+            </b-modal>
         </b-modal>
     </div>
 </template>

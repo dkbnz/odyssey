@@ -1,5 +1,6 @@
 package controllers.photos;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import models.Profile;
@@ -35,6 +36,8 @@ public class PhotoController extends Controller {
     private static final Long MAX_IMG_SIZE = 5000000L;
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
+    private static final String PHOTO_ID = "id";
+    private static final String IS_PUBLIC = "public";
 
     private ProfileRepository profileRepo;
     private PersonalPhotoRepository personalPhotoRepo;
@@ -59,20 +62,20 @@ public class PhotoController extends Controller {
     }
 
     /**
-     * Returns whether or not a list of uploaded images are valid.
+     * Returns whether or not a list of uploaded photos are valid.
      *
-     * @param pictures  list of pictures to be validated
-     * @return          true if all image files are valid.
+     * @param photos    list of photos to be validated
+     * @return          true if all photo files are valid.
      */
-    private boolean validateImages(List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures) {
+    private boolean validatePhotos(List<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
 
         ArrayList<String> validFileTypes = new ArrayList<>();
         validFileTypes.add("image/jpeg");
         validFileTypes.add("image/png");
 
-        for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
-            Long fileSize = picture.getFileSize();
-            String contentType = picture.getContentType();
+        for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
+            Long fileSize = photo.getFileSize();
+            String contentType = photo.getContentType();
 
             if (!((fileSize < MAX_IMG_SIZE) && (validFileTypes.contains(contentType))))
                 return false;
@@ -82,7 +85,7 @@ public class PhotoController extends Controller {
     }
 
     /**
-     * Takes a profile, filename of a previously saved image and boolean flag.
+     * Takes a profile, filename of a previously saved photo and boolean flag.
      * Creates photo object and personal photo object, saves them to profile.
      *
      * @param profileToAdd  profile to add the photo to.
@@ -140,19 +143,92 @@ public class PhotoController extends Controller {
 //        return ok();
 //    }
 
+    /**
+     * Change the privacy of the selected photo from private to public, or public to private. Public means all users can
+     * see the photo, private means only the logged in user or an admin can see the photo.
+     *
+     * @param request   the Http request body containing the image to change from public to private.
+     * @return          ok() (Http 200) if the photo is successfully changed. notFound() (Http 404) if the specified
+     *                  photo cannot be found. forbidden() (Http 403) if the person trying to change the privacy of the
+     *                  photo is not the owner of the image or an admin. unauthorized() (Http 401) if the user is not
+     *                  logged in. internalServerError() (Http 500) if for some reason the photo couldn't be changed.
+     */
+    public Result changePrivacy(Http.Request request) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(loggedInUserId -> {
+                    JsonNode json = request.body().asJson();
+
+                    if (!(json.has(PHOTO_ID) && json.has(IS_PUBLIC))) {
+                        return badRequest();
+                    }
+
+                    Long personalPhotoId = json.get(PHOTO_ID).asLong();
+                    Boolean isPublic = json.get(IS_PUBLIC).asBoolean();
+
+                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
+                    Profile profileToChange;
+
+                    PersonalPhoto personalPhoto = personalPhotoRepo.fetch(personalPhotoId);
+
+                    if (personalPhoto == null) {
+                        return notFound();
+                    }
+
+                    Long ownerId = personalPhoto.getProfile().getId();
+
+                    if (ownerId == null) {
+                        return notFound();
+                    }
+
+                    if(authenticateUser(loggedInUser, ownerId, loggedInUserId).status() == 200) {
+                        profileToChange = profileRepo.fetchSingleProfile(ownerId.intValue());
+                    } else {
+                        return authenticateUser(loggedInUser, ownerId, loggedInUserId);
+                    }
+                    if (profileToChange != null) {
+                        personalPhotoRepo.updatePrivacy(profileToChange, personalPhoto, isPublic);
+                        return ok();
+                    }
+                    return internalServerError("Can't change privacy of photo");
+                })
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+    }
+
+    /**
+     * Generic method to check the authentication rights of the logged in user.
+     *
+     * @param loggedInUser      the Profile object of the logged in user.
+     * @param userId            the id number of the user to be modified.
+     * @param loggedInUserId    the id number of the logged in user.
+     * @return                  ok() (Http 200) if the logged in user is an admin or the user being modified,
+     *                          forbidden() (Http 403) if they are not permitted to modify the logged in user,
+     *                          badRequest() (Http 400) otherwise.
+     */
+    private Result authenticateUser(Profile loggedInUser, Long userId, String loggedInUserId) {
+        // If user is admin, or if they are editing their own profile then allow them to edit.
+        if(AuthenticationUtil.validUser(loggedInUser, userId)) {
+            return ok();
+        } else if (!userId.equals(Long.valueOf(loggedInUserId))) {
+            return forbidden(); // User has specified an id which is not their own, but is not admin
+        } else {
+            return badRequest();
+        }
+    }
+
 
     /**
      * Saves a list of images given in multipart form data in the application.
      * Creates thumbnails for all files. Saves a full sized copy and a thumbnail of each photo.
      *
      * @param profileToAdd  profile to add the photos to
-     * @param pictures      list of pictures to add the the profile
+     * @param photos        list of images to add the the profile
      * @return              created() (Http 201) if upload was successful.
      *                      internalServerError() (Http 500) if there was an error with thumbnail creation
      */
-    private Result saveImages(Profile profileToAdd, Collection<Http.MultipartFormData.FilePart<TemporaryFile>> pictures) {
-        for (Http.MultipartFormData.FilePart<TemporaryFile> picture : pictures) {
-            TemporaryFile tempFile = picture.getRef();
+    private Result savePhotos(Profile profileToAdd, Collection<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
+        for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
+            TemporaryFile tempFile = photo.getRef();
             String filename = generateFilename();
             tempFile.copyTo(Paths.get(IMAGE_DIRECTORY, filename), true);
             try {
@@ -161,7 +237,7 @@ public class PhotoController extends Controller {
                 log.error("Unable to convert image to thumbnail", e);
                 return internalServerError("Unable to convert image to thumbnail");
             }
-            addImageToProfile(profileToAdd, filename, picture.getContentType(), true);
+            addImageToProfile(profileToAdd, filename, photo.getContentType(), false);
         }
         return created("Files uploaded");
     }
@@ -173,9 +249,9 @@ public class PhotoController extends Controller {
      *
      * @param request   http request containing multipart form data.
      * @param userId    id of the user to add the photos to.
-     * @return          created() (Http 201) if successful. badRequest() (Http 400) if image is invalid, or no profile
+     * @return          created() (Http 201) if successful. badRequest() (Http 400) if photo is invalid, or no profile
      *                  found. forbidden() (Http 403) if the logged in user isn't admin or adding photo for themselves.
-     *                  internalServerError() (Http 500) if image cannot be converted to a thumbnail.
+     *                  internalServerError() (Http 500) if photo cannot be converted to a thumbnail.
      */
     public Result upload(Http.Request request, Long userId) {
         return request.session()
@@ -185,12 +261,10 @@ public class PhotoController extends Controller {
                     Profile profileToAdd;
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if(AuthenticationUtil.validUser(loggedInUser, userId)) {
+                    if(authenticateUser(loggedInUser, userId, loggedInUserId).status() == 200) {
                         profileToAdd = profileRepo.fetchSingleProfile(userId.intValue());
-                    } else if (!userId.equals(Long.valueOf(loggedInUserId))) {
-                        return forbidden(); // User has specified an id which is not their own, but is not admin
                     } else {
-                        return badRequest();
+                        return authenticateUser(loggedInUser, userId, loggedInUserId);
                     }
 
                     if (profileToAdd == null) {
@@ -198,15 +272,15 @@ public class PhotoController extends Controller {
                     }
 
                     Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
-                    List<Http.MultipartFormData.FilePart<TemporaryFile>> pictures = body.getFiles();
+                    List<Http.MultipartFormData.FilePart<TemporaryFile>> photos = body.getFiles();
 
                     // Validate images
-                    if (!validateImages(pictures))
+                    if (!validatePhotos(photos))
                         return badRequest("Invalid image size/type.");
 
                     // Images are valid, if we have images, then add them to profile
-                    if (!pictures.isEmpty())
-                        return saveImages(profileToAdd, pictures);
+                    if (!photos.isEmpty())
+                        return savePhotos(profileToAdd, photos);
 
                     // Images are empty
                     return badRequest("No images to upload.");
@@ -222,8 +296,8 @@ public class PhotoController extends Controller {
      * @throws IOException  if there is an error with saving the thumbnail.
      */
     private void saveThumbnail(String filename) throws IOException {
-        BufferedImage img = ImageIO.read(new File(IMAGE_DIRECTORY + filename));
-        BufferedImage croppedImage = makeSquare(img);
+        BufferedImage photo = ImageIO.read(new File(IMAGE_DIRECTORY + filename));
+        BufferedImage croppedImage = makeSquare(photo);
         BufferedImage thumbnail = scale(croppedImage);
         ImageIO.write(thumbnail, "jpg", new File(THUMBNAIL_DIRECTORY
                 + filename));
@@ -232,15 +306,15 @@ public class PhotoController extends Controller {
     /**
      * Gets a middle section of the image and makes it into a square.
      *
-     * @param img   the BufferedImage object of the uploaded image
+     * @param photo the BufferedImage object of the uploaded image
      * @return      a new BufferedImage subImage object of the square section of the image.
      */
-    private BufferedImage makeSquare(BufferedImage img) {
-        int width = img.getWidth();
-        int height = img.getHeight();
+    private BufferedImage makeSquare(BufferedImage photo) {
+        int width = photo.getWidth();
+        int height = photo.getHeight();
         int size = Math.min(width, height);
 
-        return img.getSubimage((width/2) - (size/2), (height/2) - (size/2), size, size);
+        return photo.getSubimage((width/2) - (size/2), (height/2) - (size/2), size, size);
     }
 
     /**
