@@ -4,15 +4,16 @@
 
         <div :class="containerClass">
 
-            <h1 class="page_title" v-if="!adminView">Find Profiles</h1>
-            <p class="page_title" v-if="!adminView"><i>Search for other travellers using any of the fields in the form
-                below</i></p>
+            <h1 class="page-title" v-if="!adminView">Find Profiles</h1>
+            <p class="page-title" v-if="!adminView"><i>Search for other travellers using any of the fields in the form
+                below</i>
+            </p>
 
             <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
 
 
             <!-- Confirmation modal for deleting a profile. -->
-            <b-modal hide-footer id="deleteModal" ref="deleteModal" title="Delete Profile">
+            <b-modal ref="deleteProfileModal" id="deleteProfileModal" hide-footer title="Delete Profile">
                 <div class="d-block">
                     Are you sure that you want to delete "{{selectedProfile.firstName}} {{selectedProfile.lastName}}"?
                 </div>
@@ -113,11 +114,14 @@
 
             <!--Displays results from profile search in a table format-->
             <div style="margin-top: 40px">
-                <b-table :busy="this.profiles.length === 0" :current-page="currentPage" :fields="fields" :items="profiles"
+                <b-table :busy="this.profiles.length === 0"
+                         :current-page="currentPage"
+                         :fields="fields"
+                         :items="profiles"
                          :per-page="perPage"
                          :sort-by.sync="sortBy"
                          :sort-desc.sync="sortDesc"
-                         fixed
+                         responsive
                          hover
                          id="profiles"
                          outlined
@@ -457,7 +461,7 @@
              * Used to dismiss the delete a profile modal
              */
             dismissModal() {
-                this.$refs['deleteModal'].hide();
+                this.$refs['deleteProfileModal'].hide();
             },
 
             /**

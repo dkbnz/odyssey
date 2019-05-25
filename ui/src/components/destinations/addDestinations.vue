@@ -1,7 +1,7 @@
 <template>
     <div class="containerWithNav">
-        <h1 class="page_title">Add a Destination</h1>
-        <p class="page_title"><i>Add a destination using the form below</i></p>
+        <h1 class="page-title">Add a Destination</h1>
+        <p class="page-title"><i>Add a destination using the form below</i></p>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act
@@ -28,16 +28,18 @@
                 <b-form-group
                         id="name-field"
                         label="Destination Name:"
+                        label-for="destinationName">
+                    <b-form-input id="destinationName" v-model="destinationName" type="text" required
+                                  :state="destinationNameValidation"></b-form-input>
                         label-for="dName">
-                    <b-form-input id="dName" required type="text" v-model="dName"></b-form-input>
                 </b-form-group>
 
                 <b-form-group
                         id="type-field"
                         label="Destination Type:"
                         label-for="type">
-                    <b-form-select id="type" trim v-model="dType">
-                        <option :value="destination.id" v-for="destination in destinationTypes">
+                    <b-form-select id="type" v-model="destinationType" trim :state="destinationTypeValidation">
+                        <option v-for="destination in destinationTypes" :value="destination.id">
                             {{destination.destinationType}}
                         </option>
                     </b-form-select>
@@ -47,28 +49,41 @@
                         id="district-field"
                         label="District:"
                         label-for="district">
-                    <b-form-input id="district" required trim type="text" v-model="dDistrict"></b-form-input>
+                    <b-form-input id="district" v-model="destinationDistrict" type="text" trim required
+                                  :state="destinationDistrictValidation"></b-form-input>
                 </b-form-group>
 
                 <b-form-group
                         id="latitude-field"
                         label="Latitude:"
                         label-for="latitude">
-                    <b-form-input id="latitude" required trim type="text" v-model="dLatitude"></b-form-input>
+                    <b-form-input id="latitude" v-model="destinationLatitude" type="text" trim required
+                                  :state="destinationLatitudeValidation"></b-form-input>
+                    <b-form-invalid-feedback :state="destinationLatitudeValidation" align="center">
+                        {{latitudeErrorMessage}}
+                    </b-form-invalid-feedback>
                 </b-form-group>
 
                 <b-form-group
                         id="longitude-field"
                         label="Longitude:"
                         label-for="longitude">
-                    <b-form-input id="longitude" required trim type="text" v-model="dLongitude"></b-form-input>
+                    <b-form-input id="longitude" v-model="destinationLongitude" type="text" trim required
+                                  :state="destinationLongitudeValidation"></b-form-input>
+                    <b-form-invalid-feedback :state="destinationLongitudeValidation" align="center">
+                        {{longitudeErrorMessage}}
+                    </b-form-invalid-feedback>
                 </b-form-group>
 
                 <b-form-group
                         id="country-field"
                         label="Country:"
                         label-for="country">
-                    <b-form-input id="country" required trim type="text" v-model="dCountry"></b-form-input>
+                    <b-form-input id="country" v-model="destinationCountry" type="text" trim required
+                                  :state="destinationCountryValidation"></b-form-input>
+                    <b-form-invalid-feedback :state="destinationCountryValidation" align="center">
+                        Country cannot have any numbers in it!
+                    </b-form-invalid-feedback>
                 </b-form-group>
 
                 <b-button @click="checkDestinationFields" block variant="primary">Add Destination</b-button>
@@ -83,53 +98,91 @@
         props: ['profile', 'destinations', 'destinationTypes'],
         data() {
             return {
-                dName: "",
-                dType: "",
-                dDistrict: "",
-                dLatitude: null,
-                dLongitude: null,
-                dCountry: "",
+                destinationName: "",
+                destinationType: "",
+                destinationDistrict: "",
+                destinationLatitude: null,
+                destinationLongitude: null,
+                destinationCountry: "",
                 showError: false,
                 errorMessage: "",
                 successTripAddedAlert: false,
                 dismissSecs: 3,
-                dismissCountDown: 0
+                dismissCountDown: 0,
+                latitudeErrorMessage: "",
+                longitudeErrorMessage: "",
+            }
+        },
+        computed: {
+            /**
+             * Validates the input fields based on regex
+             * @returns {*} true if input is valid
+             */
+            destinationNameValidation() {
+                if (this.destinationName.length === 0) {
+                    return null;
+                }
+                return this.destinationName.length > 0;
+            },
+            destinationTypeValidation() {
+                if (this.destinationType.length === 0) {
+                    return null;
+                }
+                return this.destinationType.length > 0 || this.destinationType !== null;
+            },
+            destinationDistrictValidation() {
+                if (this.destinationDistrict.length === 0) {
+                    return null;
+                }
+                return this.destinationDistrict.length > 0;
+            },
+            destinationLatitudeValidation() {
+                if (this.destinationLatitude === null) {
+                    return null;
+                }
+                if (isNaN(this.destinationLatitude)) {
+                    this.latitudeErrorMessage = "Latitude: '" + this.destinationLatitude + "' is not a number!";
+                    return false;
+                } else if (this.destinationLatitude > 90 || this.destinationLatitude < -90) {
+                    this.latitudeErrorMessage = "Latitude: '" + this.destinationLatitude + "' must be between -90 and 90";
+                    return false;
+                }
+                return true;
+            },
+            destinationLongitudeValidation() {
+                if (this.destinationLongitude === null) {
+                    return null;
+                }
+                if (isNaN(this.destinationLongitude)) {
+                    this.longitudeErrorMessage = "Longitude: '" + this.destinationLongitude + "' is not a number!";
+                    return false;
+                } else if (this.destinationLongitude > 180 || this.destinationLongitude < -180) {
+                    this.longitudeErrorMessage = "Longitude: '" + this.destinationLongitude + "' must be between -180 and 180";
+                    return false;
+                }
+                return true;
+            },
+            destinationCountryValidation() {
+                if (this.destinationCountry.length === 0) {
+                    return null;
+                }
+                let countryRegex = /\d/;
+                return !countryRegex.test(this.destinationCountry);
             }
         },
         methods: {
-            /**
-             * Checks that latitude and longitude values are numbers and are between standard lat/long ranges
-             * @returns {boolean} true if fields are valid
-             */
-            checkLatLong() {
-                let ok = true;
-                if (isNaN(this.dLatitude)) {
-                    this.errorMessage = ("Latitude: '" + this.dLatitude + "' is not a number!");
-                    ok = false;
-                } else if (isNaN(this.dLongitude)) {
-                    this.errorMessage = ("Longitude: '" + this.dLongitude + "' is not a number!");
-                    ok = false;
-                } else if (this.dLatitude > 90 || this.dLatitude < -90) {
-                    this.errorMessage = ("Latitude: '" + this.dLatitude + "' must be between -90 and 90");
-                    ok = false;
-                } else if (this.dLongitude > 180 || this.dLongitude < -180) {
-                    this.errorMessage = ("Longitude: '" + this.dLongitude + "' must be between -180 and 180");
-                    ok = false;
-                }
-                return ok;
-            },
-
             /**
              * Checks that all fields are present and runs validation
              * On fail shows errors
              */
             checkDestinationFields() {
-                if (!this.checkLatLong()) {
-                    this.showError = true;
-                } else if (this.dName && this.dDistrict && this.dLatitude && this.dLongitude && this.dCountry) {
+                if(this.destinationNameValidation && this.destinationTypeValidation
+                    && this.destinationDistrictValidation && this.destinationLatitudeValidation
+                    && this.destinationLongitudeValidation && this.destinationCountryValidation) {
                     this.showError = false;
                     this.addDestination();
-                } else {
+                }
+                else {
                     this.errorMessage = ("Please enter in all fields!");
                     this.showError = true;
                 }
@@ -139,12 +192,12 @@
              * Sets all fields to blank
              */
             resetDestForm() {
-                this.dName = "";
-                this.dType = "";
-                this.dDistrict = "";
-                this.dLatitude = "";
-                this.dLongitude = "";
-                this.dCountry = "";
+                this.destinationName = "";
+                this.destinationType = "";
+                this.destinationDistrict = "";
+                this.destinationLatitude = "";
+                this.destinationLongitude = "";
+                this.destinationCountry = "";
             },
 
             /**
@@ -155,36 +208,35 @@
              */
             addDestination(cb) {
                 let self = this;
-                let response = fetch(`/v1/destinations`, {
+                fetch(`/v1/destinations`, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: (JSON.stringify({
-                        "name": this.dName,
-                        "type_id": this.dType,
-                        "district": this.dDistrict,
-                        "latitude": parseFloat(this.dLatitude),
-                        "longitude": parseFloat(this.dLongitude),
-                        "country": this.dCountry
+                        "name": this.destinationName,
+                        "type_id": this.destinationType,
+                        "district": this.destinationDistrict,
+                        "latitude": parseFloat(this.destinationLatitude),
+                        "longitude": parseFloat(this.destinationLongitude),
+                        "country": this.destinationCountry
                     }))
                 })
-                    .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(cb)
 
-                    .then(function (response) {
+                    .then(function(response) {
                         if (response.ok) {
                             self.resetDestForm();
                             self.showAlert();
+                            self.emit('data-changed', true);
                             return JSON.parse(JSON.stringify(response));
                         } else {
-                            throw new Error('Something is wrong!');
+                            self.errorMessage = "";
+                            self.showError = true;
+                            response.clone().text().then(text => {
+                                self.errorMessage = text;
+                            });
                         }
-                    })
-                    .catch(() => {
-                        this.showError = true;
-                        this.errorMessage = ("Invalid input. Please try again!");
                     });
-                return response;
             },
 
             /**

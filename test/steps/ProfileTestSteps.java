@@ -24,6 +24,8 @@ import play.test.Helpers;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.*;
@@ -38,7 +40,7 @@ public class ProfileTestSteps {
     private int statusCode;
     private int loginStatusCode;
     private static final String PROFILES_URI = "/v1/profiles";
-    private static final String PROFILES_UPDATE__URI = "/v1/profile";
+    private static final String PROFILES_UPDATE_URI = "/v1/profile/";
     private static final String TRAVTYPES_URI = "/v1/travtypes";
     private static final String NATIONALITIES_URI = "/v1/nationalities";
     private static final String LOGIN_URI = "/v1/login";
@@ -53,7 +55,7 @@ public class ProfileTestSteps {
     /**
      * A valid password for login credentials for admin user.
      */
-    private static final String VALID_PASSWORD = "admin1";
+    private static final String VALID_AUTHPASS = "admin1";
 
     /**
      * The session used for keeping logged in users
@@ -62,7 +64,9 @@ public class ProfileTestSteps {
 
     private static final int NUMBER_OF_TRAVELTYPES = 7;
     private static final int NUMBER_OF_NATIONALITIES = 108;
-    private static final int NUMBER_OF_PROFILES = 2;
+    private static final int NUMBER_OF_PROFILES = 6;
+
+    private static final Logger LOGGER = Logger.getLogger( ProfileTestSteps.class.getName() );
 
 
 
@@ -165,13 +169,13 @@ public class ProfileTestSteps {
 
     /**
      * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_PASSWORD.
+     * and VALID_AUTHPASS.
      *
      * Asserts the login was successful with a status code of OK (200).
      */
     @And("I have logged in")
     public void iAmLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         assertEquals(OK, statusCode);
     }
 
@@ -204,7 +208,6 @@ public class ProfileTestSteps {
         }
         statusCode = result.status();
         Assert.assertEquals(true, passProfiles);
-
     }
 
 
@@ -285,7 +288,7 @@ public class ProfileTestSteps {
         try {
             arrNode = new ObjectMapper().readTree(content);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Unable to get response iterator for fake request.", e);
         }
         return arrNode.elements();
     }
@@ -330,8 +333,8 @@ public class ProfileTestSteps {
         statusCode = result.status();
     }
 
-    @Given("The following profile does not exist with username {string} within the TravelEA database")
-    public void theFollowingProfileDoesNotExistWithUsernameWithinTheTravelEADatabase(String username) {
+    @Given("The following profile does not exist with the username {string} within the TravelEA database")
+    public void theFollowingProfileDoesNotExistWithTheUsernameWithinTheTravelEADatabase(String username) {
         // Sends the fake request
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
@@ -355,8 +358,8 @@ public class ProfileTestSteps {
         Assert.assertFalse(foundProfile);
     }
 
-    @Then("the status code is Created")
-    public void theStatusCodeIsCreated() throws BeansException{
+    @Then("the status code received is Created")
+    public void theStatusCodeReceivedIsCreated() throws BeansException{
         Assert.assertEquals(CREATED, statusCode);
     }
 
@@ -366,7 +369,7 @@ public class ProfileTestSteps {
     }
 
     @When("The user attempts to update their profile information within the TravelEA database:")
-    public void theUserAttemptsToUpdateTheirProfileInformationWithinTheTravelEADatabase(io.cucumber.datatable.DataTable dataTable) {
+    public void theUserAttemptsToUpdateTheirProfileInformationWithinTheTravelEADatabase(DataTable dataTable) {
         // Creates the json for the profile
         JsonNode json = convertDataTableToJsonNode(dataTable);
 
@@ -375,7 +378,7 @@ public class ProfileTestSteps {
                 .method(PUT)
                 .session(AUTHORIZED, "2")
                 .bodyJson(json)
-                .uri(PROFILES_UPDATE__URI);
+                .uri(PROFILES_UPDATE_URI + 2); // Adding the id number to the uri, which is a string
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -399,31 +402,28 @@ public class ProfileTestSteps {
         // complex json
         ObjectMapper mapper = new ObjectMapper();
 
-        List<String> nationality = new ArrayList<String>();
-        List<String> traveller_type = new ArrayList<String>();
-        List<String> passport = new ArrayList<String>();
-
-        nationality.add(list.get(0).get("nationality"));
-        traveller_type.add(list.get(0).get("traveller_type"));
-        passport.add(list.get(0).get("passport_country"));
-
-        ArrayNode nationalityNode = mapper.valueToTree(nationality);
-        ArrayNode traveller_typeNode = mapper.valueToTree(traveller_type);
-        ArrayNode passportNode = mapper.valueToTree(passport);
-
         //Add values to a JsonNode
         JsonNode json = mapper.createObjectNode();
 
+        ObjectNode nationalityNode = mapper.createObjectNode();
+        nationalityNode.put("id", Integer.valueOf(list.get(0).get("nationality")));
+
+        ObjectNode travellerTypeNode = mapper.createObjectNode();
+        travellerTypeNode.put("id", Integer.valueOf(list.get(0).get("traveller_type")));
+
+        ObjectNode passportNode = mapper.createObjectNode();
+        passportNode.put("id", Integer.valueOf(list.get(0).get("passport_country")));
+
         ((ObjectNode) json).put("username", username);
         ((ObjectNode) json).put("password", password);
-        ((ObjectNode) json).put("first_name", firstName);
-        ((ObjectNode) json).put("middle_name", middleName);
-        ((ObjectNode) json).put("last_name", lastName);
+        ((ObjectNode) json).put("firstName", firstName);
+        ((ObjectNode) json).put("middleName", middleName);
+        ((ObjectNode) json).put("lastName", lastName);
         ((ObjectNode) json).put("gender", gender);
-        ((ObjectNode) json).put("date_of_birth", dateOfBirth);
-        ((ObjectNode) json).putArray("nationality").addAll(nationalityNode);
-        ((ObjectNode) json).putArray("traveller_type").addAll(traveller_typeNode);
-        ((ObjectNode) json).putArray("passport_country").addAll(passportNode);
+        ((ObjectNode) json).put("dateOfBirth", dateOfBirth);
+        ((ObjectNode) json).putArray("nationalities").add(nationalityNode);
+        ((ObjectNode) json).putArray("travellerTypes").add(travellerTypeNode);
+        ((ObjectNode) json).putArray("passports").add(passportNode);
 
         return json;
     }

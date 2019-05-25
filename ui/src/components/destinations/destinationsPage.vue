@@ -9,10 +9,10 @@
             </b-navbar-nav>
         </b-navbar>
         <!--Displays currently selected page-->
-        <search-destinations v-bind:destinationTypes="destinationTypes" v-bind:profile="profile"
-                             v-if="searchDestinations"></search-destinations>
-        <add-destinations v-bind:destinationTypes="destinationTypes" v-bind:destinations="destinations" v-bind:profile="profile"
-                          v-if="addDestinations"></add-destinations>
+        <search-destinations v-if="searchDestinations" :profile="profile"
+                             :destinationTypes="destinationTypes"></search-destinations>
+        <add-destinations @data-changed="emitDataChanged" v-if="addDestinations" :profile="profile"
+                          :destinations="destinations" :destinationTypes="destinationTypes"></add-destinations>
         <footer-main></footer-main>
     </div>
     <div v-else>
@@ -50,12 +50,19 @@
              * Switches between tabs
              * @param viewPage page to be displayed
              */
-            togglePage: function (viewPage) {
+            togglePage(viewPage) {
                 if (!viewPage) {
                     this.searchDestinations = !this.searchDestinations;
                     this.addDestinations = !this.addDestinations;
                 }
             },
+
+            /**
+             * Emits to the App Vue component to refresh the data when data has been changed.
+             */
+            emitDataChanged() {
+                this.emit('data-changed', true);
+            }
         }
     }
 </script>

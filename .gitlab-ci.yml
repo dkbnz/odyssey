@@ -23,14 +23,15 @@ tag_checker:
   only:
   - tags
 
-#junit:
-#  stage: test
-#  script:
-#    - sbt test
+junit:
+  stage: test
+  script:
+    - sbt test
 
 recent-artifacts:
   stage: deploy
   script:
+  - sudo git lfs pull
   - sudo -u gitlab-runner sbt dist
   artifacts:
     paths:
@@ -42,6 +43,7 @@ recent-artifacts:
 release-artifacts:
   stage: deploy
   script:
+  - sudo git lfs pull
   - sudo -u gitlab-runner sbt dist
   artifacts:
     paths:
