@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-form-file :file-name-formatter="formatNames" :state="Boolean(files)" accept="image/*"
+        <b-form-file :file-name-formatter="formatNames" :state="Boolean(files)" :accept="acceptTypes"
                      drop-placeholder="Drop files here..."
                      multiple
                      placeholder="Choose files..."
@@ -18,7 +18,10 @@
             return {
             }
         },
-        props: ['files'],
+        props: {
+            files: Object,
+            acceptTypes: String,
+        },
         methods: {
             formatNames(files) {
                 if (files.length === 1) {

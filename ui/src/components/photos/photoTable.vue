@@ -3,7 +3,7 @@
     <table style="margin-top:20px" ref="gallery">
         <tr v-for="rowNumber in (amountOfRows)">
             <td v-for="photo in getRowPhotos(rowNumber)">
-                <b-img :src="getThumbImage(photo.id)" thumbnail @click="showImage(photo.id)" alt="Image not Found">
+                <b-img :src="getThumbImage(photo.id)" thumbnail @click="showImage(photo.id)" alt="Image not Found" @error="imageAlt">
                 </b-img>
                 <b-select v-if="auth" style="width: 100%"
                           @change="updatePrivacy(photo.id, photo.public)"
@@ -123,6 +123,10 @@
             showImage(id) {
                 this.currentViewingID = id;
                 this.$refs['modalImage'].show();
+            },
+
+            imageAlt(event) {
+                event.target.src = "../../../static/default_profile_picture.png"
             },
 
             /**

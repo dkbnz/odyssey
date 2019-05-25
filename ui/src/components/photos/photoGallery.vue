@@ -21,7 +21,7 @@
         <b-button v-if="auth" class="btn btn-info" block v-b-modal.modalAddPhoto>Add Photo</b-button>
         <b-modal ref="uploaderModal" id="modalAddPhoto" hide-footer centered title="Add Photo">
             <template slot="modal-title"><h2>Add Photo</h2></template>
-            <photoUploader v-on:save-photos="sendPhotosToBackend"></photoUploader>
+            <photoUploader v-on:save-photos="sendPhotosToBackend" :acceptTypes="'image/jpeg, image/jpg, image/png'"></photoUploader>
         </b-modal>
         <photo-table v-bind:photos="photos" v-bind:profile="profile" v-bind:userProfile="userProfile" :adminView="adminView" v-on:changePrivacy="updatePhotoPrivacyList"></photo-table>
     </div>
@@ -235,10 +235,6 @@
                         this.photos.splice(i, i-1);
                     }
                 }
-            },
-
-            imageAlt(event) {
-                event.target.src = "../../../static/default_profile_picture.png"
             },
 
             /**
