@@ -2,16 +2,12 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import gherkin.ast.DataTable;
-import gherkin.deps.com.google.gson.Gson;
-import jdk.nashorn.internal.parser.JSONParser;
 import models.trips.Trip;
 import org.junit.Assert;
 import play.Application;
@@ -20,7 +16,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.HttpVerbs.PATCH;
 import static play.mvc.Http.Status.CREATED;
@@ -28,13 +23,10 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 import play.db.evolutions.Evolutions;
-import scala.Int;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Iterator;
 import java.util.Map;
 
 import static play.test.Helpers.fakeApplication;
