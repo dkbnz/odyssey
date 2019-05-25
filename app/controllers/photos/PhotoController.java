@@ -32,13 +32,16 @@ import java.util.UUID;
 public class PhotoController extends Controller {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private static final String IMAGE_DIRECTORY = "temp/";
-    private static final String THUMBNAIL_DIRECTORY = "temp/thumbnail/";
     private static final Long MAX_IMG_SIZE = 5000000L;
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String PHOTO_ID = "id";
     private static final String IS_PUBLIC = "public";
+
+    private static final String IMAGE_DIRECTORY = "temp/";
+    private static final String THUMBNAIL_SUBDIRECTORY = "thumbnail/";
+
+    private static final String PHOTO_ENV_VAR = "TRAVELEA_PHOTOS";
 
     private ProfileRepository profileRepo;
     private PersonalPhotoRepository personalPhotoRepo;
@@ -60,6 +63,20 @@ public class PhotoController extends Controller {
     private String generateFilename() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
+    }
+
+    /**
+     * Determines the filepath of where an image should be saved.
+     * Checks for a system variable which is only set on the server.
+     * If the system variable is set, then it will use that as the filepath.
+     * Otherwise, use the specified temp file paths above.
+     *
+     * @param getThumbnail  whether thumbnail directory is being requested.
+     * @return              filepath to save the photo to.
+     */
+    private String getPhotoFilePath(Boolean getThumbnail) {
+        return (System.getenv(PHOTO_ENV_VAR) == null ? IMAGE_DIRECTORY : System.getenv(PHOTO_ENV_VAR)) +
+                (getThumbnail ? THUMBNAIL_SUBDIRECTORY : "");
     }
 
     /**
@@ -95,8 +112,8 @@ public class PhotoController extends Controller {
      */
     private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic) {
         Photo photoToAdd = new Photo();
-        photoToAdd.setMainFilename(IMAGE_DIRECTORY + filename);
-        photoToAdd.setThumbnailFilename(THUMBNAIL_DIRECTORY + filename);
+        photoToAdd.setMainFilename(getPhotoFilePath(false) + filename);
+        photoToAdd.setThumbnailFilename(getPhotoFilePath(true) + filename);
         photoToAdd.setContentType(contentType);
         photoToAdd.setUploadDate(LocalDate.now());
         photoToAdd.setUploadProfile(profileToAdd);
@@ -232,7 +249,13 @@ public class PhotoController extends Controller {
         for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
             TemporaryFile tempFile = photo.getRef();
             String filename = generateFilename();
-            tempFile.copyTo(Paths.get(IMAGE_DIRECTORY, filename), true);
+
+            tempFile.copyTo(
+                    Paths.get(
+                            getPhotoFilePath(false),
+                            filename),
+                    true);
+
             try {
                 saveThumbnail(filename);
             } catch (IOException e) {
@@ -301,7 +324,7 @@ public class PhotoController extends Controller {
         BufferedImage photo = ImageIO.read(new File(IMAGE_DIRECTORY + filename));
         BufferedImage croppedImage = makeSquare(photo);
         BufferedImage thumbnail = scale(croppedImage);
-        ImageIO.write(thumbnail, "jpg", new File(THUMBNAIL_DIRECTORY
+        ImageIO.write(thumbnail, "jpg", new File(IMAGE_DIRECTORY + THUMBNAIL_SUBDIRECTORY
                 + filename));
     }
 

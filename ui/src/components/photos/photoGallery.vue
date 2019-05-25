@@ -37,7 +37,7 @@
         data: function () {
             return {
                 photos: [],
-                rowSize: 6,
+                rowSize: 3,
                 amountOfRows: 3,
                 currentPage: 1,
                 currentViewingID: 0,
@@ -94,7 +94,6 @@
                         this.showAlert();
                     });
                 this.$refs['uploaderModal'].hide();
-                // location.reload(); //TODO make refresh work without reload
             },
 
 
@@ -119,7 +118,6 @@
                         console.log("ERROR");
                     }
                 });
-                location.reload();
             },
 
             /**
@@ -237,6 +235,10 @@
                         this.photos.splice(i, i-1);
                     }
                 }
+            },
+
+            imageAlt(event) {
+                event.target.src = "../../../static/default_profile_picture.png"
             },
 
             /**
