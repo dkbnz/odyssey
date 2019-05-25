@@ -45,6 +45,7 @@ create table photo (
   thumbnail_filename            varchar(255),
   upload_date                   date,
   upload_profile_id             bigint,
+  content_type                  varchar(255),
   constraint pk_photo primary key (id)
 );
 
