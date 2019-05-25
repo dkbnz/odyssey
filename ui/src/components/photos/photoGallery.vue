@@ -10,18 +10,20 @@
         <table style="margin-top:20px">
             <tr v-for="rowNumber in (amountOfRows)">
                 <td v-for="photo in getRowPhotos(rowNumber)">
-                    <b-img :src="getThumbImage(photo)" thumbnail @click="showImage(photo)" alt="Image not Found">
-                    </b-img>
-                    <b-select v-if="auth"
-                            @change="updatePrivacy(photo, profile.photoGallery.find(obj => obj.id === photo).public)"
-                              v-model="profile.photoGallery.find(obj => obj.id === photo).public">
-                        <option value="true">
-                            Public
-                        </option>
-                        <option value="false">
-                            Private
-                        </option>
-                    </b-select>
+                    <b-container fluid>
+                        <b-img :src="getThumbImage(photo)" thumbnail @click="showImage(photo)" alt="Image not Found">
+                        </b-img>
+                        <b-select v-if="auth" style="width: 210px"
+                                  @change="updatePrivacy(photo, profile.photoGallery.find(obj => obj.id === photo).public)"
+                                  v-model="profile.photoGallery.find(obj => obj.id === photo).public">
+                            <option value="true">
+                                Public
+                            </option>
+                            <option value="false">
+                                Private
+                            </option>
+                        </b-select>
+                    </b-container>
                 </td>
             </tr>
         </table>
