@@ -237,7 +237,7 @@ public class PhotoController extends Controller {
                 log.error("Unable to convert image to thumbnail", e);
                 return internalServerError("Unable to convert image to thumbnail");
             }
-            addImageToProfile(profileToAdd, filename, photo.getContentType(), true);
+            addImageToProfile(profileToAdd, filename, photo.getContentType(), false);
         }
         return created("Files uploaded");
     }

@@ -13,6 +13,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.Profile;
+import models.photos.PersonalPhoto;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ public class PhotoTestSteps {
     private static final String AUTHORIZED = "authorized";
     private int statusCode;
     private static final String UPLOAD_PHOTOS_URI = "/v1/photos/";
+    private static final String CHANGE_PHOTO_PRIVACY_URI = "/v1/photos";
     private static final String SINGLE_PROFILE_URI = "/v1/profile";
     private static final String LOGIN_URI = "/v1/login";
     private static final String USERNAME = "username";
@@ -80,8 +82,7 @@ public class PhotoTestSteps {
     private static final String REG_PASS = "guest123";
     private static final String REG_ID = "2";
 
-
-    private String userId;
+    private String LOGGED_IN_ID;
 
     @Before
     public void setUp() {
@@ -176,21 +177,15 @@ public class PhotoTestSteps {
         return arrNode.elements();
     }
 
-    private JsonNode createJson() {
+    private JsonNode createJson(int photoId, boolean isPublic) {
         // complex json
         ObjectMapper mapper = new ObjectMapper();
 
         //Add values to a JsonNode
         JsonNode json = mapper.createObjectNode();
-        ObjectNode photoNode = mapper.createObjectNode();
-        photoNode.put("id", 1);
-        photoNode.put("mainFilename", "temp/1e699f1f-dc7f-448c-a673-dc49c30cee65");
-        photoNode.put("thumbnailFilename", "temp/1e699f1f-dc7f-448c-a673-dc49c30cee65");
-        photoNode.put("uploadDate", "2019-05-24");
 
-        ((ObjectNode) json).put("id", 1);
-        ((ObjectNode) json).putArray("photos").add(photoNode);
-        ((ObjectNode) json).put("public", true);
+        ((ObjectNode) json).put("id", photoId);
+        ((ObjectNode) json).put("public", isPublic);
 
         return json;
     }
@@ -199,13 +194,14 @@ public class PhotoTestSteps {
     public void anAdminIsLoggedIn(int loggedInId) {
         loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         Assert.assertEquals(OK, statusCode);
+        LOGGED_IN_ID = ADMIN_ID;
     }
 
     @Given("I am logged in as a non-admin with id {int}")
     public void iAmLoggedInAsARegularUser(int loggedInId) {
         loginRequest(REG_USER, REG_PASS);
         Assert.assertEquals(OK, statusCode);
-        userId = REG_ID;
+        LOGGED_IN_ID = REG_ID;
     }
 
     @Given("I have a application running")
@@ -214,11 +210,17 @@ public class PhotoTestSteps {
     }
 
 
-    @Given("a user exists in the database with the username {string} and id {int}")
+    @Given("a user exists in the database with the username {string} and id number {int}")
     public void aUserExistsInTheDatabaseWithTheUsernameAndId(String username, Integer id) {
         Profile profile = Profile.find.byId(id);
         Assert.assertNotNull(profile);
         Assert.assertEquals(profile.getUsername(), username);
+    }
+
+    @Given("a photo exists with id {int}")
+    public void photoExistsInDatabase(Integer id) {
+        PersonalPhoto photo = PersonalPhoto.find.byId(id);
+        Assert.assertNotNull(photo);
     }
 
 
@@ -254,10 +256,29 @@ public class PhotoTestSteps {
         statusCode = createPhotoResult.status();
     }
 
+    @When("I change the privacy of the photo with id {int} to public {string}")
+    public void iChangeThePrivacyOfThePhoto(int photoId, String isPublic) {
+        JsonNode json = createJson(photoId, Boolean.parseBoolean(isPublic));
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                .uri(CHANGE_PHOTO_PRIVACY_URI)
+                .method("PATCH")
+                .bodyJson(json)
+                .session(AUTHORIZED, LOGGED_IN_ID);
+        Result changePhotoPrivacyResult = route(application, request);
+
+        statusCode = changePhotoPrivacyResult.status();
+    }
+
 
     @Then("the status code I get is Created")
     public void theStatusCodeIsCreated() {
         Assert.assertEquals(CREATED, statusCode);
+    }
+
+    @Then("the status code I get is OK")
+    public void theStatusCodeIsOK() {
+        Assert.assertEquals(OK, statusCode);
     }
 
     @Then("the status code I get is Forbidden")
