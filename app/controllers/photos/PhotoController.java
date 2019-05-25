@@ -49,8 +49,7 @@ public class PhotoController extends Controller {
     @Inject
     public PhotoController(
             ProfileRepository profileRepo,
-            PersonalPhotoRepository personalPhotoRepo
-                           ) {
+            PersonalPhotoRepository personalPhotoRepo) {
         this.profileRepo = profileRepo;
         this.personalPhotoRepo = personalPhotoRepo;
     }
