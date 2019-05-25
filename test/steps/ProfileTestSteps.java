@@ -358,8 +358,8 @@ public class ProfileTestSteps {
         Assert.assertFalse(foundProfile);
     }
 
-    @Then("the status code recieved is Created")
-    public void theStatusCodeRecievedIsCreated() throws BeansException{
+    @Then("the status code received is Created")
+    public void theStatusCodeReceivedIsCreated() throws BeansException{
         Assert.assertEquals(CREATED, statusCode);
     }
 
@@ -369,7 +369,7 @@ public class ProfileTestSteps {
     }
 
     @When("The user attempts to update their profile information within the TravelEA database:")
-    public void theUserAttemptsToUpdateTheirProfileInformationWithinTheTravelEADatabase(io.cucumber.datatable.DataTable dataTable) {
+    public void theUserAttemptsToUpdateTheirProfileInformationWithinTheTravelEADatabase(DataTable dataTable) {
         // Creates the json for the profile
         JsonNode json = convertDataTableToJsonNode(dataTable);
 
@@ -378,7 +378,7 @@ public class ProfileTestSteps {
                 .method(PUT)
                 .session(AUTHORIZED, "2")
                 .bodyJson(json)
-                .uri(PROFILES_UPDATE_URI + 2);
+                .uri(PROFILES_UPDATE_URI + 2); // Adding the id number to the uri, which is a string
         Result result = route(application, request);
         statusCode = result.status();
     }

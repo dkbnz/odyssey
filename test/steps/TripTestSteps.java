@@ -359,7 +359,11 @@ public class TripTestSteps {
      * @return          The id of the trip.
      */
     private Long getTripIdFromTripName(String tripName) {
-        return Trip.find.query().select(TRIP_ID_FIELD).where().eq(TRIP_NAME_FIELD, tripName).findSingleAttribute();
+        return Trip
+                .find.query()
+                .select(TRIP_ID_FIELD)
+                .where().eq(TRIP_NAME_FIELD, tripName)
+                .findSingleAttribute();
     }
 
 
@@ -376,6 +380,13 @@ public class TripTestSteps {
         statusCode = result.status();
     }
 
+
+    /**
+     * Sends an edit trip request for a given trip id. The session is set to the currently logged in user.
+     * @param tripId        The id of the trip being edited.
+     * @param tripData      The json body of the edit request in the form of a string.
+     * @throws IOException  The exception thrown
+     */
     private void editTripRequest(Integer tripId, String tripData) throws IOException {
         Http.RequestBuilder request = fakeRequest()
                 .method(PATCH)
