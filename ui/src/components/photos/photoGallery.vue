@@ -2,6 +2,23 @@
     <div class="containerWithNav">
         <h1 class="page_title">Personal Media</h1>
         <p class="page_title"><i>Here are your photos</i></p>
+
+        <b-alert
+                :show="dismissCountDown"
+                @dismiss-count-down="countDownChanged"
+                @dismissed="dismissCountDown=0"
+                dismissible
+                variant="success"
+        >
+            <p>Destination Successfully Added</p>
+            <b-progress
+                    :max="dismissSecs"
+                    :value="dismissCountDown"
+                    height="4px"
+                    variant="success"
+            ></b-progress>
+        </b-alert>
+
         <b-button class="btn btn-info" block v-b-modal.modalAddPhoto>Add Photo</b-button>
         <b-modal ref="uploaderModal" id="modalAddPhoto" hide-footer centered title="Add Photo">
             <template slot="modal-title"><h2>Add Photo</h2></template>
@@ -33,21 +50,20 @@
         <b-modal centered hide-footer ref="modalImage">
             <b-img-lazy :src="getFullPhoto()" center fluid></b-img-lazy>
             <b-button  class="mr-2" size="sm"
-                       v-b-modal.deleteModal
-                       v-if="auth" v-model="deleteButton" variant="danger">Delete
+                       v-b-modal.deletePhotoModal
+                       v-if="auth" variant="danger">Delete
             </b-button>
-            <b-modal hide-footer id="deleteModal" ref="deleteModal" title="Delete Trip">
+            <b-modal hide-footer id="deletePhotoModal" ref="deletePhotoModal" title="Delete Photo">
                 <div class="d-block">
                     Are you sure that you want to delete this image?
                 </div>
                 <b-button
-                        @click="dismissModal('deleteModal')
-                         deleteImage(selectedTrip);"
+                        @click="deleteImage();"
                         class="mr-2 float-right"
                         variant="danger">Delete
                 </b-button>
                 <b-button
-                        @click="dismissModal('deleteModal')"
+                        @click="dismissConfirmDelete"
                         class="mr-2 float-right">Cancel
                 </b-button>
             </b-modal>
@@ -60,6 +76,7 @@
 
     export default {
         name: "photoGallery",
+
         data: function () {
             return {
                 photos: [],
@@ -67,9 +84,12 @@
                 amountOfRows: 3,
                 currentPage: 0,
                 currentViewingID: 0,
-                auth: false
+                auth: false,
+                dismissSecs: 3,
+                dismissCountDown: 0
             }
         },
+
         computed: {
             rows() {
                 return this.photos.length
@@ -78,6 +98,7 @@
                 return this.rowSize * this.amountOfRows
             }
         },
+
         props: {
             profile: Object,
             userProfile: {
@@ -86,15 +107,20 @@
                 }
             }
         },
+
         components: {
             PhotoUploader
         },
+
         mounted() {
             this.getPhotos()
         },
+
         methods: {
+
             /**
              * Creates a POST request to upload photo(s) to the backend.
+             *
              * @param files     The photo(s) uploaded from the personal photos component.
              */
             sendPhotosToBackend: function(files) {
@@ -103,15 +129,11 @@
                     method: 'POST',
                     body: this.getFormData(files)
 
-                }).then(response =>  {
-                    if (response.status === 201) {
-                        self.files = null;
-                    } else {
-                        console.log("ERROR");
-                    }
-
-                });
-                this.$refs['uploaderModal'].hide()
+                }).then(response =>  self.parseJSON(response))
+                    .then(data => {
+                        this.addPhotos(data);
+                    });
+                this.$refs['uploaderModal'].hide();
             },
 
 
@@ -149,8 +171,24 @@
                 return 'v1/photos/thumb/' + id;
             },
 
+            dismissConfirmDelete() {
+                this.$refs['deletePhotoModal'].hide();
+            },
+
+            deleteImage() {
+                fetch(`/v1/photos/` + this.currentViewingID, {
+                    method: 'DELETE'
+                }).then(response =>  {
+                    this.error = (response.status === 200);
+                });
+                this.$refs['deletePhotoModal'].hide();
+                this.$refs['modalImage'].hide();
+                this.getPhotos();
+            },
+
             /**
              * Creates the form data to send as the body of the POST request to the backend.
+             *
              * @param files             The photo(s) uploaded from the personal photos component.
              * @returns {FormData}      The FormData stringified for use in the POST request.
              */
@@ -162,18 +200,24 @@
                 return personalPhotos;
             },
 
+
+            /**
+             * Checks the authorization of the user profile that is logged in to see if they can
+             * view the users private photos and can add or delete images from the media
+             */
             checkAuth() {
                 this.auth = (this.userProfile.id === this.profile.id || this.userProfile.isAdmin);
             },
 
             /**
-             * TODO: Link to the backend then comment.
+             * Calls the authorization of the user checks for private photos then adds
+             * to the photos list all the viewable images the user profile can view
+             *
              * @returns {Promise<Response | never>}
              */
             getPhotos() {
                 this.checkAuth();
                 for(let i=0; i < this.profile.photoGallery.length; i++) {
-                    console.log(this.profile.photoGallery[i]);
                     if(this.profile.photoGallery[i].public || this.auth) {
                         this.photos.push(this.profile.photoGallery[i].id);
                     }
@@ -181,7 +225,21 @@
             },
 
             /**
+             * When a photo is added it only adds the photos to the gallery that are changed
+             */
+            addPhotos(data) {
+                this.checkAuth();
+                this.photos = [];
+                for(let i=0; i < data.length; i++) {
+                    if(data[i].public || this.auth) {
+                        this.photos.push(data[i].id);
+                    }
+                }
+            },
+
+            /**
              * Retrieves a json body from a response.
+             *
              * @param response      The response parsed into json.
              * @returns {*}
              */
@@ -190,7 +248,17 @@
             },
 
             /**
+             * Checks the response status to see if the photos were created by the backend
+             */
+            checkStatus(response) {
+                if (response.status === 201) {
+                    self.files = null;
+                }
+            },
+
+            /**
              * Calculates the positions of photos within a gallery grid row.
+             *
              * @param rowNumber     The row currently having photos positioned within it.
              */
             getRowPhotos(rowNumber) {

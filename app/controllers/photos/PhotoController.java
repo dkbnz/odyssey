@@ -7,6 +7,7 @@ import models.Profile;
 import models.photos.PersonalPhoto;
 import models.photos.Photo;
 import play.libs.Files.TemporaryFile;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -117,7 +118,7 @@ public class PhotoController extends Controller {
      * @return          notFound() (Http 404) if no image exists, badRequest() (Http 400) if the id number of the photo
      *                  owner is not th
      */
-//    public Result destroy(Http.Request request, Long photoId) {
+    public Result destroy(Http.Request request, Long photoId) {
 //
 //        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
 //
@@ -140,8 +141,8 @@ public class PhotoController extends Controller {
 //
 //        personalPhotoRepo.delete(photoOwner, photo);
 //
-//        return ok();
-//    }
+        return ok();
+    }
 
     /**
      * Change the privacy of the selected photo from private to public, or public to private. Public means all users can
@@ -224,7 +225,7 @@ public class PhotoController extends Controller {
      *
      * @param profileToAdd  profile to add the photos to
      * @param photos        list of images to add the the profile
-     * @return              created() (Http 201) if upload was successful.
+     * @return              created() (Http 201) if upload was successful and the Json form of the new profile Photo gallery
      *                      internalServerError() (Http 500) if there was an error with thumbnail creation
      */
     private Result savePhotos(Profile profileToAdd, Collection<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
@@ -240,7 +241,7 @@ public class PhotoController extends Controller {
             }
             addImageToProfile(profileToAdd, filename, photo.getContentType(), false);
         }
-        return created("Files uploaded");
+        return created(Json.toJson(profileToAdd.getPhotoGallery()));
     }
 
     /**
