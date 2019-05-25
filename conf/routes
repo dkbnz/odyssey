@@ -14,8 +14,8 @@ GET     /v1/travtypes                   controllers.TravellerTypeController.list
 GET     /v1/nationalities               controllers.NationalityController.list()
 
 # Authentication
-POST    /v1/login                       controllers.AuthController.login(request: Request)
-POST    /v1/logout                      controllers.AuthController.logout()
+POST    /v1/login                       controllers.AuthenticationController.login(request: Request)
+POST    /v1/logout                      controllers.AuthenticationController.logout()
 POST    /v1/checkUsername               controllers.ProfileController.checkUsername(request: Request)
 
 # Profile
