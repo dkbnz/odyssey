@@ -1,7 +1,7 @@
 <template>
     <div class="containerWithNav">
         <h1 class="page_title">Personal Media</h1>
-        <p class="page_title"><i>Here are your photos</i></p>
+        <p v-if="auth" class="page_title"><i>Here are your photos</i></p>
 
         <b-alert
                 :show="dismissCountDown"
@@ -10,7 +10,7 @@
                 dismissible
                 variant="success"
         >
-            <p>Destination Successfully Added</p>
+            <p>Photo Successfully Added</p>
             <b-progress
                     :max="dismissSecs"
                     :value="dismissCountDown"
@@ -19,28 +19,26 @@
             ></b-progress>
         </b-alert>
 
-        <b-button class="btn btn-info" block v-b-modal.modalAddPhoto>Add Photo</b-button>
+        <b-button v-if="auth" class="btn btn-info" block v-b-modal.modalAddPhoto>Add Photo</b-button>
         <b-modal ref="uploaderModal" id="modalAddPhoto" hide-footer centered title="Add Photo">
             <template slot="modal-title"><h2>Add Photo</h2></template>
             <photoUploader v-on:save-photos="sendPhotosToBackend"></photoUploader>
         </b-modal>
-        <table style="margin-top:20px">
+        <table style="margin-top:20px" ref="gallery">
             <tr v-for="rowNumber in (amountOfRows)">
                 <td v-for="photo in getRowPhotos(rowNumber)">
-                    <b-container fluid>
                         <b-img :src="getThumbImage(photo)" thumbnail @click="showImage(photo)" alt="Image not Found">
                         </b-img>
-                        <b-select v-if="auth" style="width: 210px"
-                                  @change="updatePrivacy(photo, profile.photoGallery.find(obj => obj.id === photo).public)"
-                                  v-model="profile.photoGallery.find(obj => obj.id === photo).public">
-                            <option value="true">
-                                Public
-                            </option>
-                            <option value="false">
-                                Private
-                            </option>
-                        </b-select>
-                    </b-container>
+                    <b-select v-if="auth" style="width: 100%"
+                              @change="updatePrivacy(photo, profile.photoGallery.find(obj => obj.id === photo).public)"
+                              v-model="profile.photoGallery.find(obj => obj.id === photo).public">
+                        <option value="true">
+                            Public
+                        </option>
+                        <option value="false">
+                            Private
+                        </option>
+                    </b-select>
                 </td>
             </tr>
         </table>
@@ -48,6 +46,7 @@
                 v-model="currentPage"
                 :total-rows="rows"
                 :per-page="perPage"
+                ref="navigationGallery"
         ></b-pagination>
         <b-modal centered hide-footer ref="modalImage">
             <b-img-lazy :src="getFullPhoto()" center fluid></b-img-lazy>
@@ -84,7 +83,7 @@
                 photos: [],
                 rowSize: 6,
                 amountOfRows: 3,
-                currentPage: 0,
+                currentPage: 1,
                 currentViewingID: 0,
                 auth: false,
                 dismissSecs: 3,
@@ -131,21 +130,25 @@
                     method: 'POST',
                     body: this.getFormData(files)
 
-                }).then(response =>  self.parseJSON(response))
+                })  .then(response =>  self.parseJSON(response))
                     .then(data => {
                         this.addPhotos(data);
+                        this.showAlert();
                     });
                 this.$refs['uploaderModal'].hide();
+                location.reload(); //TODO make refresh work without reload
             },
 
 
+            /**
+             * Updates the privacy for a photo between privet and public and sends PACTH
+             * request to the backend
+             */
             updatePrivacy(photoId, isPublic) {
                 let json = {
                     "id" : photoId,
                     "public" : isPublic
                 };
-                console.log(photoId);
-                console.log(isPublic);
 
                 fetch('/v1/photos', {
                     method: 'PATCH',
@@ -158,25 +161,42 @@
                         console.log("ERROR");
                     }
                 });
+                location.reload();
             },
 
+            /**
+             * Shows the image in the larger modal and sets the current viewing image
+             */
             showImage(id) {
                 this.currentViewingID = id;
                 this.$refs['modalImage'].show();
             },
 
+            /**
+             * Sends a GET request to get the full sized image from the backend
+             */
             getFullPhoto() {
                 return 'v1/photos/' + this.currentViewingID;
             },
 
+            /**
+             * Sends a GET request to get a thumbnail image from the backend
+             */
             getThumbImage(id) {
                 return 'v1/photos/thumb/' + id;
             },
 
+            /**
+             * Closes the delete photo modal
+             */
             dismissConfirmDelete() {
                 this.$refs['deletePhotoModal'].hide();
             },
 
+            /**
+             * Sends the DELETE request to the backend for the selected image and closes the two modals
+             * and refreshes the list of photos in the photo gallery
+             */
             deleteImage() {
                 fetch(`/v1/photos/` + this.currentViewingID, {
                     method: 'DELETE'
@@ -185,7 +205,8 @@
                 });
                 this.$refs['deletePhotoModal'].hide();
                 this.$refs['modalImage'].hide();
-                this.getPhotos();
+                this.deletePhoto();
+                // location.reload(); //TODO make refresh work without reload
             },
 
             /**
@@ -239,6 +260,15 @@
                 }
             },
 
+            deletePhoto() {
+                this.checkAuth();
+                for(let i=0; i < this.photos.length; i++) {
+                    if(this.photos[i] === this.currentViewingID) {
+                        this.photos.splice(i, i-1);
+                    }
+                }
+            },
+
             /**
              * Retrieves a json body from a response.
              *
@@ -246,17 +276,12 @@
              * @returns {*}
              */
             parseJSON(response) {
+                if (response.status === 201) {
+                    this.files = null;
+                }
                 return response.json();
             },
 
-            /**
-             * Checks the response status to see if the photos were created by the backend
-             */
-            checkStatus(response) {
-                if (response.status === 201) {
-                    self.files = null;
-                }
-            },
 
             /**
              * Calculates the positions of photos within a gallery grid row.
@@ -270,10 +295,27 @@
 
                 // Check preventing an IndexOutOfRangeError, before filling the row with photos indexed from the list.
                 if (endRowIndex > numberOfPhotos) {
-                    return this.photos.slice(startRowIndex);
+                    let viewPhotos =  this.photos;
+                    return viewPhotos.slice(startRowIndex);
                 } else {
-                    return this.photos.slice(startRowIndex, endRowIndex);
+                    let viewPhotos =  this.photos;
+                    return viewPhotos.slice(startRowIndex, endRowIndex);
                 }
+            },
+
+            /**
+             * Used to allow an alert to countdown on the successful saving of image/s.
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown
+            },
+
+            /**
+             * Displays the countdown alert on the successful saving of image/s.
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
             }
         }
     }
