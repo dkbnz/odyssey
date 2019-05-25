@@ -16,9 +16,9 @@ import java.util.logging.Logger;
  * Controller to handle the authorisation of clients.
  * Sets session cookies when user is logging in, handles hashing a user's password and handles logging out.
  */
-public class AuthController extends Controller {
+public class AuthenticationController extends Controller {
 
-    private static final Logger LOGGER = Logger.getLogger( AuthController.class.getName() );
+    private static final Logger LOGGER = Logger.getLogger( AuthenticationController.class.getName() );
     private static final String USERNAME = "username";
     private static final String PASS_FIELD = "password";
     private static final String AUTHORIZED = "authorized";

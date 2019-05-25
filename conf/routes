@@ -14,8 +14,8 @@ GET     /v1/travtypes                   controllers.TravellerTypeController.list
 GET     /v1/nationalities               controllers.NationalityController.list()
 
 # Authentication
-POST    /v1/login                       controllers.AuthController.login(request: Request)
-POST    /v1/logout                      controllers.AuthController.logout()
+POST    /v1/login                       controllers.AuthenticationController.login(request: Request)
+POST    /v1/logout                      controllers.AuthenticationController.logout()
 POST    /v1/checkUsername               controllers.ProfileController.checkUsername(request: Request)
 
 # Profile
@@ -39,8 +39,8 @@ GET     /v1/destinationTypes            controllers.destinations.DestinationCont
 # Trips
 GET     /v1/trips/:userId               controllers.trips.TripController.fetchAll(userId: Long)
 POST    /v1/trips/:userId               controllers.trips.TripController.create(request: Request, userId: Long)
-DELETE  /v1/trips/:tripId/:userId       controllers.trips.TripController.destroy(request: Request, tripId: Long, userId: Long)
-PATCH   /v1/trips/:tripId/:userId       controllers.trips.TripController.edit(request: Request, tripId: Long, userId: Long)
+DELETE  /v1/trips/:tripId               controllers.trips.TripController.destroy(request: Request, tripId: Long)
+PATCH   /v1/trips/:tripId               controllers.trips.TripController.edit(request: Request, tripId: Long)
 
 # Photo
 GET     /v1/photos/thumb/:photoId       controllers.photos.PhotoController.fetch(request: Request, photoId: Long, thumbnail:Boolean ?= true)

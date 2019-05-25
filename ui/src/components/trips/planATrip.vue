@@ -1,8 +1,8 @@
 <template>
     <div :class="containerClass">
 
-        <h1 class="page_title">{{ heading }}</h1>
-        <p class="page_title"><i>{{ subHeading }}</i></p>
+        <h1 class="page-title">{{ heading }}</h1>
+        <p class="page-title"><i>{{ subHeading }}</i></p>
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
@@ -142,27 +142,32 @@
                      ref="tripDestTable"
                      striped>
 
-                <!-- Buttons that appear for each destination added to table -->
-                <template slot="actions" slot-scope="row">
-                    <!--Opens edit modal-->
-                    <b-button @click="populateModal(row.item)"
-                              class="mr-2"
-                              size="sm"
-                              v-b-modal.editModal>Edit
-                    </b-button>
-                    <!-- Shows additional details about the selected destination -->
-                    <b-button @click="row.toggleDetails"
-                              class="mr-2"
-                              size="sm">
-                        {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
-                    </b-button>
-                    <!--Removes destination from table-->
-                    <b-button @click="deleteDestination(row.index)"
-                              class="mr-2"
-                              size="sm"
-                              variant="danger">Delete
-                    </b-button>
-                </template>
+            <!-- Buttons that appear for each destination added to table -->
+            <template slot="actions" slot-scope="row">
+                <!--Opens edit modal-->
+                <b-button size="sm"
+                          v-b-modal.editModal
+                          @click="populateModal(row.item)"
+                          variant="success"
+                          class="mr-2"
+                          block>Edit
+                </b-button>
+                <!-- Shows additional details about the selected destination -->
+                <b-button size="sm"
+                          @click="row.toggleDetails"
+                          variant="warning"
+                          class="mr-2"
+                          block>
+                    {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+                </b-button>
+                <!--Removes destination from table-->
+                <b-button size="sm"
+                          @click="deleteDestination(row.index)"
+                          variant="danger"
+                          class="mr-2"
+                          block>Delete
+                </b-button>
+            </template>
 
                 <!-- Buttons to shift destinations up/down in table -->
                 <template slot="order" slot-scope="row">
@@ -351,7 +356,6 @@
                     this.showError = true;
                     this.errorMessage = "No Destination Selected";
                 }
-
             },
 
             /**
@@ -414,7 +418,7 @@
              * @param editOutDate   the out date being edited.
              */
             saveDestination(row, editInDate, editOutDate) {
-                if (editInDate <= editOutDate) {
+                if (editInDate === null || editOutDate === null || editInDate <= editOutDate) {
                     this.showDateError = false;
                     row.startDate = editInDate;
                     row.endDate = editOutDate;
@@ -532,17 +536,31 @@
 
             /**
              * Checks all the destination dates in a trip to ensure that the end date of a destination is before its
-             * following destination start date.
+             * following destination start date, or if the dates are null.
              * @returns {boolean} true if the dates are valid, false otherwise
              */
             checkValidDestinationDates() {
-                for (let i = 0; i < this.inputTrip.destinations.length; i++) {
-                    if (this.inputTrip.destinations[i].endDate > this.inputTrip.destinations[i + 1].startDate) {
-                        return false
-                    } else {
-                        return true;
+                let destinationList = this.inputTrip.destinations;
+                let dateList = [];
+                let previousDate = null;
+                // Put all dates into a queue based array.
+                for (let i = 0; i < destinationList.length; i++) {
+                    dateList.push(destinationList[i].startDate);
+                    dateList.push(destinationList[i].endDate);
+                }
+
+                // Go through the list sequentially to see if the dates are in order.
+                for (let i = 0; i < dateList.length; i++) {
+                    if (dateList[i] !== null && dateList[i].length > 1) {
+                        if (dateList[i] < previousDate) {
+                            return false;
+                        } else {
+                            previousDate = dateList[i];
+                        }
                     }
                 }
+                // All good, return true
+                return true;
             },
 
             /**
@@ -587,7 +605,7 @@
             saveOldTrip(trip, tripId) {
                 this.savingTrip = true;
                 let self = this;
-                fetch('/v1/trips/' + tripId + "/" + this.profile.id, {
+                fetch('/v1/trips/' + tripId, {
                     method: 'PATCH',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)

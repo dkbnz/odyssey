@@ -127,7 +127,7 @@ h1, h2, h3, h4 {
 
 
 /* Page Titles and Subtitles*/
-.page_title {
+.page-title {
     text-align: center;
 }
 
@@ -152,4 +152,9 @@ h1, h2, h3, h4 {
 
 a {
     color: grey;
+}
+
+
+.nav-bar-brand {
+    cursor: pointer
 }

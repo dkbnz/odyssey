@@ -48,7 +48,7 @@ public class Profile extends BaseModel {
     @ManyToMany(cascade = CascadeType.ALL)
     public List<Passport> passports = new ArrayList<Passport>();
 
-    @OneToMany(cascade=CascadeType.ALL)
+    @OneToMany(cascade=CascadeType.ALL, mappedBy = "profile")
     public List<Trip> trips = new ArrayList<Trip>();
 
     public void addTravType(TravellerType travellerType) {

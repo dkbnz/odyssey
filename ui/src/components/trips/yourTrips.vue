@@ -3,8 +3,8 @@
 
         <!-- Div for all the user's future trips -->
         <div id="upcomingTrips">
-            <h1 class="page_title">Upcoming Trips</h1>
-            <p class="page_title"><i>Here are your upcoming trips!</i></p>
+            <h1 class="page-title">Upcoming Trips</h1>
+            <p class="page-title"><i>Here are your upcoming trips!</i></p>
             <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
             <b-alert dismissible v-model="validDelete" variant="success">Trip Deleted</b-alert>
 
@@ -14,10 +14,9 @@
                     Are you sure that you want to delete "{{selectedTrip.name}}"?
                 </div>
                 <b-button
-                        @click="dismissModal('deleteModal')
-                         deleteTrip(selectedTrip);"
                         class="mr-2 float-right"
-                        variant="danger">Delete
+                        variant="danger"
+                        @click="deleteTrip(selectedTrip)">Delete
                 </b-button>
                 <b-button
                         @click="dismissModal('deleteModal')"
@@ -40,9 +39,14 @@
             </b-modal>
 
             <!-- Table to show all a profile's future trips -->
-            <b-table :busy="futureTrips.length === 0" :current-page="currentPageUpcoming" :fields="fields"
+            <b-table :busy="futureTrips.length === 0"
+                     :current-page="currentPageUpcoming"
+                     :fields="fields"
                      :items="futureTrips"
+                     :fields="fields"
                      :per-page="perPageUpcoming"
+                     :current-page="currentPageUpcoming"
+                     :busy="futureTrips.length === 0"
                      :sort-by.sync="sortBy"
                      :sort-desc.sync="sortDesc"
                      hover
@@ -57,9 +61,11 @@
                     <strong>Can't find any trips!</strong>
                 </div>
                 <template slot="more_details" slot-scope="row">
-                    <b-button @click="row.toggleDetails" class="mr-2" size="sm">
-                        {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
-                    </b-button>
+                    <b-button size="sm"
+                              @click="row.toggleDetails"
+                              variant="warning"
+                              class="mr-2"
+                              block>
                     <b-button @click="sendTripToModal(row.item)"
                               class="mr-2"
                               size="sm"
@@ -70,11 +76,19 @@
                     </b-button>
                     <b-button @click="sendTripToModal(row.item)"
                               class="mr-2"
-                              size="sm"
-                              v-b-modal.deleteModal
                               v-if="hasPermission"
+                              block>
+                        Edit
+                    </b-button>
+                    <b-button size="sm"
                               v-model="deleteButton"
-                              variant="danger">Delete
+                              v-b-modal.deleteModal
+                              @click="sendTripToModal(row.item)"
+                              variant="danger"
+                              class="mr-2"
+                              v-if="hasPermission"
+                              block>
+                        Delete
                     </b-button>
                 </template>
 
@@ -98,14 +112,13 @@
                     </b-card>
                 </template>
 
-                <template slot="tripStartDate" slot-scope="data"
-                          v-if="data.item.destinations[0].startDate">
-                    {{formatDate(data.item.destinations[0].startDate)}}
+                <template slot="tripStartDate"
+                          slot-scope="data">
+                    {{formatDate(calculateStartDate(data.item.destinations))}}
                 </template>
 
-                <template slot="tripEndDate"
-                          slot-scope="data" v-if="data.item.destinations[data.item.destinations.length -1].endDate">
-                    {{formatDate(data.item.destinations[data.item.destinations.length -1].endDate)}}
+                <template slot="tripEndDate" slot-scope="data">
+                    {{formatDate(calculateEndDate(data.item.destinations))}}
                 </template>
 
                 <template slot="tripEndDest" slot-scope="data" v-if="futureTrips.length > 0">
@@ -145,8 +158,8 @@
 
         <!-- Div for all the user's past trips -->
         <div id="pastTrips">
-            <h1 class="page_title">Past Trips</h1>
-            <p class="page_title"><i>Here are your past trips!</i></p>
+            <h1 class="page-title">Past Trips</h1>
+            <p class="page-title"><i>Here are your past trips!</i></p>
 
             <b-container fluid>
                 <!-- Table to show all a profile's past trips -->
@@ -162,23 +175,38 @@
                          striped
                          responsive>
 
-                    <div class="text-center my-2" slot="table-busy">
-                        <b-spinner class="align-middle" v-if="retrievingTrips"></b-spinner>
-                        <strong>Can't find any trips!</strong>
-                    </div>
-                    <template slot="more_details" slot-scope="row">
-                        <b-button @click="row.toggleDetails" class="mr-2" size="sm">
-                            {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
-                        </b-button>
-                        <b-button @click="sendTripToModal(row.item)" class="mr-2" size="sm"
-                                  v-b-modal.editTripModal
-                                  v-if="hasPermission" v-model="editButton" variant="primary">Edit
-                        </b-button>
-                        <b-button @click="sendTripToModal(row.item)" class="mr-2" size="sm"
-                                  v-b-modal.deleteModal
-                                  v-if="hasPermission" v-model="deleteButton" variant="danger">Delete
-                        </b-button>
-                    </template>
+                <div slot="table-busy" class="text-center my-2">
+                    <strong>Can't find any trips!</strong>
+                </div>
+                <template slot="more_details" slot-scope="row">
+                    <b-button size="sm"
+                              @click="row.toggleDetails"
+                              variant="warning"
+                              class="mr-2"
+                              block>
+                        {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+                    </b-button>
+                    <b-button size="sm"
+                              v-model="editButton"
+                              v-b-modal.editTripModal
+                              @click="sendTripToModal(row.item)"
+                              variant="primary"
+                              class="mr-2"
+                              v-if="hasPermission"
+                              block>
+                        Edit
+                    </b-button>
+                    <b-button size="sm"
+                              v-model="deleteButton"
+                              v-b-modal.deleteModal
+                              @click="sendTripToModal(row.item)"
+                              variant="danger"
+                              class="mr-2"
+                              v-if="hasPermission"
+                              block>
+                        Delete
+                    </b-button>
+                </template>
 
                     <!-- Shows all the trip destinations in a separate nested table -->
                     <template slot="row-details" slot-scope="row">
@@ -198,14 +226,12 @@
                         </b-card>
                     </template>
 
-                    <template slot="tripStartDate" slot-scope="data"
-                              v-if="data.item.destinations[0].startDate">
-                        {{formatDate(data.item.destinations[0].startDate)}}
+                    <template slot="tripStartDate" slot-scope="data">
+                        {{formatDate(calculateStartDate(data.item.destinations))}}
                     </template>
 
-                    <template slot="tripEndDate" slot-scope="data"
-                              v-if="data.item.destinations[data.item.destinations.length -1].endDate">
-                        {{formatDate(data.item.destinations[data.item.destinations.length -1].endDate)}}
+                    <template slot="tripEndDate" slot-scope="data">
+                        {{formatDate(calculateEndDate(data.item.destinations))}}
                     </template>
 
                     <template slot="tripEndDest" slot-scope="data" v-if="pastTrips.length > 0">
@@ -318,6 +344,13 @@
              */
             this.getAllTrips();
             this.getPermissions();
+
+            /**
+             * When a modal is hidden, refreshes the trips. This is so the list of trips table is up to date.
+             */
+            this.$root.$on('bv::modal::hide', () => {
+                this.getAllTrips();
+            });
         },
         computed: {
             /**
@@ -332,7 +365,7 @@
              */
             rowsPast() {
                 return this.pastTrips.length
-            }
+            },
 
         },
         methods: {
@@ -343,19 +376,48 @@
              * @returns string of the trip duration
              */
             calculateDuration(destinations) {
-                if (destinations[destinations.length - 1].endDate == null) {
-                    return ""
-                } else if (destinations[destinations.length - 1].startDate == null) {
-                    return ""
+                let tripStartDates = [];
+                let tripEndDates = [];
+                for (let i = 0; i < destinations.length; i++ ) {
+                    if (destinations[i].startDate !== null) {
+                        tripStartDates.push(destinations[i].startDate);
+                    }
+                    if (destinations[i].endDate !== null) {
+                        tripEndDates.push(destinations[i].endDate);
+                    }
                 }
-                let calculateDur = Math.ceil((Math.abs(new Date(destinations[destinations.length - 1].endDate).getTime()
-                    - new Date(destinations[0].startDate).getTime()))) / (1000 * 3600 * 24) + 1;
-                if (calculateDur >= 365) {
-                    return Math.floor(calculateDur / 365) + " year(s)"
-                } else {
-                    return calculateDur + " days"
-                }
+                if (tripStartDates.length > 0 && tripEndDates.length > 0) {
+                    let calculateDur = Math.ceil((Math.abs(new Date(tripEndDates[tripEndDates.length -1 ]).getTime()
+                        - new Date(tripStartDates[0]).getTime())))/ (1000 * 3600 * 24) + 1;
+                    return calculateDur + " days";
 
+                }
+            },
+
+            /**
+             * Calculates the trips start date by the first start date it can find.
+             */
+            calculateStartDate(destinations) {
+                let tripStartDates = [];
+                for (let i = 0; i < destinations.length; i++) {
+                    if (destinations[i].startDate !== null) {
+                        tripStartDates.push(destinations[i].startDate);
+                    }
+                }
+                return (tripStartDates[0]);
+            },
+
+            /**
+             * Calculates the trips end date by the last end date it can find.
+             */
+            calculateEndDate(destinations) {
+                let tripEndDates = [];
+                for (let i = 0; i < destinations.length; i++) {
+                    if (destinations[i].endDate !== null) {
+                        tripEndDates.push(destinations[i].endDate);
+                    }
+                }
+                return (tripEndDates[tripEndDates.length - 1]);
             },
 
             /**
@@ -375,21 +437,59 @@
                     .then(trips => {
                         let today = new Date();
                         let self = this;
+
                         self.futureTrips = [];
                         self.pastTrips = [];
                         for (let i = 0; i < trips.length; i++) {
-                            if (trips[i].destinations[0].startDate === null
-                                || trips[i].destinations[trips[i].destinations.length - 1].endDate === null) {
+                            let destinationsStartDates = [];
+                            let destinationsEndDates = [];
+                            for (let j = 0; j < trips[i].destinations.length; j++) {
+                                if (trips[i].destinations[j].startDate !== null) {
+                                    destinationsStartDates.push(trips[i].destinations[j].startDate)
+                                }
+                                if (trips[i].destinations[j].endDate !== null) {
+                                    destinationsEndDates.push(trips[i].destinations[j].endDate)
+                                }
+                            }
+                            if (destinationsStartDates.length === 0 && destinationsEndDates.length === 0) {
                                 self.futureTrips.push(trips[i]);
-                            } else if (new Date(trips[i].destinations[trips[i].destinations.length - 1].endDate) <=
-                                today) {
+                            }
+                            else if (new Date(destinationsEndDates[destinationsEndDates.length - 1]) <= today) {
                                 self.pastTrips.push(trips[i]);
                             } else {
                                 self.futureTrips.push(trips[i]);
                             }
+                            self.futureTrips.sort(self.sortFutureTrips);
                         }
                         self.retrievingTrips = false;
-                    })
+                    });
+            },
+
+            /**
+             * Orders the future trips by the dates. If there are no dates then they will be at the top. If there are
+             * dates, then trips will be ordered chronologically.
+             */
+            sortFutureTrips(first, next) {
+                let firstDestinationsStart = [];
+                let nextDestinationsStart = [];
+                for (let i = 0; i < first.destinations.length; i++) {
+                    if(first.destinations[i].startDate !== null) {
+                        firstDestinationsStart.push(first.destinations[i].startDate)
+                    }
+                }
+                for (let i = 0; i < next.destinations.length; i++) {
+                    if(next.destinations[i].startDate !== null) {
+                        nextDestinationsStart.push(next.destinations[i].startDate)
+                    }
+                }
+                if(firstDestinationsStart[0] < nextDestinationsStart[0] || firstDestinationsStart[0] === undefined) {
+                    return -1;
+                }
+
+                if(firstDestinationsStart[0] > nextDestinationsStart[0]) {
+                    return 1;
+                }
+                return 0;
             },
 
             /**
@@ -437,11 +537,12 @@
                 this.showError = false;
                 this.validDelete = false;
                 let self = this;
-                fetch('/v1/trips/' + trip.id + "/" + this.profile.id, {
-                    method: 'DELETE',
+                fetch('/v1/trips/' + trip.id, {
+                        method: 'DELETE',
                 }).then(function (response) {
                     if (response.ok) {
                         self.validDelete = true;
+                        self.dismissModal('deleteModal');
                         self.getAllTrips();
                     } else if (response.status === 403) {
                         throw new Error('You cannot delete another user\'s trips');
@@ -452,6 +553,11 @@
                     this.showError = true;
                     this.errorMessage = (error);
                 });
+            },
+
+            getPermissions() {
+                this.hasPermission = (this.userProfile.id === this.profile.id ||
+                    (this.userProfile.isAdmin && this.adminView));
             },
 
             /**

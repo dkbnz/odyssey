@@ -1,7 +1,7 @@
 <template>
     <div class="containerWithNav">
-        <h1 class="page_title">Search Destinations</h1>
-        <p class="page_title"><i>Search for a destination using any of the fields in the the form below</i></p>
+        <h1 class="page-title">Search Destinations</h1>
+        <p class="page-title"><i>Search for a destination using any of the fields in the the form below</i></p>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
         <div>
             <!--Input fields for searching for destinations-->
@@ -60,11 +60,14 @@
 
         <!--Table for displaying search results-->
         <div style="margin-top: 40px">
-            <b-table :busy="destinations.length === 0" :current-page="currentPage" :fields="fields"
+            <b-table :busy="destinations.length === 0"
+                     :current-page="currentPage"
+                     :fields="fields"
                      :items="destinations"
                      :per-page="perPage"
                      :sort-by.sync="sortBy"
                      :sort-desc.sync="sortDesc"
+                     responsive
                      hover
                      id="myFutureTrips"
                      outlined
