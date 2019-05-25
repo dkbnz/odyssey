@@ -1,5 +1,6 @@
 package controllers.photos;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import models.Profile;
@@ -35,6 +36,8 @@ public class PhotoController extends Controller {
     private static final Long MAX_IMG_SIZE = 5000000L;
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
+    private static final String PHOTO_ID = "id";
+    private static final String IS_PUBLIC = "public";
 
     private ProfileRepository profileRepo;
     private PersonalPhotoRepository personalPhotoRepo;
@@ -141,17 +144,76 @@ public class PhotoController extends Controller {
 //    }
 
     /**
-     * Change the privacy of the selected image from private to public, or public to private. Public means all users can
-     * see the image, private means only the logged in user or an admin can see the image.
+     * Change the privacy of the selected photo from private to public, or public to private. Public means all users can
+     * see the photo, private means only the logged in user or an admin can see the photo.
      *
      * @param request   the Http request body containing the image to change from public to private.
-     * @return          ok() (Http 200) if the image is successfully changed. notFound() (Http 404) if the specified
-     *                  image cannot be found. forbidden() (Http 403) if the person trying to change the privacy of the
-     *                  image is not the owner of the image or an admin.
+     * @return          ok() (Http 200) if the photo is successfully changed. notFound() (Http 404) if the specified
+     *                  photo cannot be found. forbidden() (Http 403) if the person trying to change the privacy of the
+     *                  photo is not the owner of the image or an admin. unauthorized() (Http 401) if the user is not
+     *                  logged in. internalServerError() (Http 500) if for some reason the photo couldn't be changed.
      */
-    private Result changePrivacy(Http.Request request) {
+    public Result changePrivacy(Http.Request request) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(loggedInUserId -> {
+                    JsonNode json = request.body().asJson();
 
-        return ok();
+                    if (!(json.has(PHOTO_ID) && json.has(IS_PUBLIC))) {
+                        return badRequest();
+                    }
+
+                    Long personalPhotoId = json.get(PHOTO_ID).asLong();
+                    Boolean isPublic = json.get(IS_PUBLIC).asBoolean();
+
+                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
+                    Profile profileToChange;
+
+                    PersonalPhoto personalPhoto = personalPhotoRepo.fetch(personalPhotoId);
+
+                    if (personalPhoto == null) {
+                        return notFound();
+                    }
+
+                    Long ownerId = personalPhoto.getProfile().getId();
+
+                    if (ownerId == null) {
+                        return notFound();
+                    }
+
+                    if(authenticateUser(loggedInUser, ownerId, loggedInUserId).status() == 200) {
+                        profileToChange = profileRepo.fetchSingleProfile(ownerId.intValue());
+                    } else {
+                        return authenticateUser(loggedInUser, ownerId, loggedInUserId);
+                    }
+                    if (profileToChange != null) {
+                        personalPhotoRepo.updatePrivacy(profileToChange, personalPhoto, isPublic);
+                        return ok();
+                    }
+                    return internalServerError("Can't change privacy of photo");
+                })
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+    }
+
+    /**
+     * Generic method to check the authentication rights of the logged in user.
+     *
+     * @param loggedInUser      the Profile object of the logged in user.
+     * @param userId            the id number of the user to be modified.
+     * @param loggedInUserId    the id number of the logged in user.
+     * @return                  ok() (Http 200) if the logged in user is an admin or the user being modified,
+     *                          forbidden() (Http 403) if they are not permitted to modify the logged in user,
+     *                          badRequest() (Http 400) otherwise.
+     */
+    private Result authenticateUser(Profile loggedInUser, Long userId, String loggedInUserId) {
+        // If user is admin, or if they are editing their own profile then allow them to edit.
+        if(AuthenticationUtil.validUser(loggedInUser, userId)) {
+            return ok();
+        } else if (!userId.equals(Long.valueOf(loggedInUserId))) {
+            return forbidden(); // User has specified an id which is not their own, but is not admin
+        } else {
+            return badRequest();
+        }
     }
 
 
@@ -199,12 +261,10 @@ public class PhotoController extends Controller {
                     Profile profileToAdd;
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if(AuthenticationUtil.validUser(loggedInUser, userId)) {
+                    if(authenticateUser(loggedInUser, userId, loggedInUserId).status() == 200) {
                         profileToAdd = profileRepo.fetchSingleProfile(userId.intValue());
-                    } else if (!userId.equals(Long.valueOf(loggedInUserId))) {
-                        return forbidden(); // User has specified an id which is not their own, but is not admin
                     } else {
-                        return badRequest();
+                        return authenticateUser(loggedInUser, userId, loggedInUserId);
                     }
 
                     if (profileToAdd == null) {
