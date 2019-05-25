@@ -299,12 +299,14 @@ public class PhotoController extends Controller {
                     List<Http.MultipartFormData.FilePart<TemporaryFile>> photos = body.getFiles();
 
                     // Validate images
-                    if (!validatePhotos(photos))
+                    if (!validatePhotos(photos)) {
                         return badRequest("Invalid image size/type.");
+                    }
 
                     // Images are valid, if we have images, then add them to profile
-                    if (!photos.isEmpty())
+                    if (!photos.isEmpty()) {
                         return savePhotos(profileToAdd, photos);
+                    }
 
                     // Images are empty
                     return badRequest("No images to upload.");
