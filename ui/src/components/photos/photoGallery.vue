@@ -18,62 +18,18 @@
                     variant="success"
             ></b-progress>
         </b-alert>
-
         <b-button v-if="auth" class="btn btn-info" block v-b-modal.modalAddPhoto>Add Photo</b-button>
         <b-modal ref="uploaderModal" id="modalAddPhoto" hide-footer centered title="Add Photo">
             <template slot="modal-title"><h2>Add Photo</h2></template>
             <photoUploader v-on:save-photos="sendPhotosToBackend"></photoUploader>
         </b-modal>
-        <table style="margin-top:20px" ref="gallery">
-            <tr v-for="rowNumber in (amountOfRows)">
-                <td v-for="photo in getRowPhotos(rowNumber)">
-                        <b-img :src="getThumbImage(photo)" thumbnail @click="showImage(photo)" alt="Image not Found">
-                        </b-img>
-                    <b-select v-if="auth" style="width: 100%"
-                              @change="updatePrivacy(photo, profile.photoGallery.find(obj => obj.id === photo).public)"
-                              v-model="profile.photoGallery.find(obj => obj.id === photo).public">
-                        <option value="true">
-                            Public
-                        </option>
-                        <option value="false">
-                            Private
-                        </option>
-                    </b-select>
-                </td>
-            </tr>
-        </table>
-        <b-pagination
-                v-model="currentPage"
-                :total-rows="rows"
-                :per-page="perPage"
-                ref="navigationGallery"
-        ></b-pagination>
-        <b-modal centered hide-footer ref="modalImage">
-            <b-img-lazy :src="getFullPhoto()" center fluid></b-img-lazy>
-            <b-button  class="mr-2" size="sm"
-                       v-b-modal.deletePhotoModal
-                       v-if="auth" variant="danger">Delete
-            </b-button>
-            <b-modal hide-footer id="deletePhotoModal" ref="deletePhotoModal" title="Delete Photo">
-                <div class="d-block">
-                    Are you sure that you want to delete this image?
-                </div>
-                <b-button
-                        @click="deleteImage();"
-                        class="mr-2 float-right"
-                        variant="danger">Delete
-                </b-button>
-                <b-button
-                        @click="dismissConfirmDelete"
-                        class="mr-2 float-right">Cancel
-                </b-button>
-            </b-modal>
-        </b-modal>
+        <photo-table v-bind:photos="photos" v-bind:profile="profile" v-bind:userProfile="userProfile" :adminView="adminView" v-on:changePrivacy="updatePhotoPrivacyList"></photo-table>
     </div>
 </template>
 
 <script>
     import PhotoUploader from "../photos/photoUploader"
+    import PhotoTable from "./photoTable";
 
     export default {
         name: "photoGallery",
@@ -106,10 +62,12 @@
                 default: function () {
                     return this.profile
                 }
-            }
+            },
+            adminView: Boolean
         },
 
         components: {
+            PhotoTable,
             PhotoUploader
         },
 
@@ -136,7 +94,7 @@
                         this.showAlert();
                     });
                 this.$refs['uploaderModal'].hide();
-                location.reload(); //TODO make refresh work without reload
+                // location.reload(); //TODO make refresh work without reload
             },
 
 
@@ -206,7 +164,6 @@
                 this.$refs['deletePhotoModal'].hide();
                 this.$refs['modalImage'].hide();
                 this.deletePhoto();
-                // location.reload(); //TODO make refresh work without reload
             },
 
             /**
@@ -229,7 +186,7 @@
              * view the users private photos and can add or delete images from the media
              */
             checkAuth() {
-                this.auth = (this.userProfile.id === this.profile.id || this.userProfile.isAdmin);
+                this.auth = (this.userProfile.id === this.profile.id || (this.userProfile.isAdmin && this.adminView));
             },
 
             /**
@@ -242,7 +199,20 @@
                 this.checkAuth();
                 for(let i=0; i < this.profile.photoGallery.length; i++) {
                     if(this.profile.photoGallery[i].public || this.auth) {
-                        this.photos.push(this.profile.photoGallery[i].id);
+                        this.photos.push(this.profile.photoGallery[i]);
+                    }
+                }
+            },
+
+            /**
+             * Updates the photos list sent to the photoTable for a single privacy photo
+             * @param photoId           the photo id that's changing status
+             * @param isPublic          the changed status
+             */
+            updatePhotoPrivacyList: function(photoId, isPublic) {
+                for(let i=0; i < this.photos.length; i++) {
+                    if(this.photos[i].id === photoId) {
+                        this.photos[i].public = isPublic;
                     }
                 }
             },
@@ -255,7 +225,7 @@
                 this.photos = [];
                 for(let i=0; i < data.length; i++) {
                     if(data[i].public || this.auth) {
-                        this.photos.push(data[i].id);
+                        this.photos.push(data[i]);
                     }
                 }
             },

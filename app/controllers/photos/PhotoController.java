@@ -159,7 +159,7 @@ public class PhotoController extends Controller {
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
                     JsonNode json = request.body().asJson();
-
+                    System.out.println(json);
 
                     if (!(json.has(PHOTO_ID) && json.has(IS_PUBLIC))) {
                         return badRequest();
