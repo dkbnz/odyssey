@@ -28,7 +28,7 @@
             <tr v-for="rowNumber in (amountOfRows)">
                 <td v-for="photo in getRowPhotos(rowNumber)">
                     <b-container fluid>
-                        <b-img :src="getThumbImage(photo)" thumbnail @click="showImage(photo)" alt="Image not Found">
+                        <b-img :src="getThumbImage(photo)" thumbnail @click="showImage(photo)" alt="Image not Found" @error="imageAlt">
                         </b-img>
                         <b-select v-if="auth" style="width: 210px"
                                   @change="updatePrivacy(photo, profile.photoGallery.find(obj => obj.id === photo).public)"
@@ -75,6 +75,7 @@
 
 <script>
     import PhotoUploader from "../photos/photoUploader"
+    import Assets from '../../assets/index.js'
 
     export default {
         name: "photoGallery",
@@ -82,7 +83,7 @@
         data: function () {
             return {
                 photos: [],
-                rowSize: 6,
+                rowSize: 3,
                 amountOfRows: 3,
                 currentPage: 0,
                 currentViewingID: 0,
@@ -98,7 +99,10 @@
             },
             perPage() {
                 return this.rowSize * this.amountOfRows
-            }
+            },
+            assets() {
+                return Assets
+            },
         },
 
         props: {
@@ -237,6 +241,10 @@
                         this.photos.push(data[i].id);
                     }
                 }
+            },
+
+            imageAlt(event) {
+                event.target.src = "../../../static/default_profile_picture.png"
             },
 
             /**
