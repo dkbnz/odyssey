@@ -231,9 +231,7 @@
                 validEmail: false,
                 showSuccess: false,
                 alertMessage: "",
-                successMessage: "",
-
-
+                successMessage: ""
             }
         },
         computed: {
