@@ -12,6 +12,16 @@
                 <td v-for="photo in getRowPhotos(rowNumber)">
                     <b-img :src="getThumbImage(photo)" thumbnail @click="showImage(photo)" alt="Image not Found">
                     </b-img>
+                    <b-select v-if="auth"
+                            @change="updatePrivacy(photo, profile.photoGallery.find(obj => obj.id === photo).public)"
+                              v-model="profile.photoGallery.find(obj => obj.id === photo).public">
+                        <option value="true">
+                            Public
+                        </option>
+                        <option value="false">
+                            Private
+                        </option>
+                    </b-select>
                 </td>
             </tr>
         </table>
@@ -47,7 +57,7 @@
             },
             perPage() {
                 return this.rowSize * this.amountOfRows
-            },
+            }
         },
         props: {
             profile: Object,
@@ -83,6 +93,28 @@
 
                 });
                 this.$refs['uploaderModal'].hide()
+            },
+
+
+            updatePrivacy(photoId, isPublic) {
+                let json = {
+                    "id" : photoId,
+                    "public" : isPublic
+                };
+                console.log(photoId);
+                console.log(isPublic);
+
+                fetch('/v1/photos', {
+                    method: 'PATCH',
+                    headers: {'content-type': 'application/json'},
+                    body: JSON.stringify(json)
+                }).then(response => {
+                    if (response.status === 200) {
+                        self.files = null;
+                    } else {
+                        console.log("ERROR");
+                    }
+                });
             },
 
             showImage(id) {

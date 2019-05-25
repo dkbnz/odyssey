@@ -159,12 +159,13 @@ public class PhotoController extends Controller {
                 .map(loggedInUserId -> {
                     JsonNode json = request.body().asJson();
 
+
                     if (!(json.has(PHOTO_ID) && json.has(IS_PUBLIC))) {
                         return badRequest();
                     }
 
                     Long personalPhotoId = json.get(PHOTO_ID).asLong();
-                    Boolean isPublic = json.get(IS_PUBLIC).asBoolean();
+                    String isPublic = json.get(IS_PUBLIC).asText();
 
                     Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
                     Profile profileToChange;

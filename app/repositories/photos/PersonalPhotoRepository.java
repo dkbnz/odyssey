@@ -33,9 +33,8 @@ public class PersonalPhotoRepository {
      * @param photo         the PersonalPhoto object of the photo.
      * @param isPublic      the new Boolean value of the photos public or private value.
      */
-    public void updatePrivacy(Profile photoOwner, PersonalPhoto photo, Boolean isPublic) {
-        System.out.println(isPublic);
-        photo.setPublic(isPublic);
+    public void updatePrivacy(Profile photoOwner, PersonalPhoto photo, String isPublic) {
+        photo.setPublic(Boolean.parseBoolean(isPublic));
         photo.update();
         photoOwner.update();
     }
