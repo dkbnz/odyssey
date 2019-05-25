@@ -25,4 +25,18 @@ public class PersonalPhotoRepository {
         photo.delete();
         photoOwner.update();
     }
+
+    /**
+     * Updates the privacy of the of the specified photo to either public or private.
+     *
+     * @param photoOwner    the Profile object of the owner of the photo.
+     * @param photo         the PersonalPhoto object of the photo.
+     * @param isPublic      the new Boolean value of the photos public or private value.
+     */
+    public void updatePrivacy(Profile photoOwner, PersonalPhoto photo, Boolean isPublic) {
+        System.out.println(isPublic);
+        photo.setPublic(isPublic);
+        photo.update();
+        photoOwner.update();
+    }
 }
