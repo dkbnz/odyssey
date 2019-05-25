@@ -87,7 +87,7 @@ public class ProfileController {
 
         String getError = userDataValid(json);
 
-        if(!getError.isEmpty()) {
+        if(getError == null) {
             return badRequest(getError);
         }
 
@@ -167,7 +167,7 @@ public class ProfileController {
      * validation.
      *
      * @param json  the Json content given by the new user.
-     * @return      a string value of the error if there is one, otherwise returns an empty string.
+     * @return      a string value of the error if there is one, otherwise returns null.
      */
     private String userDataValid(JsonNode json) {
         String username = json.get(USERNAME).asText();
@@ -177,31 +177,31 @@ public class ProfileController {
         String gender = json.get(GENDER).asText();
         LocalDate dateOfBirth = LocalDate.parse(json.get(DATE_OF_BIRTH).asText());
 
-        if (!validateUsername(username).isEmpty()) {
+        if (validateUsername(username) != null) {
             return validateUsername(username);
         }
 
-        if (!validateName(firstName, "First Name").isEmpty()) {
+        if (validateName(firstName, "First Name") != null) {
             return validateName(firstName, "First Name");
         }
 
-        if (!validateName(middleName, MIDDLE_NAME).isEmpty()) {
+        if (validateName(middleName, MIDDLE_NAME) != null) {
             return validateName(middleName, MIDDLE_NAME);
         }
 
-        if (!validateName(lastName, "Last Name").isEmpty()) {
+        if (validateName(lastName, "Last Name") != null) {
             return validateName(lastName, "Last Name");
         }
 
-        if (!validateGender(gender).isEmpty()) {
+        if (validateGender(gender) != null) {
             return validateGender(gender);
         }
 
-        if (!validateDateOfBirth(dateOfBirth).isEmpty()) {
+        if (validateDateOfBirth(dateOfBirth) != null) {
             return validateDateOfBirth(dateOfBirth);
         }
 
-        return "";
+        return null;
     }
 
     /**
@@ -209,14 +209,14 @@ public class ProfileController {
      * validate emails.
      *
      * @param usernameValue the value of the new user's username (email).
-     * @return              the string of the error message if it occurs, otherwise an empty string if valid.
+     * @return              the string of the error message if it occurs, otherwise null if valid.
      */
     private String validateUsername(String usernameValue) {
         String emailRegex = "^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})";
         if (usernameValue.matches(emailRegex)) {
             return "Username must be valid";
         }
-        return "";
+        return null;
     }
 
     /**
@@ -226,7 +226,7 @@ public class ProfileController {
      * @param nameValue     the specific name data (first, middle or last) to be validated.
      * @param nameType      the string of the name so an appropriate error message is returned.
      * @return              the error message that may occur if any of the credentials are invalid. Otherwise returns an
-     *                      empty string.
+     *                      null.
      */
     private String validateName(String nameValue, String nameType) {
         if (nameType.equals(MIDDLE_NAME)) {
@@ -236,7 +236,7 @@ public class ProfileController {
             if (nameValue.matches(".*\\d.*")) {
                 return nameType + " must not contain any numbers.";
             }
-            return "";
+            return null;
         }
         if (nameValue.length() < 1 || nameValue.length() > 100) {
             return nameType + " must be between 1 and 100 characters.";
@@ -244,14 +244,14 @@ public class ProfileController {
         if (nameValue.matches(".*\\d.*")) {
             return nameType + " must not contain any numbers.";
         }
-        return "";
+        return null;
     }
 
     /**
      * Validates the new user's gender, the gender must be one specified in the list.
      *
      * @param genderValue   the value of the new user's gender.
-     * @return              a string saying what is invalid about the user's gender, or an empty string if valid.
+     * @return              a string saying what is invalid about the user's gender, or null if valid.
      */
     private String validateGender(String genderValue) {
         ArrayList<String> genders = new ArrayList<>();
@@ -262,20 +262,20 @@ public class ProfileController {
         if(!genders.contains(genderValue)) {
             return genderValue + " is not a valid gender, must be Male, Female or Other";
         }
-        return "";
+        return null;
     }
 
     /**
      * Validates the new user's date of birth, the date of birth must be before today.
      *
      * @param dateOfBirthValue  the value of the new user's date of birth.
-     * @return                  a string saying the user's date of birth is invalid, or an empty string if valid.
+     * @return                  a string saying the user's date of birth is invalid, or null if valid.
      */
     private String validateDateOfBirth(LocalDate dateOfBirthValue) {
         if (LocalDate.now().isBefore(dateOfBirthValue)) {
             return "Date of birth must be before today";
         }
-        return "";
+        return null;
     }
 
     /**
@@ -459,7 +459,7 @@ public class ProfileController {
 
                     String getError = userDataValid(json);
 
-                    if(!getError.isEmpty()) {
+                    if(getError == null) {
                         return badRequest(getError);
                     }
 
@@ -548,7 +548,7 @@ public class ProfileController {
                         profiles = Profile.find.all();
                     } else {
                         String getError = validQueryString(request.queryString());
-                        if (getError.isEmpty()) {
+                        if (getError != null) {
                             profiles = searchProfiles(request.queryString());
                         } else {
                             return badRequest(getError);
@@ -589,7 +589,7 @@ public class ProfileController {
             return "Min age must be less than or equal to max age";
         }
 
-        return "";
+        return null;
     }
 
     /**
