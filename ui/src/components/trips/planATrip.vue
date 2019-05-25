@@ -454,7 +454,6 @@
              * edited.
              */
             validateTrip() {
-                console.log("HERE");
                 if (this.inputTrip.name === null || this.inputTrip.name.length === 0) {
                     this.showError = true;
                     this.errorMessage = "No Trip Name";
@@ -479,7 +478,6 @@
                         trip_name: this.inputTrip.name,
                         trip_destinations: tripDestinationsList
                     };
-                    console.log(trip);
                     if(this.inputTrip.id === null) {
                         this.saveNewTrip(trip);
                     } else {

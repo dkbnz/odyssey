@@ -423,7 +423,6 @@ public class ProfileController {
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
 
-
                     Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
                     Profile profileToUpdate;
 

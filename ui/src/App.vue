@@ -15,10 +15,7 @@
         computed: {
             assets() {
                 return assets
-            },
-            // destinationsSorted() {
-            //     return this.destinations.sort
-            // }
+            }
         },
         created() {
             document.title = "TravelEA";

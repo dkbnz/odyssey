@@ -8,15 +8,20 @@ import util.AuthenticationUtil;
 
 public class AuthenticationUtilTest {
 
+    private static final long ADMIN_ID = 12L;
+    private static final long OWNER_ID = 17L;
+
+
+
     @Test
     public void validUserTestIsAdmin() {
         //Arrange
         Profile admin = new Profile();
-        admin.setId(12L);
+        admin.setId(ADMIN_ID);
         admin.setIsAdmin(true);
 
         Profile owner = new Profile();
-        owner.setId(17L);
+        owner.setId(OWNER_ID);
 
         //Act
         boolean result = AuthenticationUtil.validUser(admin, owner);
@@ -29,11 +34,11 @@ public class AuthenticationUtilTest {
     public void validUserTestIsNotAdmin() {
         //Arrange
         Profile notAdmin = new Profile();
-        notAdmin.setId(12L);
+        notAdmin.setId(ADMIN_ID);
         notAdmin.setIsAdmin(false);
 
         Profile owner = new Profile();
-        owner.setId(17L);
+        owner.setId(OWNER_ID);
 
         //Act
         boolean result = AuthenticationUtil.validUser(notAdmin, owner);
@@ -46,11 +51,11 @@ public class AuthenticationUtilTest {
     public void validUserTestIsOwner() {
         //Arrange
         Profile user = new Profile();
-        user.setId(12L);
+        user.setId(ADMIN_ID);
         user.setIsAdmin(false);
 
         Profile owner = new Profile();
-        owner.setId(12L);
+        owner.setId(ADMIN_ID);
 
         //Act
         boolean result = AuthenticationUtil.validUser(user, owner);
@@ -63,11 +68,12 @@ public class AuthenticationUtilTest {
     public void validUserTestIsNotOwner() {
         //Arrange
         Profile notOwner = new Profile();
-        notOwner.setId(17L);
-        notOwner.setIsAdmin(false);
 
         Profile owner = new Profile();
-        owner.setId(12L);
+        owner.setId(ADMIN_ID);
+
+        notOwner.setId(OWNER_ID);
+        notOwner.setIsAdmin(false);
 
         //Act
         boolean result = AuthenticationUtil.validUser(notOwner, owner);

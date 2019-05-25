@@ -28,8 +28,8 @@
                 <b-form-group
                         id="name-field"
                         label="Destination Name:"
-                        label-for="dName">
-                    <b-form-input id="dName" v-model="dName" type="text" required
+                        label-for="destinationName">
+                    <b-form-input id="destinationName" v-model="destinationName" type="text" required
                                   :state="destinationNameValidation"></b-form-input>
                 </b-form-group>
 
@@ -37,7 +37,7 @@
                         id="type-field"
                         label="Destination Type:"
                         label-for="type">
-                    <b-form-select id="type" v-model="dType" trim :state="destinationTypeValidation">
+                    <b-form-select id="type" v-model="destinationType" trim :state="destinationTypeValidation">
                         <option v-for="destination in destinationTypes" :value="destination.id">
                             {{destination.destinationType}}
                         </option>
@@ -48,7 +48,7 @@
                         id="district-field"
                         label="District:"
                         label-for="district">
-                    <b-form-input id="district" v-model="dDistrict" type="text" trim required
+                    <b-form-input id="district" v-model="destinationDistrict" type="text" trim required
                                   :state="destinationDistrictValidation"></b-form-input>
                 </b-form-group>
 
@@ -56,7 +56,7 @@
                         id="latitude-field"
                         label="Latitude:"
                         label-for="latitude">
-                    <b-form-input id="latitude" v-model="dLatitude" type="text" trim required
+                    <b-form-input id="latitude" v-model="destinationLatitude" type="text" trim required
                                   :state="destinationLatitudeValidation"></b-form-input>
                     <b-form-invalid-feedback :state="destinationLatitudeValidation" align="center">
                         {{latitudeErrorMessage}}
@@ -67,7 +67,7 @@
                         id="longitude-field"
                         label="Longitude:"
                         label-for="longitude">
-                    <b-form-input id="longitude" v-model="dLongitude" type="text" trim required
+                    <b-form-input id="longitude" v-model="destinationLongitude" type="text" trim required
                                   :state="destinationLongitudeValidation"></b-form-input>
                     <b-form-invalid-feedback :state="destinationLongitudeValidation" align="center">
                         {{longitudeErrorMessage}}
@@ -78,7 +78,7 @@
                         id="country-field"
                         label="Country:"
                         label-for="country">
-                    <b-form-input id="country" v-model="dCountry" type="text" trim required
+                    <b-form-input id="country" v-model="destinationCountry" type="text" trim required
                                   :state="destinationCountryValidation"></b-form-input>
                     <b-form-invalid-feedback :state="destinationCountryValidation" align="center">
                         Country cannot have any numbers in it!
@@ -97,12 +97,12 @@
         props: ['profile', 'destinations', 'destinationTypes'],
         data() {
             return {
-                dName: "",
-                dType: "",
-                dDistrict: "",
-                dLatitude: null,
-                dLongitude: null,
-                dCountry: "",
+                destinationName: "",
+                destinationType: "",
+                destinationDistrict: "",
+                destinationLatitude: null,
+                destinationLongitude: null,
+                destinationCountry: "",
                 showError: false,
                 errorMessage: "",
                 successTripAddedAlert: false,
@@ -118,55 +118,55 @@
              * @returns {*} true if input is valid
              */
             destinationNameValidation() {
-                if (this.dName.length === 0) {
+                if (this.destinationName.length === 0) {
                     return null;
                 }
-                return this.dName.length > 0;
+                return this.destinationName.length > 0;
             },
             destinationTypeValidation() {
-                if (this.dType.length === 0) {
+                if (this.destinationType.length === 0) {
                     return null;
                 }
-                return this.dType.length > 0 || this.dType !== null;
+                return this.destinationType.length > 0 || this.destinationType !== null;
             },
             destinationDistrictValidation() {
-                if (this.dDistrict.length === 0) {
+                if (this.destinationDistrict.length === 0) {
                     return null;
                 }
-                return this.dDistrict.length > 0;
+                return this.destinationDistrict.length > 0;
             },
             destinationLatitudeValidation() {
-                if (this.dLatitude === null) {
+                if (this.destinationLatitude === null) {
                     return null;
                 }
-                if (isNaN(this.dLatitude)) {
-                    this.latitudeErrorMessage = "Latitude: '" + this.dLatitude + "' is not a number!";
+                if (isNaN(this.destinationLatitude)) {
+                    this.latitudeErrorMessage = "Latitude: '" + this.destinationLatitude + "' is not a number!";
                     return false;
-                } else if (this.dLatitude > 90 || this.dLatitude < -90) {
-                    this.latitudeErrorMessage = "Latitude: '" + this.dLatitude + "' must be between -90 and 90";
+                } else if (this.destinationLatitude > 90 || this.destinationLatitude < -90) {
+                    this.latitudeErrorMessage = "Latitude: '" + this.destinationLatitude + "' must be between -90 and 90";
                     return false;
                 }
                 return true;
             },
             destinationLongitudeValidation() {
-                if (this.dLongitude === null) {
+                if (this.destinationLongitude === null) {
                     return null;
                 }
-                if (isNaN(this.dLongitude)) {
-                    this.longitudeErrorMessage = "Longitude: '" + this.dLongitude + "' is not a number!";
+                if (isNaN(this.destinationLongitude)) {
+                    this.longitudeErrorMessage = "Longitude: '" + this.destinationLongitude + "' is not a number!";
                     return false;
-                } else if (this.dLongitude > 180 || this.dLongitude < -180) {
-                    this.longitudeErrorMessage = "Longitude: '" + this.dLongitude + "' must be between -180 and 180";
+                } else if (this.destinationLongitude > 180 || this.destinationLongitude < -180) {
+                    this.longitudeErrorMessage = "Longitude: '" + this.destinationLongitude + "' must be between -180 and 180";
                     return false;
                 }
                 return true;
             },
             destinationCountryValidation() {
-                if (this.dCountry.length === 0) {
+                if (this.destinationCountry.length === 0) {
                     return null;
                 }
                 let countryRegex = /\d/;
-                return !countryRegex.test(this.dCountry);
+                return !countryRegex.test(this.destinationCountry);
             }
         },
         methods: {
@@ -191,12 +191,12 @@
              * Sets all fields to blank
              */
             resetDestForm() {
-                this.dName = "";
-                this.dType = "";
-                this.dDistrict = "";
-                this.dLatitude = "";
-                this.dLongitude = "";
-                this.dCountry = "";
+                this.destinationName = "";
+                this.destinationType = "";
+                this.destinationDistrict = "";
+                this.destinationLatitude = "";
+                this.destinationLongitude = "";
+                this.destinationCountry = "";
             },
 
             /**
@@ -211,12 +211,12 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: (JSON.stringify({
-                        "name": this.dName,
-                        "type_id": this.dType,
-                        "district": this.dDistrict,
-                        "latitude": parseFloat(this.dLatitude),
-                        "longitude": parseFloat(this.dLongitude),
-                        "country": this.dCountry
+                        "name": this.destinationName,
+                        "type_id": this.destinationType,
+                        "district": this.destinationDistrict,
+                        "latitude": parseFloat(this.destinationLatitude),
+                        "longitude": parseFloat(this.destinationLongitude),
+                        "country": this.destinationCountry
                     }))
                 })
                     .then(this.parseJSON)
