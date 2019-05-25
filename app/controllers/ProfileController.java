@@ -548,7 +548,7 @@ public class ProfileController {
                         profiles = Profile.find.all();
                     } else {
                         String getError = validQueryString(request.queryString());
-                        if (getError != null) {
+                        if (getError == null) {
                             profiles = searchProfiles(request.queryString());
                         } else {
                             return badRequest(getError);
