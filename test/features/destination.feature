@@ -11,7 +11,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following valid values
       | Name    | Type | District | Latitude  | Longitude| Country     |
       | ASB     | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
-    Then the status code received is Created
+    Then the received status code is Created
 
   Scenario: Create a new destination with invalid name input
     Given I have a running application
