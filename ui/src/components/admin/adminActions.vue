@@ -27,7 +27,6 @@
                 <b-col>
                     <b-card header="Create a Profile">
                         <b-button @click="showCollapse = !showCollapse" block variant="success">Create a New Profile</b-button>
-                        <b-button block v-b-toggle.signUpPage variant="success">Create a New Profile</b-button>
                         <!-- The collapsible that uses the sign up page to create a new profile -->
                         <b-collapse id="signUpPage" class="mt-2" v-model="showCollapse">
                             <sign-up :createdByAdmin="true"
