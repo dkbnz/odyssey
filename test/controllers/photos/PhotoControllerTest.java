@@ -1,5 +1,6 @@
 package controllers.photos;
 
+import com.typesafe.config.Config;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,12 +23,14 @@ public class PhotoControllerTest {
     private PhotoController testPhotoController;
     private ProfileRepository mockProfileRepo;
     private PersonalPhotoRepository mockPersonalPhotoRepo;
+    private Config mockConfig;
 
     @Before
     public void setUp() {
         mockProfileRepo = mock(ProfileRepository.class);
         mockPersonalPhotoRepo = mock(PersonalPhotoRepository.class);
-        testPhotoController = new PhotoController(mockProfileRepo, mockPersonalPhotoRepo);
+        mockConfig = mock(Config.class);
+        testPhotoController = new PhotoController(mockProfileRepo, mockPersonalPhotoRepo, mockConfig);
     }
 
     @After
