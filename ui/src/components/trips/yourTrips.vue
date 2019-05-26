@@ -27,6 +27,7 @@
             <!-- Modal that uses the plan a trip page to edit a selected trip -->
             <b-modal hide-footer id="editTripModal" ref="editTripModal" size="xl" title="Edit Trip">
                 <plan-a-trip
+                        :containerClass="'noMarginsContainer'"
                         :destinations="destinations"
                         :heading="'Edit a Trip'"
                         :inputTrip="selectedTrip"
@@ -66,9 +67,12 @@
                               block>
                         Show Details
                     </b-button>
-                    <b-button @click="sendTripToModal(row.item)"
+                    <b-button size="sm"
+                              v-model="editButton"
+                              v-b-modal.editTripModal
+                              @click="sendTripToModal(row.item)"
+                              variant="primary"
                               class="mr-2"
-                              size="sm"
                               v-if="hasPermission"
                               block>
                         Edit
