@@ -2,10 +2,9 @@ Feature: CRUD of photos
 
   Scenario: Successfully uploading a photo to my own profile
     Given I have a application running
-    And I am logged in as a non-admin with id 1
+    And I am logged in as a non-admin with id 2
     When I upload a valid jpeg photo to a profile with id 2
     Then the status code I get is Created
-
 
   Scenario: Successfully uploading a photo to another user's profile as Admin
     Given I have a application running
