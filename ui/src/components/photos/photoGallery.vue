@@ -1,7 +1,7 @@
 <template>
     <div class="containerWithNav">
-        <h1 class="page_title">Personal Media</h1>
-        <p v-if="auth" class="page_title"><i>Here are your photos</i></p>
+        <h1 class="page-title">Personal Media</h1>
+        <p v-if="auth" class="page-title"><i>Here are your photos</i></p>
 
         <b-alert
                 :show="dismissCountDown"

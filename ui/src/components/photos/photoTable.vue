@@ -1,51 +1,53 @@
 <template>
     <div>
-    <table style="margin-top:20px" ref="gallery">
-        <tr v-for="rowNumber in (amountOfRows)">
-            <td v-for="photo in getRowPhotos(rowNumber)">
-                <b-img :src="getThumbImage(photo.id)" thumbnail @click="showImage(photo.id)" alt="Image not Found" @error="imageAlt">
-                </b-img>
-                <b-select v-if="auth" style="width: 100%"
-                          @change="updatePrivacy(photo.id, photo.public)"
-                          v-model="photo.public">
-                    <option value="true">
-                        Public
-                    </option>
-                    <option value="false">
-                        Private
-                    </option>
-                </b-select>
-            </td>
-        </tr>
-    </table>
-    <b-pagination
-            v-model="currentPage"
-            :total-rows="rows"
-            :per-page="perPage"
-            ref="navigationGallery"
-    ></b-pagination>
-    <b-modal centered hide-footer size="xl" ref="modalImage">
-        <b-img-lazy :src="getFullPhoto()" center fluid></b-img-lazy>
-        <b-button  class="mr-2" size="sm"
-                   v-b-modal.deletePhotoModal block
-                   style="margin-top: 10px"
-                   v-if="auth" variant="danger">Delete
-        </b-button>
-        <b-modal hide-footer id="deletePhotoModal" ref="deletePhotoModal" title="Delete Photo">
-            <div class="d-block">
-                Are you sure that you want to delete this image?
-            </div>
+        <table ref="gallery" style="margin-top:20px">
+            <tr v-for="rowNumber in (amountOfRows)">
+                <td v-for="photo in getRowPhotos(rowNumber)">
+                    <b-img :src="getThumbImage(photo.id)" @click="showImage(photo.id)" @error="imageAlt"
+                           alt="Image not Found" thumbnail>
+                    </b-img>
+                    <b-select @change="updatePrivacy(photo.id, photo.public)" style="width: 100%"
+                              v-if="auth"
+                              v-model="photo.public">
+                        <option value="true">
+                            Public
+                        </option>
+                        <option value="false">
+                            Private
+                        </option>
+                    </b-select>
+                </td>
+            </tr>
+        </table>
+        <b-pagination
+                :per-page="perPage"
+                :total-rows="rows"
+                ref="navigationGallery"
+                v-model="currentPage"
+        ></b-pagination>
+        <b-modal centered hide-footer ref="modalImage" size="xl">
+            <b-img-lazy :src="getFullPhoto()" center fluid></b-img-lazy>
             <b-button
-                    @click="deleteImage"
-                    class="mr-2 float-right"
-                    variant="danger">Delete
+                    block class="mr-2"
+                    size="sm" style="margin-top: 10px"
+                    v-b-modal.deletePhotoModal
+                    v-if="auth" variant="danger">Delete
             </b-button>
-            <b-button
-                    @click="dismissConfirmDelete"
-                    class="mr-2 float-right">Cancel
-            </b-button>
+            <b-modal hide-footer id="deletePhotoModal" ref="deletePhotoModal" title="Delete Photo">
+                <div class="d-block">
+                    Are you sure that you want to delete this image?
+                </div>
+                <b-button
+                        @click="deleteImage"
+                        class="mr-2 float-right"
+                        variant="danger">Delete
+                </b-button>
+                <b-button
+                        @click="dismissConfirmDelete"
+                        class="mr-2 float-right">Cancel
+                </b-button>
+            </b-modal>
         </b-modal>
-    </b-modal>
     </div>
 </template>
 
@@ -94,7 +96,7 @@
             getRowPhotos(rowNumber) {
                 let numberOfPhotos = (this.photos.length);
                 let endRowIndex = ((rowNumber * this.rowSize) + ((this.currentPage - 1) * this.perPage));
-                let startRowIndex = (rowNumber - 1) * this.rowSize  + ((this.currentPage - 1) * this.perPage);
+                let startRowIndex = (rowNumber - 1) * this.rowSize + ((this.currentPage - 1) * this.perPage);
 
                 // Check preventing an IndexOutOfRangeError, before filling the row with photos indexed from the list.
                 if (endRowIndex > numberOfPhotos) {
@@ -145,10 +147,11 @@
              * and refreshes the list of photos in the photo gallery
              */
             deleteImage() {
+                let self = this;
                 fetch(`/v1/photos/` + this.currentViewingID, {
                     method: 'DELETE'
-                }).then(response =>  {
-                    this.error = (response.status === 200);
+                }).then(response => {
+                    self.error = (response.status === 200);
                 });
                 this.$refs['deletePhotoModal'].hide();
                 this.$refs['modalImage'].hide();
@@ -161,8 +164,8 @@
              */
             updatePrivacy(photoId, isPublic) {
                 let json = {
-                    "id" : photoId,
-                    "public" : isPublic
+                    "id": photoId,
+                    "public": isPublic
                 };
 
                 fetch('/v1/photos', {
