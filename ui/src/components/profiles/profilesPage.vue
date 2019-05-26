@@ -153,7 +153,7 @@
                                 </b-button>
 
                                 <b-button v-if="profile.isAdmin && row.item.id !== 1" :disabled="row.item.id===1"
-                                          size="sm" variant="danger" v-b-modal.deleteModal
+                                          size="sm" variant="danger" v-b-modal.deleteProfileModal
                                           @click="sendProfileToModal(row.item)" class="mr-2" block>
                                     Delete
                                 </b-button>
