@@ -148,33 +148,35 @@ public class PhotoController extends Controller {
      *
      * @param request   the Http request body.
      * @param photoId   the ID number of the photo to be deleted.
-     * @return          notFound() (Http 404) if no image exists, badRequest() (Http 400) if the id number of the photo
-     *                  owner is not th
+     * @return          notFound() (Http 404) if no image exists, forbidden() (Http 403) if the user is not allowed to
+     *                  delete the photo, unauthorized() (Http 401) if the user is not logged in, otherwise returns
+     *                  badRequest (Http 400).
      */
     public Result destroy(Http.Request request, Long photoId) {
-//
-//        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-//
-//        if (loggedInUserId == null) {
-//            return unauthorized();
-//        }
-//
-//        PersonalPhoto photo = personalPhotoRepo.fetch(photoId);
-//
-//        if (photo == null) {
-//            return notFound();
-//        }
-//
-//        Profile photoOwner = photo.getProfile();
-//        Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
-//
-//        if (!AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
-//            return forbidden();
-//        }
-//
-//        personalPhotoRepo.delete(photoOwner, photo);
-//
-        return ok();
+
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        PersonalPhoto photo = personalPhotoRepo.fetch(photoId);
+
+        if (photo == null) {
+            return notFound();
+        }
+
+        Profile photoOwner = photo.getProfile();
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
+            return forbidden();
+        }
+        if (photoOwner != null) {
+            personalPhotoRepo.delete(photoOwner, photo);
+            return ok();
+        }
+        return badRequest();
     }
 
     /**
