@@ -26,6 +26,7 @@ tag_checker:
 junit:
   stage: test
   script:
+    - export DISPLAY=:0.0
     - sbt test
 
 recent-artifacts:
