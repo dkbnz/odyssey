@@ -14,6 +14,7 @@ import play.mvc.Result;
 import repositories.photos.PersonalPhotoRepository;
 import repositories.ProfileRepository;
 import util.AuthenticationUtil;
+import com.typesafe.config.Config;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -22,6 +23,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.inject.Inject;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -38,20 +41,18 @@ public class PhotoController extends Controller {
     private static final String PHOTO_ID = "id";
     private static final String IS_PUBLIC = "public";
 
-    private static final String IMAGE_DIRECTORY = "temp/";
-    private static final String THUMBNAIL_SUBDIRECTORY = "thumbnail/";
-
-    private static final String PHOTO_ENV_VAR = "TRAVELEA_PHOTOS";
-
     private ProfileRepository profileRepo;
     private PersonalPhotoRepository personalPhotoRepo;
+    private Config config;
 
     @Inject
     public PhotoController(
             ProfileRepository profileRepo,
-            PersonalPhotoRepository personalPhotoRepo) {
+            PersonalPhotoRepository personalPhotoRepo,
+            Config config) {
         this.profileRepo = profileRepo;
         this.personalPhotoRepo = personalPhotoRepo;
+        this.config = config;
     }
 
     /**
@@ -73,9 +74,25 @@ public class PhotoController extends Controller {
      * @param getThumbnail  whether thumbnail directory is being requested.
      * @return              filepath to save the photo to.
      */
-    private String getPhotoFilePath(Boolean getThumbnail) {
-        return (System.getenv(PHOTO_ENV_VAR) == null ? IMAGE_DIRECTORY : System.getenv(PHOTO_ENV_VAR)) +
-                (getThumbnail ? THUMBNAIL_SUBDIRECTORY : "");
+    private String getPhotoFilePath(Boolean getThumbnail) throws IOException {
+
+        String photoEnvironmentName = config.getString("travelea.photos.path.env");
+
+        String mainPath = (photoEnvironmentName != null && System.getenv(photoEnvironmentName) != null
+                ? System.getenv(photoEnvironmentName)
+                : config.getString("travelea.photos.main"));
+
+        String returnPath = mainPath + (getThumbnail
+                ? config.getString("travelea.photos.thumbnail")
+                : "");
+
+        Path path = Paths.get(returnPath);
+
+        if (!path.toFile().isDirectory()) {
+            Files.createDirectory(path);
+        }
+
+        return returnPath;
     }
 
     /**
@@ -109,7 +126,7 @@ public class PhotoController extends Controller {
      * @param filename      filename of saved photo.
      * @param isPublic      boolean flag of if photo is public.
      */
-    private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic) {
+    private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic) throws IOException {
         Photo photoToAdd = new Photo();
         photoToAdd.setMainFilename(getPhotoFilePath(false) + filename);
         photoToAdd.setThumbnailFilename(getPhotoFilePath(true) + filename);
@@ -249,20 +266,19 @@ public class PhotoController extends Controller {
         for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
             TemporaryFile tempFile = photo.getRef();
             String filename = generateFilename();
-
-            tempFile.copyTo(
-                    Paths.get(
-                            getPhotoFilePath(false),
-                            filename),
-                    true);
-
             try {
+                tempFile.copyTo(
+                        Paths.get(
+                                getPhotoFilePath(false),
+                                filename),
+                        true);
+
                 saveThumbnail(filename);
+                addImageToProfile(profileToAdd, filename, photo.getContentType(), false);
             } catch (IOException e) {
                 log.error("Unable to convert image to thumbnail", e);
-                return internalServerError("Unable to convert image to thumbnail");
+                return internalServerError("Unable to save image");
             }
-            addImageToProfile(profileToAdd, filename, photo.getContentType(), false);
         }
         return created(Json.toJson(profileToAdd.getPhotoGallery()));
     }
@@ -325,10 +341,10 @@ public class PhotoController extends Controller {
      * @throws IOException  if there is an error with saving the thumbnail.
      */
     private void saveThumbnail(String filename) throws IOException {
-        BufferedImage photo = ImageIO.read(new File(IMAGE_DIRECTORY + filename));
+        BufferedImage photo = ImageIO.read(new File(getPhotoFilePath(false) + filename));
         BufferedImage croppedImage = makeSquare(photo);
         BufferedImage thumbnail = scale(croppedImage);
-        ImageIO.write(thumbnail, "jpg", new File(IMAGE_DIRECTORY + THUMBNAIL_SUBDIRECTORY
+        ImageIO.write(thumbnail, "jpg", new File(getPhotoFilePath(true)
                 + filename));
     }
 

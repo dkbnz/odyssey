@@ -23,10 +23,11 @@ tag_checker:
   only:
   - tags
 
-#junit:
-#  stage: test
-#  script:
-#    - sbt test
+junit:
+  stage: test
+  script:
+    - export DISPLAY=:0.0
+    - sbt test
 
 recent-artifacts:
   stage: deploy
