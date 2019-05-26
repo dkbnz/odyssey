@@ -167,7 +167,7 @@ public class PhotoController extends Controller {
         }
 
         Profile photoOwner = photo.getProfile();
-        Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
             return forbidden();
