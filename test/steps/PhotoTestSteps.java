@@ -1,9 +1,8 @@
 package steps;
 
-import akka.http.impl.util.JavaMapping;
-import akka.util.ByteString;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
+import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -19,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import play.Application;
-import play.api.mvc.MultipartFormData;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
 import play.mvc.Http;
@@ -32,10 +30,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.*;
-import java.util.logging.Level;
-
-import akka.stream.Materializer;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import static play.test.Helpers.*;
 
@@ -47,41 +45,30 @@ public class PhotoTestSteps {
     private Database database;
 
     private static final String AUTHORIZED = "authorized";
-    private int statusCode;
     private static final String UPLOAD_PHOTOS_URI = "/v1/photos/";
     private static final String CHANGE_PHOTO_PRIVACY_URI = "/v1/photos";
-    private static final String SINGLE_PROFILE_URI = "/v1/profile";
     private static final String LOGIN_URI = "/v1/login";
-    private static final String USERNAME = "username";
-    private static final String PASS_FIELD = "password";
-
     /**
      * A valid username for login credentials for admin user.
      */
     private static final String VALID_USERNAME = "admin@travelea.com";
-
-
     /**
      * A valid password for login credentials for admin user.
      */
     private static final String VALID_AUTHPASS = "admin1";
     private static final String ADMIN_ID = "1";
-
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-
     /**
      * A valid username for login credentials for a regular user.
      */
     private static final String REG_USER = "guestUser@travelea.com";
-
-
     /**
      * A valid password for login credentials for a regular user.
      */
     private static final String REG_PASS = "guest123";
     private static final String REG_ID = "2";
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    private int statusCode;
     private String LOGGED_IN_ID;
 
     @Before
@@ -106,7 +93,7 @@ public class PhotoTestSteps {
 
     /**
      * Applies down evolutions to the database from the test/evolutions/default directory.
-     *
+     * <p>
      * This drops tables and data from the database.
      */
     private void applyEvolutions() {
@@ -143,8 +130,9 @@ public class PhotoTestSteps {
 
     /**
      * Sends a fake request to the application to login.
-     * @param username      The string of the username to complete the login with.
-     * @param password      The string of the password to complete the login with.
+     *
+     * @param username The string of the username to complete the login with.
+     * @param password The string of the password to complete the login with.
      */
     private void loginRequest(String username, String password) {
         ObjectMapper mapper = new ObjectMapper();
@@ -164,6 +152,7 @@ public class PhotoTestSteps {
 
     /**
      * Gets the response as an iterator array Node from any fake request so that you can iterate over the response data
+     *
      * @param content the string of the result using helper content as string
      * @return an Array node iterator
      */
@@ -266,10 +255,22 @@ public class PhotoTestSteps {
         JsonNode json = createJson(photoId, Boolean.parseBoolean(isPublic));
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
-                .uri(CHANGE_PHOTO_PRIVACY_URI)
-                .method("PATCH")
-                .bodyJson(json)
-                .session(AUTHORIZED, LOGGED_IN_ID);
+                        .uri(CHANGE_PHOTO_PRIVACY_URI)
+                        .method("PATCH")
+                        .bodyJson(json)
+                        .session(AUTHORIZED, LOGGED_IN_ID);
+        Result changePhotoPrivacyResult = route(application, request);
+
+        statusCode = changePhotoPrivacyResult.status();
+    }
+
+    @When("I delete the photo with id {int}")
+    public void iDeleteThePhotoWithId(int photoId) {
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                        .uri(UPLOAD_PHOTOS_URI + photoId)
+                        .method("DELETE")
+                        .session(AUTHORIZED, LOGGED_IN_ID);
         Result changePhotoPrivacyResult = route(application, request);
 
         statusCode = changePhotoPrivacyResult.status();
