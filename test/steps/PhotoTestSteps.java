@@ -44,7 +44,7 @@ public class PhotoTestSteps {
 
     @Inject
     Application application;
-    protected Database database;
+    private Database database;
 
     private static final String AUTHORIZED = "authorized";
     private int statusCode;
@@ -148,10 +148,10 @@ public class PhotoTestSteps {
      */
     private void loginRequest(String username, String password) {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("username", username);
-        ((ObjectNode) json).put("password", password);
+        json.put("username", username);
+        json.put("password", password);
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
@@ -182,10 +182,10 @@ public class PhotoTestSteps {
         ObjectMapper mapper = new ObjectMapper();
 
         //Add values to a JsonNode
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("id", photoId);
-        ((ObjectNode) json).put("public", isPublic);
+        json.put("id", photoId);
+        json.put("public", isPublic);
 
         return json;
     }
@@ -228,6 +228,7 @@ public class PhotoTestSteps {
     public void iUploadAValidJpegPhotoToMyOwnProfile(int uploadUserId) throws IOException {
         BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
         File file = new File("image.png");
+
         try {
             ImageIO.write(image, "png", file);
         } catch (IOException e) {
@@ -254,6 +255,10 @@ public class PhotoTestSteps {
 
         Result createPhotoResult = route(application, request);
         statusCode = createPhotoResult.status();
+
+        if (!file.delete())
+            log.error("Unable to delete test file");
+
     }
 
     @When("I change the privacy of the photo with id {int} to public {string}")
