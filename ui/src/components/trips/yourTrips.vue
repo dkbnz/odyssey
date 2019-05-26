@@ -64,17 +64,11 @@
                               variant="warning"
                               class="mr-2"
                               block>
+                        Show Details
                     </b-button>
                     <b-button @click="sendTripToModal(row.item)"
                               class="mr-2"
                               size="sm"
-                              v-b-modal.editTripModal
-                              v-if="hasPermission"
-                              v-model="editButton"
-                              variant="primary">Edit
-                    </b-button>
-                    <b-button @click="sendTripToModal(row.item)"
-                              class="mr-2"
                               v-if="hasPermission"
                               block>
                         Edit

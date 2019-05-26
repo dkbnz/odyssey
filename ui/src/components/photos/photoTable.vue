@@ -24,7 +24,7 @@
             :per-page="perPage"
             ref="navigationGallery"
     ></b-pagination>
-    <b-modal centered hide-footer ref="modalImage">
+    <b-modal centered hide-footer size="xl" ref="modalImage">
         <b-img-lazy :src="getFullPhoto()" center fluid></b-img-lazy>
         <b-button  class="mr-2" size="sm"
                    v-b-modal.deletePhotoModal block
