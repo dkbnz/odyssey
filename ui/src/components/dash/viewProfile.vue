@@ -34,16 +34,6 @@
                             :profile="profile"
                             :userProfile="userProfile">
                 </your-trips>
-                <your-trips :adminView="adminView"
-                            :destinations="destinations"
-                            :profile="profile"
-                            :userProfile="userProfile">
-                </your-trips>
-                <your-trips :adminView="adminView"
-                            :destinations="destinations"
-                            :profile="profile"
-                            :userProfile="userProfile">
-                </your-trips>
             </div>
         </div>
     </div>
