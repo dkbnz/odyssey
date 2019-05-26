@@ -39,9 +39,7 @@
             </b-modal>
 
             <!-- Table to show all a profile's future trips -->
-            <b-table :busy="futureTrips.length === 0"
-                     :current-page="currentPageUpcoming"
-                     :fields="fields"
+            <b-table
                      :items="futureTrips"
                      :fields="fields"
                      :per-page="perPageUpcoming"
@@ -66,6 +64,7 @@
                               variant="warning"
                               class="mr-2"
                               block>
+                    </b-button>
                     <b-button @click="sendTripToModal(row.item)"
                               class="mr-2"
                               size="sm"
@@ -554,19 +553,15 @@
                     this.errorMessage = (error);
                 });
             },
-
-            getPermissions() {
-                this.hasPermission = (this.userProfile.id === this.profile.id ||
-                    (this.userProfile.isAdmin && this.adminView));
-            },
-
             /**
-             *
+             * Used to check the current user is either admin or the owner of the trip.
              */
             getPermissions() {
                 this.hasPermission = (this.userProfile.id === this.profile.id ||
                     (this.userProfile.isAdmin && this.adminView));
             },
+
+
 
             /**
              * Used to dismiss either the delete a trip confirmation modal or the edit a trip modal.

@@ -175,7 +175,6 @@ public class PhotoController extends Controller {
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
                     JsonNode json = request.body().asJson();
-                    System.out.println(json);
 
                     if (!(json.has(PHOTO_ID) && json.has(IS_PUBLIC))) {
                         return badRequest();
@@ -193,16 +192,16 @@ public class PhotoController extends Controller {
                         return notFound();
                     }
 
-                    Long ownerId = personalPhoto.getProfile().getId();
+                    Profile owner = personalPhoto.getProfile();
 
-                    if (ownerId == null) {
+                    if (owner == null) {
                         return notFound();
                     }
 
-                    if(authenticateUser(loggedInUser, ownerId, loggedInUserId).status() == 200) {
-                        profileToChange = profileRepo.fetchSingleProfile(ownerId.intValue());
+                    if(authenticateUser(loggedInUser, owner, loggedInUserId).status() == 200) {
+                        profileToChange = profileRepo.fetchSingleProfile(owner.getId().intValue());
                     } else {
-                        return authenticateUser(loggedInUser, ownerId, loggedInUserId);
+                        return authenticateUser(loggedInUser, owner, loggedInUserId);
                     }
                     if (profileToChange != null) {
                         personalPhotoRepo.updatePrivacy(profileToChange, personalPhoto, isPublic);
@@ -217,17 +216,17 @@ public class PhotoController extends Controller {
      * Generic method to check the authentication rights of the logged in user.
      *
      * @param loggedInUser      the Profile object of the logged in user.
-     * @param userId            the id number of the user to be modified.
+     * @param owner             the Profile object of the owner of the photo object.
      * @param loggedInUserId    the id number of the logged in user.
      * @return                  ok() (Http 200) if the logged in user is an admin or the user being modified,
      *                          forbidden() (Http 403) if they are not permitted to modify the logged in user,
      *                          badRequest() (Http 400) otherwise.
      */
-    private Result authenticateUser(Profile loggedInUser, Long userId, String loggedInUserId) {
+    private Result authenticateUser(Profile loggedInUser, Profile owner, String loggedInUserId) {
         // If user is admin, or if they are editing their own profile then allow them to edit.
-        if(AuthenticationUtil.validUser(loggedInUser, userId)) {
+        if(AuthenticationUtil.validUser(loggedInUser, owner)) {
             return ok();
-        } else if (!userId.equals(Long.valueOf(loggedInUserId))) {
+        } else if (!owner.getId().equals(Long.valueOf(loggedInUserId))) {
             return forbidden(); // User has specified an id which is not their own, but is not admin
         } else {
             return badRequest();
@@ -284,11 +283,13 @@ public class PhotoController extends Controller {
                     Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
                     Profile profileToAdd;
 
+                    Profile user = profileRepo.fetchSingleProfile(userId.intValue());
+
                     // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if(authenticateUser(loggedInUser, userId, loggedInUserId).status() == 200) {
+                    if(authenticateUser(loggedInUser, user, loggedInUserId).status() == 200) {
                         profileToAdd = profileRepo.fetchSingleProfile(userId.intValue());
                     } else {
-                        return authenticateUser(loggedInUser, userId, loggedInUserId);
+                        return authenticateUser(loggedInUser, user, loggedInUserId);
                     }
 
                     if (profileToAdd == null) {
@@ -417,9 +418,9 @@ public class PhotoController extends Controller {
                         return getImageResult(personalPhoto.getPhoto(), getThumbnail);
 
                     Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(userId));
-                    Long ownerId = personalPhoto.getProfile().getId();
+                    Profile owner = personalPhoto.getProfile();
 
-                    if(AuthenticationUtil.validUser(loggedInUser, ownerId))
+                    if(AuthenticationUtil.validUser(loggedInUser, owner))
                         return getImageResult(personalPhoto.getPhoto(), getThumbnail);
 
                     return forbidden();
