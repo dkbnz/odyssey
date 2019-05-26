@@ -31,7 +31,6 @@
                         label-for="destinationName">
                     <b-form-input id="destinationName" v-model="destinationName" type="text" required
                                   :state="destinationNameValidation"></b-form-input>
-                        label-for="dName">
                 </b-form-group>
 
                 <b-form-group
