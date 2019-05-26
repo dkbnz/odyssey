@@ -35,7 +35,7 @@ public final class AuthenticationUtil {
      * @return              An integer value of the logged in user id, null if there is no logged in user.
      */
     public static Integer getLoggedInUserId(Http.Request request) {
-        String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
+        String userId = request.session().getOptional(AUTHORIZED);
         try {
             return Integer.valueOf(userId);
         } catch (NumberFormatException e) {
