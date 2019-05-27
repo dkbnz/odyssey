@@ -21,12 +21,16 @@
     export default {
         name: "photoUploader",
         props: {
-            files: Object,
             acceptTypes: String,
             multipleFiles: {
                 default: function () {
                     return true;
                 }
+            }
+        },
+        data() {
+            return {
+                files: null
             }
         },
         methods: {

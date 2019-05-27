@@ -36,15 +36,17 @@
         {{alertMessage}}
     </b-alert>
         <b-modal centered hide-footer ref="modalImage" size="xl">
-            <b-img-lazy :src="getFullPhoto()" alt="Image couldn't be retrieved" @error="imageAlt" center fluid></b-img-lazy>
+            <b-img-lazy :src="getFullPhoto()" alt="Image couldn't be retrieved" @error="imageAlt" center fluid>
+            </b-img-lazy>
             <b-row>
             <b-col>
                 <b-button
-                        id="tooltip"
+                        :disabled="this.profile.profilePicture !== null
+                           && this.profile.profilePicture.id === this.currentViewingID"
                         block class="mr-2"
                         size="sm" style="margin-top: 10px"
                         @click="makeProfileImage"
-                        v-if="auth" variant="info">Make this profile picture
+                        v-if="auth" variant="info">Make this my profile picture
                 </b-button>
             </b-col>
             <b-col>
