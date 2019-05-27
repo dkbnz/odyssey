@@ -8,7 +8,8 @@
                     </b-img>
                     <b-select @change="updatePrivacy(photo.id, photo.public)" style="width: 100%"
                               v-if="auth"
-                              v-model="photo.public">
+                              v-model="photo.public"
+                              class="colorBlue">
                         <option value="true">
                             Public
                         </option>
@@ -26,7 +27,7 @@
                 v-model="currentPage"
         ></b-pagination>
         <b-modal centered hide-footer ref="modalImage" size="xl">
-            <b-img-lazy :src="getFullPhoto()" center fluid></b-img-lazy>
+            <b-img-lazy :src="getFullPhoto()" @error="imageAlt" center fluid></b-img-lazy>
             <b-button
                     block class="mr-2"
                     size="sm" style="margin-top: 10px"
@@ -187,11 +188,15 @@
              */
             checkAuth() {
                 this.auth = (this.userProfile.id === this.profile.id || (this.userProfile.isAdmin && this.adminView));
-            },
+            }
         }
     }
 </script>
 
 <style scoped>
-
+    .colorBlue {
+        color: white;
+        font-weight: bold;
+        background-color: #85BCE5;
+    }
 </style>
