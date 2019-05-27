@@ -33,9 +33,6 @@ public class Profile extends BaseModel {
     public LocalDate dateOfBirth;
     public Boolean isAdmin;
 
-    @OneToMany(cascade=CascadeType.ALL)
-    private List<PersonalPhoto> photoGallery = new ArrayList<PersonalPhoto>();
-
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     public Date dateOfCreation;
 
@@ -50,6 +47,20 @@ public class Profile extends BaseModel {
 
     @OneToMany(cascade=CascadeType.ALL, mappedBy = "profile")
     public List<Trip> trips = new ArrayList<Trip>();
+
+    @OneToMany(cascade=CascadeType.ALL)
+    private List<PersonalPhoto> photoGallery = new ArrayList<PersonalPhoto>();
+
+    @OneToOne
+    private PersonalPhoto profilePicture = new PersonalPhoto();
+
+    public PersonalPhoto getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(PersonalPhoto profilePicture) {
+        this.profilePicture = profilePicture;
+    }
 
     public void addTravType(TravellerType travellerType) {
         this.travellerTypes.add(travellerType);
