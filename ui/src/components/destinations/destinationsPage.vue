@@ -47,11 +47,12 @@
         },
         methods: {
             /**
-             * Switches between tabs
-             * @param viewPage page to be displayed
+             * Switches between tabs.
+             *
+             * @param viewPage page to be displayed.
              */
-            togglePage: function(viewPage) {
-                if(!viewPage) {
+            togglePage(viewPage) {
+                if (!viewPage) {
                     this.searchDestinations = !this.searchDestinations;
                     this.addDestinations = !this.addDestinations;
                 }

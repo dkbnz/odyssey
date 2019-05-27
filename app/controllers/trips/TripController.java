@@ -31,11 +31,13 @@ public class TripController extends Controller {
     private static final String TRIP_ID = "trip_id";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private TripRepository repository;
-
+    private ProfileRepository profileRepo;
 
     @Inject
-    public TripController(TripRepository tripRepository) {
-        this.repository = tripRepository;
+    public TripController(TripRepository tripRepo,
+                          ProfileRepository profileRepo) {
+        this.repository = tripRepo;
+        this.profileRepo = profileRepo;
     }
 
 
@@ -53,7 +55,7 @@ public class TripController extends Controller {
                 .map(userId -> {
 
                     Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
-                    Profile affectedProfile = ProfileRepository.fetchSingleProfile(affectedUserId.intValue());
+                    Profile affectedProfile = profileRepo.fetchSingleProfile(affectedUserId.intValue());
 
                     if (loggedInUser == null) {
                         return unauthorized();
@@ -151,8 +153,8 @@ public class TripController extends Controller {
             return badRequest();
         }
 
-        Profile tripOwner = ProfileRepository.fetchSingleProfile(ownerId.intValue());
-        Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
+        Profile tripOwner = profileRepo.fetchSingleProfile(ownerId.intValue());
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
             return forbidden();
@@ -372,8 +374,8 @@ public class TripController extends Controller {
         if (ownerId == null) {
             return badRequest();
         }
-        Profile tripOwner = ProfileRepository.fetchSingleProfile(ownerId.intValue());
-        Profile loggedInUser = ProfileRepository.fetchSingleProfile(loggedInUserId);
+        Profile tripOwner = profileRepo.fetchSingleProfile(ownerId.intValue());
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
             return forbidden();
