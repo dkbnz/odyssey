@@ -90,7 +90,4 @@ public class Photo extends BaseModel {
     public static Finder<Integer, Photo> getFind() {
         return find;
     }
-
-
-
 }

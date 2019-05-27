@@ -201,8 +201,6 @@ public class DestinationController extends Controller {
         return destination;
     }
 
-
-
     /**
      * Deletes a destination from the database using the given destination id number.
      * @param id    the id of the destination.

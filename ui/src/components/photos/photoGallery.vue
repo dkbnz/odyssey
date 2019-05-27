@@ -78,7 +78,7 @@
             /**
              * Creates a POST request to upload photo(s) to the backend.
              *
-             * @param files     The photo(s) uploaded from the personal photos component.
+             * @param files     the photo(s) uploaded from the personal photos component.
              */
             sendPhotosToBackend: function(files) {
                 this.showError = false;
@@ -113,15 +113,15 @@
 
             /**
              * Checks the authorization of the user profile that is logged in to see if they can
-             * view the users private photos and can add or delete images from the media
+             * view the users private photos and can add or delete images from the media.
              */
             checkAuth() {
                 this.auth = (this.userProfile.id === this.profile.id || (this.userProfile.isAdmin && this.adminView));
             },
 
             /**
-             * Calls the authorization of the user checks for private photos then adds
-             * to the photos list all the viewable images the user profile can view
+             * Sets the auth variable to ensure a user is authorised to see given photos.
+             * Iterates over a profiles photo gallery and add them to the table.
              *
              * @returns {Promise<Response | never>}
              */
@@ -135,9 +135,10 @@
             },
 
             /**
-             * Updates the photos list sent to the photoTable for a single privacy photo
-             * @param photoId           the photo id that's changing status
-             * @param isPublic          the changed status
+             * Updates the photos list sent to the photoTable for a single privacy photo.
+             *
+             * @param photoId           the photo id that's changing status.
+             * @param isPublic          the changed status.
              */
             updatePhotoPrivacyList: function(photoId, isPublic) {
                 for(let i=0; i < this.photos.length; i++) {
@@ -148,8 +149,9 @@
             },
 
             /**
-             * When a photo is added it refreshes the photos list without needing a refresh of the page or profile
-             * @param data          the json response from adding photos from the backend to give id's and public status
+             * When a photo is added it refreshes the photos list without needing a refresh of the page or profile.
+             *
+             * @param data      the Json response from adding photos from the backend to give id's and public status.
              */
             addPhotos(data) {
                 this.checkAuth();
@@ -163,7 +165,7 @@
 
             /**
              * Deletes the photo from the photos list so it updates the table in the front end without
-             * requiring a refresh of the profile
+             * requiring a refresh of the profile.
              */
             deletePhoto: function(photoId) {
                 this.checkAuth();
@@ -181,9 +183,9 @@
             },
 
             /**
-             * Retrieves a json body from a response.
+             * Retrieves a Json body from a response.
              *
-             * @param response      The response parsed into json.
+             * @param response      The response parsed into Json.
              * @returns {*}
              */
             parseJSON(response) {
@@ -199,6 +201,7 @@
 
             /**
              * Used to allow an alert to countdown on the successful saving of image/s.
+             *
              * @param dismissCountDown      the name of the alert.
              */
             countDownChanged(dismissCountDown) {
@@ -215,8 +218,3 @@
     }
 
 </script>
-
-<style scoped>
-
-</style>
-

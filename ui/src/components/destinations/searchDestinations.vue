@@ -163,14 +163,15 @@
         },
         computed: {
             /**
-             * @returns {number} number of rows to be displayed based on number of destinations present
+             * @returns {number} number of rows to be displayed based on number of destinations present.
              */
             rows() {
                 return this.destinations.length
             },
             /**
-             * Validates the input fields based on regex
-             * @returns {*} true if input is valid
+             * Validates the input fields based on regex.
+             *
+             * @returns {*} true if input is valid.
              */
             destinationNameValidation() {
                 if (this.searchName.length === 0) {
@@ -254,6 +255,7 @@
             /**
              * Checks each of the validation fields to ensure they are return either null (no value is given), or the
              * field is valid.
+             *
              * @returns {boolean} true if the fields are valid.
              */
             validateFields(validationField) {
@@ -266,6 +268,7 @@
             /**
              * Runs a query which searches through the destinations in the database and returns all which
              * follow the search criteria.
+             *
              * @returns {Promise<Response | never>}
              */
             queryDestinations() {
@@ -278,7 +281,7 @@
                     "&longitude=" + this.searchLongitude +
                     "&country=" + this.searchCountry;
                 return fetch(`/v1/destinations` + searchQuery, {
-                    dataType: 'html',
+                    dataType: 'html'
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
@@ -290,6 +293,7 @@
 
             /**
              * Displays an error if search failed.
+             *
              * @param response from database search query.
              * @throws the error if it occurs.
              */
@@ -306,7 +310,7 @@
 
             parseJSON(response) {
                 return response.json();
-            },
+            }
         }
     }
 </script>

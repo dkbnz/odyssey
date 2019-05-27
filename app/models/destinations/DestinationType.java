@@ -28,8 +28,5 @@ public class DestinationType extends BaseModel {
         this.destinationType = destinationType;
     }
 
-    /**
-     * A finder used to search for a DestinationType
-     */
     public static Finder<Integer, DestinationType> find = new Finder<>(DestinationType.class);
 }

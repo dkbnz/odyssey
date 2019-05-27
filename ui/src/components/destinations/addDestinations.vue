@@ -114,8 +114,9 @@
         },
         computed: {
             /**
-             * Validates the input fields based on regex
-             * @returns {*} true if input is valid
+             * Validates the input fields based on regex.
+             *
+             * @returns {*} true if input is valid.
              */
             destinationNameValidation() {
                 if (this.destinationName.length === 0) {
@@ -173,8 +174,8 @@
         },
         methods: {
             /**
-             * Checks that all fields are present and runs validation
-             * On fail shows errors
+             * Checks that all fields are present and runs validation.
+             * On fail shows errors.
              */
             checkDestinationFields() {
                 if(this.destinationNameValidation && this.destinationTypeValidation
@@ -190,7 +191,7 @@
             },
 
             /**
-             * Sets all fields to blank
+             * Sets all fields to blank.
              */
             resetDestForm() {
                 this.destinationName = "";
@@ -202,10 +203,11 @@
             },
 
             /**
-             * Adds new destination to database, then resets form and shows success alert
-             * Checks whether location is duplicate and displays error if so
-             * @param cb
-             * @returns {Promise<Response | never>}
+             * Adds new destination to database, then resets form and shows success alert.
+             * Checks whether location is duplicate and displays error if so.
+             *
+             * @param cb.
+             * @returns {Promise<Response | never>}.
              */
             addDestination(cb) {
                 let self = this;
@@ -242,6 +244,7 @@
 
             /**
              * Used to allow an alert to countdown on the successful saving of a destination.
+             *
              * @param dismissCountDown      the name of the alert.
              */
             countDownChanged(dismissCountDown) {
