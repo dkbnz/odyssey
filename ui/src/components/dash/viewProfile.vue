@@ -2,10 +2,19 @@
     <div class="scroll">
         <div class="wrapper cf">
             <div :class="containerClass">
+                <!-- The profile picture of the current profile being viewed. -->
                 <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
                        @click="showImage">
                 </b-img>
-                <b-alert dismissible v-model="showSuccess" variant="success">{{alertMessage}}</b-alert>
+                <b-alert
+                        class="m-1"
+                        :show="dismissCountDown"
+                        dismissible
+                        variant="success"
+                        @dismissed="dismissCountDown=0"
+                        @dismiss-count-down="countDownChanged"
+                > {{alertMessage}}
+                </b-alert>
                 <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
                 <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
                 <p v-if="profile.isAdmin"><i>Administrator</i></p>
@@ -32,7 +41,14 @@
                 </ul>
             </div>
             <div :class="containerClassContent">
-                <photo-gallery :profile="profile" :userProfile="userProfile" :adminView="adminView"></photo-gallery>
+                <!-- Displays the profile's photo gallery -->
+                <photo-gallery :key="refreshPhotos"
+                               :profile="profile"
+                               :userProfile="userProfile"
+                               :adminView="adminView"
+                               @makeProfilePhoto="setProfilePhoto"
+                               @removePhoto="refreshProfilePicture">
+                </photo-gallery>
                 <!-- Displays a profile's trips -->
                 <your-trips :adminView="adminView"
                             :destinations="destinations"
@@ -41,7 +57,7 @@
                 </your-trips>
             </div>
             <b-modal hide-footer centered ref="profilePictureModal" title="Profile Picture" size="xl">
-                <b-img-lazy :src="profileImageFull" fluid></b-img-lazy>
+                <b-img-lazy :src="profileImageFull" center fluid></b-img-lazy>
                 <b-row>
                     <b-col>
                         <b-button
@@ -119,7 +135,10 @@
                 profileImageThumb: "",
                 profileImageFull: "",
                 errorMessage: "",
-                newProfilePhoto: -1
+                newProfilePhoto: -1,
+                refreshPhotos: 0,
+                dismissSecs: 3,
+                dismissCountDown: 0
             }
         },
         mounted() {
@@ -128,7 +147,6 @@
             this.getProfilePictureFull();
         },
         methods: {
-
             /**
              * Displays the default profile picture.
              */
@@ -146,7 +164,10 @@
                 }).then(response => {
                     if (response.status === 200) {
                         self.showError = false;
-                        self.setProfilePhoto(this.newProfilePhoto.id);
+                        self.setProfilePhoto(self.newProfilePhoto.id);
+                        self.newProfilePhoto.public = true;
+                        self.profile.photoGallery.push(self.newProfilePhoto);
+                        self.refreshPhotos += 1;
                         self.$refs['profilePictureModal'].hide();
                         self.$refs['profilePhotoUploader'].hide();
                     } else {
@@ -190,10 +211,10 @@
             },
 
             /**
-             * Retrieves a json body from a response.
+             * Retrieves a Json body from a response.
              *
-             * @param response      The response parsed into json.
-             * @returns {*}
+             * @param response  the response parsed into Json.
+             * @returns {*}     the Json response body.
              */
             parseJSON(response) {
                 if (response.status === 201) {
@@ -223,13 +244,13 @@
             },
 
             /**
-             * Retrieves the user's primary photo thumbnail.
+             * Retrieves the user's primary photo thumbnail, if none is found return the default image.
              */
             getProfilePictureThumbnail() {
                 if (this.profile.profilePicture !== null) {
                     this.profileImageThumb = `/v1/photos/thumb/` + this.profile.profilePicture.id;
                 }
-                return "../../../static/default_profile_picture.png";
+                this.profileImageThumb = "../../../static/default_profile_picture.png";
 
             },
 
@@ -244,17 +265,17 @@
             },
 
             /**
-             * Retrieves the user's primary photo.
+             * Retrieves the user's primary photo, if none is found return the default image.
              */
             getProfilePictureFull() {
                 if (this.profile.profilePicture !== null) {
                     this.profileImageFull = `/v1/photos/` + this.profile.profilePicture.id;
                 }
-                return "../../../static/default_profile_picture.png";
+                this.profileImageFull = "../../../static/default_profile_picture.png";
             },
 
             /**
-             * Deletes the user's profile photo.
+             * Deletes the user's profile photo and sets it back to the default image.
              */
             deleteProfilePhoto() {
                 let self = this;
@@ -265,7 +286,7 @@
                         self.profileImageThumb = "../../../static/default_profile_picture.png";
                         self.profileImageFull = "../../../static/default_profile_picture.png";
                         self.profile.profilePicture = null;
-                        self.showSuccess = true;
+                        self.showAlert();
                         self.alertMessage = "Profile photo successfully deleted";
                         self.$refs['profilePictureModal'].hide();
                     } else {
@@ -273,6 +294,46 @@
                         self.alertMessage = "Unable to delete profile photo";
                     }
                 })
+            },
+
+            /**
+             * Handles refreshing of a profile picture upon deleting of a photo from the photo gallery. Pops the photo
+             * from the list of photos in the photo gallery (so page doesn't need to refresh) and if the profile picture
+             * was deleted, sets it back to the default.
+             *
+             * @param photoId the id number of the photo that was deleted.
+             */
+            refreshProfilePicture(photoId) {
+                for(let i=0; i < this.profile.photoGallery.length; i++) {
+                    if(this.profile.photoGallery[i].id === photoId) {
+                        if (i+1 === this.profile.photoGallery.length) {
+                            this.profile.photoGallery.pop();
+                        } else {
+                            this.profile.photoGallery[i] = this.profile.photoGallery[i+1];
+                        }
+                    }
+                }
+                if (this.profile.profilePicture !== null && photoId === this.profile.profilePicture.id) {
+                    this.profileImageThumb = "../../../static/default_profile_picture.png";
+                    this.profileImageFull = "../../../static/default_profile_picture.png";
+                    this.profile.profilePicture = null;
+                }
+            },
+
+            /**
+             * Starts the countdown for the profile successfully saved alert.
+             *
+             * @param dismissCountDown the timer for the alert countdown.
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown
+            },
+
+            /**
+             * Displays the alert for a profile successfully saved.
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
             }
         },
         components: {

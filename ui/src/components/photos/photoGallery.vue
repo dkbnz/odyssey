@@ -198,6 +198,7 @@
                         }
                     }
                 }
+                this.$emit("removePhoto", photoId);
             },
 
             /**
