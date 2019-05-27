@@ -10,7 +10,9 @@ public class ProfileRepository {
      * @param userId        The id of the user to be retrieved.
      * @return              The profile object associated with the id. Returns null if no profile was found.
      */
-    public static Profile fetchSingleProfile(Integer userId) {
+    public Profile fetchSingleProfile(Integer userId) {
         return Profile.find.byId(userId);
     }
+
+    public void save(Profile profile) {profile.save();}
 }

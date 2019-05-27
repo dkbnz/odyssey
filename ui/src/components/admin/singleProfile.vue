@@ -1,14 +1,14 @@
 <template>
     <div>
         <b-row>
-            <b-col cols="2">
+            <b-col>
                 <!-- Nav bar for admin to display the selected page they wish to work on. -->
-                <b-navbar toggleable="lg">
+                <b-navbar toggleable="lg" class="stickyMinorNav">
                     <b-collapse id="nav-collapse-admin" is-nav>
-                        <b-nav vertical class="singleProfileNav">
+                        <b-nav class="singleProfileNav" vertical>
                             <b-nav-item @click="goBack">Go Back</b-nav-item>
                             <b-navbar-brand @click="currentDisplay = 0" class="nav-bar-brand">
-                                <b-img v-bind="profileImage" blank-color="#777" rounded="circle" alt="Circle image">
+                                <b-img alt="Circle image" blank-color="#777" rounded="circle" v-bind="profileImage">
                                 </b-img>
                                 {{editProfile.firstName}}
                             </b-navbar-brand>
@@ -22,39 +22,42 @@
 
             </b-col>
 
-            <!-- Inserts each of the components needed for admin to edit a selected profile. -->
-            <b-col cols="9" class="singleProfile">
+            <b-col cols="10">
                 <view-profile
-                        v-if="currentDisplay === 0"
-                        :trips="trips"
-                        :profile="editProfile"
+                        :adminView="adminView"
                         :destinations="destinations"
                         :nationalityOptions="nationalityOptions"
+                        :profile="editProfile"
+                        :showSaved="showSaved"
                         :travTypeOptions="travTypeOptions"
-                        :showSaved="showSaved">
+                        :trips="trips"
+                        v-if="currentDisplay === 0">
                 </view-profile>
                 <edit-profile
-                        v-if="currentDisplay === 1"
-                        @profile-saved="redirectToViewProfile"
-                        :profile="editProfile"
+                        :containerClass="'adminContainer'"
+                        :adminView="adminView"
                         :nationalityOptions="nationalityOptions"
+                        :profile="editProfile"
                         :travTypeOptions="travTypeOptions"
-                        :adminView="adminView">
+                        @profile-saved="redirectToViewProfile"
+                        v-if="currentDisplay === 1">
                 </edit-profile>
                 <your-trips
-                        v-if="currentDisplay === 2"
+                        :containerClass="'adminContainer'"
+                        :admin-view="adminView"
                         :destinations="destinations"
                         :profile="editProfile"
                         :userProfile="editProfile"
-                        :admin-view="adminView">
+                        v-if="currentDisplay === 2">
                 </your-trips>
                 <plan-a-trip
-                        v-if="currentDisplay === 3"
-                        :heading="'Plan a Trip'"
-                        :subHeading="'Book your next trip!'"
+                        :containerClass="'adminContainer'"
+                        :adminView="adminView"
                         :destinations="destinations"
+                        :heading="'Plan a Trip'"
                         :profile="editProfile"
-                        :adminView="adminView">
+                        :subHeading="'Book your next trip!'"
+                        v-if="currentDisplay === 3">
                 </plan-a-trip>
             </b-col>
         </b-row>

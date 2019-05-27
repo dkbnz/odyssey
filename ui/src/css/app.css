@@ -1,17 +1,108 @@
 html {
     /* The html and body elements cannot have any padding or margin. */
-    height: 100%;
+    box-sizing: border-box;
+    overflow: auto;
 }
 
 body {
     background-color: #e2e6ea;
     padding-bottom: 50px;
-
+    z-index: 1;
 }
-.container {
-    margin-top: 20px;
-    padding-top: 20px;
-    padding-bottom: 50px;
+
+/* Styling for your profile page with fixed side bar */
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+.cf:before, .cf:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.cf:after {
+    clear: both;
+}
+
+.scroll {
+    height: 80vh;
+    overflow-y: scroll;
+    padding: 0 10px;
+    width: 100%;
+    margin: 1vh auto 1vh auto;
+}
+
+.wrapper {
+    margin-top: 0.5vh;
+}
+.content {
+    width: 80%;
+}
+.sidebar {
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px
+}
+.sidebar h3 {
+    margin: 0;
+}
+.content,
+.sidebar {
+    float: left;
+}
+.sidebar {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+}
+
+/* When the screen is of max-width 2415px, change the layout of the page */
+@media screen and (max-width: 2415px) {
+    .cf:after {
+        clear: initial;
+        display: block;
+    }
+    .sidebar {
+        float: none;
+        margin: 5vh 10vw 0 10vw;
+        padding: 50px;
+        background-color: white;
+        border-radius: 5px;
+    }
+}
+
+/* Styling for other pages */
+
+.containerMain {
+    margin: 5vh 10vw 0 10vw;
+    padding: 50px;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.containerWithNav {
+    margin: 7vh 10vw 0 10vw;
+    padding: 50px 3vw 3vw 3vw;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.adminContainer {
+    margin: 10vh 10vw 0 2vw;
+    padding: 1vh 3vw 3vw 3vw;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.noMarginsContainer {
+    margin: 0;
+    padding: 1vh 3vw 3vw 3vw;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.adminProfilesContainer {
+    padding: 1vh 3vw 3vw 3vw;
     background-color: white;
     border-radius: 5px;
 }
@@ -29,22 +120,44 @@ h1, h2, h3, h4 {
     font-weight: bold;
 }
 
-
 #footer {
     background-color: white;
     text-align: center;
     position: fixed;
-    left: 0px;
-    bottom: 0px;
+    left: 0;
+    bottom: 0;
     height: 40px;
     width: 100%;
     font-size: 0.7em;
 }
 
-
 /* Page Titles and Subtitles*/
 .page-title {
     text-align: center;
+}
+
+/* Used for main nav bar that needs to remain fixed at top of page */
+.mainNav {
+    top: 0;
+    width: 100%;
+    z-index: 3;
+}
+
+/* Profile information in collapsible */
+.profilesSubSectionProfile {
+    background-color: white;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+/* Profile page content in collapsible */
+.profilesSubSectionContent {
+    background-color: white;
+    border-radius: 5px;
+}
+
+a {
+    color: grey;
 }
 
 .nav-bar-brand {

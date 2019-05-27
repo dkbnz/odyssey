@@ -42,6 +42,13 @@ POST    /v1/trips/:userId               controllers.trips.TripController.create(
 DELETE  /v1/trips/:tripId               controllers.trips.TripController.destroy(request: Request, tripId: Long)
 PATCH   /v1/trips/:tripId               controllers.trips.TripController.edit(request: Request, tripId: Long)
 
+# Photo
+GET     /v1/photos/thumb/:photoId       controllers.photos.PhotoController.fetch(request: Request, photoId: Long, thumbnail:Boolean ?= true)
+GET     /v1/photos/:photoId             controllers.photos.PhotoController.fetch(request: Request, photoId: Long, thumbnail:Boolean ?= false)
+POST    /v1/photos/:userId              controllers.photos.PhotoController.upload(request: Request, userId: Long)
+PATCH   /v1/photos                      controllers.photos.PhotoController.changePrivacy(request: Request)
+DELETE  /v1/photos/:photoId             controllers.photos.PhotoController.destroy(request: Request, photoId: Long)
+
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
 GET     /*file                          controllers.Assets.at(path="/public", file)

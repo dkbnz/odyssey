@@ -8,17 +8,18 @@
             </b-navbar-nav>
         </b-navbar>
 
-        <plan-a-trip v-if="planATrip"
-                     :heading="'Plan a Trip'"
-                     :subHeading="'Book your next trip!'"
+        <!-- Displays the plan a trip or your trips page depending on buttons selected by the user -->
+        <plan-a-trip :adminView="adminView"
                      :destinations="destinations"
+                     :heading="'Plan a Trip'"
                      :profile="profile"
-                     :adminView="adminView">
+                     :subHeading="'Book your next trip!'"
+                     v-if="planATrip">
         </plan-a-trip>
-        <your-trips v-if="yourTrips"
+        <your-trips :adminView="adminView"
                     :destinations="destinations"
                     :profile="profile"
-                    :adminView="adminView">
+                    v-if="yourTrips">
         </your-trips>
         <footer-main></footer-main>
     </div>
@@ -36,11 +37,12 @@
 
     export default {
         name: "Trips",
-        props: {profile: Object,
+        props: {
+            profile: Object,
             destinations: Array,
             adminView: Boolean,
         },
-        data: function() {
+        data: function () {
             return {
                 planATrip: true,
                 yourTrips: false
@@ -50,10 +52,11 @@
 
             /**
              * Used to toggle what page is currently being shown.
-             * @param viewPage
+             *
+             * @param viewPage      boolean variable to initiate a component toggle.
              */
-            togglePage: function(viewPage) {
-                if(!viewPage) {
+            togglePage: function (viewPage) {
+                if (!viewPage) {
                     this.planATrip = !this.planATrip;
                     this.yourTrips = !this.yourTrips;
                 }

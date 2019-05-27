@@ -1,24 +1,24 @@
 <template>
-    <div class="container">
+    <div class="containerWithNav">
         <h1 class="page-title">Add a Destination</h1>
         <p class="page-title"><i>Add a destination using the form below</i></p>
-        <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act
         as a buffer for destination being added-->
         <b-alert
                 :show="dismissCountDown"
+                @dismiss-count-down="countDownChanged"
+                @dismissed="dismissCountDown=0"
                 dismissible
                 variant="success"
-                @dismissed="dismissCountDown=0"
-                @dismiss-count-down="countDownChanged"
         >
             <p>Destination Successfully Added</p>
             <b-progress
-                    variant="success"
                     :max="dismissSecs"
                     :value="dismissCountDown"
                     height="4px"
+                    variant="success"
             ></b-progress>
         </b-alert>
 
@@ -58,7 +58,7 @@
                         label-for="latitude">
                     <b-form-input id="latitude" v-model="destinationLatitude" type="text" trim required
                                   :state="destinationLatitudeValidation"></b-form-input>
-                    <b-form-invalid-feedback :state="destinationLatitudeValidation" align="center">
+                    <b-form-invalid-feedback :state="destinationLatitudeValidation">
                         {{latitudeErrorMessage}}
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -69,7 +69,7 @@
                         label-for="longitude">
                     <b-form-input id="longitude" v-model="destinationLongitude" type="text" trim required
                                   :state="destinationLongitudeValidation"></b-form-input>
-                    <b-form-invalid-feedback :state="destinationLongitudeValidation" align="center">
+                    <b-form-invalid-feedback :state="destinationLongitudeValidation">
                         {{longitudeErrorMessage}}
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -80,12 +80,12 @@
                         label-for="country">
                     <b-form-input id="country" v-model="destinationCountry" type="text" trim required
                                   :state="destinationCountryValidation"></b-form-input>
-                    <b-form-invalid-feedback :state="destinationCountryValidation" align="center">
+                    <b-form-invalid-feedback :state="destinationCountryValidation">
                         Country cannot have any numbers in it!
                     </b-form-invalid-feedback>
                 </b-form-group>
 
-                <b-button block variant="primary" @click="checkDestinationFields">Add Destination</b-button>
+                <b-button @click="checkDestinationFields" block variant="primary">Add Destination</b-button>
             </b-form>
         </div>
     </div>
@@ -114,8 +114,9 @@
         },
         computed: {
             /**
-             * Validates the input fields based on regex
-             * @returns {*} true if input is valid
+             * Validates the input fields based on regex.
+             *
+             * @returns {*} true if input is valid.
              */
             destinationNameValidation() {
                 if (this.destinationName.length === 0) {
@@ -143,7 +144,8 @@
                     this.latitudeErrorMessage = "Latitude: '" + this.destinationLatitude + "' is not a number!";
                     return false;
                 } else if (this.destinationLatitude > 90 || this.destinationLatitude < -90) {
-                    this.latitudeErrorMessage = "Latitude: '" + this.destinationLatitude + "' must be between -90 and 90";
+                    this.latitudeErrorMessage = "Latitude: '" + this.destinationLatitude + "' must be between " +
+                        "-90 and 90";
                     return false;
                 }
                 return true;
@@ -156,7 +158,8 @@
                     this.longitudeErrorMessage = "Longitude: '" + this.destinationLongitude + "' is not a number!";
                     return false;
                 } else if (this.destinationLongitude > 180 || this.destinationLongitude < -180) {
-                    this.longitudeErrorMessage = "Longitude: '" + this.destinationLongitude + "' must be between -180 and 180";
+                    this.longitudeErrorMessage = "Longitude: '" + this.destinationLongitude + "' must be between " +
+                        "-180 and 180";
                     return false;
                 }
                 return true;
@@ -171,8 +174,8 @@
         },
         methods: {
             /**
-             * Checks that all fields are present and runs validation
-             * On fail shows errors
+             * Checks that all fields are present and runs validation.
+             * On fail shows errors.
              */
             checkDestinationFields() {
                 if(this.destinationNameValidation && this.destinationTypeValidation
@@ -188,7 +191,7 @@
             },
 
             /**
-             * Sets all fields to blank
+             * Sets all fields to blank.
              */
             resetDestForm() {
                 this.destinationName = "";
@@ -200,10 +203,11 @@
             },
 
             /**
-             * Adds new destination to database, then resets form and shows success alert
-             * Checks whether location is duplicate and displays error if so
-             * @param cb
-             * @returns {Promise<Response | never>}
+             * Adds new destination to database, then resets form and shows success alert.
+             * Checks whether location is duplicate and displays error if so.
+             *
+             * @param cb.
+             * @returns {Promise<Response | never>}.
              */
             addDestination(cb) {
                 let self = this;
@@ -240,6 +244,7 @@
 
             /**
              * Used to allow an alert to countdown on the successful saving of a destination.
+             *
              * @param dismissCountDown      the name of the alert.
              */
             countDownChanged(dismissCountDown) {

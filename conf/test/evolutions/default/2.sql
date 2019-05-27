@@ -473,4 +473,12 @@ INSERT INTO `profile_passport` (`profile_id`, `passport_id`) VALUES
 (5, 23),
 (6, 49);
 
+INSERT INTO `photo` (`id`, `main_filename`, `thumbnail_filename`, `upload_date`, `upload_profile_id`, `content_type`) VALUES
+(1, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e315', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e315', '2019-05-25', 1, 'image/png'),
+(2, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e317', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e317', '2019-05-25', 2, 'image/png');
+
+INSERT INTO `personal_photo` (`id`, `photo_id`, `profile_id`, `is_public`) VALUES
+(1, 1, 1, true),
+(2, 2, 2, true);
+
 # --- !Downs

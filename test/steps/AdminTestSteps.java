@@ -71,7 +71,6 @@ public class AdminTestSteps {
     private static final String REG_PASS = "guest123";
     private static final String REG_ID = "2";
 
-
     private String userId;
 
     @Before

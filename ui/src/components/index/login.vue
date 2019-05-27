@@ -1,22 +1,22 @@
 <template>
     <div>
         <b-form @submit.prevent="login">
-            <b-alert v-model="showError" variant="danger" dismissible>Invalid Username or Password</b-alert>
+            <b-alert dismissible v-model="showError" variant="danger">Invalid Username or Password</b-alert>
             <b-form-group
-                    id="username-field"
                     description="Please enter your username (email)"
+                    id="username-field"
                     label="Username"
                     label-for="username">
-                <b-form-input id="username" v-model="username" autofocus trim></b-form-input>
+                <b-form-input autofocus id="username" trim v-model="username"></b-form-input>
             </b-form-group>
             <b-form-group
-                    id="password-field"
                     description="Please enter your password"
+                    id="password-field"
                     label="Password"
                     label-for="password">
-                <b-form-input id="password" v-model="password" :type="'password'" trim></b-form-input>
+                <b-form-input :type="'password'" id="password" trim v-model="password"></b-form-input>
             </b-form-group>
-            <b-button id="sign-in" type="submit" variant="primary" block @click="login">Sign In</b-button>
+            <b-button @click="login" block id="sign-in" type="submit" variant="primary">Sign In</b-button>
         </b-form>
     </div>
 </template>

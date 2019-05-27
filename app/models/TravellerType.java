@@ -32,8 +32,5 @@ public class TravellerType extends BaseModel {
         return imgUrl;
     }
 
-    /**
-     * A finder used to search for a traveller type
-     */
     public static Finder<Integer, TravellerType> find = new Finder<>(TravellerType.class);
 }
