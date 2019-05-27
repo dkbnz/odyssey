@@ -3,14 +3,22 @@ package controllers;
 import models.Profile;
 import org.junit.Assert;
 import org.junit.Test;
+import play.mvc.Http;
 import util.AuthenticationUtil;
+
+import static javafx.scene.input.KeyCode.G;
+import static play.test.Helpers.GET;
+import static play.test.Helpers.POST;
+import static play.test.Helpers.fakeRequest;
 
 
 public class AuthenticationUtilTest {
 
     private static final long ADMIN_ID = 12L;
     private static final long OWNER_ID = 17L;
-
+    private static final String AUTHORIZED = "authorized";
+    private static final String PROFILES_URI = "/v1/profiles";
+    private static final String LOGGED_IN_ID = "1";
 
 
     @Test
@@ -80,5 +88,35 @@ public class AuthenticationUtilTest {
 
         //Assert
         Assert.assertFalse(result);
+    }
+
+
+    @Test
+    public void getLoggedInUserTest() {
+        //Arrange
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, LOGGED_IN_ID)
+                .uri(PROFILES_URI);
+        //Act
+        Integer userId = AuthenticationUtil.getLoggedInUserId(request.build());
+
+        //Assert
+        Assert.assertNotNull(userId);
+        Assert.assertEquals(userId.longValue(), Long.parseLong(LOGGED_IN_ID));
+    }
+
+
+    @Test
+    public void noLoggedInUserTest() {
+        //Arrange
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(PROFILES_URI);
+        //Act
+        Integer userId = AuthenticationUtil.getLoggedInUserId(request.build());
+
+        //Assert
+        Assert.assertNull(userId);
     }
 }
