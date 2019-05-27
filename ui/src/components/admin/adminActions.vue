@@ -26,7 +26,9 @@
                 </b-col>
                 <b-col>
                     <b-card header="Create a Profile">
-                        <b-button @click="showCollapse = !showCollapse" block variant="success">Create a New Profile</b-button>
+                        <b-alert v-model="showSuccess" variant="success">Profile successfully created</b-alert>
+                        <b-button @click="showCollapse = !showCollapse" block variant="success">
+                            Create a New Profile</b-button>
                         <!-- The collapsible that uses the sign up page to create a new profile -->
                         <b-collapse id="signUpPage" class="mt-2" v-model="showCollapse">
                             <sign-up :createdByAdmin="true"
@@ -44,26 +46,6 @@
                 </b-col>
             </b-row>
         </div>
-
-        <div>
-            <!-- The modal to show after a profile has been successfully created -->
-            <b-modal
-                    hide-footer
-                    id="optionModal"
-                    ref="optionModal">
-                <template slot="modal-title"><h2>Profile Successfully Created</h2></template>
-                Would you like to view this profile?
-                <b-row align-h="center" style="margin-top: 10px">
-                    <b-col>
-                        <b-button @click="hideOptionModal" block variant="primary">No</b-button>
-                    </b-col>
-                    <b-col>
-                        <b-button @click="navigateToSingleProfile" block variant="primary">Yes</b-button>
-                    </b-col>
-                </b-row>
-            </b-modal>
-
-        </div>
     </div>
 </template>
 
@@ -79,7 +61,8 @@
                 refreshProfiles: 0,
                 refreshSignUp: 0,
                 showSingleProfile: false,
-                showCollapse: false
+                showCollapse: false,
+                showSuccess: false
             }
         },
         methods: {
@@ -91,14 +74,7 @@
                 this.showCollapse = false;
                 this.refreshProfiles += 1;
                 this.refreshSignUp += 1;
-                this.$refs['optionModal'].show();
-            },
-
-            /**
-             * Hides the option modal.
-             */
-            hideOptionModal() {
-                this.$refs['optionModal'].hide();
+                this.showSuccess = true;
             },
 
             /**

@@ -137,7 +137,8 @@
                                            id="nationality"
                                            multiple
                                            trim v-model="nationalities">
-                                <option :value="nationality.id"
+                                <option :value="{id: nationality.id, nationality: nationality.nationality,
+                                    country: nationality.country}"
                                         v-for="nationality in nationalityOptions">
                                     {{nationality.nationality}}
                                 </option>
@@ -157,7 +158,7 @@
                                            id="passports"
                                            multiple
                                            trim v-model="passports">
-                                <option :value="nationality.id"
+                                <option :value="{id: nationality.id, country: nationality.country}"
                                         v-for="nationality in nationalityOptions">
                                     {{nationality.country}}
                                 </option>
@@ -189,7 +190,9 @@
                                           :state="travTypeValidation"
                                           :text="travType.description"
                                           v-for="travType in travTypeOptions">
-                            <b-form-checkbox :value="travType.id" v-model="travellerTypes"></b-form-checkbox>
+                            <b-form-checkbox :value="{id: travType.id, travellerType: travType.travellerType}"
+                                             v-model="travellerTypes">
+                            </b-form-checkbox>
                         </b-carousel-slide>
                     </b-carousel>
                     <b-form-invalid-feedback :state="travTypeValidation" align="center">
