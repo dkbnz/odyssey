@@ -8,6 +8,7 @@
             </b-navbar-nav>
         </b-navbar>
 
+        <!-- Displays the plan a trip or your trips page depending on buttons selected by the user -->
         <plan-a-trip :adminView="adminView"
                      :destinations="destinations"
                      :heading="'Plan a Trip'"
@@ -51,7 +52,8 @@
 
             /**
              * Used to toggle what page is currently being shown.
-             * @param viewPage
+             *
+             * @param viewPage      boolean variable to initiate a component toggle.
              */
             togglePage: function (viewPage) {
                 if (!viewPage) {

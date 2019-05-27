@@ -2,6 +2,7 @@
     <div>
         <b-row>
             <b-col>
+                <!-- Nav bar for admin to display the selected page they wish to work on. -->
                 <b-navbar toggleable="lg" class="stickyMinorNav">
                     <b-collapse id="nav-collapse-admin" is-nav>
                         <b-nav class="singleProfileNav" vertical>

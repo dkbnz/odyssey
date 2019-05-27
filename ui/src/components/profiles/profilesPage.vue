@@ -144,24 +144,25 @@
                         <!-- If user is admin, can delete, make/remove admin rights and delete other users -->
                         <b-row class="text-center" v-if="profile.isAdmin && adminView">
                             <b-button @click="makeAdmin(row.item)" block
-                                      class="mr-2" size="sm" v-if="profile.isAdmin && !(row.item.isAdmin) && row.item.id !== 1" variant="success">
+                                      class="mr-2" size="sm"
+                                      v-if="profile.isAdmin && !(row.item.isAdmin) && row.item.id !== 1"
+                                      variant="success">
                                 Make Admin
                             </b-button>
                             <b-button :disabled="row.item.id===1"
                                       @click="removeAdmin(row.item)" block class="mr-2"
-                                      size="sm" v-if="profile.isAdmin && row.item.isAdmin && row.item.id !== 1" variant="danger">
+                                      size="sm" v-if="profile.isAdmin && row.item.isAdmin && row.item.id !== 1"
+                                      variant="danger">
                                 Remove Admin
                             </b-button>
-                            <!--<b-button size="sm" @click="emitAdminEdit(row.item)" variant="warning" class="mr-2" block>-->
-                            <!--Show More Details-->
-                            <!--</b-button>-->
                             <b-button @click="emitAdminEdit(row.item)" block class="mr-2" size="sm" variant="warning">
                                 Show More Details
                             </b-button>
 
                             <b-button :disabled="row.item.id===1" @click="sendProfileToModal(row.item)"
                                       block class="mr-2" size="sm"
-                                      v-b-modal.deleteProfileModal v-if="profile.isAdmin && row.item.id !== 1" variant="danger">
+                                      v-b-modal.deleteProfileModal v-if="profile.isAdmin && row.item.id !== 1"
+                                      variant="danger">
                                 Delete
                             </b-button>
 
@@ -296,6 +297,7 @@
             /**
              * Used to calculate a specific rows nationalities from their list of nationalities. Shows all the
              * nationalities in the row.
+             *
              * @param nationalities     the row's (profile) nationalities.
              */
             calculateNationalities(nationalities) {
@@ -314,6 +316,7 @@
             /**
              * Used to calculate a specific rows traveller types from their list of traveller types. Shows all the
              * traveller types in the row.
+             *
              * @param travellerTypes     the row's (profile) traveller types.
              */
             calculateTravTypes(travellerTypes) {
@@ -331,6 +334,7 @@
             /**
              * Method to make a user an admin. This method is only available if the currently logged in user is an
              * admin. Backend validation ensures a user cannot bypass this.
+             *
              * @param makeAdminProfile      the selected profile to be made an admin.
              */
             makeAdmin(makeAdminProfile) {
@@ -345,6 +349,7 @@
             /**
              * Method to remove admin attribute from a user. This method is only available if the currently logged in
              * user is an admin. Backend validation ensures a user cannot bypass this.
+             *
              * @param makeAdminProfile      the selected profile to be removed as an admin.
              */
             removeAdmin(makeAdminProfile) {
@@ -359,6 +364,7 @@
             /**
              * Method to delete a user's profile. This method is only available if the currently logged in
              * user is an admin. Backend validation ensures a user cannot bypass this.
+             *
              * @param deleteUser      the selected profile to be deleted.
              */
             deleteUser(deleteUser) {
@@ -371,8 +377,8 @@
             },
 
             /**
-             * Changes fields so that they can be used in searching
-             * Runs validation on range fields
+             * Changes fields so that they can be used in searching.
+             * Runs validation on range fields.
              */
             searchProfiles() {
                 this.searchMinAge = parseInt(this.searchMinAge);
@@ -399,7 +405,7 @@
             },
 
             /**
-             * Queries database for profiles which fit search criteria
+             * Queries database for profiles which fit search criteria.
              */
             queryProfiles() {
                 this.retrievingProfiles = true;
@@ -421,6 +427,7 @@
             /**
              * Used to check the response of a fetch method. If there is an error code, the code is printed to the
              * console.
+             *
              * @param response, passed back to the getAllTrips function to be parsed into a Json.
              * @returns throws the error.
              */
@@ -441,6 +448,7 @@
 
             /**
              * Used to turn the response of the fetch method into a usable Json.
+             *
              * @param response of the fetch method.
              * @returns the Json body of the response.
              */
@@ -451,6 +459,7 @@
             /**
              * Used to send a selected profile to a modal so the admin can confirm they want to delete the selected
              * profile.
+             *
              * @param profile, the profile that is selected to be deleted.
              */
             sendProfileToModal(profile) {
@@ -458,7 +467,7 @@
             },
 
             /**
-             * Used to dismiss the delete a profile modal
+             * Used to dismiss the delete a profile modal.
              */
             dismissModal() {
                 this.$refs['deleteProfileModal'].hide();
@@ -474,7 +483,7 @@
         },
         computed: {
             /**
-             * @returns the number of rows required in the table based on number of profiles to be displayed
+             * @returns the number of rows required in the table based on number of profiles to be displayed.
              */
             rows() {
                 return this.profiles.length;
@@ -482,6 +491,7 @@
         }
     }
 </script>
+
 <style>
     .tableWidthSmall {
         max-width: 8%;

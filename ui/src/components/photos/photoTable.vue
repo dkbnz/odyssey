@@ -1,6 +1,7 @@
 <template>
     <div>
         <table ref="gallery" style="margin-top:20px">
+            <!--Table containing the rows of photos to be displayed-->
             <tr v-for="rowNumber in (amountOfRows)">
                 <td v-for="photo in getRowPhotos(rowNumber)">
                     <b-img :src="getThumbImage(photo.id)" @click="showImage(photo.id)" @error="imageAlt"
@@ -92,7 +93,7 @@
             /**
              * Calculates the positions of photos within a gallery grid row.
              *
-             * @param rowNumber     The row currently having photos positioned within it.
+             * @param rowNumber     the row currently having photos positioned within it.
              */
             getRowPhotos(rowNumber) {
                 let numberOfPhotos = (this.photos.length);
@@ -108,21 +109,21 @@
             },
 
             /**
-             * Sends a GET request to get the full sized image from the backend
+             * Sends a GET request to get the full sized image from the backend.
              */
             getFullPhoto() {
                 return 'v1/photos/' + this.currentViewingID;
             },
 
             /**
-             * Sends a GET request to get a thumbnail image from the backend
+             * Sends a GET request to get a thumbnail image from the backend.
              */
             getThumbImage(id) {
                 return 'v1/photos/thumb/' + id;
             },
 
             /**
-             * Shows the image in the larger modal and sets the current viewing image
+             * Shows the image in the larger modal and sets the current viewing image.
              */
             showImage(id) {
                 this.currentViewingID = id;
@@ -130,14 +131,14 @@
             },
 
             /**
-             * When an image isn't shown show this default profile image
+             * When an image isn't shown show this default profile image.
              */
             imageAlt(event) {
                 event.target.src = "../../../static/default_image.png"
             },
 
             /**
-             * Closes the delete photo modal
+             * Closes the delete photo modal.
              */
             dismissConfirmDelete() {
                 this.$refs['deletePhotoModal'].hide();
@@ -145,7 +146,7 @@
 
             /**
              * Sends the DELETE request to the backend for the selected image and closes the two modals
-             * and refreshes the list of photos in the photo gallery
+             * and refreshes the list of photos in the photo gallery.
              */
             deleteImage() {
                 let self = this;
@@ -161,7 +162,7 @@
 
             /**
              * Updates the privacy for a photo between privet and public and sends PATCH
-             * request to the backend
+             * request to the backend.
              */
             updatePrivacy(photoId, isPublic) {
                 let json = {
@@ -183,8 +184,8 @@
             },
 
             /**
-             * Checks the authorization of the user profile that is logged in to see if they can
-             * view the users private photos and can add or delete images from the media
+             * Checks the authorization of the user profile that is logged in to see if they can.
+             * view the users private photos and can add or delete images from the media.
              */
             checkAuth() {
                 this.auth = (this.userProfile.id === this.profile.id || (this.userProfile.isAdmin && this.adminView));

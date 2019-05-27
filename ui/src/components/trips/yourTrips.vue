@@ -369,8 +369,9 @@
             /**
              * Used to calculate the duration of the trip. Returns a blank string if the last destination in the trip
              * has no dates. Otherwise calculates the difference between the first and last destinations in the trip.
-             * @param destinations in the trip
-             * @returns string of the trip duration
+             *
+             * @param destinations in the trip.
+             * @returns string of the trip duration.
              */
             calculateDuration(destinations) {
                 let tripStartDates = [];
@@ -421,7 +422,8 @@
              * Gets all the trips for a specific profile id. Uses the checkStatus and parseJSON functions to handle the
              * response. This function also splits up the trips into past and future trips based on their date compared
              * to today's date.
-             * @returns {Promise<Response | never>}
+             *
+             * @returns {Promise<Response | never>} Json body of the trips belonging to the user.
              */
             getAllTrips() {
                 let userId = this.profile.id;
@@ -492,7 +494,8 @@
             /**
              * Used to check the response of a fetch method. If there is an error code, the code is printed to the
              * console.
-             * @param response, passed back to the getAllTrips function to be parsed into a json.
+             *
+             * @param response, passed back to the getAllTrips function to be parsed into a Json.
              * @returns throws the error.
              */
             checkStatus(response) {
@@ -507,7 +510,8 @@
             },
 
             /**
-             * Used to turn the response of the fetch method into a usable JSON.
+             * Used to turn the response of the fetch method into a usable Json.
+             *
              * @param response of the fetch method.
              * @returns the json body of the response.
              */
@@ -518,6 +522,7 @@
             /**
              * Used to send a selected trip to a modal that contains the plan a trip page, this is so the trip can be
              * edited.
+             *
              * @param trip, the trip that is selected to be edited in the modal.
              */
             sendTripToModal(trip) {
@@ -527,6 +532,7 @@
             /**
              * Uses a fetch method to delete a users trip. Shows errors if something went wrong, or the user trying to
              * delete the trip is not the logged in user.
+             *
              * @param trip, the trip to be deleted.
              */
             deleteTrip: function (trip) {
@@ -551,6 +557,7 @@
                     this.errorMessage = (error);
                 });
             },
+
             /**
              * Used to check the current user is either admin or the owner of the trip.
              */
@@ -559,15 +566,21 @@
                     (this.userProfile.isAdmin && this.adminView));
             },
 
-
-
             /**
              * Used to dismiss either the delete a trip confirmation modal or the edit a trip modal.
+             *
              * @param modal, the modal that is wanting to be dismissed.
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
             },
+
+            /**
+             * Formats given date to a local date string. Handles null dates.
+             *
+             * @param date      the date to be formatted.
+             * @returns {*}     the formatted date.
+             */
             formatDate(date) {
                 return date == null ? null : new Date(date).toLocaleDateString();
             }

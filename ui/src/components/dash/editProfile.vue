@@ -306,8 +306,9 @@
         },
         computed: {
             /**
-             * Validates input fields based on regular expression
-             * @returns {boolean} true if input is valid, false if invalid, or null if field remains unselected
+             * Validates input fields based on regular expression.
+             *
+             * @returns {boolean} true if input is valid, false if invalid, or null if field remains unselected.
              */
             fNameValidation() {
                 if (this.saveProfile.firstName.length === 0) {
@@ -382,7 +383,7 @@
         },
         methods: {
             /**
-             * Checks that username does not exist in database
+             * Checks that username does not exist in database.
              */
             checkUsername() {
                 let self = this;
@@ -398,7 +399,7 @@
             },
 
             /**
-             * Runs all field validation. If any errors occur, displays an error
+             * Runs all field validation. If any errors occur, displays an error.
              */
             checkSaveProfile() {
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
@@ -412,7 +413,7 @@
             },
 
             /**
-             * Sends profile changes to profileController and reloads page using the Vue Router
+             * Sends profile changes to profileController and reloads page using the Vue Router.
              */
             submitSaveProfile() {
                 let self = this;
@@ -432,9 +433,10 @@
 
             /**
              * Check for duplicates of nationalities/passports/traveller types in order to
-             * remove them from "other" option fields
-             * @param id of nationality to check
-             * @returns {boolean} true if value is duplicate of user's current
+             * remove them from "other" option fields.
+             *
+             * @param id of nationality to check.
+             * @returns {boolean} true if value is duplicate of user's current.
              */
             duplicateNationality(id) {
                 for (let i = 0; i < this.profile.nationalities.length; i++) {

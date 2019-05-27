@@ -241,8 +241,9 @@
         },
         computed: {
             /**
-             * Validates the input fields based on regex
-             * @returns {*} true if input is valid
+             * Validates a firstname input from the user.
+             *
+             * @returns {*} true if input is valid.
              */
             fNameValidation() {
                 if (this.firstName.length === 0) {
@@ -251,10 +252,22 @@
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.firstName);
             },
+
+            /**
+             * Validates a middlename input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             mNameValidation() {
                 let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.middleName) || this.middleName.length === 0;
             },
+
+            /**
+             * Validates a lastname input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             lNameValidation() {
                 if (this.lastName.length === 0) {
                     return null;
@@ -262,6 +275,12 @@
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.lastName);
             },
+
+            /**
+             * Validates a email input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             emailValidation() {
                 if (this.username.length === 0) {
                     return null;
@@ -270,6 +289,12 @@
                 this.checkUsername();
                 return (emailRegex.test(this.username) && this.validEmail);
             },
+
+            /**
+             * Validates a users password.
+             *
+             * @returns {*} true if input is valid.
+             */
             passwordValidation() {
                 if (this.password.length === 0) {
                     return null;
@@ -278,42 +303,85 @@
                     new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
                 return passwordRegex.test(this.password)
             },
+
+            /**
+             * Ensures the retyped password is non empty and equal to the first typed password.
+             *
+             * @returns {*} true if input is valid.
+             */
             rePasswordValidation() {
                 if (this.rePassword.length === 0) {
                     return null;
                 }
                 return this.password.length > 0 && this.rePassword === this.password;
             },
+
+            /**
+             * Validates a date of birth input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             dateOfBirthValidation() {
                 if (this.dateOfBirth.length === 0) {
                     return null;
                 }
                 return this.dateOfBirth.length > 0 && this.dateOfBirth < this.todaysDate;
             },
+
+            /**
+             * Validates a gender selection from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             genderValidation() {
                 if (this.gender.length === 0) {
                     return null;
                 }
                 return this.gender.length > 0;
             },
+
+            /**
+             * Validates the nationality selection input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             nationalityValidation() {
                 if (this.nationalities.length === 0) {
                     return null;
                 }
                 return this.nationalities.length > 0;
             },
+
+            /**
+             * Validates the passport selection input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             passportValidation() {
                 if (this.passports.length === 0) {
                     return null;
                 }
                 return this.passports.length > 0;
             },
+
+            /**
+             * Validates the traveller type input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             travTypeValidation() {
                 if (this.travellerTypes.length === 0) {
                     return null;
                 }
                 return this.travellerTypes.length > 0;
             },
+
+            /**
+             * Get the current date and return it in the format.
+             * yyyy-mm-dd.
+             *
+             * @returns Current date in format yyyy-mm-dd
+             */
             todaysDate() {
                 let today = new Date();
                 let dd = today.getDate();
@@ -332,7 +400,7 @@
         },
         methods: {
             /**
-             * Runs validation for all fields on first page
+             * Runs validation for all fields on first page.
              */
             checkPersonalForm() {
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation
@@ -346,7 +414,7 @@
             },
 
             /**
-             * Runs second page validation and creates an object using all inputs
+             * Runs second page validation and creates an object using all inputs.
              */
             checkAssociateForm() {
                 if (this.nationalityValidation && this.passportValidation && this.travTypeValidation) {
@@ -367,7 +435,7 @@
             },
 
             /**
-             * Checks that user does not already exist in database
+             * Checks that user does not already exist in database.
              */
             checkUsername() {
                 let self = this;
@@ -383,7 +451,7 @@
             },
 
             /**
-             * Transfers to second page of sign-up
+             * Transfers to second page of sign-up.
              */
             nextPage() {
                 this.showFirst = false;
@@ -391,7 +459,7 @@
             },
 
             /**
-             * Transfers to first page of sign-up
+             * Transfers to first page of sign-up.
              */
             previousPage() {
                 this.showFirst = true;
@@ -401,6 +469,7 @@
             /**
              * Adds user to database. If the person creating the profile is an administrator, then the page is not
              * automatically redirected to the dash.
+             *
              * @param profile object created with all input values
              */
             saveProfile(profile) {

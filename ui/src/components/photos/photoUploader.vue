@@ -1,5 +1,6 @@
 <template>
     <div>
+        <!--Bootstrap Vue form file uploader for the user to select the files to upload-->
         <b-form-file :file-name-formatter="formatNames" :state="Boolean(files)" :accept="acceptTypes"
                      drop-placeholder="Drop files here..."
                      multiple
@@ -14,15 +15,19 @@
 <script>
     export default {
         name: "photoUploader",
-        data: function () {
-            return {
-            }
-        },
         props: {
             files: Object,
             acceptTypes: String,
         },
         methods: {
+
+            /**
+             * Return the number of files selected by the file uploader.
+             * If there is exactly one file selected, return the name.
+             *
+             * @param files
+             * @returns {*}
+             */
             formatNames(files) {
                 if (files.length === 1) {
                     return files[0].name
@@ -30,12 +35,15 @@
                     return `${files.length} images selected`
                 }
             },
-            save(){
+
+            /**
+             * Emit the saved files to the parent component.
+             */
+            save() {
                 this.$emit('save-photos', this.files);
                 this.files = null;
-                }
             }
-
+        }
     }
 </script>
 

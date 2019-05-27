@@ -47,8 +47,9 @@
         },
         methods: {
             /**
-             * Switches between tabs
-             * @param viewPage page to be displayed
+             * Switches between tabs.
+             *
+             * @param viewPage page to be displayed.
              */
             togglePage(viewPage) {
                 if (!viewPage) {

@@ -40,6 +40,7 @@ public class PhotoController extends Controller {
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String PHOTO_ID = "id";
     private static final String IS_PUBLIC = "public";
+    private static final int IMAGE_DIMENSION = 200;
 
     private ProfileRepository profileRepo;
     private PersonalPhotoRepository personalPhotoRepo;
@@ -217,11 +218,12 @@ public class PhotoController extends Controller {
                         return notFound();
                     }
 
-                    if(authenticateUser(loggedInUser, owner, loggedInUserId).status() == 200) {
+                    if(AuthenticationUtil.validUser(loggedInUser, owner)) {
                         profileToChange = profileRepo.fetchSingleProfile(owner.getId().intValue());
                     } else {
-                        return authenticateUser(loggedInUser, owner, loggedInUserId);
+                        return forbidden();
                     }
+
                     if (profileToChange != null) {
                         personalPhotoRepo.updatePrivacy(profileToChange, personalPhoto, isPublic);
                         return ok();
@@ -230,28 +232,6 @@ public class PhotoController extends Controller {
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
-
-    /**
-     * Generic method to check the authentication rights of the logged in user.
-     *
-     * @param loggedInUser      the Profile object of the logged in user.
-     * @param owner             the Profile object of the owner of the photo object.
-     * @param loggedInUserId    the id number of the logged in user.
-     * @return                  ok() (Http 200) if the logged in user is an admin or the user being modified,
-     *                          forbidden() (Http 403) if they are not permitted to modify the logged in user,
-     *                          badRequest() (Http 400) otherwise.
-     */
-    private Result authenticateUser(Profile loggedInUser, Profile owner, String loggedInUserId) {
-        // If user is admin, or if they are editing their own profile then allow them to edit.
-        if(AuthenticationUtil.validUser(loggedInUser, owner)) {
-            return ok();
-        } else if (!owner.getId().equals(Long.valueOf(loggedInUserId))) {
-            return forbidden(); // User has specified an id which is not their own, but is not admin
-        } else {
-            return badRequest();
-        }
-    }
-
 
     /**
      * Saves a list of images given in multipart form data in the application.
@@ -267,12 +247,7 @@ public class PhotoController extends Controller {
             TemporaryFile tempFile = photo.getRef();
             String filename = generateFilename();
             try {
-                tempFile.copyTo(
-                        Paths.get(
-                                getPhotoFilePath(false),
-                                filename),
-                        true);
-
+                tempFile.copyTo(Paths.get(getPhotoFilePath(false), filename),true);
                 saveThumbnail(filename);
                 addImageToProfile(profileToAdd, filename, photo.getContentType(), false);
             } catch (IOException e) {
@@ -299,19 +274,15 @@ public class PhotoController extends Controller {
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
                     Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
-                    Profile profileToAdd;
-
-                    Profile user = profileRepo.fetchSingleProfile(userId.intValue());
-
-                    // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if(authenticateUser(loggedInUser, user, loggedInUserId).status() == 200) {
-                        profileToAdd = profileRepo.fetchSingleProfile(userId.intValue());
-                    } else {
-                        return authenticateUser(loggedInUser, user, loggedInUserId);
-                    }
+                    Profile profileToAdd = profileRepo.fetchSingleProfile(userId.intValue());
 
                     if (profileToAdd == null) {
                         return badRequest(); // User does not exist in the system.
+                    }
+
+                    // If user is admin, or if they are editing their own profile then allow them to edit.
+                    if (!AuthenticationUtil.validUser(loggedInUser, profileToAdd)) {
+                        return forbidden();
                     }
 
                     Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
@@ -372,20 +343,17 @@ public class PhotoController extends Controller {
      * @return            a new BufferedImage scaled to the appropriate size.
      */
     private BufferedImage scale(BufferedImage sourceImage) {
-        int width = 200;
-        int height = 200;
-
         GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice graphicsDevice = graphicsEnvironment.getDefaultScreenDevice();
         GraphicsConfiguration graphicsConfiguration = graphicsDevice.getDefaultConfiguration();
-        BufferedImage scaledImage = graphicsConfiguration.createCompatibleImage(width, height);
+        BufferedImage scaledImage = graphicsConfiguration.createCompatibleImage(IMAGE_DIMENSION, IMAGE_DIMENSION);
 
         Graphics2D newGraphicsImage = scaledImage.createGraphics();
         newGraphicsImage.setColor(Color.white);
-        newGraphicsImage.fillRect(0, 0, width, height);
+        newGraphicsImage.fillRect(0, 0, IMAGE_DIMENSION, IMAGE_DIMENSION);
 
-        double xScale = (double) width / sourceImage.getWidth();
-        double yScale = (double) height / sourceImage.getHeight();
+        double xScale = (double) IMAGE_DIMENSION / sourceImage.getWidth();
+        double yScale = (double) IMAGE_DIMENSION / sourceImage.getHeight();
         AffineTransform affineTransform = AffineTransform.getScaleInstance(xScale,yScale);
         newGraphicsImage.drawRenderedImage(sourceImage, affineTransform);
         newGraphicsImage.dispose();
