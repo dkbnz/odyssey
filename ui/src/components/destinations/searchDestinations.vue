@@ -9,7 +9,7 @@
                     id="name-field"
                     label="Destination Name:"
                     label-for="name">
-                <b-form-input id="name" v-model="searchName"></b-form-input>
+                <b-form-input id="name" v-model="searchName" :state="destinationNameValidation"></b-form-input>
             </b-form-group>
 
             <b-form-group
@@ -21,7 +21,8 @@
                     <template slot="first">
                         <option :value="null">-- Any --</option>
                     </template>
-                    <option :value="destination.id" v-for="destination in destinationTypes">
+                    <option :value="destination.id" v-for="destination in destinationTypes"
+                            :state="destinationTypeValidation">
                         {{destination.destinationType}}
                     </option>
                 </b-form-select>
@@ -31,28 +32,43 @@
                     id="district-field"
                     label="District:"
                     label-for="district">
-                <b-form-input id="district" trim v-model="searchDistrict"></b-form-input>
+                <b-form-input id="district" trim v-model="searchDistrict" :state="destinationDistrictValidation">
+                </b-form-input>
             </b-form-group>
 
             <b-form-group
                     id="latitude-field"
                     label="Latitude:"
                     label-for="latitude">
-                <b-form-input id="latitude" trim v-model="searchLat"></b-form-input>
+                <b-form-input id="latitude" trim v-model="searchLatitude" :state="destinationLatitudeValidation">
+                </b-form-input>
+                <b-form-invalid-feedback :state="destinationLatitudeValidation">
+                    {{latitudeErrorMessage}}
+                </b-form-invalid-feedback>
+
             </b-form-group>
 
             <b-form-group
                     id="longitude-field"
                     label="Longitude:"
                     label-for="longitude">
-                <b-form-input id="longitude" trim v-model="searchLong"></b-form-input>
+                <b-form-input id="longitude" trim v-model="searchLongitude" :state="destinationLongitudeValidation">
+                </b-form-input>
+                <b-form-invalid-feedback :state="destinationLongitudeValidation">
+                    {{longitudeErrorMessage}}
+                </b-form-invalid-feedback>
+
             </b-form-group>
 
             <b-form-group
                     id="country-field"
                     label="Country:"
                     label-for="country">
-                <b-form-input id="country" trim v-model="searchCountry"></b-form-input>
+                <b-form-input id="country" trim v-model="searchCountry" :state="destinationCountryValidation">
+                </b-form-input>
+                <b-form-invalid-feedback :state="destinationCountryValidation">
+                    Country cannot have any numbers in it!
+                </b-form-invalid-feedback>
             </b-form-group>
 
             <b-button @click="searchDestinations" block variant="primary">Search</b-button>
@@ -118,8 +134,8 @@
                 destinations: [],
                 searchType: "",
                 searchDistrict: "",
-                searchLat: "",
-                searchLong: "",
+                searchLatitude: "",
+                searchLongitude: "",
                 searchCountry: "",
                 showError: false,
                 optionViews: [
@@ -140,7 +156,9 @@
                 ],
                 searchDestination: "",
                 errorMessage: "",
-                retrievingDestinations: false
+                retrievingDestinations: false,
+                longitudeErrorMessage: "",
+                latitudeErrorMessage: ""
             }
         },
         computed: {
@@ -149,36 +167,79 @@
              */
             rows() {
                 return this.destinations.length
+            },
+            /**
+             * Validates the input fields based on regex
+             * @returns {*} true if input is valid
+             */
+            destinationNameValidation() {
+                if (this.searchName.length === 0) {
+                    return null;
+                }
+                return this.searchName.length > 0;
+            },
+            destinationTypeValidation() {
+                if (this.searchType.length === 0) {
+                    return null;
+                }
+                return this.searchType.length > 0 || this.searchType !== null;
+            },
+            destinationDistrictValidation() {
+                if (this.searchDistrict.length === 0) {
+                    return null;
+                }
+                return this.searchDistrict.length > 0;
+            },
+            destinationLatitudeValidation() {
+                if (this.searchLatitude.length === 0) {
+                    return null;
+                }
+                if (isNaN(this.searchLatitude)) {
+                    this.latitudeErrorMessage = "Latitude: '" + this.searchLatitude + "' is not a number!";
+                    return false;
+                } else if (this.searchLatitude > 90 || this.searchLatitude < -90) {
+                    this.latitudeErrorMessage = "Latitude: '" + this.searchLatitude + "' must be between " +
+                        "-90 and 90";
+                    return false;
+                }
+                return true;
+            },
+            destinationLongitudeValidation() {
+                if (this.searchLongitude.length === 0) {
+                    return null;
+                }
+                if (isNaN(this.searchLongitude)) {
+                    this.longitudeErrorMessage = "Longitude: '" + this.searchLongitude + "' is not a number!";
+                    return false;
+                } else if (this.searchLongitude > 180 || this.searchLongitude < -180) {
+                    this.longitudeErrorMessage = "Longitude: '" + this.searchLongitude + "' must be between " +
+                        "-180 and 180";
+                    return false;
+                }
+                return true;
+            },
+            destinationCountryValidation() {
+                if (this.searchCountry.length === 0) {
+                    return null;
+                }
+                let countryRegex = /\d/;
+                return !countryRegex.test(this.searchCountry);
             }
-
         },
         mounted() {
             this.queryDestinations();
         },
         methods: {
             /**
-             * Checks that latitude and longitude values are numbers.
-             * @returns {boolean} true if fields are valid.
-             */
-            checkLatLong() {
-                let ok = true;
-                if (isNaN(this.dLatitude)) {
-                    this.showError = true;
-                    this.errorMessage = ("'" + this.dLatitude + "' is not a number!");
-                    ok = false;
-                } else if (isNaN(this.dLongitude)) {
-                    this.showError = true;
-                    this.errorMessage = ("'" + this.dLongitude + "' is not a number!");
-                    ok = false;
-                }
-                return ok;
-            },
-
-            /**
              * Sets values for search.
              */
             searchDestinations() {
-                if (this.checkLatLong) {
+                if(this.validateFields(this.destinationNameValidation)
+                    && this.validateFields(this.destinationTypeValidation)
+                    && this.validateFields(this.destinationDistrictValidation)
+                    && this.validateFields(this.destinationLatitudeValidation)
+                    && this.validateFields(this.destinationLongitudeValidation)
+                    && this.validateFields(this.destinationCountryValidation)) {
                     this.searchDestination = {
                         name: this.searchName,
                         type: this.searchType,
@@ -188,6 +249,18 @@
                     this.queryDestinations();
                 }
 
+            },
+
+            /**
+             * Checks each of the validation fields to ensure they are return either null (no value is given), or the
+             * field is valid.
+             * @returns {boolean} true if the fields are valid.
+             */
+            validateFields(validationField) {
+                console.log(validationField === null || validationField === true);
+                if (validationField === null || validationField === true) {
+                    return true;
+                }
             },
 
             /**
@@ -201,8 +274,8 @@
                     "?name=" + this.searchName +
                     "&type_id=" + this.searchType +
                     "&district=" + this.searchDistrict +
-                    "&latitude=" + this.searchLat +
-                    "&longitude=" + this.searchLong +
+                    "&latitude=" + this.searchLatitude +
+                    "&longitude=" + this.searchLongitude +
                     "&country=" + this.searchCountry;
                 return fetch(`/v1/destinations` + searchQuery, {
                     dataType: 'html',
