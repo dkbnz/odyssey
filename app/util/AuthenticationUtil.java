@@ -2,7 +2,8 @@ package util;
 
 import models.Profile;
 import play.mvc.Http;
-import repositories.ProfileRepository;
+
+import java.util.Optional;
 
 public final class AuthenticationUtil {
 
@@ -35,7 +36,11 @@ public final class AuthenticationUtil {
      * @return              An integer value of the logged in user id, null if there is no logged in user.
      */
     public static Integer getLoggedInUserId(Http.Request request) {
-        String userId = request.session().getOptional(AUTHORIZED).orElseGet(null);
+        Optional<String> optional = request.session().getOptional(AUTHORIZED);
+        String userId = null;
+        if (optional.isPresent()) {
+            userId = optional.get();
+        }
         try {
             return Integer.valueOf(userId);
         } catch (NumberFormatException e) {
