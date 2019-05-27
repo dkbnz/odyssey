@@ -29,8 +29,8 @@
                      v-bind:userProfile="userProfile"
                      :adminView="adminView"
                      v-on:changePrivacy="updatePhotoPrivacyList"
-                     v-on:removePhoto="deletePhoto">
-
+                     v-on:removePhoto="deletePhoto"
+                     v-on:makeProfilePhoto="setProfilePhoto">
         </photo-table>
     </div>
 </template>
@@ -74,7 +74,6 @@
         },
 
         methods: {
-
             /**
              * Creates a POST request to upload photo(s) to the backend.
              *
@@ -95,7 +94,6 @@
                     });
             },
 
-
             /**
              * Creates the form data to send as the body of the POST request to the backend.
              *
@@ -110,7 +108,6 @@
                 return personalPhotos;
             },
 
-
             /**
              * Checks the authorization of the user profile that is logged in to see if they can
              * view the users private photos and can add or delete images from the media.
@@ -120,18 +117,39 @@
             },
 
             /**
-             * Sets the auth variable to ensure a user is authorised to see given photos.
-             * Iterates over a profiles photo gallery and add them to the table.
-             *
-             * @returns {Promise<Response | never>}
+             * Emits change up to view profile be able to auto update front end when changing profile picture
              */
+            setProfilePhoto(photoId) {
+                this.$emit('makeProfilePhoto', photoId);
+            },
+
             getPhotos() {
                 this.checkAuth();
-                for(let i=0; i < this.profile.photoGallery.length; i++) {
+                for (let i = 0; i < this.profile.photoGallery.length; i++) {
                     if(this.profile.photoGallery[i].public || this.auth) {
                         this.photos.push(this.profile.photoGallery[i]);
                     }
                 }
+            },
+
+            /**
+             * Gets a list of the user's photos
+             * Checks for private photos and whether the logged in user has authorisation to view said photos
+             */
+            getPhotosList() {
+                let self = this;
+                fetch(`/v1/photos/user/` + this.profile.id, {
+                    accept: "application/json",
+                })
+                    .then(this.parseJSON)
+                    .then(photos => {
+                        self.checkAuth();
+                        for(let i in photos) {
+                            if(photos[i].public || this.auth) {
+                                self.photos.push(photos[i]);
+                            }
+                        }
+                    })
             },
 
             /**

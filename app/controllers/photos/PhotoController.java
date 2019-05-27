@@ -181,6 +181,99 @@ public class PhotoController extends Controller {
     }
 
     /**
+     * Delete a profile picture from a specified profile. This sets the user's profile picture to a default value
+     * (null).
+     *
+     * @param request the Http request body.
+     * @param userId  the user id number of the person to be changed.
+     * @return        unauthorized() (Http 401) if the user is not logged in, badRequest() (Http 400) if the specified
+     *                profile cannot be found, forbidden() (Http 403) if the logged in user is not allowed to change the
+     *                profile picture.
+     */
+    public Result destroyProfilePhoto(Http.Request request, Long userId) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+
+        Profile profileToChange = profileRepo.fetchSingleProfile(userId.intValue());
+
+        if (profileToChange == null) {
+            return badRequest();
+        }
+
+        if ((authenticateUser(loggedInUser, profileToChange, loggedInUserId.toString()).status() == 200)
+                && (profileToChange.getProfilePicture() != null)) {
+            profileRepo.deleteProfilePhoto(profileToChange);
+            return ok();
+        }
+
+        return authenticateUser(loggedInUser, profileToChange, loggedInUserId.toString());
+    }
+
+    /**
+     * Generic method to check the authentication rights of the logged in user.
+     *
+     * @param loggedInUser      the Profile object of the logged in user.
+     * @param owner             the Profile object of the owner of the photo object.
+     * @param loggedInUserId    the id number of the logged in user.
+     * @return                  ok() (Http 200) if the logged in user is an admin or the user being modified,
+     *                          forbidden() (Http 403) if they are not permitted to modify the logged in user,
+     *                          badRequest() (Http 400) otherwise.
+     */
+    private Result authenticateUser(Profile loggedInUser, Profile owner, String loggedInUserId) {
+        // If user is admin, or if they are editing their own profile then allow them to edit.
+        if(AuthenticationUtil.validUser(loggedInUser, owner)) {
+            return ok();
+        } else if (!owner.getId().equals(Long.valueOf(loggedInUserId))) {
+            return forbidden(); // User has specified an id which is not their own, but is not admin
+        } else {
+            return badRequest();
+        }
+    }
+
+    /**
+     * Updates a profile photo based on the photo Id's owner and checks authentication from if their logged in
+     * or if an admin is changing a users profile
+     * @param request       the http request from the front end
+     * @param photoId       The photoId that the profile photo is being changed to
+     * @return              notFound() (Http 404) if the owner for the profile photo is not found
+     *                      unauthorized() (Http 403) if the user is not logged in or not authorized to change the owners profile photo
+     *                      ok() (Http 200) if successful change of profile photo
+     */
+    public Result updateProfilePhoto(Http.Request request, Long photoId) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(loggedInUserId -> {
+
+                    PersonalPhoto personalPhoto = personalPhotoRepo.fetch(photoId);
+
+                    Profile owner = personalPhoto.getProfile();
+
+                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
+
+                    if (owner == null) {
+                        return notFound();
+                    }
+
+                    if(authenticateUser(loggedInUser, owner, loggedInUserId).status() != 200) {
+                        return authenticateUser(loggedInUser, owner, loggedInUserId);
+                    } else {
+                        if (personalPhoto.getPublic()) {
+                            profileRepo.setProfilePhoto(personalPhoto, owner);
+                            return ok();
+                        } else {
+                            personalPhotoRepo.updatePrivacy(owner, personalPhoto, "true");
+                            profileRepo.setProfilePhoto(personalPhoto, owner);
+                            return ok();
+                        }
+                    }
+                }).orElseGet(() -> unauthorized());
+    }
+
+    /**
      * Change the privacy of the selected photo from private to public, or public to private. Public means all users can
      * see the photo, private means only the logged in user or an admin can see the photo.
      *
@@ -216,6 +309,10 @@ public class PhotoController extends Controller {
 
                     if (owner == null) {
                         return notFound();
+                    }
+
+                    if(owner.getProfilePicture() != null && owner.getProfilePicture().getId().equals(personalPhotoId)) {
+                        return badRequest();
                     }
 
                     if(AuthenticationUtil.validUser(loggedInUser, owner)) {
@@ -256,6 +353,32 @@ public class PhotoController extends Controller {
             }
         }
         return created(Json.toJson(profileToAdd.getPhotoGallery()));
+    }
+
+    /**
+     * Gets all photos for the given user
+     *
+     * @param request http request from the client.
+     * @param userId id of the user being viewed
+     * @return a JSON list containing the IDs and privacy of all photos owned by that user
+     */
+    public Result list(Http.Request request, Long userId) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(loggedInUserId -> {
+
+                    Profile user = profileRepo.fetchSingleProfile(userId.intValue());
+
+                    JsonNode userJson = (Json.toJson(user));
+
+                    if (userJson.has("photoGallery")) {
+                        return ok(userJson.get("photoGallery"));
+                    }
+
+                    return badRequest();
+
+                })
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
     /**

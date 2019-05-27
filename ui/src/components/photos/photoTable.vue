@@ -8,9 +8,14 @@
                            alt="Image not Found" thumbnail>
                     </b-img>
                     <b-select @change="updatePrivacy(photo.id, photo.public)" style="width: 100%"
+                              :disabled="userProfile.profilePicture !== null
+                               && userProfile.profilePicture.id === photo.id"
                               v-if="auth"
                               v-model="photo.public"
-                              class="colorBlue">
+                              :class="{colorBlue: userProfile.profilePicture !== null
+                              && userProfile.profilePicture.id !== photo.id,
+                              colorDisabled: userProfile.profilePicture !== null
+                              && userProfile.profilePicture.id===photo.id}">
                         <option value="true">
                             Public
                         </option>
@@ -27,14 +32,30 @@
                 ref="navigationGallery"
                 v-model="currentPage"
         ></b-pagination>
+    <b-alert v-model="showError" dismissable variant="danger">
+        {{alertMessage}}
+    </b-alert>
         <b-modal centered hide-footer ref="modalImage" size="xl">
-            <b-img-lazy :src="getFullPhoto()" @error="imageAlt" center fluid></b-img-lazy>
-            <b-button
-                    block class="mr-2"
-                    size="sm" style="margin-top: 10px"
-                    v-b-modal.deletePhotoModal
-                    v-if="auth" variant="danger">Delete
-            </b-button>
+            <b-img-lazy :src="getFullPhoto()" alt="Image couldn't be retrieved" @error="imageAlt" center fluid></b-img-lazy>
+            <b-row>
+            <b-col>
+                <b-button
+                        id="tooltip"
+                        block class="mr-2"
+                        size="sm" style="margin-top: 10px"
+                        @click="makeProfileImage"
+                        v-if="auth" variant="info">Make this profile picture
+                </b-button>
+            </b-col>
+            <b-col>
+                <b-button
+                        block class="mr-2"
+                        size="sm" style="margin-top: 10px"
+                        v-b-modal.deletePhotoModal
+                        v-if="auth" variant="danger">Delete
+                </b-button>
+            </b-col>
+        </b-row>
             <b-modal hide-footer id="deletePhotoModal" ref="deletePhotoModal" title="Delete Photo">
                 <div class="d-block">
                     Are you sure that you want to delete this image?
@@ -57,7 +78,7 @@
     export default {
         name: "photoTable",
         props: {
-            photos: [],
+            photos: Array,
             profile: Object,
             userProfile: {
                 default: function () {
@@ -72,16 +93,18 @@
                 currentPage: 1,
                 currentViewingID: 0,
                 auth: false,
-                rowSize: 6
+                rowSize: 6,
+                showError: false,
+                alertMessage: ""
             }
         },
 
         computed: {
             rows() {
-                return this.photos.length
+                return this.photos.length;
             },
             perPage() {
-                return this.rowSize * this.amountOfRows
+                return this.rowSize * this.amountOfRows;
             }
         },
 
@@ -161,6 +184,29 @@
             },
 
             /**
+             * Emits change up to view profile be able to auto update front end when changing profile picture
+             */
+            makeProfileImage() {
+                let self = this;
+                let currentPrivacy = this.photos.find(item => item.id === this.currentViewingID).public;
+                this.updatePrivacy(this.currentViewingID, true);
+                fetch('/v1/profilePhoto/' + this.currentViewingID, {
+                    method: 'PUT'
+                }).then(response => {
+                    if (response.status === 200) {
+                        self.showError = false;
+                        this.$emit('makeProfilePhoto', this.currentViewingID);
+                    } else {
+                        // If the profile picture doesn't update, set back to previous value.
+                        self.updatePrivacy(self.currentViewingID, currentPrivacy);
+                        self.showError = true;
+                        self.alertMessage = "An error occurred when making this your profile photo";
+                    }
+                });
+                this.$refs['modalImage'].hide();
+            },
+
+            /**
              * Updates the privacy for a photo between privet and public and sends PATCH
              * request to the backend.
              */
@@ -169,6 +215,7 @@
                     "id": photoId,
                     "public": isPublic
                 };
+                let self = this;
 
                 fetch('/v1/photos', {
                     method: 'PATCH',
@@ -176,9 +223,11 @@
                     body: JSON.stringify(json)
                 }).then(response => {
                     if (response.status === 200) {
+                        self.showError = false;
                         this.$emit('changePrivacy', photoId, isPublic);
                     } else {
-                        console.log("ERROR");
+                        self.showError = true;
+                        self.alertMessage = "Cannot change privacy of your personal photo";
                     }
                 });
             },
@@ -199,5 +248,9 @@
         color: white;
         font-weight: bold;
         background-color: #85BCE5;
+    }
+
+    .colorDisabled {
+        background-color: #dddddd;
     }
 </style>
