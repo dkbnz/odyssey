@@ -6,9 +6,7 @@ import org.junit.Test;
 import play.mvc.Http;
 import util.AuthenticationUtil;
 
-import static javafx.scene.input.KeyCode.G;
 import static play.test.Helpers.GET;
-import static play.test.Helpers.POST;
 import static play.test.Helpers.fakeRequest;
 
 
