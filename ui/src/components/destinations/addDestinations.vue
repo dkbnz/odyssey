@@ -58,7 +58,7 @@
                         label-for="latitude">
                     <b-form-input id="latitude" v-model="destinationLatitude" type="text" trim required
                                   :state="destinationLatitudeValidation"></b-form-input>
-                    <b-form-invalid-feedback :state="destinationLatitudeValidation" align="center">
+                    <b-form-invalid-feedback :state="destinationLatitudeValidation">
                         {{latitudeErrorMessage}}
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -69,7 +69,7 @@
                         label-for="longitude">
                     <b-form-input id="longitude" v-model="destinationLongitude" type="text" trim required
                                   :state="destinationLongitudeValidation"></b-form-input>
-                    <b-form-invalid-feedback :state="destinationLongitudeValidation" align="center">
+                    <b-form-invalid-feedback :state="destinationLongitudeValidation">
                         {{longitudeErrorMessage}}
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -80,7 +80,7 @@
                         label-for="country">
                     <b-form-input id="country" v-model="destinationCountry" type="text" trim required
                                   :state="destinationCountryValidation"></b-form-input>
-                    <b-form-invalid-feedback :state="destinationCountryValidation" align="center">
+                    <b-form-invalid-feedback :state="destinationCountryValidation">
                         Country cannot have any numbers in it!
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -143,7 +143,8 @@
                     this.latitudeErrorMessage = "Latitude: '" + this.destinationLatitude + "' is not a number!";
                     return false;
                 } else if (this.destinationLatitude > 90 || this.destinationLatitude < -90) {
-                    this.latitudeErrorMessage = "Latitude: '" + this.destinationLatitude + "' must be between -90 and 90";
+                    this.latitudeErrorMessage = "Latitude: '" + this.destinationLatitude + "' must be between " +
+                        "-90 and 90";
                     return false;
                 }
                 return true;
@@ -156,7 +157,8 @@
                     this.longitudeErrorMessage = "Longitude: '" + this.destinationLongitude + "' is not a number!";
                     return false;
                 } else if (this.destinationLongitude > 180 || this.destinationLongitude < -180) {
-                    this.longitudeErrorMessage = "Longitude: '" + this.destinationLongitude + "' must be between -180 and 180";
+                    this.longitudeErrorMessage = "Longitude: '" + this.destinationLongitude + "' must be between " +
+                        "-180 and 180";
                     return false;
                 }
                 return true;
