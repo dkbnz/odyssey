@@ -487,7 +487,6 @@
                 }).then(function (response) {
                     if (response.status === 201 && !self.createdByAdmin) {
                         self.$router.go();
-                        //self.$router.push("/dash");
                         return response.json();
                     } else if (response.status === 201 && self.createdByAdmin) {
                         self.$emit('profile-created', true);
