@@ -36,12 +36,14 @@
         >
         </photo-table>
 
+        <photo-modal v-bind:photo-to-view="photoToView"
+                     v-bind:is-profile-picture="false"
+                     v-bind:display="displayImage"
+                     v-bind:show-buttons="auth"
+                     @profile-photo="setProfilePhoto"
+                     @delete-photo="deletePhoto"
+        ></photo-modal>
 
-    <photo-modal v-bind:photo="{id: 2, public: true}"
-                 v-bind:is-profile-picture="false"
-                 v-bind:display="true"
-                 v-bind:show-buttons="true"
-    ></photo-modal>
     </div>
 </template>
 
@@ -55,12 +57,13 @@
         data: function () {
             return {
                 photos: [],
-                currentViewingID: 0,
+                displayImage: false,
                 auth: false,
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 showError: false,
-                errorMessage: ""
+                errorMessage: "",
+                photoToView: null
             }
         },
 
@@ -108,6 +111,21 @@
 
             photoClicked: function(photo) {
                 console.log(photo);
+                this.photoToView = photo;
+                this.displayImage = true;
+                console.log(this.displayImage)
+            },
+
+
+            deleteTheImage: function(photo) {
+                console.log("Delete photo clicked");
+                console.log(photo);
+            },
+
+
+            setProfilePhotoasd: function(photo) {
+                console.log("Set profile clicked");
+                console.log(photo);
             },
 
 
@@ -138,8 +156,8 @@
             /**
              * Emits change up to view profile be able to auto update front end when changing profile picture.
              */
-            setProfilePhoto(photoId) {
-                this.$emit('makeProfilePhoto', photoId);
+            setProfilePhoto(photo) {
+                this.$emit('makeProfilePhoto', photo.id);
             },
 
 
@@ -205,11 +223,11 @@
              * Deletes the photo from the photos list so it updates the table in the front end without
              * requiring a refresh of the profile.
              */
-            deletePhoto: function(photoId) {
+            deletePhoto: function(photo) {
                 this.checkAuth();
                 let change = false;
                 for(let i=0; i < this.photos.length; i++) {
-                    if(this.photos[i].id === photoId || change) {
+                    if(this.photos[i].id === photo.id || change) {
                         change = true;
                         if (i+1 === this.photos.length) {
                             this.photos.pop();
@@ -218,7 +236,7 @@
                         }
                     }
                 }
-                this.$emit("removePhoto", photoId);
+                this.$emit("removePhoto", photo.id);
             },
 
 
