@@ -244,13 +244,24 @@
             },
 
             /**
-             * Retrieves the user's primary photo thumbnail, if none is found return the default image.
+             * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
              */
             getProfilePictureThumbnail() {
                 if (this.profile.profilePicture !== null) {
                     this.profileImageThumb = `/v1/photos/thumb/` + this.profile.profilePicture.id;
                 } else {
                     this.profileImageThumb = "../../../static/default_profile_picture.png";
+                }
+            },
+
+            /**
+             * Retrieves the user's primary photo, if none is found set to the default image.
+             */
+            getProfilePictureFull() {
+                if (this.profile.profilePicture !== null) {
+                    this.profileImageFull = `/v1/photos/` + this.profile.profilePicture.id;
+                } else {
+                    this.profileImageFull = "../../../static/default_profile_picture.png";
                 }
             },
 
@@ -262,17 +273,6 @@
                 this.profileImageThumb = `/v1/photos/thumb/` + photoId;
                 this.profileImageFull = `/v1/photos/` + photoId;
                 this.profile.profilePicture = {"id": photoId, "public": true}
-            },
-
-            /**
-             * Retrieves the user's primary photo, if none is found return the default image.
-             */
-            getProfilePictureFull() {
-                if (this.profile.profilePicture !== null) {
-                    this.profileImageFull = `/v1/photos/` + this.profile.profilePicture.id;
-                } else {
-                    this.profileImageFull = "../../../static/default_profile_picture.png";
-                }
             },
 
             /**
