@@ -74,7 +74,7 @@ public class PhotoController extends Controller {
      * If the system variable is set, then it will use that as the filepath.
      * Otherwise, use the specified temp file paths above.
      *
-     * @param getThumbnail  whether thumbnail directory is being requested.
+     * @param getThumbnchangePrivacyail  whether thumbnail directory is being requested.
      * @return              filepath to save the photo to.
      */
     private String getPhotoFilePath(Boolean getThumbnail) throws IOException {
@@ -269,7 +269,8 @@ public class PhotoController extends Controller {
      * see the photo, private means only the logged in user or an admin can see the photo.
      *
      * @param request   the Http request body containing the image to change from public to private.
-     * @return          ok() (Http 200) if the photo is successfully changed. notFound() (Http 404) if the specified
+     * @return          ok() (Http 200) containing a list of the user's photos if the photo is successfully changed.
+     *                  notFound() (Http 404) if the specified.
      *                  photo cannot be found. forbidden() (Http 403) if the person trying to change the privacy of the
      *                  photo is not the owner of the image or an admin. unauthorized() (Http 401) if the user is not
      *                  logged in. internalServerError() (Http 500) if for some reason the photo couldn't be changed.
@@ -314,7 +315,7 @@ public class PhotoController extends Controller {
 
                     if (profileToChange != null) {
                         personalPhotoRepo.updatePrivacy(profileToChange, personalPhoto, isPublic);
-                        return ok();
+                        return ok(Json.toJson(profileToChange.getPhotoGallery()));
                     }
                     return internalServerError("Can't change privacy of photo");
                 })
