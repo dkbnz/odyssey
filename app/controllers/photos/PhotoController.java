@@ -56,6 +56,7 @@ public class PhotoController extends Controller {
         this.config = config;
     }
 
+
     /**
      * Generates a UUID for a filename.
      *
@@ -65,6 +66,7 @@ public class PhotoController extends Controller {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
     }
+
 
     /**
      * Determines the filepath of where an image should be saved.
@@ -96,6 +98,7 @@ public class PhotoController extends Controller {
         return returnPath;
     }
 
+
     /**
      * Returns whether or not a list of uploaded photos are valid.
      *
@@ -118,6 +121,7 @@ public class PhotoController extends Controller {
 
         return true;
     }
+
 
     /**
      * Takes a profile, filename of a previously saved photo and boolean flag.
@@ -143,6 +147,7 @@ public class PhotoController extends Controller {
         profileToAdd.addPhotoToGallery(personalPhoto);
         profileRepo.save(profileToAdd);
     }
+
 
     /**
      * Deletes a photo from a specified user, based on the id number of the photo.
@@ -180,6 +185,7 @@ public class PhotoController extends Controller {
         return badRequest();
     }
 
+
     /**
      * Delete a profile picture from a specified profile. This sets the user's profile picture to a default value
      * (null).
@@ -211,6 +217,7 @@ public class PhotoController extends Controller {
         profileRepo.deleteProfilePhoto(profileToChange);
         return ok();
     }
+
 
     /**
      * Updates a profile photo based on the photo Id's owner and checks authentication from if their logged in
@@ -255,6 +262,7 @@ public class PhotoController extends Controller {
                     }
                 }).orElseGet(() -> unauthorized());
     }
+
 
     /**
      * Change the privacy of the selected photo from private to public, or public to private. Public means all users can
@@ -313,6 +321,7 @@ public class PhotoController extends Controller {
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
+
     /**
      * Saves a list of images given in multipart form data in the application.
      * Creates thumbnails for all files. Saves a full sized copy and a thumbnail of each photo.
@@ -338,10 +347,11 @@ public class PhotoController extends Controller {
         return created(Json.toJson(profileToAdd.getPhotoGallery()));
     }
 
+
     /**
      * Gets all photos for the given user.
      *
-     * @param request   http request from the client.
+     * @param request   Http request from the client.
      * @param userId    id of the user being viewed.
      * @return          a Json list containing the id numbers and privacy of all photos owned by that user.
      */
@@ -363,6 +373,7 @@ public class PhotoController extends Controller {
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
+
 
     /**
      * Takes a multipart form data request to upload an image.
@@ -410,6 +421,7 @@ public class PhotoController extends Controller {
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
+
     /**
      * Takes a filename of a previously saved image and creates a thumbnail from it.
      * After creation, it will save into the specified thumbnail directory.
@@ -425,6 +437,7 @@ public class PhotoController extends Controller {
                 + filename));
     }
 
+
     /**
      * Gets a middle section of the image and makes it into a square.
      *
@@ -438,6 +451,7 @@ public class PhotoController extends Controller {
 
         return photo.getSubimage((width/2) - (size/2), (height/2) - (size/2), size, size);
     }
+
 
     /**
      * Scales a BufferedImage object to a 200x200 pixels image, with lower quality to be stored as a thumbnail. Uses
@@ -467,6 +481,7 @@ public class PhotoController extends Controller {
         return scaledImage;
     }
 
+
     /**
      * Retrieves an image file from a path specified in the given photo object.
      * If getThumbnail is true, it will return the thumbnail version from the given photo object.
@@ -485,6 +500,7 @@ public class PhotoController extends Controller {
 
         return ok(new File(filename)).as(contentType);
     }
+
 
     /**
      * Fetches a personal photo from the application based on the specified Id.
