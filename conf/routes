@@ -52,7 +52,6 @@ DELETE  /v1/photos/:photoId             controllers.photos.PhotoController.destr
 
 #Profile Photo
 PUT     /v1/profilePhoto/:photoId       controllers.photos.PhotoController.updateProfilePhoto(request: Request, photoId: Long)
-#POST    /v1/profilePhoto/:userId        controllers.photos.PhotoController.uploadProfilePhoto(request: Request, userId: Long)
 DELETE  /v1/profilePhoto/:userId        controllers.photos.PhotoController.destroyProfilePhoto(request: Request, userId: Long)
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
