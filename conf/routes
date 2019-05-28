@@ -5,10 +5,6 @@
 # Redirect index to Vue frontend. Must stay at top of Routes for production.
 GET      /                              controllers.Assets.at(path="/public", file="index.html")
 
-# To convert
-DELETE  /api/profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
-#PATCH   /api/trip/:id/:userId           controllers.trips.TripController.edit(request: Request, id: Long, userId: Long)
-
 # Get lists
 GET     /v1/travtypes                   controllers.TravellerTypeController.list()
 GET     /v1/nationalities               controllers.NationalityController.list()
