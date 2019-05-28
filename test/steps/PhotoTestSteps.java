@@ -48,19 +48,23 @@ public class PhotoTestSteps {
     private static final String CHANGE_PHOTO_PRIVACY_URI = "/v1/photos";
     private static final String PROFILE_PHOTO_URI = "/v1/profilePhoto/";
     private static final String LOGIN_URI = "/v1/login";
+
     /**
      * A valid username for login credentials for admin user.
      */
     private static final String VALID_USERNAME = "admin@travelea.com";
+
     /**
      * A valid password for login credentials for admin user.
      */
     private static final String VALID_AUTHPASS = "admin1";
     private static final String ADMIN_ID = "1";
+
     /**
      * A valid username for login credentials for a regular user.
      */
     private static final String REG_USER = "guestUser@travelea.com";
+
     /**
      * A valid password for login credentials for a regular user.
      */
@@ -150,6 +154,12 @@ public class PhotoTestSteps {
         statusCode = loginResult.status();
     }
 
+    /**
+     * Creates a Json ObjectNode to be used for the photo.
+     * @param photoId  the photoId of the photo to be added to the Json node.
+     * @param isPublic the boolean value for the photo privacy to be added to the Json node.
+     * @return         the Json ObjectNode for the new photo.
+     */
     private JsonNode createJson(int photoId, boolean isPublic) {
         // complex json
         ObjectMapper mapper = new ObjectMapper();
@@ -283,7 +293,6 @@ public class PhotoTestSteps {
         Result changeProfilePhotoResult = route(application, request);
         statusCode = changeProfilePhotoResult.status();
     }
-
 
     @Then("the status code I get is Created")
     public void theStatusCodeIsCreated() {

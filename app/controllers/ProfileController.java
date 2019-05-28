@@ -69,7 +69,7 @@ public class ProfileController {
                 .orElse(null); // returns created as no user is logged in
 
         if (userProfile != null && !userProfile.getIsAdmin())
-            return badRequest("");
+            return badRequest();
 
         JsonNode json = request.body().asJson();
 
@@ -146,6 +146,7 @@ public class ProfileController {
                 : created().addingToSession(request, AUTHORIZED, newUser.id.toString());
     }
 
+
     /**
      * Validates a new user's data when creating a profile. The validation is the same as the agreed front-end
      * validation.
@@ -188,6 +189,7 @@ public class ProfileController {
         return null;
     }
 
+
     /**
      * Validates the user's username (email address). Ensures meets a specific regular expression that is used to
      * validate emails.
@@ -202,6 +204,7 @@ public class ProfileController {
         }
         return null;
     }
+
 
     /**
      * Validates each of the users name fields when creating a new user. This validation is the same as the frontend
@@ -231,6 +234,7 @@ public class ProfileController {
         return null;
     }
 
+
     /**
      * Validates the new user's gender, the gender must be one specified in the list.
      *
@@ -249,6 +253,7 @@ public class ProfileController {
         return null;
     }
 
+
     /**
      * Validates the new user's date of birth, the date of birth must be before today.
      *
@@ -262,6 +267,7 @@ public class ProfileController {
         return null;
     }
 
+
     /**
      * Hashes a password string using the SHA 256 method from the MessageDigest library.
      * @param password                  the string you want to hash.
@@ -272,6 +278,7 @@ public class ProfileController {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         return DatatypeConverter.printHexBinary(digest.digest(password.getBytes(StandardCharsets.UTF_8)));
     }
+
 
     /**
      * Field validation method checking whether a username already exists in the database. This is to ensure there are
@@ -289,6 +296,7 @@ public class ProfileController {
                 .like(USERNAME, username)
                 .findOne() != null;
     }
+
 
     /**
      * Field validation method checking whether a username already exists in the database. This is to ensure there are
@@ -330,6 +338,7 @@ public class ProfileController {
                 }); // User is not logged in
     }
 
+
     /**
      * Fetches a single profile from the database based on the Http Request body. This is used to display the currently
      * logged in profile on the dash page, and used throughout the application wherever the logged in profile is
@@ -349,6 +358,7 @@ public class ProfileController {
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
+
 
     /**
      * Deletes a currently logged in profile and invalidates their session. If user is admin and the id is specified
@@ -391,6 +401,7 @@ public class ProfileController {
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
+
 
     /**
      * Takes a Http request containing a Json body and finds a logged in user. Then uses a PUT request to update
@@ -511,6 +522,7 @@ public class ProfileController {
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
+
     /**
      * Performs an Ebean find query on the database to search for profiles.
      * If no query is specified in the Http request, it will return a list of all profiles. If a query is specified,
@@ -544,11 +556,12 @@ public class ProfileController {
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
+
     /**
      * Validates the search query string for profiles.
      *
      * @param queryString the query string from the request body, given by the user.
-     * @return String message of error in query string, empty if no error present.
+     * @return string message of error in query string, empty if no error present.
      */
     private String validQueryString(Map<String, String[]> queryString) {
         Integer minAge;
@@ -575,6 +588,7 @@ public class ProfileController {
 
         return null;
     }
+
 
     /**
      * Function to validate a query string and return a list of profiles based on the query string.
@@ -614,6 +628,7 @@ public class ProfileController {
         return profileExpressionList.findList();
     }
 
+
     /**
      * Makes another user (based on the Http request body) an admin if the currently logged in user is an admin.
      * If user is not logged in they are unauthorised, if they are logged in and they are not admin they are forbidden
@@ -642,6 +657,7 @@ public class ProfileController {
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
+
 
     /**
      * Removes the admin property from a specified user based on the user id. This can only be done if the currently
