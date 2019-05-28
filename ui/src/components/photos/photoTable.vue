@@ -4,9 +4,12 @@
             <!--Table containing the rows of photos to be displayed-->
             <tr v-for="rowNumber in (numberOfRows)">
                 <td v-for="photo in getRowPhotos(rowNumber)">
-                    <b-img :src="getThumbImage(photo.id)" @click="$emit('photo-click', photo)" @error="imageAlt"
-                           alt="Image not Found" thumbnail>
-                    </b-img>
+                    <b-container class="p-1" :class="{colorBlue: selected(photo)}">
+                        <b-img :src="getThumbImage(photo.id)" @click="$emit('photo-click', photo)" @error="imageAlt"
+                               alt="Image not Found" thumbnail>
+                        </b-img>
+                    </b-container>
+
                     <b-select @change="$emit('privacy-update', photo)" style="width: 100%"
                               :disabled="userProfile.profilePicture !== null
                                && userProfile.profilePicture.id === photo.id"
@@ -58,6 +61,11 @@
             numberOfColumns: {
                 default: function () {
                     return 6
+                }
+            },
+            selectedImages: {
+                default: function () {
+                    return []
                 }
             },
             adminView: Boolean
@@ -127,6 +135,15 @@
              */
             checkAuth() {
                 this.auth = (this.userProfile.id === this.profile.id || (this.userProfile.isAdmin && this.adminView));
+            },
+
+            selected(photo) {
+                for(var i = 0; i < this.selectedImages.length; i += 1) {
+                    if(this.selectedImages[i].id === photo.id) {
+                        return true;
+                    }
+                }
+                return false;
             }
         }
     }

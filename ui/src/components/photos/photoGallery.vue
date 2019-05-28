@@ -96,7 +96,7 @@
                 showError: false,
                 errorMessage: "",
                 photoToView: null,
-                refreshTable: 0
+                refreshTable: 0,
             }
         },
 
@@ -142,7 +142,6 @@
 
 
             photoClicked: function(photo) {
-                console.log(photo);
                 this.photoToView = photo;
                 this.$refs['modalImage'].show();
             },
@@ -249,6 +248,7 @@
                         }
                     })
             },
+
 
             /**
              * Sends a GET request to get the full sized image from the backend.
