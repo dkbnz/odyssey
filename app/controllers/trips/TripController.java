@@ -130,7 +130,7 @@ public class TripController extends Controller {
      * Updates a single trip for selected user's profile.
      *
      * @param request   Http Request containing Json Body of the selected trip to modify.
-     * @param tripId        the id of the trip being modified.
+     * @param tripId    the id of the trip being modified.
      * @return          ok() (Http 200) if the trip has been successfully modified. If the trip is not valid, returns a
      *                  badRequest() (Http 400). If the user is not logged in, returns a unauthorized()
      *                  (Http 401).

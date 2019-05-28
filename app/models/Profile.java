@@ -21,35 +21,35 @@ import java.util.List;
 @Table(name = "profile")
 public class Profile extends BaseModel {
 
-    public String username;
+    private String username;
 
     @JsonIgnore
-    public String password;
+    private String password;
 
-    public String firstName;
-    public String middleName;
-    public String lastName;
-    public String gender;
-    public LocalDate dateOfBirth;
-    public Boolean isAdmin;
+    private String firstName;
+    private String middleName;
+    private String lastName;
+    private String gender;
+    private LocalDate dateOfBirth;
+    private Boolean isAdmin;
 
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
-    public Date dateOfCreation;
+    private Date dateOfCreation;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    public List<Nationality> nationalities = new ArrayList<Nationality>();
+    private List<Nationality> nationalities = new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
-    public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
+    private List<TravellerType> travellerTypes = new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
-    public List<Passport> passports = new ArrayList<Passport>();
+    private List<Passport> passports = new ArrayList<>();
 
     @OneToMany(cascade=CascadeType.ALL, mappedBy = "profile")
-    public List<Trip> trips = new ArrayList<Trip>();
+    private List<Trip> trips = new ArrayList<>();
 
     @OneToMany(cascade=CascadeType.ALL)
-    private List<PersonalPhoto> photoGallery = new ArrayList<PersonalPhoto>();
+    private List<PersonalPhoto> photoGallery = new ArrayList<>();
 
     @OneToOne
     private PersonalPhoto profilePicture = new PersonalPhoto();
