@@ -11,6 +11,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import repositories.DestinationRepository;
 import repositories.photos.PersonalPhotoRepository;
 import repositories.ProfileRepository;
 import util.AuthenticationUtil;
@@ -44,15 +45,18 @@ public class PhotoController extends Controller {
 
     private ProfileRepository profileRepo;
     private PersonalPhotoRepository personalPhotoRepo;
+    private DestinationRepository destinationRepo;
     private Config config;
 
     @Inject
     public PhotoController(
             ProfileRepository profileRepo,
             PersonalPhotoRepository personalPhotoRepo,
+            DestinationRepository destinationRepo,
             Config config) {
         this.profileRepo = profileRepo;
         this.personalPhotoRepo = personalPhotoRepo;
+        this.destinationRepo = destinationRepo;
         this.config = config;
     }
 
@@ -533,6 +537,53 @@ public class PhotoController extends Controller {
 
                     return forbidden();
                 }).orElseGet(() -> unauthorized());
+    }
+
+
+    /**
+     * Adds a personal photo to a given destination's photo gallery
+     * and checks authorization for admins and logged in users
+     *
+     * @param request           http request from the client.
+     * @param destinationId     The destination id that we are adding the given photo too.
+     * @return                  unauthorized() (Http 401) if a user is not logged in.
+     *                          Forbidden() (Http 403) if a user is trying to add a photo that is not theirs
+     *                          and they are not an admin
+     *                          created() (Http 201) if the destination photo was added to the
+     *                          destinations photo gallery.
+     */
+    public Result addDestinationPhoto(Http.Request request, Long destinationId) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(userId -> {
+
+                    JsonNode json = request.body().asJson();
+
+                    if (!(json.has(PHOTO_ID))) {
+                        return badRequest();
+                    }
+
+                    Long personalPhotoId = json.get(PHOTO_ID).asLong();
+
+                    PersonalPhoto personalPhoto = personalPhotoRepo.fetch(personalPhotoId);
+
+                    if (personalPhoto == null)
+                        return notFound("Image could not be found.");
+
+                    Profile photoOwner = personalPhoto.getProfile();
+
+                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(userId));
+
+                    if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
+                        return destinationRepo.addPhoto(destinationId, personalPhoto) ? created() : notFound();
+                    }
+
+                    return forbidden();
+                }).orElseGet(() -> unauthorized());
+    }
+
+    public Result removeDestinationPhoto(Http.Request request, Long destinationId) {
+        return ok();
     }
 
 }
