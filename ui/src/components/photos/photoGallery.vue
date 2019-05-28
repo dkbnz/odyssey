@@ -31,9 +31,9 @@
                      v-bind:profile="profile"
                      v-bind:userProfile="userProfile"
                      :adminView="adminView"
-                     v-on:changePrivacy="updatePhotoPrivacyList"
-                     v-on:removePhoto="deletePhoto"
-                     v-on:makeProfilePhoto="setProfilePhoto">
+                     v-on:privacy-update="updatePhotoPrivacy"
+                     v-on:photo-click="photoClicked"
+        >
         </photo-table>
     </div>
 </template>
@@ -97,6 +97,11 @@
             },
 
 
+            photoClicked: function(photo) {
+                console.log(photo);
+            },
+
+
             /**
              * Creates the form data to send as the body of the POST request to the backend.
              *
@@ -156,12 +161,18 @@
              * @param photoId           the photo id that's changing status.
              * @param isPublic          the changed status.
              */
-            updatePhotoPrivacyList: function(photoId, isPublic) {
-                for(let i=0; i < this.photos.length; i++) {
-                    if(this.photos[i].id === photoId) {
-                        this.photos[i].public = isPublic;
+            updatePhotoPrivacy: function(photo) {
+                let self = this;
+
+                fetch('/v1/photos', {
+                    method: 'PATCH',
+                    headers: {'content-type': 'application/json'},
+                    body: JSON.stringify(photo)
+                }).then(response => {
+                    if (response.status === 200) {
+                        self.photos = response.json();
                     }
-                }
+                });
             },
 
 
