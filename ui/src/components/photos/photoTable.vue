@@ -2,7 +2,7 @@
     <div>
         <table ref="gallery" style="margin-top:20px">
             <!--Table containing the rows of photos to be displayed-->
-            <tr v-for="rowNumber in (amountOfRows)">
+            <tr v-for="rowNumber in (numberOfRows)">
                 <td v-for="photo in getRowPhotos(rowNumber)">
                     <b-img :src="getThumbImage(photo.id)" @click="$emit('photo-click', photo)" @error="imageAlt"
                            alt="Image not Found" thumbnail>
@@ -50,15 +50,23 @@
                     return this.profile
                 }
             },
+            numberOfRows: {
+                default: function () {
+                    return 3
+                }
+            },
+            numberOfColumns: {
+                default: function () {
+                    return 6
+                }
+            },
             adminView: Boolean
         },
 
         data: function () {
             return {
-                amountOfRows: 3,
                 currentPage: 1,
                 auth: false,
-                rowSize: 6,
                 showError: false,
                 alertMessage: ""
             }
@@ -69,7 +77,7 @@
                 return this.photos.length;
             },
             perPage() {
-                return this.rowSize * this.amountOfRows;
+                return this.numberOfRows * this.numberOfColumns;
             }
         },
 
@@ -85,8 +93,8 @@
              */
             getRowPhotos(rowNumber) {
                 let numberOfPhotos = (this.photos.length);
-                let endRowIndex = ((rowNumber * this.rowSize) + ((this.currentPage - 1) * this.perPage));
-                let startRowIndex = (rowNumber - 1) * this.rowSize + ((this.currentPage - 1) * this.perPage);
+                let endRowIndex = ((rowNumber * this.numberOfColumns) + ((this.currentPage - 1) * this.perPage));
+                let startRowIndex = (rowNumber - 1) * this.numberOfColumns + ((this.currentPage - 1) * this.perPage);
 
                 // Check preventing an IndexOutOfRangeError, before filling the row with photos indexed from the list.
                 if (endRowIndex > numberOfPhotos) {
