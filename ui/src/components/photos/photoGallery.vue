@@ -96,7 +96,7 @@
                 showError: false,
                 errorMessage: "",
                 photoToView: null,
-                refreshTable: 0,
+                refreshTable: 0
             }
         },
 

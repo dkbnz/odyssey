@@ -1,14 +1,18 @@
 <template>
     <div>
+        <destination-gallery
+            :destination="destination">
+        </destination-gallery>
         {{destination}}
     </div>
 </template>
 
 <script>
-    import PhotoTable from "../photos/photoTable";
+    import DestinationGallery from "../photos/destinationGallery";
 
     export default {
-        name: "destinationGallery",
+
+        name: "singleDestination",
         data: function () {
             return {
             }
@@ -25,7 +29,7 @@
         },
 
         components: {
-            PhotoTable
+            DestinationGallery
         }
     }
 </script>
