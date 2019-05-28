@@ -1,3 +1,9 @@
+# Temporary photo directories
+temp/
+temp/thumbnail
+testphotos/
+testphotos/thumbnail
+
 # Ignore node_modules (frontend nodejs libraries)
 ui/node_modules
 
