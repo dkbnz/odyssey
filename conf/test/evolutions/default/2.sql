@@ -477,16 +477,19 @@ INSERT INTO `photo` (`id`, `main_filename`, `thumbnail_filename`, `upload_date`,
 (1, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e315', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e315', '2019-05-25', 1, 'image/png'),
 (2, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e317', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e317', '2019-05-25', 2, 'image/png'),
 (3, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e318', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e318', '2019-05-25', 2, 'image/png'),
-(4, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e319', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e319', '2019-05-25', 3, 'image/png');
+(4, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e319', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e319', '2019-05-25', 3, 'image/png'),
+(5, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', '2019-05-25', 2, 'image/png');
 
 INSERT INTO `personal_photo` (`id`, `photo_id`, `profile_id`, `is_public`) VALUES
 (1, 1, 1, true),
 (2, 2, 2, true),
 (3, 3, 2, true),
-(4, 4, 1, true);
+(4, 4, 1, true),
+(5, 5, 2, true);
 
 INSERT INTO `destination_personal_photo` (`destination_id`, `personal_photo_id`) VALUES
 (119, 3),
-(119, 4);
+(119, 4),
+(119, 5);
 
 # --- !Downs
