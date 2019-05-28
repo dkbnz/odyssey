@@ -78,7 +78,7 @@ public class PhotoController extends Controller {
      * If the system variable is set, then it will use that as the filepath.
      * Otherwise, use the specified temp file paths above.
      *
-     * @param getThumbnchangePrivacyail  whether thumbnail directory is being requested.
+     * @param getThumbnail  whether thumbnail directory is being requested.
      * @return              filepath to save the photo to.
      */
     private String getPhotoFilePath(Boolean getThumbnail) throws IOException {
@@ -385,7 +385,7 @@ public class PhotoController extends Controller {
      * Validates all given files in the form data.
      * Adds photos to the profile of the specified userId.
      *
-     * @param request   http request containing multipart form data.
+     * @param request   Http request containing multipart form data.
      * @param userId    id of the user to add the photos to.
      * @return          created() (Http 201) if successful. badRequest() (Http 400) if photo is invalid, or no profile
      *                  found. forbidden() (Http 403) if the logged in user isn't admin or adding photo for themselves.
@@ -510,7 +510,7 @@ public class PhotoController extends Controller {
     /**
      * Fetches a personal photo from the application based on the specified Id.
      *
-     * @param request           http request from the client.
+     * @param request           Http request from the client.
      * @param personalPhotoId   id of the personal photo to be returned.
      * @param getThumbnail      boolean to dictate if a thumbnail is to be returned.
      * @return                  unauthorized() (Http 401) if a user is not logged in.
@@ -545,7 +545,7 @@ public class PhotoController extends Controller {
      * Adds a personal photo to a given destination's photo gallery
      * and checks authorization for admins and logged in users
      *
-     * @param request           http request from the client.
+     * @param request           Http request from the client.
      * @param destinationId     The destination id that we are adding the given photo too.
      * @return                  unauthorized() (Http 401) if a user is not logged in.
      *                          Forbidden() (Http 403) if a user is trying to add a photo that is not theirs
@@ -576,15 +576,62 @@ public class PhotoController extends Controller {
                     Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(userId));
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
-                        return destinationRepo.addPhoto(destinationId, personalPhoto) ? created() : notFound();
+                        if (destinationRepo.photoSuccessfullyAdded(destinationId, personalPhoto)) {
+                            return created(Json.toJson(destinationRepo.getDestinationPhotos(destinationId)));
+                        } else {
+                            return notFound();
+                        }
                     }
 
                     return forbidden();
                 }).orElseGet(() -> unauthorized());
     }
 
+
+    /**
+     * Removes a personal photo to a given destination's photo gallery
+     * and checks authorization for admins and logged in users
+     *
+     * @param request           Http request from the client.
+     * @param destinationId     The destination id that we are removing the given photo from.
+     * @return                  unauthorized() (Http 401) if a user is not logged in.
+     *                          Forbidden() (Http 403) if a user is trying to remove a photo that is not theirs
+     *                          and they are not an admin
+     *                          ok() (Http 200) if the destination photo was removed from the
+     *                          destinations photo gallery.
+     */
     public Result removeDestinationPhoto(Http.Request request, Long destinationId) {
-        return ok();
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(userId -> {
+
+                    JsonNode json = request.body().asJson();
+
+                    if (!(json.has(PHOTO_ID))) {
+                        return badRequest();
+                    }
+
+                    Long personalPhotoId = json.get(PHOTO_ID).asLong();
+
+                    PersonalPhoto personalPhoto = personalPhotoRepo.fetch(personalPhotoId);
+
+                    if (personalPhoto == null)
+                        return notFound("Image could not be found.");
+
+                    Profile photoOwner = personalPhoto.getProfile();
+
+                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(userId));
+
+                    if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
+                        if (destinationRepo.photoSuccessfullyRemoved(destinationId, personalPhoto)) {
+                            return ok(Json.toJson(destinationRepo.getDestinationPhotos(destinationId)));
+                        } else {
+                            return notFound();
+                        }
+                    }
+
+                    return forbidden();
+                }).orElseGet(() -> unauthorized());
     }
 
 }
