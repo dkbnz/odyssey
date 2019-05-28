@@ -87,11 +87,19 @@
                      hover
                      id="myFutureTrips"
                      outlined
-                     striped>
+                     striped
+                     @row-clicked="expandAdditionalInfo">
                 <div class="text-center my-2" slot="table-busy">
                     <b-spinner class="align-middle" v-if="retrievingDestinations"></b-spinner>
                     <strong>Can't find any destinations!</strong>
                 </div>
+
+                <template slot="row-details" slot-scope="row">
+                    <single-destination
+                        :destination="row">
+                    </single-destination>
+                </template>
+
             </b-table>
 
             <!--Settings for pagination & number of results displayed per page-->
@@ -123,6 +131,8 @@
 </template>
 
 <script>
+    import SingleDestination from "../destinations/singleDestination";
+
     export default {
         name: "searchDestinations",
         props: ['destinationTypes'],
@@ -253,6 +263,14 @@
             },
 
             /**
+             *
+             */
+            expandAdditionalInfo(row) {
+                console.log("Row clicked" + row.id)
+                this.$set(row, '_showDetails', !row._showDetails)
+            },
+
+            /**
              * Checks each of the validation fields to ensure they are return either null (no value is given), or the
              * field is valid.
              *
@@ -311,6 +329,10 @@
             parseJSON(response) {
                 return response.json();
             }
+        },
+
+        components: {
+            SingleDestination
         }
     }
 </script>
