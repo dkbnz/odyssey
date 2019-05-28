@@ -231,7 +231,7 @@ public class AuthenticationTestSteps {
      * Checks if the status code received is OK (200).
      */
     @Then("I receive an OK status code")
-    public void the_status_code_received_is_OK() {
+    public void theStatusCodeReceivedIsOK() {
         assertEquals(OK, statusCode);
     }
 

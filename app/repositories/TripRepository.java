@@ -5,18 +5,13 @@ import models.Profile;
 import models.trips.Trip;
 import models.trips.TripDestination;
 
-import javax.inject.Inject;
 import java.util.List;
 
 
 public class TripRepository {
 
-
     private static final String PROFILE_ID = "profile_id";
     private static final String TRIP_ID = "id";
-
-    @Inject
-    public TripRepository() {}
 
     /**
      * Saves a new trip to a profile's list of trips, which is persisted to our database.
