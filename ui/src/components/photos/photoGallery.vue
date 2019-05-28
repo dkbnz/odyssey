@@ -22,7 +22,10 @@
         <b-modal ref="uploaderModal" id="modalAddPhoto" hide-footer centered title="Add Photo">
             <template slot="modal-title"><h2>Add Photo</h2></template>
             <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
-            <photoUploader v-on:save-photos="sendPhotosToBackend" :acceptTypes="'image/jpeg, image/jpg, image/png'"></photoUploader>
+            <photoUploader v-on:dismiss-error="showError = false"
+                           v-on:save-photos="sendPhotosToBackend"
+                           :acceptTypes="'image/jpeg, image/jpg, image/png'">
+            </photoUploader>
         </b-modal>
         <photo-table v-bind:photos="photos"
                      v-bind:profile="profile"
@@ -41,14 +44,6 @@
 
     export default {
         name: "photoGallery",
-getPhotos() {
-                this.checkAuth();
-                for (let i = 0; i < this.profile.photoGallery.length; i++) {
-                    if(this.profile.photoGallery[i].public || this.auth) {
-                        this.photos.push(this.profile.photoGallery[i]);
-                    }
-                }
-            },
         data: function () {
             return {
                 photos: [],
@@ -94,7 +89,7 @@ getPhotos() {
                     method: 'POST',
                     body: this.getFormData(files)
 
-                })  .then(response =>  self.parseJSON(response))
+                })  .then(response => self.checkResponse(response))
                     .then(data => {
                         this.addPhotos(data);
                         this.showAlert();
@@ -143,7 +138,7 @@ getPhotos() {
                 fetch(`/v1/photos/user/` + this.profile.id, {
                     accept: "application/json",
                 })
-                    .then(this.parseJSON)
+                    .then(response => response.json())
                     .then(photos => {
                         self.checkAuth();
                         for(let i in photos) {
@@ -185,7 +180,6 @@ getPhotos() {
                 }
             },
 
-
             /**
              * Deletes the photo from the photos list so it updates the table in the front end without
              * requiring a refresh of the profile.
@@ -213,7 +207,7 @@ getPhotos() {
              * @param response      The response parsed into Json.
              * @returns {*}
              */
-            parseJSON(response) {
+            checkResponse(response) {
                 if (response.status === 201) {
                     this.files = null;
                     this.$refs['uploaderModal'].hide();
@@ -222,6 +216,7 @@ getPhotos() {
                     this.errorMessage = "Invalid image size/type"
                 }
                 return response.json();
+
             },
 
             /**

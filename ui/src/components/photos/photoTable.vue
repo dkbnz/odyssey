@@ -12,10 +12,10 @@
                                && userProfile.profilePicture.id === photo.id"
                               v-if="auth"
                               v-model="photo.public"
-                              :class="{colorBlue: userProfile.profilePicture !== null
-                              && userProfile.profilePicture.id !== photo.id,
-                              colorDisabled: userProfile.profilePicture !== null
-                              && userProfile.profilePicture.id===photo.id}">
+                              :class="{colorBlue: userProfile.profilePicture === null || (userProfile.profilePicture !== null
+                              && userProfile.profilePicture.id !== photo.id),
+                              colorDisabled: (userProfile.profilePicture !== null
+                              && userProfile.profilePicture.id === photo.id)}">
                         <option value="true">
                             Public
                         </option>
@@ -36,7 +36,7 @@
         {{alertMessage}}
     </b-alert>
         <b-modal centered hide-footer ref="modalImage" size="xl">
-            <b-img-lazy :src="getFullPhoto()" alt="Image couldn't be retrieved" @error="imageAlt" center fluid>
+            <b-img-lazy v-if="currentViewingID !== 0" :src="getFullPhoto()" alt="Image couldn't be retrieved" @error="imageAlt" center fluid>
             </b-img-lazy>
             <b-row>
             <b-col>
