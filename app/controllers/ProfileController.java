@@ -52,7 +52,6 @@ public class ProfileController {
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String UPDATED = "UPDATED";
     private static final String ID = "id";
-    private boolean createdByAdmin = false;
 
     /**
      * Creates a user based on given Json body. All new users are not an admin by default. This is used on the Sign Up
@@ -63,6 +62,14 @@ public class ProfileController {
      *                  returns created() (Http 201).
      */
     public Result create(Http.Request request) {
+
+        Profile userProfile = request.session()
+                .getOptional(AUTHORIZED)
+                .map(userId -> Profile.find.byId(Integer.valueOf(userId)))
+                .orElse(null); // returns created as no user is logged in
+
+        if (userProfile != null && !userProfile.getIsAdmin())
+            return badRequest("");
 
         JsonNode json = request.body().asJson();
 
@@ -134,32 +141,9 @@ public class ProfileController {
 
         newUser.save();
 
-        createdByAdmin = false;
-
-        Result sendBackRequest = request.session()
-                .getOptional(AUTHORIZED)
-                .map(userId -> {
-                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-                    if(userProfile != null) {
-                        if (userProfile.getIsAdmin()) {
-                            createdByAdmin = true;
-                            return created();
-                        } else {
-                            return badRequest();
-                        }
-                    } else {
-                        return badRequest();
-                    }
-                })
-                .orElseGet(() -> created()); // returns created as no user is logged in
-
-
-        if (!createdByAdmin) {
-            return sendBackRequest.addingToSession(request, AUTHORIZED, newUser.id.toString());
-        } else {
-            return sendBackRequest;
-        }
-
+        return (userProfile != null && userProfile.getIsAdmin())
+                ? created("")
+                : created().addingToSession(request, AUTHORIZED, newUser.id.toString());
     }
 
     /**
