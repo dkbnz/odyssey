@@ -5,10 +5,6 @@
 # Redirect index to Vue frontend. Must stay at top of Routes for production.
 GET      /                              controllers.Assets.at(path="/public", file="index.html")
 
-# To convert
-DELETE  /api/profile/:id                controllers.ProfileController.delete(request: Request, id: Long)
-#PATCH   /api/trip/:id/:userId           controllers.trips.TripController.edit(request: Request, id: Long, userId: Long)
-
 # Get lists
 GET     /v1/travtypes                   controllers.TravellerTypeController.list()
 GET     /v1/nationalities               controllers.NationalityController.list()
@@ -45,10 +41,14 @@ PATCH   /v1/trips/:tripId               controllers.trips.TripController.edit(re
 # Photo
 GET     /v1/photos/thumb/:photoId       controllers.photos.PhotoController.fetch(request: Request, photoId: Long, thumbnail:Boolean ?= true)
 GET     /v1/photos/:photoId             controllers.photos.PhotoController.fetch(request: Request, photoId: Long, thumbnail:Boolean ?= false)
+GET     /v1/photos/user/:userId         controllers.photos.PhotoController.list(request: Request, userId: Long)
 POST    /v1/photos/:userId              controllers.photos.PhotoController.upload(request: Request, userId: Long)
 PATCH   /v1/photos                      controllers.photos.PhotoController.changePrivacy(request: Request)
 DELETE  /v1/photos/:photoId             controllers.photos.PhotoController.destroy(request: Request, photoId: Long)
 
+#Profile Photo
+PUT     /v1/profilePhoto/:photoId       controllers.photos.PhotoController.updateProfilePhoto(request: Request, photoId: Long)
+DELETE  /v1/profilePhoto/:userId        controllers.photos.PhotoController.destroyProfilePhoto(request: Request, userId: Long)
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
 GET     /*file                          controllers.Assets.at(path="/public", file)

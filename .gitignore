@@ -1,6 +1,9 @@
 # Ignore node_modules (frontend nodejs libraries)
 ui/node_modules
 
+# Ignore package lock
+ui/package-lock.json
+
 # Ignore Play! working directory #
 bin/
 /db

@@ -8,7 +8,7 @@
                         <b-nav class="singleProfileNav" vertical>
                             <b-nav-item @click="goBack">Go Back</b-nav-item>
                             <b-navbar-brand @click="currentDisplay = 0" class="nav-bar-brand">
-                                <b-img alt="Circle image" blank-color="#777" rounded="circle" v-bind="profileImage">
+                                <b-img :src="getProfilePictureThumbnail()" fluid rounded="circle" width="50%">
                                 </b-img>
                                 {{editProfile.firstName}}
                             </b-navbar-brand>
@@ -105,6 +105,16 @@
                 this.editProfile = editProfile;
                 this.currentDisplay = 0;
                 this.showSaved = true;
+            },
+
+            /**
+             * Retrieves the user's primary photo thumbnail.
+             */
+            getProfilePictureThumbnail() {
+                if (this.editProfile.profilePicture !== null) {
+                    return `/v1/photos/thumb/` + this.editProfile.profilePicture.id;
+                }
+                return "../../../static/default_profile_picture.png";
             }
         },
         components: {

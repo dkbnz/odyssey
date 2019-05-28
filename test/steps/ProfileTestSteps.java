@@ -2,7 +2,6 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -11,7 +10,6 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
-import org.apache.http.auth.AUTH;
 import org.junit.Assert;
 import org.springframework.beans.BeansException;
 import play.Application;
@@ -34,17 +32,19 @@ public class ProfileTestSteps {
 
     @Inject
     Application application;
-    protected Database database;
+    private Database database;
 
     private static final String AUTHORIZED = "authorized";
     private int statusCode;
-    private int loginStatusCode;
     private static final String PROFILES_URI = "/v1/profiles";
     private static final String PROFILES_UPDATE_URI = "/v1/profile/";
     private static final String TRAVTYPES_URI = "/v1/travtypes";
     private static final String NATIONALITIES_URI = "/v1/nationalities";
     private static final String LOGIN_URI = "/v1/login";
     private static final String LOGOUT_URI = "/v1/logout";
+
+    private static final String USERNAME = "username";
+    private static final String PASS_FIELD = "password";
 
     /**
      * A valid username for login credentials for admin user.
@@ -56,11 +56,6 @@ public class ProfileTestSteps {
      * A valid password for login credentials for admin user.
      */
     private static final String VALID_AUTHPASS = "admin1";
-
-    /**
-     * The session used for keeping logged in users
-     */
-    private Map<String, String> session;
 
     private static final int NUMBER_OF_TRAVELTYPES = 7;
     private static final int NUMBER_OF_NATIONALITIES = 108;
@@ -110,7 +105,7 @@ public class ProfileTestSteps {
      * Runs after each test scenario.
      * Sends a logout request.
      * Cleans up the database by cleaning up evolutions and shutting it down.
-     * Stops running the fake application.
+     * Stops running the fake application.JsonNode
      */
     @After
     public void tearDown() {
@@ -137,17 +132,16 @@ public class ProfileTestSteps {
      */
     private void loginRequest(String username, String password) {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("username", username);
-        ((ObjectNode) json).put("password", password);
+        json.put(USERNAME, username);
+        json.put(PASS_FIELD, password);
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
                 .uri(LOGIN_URI);
         Result loginResult = route(application, request);
-        session = request.session();
         statusCode = loginResult.status();
     }
 
@@ -197,17 +191,15 @@ public class ProfileTestSteps {
         while (iterator.hasNext()) {
             JsonNode jsonProfile = iterator.next();
             count++;
-            if (jsonProfile.get("id").asText().equals("1")) {
-                if (jsonProfile.get("username").asText().equals("admin@travelea.com")) {
-                    passProfiles = true;
-                }
+            if (jsonProfile.get("id").asText().equals("1") && jsonProfile.get(USERNAME).asText().equals(VALID_USERNAME)) {
+                passProfiles = true;
             }
         }
         if (count != NUMBER_OF_PROFILES) {
             passProfiles = false;
         }
         statusCode = result.status();
-        Assert.assertEquals(true, passProfiles);
+        Assert.assertTrue(passProfiles);
     }
 
 
@@ -234,20 +226,19 @@ public class ProfileTestSteps {
         while (iterator.hasNext()) {
             JsonNode jsonTravellerType = iterator.next();
             count++;
-            if (jsonTravellerType.get("id").asText().equals("5")) {
-                if (jsonTravellerType.get("travellerType").asText().equals("Holidaymaker")) {
-                    passTraveltypes = true;
-                }
+            if (jsonTravellerType.get("id").asText().equals("5")
+                    && jsonTravellerType.get("travellerType").asText().equals("Holidaymaker")) {
+                passTraveltypes = true;
             }
         }
         if (count != NUMBER_OF_TRAVELTYPES) {
             passTraveltypes = false;
         }
         statusCode = result.status();
-        Assert.assertEquals(true, passTraveltypes);
+        Assert.assertTrue(passTraveltypes);
     }
 
-    @When("I send a GET request to the \\/nationalities endpoint")
+    @When("I send a GET request to the /nationalities endpoint")
     public void iSendAGETRequestToTheNationalitiesEndpoint() {
         // Does the fake request to back end
         Http.RequestBuilder request = fakeRequest()
@@ -264,10 +255,9 @@ public class ProfileTestSteps {
         while (iterator.hasNext()) {
             JsonNode jsonTravellerType = iterator.next();
             count++;
-            if (jsonTravellerType.get("id").asText().equals("16")) {
-                if (jsonTravellerType.get("nationality").asText().equals("Chinese")) {
-                    passNationalities = true;
-                }
+            if (jsonTravellerType.get("id").asText().equals("16")
+                    && (jsonTravellerType.get("nationality").asText().equals("Chinese"))) {
+                passNationalities = true;
             }
         }
         if (count != NUMBER_OF_NATIONALITIES) {
@@ -310,7 +300,7 @@ public class ProfileTestSteps {
         boolean foundProfile = false;
         while (iterator.hasNext() && !foundProfile) {
             JsonNode jsonProfile = iterator.next();
-            if (jsonProfile.get("username").asText().equals(username)) {
+            if (jsonProfile.get(USERNAME).asText().equals(username)) {
                 foundProfile = true;
             }
         }
@@ -350,7 +340,7 @@ public class ProfileTestSteps {
         boolean foundProfile = false;
         while (iterator.hasNext() && !foundProfile) {
             JsonNode jsonProfile = iterator.next();
-            if (jsonProfile.get("username").asText().equals(username)) {
+            if (jsonProfile.get(USERNAME).asText().equals(username)) {
                 foundProfile = true;
             }
         }
@@ -403,7 +393,7 @@ public class ProfileTestSteps {
         ObjectMapper mapper = new ObjectMapper();
 
         //Add values to a JsonNode
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
         ObjectNode nationalityNode = mapper.createObjectNode();
         nationalityNode.put("id", Integer.valueOf(list.get(0).get("nationality")));
@@ -414,17 +404,16 @@ public class ProfileTestSteps {
         ObjectNode passportNode = mapper.createObjectNode();
         passportNode.put("id", Integer.valueOf(list.get(0).get("passport_country")));
 
-        ((ObjectNode) json).put("username", username);
-        ((ObjectNode) json).put("password", password);
-        ((ObjectNode) json).put("firstName", firstName);
-        ((ObjectNode) json).put("middleName", middleName);
-        ((ObjectNode) json).put("lastName", lastName);
-        ((ObjectNode) json).put("gender", gender);
-        ((ObjectNode) json).put("dateOfBirth", dateOfBirth);
-        ((ObjectNode) json).putArray("nationalities").add(nationalityNode);
-        ((ObjectNode) json).putArray("travellerTypes").add(travellerTypeNode);
-        ((ObjectNode) json).putArray("passports").add(passportNode);
-
+        json.put("username", username);
+        json.put("password", password);
+        json.put("firstName", firstName);
+        json.put("middleName", middleName);
+        json.put("lastName", lastName);
+        json.put("gender", gender);
+        json.put("dateOfBirth", dateOfBirth);
+        json.putArray("nationalities").add(nationalityNode);
+        json.putArray("travellerTypes").add(travellerTypeNode);
+        json.putArray("passports").add(passportNode);
         return json;
     }
 

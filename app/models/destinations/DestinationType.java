@@ -28,5 +28,5 @@ public class DestinationType extends BaseModel {
         this.destinationType = destinationType;
     }
 
-    public static Finder<Integer, DestinationType> find = new Finder<>(DestinationType.class);
+    public static final Finder<Integer, DestinationType> find = new Finder<>(DestinationType.class);
 }

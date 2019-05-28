@@ -10,8 +10,8 @@ import javax.persistence.Entity;
 @Entity
 public class Nationality extends BaseModel {
 
-    public String nationality;
-    public String country;
+    private String nationality;
+    private String country;
 
     public String getNationality() {
         return nationality;
@@ -21,5 +21,5 @@ public class Nationality extends BaseModel {
         return country;
     }
 
-    public static Finder<Integer, Nationality> find = new Finder<>(Nationality.class);
+    public static final Finder<Integer, Nationality> find = new Finder<>(Nationality.class);
 }
