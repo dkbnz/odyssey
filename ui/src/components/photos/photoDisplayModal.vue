@@ -1,17 +1,16 @@
 <template>
     <div>
         <b-modal centered hide-footer ref="modalImage" size="xl">
-            <b-img-lazy v-if="currentViewingID !== 0" :src="getFullPhoto()" alt="Image couldn't be retrieved" @error="imageAlt" center fluid>
+            <b-img-lazy :src="getFullPhoto()" alt="Image couldn't be retrieved" @error="imageAlt" center fluid>
             </b-img-lazy>
             <b-row>
                 <b-col>
                     <b-button
-                            :disabled="this.profile.profilePicture !== null
-                           && this.profile.profilePicture.id === this.currentViewingID"
+                            :disabled="isProfilePicture"
                             block class="mr-2"
                             size="sm" style="margin-top: 10px"
                             @click="makeProfileImage"
-                            v-if="auth" variant="info">Make this my profile picture
+                            v-if="showButtons" variant="info">Make this my profile picture
                     </b-button>
                 </b-col>
                 <b-col>
@@ -19,7 +18,7 @@
                             block class="mr-2"
                             size="sm" style="margin-top: 10px"
                             v-b-modal.deletePhotoModal
-                            v-if="auth" variant="danger">Delete
+                            v-if="showButtons" variant="danger">Delete
                     </b-button>
                 </b-col>
             </b-row>
@@ -27,8 +26,7 @@
                 <div class="d-block">
                     <p>Are you sure that you want to delete this image?</p>
                     <!-- Display additional message if deleting profile picture -->
-                    <p v-if="this.profile.profilePicture !== null
-                           && this.profile.profilePicture.id === this.currentViewingID">
+                    <p v-if="isProfilePicture">
                         <b>This is your profile picture!</b>
                     </p>
                 </div>
@@ -49,26 +47,35 @@
 <script>
     export default {
         name: "photoDisplayModal",
-        methods: {
+        props: {
+            display: Boolean,
+            isProfilePicture: Boolean,
+            photo: Object,
+            showButtons: Boolean
+        },
 
+        data: function () {
+            return {
+                auth: false
+            }
+        },
+
+        mounted() {
+            if (this.display) {
+                console.log("sdfgdsgf");
+                this.$refs['modalImage'].show();
+            } else {
+                this.$refs['modalImage'].hide();
+            }
+        },
+        methods: {
 
             /**
              * Sends a GET request to get the full sized image from the backend.
              */
             getFullPhoto() {
-                return 'v1/photos/' + this.currentViewingID;
+                return 'v1/photos/' + this.photo.id;
             },
-
-
-            /**
-             * Shows the image in the larger modal and sets the current viewing image.
-             */
-            showImage(id) {
-                this.currentViewingID = id;
-                this.$refs['modalImage'].show();
-            },
-
-
 
 
             /**
@@ -93,76 +100,26 @@
              */
             deleteImage() {
                 let self = this;
-                fetch(`/v1/photos/` + this.currentViewingID, {
+                fetch(`/v1/photos/` + this.photo.id, {
                     method: 'DELETE'
                 }).then(response => {
                     self.error = (response.status === 200);
             });
                 this.$refs['deletePhotoModal'].hide();
+                this.display = false;
                 this.$refs['modalImage'].hide();
-                this.$emit('removePhoto', this.currentViewingID);
+                this.$emit('delete-photo', this.photo);
             },
 
 
             /**
-             * Emits change up to view profile be able to auto update front end when changing profile picture
+             * Emits change up to view profile be able to auto update front end when changing profile photo
              */
             makeProfileImage() {
-                let self = this;
-                let currentPrivacy = this.photos.find(item => item.id === this.currentViewingID).public;
-                this.updatePrivacy(this.currentViewingID, true);
-                fetch('/v1/profilePhoto/' + this.currentViewingID, {
-                    method: 'PUT'
-                }).then(response => {
-                    if (response.status === 200) {
-                    self.showError = false;
-                    this.$emit('makeProfilePhoto', this.currentViewingID);
-                } else {
-                    // If the profile picture doesn't update, set back to previous value.
-                    self.updatePrivacy(self.currentViewingID, currentPrivacy);
-                    self.showError = true;
-                    self.alertMessage = "An error occurred when making this your profile photo";
-                }
-            });
+                this.display = false;
                 this.$refs['modalImage'].hide();
-            },
-
-
-            /**
-             * Updates the privacy for a photo between private and public and sends PATCH
-             * request to the backend.
-             */
-            updatePrivacy(photoId, isPublic) {
-                let json = {
-                    "id": photoId,
-                    "public": isPublic
-                };
-                let self = this;
-
-                fetch('/v1/photos', {
-                    method: 'PATCH',
-                    headers: {'content-type': 'application/json'},
-                    body: JSON.stringify(json)
-                }).then(response => {
-                    if (response.status === 200) {
-                    self.showError = false;
-                    this.$emit('changePrivacy', photoId, isPublic);
-                }
-            });
-            },
-
-
-            /**
-             * Checks the authorization of the user profile that is logged in to see if they can.
-             * view the users private photos and can add or delete images from the media.
-             */
-            checkAuth() {
-                this.auth = (this.userProfile.id === this.profile.id || (this.userProfile.isAdmin && this.adminView));
+                this.$emit('profile-photo', this.photo);
             }
         }
     }
 </script>
-
-<style scoped>
-
-</style>

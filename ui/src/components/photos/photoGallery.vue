@@ -35,12 +35,20 @@
                      v-on:photo-click="photoClicked"
         >
         </photo-table>
+
+
+    <photo-modal v-bind:photo="{id: 2, public: true}"
+                 v-bind:is-profile-picture="false"
+                 v-bind:display="true"
+                 v-bind:show-buttons="true"
+    ></photo-modal>
     </div>
 </template>
 
 <script>
-    import PhotoUploader from "../photos/photoUploader"
-    import PhotoTable from "./photoTable";
+    import PhotoUploader from "../photos/photoUploader";
+    import PhotoTable from "../photos/photoTable";
+    import PhotoModal from "../photos/photoDisplayModal";
 
     export default {
         name: "photoGallery",
@@ -68,7 +76,8 @@
 
         components: {
             PhotoTable,
-            PhotoUploader
+            PhotoUploader,
+            PhotoModal
         },
 
         mounted() {
@@ -190,6 +199,7 @@
                     }
                 }
             },
+
 
             /**
              * Deletes the photo from the photos list so it updates the table in the front end without
