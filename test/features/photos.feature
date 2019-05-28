@@ -105,3 +105,65 @@ Feature: CRUD of photos
     And I am logged in as a non-admin with id 2
     When I delete a profile picture of profile 1
     Then the status code I get is Forbidden
+
+  Scenario: User is adding one of their own Personal Photos to a destination
+    Given I have a application running
+    And I am logged in as a non-admin with id 2
+    And the destination with id 119 exists
+    And a photo exists with id 2
+    When I add a photo with id 2 to a destination with id 119
+    Then the status code I get is Created
+
+  Scenario: User is adding someone else's Personal Photo to a destination
+    Given I have a application running
+    And I am logged in as a non-admin with id 2
+    And the destination with id 119 exists
+    And a photo exists with id 1
+    When I add a photo with id 1 to a destination with id 119
+    Then the status code I get is Forbidden
+
+  Scenario: Admin is adding another user's Personal Photo to a destination
+    Given I have a application running
+    And I am logged in as an admin with id 1
+    And the destination with id 119 exists
+    And a photo exists with id 2
+    When I add a photo with id 2 to a destination with id 119
+    Then the status code I get is Created
+
+  Scenario: User adding a photo to a destination that doesn't exist
+    Given I have a application running
+    And I am logged in as a non-admin with id 2
+    And a photo exists with id 2
+    When I add a photo with id 2 to a destination with id 9999
+    Then the status code I get is Not Found
+
+  Scenario: User adding a photo that doesn't exist to a destination
+    Given I have a application running
+    And I am logged in as a non-admin with id 2
+    And the destination with id 119 exists
+    When I add a photo with id 50 to a destination with id 119
+    Then the status code I get is Not Found
+
+  Scenario: User is removing one of their own Personal Photos from a destination
+    Given I have a application running
+    And I am logged in as a non-admin with id 2
+    And the destination with id 119 exists
+    And the destination with id 119 has a photo with id 3
+    When I remove a photo with id 3 from a destination with id 119
+    Then the status code I get is OK
+
+  Scenario: User is removing another user's Personal Photos from a destination
+    Given I have a application running
+    And I am logged in as a non-admin with id 2
+    And the destination with id 119 exists
+    And the destination with id 119 has a photo with id 4
+    When I remove a photo with id 4 from a destination with id 119
+    Then the status code I get is Forbidden
+
+  Scenario: Admin is removing another user's Personal Photo from a destination
+    Given I have a application running
+    And I am logged in as an admin with id 1
+    And the destination with id 119 exists
+    And the destination with id 119 has a photo with id 3
+    When I remove a photo with id 3 from a destination with id 119
+    Then the status code I get is OK
