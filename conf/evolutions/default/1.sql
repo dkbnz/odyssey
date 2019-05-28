@@ -63,6 +63,12 @@ create table destination (
   constraint pk_destination primary key (id)
 );
 
+create table destination_personal_photo (
+  destination_id                bigint not null,
+  personal_photo_id             bigint not null,
+  constraint pk_destination_personal_photo primary key (destination_id,personal_photo_id)
+);
+
 create table destination_type (
   id                            bigint auto_increment not null,
   destination_type              varchar(255),
@@ -162,6 +168,12 @@ create table trip_destination (
 create index ix_destination_type_id on destination (type_id);
 alter table destination add constraint fk_destination_type_id foreign key (type_id) references destination_type (id) on delete restrict on update restrict;
 
+create index ix_destination_personal_photo_destination on destination_personal_photo (destination_id);
+alter table destination_personal_photo add constraint fk_destination_personal_photo_destination foreign key (destination_id) references destination (id) on delete restrict on update restrict;
+
+create index ix_destination_personal_photo_personal_photo on destination_personal_photo (personal_photo_id);
+alter table destination_personal_photo add constraint fk_destination_personal_photo_personal_photo foreign key (personal_photo_id) references personal_photo (id) on delete restrict on update restrict;
+
 create index ix_personal_photo_photo_id on personal_photo (photo_id);
 alter table personal_photo add constraint fk_personal_photo_photo_id foreign key (photo_id) references photo (id) on delete restrict on update restrict;
 
@@ -206,6 +218,12 @@ alter table trip_destination add constraint fk_trip_destination_destination_id f
 alter table destination drop foreign key fk_destination_type_id;
 drop index ix_destination_type_id on destination;
 
+alter table destination_personal_photo drop foreign key fk_destination_personal_photo_destination;
+drop index ix_destination_personal_photo_destination on destination_personal_photo;
+
+alter table destination_personal_photo drop foreign key fk_destination_personal_photo_personal_photo;
+drop index ix_destination_personal_photo_personal_photo on destination_personal_photo;
+
 alter table personal_photo drop foreign key fk_personal_photo_photo_id;
 drop index ix_personal_photo_photo_id on personal_photo;
 
@@ -245,6 +263,8 @@ alter table trip_destination drop foreign key fk_trip_destination_destination_id
 drop index ix_trip_destination_destination_id on trip_destination;
 
 drop table if exists destination;
+
+drop table if exists destination_personal_photo;
 
 drop table if exists destination_type;
 

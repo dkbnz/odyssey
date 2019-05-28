@@ -57,8 +57,8 @@ public class Destination extends BaseModel {
     /**
      * The destinations photo gallery
      */
-//    @ManyToMany(cascade=CascadeType.ALL)
-//    private List<PersonalPhoto> photoGallery = new ArrayList<>();
+    @ManyToMany(cascade=CascadeType.ALL)
+    private List<PersonalPhoto> photoGallery = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -106,15 +106,15 @@ public class Destination extends BaseModel {
 
     public void setCountry(String country) { this.country = country; }
 
-//    public List<PersonalPhoto> getPhotoGallery() { return photoGallery; }
-//
-//    public boolean addPhotoToGallery(PersonalPhoto photoToAdd) {
-//        return photoGallery.add(photoToAdd);
-//    }
-//
-//    public boolean removePhotoFromGallery(PersonalPhoto photoToRemove) {
-//        return photoGallery.remove(photoToRemove);
-//    }
+    public List<PersonalPhoto> getPhotoGallery() { return photoGallery; }
+
+    public boolean addPhotoToGallery(PersonalPhoto photoToAdd) {
+        return photoGallery.add(photoToAdd);
+    }
+
+    public boolean removePhotoFromGallery(PersonalPhoto photoToRemove) {
+        return photoGallery.remove(photoToRemove);
+    }
 
     public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
 }
