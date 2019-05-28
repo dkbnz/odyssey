@@ -80,7 +80,7 @@
                                 block class="mr-2"
                                 size="sm" style="margin-top: 10px"
                                 v-if="auth && profile.profilePicture !== null"
-                                variant="danger">Delete
+                                variant="danger">Remove as Profile Photo
                         </b-button>
                     </b-col>
                 </b-row>
