@@ -1,6 +1,7 @@
 package controllers.photos;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import models.destinations.Destination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import models.Profile;
@@ -576,8 +577,11 @@ public class PhotoController extends Controller {
                     Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(userId));
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
-                        if (destinationRepo.photoSuccessfullyAdded(destinationId, personalPhoto)) {
-                            return created(Json.toJson(destinationRepo.getDestinationPhotos(destinationId)));
+                        Destination destination = destinationRepo.fetch(destinationId);
+                        if (destination != null) {
+                            destination.addPhotoToGallery(personalPhoto);
+                            destinationRepo.update(destination);
+                            return created(Json.toJson(destination.getPhotoGallery()));
                         } else {
                             return notFound();
                         }
@@ -623,8 +627,11 @@ public class PhotoController extends Controller {
                     Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(userId));
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
-                        if (destinationRepo.photoSuccessfullyRemoved(destinationId, personalPhoto)) {
-                            return ok(Json.toJson(destinationRepo.getDestinationPhotos(destinationId)));
+                        Destination destination = destinationRepo.fetch(destinationId);
+                        if (destination != null) {
+                            destination.removePhotoFromGallery(personalPhoto);
+                            destinationRepo.update(destination);
+                            return ok(Json.toJson(destination.getPhotoGallery()));
                         } else {
                             return notFound();
                         }
