@@ -105,7 +105,7 @@ public class ProfileTestSteps {
      * Runs after each test scenario.
      * Sends a logout request.
      * Cleans up the database by cleaning up evolutions and shutting it down.
-     * Stops running the fake application.
+     * Stops running the fake application.JsonNode
      */
     @After
     public void tearDown() {
@@ -132,10 +132,10 @@ public class ProfileTestSteps {
      */
     private void loginRequest(String username, String password) {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put(USERNAME, username);
-        ((ObjectNode) json).put(PASS_FIELD, password);
+        json.put(USERNAME, username);
+        json.put(PASS_FIELD, password);
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
@@ -393,7 +393,7 @@ public class ProfileTestSteps {
         ObjectMapper mapper = new ObjectMapper();
 
         //Add values to a JsonNode
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
         ObjectNode nationalityNode = mapper.createObjectNode();
         nationalityNode.put("id", Integer.valueOf(list.get(0).get("nationality")));
@@ -404,17 +404,16 @@ public class ProfileTestSteps {
         ObjectNode passportNode = mapper.createObjectNode();
         passportNode.put("id", Integer.valueOf(list.get(0).get("passport_country")));
 
-        ((ObjectNode) json).put("username", username);
-        ((ObjectNode) json).put("password", password);
-        ((ObjectNode) json).put("firstName", firstName);
-        ((ObjectNode) json).put("middleName", middleName);
-        ((ObjectNode) json).put("lastName", lastName);
-        ((ObjectNode) json).put("gender", gender);
-        ((ObjectNode) json).put("dateOfBirth", dateOfBirth);
-        ((ObjectNode) json).putArray("nationalities").add(nationalityNode);
-        ((ObjectNode) json).putArray("travellerTypes").add(travellerTypeNode);
-        ((ObjectNode) json).putArray("passports").add(passportNode);
-
+        json.put("username", username);
+        json.put("password", password);
+        json.put("firstName", firstName);
+        json.put("middleName", middleName);
+        json.put("lastName", lastName);
+        json.put("gender", gender);
+        json.put("dateOfBirth", dateOfBirth);
+        json.putArray("nationalities").add(nationalityNode);
+        json.putArray("travellerTypes").add(travellerTypeNode);
+        json.putArray("passports").add(passportNode);
         return json;
     }
 

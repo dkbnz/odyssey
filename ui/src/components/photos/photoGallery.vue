@@ -41,7 +41,14 @@
 
     export default {
         name: "photoGallery",
-
+getPhotos() {
+                this.checkAuth();
+                for (let i = 0; i < this.profile.photoGallery.length; i++) {
+                    if(this.profile.photoGallery[i].public || this.auth) {
+                        this.photos.push(this.profile.photoGallery[i]);
+                    }
+                }
+            },
         data: function () {
             return {
                 photos: [],
@@ -70,7 +77,7 @@
         },
 
         mounted() {
-            this.getPhotos()
+            this.getPhotosList()
         },
 
         methods: {
@@ -94,11 +101,12 @@
                     });
             },
 
+
             /**
              * Creates the form data to send as the body of the POST request to the backend.
              *
-             * @param files             The photo(s) uploaded from the personal photos component.
-             * @returns {FormData}      The FormData stringified for use in the POST request.
+             * @param files             the photo(s) uploaded from the personal photos component.
+             * @returns {FormData}      the FormData stringified for use in the POST request.
              */
             getFormData(files) {
                 let personalPhotos = new FormData();
@@ -108,6 +116,7 @@
                 return personalPhotos;
             },
 
+
             /**
              * Checks the authorization of the user profile that is logged in to see if they can
              * view the users private photos and can add or delete images from the media.
@@ -116,25 +125,18 @@
                 this.auth = (this.userProfile.id === this.profile.id || (this.userProfile.isAdmin && this.adminView));
             },
 
+
             /**
-             * Emits change up to view profile be able to auto update front end when changing profile picture
+             * Emits change up to view profile be able to auto update front end when changing profile picture.
              */
             setProfilePhoto(photoId) {
                 this.$emit('makeProfilePhoto', photoId);
             },
 
-            getPhotos() {
-                this.checkAuth();
-                for (let i = 0; i < this.profile.photoGallery.length; i++) {
-                    if(this.profile.photoGallery[i].public || this.auth) {
-                        this.photos.push(this.profile.photoGallery[i]);
-                    }
-                }
-            },
 
             /**
-             * Gets a list of the user's photos
-             * Checks for private photos and whether the logged in user has authorisation to view said photos
+             * Gets a list of the user's photos.
+             * Checks for private photos and whether the logged in user has authorisation to view said photos.
              */
             getPhotosList() {
                 let self = this;
@@ -152,6 +154,7 @@
                     })
             },
 
+
             /**
              * Updates the photos list sent to the photoTable for a single privacy photo.
              *
@@ -165,6 +168,7 @@
                     }
                 }
             },
+
 
             /**
              * When a photo is added it refreshes the photos list without needing a refresh of the page or profile.
@@ -180,6 +184,7 @@
                     }
                 }
             },
+
 
             /**
              * Deletes the photo from the photos list so it updates the table in the front end without
@@ -201,6 +206,7 @@
                 this.$emit("removePhoto", photoId);
             },
 
+
             /**
              * Retrieves a Json body from a response.
              *
@@ -220,7 +226,7 @@
 
             /**
              * Used to allow an alert to countdown on the successful saving of image/s.
-             *
+             *JSON
              * @param dismissCountDown      the name of the alert.
              */
             countDownChanged(dismissCountDown) {
