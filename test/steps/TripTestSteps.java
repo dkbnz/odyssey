@@ -8,6 +8,7 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import models.trips.Trip;
 import org.junit.Assert;
 import play.Application;
 import play.db.Database;
@@ -15,15 +16,15 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-
 import static org.junit.Assert.assertEquals;
-import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.HttpVerbs.PATCH;
 import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 import play.db.evolutions.Evolutions;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,11 +39,7 @@ public class TripTestSteps {
      */
     private int statusCode;
 
-
-    /**
-     * The destination endpoint uri.
-     */
-    private static final String DESTINATION_URI = "/v1/destinations";
+    private static final String AUTHORIZED = "authorized";
 
 
     /**
@@ -58,46 +55,63 @@ public class TripTestSteps {
 
 
     /**
-     * A valid username for login credentials for admin user.
+     * The trips endpoint uri.
      */
-    private static final String VALID_USERNAME = "admin@travelea.com";
-
-
-    /**
-     * A valid password for login credentials for admin user.
-     */
-    private static final String VALID_PASSWORD = "admin1";
-
-
-    /**
-     * String to add the equals character (=) to build a query string.
-     */
-    private static final String EQUALS = "=";
-
-
-    /**
-     * String to add the ampersand character (&) to build a query string.
-     */
-    private static final String AND = "&";
-
-
-    /**
-     * String to add the question mark character (?) to build a query string.
-     */
-    private static final String QUESTION_MARK = "?";
+    private static final String TRIPS_URI = "/v1/trips/";
 
 
     /**
      * The fake application.
      */
-
-    protected Application application;
+    private Application application;
 
 
     /**
      * Database instance for the fake application.
      */
-    protected Database database;
+    private Database database;
+
+
+    /**
+     * The id of the currently logged in user to send with the request.
+     */
+    private Integer loggedInUserId;
+
+
+    /**
+     * The username for the default admin user.
+     */
+    private static final String ADMIN_USERNAME = "admin@travelea.com";
+
+
+    /**
+     * The username for the default guest user.
+     */
+    private static final String GUEST_USERNAME = "guestUser@travelea.com";
+
+
+    /**
+     * The admin user id.
+     */
+    private static final Integer ADMIN_ID = 1;
+
+
+    /**
+     * The guest user id.
+     */
+    private static final Integer GUEST_ID = 2;
+
+
+    /**
+     * The field for the trip id.
+     */
+    private static final String TRIP_ID_FIELD = "id";
+
+
+    /**
+     * The field for the trip name.
+     */
+    private static final String TRIP_NAME_FIELD = "name";
 
 
     @Before
@@ -171,10 +185,11 @@ public class TripTestSteps {
     private void loginRequest(String username, String password) {
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("username", username);
-        ((ObjectNode) json).put("password", password);
+
+        json.put("username", username);
+        json.put("password", password);
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
@@ -200,49 +215,211 @@ public class TripTestSteps {
     /**
      * Asserts the fake application is in test mode.
      */
-    @Given("The state of the application is that it is running")
-    public void the_state_of_the_application_is_that_it_is_running () {
+    @Given("I have an application running")
+    public void iHaveAnApplicationRunning() {
         Assert.assertTrue(application.isTest());
     }
 
 
     /**
-     * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_PASSWORD.
-     *
-     * Asserts the login was successful with a status code of OK (200).
+     * Gets log in credentials from the information in the data table and sends a log in request.
+     * @param dataTable     the data table containing the log in credentials
      */
-    @Given("I am logged into the application which is running")
-    public void i_am_logged_into_the_application_which_is_running() {
-        loginRequest(VALID_USERNAME, VALID_PASSWORD);
-        assertEquals(OK, statusCode);
+    @Given("I am logged in with credentials")
+    public void iAmLoggedInWithCredentials(io.cucumber.datatable.DataTable dataTable) {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        String username = list.get(0).get("Username");
+        String pass = list.get(0).get("Password");
+        loginRequest(username, pass);
     }
 
 
-    @When("the following json containing a trip is sent")
-    public void the_following_json_containing_a_trip_is_sent(io.cucumber.datatable.DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-        throw new cucumber.api.PendingException();
-//        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-//        String tripName = list.get(0).get("Name");
+    /**
+     * Gets log in credentials from the information in the data table and sends a log in request.
+     * @param dataTable     the data table containing the log in credentials
+     */
+    @Given("I am logged as the following user")
+    public void iAmLoggedAsTheFollowingUser(io.cucumber.datatable.DataTable dataTable) {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        String username = list.get(0).get("Username");
+        switch (username) {
+            case ADMIN_USERNAME:
+                loggedInUserId = ADMIN_ID;
+                break;
+            case GUEST_USERNAME:
+                loggedInUserId = GUEST_ID;
+                break;
+            default:
+                throw new Error();
+        }
+    }
 
 
+    /**
+     * Sends a request to create a trip with the given trip data.
+     * @param docString     The string containing the trip data.
+     * @throws IOException  If the docString is formatted incorrectly.
+     */
+    @When("the following json containing a trip is sent:")
+    public void theFollowingJsonContainingATripIsSent(String docString) throws IOException {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED, "1")
+                .bodyJson(convertTripStringToJson(docString))
+                .uri(TRIPS_URI + 1);
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
 
 
+    /**
+     * Checks if the status code received is BadRequest (400).
+     */
+    @Then("the response status code is BadRequest")
+    public void theResponseStatusCodeIsBadRequest() { assertEquals(BAD_REQUEST, statusCode); }
+
+
+    private JsonNode convertTripStringToJson(String docString) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readTree(docString);
+    }
+
+
+    /**
+     * Gets the trip name from a given data table.
+     * @param dataTable     The data table containing the trip name.
+     * @return              A string of the trip name.
+     */
+    private String getTripNameFromDataTable(io.cucumber.datatable.DataTable dataTable) {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        return list.get(0).get("Name");
+    }
+
+
+    /**
+     * Creates a new trip with the data given for the currently logged in user.
+     * @param trip              The string containing the trip data.
+     * @throws IOException      If the trip is formatted incorrectly.
+     */
+    @Given("I own the trip with the following data")
+    public void iOwnTheTripWithTheFollowingData(String trip) throws IOException {
+        createTripGenericRequest(trip, loggedInUserId);
+    }
+
+
+    /**
+     * Creates a new trip with the data given for another user.
+     * @param trip              The string containing the trip data.
+     * @throws IOException      If the trip is formatted incorrectly.
+     */
+    @Given("I do not own the trip with the following data")
+    public void iDoNotOwnTheTripWithTheFollowingName(String trip) throws IOException {
+        createTripGenericRequest(trip, 3);
+    }
+
+
+    /**
+     * Creates a trip with the given data and for the given user.
+     * @param tripData          The data for the new trip to create.
+     * @param ownerId           The id for the owner of the new trip.
+     * @throws IOException      If the trip is formatted incorrectly.
+     */
+    private void createTripGenericRequest(String tripData, Integer ownerId) throws IOException {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED, ownerId.toString())
+                .bodyJson(convertTripStringToJson(tripData))
+                .uri(TRIPS_URI + ownerId.toString());
+        route(application, request);
+    }
+
+
+    /**
+     * Sends a request to delete the trip with the name specified in the data table.
+     * @param dataTable     The data table containing the trip name to delete.
+     */
+    @When("I delete the trip with the following name")
+    public void iDeleteTheTripWithTheFollowingName(io.cucumber.datatable.DataTable dataTable) {
+        String tripName = getTripNameFromDataTable(dataTable);
+        Integer tripId = getTripIdFromTripName(tripName).intValue();
+        deleteTripRequest(tripId);
+    }
+
+
+    /**
+     * Gets the trip id for the trip with the given name.
+     * @param tripName  The name of the trip to get the id for.
+     * @return          The id of the trip.
+     */
+    private Long getTripIdFromTripName(String tripName) {
+        return Trip
+                .find.query()
+                .select(TRIP_ID_FIELD)
+                .where().eq(TRIP_NAME_FIELD, tripName)
+                .findSingleAttribute();
+    }
+
+
+    /**
+     * Sends a delete trip request for a given trip id. The session is set to the currently logged in user.
+     * @param tripId    The id for the trip to be deleted.
+     */
+    private void deleteTripRequest(Integer tripId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(DELETE)
+                .session(AUTHORIZED, loggedInUserId.toString())
+                .uri(TRIPS_URI + tripId.toString());
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
+
+
+    /**
+     * Sends an edit trip request for a given trip id. The session is set to the currently logged in user.
+     * @param tripId        The id of the trip being edited.
+     * @param tripData      The json body of the edit request in the form of a string.
+     * @throws IOException  The exception thrown
+     */
+    private void editTripRequest(Integer tripId, String tripData) throws IOException {
+        Http.RequestBuilder request = fakeRequest()
+                .method(PATCH)
+                .session(AUTHORIZED, loggedInUserId.toString())
+                .bodyJson(convertTripStringToJson(tripData))
+                .uri(TRIPS_URI + tripId.toString());
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
+
+    @When("I change the trip, {string} to contain the following data")
+    public void iChangeTheTripToContainTheFollowingData(String tripName, String tripData) throws IOException {
+        Integer tripId = getTripIdFromTripName(tripName).intValue();
+        editTripRequest(tripId, tripData);
+    }
+
+
+    /**
+     * Checks if the status code received is Forbidden (403).
+     */
+    @Then("the response status code is Forbidden")
+    public void theResponseStatusCodeIsForbidden() {
+        assertEquals(FORBIDDEN, statusCode);
+    }
+
+
+    /**
+     * Checks if the status code received is OK (200).
+     */
+    @Then("the response status code is OK")
+    public void theResponseStatusCodeIsOK() {
+        assertEquals(OK, statusCode);
     }
 
 
     /**
      * Checks if the status code received is Created (201).
      */
-    @Then("the received status code corresponds with a Created response")
-    public void the_received_status_code_corresponds_with_a_Created_response() {
+    @Then("the response status code is Created")
+    public void theResponseStatusCodeIsCreated() {
         assertEquals(CREATED, statusCode);
     }
 

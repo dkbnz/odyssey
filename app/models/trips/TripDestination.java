@@ -18,18 +18,18 @@ public class TripDestination extends BaseModel {
     /**
      * The starting date of the trip destination.
      */
-    private LocalDate start_date;
+    private LocalDate startDate;
 
     /**
      * The ending date of the trip destination.
      */
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate end_date;
+    private LocalDate endDate;
 
     /**
      * Position of the trip destination within a trip
      */
-    private int list_order;
+    private int listOrder;
 
     /**
      * The trip ID that the trip destination belongs to
@@ -46,28 +46,28 @@ public class TripDestination extends BaseModel {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     public LocalDate getStartDate() {
-        return start_date;
+        return startDate;
     }
 
-    public void setStartDate(LocalDate start_date) {
-        this.start_date = start_date;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
     }
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     public LocalDate getEndDate() {
-        return end_date;
+        return endDate;
     }
 
-    public void setEndDate(LocalDate end_date) {
-        this.end_date = end_date;
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     public int getListOrder() {
-        return list_order;
+        return listOrder;
     }
 
-    public void setListOrder(int list_order) {
-        this.list_order = list_order;
+    public void setListOrder(int listOrder) {
+        this.listOrder = listOrder;
     }
 
     public Destination getDestination() {
@@ -78,8 +78,5 @@ public class TripDestination extends BaseModel {
         this.destination = destination;
     }
 
-    /**
-     * A finder used to search for a trip destination
-     */
-    public static Finder<Integer, TripDestination> find = new Finder<>(TripDestination.class);
+    public static final Finder<Integer, TripDestination> find = new Finder<>(TripDestination.class);
 }

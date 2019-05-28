@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="showFirst" id="firstSignup">
+        <div id="firstSignup" v-if="showFirst">
 
             <!--Input fields for sign-up. Validates automatically-->
             <b-form>
@@ -8,131 +8,124 @@
                         id="fname-field"
                         label="First Name(s):"
                         label-for="first_name">
-                    <b-form-input id="first_name"
-                                  v-model="first_name" type="text"
-                                  :state="fNameValidation"
-                                  trim autofocus required></b-form-input>
+                    <b-form-input :state="fNameValidation"
+                                  autofocus id="first_name"
+                                  required
+                                  trim type="text" v-model="firstName"></b-form-input>
                     <b-form-invalid-feedback :state="fNameValidation">
                         Your first name must be between 1-100 characters and contain no numbers.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="fNameValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
                         id="mname-field"
                         label="Middle Name(s):"
                         label-for="middle_name">
-                    <b-form-input id="middle_name" v-model="middle_name" type="text"
-                                  :state="mNameValidation" trim placeholder="Optional"></b-form-input>
+                    <b-form-input :state="mNameValidation" id="middle_name" placeholder="Optional"
+                                  trim type="text" v-model="middleName"></b-form-input>
                     <b-form-invalid-feedback :state="mNameValidation">
                         Your middle name must be less than 100 characters and contain no numbers.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="mNameValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
                         id="lname-field"
                         label="Last Name(s):"
                         label-for="last_name">
-                    <b-form-input id="last_name"
-                                  v-model="last_name"
-                                  type="text"
-                                  :state="lNameValidation"
-                                  trim required></b-form-input>
+                    <b-form-input :state="lNameValidation"
+                                  id="last_name"
+                                  required
+                                  trim
+                                  type="text" v-model="lastName"></b-form-input>
                     <b-form-invalid-feedback :state="lNameValidation">
                         Your last name must be between 1-100 characters and contain no numbers.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="lNameValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
-                        id="email-field"
                         description="Note: this will be your username"
+                        id="email-field"
                         label="Email:"
                         label-for="email">
-                    <b-form-input id="email"
-                                  v-model="email"
-                                  type="text"
-                                  :state="emailValidation"
-                                  trim required></b-form-input>
+                    <b-form-input :state="emailValidation"
+                                  id="email"
+                                  required
+                                  trim
+                                  type="text" v-model="username"></b-form-input>
                     <b-form-invalid-feedback :state="emailValidation">
                         Your email must be valid and unique!
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="emailValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
                         id="password-field"
                         label="Password:"
                         label-for="newPassword">
-                    <b-form-input id="newPassword"
-                                  v-model="password"
-                                  type="password"
-                                  :state="passwordValidation"
-                                  trim required></b-form-input>
+                    <b-form-input :state="passwordValidation"
+                                  id="newPassword"
+                                  required
+                                  trim
+                                  type="password" v-model="password"></b-form-input>
                     <b-form-invalid-feedback :state="passwordValidation">
                         Your password must be between 5 and 15 characters.
                     </b-form-invalid-feedback>
                     <b-form-invalid-feedback :state="passwordValidation">
                         Your password must contain 2/3 of: Uppercase, Lowercase, Number.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="passwordValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
-                        id="rePassword-field"
                         description="Please re-enter your password"
+                        id="rePassword-field"
                         label="Retype Password:"
                         label-for="rePassword">
-                    <b-form-input id="rePassword"
-                                  v-model="rePassword"
-                                  type="password"
-                                  :state="rePasswordValidation"
-                                  trim required></b-form-input>
+                    <b-form-input :state="rePasswordValidation"
+                                  id="rePassword"
+                                  required
+                                  trim
+                                  type="password" v-model="rePassword"></b-form-input>
                     <b-form-invalid-feedback :state="rePasswordValidation">
                         This isn't the same as the password!
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="rePasswordValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
                         id="dateOfBirth-field"
                         label="Date of Birth:"
                         label-for="dateOfBirth">
-                    <b-form-input id="dateOfBirth"
-                                  v-model="dateOfBirth"
-                                  type="date"
-                                  :state="dateOfBirthValidation"
-                                  trim required></b-form-input>
+                    <b-form-input :state="dateOfBirthValidation"
+                                  id="dateOfBirth"
+                                  required
+                                  trim
+                                  type="date" v-model="dateOfBirth"></b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
-                        You need a date of birth.
+                        You need a date of birth before today.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="dateOfBirthValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-form-group
                         id="gender-field"
                         label="Gender:"
                         label-for="gender">
-                    <b-form-select id="gender"
-                                   v-model="gender"
-                                   :options="genderOptions"
+                    <b-form-select :options="genderOptions"
                                    :state="genderValidation"
-                                   trim required></b-form-select>
+                                   id="gender"
+                                   required
+                                   trim v-model="gender"></b-form-select>
                     <b-form-invalid-feedback :state="genderValidation">
                         Please select a gender.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="genderValidation"> Looks Good </b-form-valid-feedback>
                 </b-form-group>
 
-                <b-alert v-model="showError" variant="danger" dismissible>The form contains errors!</b-alert>
-                <b-button variant="primary" block @click="checkPersonalForm">Next</b-button>
+                <b-alert dismissible v-model="showError" variant="danger">The form contains errors!</b-alert>
+                <b-button @click="checkPersonalForm" block variant="primary">Next</b-button>
 
             </b-form>
         </div>
 
         <!--Fields for inputting nationalities, passports & traveller types-->
         <div v-if="showSecond" id="secondSignup">
+            <b-alert v-model="showError" variant="danger" dismissible>{{alertMessage}}</b-alert>
             <b-form>
                 <b-row>
                     <b-col>
@@ -140,18 +133,19 @@
                                 id="nationalities-field"
                                 label="Nationality:"
                                 label-for="nationality">
-                            <b-form-select id="nationality"
-                                           v-model="nationalities"
-                                           :state="nationalityValidation"
-                                           multiple trim>
-                                <option v-for="nationality in nationalityOptions"
-                                        :value="nationality.id">
-                                    {{nationality.nationality}}</option>
+                            <b-form-select :state="nationalityValidation"
+                                           id="nationality"
+                                           multiple
+                                           trim v-model="nationalities">
+                                <option :value="{id: nationality.id, nationality: nationality.nationality,
+                                    country: nationality.country}"
+                                        v-for="nationality in nationalityOptions">
+                                    {{nationality.nationality}}
+                                </option>
                             </b-form-select>
                             <b-form-invalid-feedback :state="nationalityValidation">
                                 Please select at least one nationality.
                             </b-form-invalid-feedback>
-                            <b-form-valid-feedback :state="nationalityValidation"> Looks Good </b-form-valid-feedback>
                         </b-form-group>
                     </b-col>
 
@@ -160,18 +154,18 @@
                                 id="passports-field"
                                 label="Passport Country:"
                                 label-for="passports">
-                            <b-form-select id="passports"
-                                           v-model="passports"
-                                           :state="passportValidation"
-                                           trim multiple>
-                                <option v-for="nationality in nationalityOptions"
-                                        :value="nationality.id">
-                                    {{nationality.country}}</option>
+                            <b-form-select :state="passportValidation"
+                                           id="passports"
+                                           multiple
+                                           trim v-model="passports">
+                                <option :value="{id: nationality.id, country: nationality.country}"
+                                        v-for="nationality in nationalityOptions">
+                                    {{nationality.country}}
+                                </option>
                             </b-form-select>
                             <b-form-invalid-feedback :state="passportValidation">
                                 Please select at least one passport country.
                             </b-form-invalid-feedback>
-                            <b-form-valid-feedback :state="passportValidation"> Looks Good </b-form-valid-feedback>
                         </b-form-group>
                     </b-col>
                 </b-row>
@@ -182,33 +176,32 @@
                         label="Traveller Type:"
                         label-for="travellerTypeCarousel">
                     <b-carousel
-                            id="travellerTypeCarousel"
-                            :interval="10000"
-                            controls
-                            indicators
                             background="#ababab"
-                            img-width="1920"
+                            controls
+                            id="travellerTypeCarousel"
                             img-height="1080"
+                            :interval="0"
+                            img-width="1920"
+                            indicators
                             style="text-shadow: 1px 1px 2px #333;">
-                        <b-carousel-slide v-for="travType in travTypeOptions"
-                                          :key="travType.id"
-                                          :caption="travType.travellerType"
-                                          :text="travType.description"
+                        <b-carousel-slide :caption="travType.travellerType"
                                           :img-src="travType.imgUrl"
-                                          :state="travTypeValidation">
-                            <b-form-checkbox :value="travType.id" v-model="travTypes"></b-form-checkbox>
+                                          :key="travType.id"
+                                          :state="travTypeValidation"
+                                          :text="travType.description"
+                                          v-for="travType in travTypeOptions">
+                            <b-form-checkbox :value="{id: travType.id, travellerType: travType.travellerType}"
+                                             v-model="travellerTypes">
+                            </b-form-checkbox>
                         </b-carousel-slide>
                     </b-carousel>
                     <b-form-invalid-feedback :state="travTypeValidation" align="center">
                         Please select at least one traveller type.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="travTypeValidation" align="center">
-                        Looks Good
-                    </b-form-valid-feedback>
                 </b-form-group>
 
                 <b-button @click="previousPage">Back</b-button>
-                <b-button @click="checkAssociateForm" variant="primary" class="float-right">Sign Up</b-button>
+                <b-button @click="checkAssociateForm" class="float-right" variant="primary">Sign Up</b-button>
             </b-form>
         </div>
 
@@ -218,14 +211,20 @@
 <script>
     export default {
         name: "Signup",
-        props: ['nationalityOptions', 'travTypeOptions'],
-        data: function() {
+        props: {nationalityOptions: Array,
+            travTypeOptions: Array,
+            createdByAdmin: {
+                default() {
+                    return false;
+                }
+            }},
+        data: function () {
             return {
                 showError: false,
-                first_name: '',
-                middle_name: '',
-                last_name: '',
-                email: '',
+                firstName: '',
+                middleName: '',
+                lastName: '',
+                username: '',
                 password: '',
                 rePassword: '',
                 dateOfBirth: '',
@@ -239,41 +238,69 @@
                 showSecond: false,
                 nationalities: [],
                 passports: [],
-                travTypes: [],
-                validEmail: false
+                travellerTypes: [],
+                validEmail: false,
+                showSuccess: false,
+                alertMessage: "",
+                successMessage: ""
             }
         },
         computed: {
             /**
-             * Validates the input fields based on regex
-             * @returns {*} true if input is valid
+             * Validates a firstname input from the user.
+             *
+             * @returns {*} true if input is valid.
              */
             fNameValidation() {
-                if (this.first_name.length === 0) {
+                if (this.firstName.length === 0) {
                     return null;
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
-                return nameRegex.test(this.first_name);
+                return nameRegex.test(this.firstName);
             },
+
+            /**
+             * Validates a middlename input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             mNameValidation() {
                 let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
-                return nameRegex.test(this.middle_name) || this.middle_name.length === 0;
+                return nameRegex.test(this.middleName) || this.middleName.length === 0;
             },
+
+            /**
+             * Validates a lastname input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             lNameValidation() {
-                if (this.last_name.length === 0) {
+                if (this.lastName.length === 0) {
                     return null;
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
-                return nameRegex.test(this.last_name);
+                return nameRegex.test(this.lastName);
             },
+
+            /**
+             * Validates a email input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             emailValidation() {
-                if (this.email.length === 0) {
+                if (this.username.length === 0) {
                     return null;
                 }
                 let emailRegex = new RegExp("^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})");
                 this.checkUsername();
-                return (emailRegex.test(this.email) && this.validEmail);
+                return (emailRegex.test(this.username) && this.validEmail);
             },
+
+            /**
+             * Validates a users password.
+             *
+             * @returns {*} true if input is valid.
+             */
             passwordValidation() {
                 if (this.password.length === 0) {
                     return null;
@@ -282,47 +309,104 @@
                     new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
                 return passwordRegex.test(this.password)
             },
+
+            /**
+             * Ensures the retyped password is non empty and equal to the first typed password.
+             *
+             * @returns {*} true if input is valid.
+             */
             rePasswordValidation() {
                 if (this.rePassword.length === 0) {
                     return null;
                 }
                 return this.password.length > 0 && this.rePassword === this.password;
             },
+
+            /**
+             * Validates a date of birth input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             dateOfBirthValidation() {
                 if (this.dateOfBirth.length === 0) {
                     return null;
                 }
-                return this.dateOfBirth.length > 0;
+                return this.dateOfBirth.length > 0 && this.dateOfBirth < this.todaysDate;
             },
+
+            /**
+             * Validates a gender selection from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             genderValidation() {
                 if (this.gender.length === 0) {
                     return null;
                 }
                 return this.gender.length > 0;
             },
+
+            /**
+             * Validates the nationality selection input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             nationalityValidation() {
                 if (this.nationalities.length === 0) {
                     return null;
                 }
                 return this.nationalities.length > 0;
             },
+
+            /**
+             * Validates the passport selection input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             passportValidation() {
                 if (this.passports.length === 0) {
                     return null;
                 }
                 return this.passports.length > 0;
             },
+
+            /**
+             * Validates the traveller type input from the user.
+             *
+             * @returns {*} true if input is valid.
+             */
             travTypeValidation() {
-                if (this.travTypes.length === 0) {
+                if (this.travellerTypes.length === 0) {
                     return null;
                 }
-                return this.travTypes.length > 0;
+                return this.travellerTypes.length > 0;
+            },
+
+            /**
+             * Get the current date and return it in the format.
+             * yyyy-mm-dd.
+             *
+             * @returns Current date in format yyyy-mm-dd
+             */
+            todaysDate() {
+                let today = new Date();
+                let dd = today.getDate();
+                let mm = today.getMonth() + 1; //January is 0!
+                let yyyy = today.getFullYear();
+                if (dd < 10) {
+                    dd = '0' + dd
+                }
+                if (mm < 10) {
+                    mm = '0' + mm
+                }
+                today = yyyy + '-' + mm + '-' + dd;
+                return today
             }
 
         },
         methods: {
             /**
-             * Runs validation for all fields on first page
+             * Runs validation for all fields on first page.
              */
             checkPersonalForm() {
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation
@@ -336,35 +420,35 @@
             },
 
             /**
-             * Runs second page validation and creates an object using all inputs
+             * Runs second page validation and creates an object using all inputs.
              */
             checkAssociateForm() {
                 if (this.nationalityValidation && this.passportValidation && this.travTypeValidation) {
                     let profile = {
-                        first_name: this.first_name,
-                        middle_name: this.middle_name,
-                        last_name: this.last_name,
-                        username: this.email,
+                        firstName: this.firstName,
+                        middleName: this.middleName,
+                        lastName: this.lastName,
+                        username: this.username,
                         password: this.password,
-                        date_of_birth: this.dateOfBirth,
+                        dateOfBirth: this.dateOfBirth,
                         gender: this.gender,
-                        nationality: this.nationalities,
-                        passport_country: this.passports,
-                        traveller_type: this.travTypes
+                        nationalities: this.nationalities,
+                        passports: this.passports,
+                        travellerTypes: this.travellerTypes
                     };
                     this.saveProfile(profile);
                 }
             },
 
             /**
-             * Checks that user does not already exist in database
+             * Checks that user does not already exist in database.
              */
             checkUsername() {
                 let self = this;
                 fetch(`/v1/checkUsername`, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
-                    body: JSON.stringify({'username': this.email})
+                    body: JSON.stringify({'username': this.username})
 
                 }).then(function (response) {
                     self.validEmail = response.ok;
@@ -373,7 +457,7 @@
             },
 
             /**
-             * Transfers to second page of sign-up
+             * Transfers to second page of sign-up.
              */
             nextPage() {
                 this.showFirst = false;
@@ -381,7 +465,7 @@
             },
 
             /**
-             * Transfers to first page of sign-up
+             * Transfers to first page of sign-up.
              */
             previousPage() {
                 this.showFirst = true;
@@ -389,7 +473,9 @@
             },
 
             /**
-             * Adds user to database
+             * Adds user to database. If the person creating the profile is an administrator, then the page is not
+             * automatically redirected to the dash.
+             *
              * @param profile object created with all input values
              */
             saveProfile(profile) {
@@ -399,9 +485,18 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function (response) {
-                    self.$router.go();
-                    self.$router.push("/dash");
-                    return response.json();
+                    if (response.status === 201 && !self.createdByAdmin) {
+                        self.$router.go();
+                        return response.json();
+                    } else if (response.status === 201 && self.createdByAdmin) {
+                        self.$emit('profile-created', true);
+                    } else {
+                        self.showError = true;
+                        response.clone().text().then(text => {
+                            self.alertMessage = text;
+                        });
+                    }
+
                 })
             }
         }

@@ -1,28 +1,31 @@
 <template>
     <div>
-        <b-navbar variant="light" toggleable="lg">
-            <b-navbar-brand v-on:click="goToProfile()"><img :src="assets.appLogo" ></b-navbar-brand>
+        <b-navbar class="mainNav" toggleable="lg" variant="light">
+            <b-navbar-brand class="nav-bar-brand" @click="goToProfile()"><img :src="assets.appLogo"></b-navbar-brand>
 
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
-                    <b-nav-item :class="{active: currentPage==='/profiles'}" v-on:click="goToPeople()">People
+                    <b-nav-item :class="{active: currentPage==='/profiles'}" @click="goToPeople()">People
                     </b-nav-item>
-                    <b-nav-item :class="{active: currentPage==='/trips'}" v-on:click="goToTrips()">Trips</b-nav-item>
-                    <b-nav-item :class="{active: currentPage==='/destinations'}" v-on:click="goToDestinations()">
+                    <b-nav-item :class="{active: currentPage==='/trips'}" @click="goToTrips()">Trips</b-nav-item>
+                    <b-nav-item :class="{active: currentPage==='/destinations'}" @click="goToDestinations()">
                         Destinations
+                    </b-nav-item>
+                    <b-nav-item :class="{active: currentPage==='/admin'}" @click="goToAdminPanel()"
+                                v-if="profile.isAdmin">
+                        Admin
                     </b-nav-item>
                 </b-navbar-nav>
 
                 <b-navbar-nav class="ml-auto">
-                    <b-nav-item-dropdown right>
-                        <!-- Using 'button-content' slot -->
-                        <template slot="button-content"><em>{{ profile.firstName }}</em></template>
-                        <b-dropdown-item :class="{active: currentPage==='/dash'}" v-on:click="goToProfile()">Profile
-                        </b-dropdown-item>
-                        <b-dropdown-item @click="logout">Logout</b-dropdown-item>
-                    </b-nav-item-dropdown>
+                    <b-nav-item right :class="{active: currentPage==='/dash'}" @click="goToProfile()">
+                        {{ profile.firstName }}
+                    </b-nav-item>
+                    <b-nav-item @click="logout">
+                        Logout
+                    </b-nav-item>
                 </b-navbar-nav>
 
             </b-collapse>
@@ -31,14 +34,14 @@
 </template>
 
 <script>
-    import assets from '../../assets/index'
+    import Assets from '../../assets/index'
 
     export default {
         name: "navbarMain",
         props: ['profile'],
         computed: {
             assets() {
-                return assets
+                return Assets
             },
         },
         data() {
@@ -92,6 +95,9 @@
             },
             goToProfile() {
                 this.$router.push("/dash");
+            },
+            goToAdminPanel() {
+                this.$router.push("/admin");
             }
         }
     }

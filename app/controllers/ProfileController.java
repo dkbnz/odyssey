@@ -1,8 +1,6 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Nationality;
@@ -13,6 +11,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.libs.Json;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +20,9 @@ import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import util.AuthenticationUtil;
 
 import static play.mvc.Results.*;
 
@@ -32,19 +32,19 @@ import static play.mvc.Results.*;
  */
 public class ProfileController {
 
-    private static final Logger LOGGER = Logger.getLogger( ProfileController.class.getName() );
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private static final String USERNAME = "username";
     private static final String PASS_FIELD = "password";
-    private static final String FIRST_NAME = "first_name";
-    private static final String MIDDLE_NAME = "middle_name";
-    private static final String LAST_NAME = "last_name";
-    private static final String PASSPORT = "passport_country";
-    private static final String NATIONALITY = "nationality";
+    private static final String FIRST_NAME = "firstName";
+    private static final String MIDDLE_NAME = "middleName";
+    private static final String LAST_NAME = "lastName";
+    private static final String PASSPORT = "passports";
+    private static final String NATIONALITY = "nationalities";
     private static final String GENDER = "gender";
     private static final String MIN_AGE = "min_age";
     private static final String MAX_AGE = "max_age";
-    private static final String TRAVELLER_TYPE = "traveller_type";
-    private static final String DATE_OF_BIRTH = "date_of_birth";
+    private static final String TRAVELLER_TYPE = "travellerTypes";
+    private static final String DATE_OF_BIRTH = "dateOfBirth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
     private static final String AUTHORIZED = "authorized";
@@ -52,6 +52,7 @@ public class ProfileController {
     private static final long AGE_SEARCH_OFFSET = 1;
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String UPDATED = "UPDATED";
+    private static final String ID = "id";
 
     /**
      * Creates a user based on given Json body. All new users are not an admin by default. This is used on the Sign Up
@@ -63,24 +64,23 @@ public class ProfileController {
      */
     public Result create(Http.Request request) {
 
+        Profile userProfile = request.session()
+                .getOptional(AUTHORIZED)
+                .map(userId -> Profile.find.byId(Integer.valueOf(userId)))
+                .orElse(null); // returns created as no user is logged in
+
+        if (userProfile != null && !userProfile.getIsAdmin())
+            return badRequest();
+
         JsonNode json = request.body().asJson();
 
-        if (!(json.has(USERNAME)
-                && json.has(PASS_FIELD)
-                && json.has(FIRST_NAME)
-                && json.has(MIDDLE_NAME)
-                && json.has(LAST_NAME)
-                && json.has(DATE_OF_BIRTH)
-                && json.has(GENDER)
-                && json.has(NATIONALITY)
-                && json.has(PASSPORT)
-                && json.has(TRAVELLER_TYPE)
-        ) || profileExists(json.get(USERNAME).asText())) {
-            return badRequest();
+        Result checkJson = validateProfileJson(json);
+
+        if (checkJson != null) {
+            return checkJson;
         }
 
-        if(json.get(NATIONALITY).size() == 0
-        || json.get(TRAVELLER_TYPE).size() == 0) {
+        if(profileExists(json.get(USERNAME).asText())) {
             return badRequest();
         }
 
@@ -90,7 +90,7 @@ public class ProfileController {
         try {
             newUser.setPassword(hashProfilePassword(json.get(PASS_FIELD).asText()));
         } catch (NoSuchAlgorithmException e) {
-            LOGGER.log(Level.SEVERE, "Unable to hash the user password", e);
+            log.error("Unable to hash the user password", e);
         }
 
         newUser.setUsername(json.get(USERNAME).asText());
@@ -105,21 +105,21 @@ public class ProfileController {
         newUser.save();
 
         Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
-            Nationality newNat = Nationality.find.byId(node.asInt());
+            Nationality newNat = Nationality.find.byId(node.get(ID).asInt());
             newUser.addNationality(newNat);
         };
 
         json.get(NATIONALITY).forEach(nationalityAction);
 
         Consumer<JsonNode> passportAction = (JsonNode node) -> {
-            Passport newPass = Passport.find.byId(node.asInt());
+            Passport newPass = Passport.find.byId(node.get(ID).asInt());
             newUser.addPassport(newPass);
         };
 
         json.get(PASSPORT).forEach(passportAction);
 
         Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
-            TravellerType travType = TravellerType.find.byId(node.asInt());
+            TravellerType travType = TravellerType.find.byId(node.get(ID).asInt());
             newUser.addTravType(travType);
         };
 
@@ -127,8 +127,132 @@ public class ProfileController {
 
         newUser.save();
 
-        return created().addingToSession(request, AUTHORIZED, newUser.id.toString());
+        return (userProfile != null && userProfile.getIsAdmin())
+                ? created("")
+                : created().addingToSession(request, AUTHORIZED, newUser.id.toString());
     }
+
+
+    /**
+     * Validates a new user's data when creating a profile. The validation is the same as the agreed front-end
+     * validation.
+     *
+     * @param json  the Json content given by the new user.
+     * @return      a string value of the error if there is one, otherwise returns null.
+     */
+    private String userDataValid(JsonNode json) {
+        String username = json.get(USERNAME).asText();
+        String firstName = json.get(FIRST_NAME).asText();
+        String middleName = json.get(MIDDLE_NAME).asText();
+        String lastName = json.get(LAST_NAME).asText();
+        String gender = json.get(GENDER).asText();
+        LocalDate dateOfBirth = LocalDate.parse(json.get(DATE_OF_BIRTH).asText());
+
+        if (validateUsername(username) != null) {
+            return validateUsername(username);
+        }
+
+        if (validateName(firstName, "First Name") != null) {
+            return validateName(firstName, "First Name");
+        }
+
+        if (validateName(middleName, MIDDLE_NAME) != null) {
+            return validateName(middleName, MIDDLE_NAME);
+        }
+
+        if (validateName(lastName, "Last Name") != null) {
+            return validateName(lastName, "Last Name");
+        }
+
+        if (validateGender(gender) != null) {
+            return validateGender(gender);
+        }
+
+        if (validateDateOfBirth(dateOfBirth) != null) {
+            return validateDateOfBirth(dateOfBirth);
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Validates the user's username (email address). Ensures meets a specific regular expression that is used to
+     * validate emails.
+     *
+     * @param usernameValue the value of the new user's username (email).
+     * @return              the string of the error message if it occurs, otherwise null if valid.
+     */
+    private String validateUsername(String usernameValue) {
+        String emailRegex = "^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})";
+        if (usernameValue.matches(emailRegex)) {
+            return "Username must be valid";
+        }
+        return null;
+    }
+
+
+    /**
+     * Validates each of the users name fields when creating a new user. This validation is the same as the frontend
+     * validation for the application.
+     *
+     * @param nameValue     the specific name data (first, middle or last) to be validated.
+     * @param nameType      the string of the name so an appropriate error message is returned.
+     * @return              the error message that may occur if any of the credentials are invalid. Otherwise returns an
+     *                      null.
+     */
+    private String validateName(String nameValue, String nameType) {
+        if (nameType.equals(MIDDLE_NAME)) {
+            if (nameValue.length() > 100) {
+                return "Middle Name must be less than 100 characters.";
+            }
+            if (nameValue.matches(".*\\d.*")) {
+                return nameType + " must not contain any numbers.";
+            }
+            return null;
+        }
+        if (nameValue.length() < 1 || nameValue.length() > 100) {
+            return nameType + " must be between 1 and 100 characters.";
+        }
+        if (nameValue.matches(".*\\d.*")) {
+            return nameType + " must not contain any numbers.";
+        }
+        return null;
+    }
+
+
+    /**
+     * Validates the new user's gender, the gender must be one specified in the list.
+     *
+     * @param genderValue   the value of the new user's gender.
+     * @return              a string saying what is invalid about the user's gender, or null if valid.
+     */
+    private String validateGender(String genderValue) {
+        ArrayList<String> genders = new ArrayList<>();
+        genders.add("Male");
+        genders.add("Female");
+        genders.add("Other");
+
+        if(!genders.contains(genderValue)) {
+            return genderValue + " is not a valid gender, must be Male, Female or Other";
+        }
+        return null;
+    }
+
+
+    /**
+     * Validates the new user's date of birth, the date of birth must be before today.
+     *
+     * @param dateOfBirthValue  the value of the new user's date of birth.
+     * @return                  a string saying the user's date of birth is invalid, or null if valid.
+     */
+    private String validateDateOfBirth(LocalDate dateOfBirthValue) {
+        if (LocalDate.now().isBefore(dateOfBirthValue)) {
+            return "Date of birth must be before today";
+        }
+        return null;
+    }
+
 
     /**
      * Hashes a password string using the SHA 256 method from the MessageDigest library.
@@ -140,6 +264,7 @@ public class ProfileController {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         return DatatypeConverter.printHexBinary(digest.digest(password.getBytes(StandardCharsets.UTF_8)));
     }
+
 
     /**
      * Field validation method checking whether a username already exists in the database. This is to ensure there are
@@ -157,6 +282,7 @@ public class ProfileController {
                 .like(USERNAME, username)
                 .findOne() != null;
     }
+
 
     /**
      * Field validation method checking whether a username already exists in the database. This is to ensure there are
@@ -198,6 +324,7 @@ public class ProfileController {
                 }); // User is not logged in
     }
 
+
     /**
      * Fetches a single profile from the database based on the Http Request body. This is used to display the currently
      * logged in profile on the dash page, and used throughout the application wherever the logged in profile is
@@ -213,10 +340,11 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-                    return ok(userProfile.toJson());
+                    return ok(Json.toJson(userProfile));
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
+
 
     /**
      * Deletes a currently logged in profile and invalidates their session. If user is admin and the id is specified
@@ -229,124 +357,165 @@ public class ProfileController {
      *                  and admin, or they are trying to delete the global admin (id number one).
      */
     public Result delete(Http.Request request, Long id) {
+        if (id == DEFAULT_ADMIN_ID) {
+            return forbidden("You can not delete the default administrator");
+        }
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    Profile profileToDelete =  Profile.find.byId(id.intValue());
+
+                    if (userProfile == null || profileToDelete == null) {
+                        return badRequest("Profile could not be found.");
+                    }
+
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
                         // If user is admin, they can delete other profiles
                         if (userProfile.getIsAdmin()) {
-                            Profile profileToDelete = Profile.find.byId(Integer.valueOf(id.intValue()));
-                            if (profileToDelete.getId() == DEFAULT_ADMIN_ID) {
-                                return forbidden("You can not delete the default administrator");
-                            } else {
-                                profileToDelete.delete();
-                                return ok("Delete successful");
-                            }
-                        } else {
-                            return forbidden("You do not have admin rights to delete other users.");
+                            profileToDelete.delete();
+                            return ok("Delete successful");
                         }
-                    } else {
-                        // User is deleting their own profile
-                        if (userProfile.getId() == DEFAULT_ADMIN_ID) {
-                            return forbidden("You can not delete the default administrator");
-                        } else {
-                            userProfile.delete();
-                            return ok("Delete successful").withNewSession();
-                        }
+                        return forbidden("You do not have admin rights to delete other users.");
                     }
+
+                    // User is deleting their own profile
+                    profileToDelete.delete();
+                    return ok("Delete successful").withNewSession();
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
+
+
+    /**
+     * Validates the Json of a given profile. Checks if all Json fields are present.
+     * Ensures there are the required number of nationalities and traveller types.
+     * Checks if user data is within expected ranges.
+     *
+     * @param jsonToValidate    the JsonNode of the users input.
+     * @return                  badRequest() (Http 400) with associated error if an error exists.
+     *                          null if checks pass.
+     */
+    private Result validateProfileJson(JsonNode jsonToValidate) {
+        if (!(jsonToValidate.has(USERNAME)
+                && jsonToValidate.has(PASS_FIELD)
+                && jsonToValidate.has(FIRST_NAME)
+                && jsonToValidate.has(MIDDLE_NAME)
+                && jsonToValidate.has(LAST_NAME)
+                && jsonToValidate.has(DATE_OF_BIRTH)
+                && jsonToValidate.has(GENDER)
+                && jsonToValidate.has(NATIONALITY)
+                && jsonToValidate.has(PASSPORT)
+                && jsonToValidate.has(TRAVELLER_TYPE)
+        )) {
+            return badRequest("Invalid Json");
+        }
+
+        String getError = userDataValid(jsonToValidate);
+
+        if(getError != null) {
+            return badRequest(getError);
+        }
+
+        if(jsonToValidate.get(NATIONALITY).size() == 0
+                || jsonToValidate.get(TRAVELLER_TYPE).size() == 0) {
+            return badRequest("Invalid number of Nationalities/Traveller Types");
+        }
+        return null;
+    }
+
 
     /**
      * Takes a Http request containing a Json body and finds a logged in user. Then uses a PUT request to update
      * the logged in user based on the Http Request body. The validation is the same as creating a new profile.
      *
+     * If the Id is specified in the Json body, and the logged in user is an admin, then edit the specified Id.
+     *
      * @param request   Http Request containing Json Body.
      * @return          ok() (Http 200) if the profile is successfully updated. Returns unauthorized() (Http 401),
      *                  if not logged in.
      */
-    public Result update(Http.Request request) {
+    public Result update(Http.Request request, Long editUserId) {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
-                    // User is logged in
-                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-                    JsonNode json = request.body().asJson();
+                    Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
+                    Profile profileToUpdate = Profile.find.byId(editUserId.intValue());
 
-                    if (!(json.has(USERNAME)
-                            && json.has(PASS_FIELD)
-                            && json.has(FIRST_NAME)
-                            && json.has(MIDDLE_NAME)
-                            && json.has(LAST_NAME)
-                            && json.has(DATE_OF_BIRTH)
-                            && json.has(GENDER)
-                            && json.has(NATIONALITY)
-                            && json.has(PASSPORT)
-                            && json.has(TRAVELLER_TYPE)
-                    )) {
-                        return badRequest();
+                    if (profileToUpdate == null) {
+                        return badRequest("No profile found"); // User does not exist in the system.
                     }
 
-                    if(json.get(NATIONALITY).size() == 0
-                            || json.get(TRAVELLER_TYPE).size() == 0) {
-                        return badRequest();
+                    if (!AuthenticationUtil.validUser(loggedInUser, profileToUpdate)) {
+                        return forbidden(); // User has specified an id which is not their own and is not admin
+                    }
+
+                    JsonNode json = request.body().asJson();
+
+                    Result checkJson = validateProfileJson(json);
+
+                    if (checkJson != null) {
+                        return checkJson;
+                    }
+
+                    // If the username has been changed, and the changed username exists return badRequest()
+                    if(!json.get(USERNAME).asText().equals(profileToUpdate.getUsername())
+                            && profileExists(json.get(USERNAME).asText())) {
+                        return badRequest("Username exists");
                     }
 
                     if (!json.get(PASS_FIELD).asText().isEmpty()) { // Only update password if user has typed a new one
-
                         // Uses the hashProfilePassword() method to hash the given password.
                         try {
-                            userProfile.setPassword(hashProfilePassword(json.get(PASS_FIELD).asText()));
+                            profileToUpdate.setPassword(hashProfilePassword(json.get(PASS_FIELD).asText()));
                         } catch (NoSuchAlgorithmException e) {
-                            LOGGER.log(Level.SEVERE, "Unable to hash the user password", e);
+                            log.error("Unable to hash the user password", e);
                         }
                     }
 
-                    userProfile.setUsername(json.get(USERNAME).asText());
-                    userProfile.setFirstName(json.get(FIRST_NAME).asText());
-                    userProfile.setMiddleName(json.get(MIDDLE_NAME).asText());
-                    userProfile.setLastName(json.get(LAST_NAME).asText());
-                    userProfile.setDateOfBirth(LocalDate.parse(json.get(DATE_OF_BIRTH).asText()));
-                    userProfile.setGender(json.get(GENDER).asText());
+                    profileToUpdate.setUsername(json.get(USERNAME).asText());
+                    profileToUpdate.setFirstName(json.get(FIRST_NAME).asText());
+                    profileToUpdate.setMiddleName(json.get(MIDDLE_NAME).asText());
+                    profileToUpdate.setLastName(json.get(LAST_NAME).asText());
+                    profileToUpdate.setDateOfBirth(LocalDate.parse(json.get(DATE_OF_BIRTH).asText()));
+                    profileToUpdate.setGender(json.get(GENDER).asText());
 
-                    userProfile.clearNationalities();
-                    userProfile.clearPassports();
-                    userProfile.clearTravellerTypes();
+                    profileToUpdate.clearNationalities();
+                    profileToUpdate.clearPassports();
+                    profileToUpdate.clearTravellerTypes();
 
                     // Save user profile to clear nationalities, travellerTypes and passports
-                    userProfile.update();
+                    profileToUpdate.update();
 
                     Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
-                        Nationality newNat = Nationality.find.byId(node.asInt());
-                        userProfile.addNationality(newNat);
+                        Nationality newNationality = Nationality.find.byId(node.get(ID).asInt());
+                        profileToUpdate.addNationality(newNationality);
                     };
 
                     json.get(NATIONALITY).forEach(nationalityAction);
 
                     Consumer<JsonNode> passportAction = (JsonNode node) -> {
-                        Passport newPass = Passport.find.byId(node.asInt());
-                        userProfile.addPassport(newPass);
+                        Passport newPassport = Passport.find.byId(node.get(ID).asInt());
+                        profileToUpdate.addPassport(newPassport);
                     };
 
                     json.get(PASSPORT).forEach(passportAction);
 
                     Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
-                        TravellerType travType = TravellerType.find.byId(node.asInt());
-                        userProfile.addTravType(travType);
+                        TravellerType newTravellerType = TravellerType.find.byId(node.get(ID).asInt());
+                        profileToUpdate.addTravType(newTravellerType);
                     };
 
                     json.get(TRAVELLER_TYPE).forEach(travTypeAction);
 
-                    userProfile.update();
+                    profileToUpdate.update();
 
                     return ok(UPDATED);
-
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
+
 
     /**
      * Performs an Ebean find query on the database to search for profiles.
@@ -362,20 +531,58 @@ public class ProfileController {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
-                    ObjectMapper mapper = new ObjectMapper();
                     List<Profile> profiles;
 
                     if (request.queryString().isEmpty()) {
                         // No query string given. retrieve all profiles
                         profiles = Profile.find.all();
                     } else {
-                        profiles = searchProfiles(request.queryString());
+                        String getError = validQueryString(request.queryString());
+                        if (getError == null) {
+                            profiles = searchProfiles(request.queryString());
+                        } else {
+                            return badRequest(getError);
+                        }
                     }
 
                     return ok(Json.toJson(profiles));
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
+
+
+    /**
+     * Validates the search query string for profiles.
+     *
+     * @param queryString the query string from the request body, given by the user.
+     * @return string message of error in query string, empty if no error present.
+     */
+    private String validQueryString(Map<String, String[]> queryString) {
+        Integer minAge;
+        Integer maxAge;
+
+        try {
+            minAge = Integer.valueOf(queryString.get(MIN_AGE)[0]);
+            maxAge = Integer.valueOf(queryString.get(MAX_AGE)[0]);
+        } catch (Exception e) {
+            return "Ages cannot be converted to Integers";
+        }
+
+        if ((maxAge < 0) || (maxAge > 120)) {
+            return "Max age must be between 0 and 120";
+        }
+
+        if ((minAge < 0) || (minAge > 120)) {
+            return "Min age must be between 0 and 120";
+        }
+
+        if (minAge > maxAge) {
+            return "Min age must be less than or equal to max age";
+        }
+
+        return null;
+    }
+
 
     /**
      * Function to validate a query string and return a list of profiles based on the query string.
@@ -415,6 +622,7 @@ public class ProfileController {
         return profileExpressionList.findList();
     }
 
+
     /**
      * Makes another user (based on the Http request body) an admin if the currently logged in user is an admin.
      * If user is not logged in they are unauthorised, if they are logged in and they are not admin they are forbidden
@@ -443,6 +651,7 @@ public class ProfileController {
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
+
 
     /**
      * Removes the admin property from a specified user based on the user id. This can only be done if the currently

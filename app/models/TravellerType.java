@@ -14,11 +14,11 @@ public class TravellerType extends BaseModel {
      * The name of a traveller type
      */
     @Constraints.Required
-    public String travellerType;
+    private String travellerType;
 
-    public String description;
+    private String description;
 
-    public String imgUrl;
+    private String imgUrl;
 
     public String getTravellerType() {
         return travellerType;
@@ -32,8 +32,5 @@ public class TravellerType extends BaseModel {
         return imgUrl;
     }
 
-    /**
-     * A finder used to search for a traveller type
-     */
-    public static Finder<Integer, TravellerType> find = new Finder<>(TravellerType.class);
+    public static final Finder<Integer, TravellerType> find = new Finder<>(TravellerType.class);
 }
