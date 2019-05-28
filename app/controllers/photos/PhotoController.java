@@ -184,7 +184,13 @@ public class PhotoController extends Controller {
             return forbidden();
         }
         if (photoOwner != null) {
-            personalPhotoRepo.delete(photoOwner, photo);
+            for(Destination destination : destinationRepo.fetch(photo)) {
+                destination.removePhotoFromGallery(photo);
+                destinationRepo.update(destination);
+            }
+            photoOwner.removePhotoFromGallery(photo);
+            personalPhotoRepo.delete(photo);
+            profileRepo.update(photoOwner);
             return ok();
         }
         return badRequest();

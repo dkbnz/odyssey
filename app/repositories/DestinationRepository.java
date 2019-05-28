@@ -1,6 +1,9 @@
 package repositories;
 
 import models.destinations.Destination;
+import models.photos.PersonalPhoto;
+
+import java.util.List;
 
 public class DestinationRepository {
 
@@ -22,5 +25,15 @@ public class DestinationRepository {
      */
     public Destination fetch(Long destinationId) {
         return Destination.find.byId(destinationId.intValue());
+    }
+
+    /**
+     * Finds all the destinations that contain a given photo.
+     *
+     * @param photo       the photo.
+     * @return            list of destinations containing the photo.
+     */
+    public List<Destination> fetch(PersonalPhoto photo) {
+        return Destination.find.query().where().eq("photoGallery.photo", photo).findList();
     }
 }

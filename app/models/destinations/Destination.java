@@ -57,7 +57,7 @@ public class Destination extends BaseModel {
     /**
      * The destinations photo gallery
      */
-    @ManyToMany(cascade=CascadeType.ALL)
+    @ManyToMany
     private List<PersonalPhoto> photoGallery = new ArrayList<>();
 
     public String getName() {

@@ -30,6 +30,11 @@ public class ProfileRepository {
     */
     public void save(Profile profile) {profile.save();}
 
+    /**
+     * Updates the specified profile object.
+     */
+    public void update(Profile profile) {profile.update();}
+
 
     /**
     * Deletes a profile photo from a specified user profile by setting the profile photo to null.
