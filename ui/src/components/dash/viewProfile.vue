@@ -249,9 +249,9 @@
             getProfilePictureThumbnail() {
                 if (this.profile.profilePicture !== null) {
                     this.profileImageThumb = `/v1/photos/thumb/` + this.profile.profilePicture.id;
+                } else {
+                    this.profileImageThumb = "../../../static/default_profile_picture.png";
                 }
-                this.profileImageThumb = "../../../static/default_profile_picture.png";
-
             },
 
             /**
@@ -270,8 +270,9 @@
             getProfilePictureFull() {
                 if (this.profile.profilePicture !== null) {
                     this.profileImageFull = `/v1/photos/` + this.profile.profilePicture.id;
+                } else {
+                    this.profileImageFull = "../../../static/default_profile_picture.png";
                 }
-                this.profileImageFull = "../../../static/default_profile_picture.png";
             },
 
             /**

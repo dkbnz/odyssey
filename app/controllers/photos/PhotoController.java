@@ -204,44 +204,23 @@ public class PhotoController extends Controller {
             return badRequest();
         }
 
-        if ((authenticateUser(loggedInUser, profileToChange, loggedInUserId.toString()).status() == 200)
-                && (profileToChange.getProfilePicture() != null)) {
-            profileRepo.deleteProfilePhoto(profileToChange);
-            return ok();
+        if(!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
+            return forbidden();
         }
 
-        return authenticateUser(loggedInUser, profileToChange, loggedInUserId.toString());
-    }
-
-    /**
-     * Generic method to check the authentication rights of the logged in user.
-     *
-     * @param loggedInUser      the Profile object of the logged in user.
-     * @param owner             the Profile object of the owner of the photo object.
-     * @param loggedInUserId    the id number of the logged in user.
-     * @return                  ok() (Http 200) if the logged in user is an admin or the user being modified,
-     *                          forbidden() (Http 403) if they are not permitted to modify the logged in user,
-     *                          badRequest() (Http 400) otherwise.
-     */
-    private Result authenticateUser(Profile loggedInUser, Profile owner, String loggedInUserId) {
-        // If user is admin, or if they are editing their own profile then allow them to edit.
-        if(AuthenticationUtil.validUser(loggedInUser, owner)) {
-            return ok();
-        } else if (!owner.getId().equals(Long.valueOf(loggedInUserId))) {
-            return forbidden(); // User has specified an id which is not their own, but is not admin
-        } else {
-            return badRequest();
-        }
+        profileRepo.deleteProfilePhoto(profileToChange);
+        return ok();
     }
 
     /**
      * Updates a profile photo based on the photo Id's owner and checks authentication from if their logged in
-     * or if an admin is changing a users profile
-     * @param request       the http request from the front end
-     * @param photoId       The photoId that the profile photo is being changed to
-     * @return              notFound() (Http 404) if the owner for the profile photo is not found
-     *                      unauthorized() (Http 403) if the user is not logged in or not authorized to change the owners profile photo
-     *                      ok() (Http 200) if successful change of profile photo
+     * or if an admin is changing a users profile.
+     *
+     * @param request       the Http request from the front end.
+     * @param photoId       the photoId that the profile photo is being changed to.
+     * @return              notFound() (Http 404) if the owner for the profile photo is not found.
+     *                      unauthorized() (Http 403) if the user is not logged in or not authorized to change the
+     *                      owners profile photo, ok() (Http 200) if successful change of profile photo.
      */
     public Result updateProfilePhoto(Http.Request request, Long photoId) {
         return request.session()
@@ -249,6 +228,10 @@ public class PhotoController extends Controller {
                 .map(loggedInUserId -> {
 
                     PersonalPhoto personalPhoto = personalPhotoRepo.fetch(photoId);
+
+                    if (personalPhoto == null) {
+                        return badRequest();
+                    }
 
                     Profile owner = personalPhoto.getProfile();
 
@@ -258,17 +241,17 @@ public class PhotoController extends Controller {
                         return notFound();
                     }
 
-                    if(authenticateUser(loggedInUser, owner, loggedInUserId).status() != 200) {
-                        return authenticateUser(loggedInUser, owner, loggedInUserId);
+                    if(!AuthenticationUtil.validUser(loggedInUser, owner)) {
+                        return forbidden();
+                    }
+
+                    if (personalPhoto.getPublic()) {
+                        profileRepo.setProfilePhoto(personalPhoto, owner);
+                        return ok();
                     } else {
-                        if (personalPhoto.getPublic()) {
-                            profileRepo.setProfilePhoto(personalPhoto, owner);
-                            return ok();
-                        } else {
-                            personalPhotoRepo.updatePrivacy(owner, personalPhoto, "true");
-                            profileRepo.setProfilePhoto(personalPhoto, owner);
-                            return ok();
-                        }
+                        personalPhotoRepo.updatePrivacy(owner, personalPhoto, "true");
+                        profileRepo.setProfilePhoto(personalPhoto, owner);
+                        return ok();
                     }
                 }).orElseGet(() -> unauthorized());
     }
@@ -334,10 +317,10 @@ public class PhotoController extends Controller {
      * Saves a list of images given in multipart form data in the application.
      * Creates thumbnails for all files. Saves a full sized copy and a thumbnail of each photo.
      *
-     * @param profileToAdd  profile to add the photos to
-     * @param photos        list of images to add the the profile
-     * @return              created() (Http 201) if upload was successful and the Json form of the new profile Photo gallery
-     *                      internalServerError() (Http 500) if there was an error with thumbnail creation
+     * @param profileToAdd  profile to add the photos to.
+     * @param photos        list of images to add the the profile.
+     * @return              created() (Http 201) if upload was successful and the Json form of the new profile Photo
+     *                      gallery internalServerError() (Http 500) if there was an error with thumbnail creation.
      */
     private Result savePhotos(Profile profileToAdd, Collection<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
         for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
@@ -356,11 +339,11 @@ public class PhotoController extends Controller {
     }
 
     /**
-     * Gets all photos for the given user
+     * Gets all photos for the given user.
      *
-     * @param request http request from the client.
-     * @param userId id of the user being viewed
-     * @return a JSON list containing the IDs and privacy of all photos owned by that user
+     * @param request   http request from the client.
+     * @param userId    id of the user being viewed.
+     * @return          a Json list containing the id numbers and privacy of all photos owned by that user.
      */
     public Result list(Http.Request request, Long userId) {
         return request.session()
