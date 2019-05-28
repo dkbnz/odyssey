@@ -60,6 +60,8 @@ create table profile (
   date_of_birth                 date,
   is_admin                      boolean,
   date_of_creation              timestamp,
+  profile_picture_id            bigint,
+  constraint uq_profile_profile_picture_id unique (profile_picture_id),
   constraint pk_profile primary key (id)
 );
 
@@ -118,6 +120,9 @@ alter table personal_photo add constraint fk_personal_photo_profile_id foreign k
 create index ix_photo_upload_profile_id on photo (upload_profile_id);
 alter table photo add constraint fk_photo_upload_profile_id foreign key (upload_profile_id) references profile (id) on delete restrict on update restrict;
 
+create index ix_profile_picture_id on profile (profile_picture_id);
+alter table profile add constraint fk_profile_profile_picture_id foreign key (profile_picture_id) references personal_photo (id) on delete restrict on update restrict;
+
 create index ix_profile_nationality_profile on profile_nationality (profile_id);
 alter table profile_nationality add constraint fk_profile_nationality_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
 
@@ -159,6 +164,9 @@ drop index if exists ix_personal_photo_profile_id;
 
 alter table photo drop constraint if exists fk_photo_upload_profile_id;
 drop index if exists ix_photo_upload_profile_id;
+
+alter table photo drop constraint if exists fk_profile_profile_picture_id;
+drop index if exists ix_profile_picture_id;
 
 alter table profile_nationality drop constraint if exists fk_profile_nationality_profile;
 drop index if exists ix_profile_nationality_profile;

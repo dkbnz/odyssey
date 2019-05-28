@@ -4,6 +4,7 @@ import models.Profile;
 import models.photos.PersonalPhoto;
 
 public class PersonalPhotoRepository {
+
     /**
      * Fetches a single personal photo by the photo id number.
      *
@@ -13,6 +14,7 @@ public class PersonalPhotoRepository {
     public PersonalPhoto fetch(Long photoId) {
         return PersonalPhoto.getFind().byId(photoId.intValue());
     }
+
 
     /**
      * Deletes a photo associated with a profile, doesn't delete the uploaded photo.
@@ -25,6 +27,7 @@ public class PersonalPhotoRepository {
         photo.delete();
         photoOwner.update();
     }
+
 
     /**
      * Updates the privacy of the of the specified photo to either public or private.

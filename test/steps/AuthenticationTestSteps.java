@@ -62,9 +62,11 @@ public class AuthenticationTestSteps {
 
 
     /**
-     * Database instance for the fake application.
+     * Database instance for the fake applica
+        json.put(USERNAME, username);
+        json.put(PASS_FIELD, password);tion.
      */
-    protected Database database;
+    private Database database;
 
     /**
      * Runs before each test scenario.
@@ -159,10 +161,10 @@ public class AuthenticationTestSteps {
 
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put(VALID_USERNAME, username);
-        ((ObjectNode) json).put(VALID_AUTHPASS, password);
+        json.put(VALID_USERNAME, username);
+        json.put(VALID_AUTHPASS, password);
 
         return json;
     }
@@ -182,10 +184,10 @@ public class AuthenticationTestSteps {
     @When("I send a POST request to the login endpoint with the admin credentials")
     public void iSendAPOSTRequestToTheLoginEndpointWithTheAdminCredentials() {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("username", VALID_USERNAME);
-        ((ObjectNode) json).put("password", VALID_AUTHPASS);
+        json.put("username", VALID_USERNAME);
+        json.put("password", VALID_AUTHPASS);
 
         Http.RequestBuilder request = fakeRequest()
                 .bodyJson(json)
@@ -231,7 +233,7 @@ public class AuthenticationTestSteps {
      * Checks if the status code received is OK (200).
      */
     @Then("I receive an OK status code")
-    public void the_status_code_received_is_OK() {
+    public void theStatusCodeReceivedIsOK() {
         assertEquals(OK, statusCode);
     }
 

@@ -41,7 +41,10 @@ body {
 .sidebar {
     padding: 20px;
     background-color: white;
-    border-radius: 5px
+    border-radius: 5px;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
 }
 .sidebar h3 {
     margin: 0;
@@ -49,11 +52,6 @@ body {
 .content,
 .sidebar {
     float: left;
-}
-.sidebar {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
 }
 
 /* When the screen is of max-width 2415px, change the layout of the page */

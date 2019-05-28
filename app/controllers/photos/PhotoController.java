@@ -56,6 +56,7 @@ public class PhotoController extends Controller {
         this.config = config;
     }
 
+
     /**
      * Generates a UUID for a filename.
      *
@@ -65,6 +66,7 @@ public class PhotoController extends Controller {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
     }
+
 
     /**
      * Determines the filepath of where an image should be saved.
@@ -96,6 +98,7 @@ public class PhotoController extends Controller {
         return returnPath;
     }
 
+
     /**
      * Returns whether or not a list of uploaded photos are valid.
      *
@@ -118,6 +121,7 @@ public class PhotoController extends Controller {
 
         return true;
     }
+
 
     /**
      * Takes a profile, filename of a previously saved photo and boolean flag.
@@ -143,6 +147,7 @@ public class PhotoController extends Controller {
         profileToAdd.addPhotoToGallery(personalPhoto);
         profileRepo.save(profileToAdd);
     }
+
 
     /**
      * Deletes a photo from a specified user, based on the id number of the photo.
@@ -179,6 +184,85 @@ public class PhotoController extends Controller {
         }
         return badRequest();
     }
+
+
+    /**
+     * Delete a profile picture from a specified profile. This sets the user's profile picture to a default value
+     * (null).
+     *
+     * @param request the Http request body.
+     * @param userId  the user id number of the person to be changed.
+     * @return        unauthorized() (Http 401) if the user is not logged in, badRequest() (Http 400) if the specified
+     *                profile cannot be found, forbidden() (Http 403) if the logged in user is not allowed to change the
+     *                profile picture.
+     */
+    public Result destroyProfilePhoto(Http.Request request, Long userId) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+
+        Profile profileToChange = profileRepo.fetchSingleProfile(userId.intValue());
+
+        if (profileToChange == null) {
+            return badRequest();
+        }
+
+        if(!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
+            return forbidden();
+        }
+
+        profileRepo.deleteProfilePhoto(profileToChange);
+        return ok();
+    }
+
+
+    /**
+     * Updates a profile photo based on the photo Id's owner and checks authentication from if their logged in
+     * or if an admin is changing a users profile.
+     *
+     * @param request       the Http request from the front end.
+     * @param photoId       the photoId that the profile photo is being changed to.
+     * @return              notFound() (Http 404) if the owner for the profile photo is not found.
+     *                      unauthorized() (Http 403) if the user is not logged in or not authorized to change the
+     *                      owners profile photo, ok() (Http 200) if successful change of profile photo.
+     */
+    public Result updateProfilePhoto(Http.Request request, Long photoId) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(loggedInUserId -> {
+
+                    PersonalPhoto personalPhoto = personalPhotoRepo.fetch(photoId);
+
+                    if (personalPhoto == null) {
+                        return badRequest();
+                    }
+
+                    Profile owner = personalPhoto.getProfile();
+
+                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
+
+                    if (owner == null) {
+                        return notFound();
+                    }
+
+                    if(!AuthenticationUtil.validUser(loggedInUser, owner)) {
+                        return forbidden();
+                    }
+
+                    if (personalPhoto.getPublic()) {
+                        profileRepo.setProfilePhoto(personalPhoto, owner);
+                        return ok();
+                    } else {
+                        personalPhotoRepo.updatePrivacy(owner, personalPhoto, "true");
+                        profileRepo.setProfilePhoto(personalPhoto, owner);
+                        return ok();
+                    }
+                }).orElseGet(() -> unauthorized());
+    }
+
 
     /**
      * Change the privacy of the selected photo from private to public, or public to private. Public means all users can
@@ -218,6 +302,10 @@ public class PhotoController extends Controller {
                         return notFound();
                     }
 
+                    if(owner.getProfilePicture() != null && owner.getProfilePicture().getId().equals(personalPhotoId)) {
+                        return badRequest();
+                    }
+
                     if(AuthenticationUtil.validUser(loggedInUser, owner)) {
                         profileToChange = profileRepo.fetchSingleProfile(owner.getId().intValue());
                     } else {
@@ -233,14 +321,15 @@ public class PhotoController extends Controller {
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
+
     /**
      * Saves a list of images given in multipart form data in the application.
      * Creates thumbnails for all files. Saves a full sized copy and a thumbnail of each photo.
      *
-     * @param profileToAdd  profile to add the photos to
-     * @param photos        list of images to add the the profile
-     * @return              created() (Http 201) if upload was successful and the Json form of the new profile Photo gallery
-     *                      internalServerError() (Http 500) if there was an error with thumbnail creation
+     * @param profileToAdd  profile to add the photos to.
+     * @param photos        list of images to add the the profile.
+     * @return              created() (Http 201) if upload was successful and the Json form of the new profile Photo
+     *                      gallery internalServerError() (Http 500) if there was an error with thumbnail creation.
      */
     private Result savePhotos(Profile profileToAdd, Collection<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
         for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
@@ -257,6 +346,34 @@ public class PhotoController extends Controller {
         }
         return created(Json.toJson(profileToAdd.getPhotoGallery()));
     }
+
+
+    /**
+     * Gets all photos for the given user.
+     *
+     * @param request   Http request from the client.
+     * @param userId    id of the user being viewed.
+     * @return          a Json list containing the id numbers and privacy of all photos owned by that user.
+     */
+    public Result list(Http.Request request, Long userId) {
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(loggedInUserId -> {
+
+                    Profile user = profileRepo.fetchSingleProfile(userId.intValue());
+
+                    JsonNode userJson = (Json.toJson(user));
+
+                    if (userJson.has("photoGallery")) {
+                        return ok(userJson.get("photoGallery"));
+                    }
+
+                    return badRequest();
+
+                })
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+    }
+
 
     /**
      * Takes a multipart form data request to upload an image.
@@ -304,6 +421,7 @@ public class PhotoController extends Controller {
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
+
     /**
      * Takes a filename of a previously saved image and creates a thumbnail from it.
      * After creation, it will save into the specified thumbnail directory.
@@ -319,6 +437,7 @@ public class PhotoController extends Controller {
                 + filename));
     }
 
+
     /**
      * Gets a middle section of the image and makes it into a square.
      *
@@ -332,6 +451,7 @@ public class PhotoController extends Controller {
 
         return photo.getSubimage((width/2) - (size/2), (height/2) - (size/2), size, size);
     }
+
 
     /**
      * Scales a BufferedImage object to a 200x200 pixels image, with lower quality to be stored as a thumbnail. Uses
@@ -361,6 +481,7 @@ public class PhotoController extends Controller {
         return scaledImage;
     }
 
+
     /**
      * Retrieves an image file from a path specified in the given photo object.
      * If getThumbnail is true, it will return the thumbnail version from the given photo object.
@@ -379,6 +500,7 @@ public class PhotoController extends Controller {
 
         return ok(new File(filename)).as(contentType);
     }
+
 
     /**
      * Fetches a personal photo from the application based on the specified Id.

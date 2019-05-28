@@ -61,7 +61,7 @@ public class AuthenticationController extends Controller {
                     Profile profile = Profile.find.query().where()
                             .like(USERNAME, username).findOne();
 
-                    if ((profile != null) && (profile.password.equals(password))) {
+                    if ((profile != null) && (profile.getPassword().equals(password))) {
                         // Profile was successfully fetched and password matches,
                         // Set session token as id and return ok (200 response)
                         return ok("Logged In").addingToSession(request, AUTHORIZED, profile.id.toString());

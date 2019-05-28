@@ -1,10 +1,15 @@
 <template>
     <div>
         <!--Bootstrap Vue form file uploader for the user to select the files to upload-->
-        <b-form-file :file-name-formatter="formatNames" :state="Boolean(files)" :accept="acceptTypes"
+        <b-form-file @change="$emit('dismiss-error')" v-if="multipleFiles" :file-name-formatter="formatNames" :accept="acceptTypes"
                      drop-placeholder="Drop files here..."
                      multiple
                      placeholder="Choose files..."
+                     v-model="files"
+        ></b-form-file>
+        <b-form-file @change="$emit('dismiss-error')" v-else :file-name-formatter="formatNames" :accept="acceptTypes"
+                     drop-placeholder="Drop file here..."
+                     placeholder="Choose file..."
                      v-model="files"
         ></b-form-file>
         <b-button @click="files = null" class="btn btn-info">Clear Selected Files</b-button>
@@ -16,8 +21,17 @@
     export default {
         name: "photoUploader",
         props: {
-            files: Object,
             acceptTypes: String,
+            multipleFiles: {
+                default: function () {
+                    return true;
+                }
+            }
+        },
+        data() {
+            return {
+                files: null
+            }
         },
         methods: {
 
@@ -46,7 +60,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>

@@ -21,35 +21,46 @@ import java.util.List;
 @Table(name = "profile")
 public class Profile extends BaseModel {
 
-    public String username;
+    private String username;
 
     @JsonIgnore
-    public String password;
+    private String password;
 
-    public String firstName;
-    public String middleName;
-    public String lastName;
-    public String gender;
-    public LocalDate dateOfBirth;
-    public Boolean isAdmin;
-
-    @OneToMany(cascade=CascadeType.ALL)
-    private List<PersonalPhoto> photoGallery = new ArrayList<PersonalPhoto>();
+    private String firstName;
+    private String middleName;
+    private String lastName;
+    private String gender;
+    private LocalDate dateOfBirth;
+    private Boolean isAdmin;
 
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
-    public Date dateOfCreation;
+    private Date dateOfCreation;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    public List<Nationality> nationalities = new ArrayList<Nationality>();
+    private List<Nationality> nationalities = new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
-    public List<TravellerType> travellerTypes = new ArrayList<TravellerType>();
+    private List<TravellerType> travellerTypes = new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
-    public List<Passport> passports = new ArrayList<Passport>();
+    private List<Passport> passports = new ArrayList<>();
 
     @OneToMany(cascade=CascadeType.ALL, mappedBy = "profile")
-    public List<Trip> trips = new ArrayList<Trip>();
+    private List<Trip> trips = new ArrayList<>();
+
+    @OneToMany(cascade=CascadeType.ALL)
+    private List<PersonalPhoto> photoGallery = new ArrayList<>();
+
+    @OneToOne
+    private PersonalPhoto profilePicture = new PersonalPhoto();
+
+    public PersonalPhoto getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(PersonalPhoto profilePicture) {
+        this.profilePicture = profilePicture;
+    }
 
     public void addTravType(TravellerType travellerType) {
         this.travellerTypes.add(travellerType);
@@ -187,5 +198,5 @@ public class Profile extends BaseModel {
         return photoGallery.remove(photoToRemove);
     }
 
-    public static Finder<Integer, Profile> find = new Finder<>(Profile.class);
+    public static final Finder<Integer, Profile> find = new Finder<>(Profile.class);
 }

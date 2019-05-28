@@ -1,9 +1,7 @@
 package steps;
 
-import akka.event.Logging;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -12,7 +10,6 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.Profile;
 import org.junit.Assert;
-import org.springframework.beans.BeansException;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
@@ -32,7 +29,7 @@ public class AdminTestSteps {
 
     @Inject
     Application application;
-    protected Database database;
+    private Database database;
 
     private static final String AUTHORIZED = "authorized";
     private int statusCode;
@@ -136,10 +133,10 @@ public class AdminTestSteps {
      */
     private void loginRequest(String username, String password) {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("username", username);
-        ((ObjectNode) json).put("password", password);
+        json.put(USERNAME, username);
+        json.put(PASS_FIELD, password);
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
@@ -239,8 +236,8 @@ public class AdminTestSteps {
         // complex json
         ObjectMapper mapper = new ObjectMapper();
 
-        //Add values to a JsonNode
-        JsonNode json = mapper.createObjectNode();
+        //Add values to a ObjectNode
+        ObjectNode json = mapper.createObjectNode();
 
         ObjectNode nationalityNode = mapper.createObjectNode();
         nationalityNode.put("id", Integer.valueOf(list.get(0).get("nationality")));
@@ -251,16 +248,16 @@ public class AdminTestSteps {
         ObjectNode passportNode = mapper.createObjectNode();
         passportNode.put("id", Integer.valueOf(list.get(0).get("passport_country")));
 
-        ((ObjectNode) json).put("username", username);
-        ((ObjectNode) json).put("password", password);
-        ((ObjectNode) json).put("firstName", firstName);
-        ((ObjectNode) json).put("middleName", middleName);
-        ((ObjectNode) json).put("lastName", lastName);
-        ((ObjectNode) json).put("gender", gender);
-        ((ObjectNode) json).put("dateOfBirth", dateOfBirth);
-        ((ObjectNode) json).putArray("nationalities").add(nationalityNode);
-        ((ObjectNode) json).putArray("travellerTypes").add(travellerTypeNode);
-        ((ObjectNode) json).putArray("passports").add(passportNode);
+        json.put("username", username);
+        json.put("password", password);
+        json.put("firstName", firstName);
+        json.put("middleName", middleName);
+        json.put("lastName", lastName);
+        json.put("gender", gender);
+        json.put("dateOfBirth", dateOfBirth);
+        json.putArray("nationalities").add(nationalityNode);
+        json.putArray("travellerTypes").add(travellerTypeNode);
+        json.putArray("passports").add(passportNode);
 
         return json;
     }

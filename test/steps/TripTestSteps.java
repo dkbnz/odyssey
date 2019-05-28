@@ -185,10 +185,11 @@ public class TripTestSteps {
     private void loginRequest(String username, String password) {
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("username", username);
-        ((ObjectNode) json).put("password", password);
+
+        json.put("username", username);
+        json.put("password", password);
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)

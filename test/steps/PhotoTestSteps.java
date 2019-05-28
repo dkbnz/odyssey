@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import static play.test.Helpers.*;
@@ -47,20 +46,25 @@ public class PhotoTestSteps {
     private static final String AUTHORIZED = "authorized";
     private static final String UPLOAD_PHOTOS_URI = "/v1/photos/";
     private static final String CHANGE_PHOTO_PRIVACY_URI = "/v1/photos";
+    private static final String PROFILE_PHOTO_URI = "/v1/profilePhoto/";
     private static final String LOGIN_URI = "/v1/login";
+
     /**
      * A valid username for login credentials for admin user.
      */
     private static final String VALID_USERNAME = "admin@travelea.com";
+
     /**
      * A valid password for login credentials for admin user.
      */
     private static final String VALID_AUTHPASS = "admin1";
     private static final String ADMIN_ID = "1";
+
     /**
      * A valid username for login credentials for a regular user.
      */
     private static final String REG_USER = "guestUser@travelea.com";
+
     /**
      * A valid password for login credentials for a regular user.
      */
@@ -151,21 +155,11 @@ public class PhotoTestSteps {
     }
 
     /**
-     * Gets the response as an iterator array Node from any fake request so that you can iterate over the response data
-     *
-     * @param content the string of the result using helper content as string
-     * @return an Array node iterator
+     * Creates a Json ObjectNode to be used for the photo.
+     * @param photoId  the photoId of the photo to be added to the Json node.
+     * @param isPublic the boolean value for the photo privacy to be added to the Json node.
+     * @return         the Json ObjectNode for the new photo.
      */
-    private Iterator<JsonNode> getTheResponseIterator(String content) {
-        JsonNode arrNode = null;
-        try {
-            arrNode = new ObjectMapper().readTree(content);
-        } catch (IOException e) {
-            log.error("Unable to get response iterator for fake request.", e);
-        }
-        return arrNode.elements();
-    }
-
     private JsonNode createJson(int photoId, boolean isPublic) {
         // complex json
         ObjectMapper mapper = new ObjectMapper();
@@ -276,6 +270,29 @@ public class PhotoTestSteps {
         statusCode = changePhotoPrivacyResult.status();
     }
 
+    @When("I delete a profile picture of profile {int}")
+    public void iDeleteAProfilePicture(int userId) {
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                        .uri(PROFILE_PHOTO_URI + userId)
+                        .method("DELETE")
+                        .session(AUTHORIZED, LOGGED_IN_ID);
+        Result changePhotoPrivacyResult = route(application, request);
+
+        statusCode = changePhotoPrivacyResult.status();
+    }
+
+    @When("I set a profile photo from their photo Gallery with id {int}")
+    public void iSetAProfilePhotoFromTheirPhotoGalleryWithId(Integer photoId) {
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                        .uri(PROFILE_PHOTO_URI + photoId)
+                        .method("PUT")
+                        .session(AUTHORIZED, LOGGED_IN_ID);
+
+        Result changeProfilePhotoResult = route(application, request);
+        statusCode = changeProfilePhotoResult.status();
+    }
 
     @Then("the status code I get is Created")
     public void theStatusCodeIsCreated() {
