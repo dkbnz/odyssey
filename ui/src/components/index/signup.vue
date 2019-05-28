@@ -488,8 +488,8 @@
                         });
                     }
                     else {
-                        self.$router.go();
-                        //self.$router.push("/dash");
+                        //self.$router.go();
+                        self.$router.push("/dash");
                         return response.json();
                     }
 
