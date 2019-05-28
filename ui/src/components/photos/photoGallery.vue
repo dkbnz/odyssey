@@ -36,13 +36,46 @@
         >
         </photo-table>
 
-        <photo-modal v-bind:photo-to-view="photoToView"
-                     v-bind:is-profile-picture="false"
-                     v-bind:display="displayImage"
-                     v-bind:show-buttons="auth"
-                     @profile-photo="setProfilePhoto"
-                     @delete-photo="deletePhoto"
-        ></photo-modal>
+        <b-modal centered hide-footer ref="modalImage" size="xl">
+            <b-img-lazy v-if="photoToView !== null" :src="getFullPhoto()" alt="Image couldn't be retrieved" @error="imageAlt" center fluid>
+            </b-img-lazy>
+            <b-row>
+                <b-col>
+                    <b-button
+                            block class="mr-2"
+                            size="sm" style="margin-top: 10px"
+                            @click="setProfilePhoto"
+                            v-if="auth" variant="info">Make this my profile picture
+                    </b-button>
+                </b-col>
+                <b-col>
+                    <b-button
+                            block class="mr-2"
+                            size="sm" style="margin-top: 10px"
+                            v-b-modal.deletePhotoModal
+                            v-if="auth" variant="danger">Delete
+                    </b-button>
+                </b-col>
+            </b-row>
+            <b-modal hide-footer id="deletePhotoModal" ref="deletePhotoModal" title="Delete Photo">
+                <div class="d-block">
+                    <p>Are you sure that you want to delete this image?</p>
+                    <!-- Display additional message if deleting profile picture -->
+                    <p>
+                        <b>This is your profile picture!</b>
+                    </p>
+                </div>
+                <b-button
+                        @click="deleteImage"
+                        class="mr-2 float-right"
+                        variant="danger">Delete
+                </b-button>
+                <b-button
+                        @click="dismissConfirmDelete"
+                        class="mr-2 float-right">Cancel
+                </b-button>
+            </b-modal>
+        </b-modal>
 
     </div>
 </template>
@@ -50,7 +83,6 @@
 <script>
     import PhotoUploader from "../photos/photoUploader";
     import PhotoTable from "../photos/photoTable";
-    import PhotoModal from "../photos/photoDisplayModal";
 
     export default {
         name: "photoGallery",
@@ -63,7 +95,8 @@
                 dismissCountDown: 0,
                 showError: false,
                 errorMessage: "",
-                photoToView: null
+                photoToView: null,
+                refreshTable: 0
             }
         },
 
@@ -79,8 +112,7 @@
 
         components: {
             PhotoTable,
-            PhotoUploader,
-            PhotoModal
+            PhotoUploader
         },
 
         mounted() {
@@ -112,20 +144,37 @@
             photoClicked: function(photo) {
                 console.log(photo);
                 this.photoToView = photo;
-                this.displayImage = true;
-                console.log(this.displayImage)
+                this.$refs['modalImage'].show();
             },
 
 
-            deleteTheImage: function(photo) {
-                console.log("Delete photo clicked");
-                console.log(photo);
-            },
+            /**
+             * Sends the DELETE request to the backend for the selected image and closes the two modals
+             * and refreshes the list of photos in the photo gallery.
+             */
+            deleteImage() {
+                let self = this;
+                fetch(`/v1/photos/` + this.photoToView.id, {
+                    method: 'DELETE'
+                }).then(response => {
+                    self.error = (response.status === 200);
+                });
+                this.$refs['deletePhotoModal'].hide();
+                this.$refs['modalImage'].hide();
 
-
-            setProfilePhotoasd: function(photo) {
-                console.log("Set profile clicked");
-                console.log(photo);
+                this.checkAuth();
+                let change = false;
+                for(let i=0; i < this.photos.length; i++) {
+                    if(this.photos[i].id === this.photoToView.id || change) {
+                        change = true;
+                        if (i+1 === this.photos.length) {
+                            this.photos.pop();
+                        } else {
+                            this.photos[i] = this.photos[i+1];
+                        }
+                    }
+                }
+                this.$emit("removePhoto", this.photoToView.id);
             },
 
 
@@ -156,8 +205,28 @@
             /**
              * Emits change up to view profile be able to auto update front end when changing profile picture.
              */
-            setProfilePhoto(photo) {
-                this.$emit('makeProfilePhoto', photo.id);
+            setProfilePhoto() {
+
+                let self = this;
+                let currentPrivacy = this.photoToView.public;
+                this.photoToView.public = true;
+                this.updatePhotoPrivacy(this.photoToView);
+                fetch('/v1/profilePhoto/' + this.photoToView.id, {
+                    method: 'PUT'
+                }).then(response => {
+                    if (response.status === 200) {
+                        self.refreshTable += 1;
+                        self.showError = false;
+                        this.$emit('makeProfilePhoto', this.photoToView.id);
+                    } else {
+                        // If the profile picture doesn't update, set back to previous value.
+                        self.photoToView.public = currentPrivacy;
+                        self.updatePhotoPrivacy(this.photoToView);
+                        self.showError = true;
+                        self.alertMessage = "An error occurred when making this your profile photo";
+                    }
+                });
+                this.$refs['modalImage'].hide();
             },
 
 
@@ -181,12 +250,34 @@
                     })
             },
 
+            /**
+             * Sends a GET request to get the full sized image from the backend.
+             */
+            getFullPhoto() {
+                return 'v1/photos/' + this.photoToView.id;
+            },
+
+
+            /**
+             * When an image isn't shown show this default profile image.
+             */
+            imageAlt(event) {
+                event.target.src = "../../../static/default_image.png"
+            },
+
+
+            /**
+             * Closes the delete photo modal.
+             */
+            dismissConfirmDelete() {
+                this.$refs['deletePhotoModal'].hide();
+            },
+
 
             /**
              * Updates the photos list sent to the photoTable for a single privacy photo.
              *
-             * @param photoId           the photo id that's changing status.
-             * @param isPublic          the changed status.
+             * @param photo           the photo that's changing status.
              */
             updatePhotoPrivacy: function(photo) {
                 let self = this;
@@ -197,7 +288,9 @@
                     body: JSON.stringify(photo)
                 }).then(response => {
                     if (response.status === 200) {
-                        self.photos = response.json();
+                        response.clone().json().then(text => {
+                            self.photos = text;
+                        });
                     }
                 });
             },
@@ -223,21 +316,6 @@
              * Deletes the photo from the photos list so it updates the table in the front end without
              * requiring a refresh of the profile.
              */
-            deletePhoto: function(photo) {
-                this.checkAuth();
-                let change = false;
-                for(let i=0; i < this.photos.length; i++) {
-                    if(this.photos[i].id === photo.id || change) {
-                        change = true;
-                        if (i+1 === this.photos.length) {
-                            this.photos.pop();
-                        } else {
-                            this.photos[i] = this.photos[i+1];
-                        }
-                    }
-                }
-                this.$emit("removePhoto", photo.id);
-            },
 
 
             /**
