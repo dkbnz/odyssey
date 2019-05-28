@@ -31,28 +31,39 @@
                      v-bind:profile="profile"
                      v-bind:userProfile="userProfile"
                      :adminView="adminView"
-                     v-on:changePrivacy="updatePhotoPrivacyList"
-                     v-on:removePhoto="deletePhoto"
-                     v-on:makeProfilePhoto="setProfilePhoto">
+                     v-on:privacy-update="updatePhotoPrivacy"
+                     v-on:photo-click="photoClicked"
+        >
         </photo-table>
+
+        <photo-modal v-bind:photo-to-view="photoToView"
+                     v-bind:is-profile-picture="false"
+                     v-bind:display="displayImage"
+                     v-bind:show-buttons="auth"
+                     @profile-photo="setProfilePhoto"
+                     @delete-photo="deletePhoto"
+        ></photo-modal>
+
     </div>
 </template>
 
 <script>
-    import PhotoUploader from "../photos/photoUploader"
-    import PhotoTable from "./photoTable";
+    import PhotoUploader from "../photos/photoUploader";
+    import PhotoTable from "../photos/photoTable";
+    import PhotoModal from "../photos/photoDisplayModal";
 
     export default {
         name: "photoGallery",
         data: function () {
             return {
                 photos: [],
-                currentViewingID: 0,
+                displayImage: false,
                 auth: false,
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 showError: false,
-                errorMessage: ""
+                errorMessage: "",
+                photoToView: null
             }
         },
 
@@ -68,7 +79,8 @@
 
         components: {
             PhotoTable,
-            PhotoUploader
+            PhotoUploader,
+            PhotoModal
         },
 
         mounted() {
@@ -94,6 +106,26 @@
                         this.addPhotos(data);
                         this.showAlert();
                     });
+            },
+
+
+            photoClicked: function(photo) {
+                console.log(photo);
+                this.photoToView = photo;
+                this.displayImage = true;
+                console.log(this.displayImage)
+            },
+
+
+            deleteTheImage: function(photo) {
+                console.log("Delete photo clicked");
+                console.log(photo);
+            },
+
+
+            setProfilePhotoasd: function(photo) {
+                console.log("Set profile clicked");
+                console.log(photo);
             },
 
 
@@ -124,8 +156,8 @@
             /**
              * Emits change up to view profile be able to auto update front end when changing profile picture.
              */
-            setProfilePhoto(photoId) {
-                this.$emit('makeProfilePhoto', photoId);
+            setProfilePhoto(photo) {
+                this.$emit('makeProfilePhoto', photo.id);
             },
 
 
@@ -156,12 +188,18 @@
              * @param photoId           the photo id that's changing status.
              * @param isPublic          the changed status.
              */
-            updatePhotoPrivacyList: function(photoId, isPublic) {
-                for(let i=0; i < this.photos.length; i++) {
-                    if(this.photos[i].id === photoId) {
-                        this.photos[i].public = isPublic;
+            updatePhotoPrivacy: function(photo) {
+                let self = this;
+
+                fetch('/v1/photos', {
+                    method: 'PATCH',
+                    headers: {'content-type': 'application/json'},
+                    body: JSON.stringify(photo)
+                }).then(response => {
+                    if (response.status === 200) {
+                        self.photos = response.json();
                     }
-                }
+                });
             },
 
 
@@ -180,15 +218,16 @@
                 }
             },
 
+
             /**
              * Deletes the photo from the photos list so it updates the table in the front end without
              * requiring a refresh of the profile.
              */
-            deletePhoto: function(photoId) {
+            deletePhoto: function(photo) {
                 this.checkAuth();
                 let change = false;
                 for(let i=0; i < this.photos.length; i++) {
-                    if(this.photos[i].id === photoId || change) {
+                    if(this.photos[i].id === photo.id || change) {
                         change = true;
                         if (i+1 === this.photos.length) {
                             this.photos.pop();
@@ -197,7 +236,7 @@
                         }
                     }
                 }
-                this.$emit("removePhoto", photoId);
+                this.$emit("removePhoto", photo.id);
             },
 
 
