@@ -232,9 +232,6 @@
                     if (response.status === 200) {
                         self.showError = false;
                         this.$emit('changePrivacy', photoId, isPublic);
-                    } else {
-                        self.showError = true;
-                        self.alertMessage = "Cannot change privacy of your personal photo";
                     }
                 });
             },
