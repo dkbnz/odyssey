@@ -26,7 +26,7 @@ tag_checker:
 junit:
   stage: test
   script:
-    - xvfb-run sbt test
+    - xvfb-run -a sbt test
 
 recent-artifacts:
   stage: deploy
