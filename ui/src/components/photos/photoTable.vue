@@ -32,7 +32,7 @@
                 ref="navigationGallery"
                 v-model="currentPage"
         ></b-pagination>
-    <b-alert v-model="showError" dismissable variant="danger">
+    <b-alert v-model="showError" dismissible variant="danger">
         {{alertMessage}}
     </b-alert>
         <b-modal centered hide-footer ref="modalImage" size="xl">

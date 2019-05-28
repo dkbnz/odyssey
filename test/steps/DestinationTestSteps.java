@@ -92,6 +92,8 @@ public class DestinationTestSteps {
      */
     private static final String QUESTION_MARK = "?";
 
+    private static final String DISTRICT_STRING = "District";
+    private static final String LATITUDE_STRING = "Latitude";
 
     /**
      * The fake application.
@@ -305,8 +307,8 @@ public class DestinationTestSteps {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         String name = list.get(0).get("Name");
         String type = list.get(0).get("Type");
-        String district = list.get(0).get("District");
-        String latitude = list.get(0).get("Latitude");
+        String district = list.get(0).get(DISTRICT_STRING);
+        String latitude = list.get(0).get(LATITUDE_STRING);
         String longitude = list.get(0).get("Longitude");
         String country = list.get(0).get("Country");
 
@@ -365,7 +367,7 @@ public class DestinationTestSteps {
     @When("I search for a destination with district")
     public void iSearchForADestinationWithDistrict(io.cucumber.datatable.DataTable dataTable) {
         // Set up the search fields with given district
-        String value = getValueFromDataTable("District", dataTable);
+        String value = getValueFromDataTable(DISTRICT_STRING, dataTable);
         String query = createSearchDestinationQueryString(DISTRICT, value);
 
         //Send search destinations request
@@ -376,7 +378,7 @@ public class DestinationTestSteps {
     @When("I search for a destination with latitude")
     public void iSearchForADestinationWithLatitude(io.cucumber.datatable.DataTable dataTable) {
         // Set up the search fields with given district
-        String value = getValueFromDataTable("Latitude", dataTable);
+        String value = getValueFromDataTable(LATITUDE_STRING, dataTable);
         String query = createSearchDestinationQueryString(LATITUDE, value);
 
         //Send search destinations request
@@ -480,7 +482,7 @@ public class DestinationTestSteps {
 
     @Then("the response contains at least one destination with district")
     public void theResponseContainsAtLeastOneDestinationWithDistrict(io.cucumber.datatable.DataTable dataTable) throws IOException {
-        String value = getValueFromDataTable("District", dataTable);
+        String value = getValueFromDataTable(DISTRICT_STRING, dataTable);
         String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(DISTRICT).asText();
 
         //Send search destinations request
@@ -490,7 +492,7 @@ public class DestinationTestSteps {
 
     @Then("the response contains at least one destination with latitude")
     public void theResponseContainsAtLeastOneDestinationWithLatitude(io.cucumber.datatable.DataTable dataTable) throws IOException {
-        String value = getValueFromDataTable("Latitude", dataTable);
+        String value = getValueFromDataTable(LATITUDE_STRING, dataTable);
         String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(LATITUDE).asText();
 
         //Send search destinations request

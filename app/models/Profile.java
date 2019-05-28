@@ -198,5 +198,5 @@ public class Profile extends BaseModel {
         return photoGallery.remove(photoToRemove);
     }
 
-    public static Finder<Integer, Profile> find = new Finder<>(Profile.class);
+    public static final Finder<Integer, Profile> find = new Finder<>(Profile.class);
 }

@@ -1,9 +1,7 @@
 package steps;
 
-import akka.event.Logging;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -12,7 +10,6 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.Profile;
 import org.junit.Assert;
-import org.springframework.beans.BeansException;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
@@ -32,7 +29,7 @@ public class AdminTestSteps {
 
     @Inject
     Application application;
-    protected Database database;
+    private Database database;
 
     private static final String AUTHORIZED = "authorized";
     private int statusCode;
@@ -138,8 +135,8 @@ public class AdminTestSteps {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("username", username);
-        ((ObjectNode) json).put("password", password);
+        ((ObjectNode) json).put(USERNAME, username);
+        ((ObjectNode) json).put(PASS_FIELD, password);
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
