@@ -19,6 +19,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +72,7 @@ public class DestinationTestSteps {
     /**
      * A valid password for login credentials for admin user.
      */
-    private static final String VALID_PASSWORD = "admin1";
+    private static final String VALID_AUTHPASS = "admin1";
 
 
     /**
@@ -91,6 +92,8 @@ public class DestinationTestSteps {
      */
     private static final String QUESTION_MARK = "?";
 
+    private static final String DISTRICT_STRING = "District";
+    private static final String LATITUDE_STRING = "Latitude";
 
     /**
      * The fake application.
@@ -113,8 +116,17 @@ public class DestinationTestSteps {
      */
     @Before
     public void setUp() {
+        Map<String, String> configuration = new HashMap<>();
+        configuration.put("play.db.config", "db");
+        configuration.put("play.db.default", "default");
+        configuration.put("db.default.driver", "org.h2.Driver");
+        configuration.put("db.default.url", "jdbc:h2:mem:testDBDestination;MODE=MYSQL;");
+        configuration.put("ebean.default", "models.*");
+        configuration.put("play.evolutions.db.default.enabled", "true");
+        configuration.put("play.evolutions.autoApply", "false");
+
         //Set up the fake application to use the in memory database config
-        application = fakeApplication();
+        application = fakeApplication(configuration);
 
         database = application.injector().instanceOf(Database.class);
         applyEvolutions();
@@ -171,10 +183,10 @@ public class DestinationTestSteps {
      */
     private void loginRequest(String username, String password) {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("username", username);
-        ((ObjectNode) json).put("password", password);
+        json.put("username", username);
+        json.put("password", password);
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
@@ -238,13 +250,13 @@ public class DestinationTestSteps {
 
     /**
      * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_PASSWORD.
+     * and VALID_AUTHPASS.
      *
      * Asserts the login was successful with a status code of OK (200).
      */
     @Given("I am logged in")
     public void iAmLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_PASSWORD);
+        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         assertEquals(OK, statusCode);
     }
 
@@ -295,21 +307,22 @@ public class DestinationTestSteps {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         String name = list.get(0).get("Name");
         String type = list.get(0).get("Type");
-        String district = list.get(0).get("District");
-        String latitude = list.get(0).get("Latitude");
+        String district = list.get(0).get(DISTRICT_STRING);
+        String latitude = list.get(0).get(LATITUDE_STRING);
         String longitude = list.get(0).get("Longitude");
         String country = list.get(0).get("Country");
 
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put(NAME, name);
-        ((ObjectNode) json).put(TYPE, type);
-        ((ObjectNode) json).put(LATITUDE, latitude);
-        ((ObjectNode) json).put(LONGITUDE, longitude);
-        ((ObjectNode) json).put(DISTRICT, district);
-        ((ObjectNode) json).put(COUNTRY, country);
+
+        json.put(NAME, name);
+        json.put(TYPE, type);
+        json.put(LATITUDE, latitude);
+        json.put(LONGITUDE, longitude);
+        json.put(DISTRICT, district);
+        json.put(COUNTRY, country);
 
         return json;
     }
@@ -355,7 +368,7 @@ public class DestinationTestSteps {
     @When("I search for a destination with district")
     public void iSearchForADestinationWithDistrict(io.cucumber.datatable.DataTable dataTable) {
         // Set up the search fields with given district
-        String value = getValueFromDataTable("District", dataTable);
+        String value = getValueFromDataTable(DISTRICT_STRING, dataTable);
         String query = createSearchDestinationQueryString(DISTRICT, value);
 
         //Send search destinations request
@@ -366,7 +379,7 @@ public class DestinationTestSteps {
     @When("I search for a destination with latitude")
     public void iSearchForADestinationWithLatitude(io.cucumber.datatable.DataTable dataTable) {
         // Set up the search fields with given district
-        String value = getValueFromDataTable("Latitude", dataTable);
+        String value = getValueFromDataTable(LATITUDE_STRING, dataTable);
         String query = createSearchDestinationQueryString(LATITUDE, value);
 
         //Send search destinations request
@@ -470,7 +483,7 @@ public class DestinationTestSteps {
 
     @Then("the response contains at least one destination with district")
     public void theResponseContainsAtLeastOneDestinationWithDistrict(io.cucumber.datatable.DataTable dataTable) throws IOException {
-        String value = getValueFromDataTable("District", dataTable);
+        String value = getValueFromDataTable(DISTRICT_STRING, dataTable);
         String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(DISTRICT).asText();
 
         //Send search destinations request
@@ -480,7 +493,7 @@ public class DestinationTestSteps {
 
     @Then("the response contains at least one destination with latitude")
     public void theResponseContainsAtLeastOneDestinationWithLatitude(io.cucumber.datatable.DataTable dataTable) throws IOException {
-        String value = getValueFromDataTable("Latitude", dataTable);
+        String value = getValueFromDataTable(LATITUDE_STRING, dataTable);
         String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(LATITUDE).asText();
 
         //Send search destinations request
@@ -500,8 +513,8 @@ public class DestinationTestSteps {
     /**
      * Checks if the status code received is Created (201).
      */
-    @Then("the status code received is Created")
-    public void theStatusCodeReceivedIsCreated() {
+    @Then("the received status code is Created")
+    public void theReceivedStatusCodeIsCreated() {
         assertEquals(CREATED, statusCode);
     }
 

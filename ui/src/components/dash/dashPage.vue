@@ -2,25 +2,32 @@
     <div v-if="profile.length !== 0">
 
         <!--Navigation Bar-->
-        <nav-bar-main v-bind:profile="profile"></nav-bar-main>
+        <nav-bar-main :profile="profile"></nav-bar-main>
         <b-navbar variant="light">
             <b-navbar-nav>
-                <b-nav-item @click="togglePage(viewProfile)">Profile</b-nav-item>
-                <b-nav-item @click="togglePage(editProfile)">Edit Profile</b-nav-item>
+                <b-nav-item @click="togglePage(viewProfile, 'view')">Profile</b-nav-item>
+                <b-nav-item @click="togglePage(editProfile, 'edit')">Edit Profile</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
 
         <!--Tab Elements-->
-        <view-profile v-if="viewProfile"
-                      :trips="trips"
-                      v-bind:profile="profile"
-                      v-bind:nationalityOptions="nationalityOptions"
-                      v-bind:travTypeOptions="travTypeOptions"></view-profile>
-        <edit-profile v-if="editProfile"
-                      v-bind:profile="profile"
-                      v-bind:nationalityOptions="nationalityOptions"
-                      v-bind:travTypeOptions="travTypeOptions"></edit-profile>
-
+        <view-profile
+                :destinations="destinations"
+                :nationalityOptions="nationalityOptions"
+                :profile="profile"
+                :travTypeOptions="travTypeOptions"
+                :trips="trips"
+                v-if="viewProfile">
+        </view-profile>
+        <edit-profile
+                :admin-view="adminView"
+                :nationalityOptions="nationalityOptions"
+                :profile="profile"
+                :showSaved="showSaved"
+                :travTypeOptions="travTypeOptions"
+                @profile-saved="showSavedProfile"
+                v-if="editProfile">
+        </edit-profile>
         <footer-main></footer-main>
     </div>
     <div v-else>
@@ -38,20 +45,21 @@
 
     export default {
         name: "dashPage",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips'],
-        created() {
-            document.title = "TravelEA - Dashboard";
-        },
-        data: function() {
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'adminView', 'destinations'],
+        data: function () {
             return {
                 viewProfile: true,
                 editProfile: false,
+                photoGallery: false,
+                showSaved: false
             }
         },
         methods: {
+
             /**
-             * Switches the currently displayed tab on the page
-             * @param viewPage the page to be displayed
+             * Switches between tabs.
+             *
+             * @param viewPage page to be displayed.
              */
             togglePage: function (viewPage) {
                 if (!viewPage) {
@@ -59,6 +67,15 @@
                     this.editProfile = !this.editProfile;
                 }
             },
+
+            /**
+             * Shows the profile has been successfully saved alert.
+             */
+            showSavedProfile() {
+                this.showSaved = true;
+                this.togglePage(this.viewProfile);
+            }
+
         },
         components: {
             ViewProfile,

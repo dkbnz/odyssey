@@ -8,7 +8,6 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import scala.concurrent.java8.FuturesConvertersImpl;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,7 @@ public class DestinationController extends Controller {
 
 
     /**
-     * Return a Json object listing all destination types in the database
+     * Return a Json object listing all destination types in the database.
      * @return ok() (Http 200) response containing all the different types of destinations.
      */
     public Result getTypes() {
@@ -114,7 +113,8 @@ public class DestinationController extends Controller {
         String longitude = json.get(LONGITUDE).asText();
 
         // Checks all fields contain data
-        if (name.length() == 0 || country.length() == 0 || district.length() == 0 || latitude.length() == 0 || longitude.length() == 0) {
+        if (name.length() == 0 || country.length() == 0 || district.length() == 0 || latitude.length() == 0
+                || longitude.length() == 0) {
             return false;
         }
 
@@ -140,10 +140,7 @@ public class DestinationController extends Controller {
         // Check string inputs against regex
         String nameRegEx = "^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$";
 
-        if (!(name.matches(nameRegEx) && country.matches(nameRegEx) && district.matches(nameRegEx))) {
-            return false;
-        }
-        return true;
+        return country.matches(nameRegEx);
     }
 
     /**
@@ -179,8 +176,8 @@ public class DestinationController extends Controller {
             destination.save();
             return created("Created");
         } else {
-            return badRequest("A destination with the name [ " +json.get(NAME).asText() + " ] and district [ "
-                    + json.get(DISTRICT).asText() + " ] already exists.");
+            return badRequest("A destination with the name '" +json.get(NAME).asText() + "' and district '"
+                    + json.get(DISTRICT).asText() + "' already exists.");
         }
     }
 
@@ -203,8 +200,6 @@ public class DestinationController extends Controller {
 
         return destination;
     }
-
-
 
     /**
      * Deletes a destination from the database using the given destination id number.

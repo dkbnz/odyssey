@@ -6,29 +6,30 @@
                 <div>
 
                     <div align="center">
-                        <img src="../../../static/full_logo_lg.png" width="50%" alt="TravelEA Logo">
-                        <h3 id="subtitle" align="center">Your personal Travel Executive Assistant!</h3>
+                        <img alt="TravelEA Logo" src="../../../static/full_logo_lg.png" width="50%">
+                        <h3 align="center" id="subtitle">Your personal Travel Executive Assistant!</h3>
                     </div>
 
-                        <b-row>
-                            <b-col>
-                                <b-button v-b-modal.modalSignup class="btn btn-info btn-lg float-right">Signup</b-button>
-                                <b-modal id="modalSignup" centered hide-footer>
-                                    <template slot="modal-title"><h2>Sign Up</h2></template>
-                                    <signup v-bind:nationalityOptions="nationalityOptions"
-                                            v-bind:travTypeOptions="travTypeOptions"></signup>
-                                </b-modal>
-                            </b-col>
+                    <b-row>
+                        <b-col>
+                            <b-button class="btn btn-info btn-lg float-right" v-b-modal.modalSignup>Sign Up</b-button>
+                            <b-modal centered hide-footer id="modalSignup">
+                                <template slot="modal-title"><h2>Sign Up</h2></template>
+                                <signup :createdByAdmin="false"
+                                        v-bind:nationalityOptions="nationalityOptions"
+                                        v-bind:travTypeOptions="travTypeOptions"></signup>
+                            </b-modal>
+                        </b-col>
 
-                            <b-col>
-                                <b-button v-b-modal.modalLogin  class="btn btn-info btn-lg float-left">Login</b-button>
-                                <b-modal id="modalLogin" hide-footer centered title="Login">
-                                    <template slot="modal-title"><h2>Login</h2></template>
-                                    <login></login>
-                                </b-modal>
-                            </b-col>
+                        <b-col>
+                            <b-button class="btn btn-info btn-lg float-left" v-b-modal.modalLogin>Login</b-button>
+                            <b-modal centered hide-footer id="modalLogin" title="Login">
+                                <template slot="modal-title"><h2>Login</h2></template>
+                                <login></login>
+                            </b-modal>
+                        </b-col>
 
-                        </b-row>
+                    </b-row>
 
                 </div>
             </div>
@@ -47,7 +48,7 @@
         created() {
             document.title = "Welcome to TravelEA";
         },
-        data: function() {
+        data: function () {
             return {
                 username: '',
                 password: ''
@@ -64,7 +65,12 @@
              * Redirects the user to the dash page.
              */
             redirectToDash() {
-                this.$router.replace("/dash");
+                if (this.profile.isAdmin) {
+                    this.$router.replace("/admin");
+                } else {
+                    this.$router.replace("/dash");
+                }
+
             },
 
             /**
