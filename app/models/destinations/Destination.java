@@ -2,8 +2,11 @@ package models.destinations;
 
 import io.ebean.Finder;
 import models.BaseModel;
+import models.photos.PersonalPhoto;
 import play.data.validation.Constraints;
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class for destinations that users signify an interest in.
@@ -51,6 +54,12 @@ public class Destination extends BaseModel {
     @Constraints.Required
     private String country;
 
+    /**
+     * The destinations photo gallery
+     */
+    @ManyToMany(cascade=CascadeType.ALL)
+    private List<PersonalPhoto> photoGallery = new ArrayList<>();
+
     public String getName() {
         return name;
     }
@@ -95,8 +104,16 @@ public class Destination extends BaseModel {
         return country;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setCountry(String country) { this.country = country; }
+
+    public List<PersonalPhoto> getPhotoGallery() { return photoGallery; }
+
+    public boolean addPhotoToGallery(PersonalPhoto photoToAdd) {
+        return photoGallery.add(photoToAdd);
+    }
+
+    public boolean removePhotoFromGallery(PersonalPhoto photoToRemove) {
+        return photoGallery.remove(photoToRemove);
     }
 
     public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
