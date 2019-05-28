@@ -211,7 +211,13 @@
 <script>
     export default {
         name: "Signup",
-        props: {nationalityOptions: Array, travTypeOptions: Array, createdByAdmin: false},
+        props: {nationalityOptions: Array,
+            travTypeOptions: Array,
+            createdByAdmin: {
+                default() {
+                    return false;
+                }
+            }},
         data: function () {
             return {
                 showError: false,
@@ -479,18 +485,16 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function (response) {
-                    if (response.status === 201 && self.createdByAdmin) {
+                    if (response.status === 201 && !self.createdByAdmin) {
+                        self.$router.go();
+                        return response.json();
+                    } else if (response.status === 201 && self.createdByAdmin) {
                         self.$emit('profile-created', true);
-                    } else if (response.status === 400) {
+                    } else {
                         self.showError = true;
                         response.clone().text().then(text => {
                             self.alertMessage = text;
                         });
-                    }
-                    else {
-                        self.$router.go();
-                        self.$router.push("/dash");
-                        return response.json();
                     }
 
                 })
