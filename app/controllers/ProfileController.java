@@ -22,6 +22,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.AuthenticationUtil;
 
 import static play.mvc.Results.*;
 
@@ -73,29 +74,14 @@ public class ProfileController {
 
         JsonNode json = request.body().asJson();
 
-        if (!(json.has(USERNAME)
-                && json.has(PASS_FIELD)
-                && json.has(FIRST_NAME)
-                && json.has(MIDDLE_NAME)
-                && json.has(LAST_NAME)
-                && json.has(DATE_OF_BIRTH)
-                && json.has(GENDER)
-                && json.has(NATIONALITY)
-                && json.has(PASSPORT)
-                && json.has(TRAVELLER_TYPE)
-        ) || profileExists(json.get(USERNAME).asText())) {
-            return badRequest();
+        Result checkJson = validateProfileJson(json);
+
+        if (checkJson != null) {
+            return checkJson;
         }
 
-        if(json.get(NATIONALITY).size() == 0
-        || json.get(TRAVELLER_TYPE).size() == 0) {
+        if(profileExists(json.get(USERNAME).asText())) {
             return badRequest();
-        }
-
-        String getError = userDataValid(json);
-
-        if(getError != null) {
-            return badRequest(getError);
         }
 
         Profile newUser = new Profile();
@@ -371,35 +357,72 @@ public class ProfileController {
      *                  and admin, or they are trying to delete the global admin (id number one).
      */
     public Result delete(Http.Request request, Long id) {
+        if (id == DEFAULT_ADMIN_ID) {
+            return forbidden("You can not delete the default administrator");
+        }
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    Profile profileToDelete =  Profile.find.byId(id.intValue());
+
+                    if (userProfile == null || profileToDelete == null) {
+                        return badRequest("Profile could not be found.");
+                    }
+
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
                         // If user is admin, they can delete other profiles
                         if (userProfile.getIsAdmin()) {
-                            Profile profileToDelete = Profile.find.byId(id.intValue());
-                            if (profileToDelete.getId() == DEFAULT_ADMIN_ID) {
-                                return forbidden("You can not delete the default administrator");
-                            } else {
-                                profileToDelete.delete();
-                                return ok("Delete successful");
-                            }
-                        } else {
-                            return forbidden("You do not have admin rights to delete other users.");
+                            profileToDelete.delete();
+                            return ok("Delete successful");
                         }
-                    } else {
-                        // User is deleting their own profile
-                        if (userProfile.getId() == DEFAULT_ADMIN_ID) {
-                            return forbidden("You can not delete the default administrator");
-                        } else {
-                            userProfile.delete();
-                            return ok("Delete successful").withNewSession();
-                        }
+                        return forbidden("You do not have admin rights to delete other users.");
                     }
+
+                    // User is deleting their own profile
+                    profileToDelete.delete();
+                    return ok("Delete successful").withNewSession();
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+    }
+
+
+    /**
+     * Validates the Json of a given profile. Checks if all Json fields are present.
+     * Ensures there are the required number of nationalities and traveller types.
+     * Checks if user data is within expected ranges.
+     *
+     * @param jsonToValidate    the JsonNode of the users input.
+     * @return                  badRequest() (Http 400) with associated error if an error exists.
+     *                          null if checks pass.
+     */
+    private Result validateProfileJson(JsonNode jsonToValidate) {
+        if (!(jsonToValidate.has(USERNAME)
+                && jsonToValidate.has(PASS_FIELD)
+                && jsonToValidate.has(FIRST_NAME)
+                && jsonToValidate.has(MIDDLE_NAME)
+                && jsonToValidate.has(LAST_NAME)
+                && jsonToValidate.has(DATE_OF_BIRTH)
+                && jsonToValidate.has(GENDER)
+                && jsonToValidate.has(NATIONALITY)
+                && jsonToValidate.has(PASSPORT)
+                && jsonToValidate.has(TRAVELLER_TYPE)
+        )) {
+            return badRequest("Invalid Json");
+        }
+
+        String getError = userDataValid(jsonToValidate);
+
+        if(getError != null) {
+            return badRequest(getError);
+        }
+
+        if(jsonToValidate.get(NATIONALITY).size() == 0
+                || jsonToValidate.get(TRAVELLER_TYPE).size() == 0) {
+            return badRequest("Invalid number of Nationalities/Traveller Types");
+        }
+        return null;
     }
 
 
@@ -417,50 +440,23 @@ public class ProfileController {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
-
                     Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
-                    Profile profileToUpdate;
-
-                    // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if(loggedInUser.getIsAdmin() || editUserId.equals(Long.valueOf(userId))) {
-                        profileToUpdate = Profile.find.byId(editUserId.intValue());
-                    } else if (!editUserId.equals(Long.valueOf(userId))) {
-                        return forbidden(); // User has specified an id which is not their own, but is not admin
-                    } else {
-                        return badRequest(); // User has not specified an id, but is trying to update their own profile
-                    }
+                    Profile profileToUpdate = Profile.find.byId(editUserId.intValue());
 
                     if (profileToUpdate == null) {
                         return badRequest("No profile found"); // User does not exist in the system.
                     }
 
+                    if (!AuthenticationUtil.validUser(loggedInUser, profileToUpdate)) {
+                        return forbidden(); // User has specified an id which is not their own and is not admin
+                    }
+
                     JsonNode json = request.body().asJson();
 
-                    log.info(String.format("Input: %s", json.toString()));
+                    Result checkJson = validateProfileJson(json);
 
-                    if (!(json.has(USERNAME)
-                            && json.has(PASS_FIELD)
-                            && json.has(FIRST_NAME)
-                            && json.has(MIDDLE_NAME)
-                            && json.has(LAST_NAME)
-                            && json.has(DATE_OF_BIRTH)
-                            && json.has(GENDER)
-                            && json.has(NATIONALITY)
-                            && json.has(PASSPORT)
-                            && json.has(TRAVELLER_TYPE)
-                    )) {
-                        return badRequest("Invalid Json");
-                    }
-
-                    String getError = userDataValid(json);
-
-                    if(getError != null) {
-                        return badRequest(getError);
-                    }
-
-                    if(json.get(NATIONALITY).size() == 0
-                            || json.get(TRAVELLER_TYPE).size() == 0) {
-                        return badRequest("Invalid number of Nationalities/Traveller Types");
+                    if (checkJson != null) {
+                        return checkJson;
                     }
 
                     // If the username has been changed, and the changed username exists return badRequest()
@@ -470,7 +466,6 @@ public class ProfileController {
                     }
 
                     if (!json.get(PASS_FIELD).asText().isEmpty()) { // Only update password if user has typed a new one
-
                         // Uses the hashProfilePassword() method to hash the given password.
                         try {
                             profileToUpdate.setPassword(hashProfilePassword(json.get(PASS_FIELD).asText()));
@@ -517,7 +512,6 @@ public class ProfileController {
                     profileToUpdate.update();
 
                     return ok(UPDATED);
-
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
