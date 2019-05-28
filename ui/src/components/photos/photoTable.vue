@@ -138,6 +138,7 @@
                 }
             },
 
+
             /**
              * Sends a GET request to get the full sized image from the backend.
              */
@@ -145,12 +146,14 @@
                 return 'v1/photos/' + this.currentViewingID;
             },
 
+
             /**
              * Sends a GET request to get a thumbnail image from the backend.
              */
             getThumbImage(id) {
                 return 'v1/photos/thumb/' + id;
             },
+
 
             /**
              * Shows the image in the larger modal and sets the current viewing image.
@@ -160,6 +163,7 @@
                 this.$refs['modalImage'].show();
             },
 
+
             /**
              * When an image isn't shown show this default profile image.
              */
@@ -167,12 +171,14 @@
                 event.target.src = "../../../static/default_image.png"
             },
 
+
             /**
              * Closes the delete photo modal.
              */
             dismissConfirmDelete() {
                 this.$refs['deletePhotoModal'].hide();
             },
+
 
             /**
              * Sends the DELETE request to the backend for the selected image and closes the two modals
@@ -189,6 +195,7 @@
                 this.$refs['modalImage'].hide();
                 this.$emit('removePhoto', this.currentViewingID);
             },
+
 
             /**
              * Emits change up to view profile be able to auto update front end when changing profile picture
@@ -213,6 +220,7 @@
                 this.$refs['modalImage'].hide();
             },
 
+
             /**
              * Updates the privacy for a photo between privet and public and sends PATCH
              * request to the backend.
@@ -235,6 +243,7 @@
                     }
                 });
             },
+
 
             /**
              * Checks the authorization of the user profile that is logged in to see if they can.

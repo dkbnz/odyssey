@@ -183,10 +183,10 @@ public class DestinationTestSteps {
      */
     private void loginRequest(String username, String password) {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put("username", username);
-        ((ObjectNode) json).put("password", password);
+        json.put("username", username);
+        json.put("password", password);
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
@@ -314,14 +314,15 @@ public class DestinationTestSteps {
 
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.createObjectNode();
+        ObjectNode json = mapper.createObjectNode();
 
-        ((ObjectNode) json).put(NAME, name);
-        ((ObjectNode) json).put(TYPE, type);
-        ((ObjectNode) json).put(LATITUDE, latitude);
-        ((ObjectNode) json).put(LONGITUDE, longitude);
-        ((ObjectNode) json).put(DISTRICT, district);
-        ((ObjectNode) json).put(COUNTRY, country);
+
+        json.put(NAME, name);
+        json.put(TYPE, type);
+        json.put(LATITUDE, latitude);
+        json.put(LONGITUDE, longitude);
+        json.put(DISTRICT, district);
+        json.put(COUNTRY, country);
 
         return json;
     }
