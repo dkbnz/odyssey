@@ -14,7 +14,8 @@
                                && userProfile.profilePicture.id === photo.id"
                               v-if="showDropdown"
                               v-model="photo.public"
-                              :class="{colorBlue: userProfile.profilePicture === null || (userProfile.profilePicture !== null
+                              :class="{colorBlue: userProfile.profilePicture === null
+                              || (userProfile.profilePicture !== null
                               && userProfile.profilePicture.id !== photo.id),
                               colorDisabled: (userProfile.profilePicture !== null
                               && userProfile.profilePicture.id === photo.id)}">
@@ -72,7 +73,11 @@
                     return this.auth
                 }
             },
-            adminView: Boolean
+            adminView: {
+                default: function() {
+                    return false;
+                }
+            }
         },
 
         data: function () {
@@ -80,7 +85,8 @@
                 currentPage: 1,
                 auth: false,
                 showError: false,
-                alertMessage: ""
+                alertMessage: "",
+                publicDestinationPhotos: []
             }
         },
 
