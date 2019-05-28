@@ -9,11 +9,10 @@
                                alt="Image not Found" thumbnail>
                         </b-img>
                     </b-container>
-
                     <b-select @change="$emit('privacy-update', photo)" style="width: 100%"
                               :disabled="userProfile.profilePicture !== null
                                && userProfile.profilePicture.id === photo.id"
-                              v-if="auth"
+                              v-if="showDropdown"
                               v-model="photo.public"
                               :class="{colorBlue: userProfile.profilePicture === null || (userProfile.profilePicture !== null
                               && userProfile.profilePicture.id !== photo.id),
@@ -66,6 +65,11 @@
             selectedImages: {
                 default: function () {
                     return []
+                }
+            },
+            showDropdown: {
+                default: function () {
+                    return this.auth
                 }
             },
             adminView: Boolean

@@ -3,7 +3,6 @@
         <destination-gallery
             :destination="destination">
         </destination-gallery>
-        {{destination}}
     </div>
 </template>
 
