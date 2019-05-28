@@ -50,5 +50,9 @@ DELETE  /v1/photos/:photoId             controllers.photos.PhotoController.destr
 PUT     /v1/profilePhoto/:photoId       controllers.photos.PhotoController.updateProfilePhoto(request: Request, photoId: Long)
 DELETE  /v1/profilePhoto/:userId        controllers.photos.PhotoController.destroyProfilePhoto(request: Request, userId: Long)
 
+#Destination Photos
+POST    /v1/destinationPhotos/:destinationId    controllers.photos.PhotoController.addDestinationPhoto(request: Request, destinationId: Long)
+DELETE  /v1/destinationPhotos/:destinationId    controllers.photos.PhotoController.removeDestinationPhoto(request: Request, destinationId: Long)
+
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
 GET     /*file                          controllers.Assets.at(path="/public", file)

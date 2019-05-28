@@ -12,6 +12,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.Profile;
+import models.destinations.Destination;
 import models.photos.PersonalPhoto;
 import org.junit.Assert;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import org.springframework.beans.BeansException;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -47,6 +49,7 @@ public class PhotoTestSteps {
     private static final String UPLOAD_PHOTOS_URI = "/v1/photos/";
     private static final String CHANGE_PHOTO_PRIVACY_URI = "/v1/photos";
     private static final String PROFILE_PHOTO_URI = "/v1/profilePhoto/";
+    private static final String DESTINATION_PHOTO_URI = "/v1/destinationPhotos/";
     private static final String LOGIN_URI = "/v1/login";
 
     /**
@@ -156,6 +159,7 @@ public class PhotoTestSteps {
 
     /**
      * Creates a Json ObjectNode to be used for the photo.
+     *
      * @param photoId  the photoId of the photo to be added to the Json node.
      * @param isPublic the boolean value for the photo privacy to be added to the Json node.
      * @return         the Json ObjectNode for the new photo.
@@ -169,6 +173,24 @@ public class PhotoTestSteps {
 
         json.put("id", photoId);
         json.put("public", isPublic);
+
+        return json;
+    }
+
+    /**
+     * Creates a Json ObjectNode to be used for the destination photo.
+     *
+     * @param photoId the photoId of the photo to be added to the Json node.
+     * @return        the Json ObjectNode for the new destination photo.
+     */
+    private JsonNode createDestinationPhotoJson(int photoId) {
+        // complex json
+        ObjectMapper mapper = new ObjectMapper();
+
+        //Add values to a JsonNode
+        ObjectNode json = mapper.createObjectNode();
+
+        json.put("id", photoId);
 
         return json;
     }
@@ -204,6 +226,24 @@ public class PhotoTestSteps {
     public void photoExistsInDatabase(Integer id) {
         PersonalPhoto photo = PersonalPhoto.find.byId(id);
         Assert.assertNotNull(photo);
+    }
+
+
+    @Given("the destination with id {int} exists")
+    public void theDestinationWithIdExists(Integer destinationId) {
+        Destination destination = Destination.find.byId(destinationId);
+        Assert.assertNotNull(destination);
+        Assert.assertEquals(destination.getId().toString(), destinationId.toString());
+    }
+
+
+    @Given("the destination with id {int} has a photo with id {int}")
+    public void theDestinationWithIdHasAPhotoWithId(Integer destinationId, Integer photoId) {
+        Destination destination = Destination.find.byId(destinationId);
+        PersonalPhoto photo = PersonalPhoto.find.byId(photoId);
+        Assert.assertNotNull(destination);
+        Assert.assertNotNull(photo);
+        Assert.assertTrue(destination.getPhotoGallery().contains(photo));
     }
 
 
@@ -244,6 +284,7 @@ public class PhotoTestSteps {
 
     }
 
+
     @When("I change the privacy of the photo with id {int} to public {string}")
     public void iChangeThePrivacyOfThePhoto(int photoId, String isPublic) {
         JsonNode json = createJson(photoId, Boolean.parseBoolean(isPublic));
@@ -258,6 +299,7 @@ public class PhotoTestSteps {
         statusCode = changePhotoPrivacyResult.status();
     }
 
+
     @When("I delete the photo with id {int}")
     public void iDeleteThePhotoWithId(int photoId) {
         Http.RequestBuilder request =
@@ -269,6 +311,7 @@ public class PhotoTestSteps {
 
         statusCode = changePhotoPrivacyResult.status();
     }
+
 
     @When("I delete a profile picture of profile {int}")
     public void iDeleteAProfilePicture(int userId) {
@@ -282,6 +325,7 @@ public class PhotoTestSteps {
         statusCode = changePhotoPrivacyResult.status();
     }
 
+
     @When("I set a profile photo from their photo Gallery with id {int}")
     public void iSetAProfilePhotoFromTheirPhotoGalleryWithId(Integer photoId) {
         Http.RequestBuilder request =
@@ -294,20 +338,59 @@ public class PhotoTestSteps {
         statusCode = changeProfilePhotoResult.status();
     }
 
+    @When("I add a photo with id {int} to a destination with id {int}")
+    public void iAddAPhotoWithIdToADestinationWithId(Integer photoId, Integer destinationId) {
+        JsonNode json = createDestinationPhotoJson(photoId);
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                        .uri(DESTINATION_PHOTO_URI + destinationId)
+                        .method("POST")
+                        .bodyJson(json)
+                        .session(AUTHORIZED, LOGGED_IN_ID);
+
+        Result addDestinationPhotoResult = route(application, request);
+        statusCode = addDestinationPhotoResult.status();
+    }
+
+
+    @When("I remove a photo with id {int} from a destination with id {int}")
+    public void iRemoveAPhotoWithIdFromADestinationWithId(Integer photoId, Integer destinationId) {
+        JsonNode json = createDestinationPhotoJson(photoId);
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                        .uri(DESTINATION_PHOTO_URI + destinationId)
+                        .method("DELETE")
+                        .bodyJson(json)
+                        .session(AUTHORIZED, LOGGED_IN_ID);
+
+        Result addDestinationPhotoResult = route(application, request);
+        statusCode = addDestinationPhotoResult.status();
+    }
+
+
     @Then("the status code I get is Created")
     public void theStatusCodeIsCreated() {
         Assert.assertEquals(CREATED, statusCode);
     }
+
 
     @Then("the status code I get is OK")
     public void theStatusCodeIsOK() {
         Assert.assertEquals(OK, statusCode);
     }
 
+
     @Then("the status code I get is Forbidden")
     public void theStatusCodeIGetIsForbidden() {
         Assert.assertEquals(FORBIDDEN, statusCode);
     }
+
+
+    @Then("the status code I get is Not Found")
+    public void theStatusCodeIGetIsNotFound() {
+        Assert.assertEquals(NOT_FOUND, statusCode);
+    }
+
 
 
 }
