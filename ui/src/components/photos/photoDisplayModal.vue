@@ -50,7 +50,7 @@
         props: {
             display: Boolean,
             isProfilePicture: Boolean,
-            photo: Object,
+            photoToView: Object,
             showButtons: Boolean
         },
 
@@ -74,7 +74,7 @@
              * Sends a GET request to get the full sized image from the backend.
              */
             getFullPhoto() {
-                return 'v1/photos/' + this.photo.id;
+                return 'v1/photos/' + this.photoToView.id;
             },
 
 
@@ -100,15 +100,14 @@
              */
             deleteImage() {
                 let self = this;
-                fetch(`/v1/photos/` + this.photo.id, {
+                fetch(`/v1/photoToViews/` + this.photo.id, {
                     method: 'DELETE'
                 }).then(response => {
                     self.error = (response.status === 200);
             });
                 this.$refs['deletePhotoModal'].hide();
-                this.display = false;
                 this.$refs['modalImage'].hide();
-                this.$emit('delete-photo', this.photo);
+                this.$emit('delete-photo', this.photoToView);
             },
 
 
@@ -116,9 +115,8 @@
              * Emits change up to view profile be able to auto update front end when changing profile photo
              */
             makeProfileImage() {
-                this.display = false;
                 this.$refs['modalImage'].hide();
-                this.$emit('profile-photo', this.photo);
+                this.$emit('profile-photo', this.photoToView);
             }
         }
     }
