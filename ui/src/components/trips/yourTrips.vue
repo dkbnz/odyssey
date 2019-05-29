@@ -422,20 +422,19 @@
                         self.futureTrips = [];
                         self.pastTrips = [];
                         for (let i = 0; i < trips.length; i++) {
-                            let destinationsStartDates = [];
-                            let destinationsEndDates = [];
+                            let destinationDates = [];
                             for (let j = 0; j < trips[i].destinations.length; j++) {
                                 if (trips[i].destinations[j].startDate !== null) {
-                                    destinationsStartDates.push(trips[i].destinations[j].startDate)
+                                    destinationDates.push(trips[i].destinations[j].startDate)
                                 }
                                 if (trips[i].destinations[j].endDate !== null) {
-                                    destinationsEndDates.push(trips[i].destinations[j].endDate)
+                                    destinationDates.push(trips[i].destinations[j].endDate)
                                 }
                             }
-                            if (destinationsStartDates.length === 0 && destinationsEndDates.length === 0) {
+                            if (destinationDates.length === 0) {
                                 self.futureTrips.push(trips[i]);
                             }
-                            else if (new Date(destinationsEndDates[destinationsEndDates.length - 1]) <= today) {
+                            else if (new Date(destinationDates[destinationDates.length - 1]) < today) {
                                 self.pastTrips.push(trips[i]);
                             } else {
                                 self.futureTrips.push(trips[i]);
