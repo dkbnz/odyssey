@@ -6,7 +6,20 @@
             <h1 class="page-title">Upcoming Trips</h1>
             <p class="page-title"><i>Here are your upcoming trips!</i></p>
             <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
-            <b-alert dismissible v-model="validDelete" variant="success">Trip Deleted</b-alert>
+            <b-alert
+                    :show="dismissCountDown"
+                    @dismiss-count-down="countDownChanged"
+                    @dismissed="dismissCountDown=0"
+                    dismissible
+                    variant="success">
+                <p>Trip Deleted</p>
+                <b-progress
+                        :max="dismissSecs"
+                        :value="dismissCountDown"
+                        height="4px"
+                        variant="success"
+                ></b-progress>
+            </b-alert>
 
             <!-- Confirmation modal for deleting a trip. -->
             <b-modal hide-footer id="deleteModal" ref="deleteModal" title="Delete Trip">
@@ -36,7 +49,7 @@
                         v-if="selectedTrip !== ''"
                         v-on:tripSaved="getAllTrips()">
                 </plan-a-trip>
-                <b-button @click="dismissModal('editTripModal')" class="mr-2 float-right">Cancel</b-button>
+                <b-button @click="dismissModal('editTripModal')" class="mr-2 float-right">Close</b-button>
             </b-modal>
 
             <!-- Table to show all a profile's future trips -->
@@ -111,11 +124,11 @@
 
                 <template slot="tripStartDate"
                           slot-scope="data">
-                    {{formatDate(calculateStartDate(data.item.destinations))}}
+                    {{formatDate(calculateTripDates(data.item.destinations)[0])}}
                 </template>
 
                 <template slot="tripEndDate" slot-scope="data">
-                    {{formatDate(calculateEndDate(data.item.destinations))}}
+                    {{formatDate(calculateTripDates(data.item.destinations)[data.item.destinations.length -1])}}
                 </template>
 
                 <template slot="tripEndDest" slot-scope="data" v-if="futureTrips.length > 0">
@@ -224,11 +237,11 @@
                     </template>
 
                     <template slot="tripStartDate" slot-scope="data">
-                        {{formatDate(calculateStartDate(data.item.destinations))}}
+                        {{formatDate(calculateTripDates(data.item.destinations)[0])}}
                     </template>
 
                     <template slot="tripEndDate" slot-scope="data">
-                        {{formatDate(calculateEndDate(data.item.destinations))}}
+                        {{formatDate(calculateTripDates(data.item.destinations)[data.item.destinations.length -1])}}
                     </template>
 
                     <template slot="tripEndDest" slot-scope="data" v-if="pastTrips.length > 0">
@@ -332,7 +345,9 @@
                 editButton: false,
                 deleteButton: false,
                 hasPermission: false,
-                retrievingTrips: false
+                retrievingTrips: false,
+                dismissSecs: 3,
+                dismissCountDown: 0,
             }
         },
         mounted() {
@@ -374,48 +389,30 @@
              * @returns string of the trip duration.
              */
             calculateDuration(destinations) {
-                let tripStartDates = [];
-                let tripEndDates = [];
-                for (let i = 0; i < destinations.length; i++ ) {
-                    if (destinations[i].startDate !== null) {
-                        tripStartDates.push(destinations[i].startDate);
-                    }
-                    if (destinations[i].endDate !== null) {
-                        tripEndDates.push(destinations[i].endDate);
-                    }
-                }
-                if (tripStartDates.length > 0 && tripEndDates.length > 0) {
-                    let calculateDur = Math.ceil((Math.abs(new Date(tripEndDates[tripEndDates.length -1 ]).getTime()
-                        - new Date(tripStartDates[0]).getTime())))/ (1000 * 3600 * 24) + 1;
+                let tripDates = this.calculateTripDates(destinations);
+                if (tripDates.length > 0) {
+                    let calculateDur = Math.ceil((Math.abs(new Date(tripDates[tripDates.length -1 ]).getTime()
+                        - new Date(tripDates[0]).getTime())))/ (1000 * 3600 * 24) + 1;
                     return calculateDur + " days";
 
                 }
             },
 
-            /**
-             * Calculates the trips start date by the first start date it can find.
-             */
-            calculateStartDate(destinations) {
-                let tripStartDates = [];
-                for (let i = 0; i < destinations.length; i++) {
-                    if (destinations[i].startDate !== null) {
-                        tripStartDates.push(destinations[i].startDate);
-                    }
-                }
-                return (tripStartDates[0]);
-            },
 
             /**
-             * Calculates the trips end date by the last end date it can find.
+             * Gathers trip dates into an array, regardless of whether they are start/end date
              */
-            calculateEndDate(destinations) {
-                let tripEndDates = [];
-                for (let i = 0; i < destinations.length; i++) {
+            calculateTripDates(destinations) {
+                let tripDates = [];
+                for (let i = 0; i < destinations.length; i++ ) {
+                    if (destinations[i].startDate !== null) {
+                        tripDates.push(destinations[i].startDate);
+                    }
                     if (destinations[i].endDate !== null) {
-                        tripEndDates.push(destinations[i].endDate);
+                        tripDates.push(destinations[i].endDate);
                     }
                 }
-                return (tripEndDates[tripEndDates.length - 1]);
+                return tripDates;
             },
 
             /**
@@ -440,20 +437,19 @@
                         self.futureTrips = [];
                         self.pastTrips = [];
                         for (let i = 0; i < trips.length; i++) {
-                            let destinationsStartDates = [];
-                            let destinationsEndDates = [];
+                            let destinationDates = [];
                             for (let j = 0; j < trips[i].destinations.length; j++) {
                                 if (trips[i].destinations[j].startDate !== null) {
-                                    destinationsStartDates.push(trips[i].destinations[j].startDate)
+                                    destinationDates.push(trips[i].destinations[j].startDate)
                                 }
                                 if (trips[i].destinations[j].endDate !== null) {
-                                    destinationsEndDates.push(trips[i].destinations[j].endDate)
+                                    destinationDates.push(trips[i].destinations[j].endDate)
                                 }
                             }
-                            if (destinationsStartDates.length === 0 && destinationsEndDates.length === 0) {
+                            if (destinationDates.length === 0) {
                                 self.futureTrips.push(trips[i]);
                             }
-                            else if (new Date(destinationsEndDates[destinationsEndDates.length - 1]) <= today) {
+                            else if (new Date(destinationDates[destinationDates.length - 1]) < today) {
                                 self.pastTrips.push(trips[i]);
                             } else {
                                 self.futureTrips.push(trips[i]);
@@ -547,6 +543,7 @@
                         self.validDelete = true;
                         self.dismissModal('deleteModal');
                         self.getAllTrips();
+                        self.showAlert();
                     } else if (response.status === 403) {
                         throw new Error('You cannot delete another user\'s trips');
                     } else {
@@ -583,6 +580,21 @@
              */
             formatDate(date) {
                 return date == null ? null : new Date(date).toLocaleDateString();
+            },
+
+            /**
+             * Displays the countdown alert on the successful saving of a trip.
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
+            },
+
+            /**
+             * Used to allow an alert to countdown on the successful deletion of a trip.
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown
             }
         }
     }

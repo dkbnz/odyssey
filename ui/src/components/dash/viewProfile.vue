@@ -4,7 +4,7 @@
             <div :class="containerClass">
                 <!-- The profile picture of the current profile being viewed. -->
                 <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
-                       @click="showImage">
+                       @click="showImage" @error="imageAlt">
                 </b-img>
                 <b-alert
                         class="m-1"
@@ -153,7 +153,6 @@
             showImage() {
                 this.$refs['profilePictureModal'].show();
             },
-
             /**
              * Emits change up to view profile be able to auto update front end when changing profile picture
              */
@@ -335,6 +334,14 @@
              */
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
+            },
+
+            /**
+             * Displays default image when no image is found
+             * @param event     image error event
+             */
+            imageAlt(event) {
+                event.target.src = "../../../static/default_profile_picture.png"
             }
         },
         components: {

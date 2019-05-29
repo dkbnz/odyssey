@@ -418,8 +418,15 @@
              * @param editOutDate   the out date being edited.
              */
             saveDestination(row, editInDate, editOutDate) {
-                if (editInDate === null || editOutDate === null || editInDate <= editOutDate) {
+                if (editInDate === null || editOutDate === null || editInDate === ""
+                    || editOutDate === "" || editInDate <= editOutDate) {
                     this.showDateError = false;
+                    if (editInDate === "") {
+                        editInDate = null;
+                    }
+                    if (editOutDate === "") {
+                        editOutDate = null;
+                    }
                     row.startDate = editInDate;
                     row.endDate = editOutDate;
                     this.dismissModal();

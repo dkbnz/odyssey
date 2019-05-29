@@ -19,7 +19,7 @@
                 <!--Dropdown field for destination types-->
                 <b-form-select id="type" trim v-model="searchType">
                     <template slot="first">
-                        <option :value="null">-- Any --</option>
+                        <option :value="'Any'">-- Any --</option>
                     </template>
                     <option :value="destination.id" v-for="destination in destinationTypes"
                             :state="destinationTypeValidation">
@@ -87,11 +87,21 @@
                      hover
                      id="myFutureTrips"
                      outlined
-                     striped>
+                     striped
+                     @row-clicked="expandAdditionalInfo">
                 <div class="text-center my-2" slot="table-busy">
                     <b-spinner class="align-middle" v-if="retrievingDestinations"></b-spinner>
                     <strong>Can't find any destinations!</strong>
                 </div>
+
+                <template slot="row-details" slot-scope="row">
+                    <single-destination
+                            :destination="row.item"
+                            :profile="profile"
+                            :userProfile="userProfile">
+                    </single-destination>
+                </template>
+
             </b-table>
 
             <!--Settings for pagination & number of results displayed per page-->
@@ -123,9 +133,19 @@
 </template>
 
 <script>
+    import SingleDestination from "../destinations/singleDestination";
+
     export default {
         name: "searchDestinations",
-        props: ['destinationTypes'],
+        props: {
+            destinationTypes: Array,
+            profile: Object,
+            userProfile: {
+                default: function () {
+                    return this.profile
+                }
+            },
+        },
         data() {
             return {
                 sortBy: 'name',
@@ -180,7 +200,7 @@
                 return this.searchName.length > 0;
             },
             destinationTypeValidation() {
-                if (this.searchType.length === 0) {
+                if (this.searchType === null) {
                     return null;
                 }
                 return this.searchType.length > 0 || this.searchType !== null;
@@ -235,7 +255,7 @@
              * Sets values for search.
              */
             searchDestinations() {
-                if(this.validateFields(this.destinationNameValidation)
+                if (this.validateFields(this.destinationNameValidation)
                     && this.validateFields(this.destinationTypeValidation)
                     && this.validateFields(this.destinationDistrictValidation)
                     && this.validateFields(this.destinationLatitudeValidation)
@@ -253,13 +273,19 @@
             },
 
             /**
+             *
+             */
+            expandAdditionalInfo(row) {
+                this.$set(row, '_showDetails', !row._showDetails)
+            },
+
+            /**
              * Checks each of the validation fields to ensure they are return either null (no value is given), or the
              * field is valid.
              *
              * @returns {boolean} true if the fields are valid.
              */
             validateFields(validationField) {
-                console.log(validationField === null || validationField === true);
                 if (validationField === null || validationField === true) {
                     return true;
                 }
@@ -273,9 +299,13 @@
              */
             queryDestinations() {
                 this.retrievingDestinations = true;
+                let searchTypeLocal = this.searchType;
+                if (searchTypeLocal === "Any") {
+                    searchTypeLocal = "";
+                }
                 let searchQuery =
                     "?name=" + this.searchName +
-                    "&type_id=" + this.searchType +
+                    "&type_id=" + searchTypeLocal +
                     "&district=" + this.searchDistrict +
                     "&latitude=" + this.searchLatitude +
                     "&longitude=" + this.searchLongitude +
@@ -311,6 +341,10 @@
             parseJSON(response) {
                 return response.json();
             }
+        },
+
+        components: {
+            SingleDestination
         }
     }
 </script>

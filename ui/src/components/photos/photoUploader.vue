@@ -24,7 +24,7 @@
             acceptTypes: String,
             multipleFiles: {
                 default: function () {
-                    return true;
+                    return true
                 }
             }
         },
@@ -55,7 +55,7 @@
              */
             save() {
                 this.$emit('save-photos', this.files);
-                this.files = null;
+                this.files = null
             }
         }
     }
