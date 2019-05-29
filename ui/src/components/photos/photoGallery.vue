@@ -27,7 +27,7 @@
                            :acceptTypes="'image/jpeg, image/jpg, image/png'">
             </photoUploader>
         </b-modal>
-        <photo-table v-bind:photos="profile.photoGallery"
+        <photo-table v-bind:photos="photos"
                      v-bind:profile="profile"
                      v-bind:userProfile="userProfile"
                      :adminView="adminView"
@@ -302,8 +302,14 @@
              * @param data      the Json response from adding photos from the backend to give id's and public status.
              */
             addPhotos(data) {
-                this.checkAuth();
                 this.profile.photoGallery = data;
+                this.checkAuth();
+                this.photos = [];
+                for(let i=0; i < data.length; i++) {
+                    if(data[i].public || this.auth) {
+                        this.photos.push(data[i]);
+                    }
+                }
             },
 
 
