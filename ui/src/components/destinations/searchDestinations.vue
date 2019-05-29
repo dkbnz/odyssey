@@ -19,7 +19,7 @@
                 <!--Dropdown field for destination types-->
                 <b-form-select id="type" trim v-model="searchType">
                     <template slot="first">
-                        <option :value="null">-- Any --</option>
+                        <option :value="'Any'">-- Any --</option>
                     </template>
                     <option :value="destination.id" v-for="destination in destinationTypes"
                             :state="destinationTypeValidation">
@@ -200,7 +200,7 @@
                 return this.searchName.length > 0;
             },
             destinationTypeValidation() {
-                if (this.searchType.length === 0) {
+                if (this.searchType === null) {
                     return null;
                 }
                 return this.searchType.length > 0 || this.searchType !== null;
@@ -255,18 +255,18 @@
              * Sets values for search.
              */
             searchDestinations() {
-                if(this.validateFields(this.destinationNameValidation)
+                 if(this.validateFields(this.destinationNameValidation)
                     && this.validateFields(this.destinationTypeValidation)
                     && this.validateFields(this.destinationDistrictValidation)
                     && this.validateFields(this.destinationLatitudeValidation)
                     && this.validateFields(this.destinationLongitudeValidation)
                     && this.validateFields(this.destinationCountryValidation)) {
-                    this.searchDestination = {
-                        name: this.searchName,
-                        type: this.searchType,
-                        district: this.searchDistrict,
-                        country: this.searchCountry
-                    };
+                     this.searchDestination = {
+                         name: this.searchName,
+                         type: this.searchType,
+                         district: this.searchDistrict,
+                         country: this.searchCountry
+                     };
                     this.queryDestinations();
                 }
 
@@ -276,7 +276,6 @@
              *
              */
             expandAdditionalInfo(row) {
-                console.log("Row clicked" + row.id)
                 this.$set(row, '_showDetails', !row._showDetails)
             },
 
@@ -287,7 +286,6 @@
              * @returns {boolean} true if the fields are valid.
              */
             validateFields(validationField) {
-                console.log(validationField === null || validationField === true);
                 if (validationField === null || validationField === true) {
                     return true;
                 }
@@ -301,9 +299,13 @@
              */
             queryDestinations() {
                 this.retrievingDestinations = true;
+                let searchTypeLocal = this.searchType;
+                if (searchTypeLocal === "Any") {
+                    searchTypeLocal = "";
+                }
                 let searchQuery =
                     "?name=" + this.searchName +
-                    "&type_id=" + this.searchType +
+                    "&type_id=" + searchTypeLocal +
                     "&district=" + this.searchDistrict +
                     "&latitude=" + this.searchLatitude +
                     "&longitude=" + this.searchLongitude +
