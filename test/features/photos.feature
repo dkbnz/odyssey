@@ -167,3 +167,12 @@ Feature: CRUD of photos
     And the destination with id 119 has a photo with id 3
     When I remove a photo with id 3 from a destination with id 119
     Then the status code I get is OK
+
+  Scenario: Deleting my own photo successfully when it is associated with a destination
+    Given I have a application running
+    And I am logged in as a non-admin with id 2
+    And a photo exists with id 5
+    And the destination with id 119 exists
+    And the destination with id 119 has a photo with id 5
+    When I delete the photo with id 5
+    Then the status code I get is OK

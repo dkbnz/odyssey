@@ -28,7 +28,7 @@ public class DestinationController extends Controller {
 
 
     /**
-     * Return a Json object listing all destination types in the database
+     * Return a Json object listing all destination types in the database.
      * @return ok() (Http 200) response containing all the different types of destinations.
      */
     public Result getTypes() {
