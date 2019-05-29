@@ -35,7 +35,6 @@
                      v-on:photo-click="photoClicked"
         >
         </photo-table>
-
         <b-modal centered hide-footer ref="modalImage" size="xl">
             <b-img-lazy v-if="photoToView !== null" :src="getFullPhoto()" alt="Image couldn't be retrieved" @error="imageAlt" center fluid>
             </b-img-lazy>
@@ -141,6 +140,12 @@
             },
 
 
+            /**
+             * Event handler for selecting a photo modal. Sets the photo to view.
+             * Then opens the display modal.
+             *
+             * @param photo     photo object being clicked on.
+             */
             photoClicked: function(photo) {
                 this.photoToView = photo;
                 this.$refs['modalImage'].show();
@@ -150,6 +155,8 @@
             /**
              * Sends the DELETE request to the backend for the selected image and closes the two modals
              * and refreshes the list of photos in the photo gallery.
+             * Deletes the photo from the photos list so it updates the table in the front end without
+             * requiring a refresh of the profile.
              */
             deleteImage() {
                 let self = this;
@@ -314,12 +321,6 @@
 
 
             /**
-             * Deletes the photo from the photos list so it updates the table in the front end without
-             * requiring a refresh of the profile.
-             */
-
-
-            /**
              * Retrieves a Json body from a response.
              *
              * @param response      The response parsed into Json.
@@ -337,14 +338,16 @@
 
             },
 
+
             /**
              * Used to allow an alert to countdown on the successful saving of image/s.
-             *JSON
+             *
              * @param dismissCountDown      the name of the alert.
              */
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
             },
+
 
             /**
              * Displays the countdown alert on the successful saving of image/s.

@@ -62,7 +62,7 @@
                     if (this.destination.photoGallery[i].public.toString() === "true") {
                         this.publicPhotos.push(this.destination.photoGallery[i]);
                     }
-                    if (this.containsById(this.profile.photoGallery, this.destination.photoGallery[i])) {
+                    if (this.indexOfById(this.profile.photoGallery, this.destination.photoGallery[i]) !== -1) {
                         this.personalPhotos.push(this.destination.photoGallery[i]);
                     }
                 }
@@ -99,22 +99,13 @@
 
 
             /**
-             * Checks the specified array to see if it contains the specified object. Comparison is done by the Id
-             * attribute.
+             * Returns the index of an object in the specified array. Comparison is done by the Id
+             * attribute. Returns -1 if not found
              *
              * @param arrayToCheck  the array/list to check for the object.
              * @param object        the object to be checked in the array.
-             * @returns {boolean}   true if the object is found, false otherwise.
+             * @returns {int}       index of object in array or -1 if not found
              */
-            containsById(arrayToCheck, object) {
-                for (let i = 0; i < arrayToCheck.length; i++) {
-                    if(arrayToCheck[i].id === object.id) {
-                        return true;
-                    }
-                }
-                return false;
-            },
-
             indexOfById(arrayToCheck, object) {
                 for (let i = 0; i < arrayToCheck.length; i++) {
                     if(arrayToCheck[i].id === object.id) {
@@ -124,23 +115,25 @@
                 return -1;
             },
 
+
             /**
              * Event handler for the photo being added/removed from the destination.
+             * If photo is in destination photos, send request to backend and remove from destination photo gallery.
+             * Otherwise, send request to add it and add it to destination photo gallery.
              *
-             * @param photo the photo to be added or removed.
+             * @param photo     the photo to be added or removed.
              */
             photoToggled(photo) {
-                if (this.containsById(this.destination.photoGallery, photo)) {
-                    console.log("Removing");
+                let index = this.indexOfById(this.destination.photoGallery, photo)
+
+                if (index !== -1) {
                     this.removeDestinationPhoto(photo);
-                    let index = this.indexOfById(this.destination.photoGallery, photo);
                     this.destination.photoGallery.splice(index, 1)
                 } else {
-                    console.log("Adding");
                     this.addDestinationPhoto(photo);
                     this.destination.photoGallery.push(photo)
                 }
-                console.log(this.destination.photoGallery);
+
                 this.calculatePhotoSplit()
             },
 
@@ -157,11 +150,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
                 }).then(response => {
-                    if (response.status === 201) {
-                        response.clone().json().then(text => {
-                            //self.destination.photoGallery = text;
-                        });
-                    } else {
+                    if (response.status !== 201) {
                         self.showError = true;
                         self.alertMessage = "An error occurred when adding a destination photo";
                     }
@@ -169,6 +158,11 @@
             },
 
 
+            /**
+             * Send a DELETE request to the backend to remove a specified photo to the destination being viewed.
+             *
+             * @param photo     photo object that needs to be removed from a destination.
+             */
             removeDestinationPhoto(photo) {
                 let self = this;
                 fetch('/v1/destinationPhotos/' + this.destination.id, {
