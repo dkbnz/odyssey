@@ -10,14 +10,20 @@
                      :userProfile="userProfile"
                      @privacy-update="updatePhotoPrivacy">
         </photo-table>
-        <h3>Personal Photo Gallery</h3>
-        <photo-table :selectedImages="personalPhotos"
-                     :photos="profile.photoGallery"
-                     :profile="profile"
-                     :userProfile="userProfile"
-                     @privacy-update="updatePhotoPrivacy"
-                     @photo-click="photoToggled">
-        </photo-table>
+
+        <b-button v-b-modal.addRemovePhotosModal variant="success" block>Add/Remove Destination Photo</b-button>
+        <b-modal ref="addRemovePhotosModal" id="addRemovePhotosModal" hide-footer centered size="xl">
+            <template slot="modal-title"><h3>Personal Photo Gallery</h3></template>
+            <photo-table :selectedImages="personalPhotos"
+                         :photos="profile.photoGallery"
+                         :profile="profile"
+                         :userProfile="userProfile"
+                         :showDropdown="true"
+                         @privacy-update="updatePhotoPrivacy"
+                         @photo-click="photoToggled">
+            </photo-table>
+        </b-modal>
+
     </div>
 </template>
 
