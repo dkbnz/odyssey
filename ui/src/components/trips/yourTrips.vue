@@ -6,7 +6,20 @@
             <h1 class="page-title">Upcoming Trips</h1>
             <p class="page-title"><i>Here are your upcoming trips!</i></p>
             <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
-            <b-alert dismissible v-model="validDelete" variant="success">Trip Deleted</b-alert>
+            <b-alert
+                    :show="dismissCountDown"
+                    @dismiss-count-down="countDownChanged"
+                    @dismissed="dismissCountDown=0"
+                    dismissible
+                    variant="success">
+                <p>Trip Deleted</p>
+                <b-progress
+                        :max="dismissSecs"
+                        :value="dismissCountDown"
+                        height="4px"
+                        variant="success"
+                ></b-progress>
+            </b-alert>
 
             <!-- Confirmation modal for deleting a trip. -->
             <b-modal hide-footer id="deleteModal" ref="deleteModal" title="Delete Trip">
@@ -332,7 +345,9 @@
                 editButton: false,
                 deleteButton: false,
                 hasPermission: false,
-                retrievingTrips: false
+                retrievingTrips: false,
+                dismissSecs: 3,
+                dismissCountDown: 0,
             }
         },
         mounted() {
@@ -528,6 +543,7 @@
                         self.validDelete = true;
                         self.dismissModal('deleteModal');
                         self.getAllTrips();
+                        self.showAlert();
                     } else if (response.status === 403) {
                         throw new Error('You cannot delete another user\'s trips');
                     } else {
@@ -564,6 +580,21 @@
              */
             formatDate(date) {
                 return date == null ? null : new Date(date).toLocaleDateString();
+            },
+
+            /**
+             * Displays the countdown alert on the successful saving of a trip.
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
+            },
+
+            /**
+             * Used to allow an alert to countdown on the successful deletion of a trip.
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown
             }
         }
     }
