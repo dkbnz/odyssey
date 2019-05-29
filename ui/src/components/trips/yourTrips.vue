@@ -49,7 +49,7 @@
                         v-if="selectedTrip !== ''"
                         v-on:tripSaved="getAllTrips()">
                 </plan-a-trip>
-                <b-button @click="dismissModal('editTripModal')" class="mr-2 float-right">Cancel</b-button>
+                <b-button @click="dismissModal('editTripModal')" class="mr-2 float-right">Close</b-button>
             </b-modal>
 
             <!-- Table to show all a profile's future trips -->
