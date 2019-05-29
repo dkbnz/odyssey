@@ -45,19 +45,23 @@
 
         methods: {
 
+            /**
+             * Calculates which list the destination photos must be put into depending on their privacy. If the photo
+             * is public, then it is in the publicPhotos list. Otherwise it is in the personalPhotos list.
+             */
             calculatePhotoSplit() {
                 this.publicPhotos = [];
                 this.personalPhotos = [];
                 for (let i = 0; i < this.destination.photoGallery.length; i++) {
-                    if (this.destination.photoGallery[i].public === "true"
-                    || this.destination.photoGallery[i].public) {
+                    if (this.destination.photoGallery[i].public.toString() === "true") {
                         this.publicPhotos.push(this.destination.photoGallery[i]);
                     }
                     if (this.containsById(this.profile.photoGallery, this.destination.photoGallery[i])) {
-                        this.personalPhotos.push(this.destination.photoGallery[i])
+                        this.personalPhotos.push(this.destination.photoGallery[i]);
                     }
                 }
             },
+
 
             /**
              * Updates the photos list sent to the photoTable for a single privacy photo.
@@ -82,6 +86,15 @@
                 this.calculatePhotoSplit();
             },
 
+
+            /**
+             * Checks the specified array to see if it contains the specified object. Comparison is done by the Id
+             * attribute.
+             *
+             * @param arrayToCheck  the array/list to check for the object.
+             * @param object        the object to be checked in the array.
+             * @returns {boolean}   true if the object is found, false otherwise.
+             */
             containsById(arrayToCheck, object) {
                 for (let i = 0; i < arrayToCheck.length; i++) {
                     if(arrayToCheck[i].id === object.id) {
@@ -91,16 +104,21 @@
                 return false;
             },
 
+
+            /**
+             * Event handler for the photo being added/removed from the destination.
+             *
+             * @param photo the photo to be added or removed.
+             */
             photoToggled(photo) {
                 if (this.containsById(this.destination.photoGallery, photo)) {
-                    console.log("Contains")
+                    console.log("Contains");
                     this.destination.photoGallery.pop(this.destination.photoGallery.indexOf(photo))
                 } else {
-                    console.log("Not contains")
+                    console.log("Not contains");
                     this.destination.photoGallery.push(photo)
                 }
                 this.calculatePhotoSplit()
-                console.log(this.publicPhotos)
             }
 
         },
@@ -110,7 +128,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>
