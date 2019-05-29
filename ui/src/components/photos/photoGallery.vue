@@ -59,10 +59,6 @@
             <b-modal hide-footer id="deletePhotoModal" ref="deletePhotoModal" title="Delete Photo">
                 <div class="d-block">
                     <p>Are you sure that you want to delete this image?</p>
-                    <!-- Display additional message if deleting profile picture -->
-                    <p>
-                        <b>This is your profile picture!</b>
-                    </p>
                 </div>
                 <b-button
                         @click="deleteImage"
