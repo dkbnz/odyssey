@@ -14,6 +14,7 @@
                         <profiles-page :adminView="true"
                                        :containerClass="'adminProfilesContainer'"
                                        :destinations="destinations"
+                                       :destinationTypes="destinationTypes"
                                        :key="refreshProfiles"
                                        :nationalityOptions="nationalityOptions"
                                        :perPage=5
@@ -55,7 +56,7 @@
 
     export default {
         name: "adminActions",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'destinations'],
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'destinations', 'destinationTypes'],
         data() {
             return {
                 refreshProfiles: 0,

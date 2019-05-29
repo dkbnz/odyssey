@@ -15,6 +15,7 @@
                             <b-nav-item @click="currentDisplay = 1">Edit Profile</b-nav-item>
                             <b-nav-item @click="currentDisplay = 2">View Trips</b-nav-item>
                             <b-nav-item @click="currentDisplay = 3">Add Trips</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 4">Add Destination Photos</b-nav-item>
                         </b-nav>
                     </b-collapse>
                     <b-navbar-toggle target="nav-collapse-admin"></b-navbar-toggle>
@@ -61,11 +62,11 @@
                 </plan-a-trip>
                 <search-destinations
                         :containerClass="'adminContainer'"
+                        :destinationTypes="destinationTypes"
                         :adminView="adminView"
                         :destinations="destinations"
-                        :profile="editProfile">
-
-
+                        :profile="editProfile"
+                        v-if="currentDisplay === 4">
                 </search-destinations>
             </b-col>
         </b-row>
@@ -89,6 +90,7 @@
             nationalityOptions: Array,
             travTypeOptions: Array,
             destinations: Array,
+            destinationTypes: Array
 
         },
         data() {
