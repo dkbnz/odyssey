@@ -47,7 +47,8 @@
                                :userProfile="userProfile"
                                :adminView="adminView"
                                @makeProfilePhoto="setProfilePhoto"
-                               @removePhoto="refreshProfilePicture">
+                               @removePhoto="refreshProfilePicture"
+                               @photos-saved="$emit('photos-saved', true)">
                 </photo-gallery>
                 <!-- Displays a profile's trips -->
                 <your-trips :adminView="adminView"
@@ -152,6 +153,10 @@
              */
             showImage() {
                 this.$refs['profilePictureModal'].show();
+            },
+
+            savedPhoto() {
+                console.log("HERE");
             },
 
             /**
