@@ -17,15 +17,21 @@ public class PersonalPhotoRepository {
 
 
     /**
-     * Deletes a photo associated with a profile, doesn't delete the uploaded photo.
+     * Deletes a personal photo
      *
-     * @param photoOwner the Profile object of the owner of the photo.
      * @param photo      the PersonalPhoto object of the photo.
      */
-    public void delete(Profile photoOwner, PersonalPhoto photo) {
-        photoOwner.removePhotoFromGallery(photo);
+    public void delete(PersonalPhoto photo) {
         photo.delete();
-        photoOwner.update();
+    }
+
+    /**
+     * Updates a personal photo
+     *
+     * @param photo      the PersonalPhoto object of the photo.
+     */
+    public void update(PersonalPhoto photo) {
+        photo.update();
     }
 
 
