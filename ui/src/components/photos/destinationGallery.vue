@@ -113,12 +113,53 @@
             photoToggled(photo) {
                 if (this.containsById(this.destination.photoGallery, photo)) {
                     console.log("Contains");
+                    this.removeDestinationPhoto(photo);
                     this.destination.photoGallery.pop(this.destination.photoGallery.indexOf(photo))
                 } else {
+                    this.addDestinationPhoto(photo);
                     console.log("Not contains");
                     this.destination.photoGallery.push(photo)
                 }
                 this.calculatePhotoSplit()
+            },
+
+
+            /**
+             * Send a POST request to the backend to add a specified photo to the destination being viewed.
+             *
+             * @param photo the photo to be added to the destination.
+             */
+            addDestinationPhoto(photo) {
+                let self = this;
+                fetch('/v1/destinationPhotos/' + this.destination.id, {
+                    method: 'POST',
+                    headers: {'content-type': 'application/json'},
+                    body: JSON.stringify(photo)
+                }).then(response => {
+                    if (response.status === 201) {
+                        console.log("HERE");
+                    } else {
+                        self.showError = true;
+                        self.alertMessage = "An error occurred when adding a destination photo";
+                    }
+                });
+            },
+
+
+            removeDestinationPhoto(photo) {
+                let self = this;
+                fetch('/v1/destinationPhotos/' + this.destination.id, {
+                    method: 'DELETE',
+                    headers: {'content-type': 'application/json'},
+                    body: JSON.stringify(photo)
+                }).then(response => {
+                    if (response.status === 200) {
+                        console.log("DELETED");
+                    } else {
+                        self.showError = true;
+                        self.alertMessage = "An error occurred when deleting a destination photo";
+                    }
+                });
             }
 
         },
