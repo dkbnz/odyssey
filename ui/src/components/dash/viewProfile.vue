@@ -153,11 +153,6 @@
             showImage() {
                 this.$refs['profilePictureModal'].show();
             },
-
-            savedPhoto() {
-                console.log("HERE");
-            },
-
             /**
              * Emits change up to view profile be able to auto update front end when changing profile picture
              */

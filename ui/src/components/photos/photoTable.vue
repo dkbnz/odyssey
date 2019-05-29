@@ -38,7 +38,6 @@
     <b-alert v-model="showError" dismissible variant="danger">
         {{alertMessage}}
     </b-alert>
-        <!--Removed Modal from here.-->
     </div>
 </template>
 
