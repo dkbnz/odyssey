@@ -1,7 +1,9 @@
 <template>
     <div>
         <destination-gallery
-            :destination="destination">
+            :destination="destination"
+            :profile="profile"
+            :userProfile="userProfile">
         </destination-gallery>
     </div>
 </template>
@@ -18,7 +20,13 @@
         },
 
         props: {
-            destination: Object
+            destination: Object,
+            profile: Object,
+            userProfile: {
+                default: function() {
+                    return this.profile;
+                }
+            },
         },
 
         mounted() {

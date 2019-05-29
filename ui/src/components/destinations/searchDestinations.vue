@@ -96,7 +96,9 @@
 
                 <template slot="row-details" slot-scope="row">
                     <single-destination
-                        :destination="row">
+                        :destination="row.item"
+                        :profile="profile"
+                        :userProfile="userProfile">
                     </single-destination>
                 </template>
 
@@ -135,7 +137,15 @@
 
     export default {
         name: "searchDestinations",
-        props: ['destinationTypes'],
+        props: {
+            destinationTypes: Array,
+            profile: Object,
+            userProfile: {
+                default: function () {
+                    return this.profile
+                }
+            },
+        },
         data() {
             return {
                 sortBy: 'name',
