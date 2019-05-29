@@ -20,6 +20,7 @@
                     :key="refreshSingleProfile"
                     :adminView="adminView"
                     :editProfile="editProfile"
+                    :destinationTypes="destinationTypes"
                     :profile="profile"
                     :nationalityOptions="nationalityOptions"
                     :travTypeOptions="travTypeOptions"
@@ -43,7 +44,7 @@
 
     export default {
         name: "adminPanel",
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'destinations'],
+        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'destinations', 'destinationTypes'],
         data() {
             return {
                 showSingleProfile: false,

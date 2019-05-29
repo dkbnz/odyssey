@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
+import repositories.DestinationRepository;
 import repositories.ProfileRepository;
 import repositories.photos.PersonalPhotoRepository;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,14 +24,16 @@ public class PhotoControllerTest {
     private PhotoController testPhotoController;
     private ProfileRepository mockProfileRepo;
     private PersonalPhotoRepository mockPersonalPhotoRepo;
+    private DestinationRepository mockDestinationoRepo;
     private Config mockConfig;
 
     @Before
     public void setUp() {
         mockProfileRepo = mock(ProfileRepository.class);
         mockPersonalPhotoRepo = mock(PersonalPhotoRepository.class);
+        mockDestinationoRepo = mock(DestinationRepository.class);
         mockConfig = mock(Config.class);
-        testPhotoController = new PhotoController(mockProfileRepo, mockPersonalPhotoRepo, mockConfig);
+        testPhotoController = new PhotoController(mockProfileRepo, mockPersonalPhotoRepo, mockDestinationoRepo, mockConfig);
     }
 
     @After
