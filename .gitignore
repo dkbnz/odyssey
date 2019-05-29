@@ -1,3 +1,6 @@
+# Evolutions script
+conf/evolutions/default/1.sql
+
 # Temporary photo directories
 temp/
 temp/thumbnail
