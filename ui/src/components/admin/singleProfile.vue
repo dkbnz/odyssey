@@ -59,6 +59,14 @@
                         :subHeading="'Book your next trip!'"
                         v-if="currentDisplay === 3">
                 </plan-a-trip>
+                <search-destinations
+                        :containerClass="'adminContainer'"
+                        :adminView="adminView"
+                        :destinations="destinations"
+                        :profile="editProfile">
+
+
+                </search-destinations>
             </b-col>
         </b-row>
     </div>
@@ -70,6 +78,7 @@
     import PlanATrip from './../trips/planATrip.vue'
     import YourTrips from './../trips/yourTrips.vue'
     import EditProfile from "./../dash/editProfile.vue"
+    import SearchDestinations from "./../destinations/searchDestinations.vue"
 
     export default {
         name: "singleProfile",
@@ -123,6 +132,7 @@
             YourTrips,
             EditProfile,
             NavBarMain,
+            SearchDestinations
         }
     }
 </script>
