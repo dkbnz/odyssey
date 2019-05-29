@@ -138,6 +138,7 @@
                         this.addPhotos(data);
                         this.showAlert();
                     });
+                this.$emit('photos-saved', true);
             },
 
 

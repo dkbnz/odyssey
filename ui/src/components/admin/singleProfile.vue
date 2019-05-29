@@ -32,7 +32,8 @@
                         :showSaved="showSaved"
                         :travTypeOptions="travTypeOptions"
                         :trips="trips"
-                        v-if="currentDisplay === 0">
+                        v-if="currentDisplay === 0"
+                        @photos-saved="refreshDestinations += 1">
                 </view-profile>
                 <edit-profile
                         :containerClass="'adminContainer'"
@@ -61,6 +62,7 @@
                         v-if="currentDisplay === 3">
                 </plan-a-trip>
                 <search-destinations
+                        :key="refreshDestinations"
                         :containerClass="'adminContainer'"
                         :destinationTypes="destinationTypes"
                         :adminView="adminView"
@@ -98,6 +100,7 @@
                 profileImage: {blank: true, width: 75, height: 75, class: 'm1'},
                 currentDisplay: 0,
                 showSaved: false,
+                refreshDestinations: 0
             }
         },
         methods: {
