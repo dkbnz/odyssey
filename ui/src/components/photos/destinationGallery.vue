@@ -89,6 +89,11 @@
                     }
                 });
 
+                let index = this.indexOfById(this.destination.photoGallery, photo);
+                if (index !== -1) {
+                    this.destination.photoGallery[index] = photo
+                }
+
                 this.calculatePhotoSplit();
             },
 
@@ -110,6 +115,14 @@
                 return false;
             },
 
+            indexOfById(arrayToCheck, object) {
+                for (let i = 0; i < arrayToCheck.length; i++) {
+                    if(arrayToCheck[i].id === object.id) {
+                        return i;
+                    }
+                }
+                return -1;
+            },
 
             /**
              * Event handler for the photo being added/removed from the destination.
@@ -118,14 +131,16 @@
              */
             photoToggled(photo) {
                 if (this.containsById(this.destination.photoGallery, photo)) {
-                    console.log("Contains");
+                    console.log("Removing");
                     this.removeDestinationPhoto(photo);
-                    this.destination.photoGallery.pop(this.destination.photoGallery.indexOf(photo))
+                    let index = this.indexOfById(this.destination.photoGallery, photo);
+                    this.destination.photoGallery.splice(index, 1)
                 } else {
+                    console.log("Adding");
                     this.addDestinationPhoto(photo);
-                    console.log("Not contains");
                     this.destination.photoGallery.push(photo)
                 }
+                console.log(this.destination.photoGallery);
                 this.calculatePhotoSplit()
             },
 
@@ -143,7 +158,9 @@
                     body: JSON.stringify(photo)
                 }).then(response => {
                     if (response.status === 201) {
-                        console.log("HERE");
+                        response.clone().json().then(text => {
+                            //self.destination.photoGallery = text;
+                        });
                     } else {
                         self.showError = true;
                         self.alertMessage = "An error occurred when adding a destination photo";
@@ -159,9 +176,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
                 }).then(response => {
-                    if (response.status === 200) {
-                        console.log("DELETED");
-                    } else {
+                    if (response.status !== 200) {
                         self.showError = true;
                         self.alertMessage = "An error occurred when deleting a destination photo";
                     }
