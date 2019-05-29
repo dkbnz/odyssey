@@ -60,6 +60,10 @@
             <b-modal hide-footer id="deletePhotoModal" ref="deletePhotoModal" title="Delete Photo">
                 <div class="d-block">
                     <p>Are you sure that you want to delete this image?</p>
+                    <p v-if="(photoToView !== null && userProfile.profilePicture !== null
+                       && userProfile.profilePicture.id === photoToView.id)">
+                        <b>This is your profile picture!</b>
+                    </p>
                 </div>
                 <b-button
                         @click="deleteImage"
