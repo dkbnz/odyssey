@@ -15,6 +15,7 @@
                             <b-nav-item @click="currentDisplay = 1">Edit Profile</b-nav-item>
                             <b-nav-item @click="currentDisplay = 2">View Trips</b-nav-item>
                             <b-nav-item @click="currentDisplay = 3">Add Trips</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 4">Add Destination Photos</b-nav-item>
                         </b-nav>
                     </b-collapse>
                     <b-navbar-toggle target="nav-collapse-admin"></b-navbar-toggle>
@@ -59,6 +60,14 @@
                         :subHeading="'Book your next trip!'"
                         v-if="currentDisplay === 3">
                 </plan-a-trip>
+                <search-destinations
+                        :containerClass="'adminContainer'"
+                        :destinationTypes="destinationTypes"
+                        :adminView="adminView"
+                        :destinations="destinations"
+                        :profile="editProfile"
+                        v-if="currentDisplay === 4">
+                </search-destinations>
             </b-col>
         </b-row>
     </div>
@@ -70,6 +79,7 @@
     import PlanATrip from './../trips/planATrip.vue'
     import YourTrips from './../trips/yourTrips.vue'
     import EditProfile from "./../dash/editProfile.vue"
+    import SearchDestinations from "./../destinations/searchDestinations.vue"
 
     export default {
         name: "singleProfile",
@@ -80,6 +90,7 @@
             nationalityOptions: Array,
             travTypeOptions: Array,
             destinations: Array,
+            destinationTypes: Array
 
         },
         data() {
@@ -87,6 +98,7 @@
                 profileImage: {blank: true, width: 75, height: 75, class: 'm1'},
                 currentDisplay: 0,
                 showSaved: false,
+                refreshDestinations: 0
             }
         },
         methods: {
@@ -123,6 +135,7 @@
             YourTrips,
             EditProfile,
             NavBarMain,
+            SearchDestinations
         }
     }
 </script>

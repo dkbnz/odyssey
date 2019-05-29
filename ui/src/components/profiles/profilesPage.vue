@@ -248,7 +248,8 @@
                 default: function() {
                     return 'containerMain';
                 }
-            }
+            },
+            destinationTypes: Array
         },
         components: {
             ViewProfile,
