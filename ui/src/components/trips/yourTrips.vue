@@ -111,11 +111,11 @@
 
                 <template slot="tripStartDate"
                           slot-scope="data">
-                    {{formatDate(calculateStartDate(data.item.destinations))}}
+                    {{formatDate(calculateTripDates(data.item.destinations)[0])}}
                 </template>
 
                 <template slot="tripEndDate" slot-scope="data">
-                    {{formatDate(calculateEndDate(data.item.destinations))}}
+                    {{formatDate(calculateTripDates(data.item.destinations)[data.item.destinations.length -1])}}
                 </template>
 
                 <template slot="tripEndDest" slot-scope="data" v-if="futureTrips.length > 0">
@@ -224,11 +224,11 @@
                     </template>
 
                     <template slot="tripStartDate" slot-scope="data">
-                        {{formatDate(calculateStartDate(data.item.destinations))}}
+                        {{formatDate(calculateTripDates(data.item.destinations)[0])}}
                     </template>
 
                     <template slot="tripEndDate" slot-scope="data">
-                        {{formatDate(calculateEndDate(data.item.destinations))}}
+                        {{formatDate(calculateTripDates(data.item.destinations)[data.item.destinations.length -1])}}
                     </template>
 
                     <template slot="tripEndDest" slot-scope="data" v-if="pastTrips.length > 0">
@@ -374,48 +374,30 @@
              * @returns string of the trip duration.
              */
             calculateDuration(destinations) {
-                let tripStartDates = [];
-                let tripEndDates = [];
-                for (let i = 0; i < destinations.length; i++ ) {
-                    if (destinations[i].startDate !== null) {
-                        tripStartDates.push(destinations[i].startDate);
-                    }
-                    if (destinations[i].endDate !== null) {
-                        tripEndDates.push(destinations[i].endDate);
-                    }
-                }
-                if (tripStartDates.length > 0 && tripEndDates.length > 0) {
-                    let calculateDur = Math.ceil((Math.abs(new Date(tripEndDates[tripEndDates.length -1 ]).getTime()
-                        - new Date(tripStartDates[0]).getTime())))/ (1000 * 3600 * 24) + 1;
+                let tripDates = this.calculateTripDates(destinations);
+                if (tripDates.length > 0) {
+                    let calculateDur = Math.ceil((Math.abs(new Date(tripDates[tripDates.length -1 ]).getTime()
+                        - new Date(tripDates[0]).getTime())))/ (1000 * 3600 * 24) + 1;
                     return calculateDur + " days";
 
                 }
             },
 
-            /**
-             * Calculates the trips start date by the first start date it can find.
-             */
-            calculateStartDate(destinations) {
-                let tripStartDates = [];
-                for (let i = 0; i < destinations.length; i++) {
-                    if (destinations[i].startDate !== null) {
-                        tripStartDates.push(destinations[i].startDate);
-                    }
-                }
-                return (tripStartDates[0]);
-            },
 
             /**
-             * Calculates the trips end date by the last end date it can find.
+             * Gathers trip dates into an array, regardless of whether they are start/end date
              */
-            calculateEndDate(destinations) {
-                let tripEndDates = [];
-                for (let i = 0; i < destinations.length; i++) {
+            calculateTripDates(destinations) {
+                let tripDates = [];
+                for (let i = 0; i < destinations.length; i++ ) {
+                    if (destinations[i].startDate !== null) {
+                        tripDates.push(destinations[i].startDate);
+                    }
                     if (destinations[i].endDate !== null) {
-                        tripEndDates.push(destinations[i].endDate);
+                        tripDates.push(destinations[i].endDate);
                     }
                 }
-                return (tripEndDates[tripEndDates.length - 1]);
+                return tripDates;
             },
 
             /**
