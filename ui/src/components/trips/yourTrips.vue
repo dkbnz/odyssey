@@ -434,7 +434,7 @@
                             if (destinationDates.length === 0) {
                                 self.futureTrips.push(trips[i]);
                             }
-                            else if (new Date(destinationDates[destinationDates.length - 1]) <= today) {
+                            else if (new Date(destinationDates[destinationDates.length - 1]) < today) {
                                 self.pastTrips.push(trips[i]);
                             } else {
                                 self.futureTrips.push(trips[i]);
