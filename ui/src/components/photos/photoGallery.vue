@@ -27,7 +27,7 @@
                            :acceptTypes="'image/jpeg, image/jpg, image/png'">
             </photoUploader>
         </b-modal>
-        <photo-table v-bind:photos="photos"
+        <photo-table v-bind:photos="profile.photoGallery"
                      v-bind:profile="profile"
                      v-bind:userProfile="userProfile"
                      :adminView="adminView"
@@ -304,12 +304,7 @@
              */
             addPhotos(data) {
                 this.checkAuth();
-                this.photos = [];
-                for(let i=0; i < data.length; i++) {
-                    if(data[i].public || this.auth) {
-                        this.photos.push(data[i]);
-                    }
-                }
+                this.profile.photoGallery = data;
             },
 
 
