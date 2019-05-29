@@ -28,13 +28,6 @@
                 }
             },
         },
-
-        mounted() {
-        },
-
-        methods: {
-        },
-
         components: {
             DestinationGallery
         }

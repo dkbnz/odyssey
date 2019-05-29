@@ -7,6 +7,8 @@ import java.util.List;
 
 public class DestinationRepository {
 
+    private static final String PHOTO_FIELD = "photoGallery.photo";
+
     /**
      * Update the destination object.
      *
@@ -34,6 +36,6 @@ public class DestinationRepository {
      * @return            list of destinations containing the photo.
      */
     public List<Destination> fetch(PersonalPhoto photo) {
-        return Destination.find.query().where().eq("photoGallery.photo", photo).findList();
+        return Destination.find.query().where().eq(PHOTO_FIELD, photo).findList();
     }
 }

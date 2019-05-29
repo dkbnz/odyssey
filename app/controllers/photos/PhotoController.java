@@ -281,10 +281,11 @@ public class PhotoController extends Controller {
      *
      * @param request   the Http request body containing the image to change from public to private.
      * @return          ok() (Http 200) containing a list of the user's photos if the photo is successfully changed.
-     *                  notFound() (Http 404) if the specified.
-     *                  photo cannot be found. forbidden() (Http 403) if the person trying to change the privacy of the
-     *                  photo is not the owner of the image or an admin. unauthorized() (Http 401) if the user is not
-     *                  logged in. internalServerError() (Http 500) if for some reason the photo couldn't be changed.
+     *                  notFound() (Http 404) if the specified photo cannot be found.
+     *                  forbidden() (Http 403) if the person trying to change the privacy of the
+     *                  photo is not the owner of the image or an admin.
+     *                  unauthorized() (Http 401) if the user is not logged in.
+     *                  internalServerError() (Http 500) if for some reason the photo couldn't be changed.
      */
     public Result changePrivacy(Http.Request request) {
         return request.session()
@@ -553,10 +554,10 @@ public class PhotoController extends Controller {
      * and checks authorization for admins and logged in users
      *
      * @param request           Http request from the client.
-     * @param destinationId     The destination id that we are adding the given photo too.
+     * @param destinationId     the destination id that we are adding the given photo too.
      * @return                  unauthorized() (Http 401) if a user is not logged in.
-     *                          Forbidden() (Http 403) if a user is trying to add a photo that is not theirs
-     *                          and they are not an admin
+     *                          forbidden() (Http 403) if a user is trying to add a photo that is not theirs
+     *                          and they are not an admin.
      *                          created() (Http 201) if the destination photo was added to the
      *                          destinations photo gallery.
      */
@@ -575,8 +576,9 @@ public class PhotoController extends Controller {
 
                     PersonalPhoto personalPhoto = personalPhotoRepo.fetch(personalPhotoId);
 
-                    if (personalPhoto == null)
+                    if (personalPhoto == null) {
                         return notFound("Image could not be found.");
+                    }
 
                     Profile photoOwner = personalPhoto.getProfile();
 
@@ -603,10 +605,10 @@ public class PhotoController extends Controller {
      * and checks authorization for admins and logged in users
      *
      * @param request           Http request from the client.
-     * @param destinationId     The destination id that we are removing the given photo from.
+     * @param destinationId     the destination id that we are removing the given photo from.
      * @return                  unauthorized() (Http 401) if a user is not logged in.
-     *                          Forbidden() (Http 403) if a user is trying to remove a photo that is not theirs
-     *                          and they are not an admin
+     *                          forbidden() (Http 403) if a user is trying to remove a photo that is not theirs
+     *                          and they are not an admin.
      *                          ok() (Http 200) if the destination photo was removed from the
      *                          destinations photo gallery.
      */
@@ -625,8 +627,9 @@ public class PhotoController extends Controller {
 
                     PersonalPhoto personalPhoto = personalPhotoRepo.fetch(personalPhotoId);
 
-                    if (personalPhoto == null)
+                    if (personalPhoto == null) {
                         return notFound("Image could not be found.");
+                    }
 
                     Profile photoOwner = personalPhoto.getProfile();
 

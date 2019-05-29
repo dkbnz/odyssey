@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static play.mvc.Http.HttpVerbs.PATCH;
 import static play.test.Helpers.*;
 
 
@@ -269,7 +270,7 @@ public class PhotoTestSteps {
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
                         .uri(UPLOAD_PHOTOS_URI + uploadUserId)
-                        .method("POST")
+                        .method(POST)
                         .bodyRaw(
                                 Collections.singletonList(part),
                                 play.libs.Files.singletonTemporaryFileCreator(),
@@ -291,7 +292,7 @@ public class PhotoTestSteps {
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
                         .uri(CHANGE_PHOTO_PRIVACY_URI)
-                        .method("PATCH")
+                        .method(PATCH)
                         .bodyJson(json)
                         .session(AUTHORIZED, LOGGED_IN_ID);
         Result changePhotoPrivacyResult = route(application, request);
@@ -305,7 +306,7 @@ public class PhotoTestSteps {
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
                         .uri(UPLOAD_PHOTOS_URI + photoId)
-                        .method("DELETE")
+                        .method(DELETE)
                         .session(AUTHORIZED, LOGGED_IN_ID);
         Result changePhotoPrivacyResult = route(application, request);
 
@@ -318,7 +319,7 @@ public class PhotoTestSteps {
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
                         .uri(PROFILE_PHOTO_URI + userId)
-                        .method("DELETE")
+                        .method(DELETE)
                         .session(AUTHORIZED, LOGGED_IN_ID);
         Result changePhotoPrivacyResult = route(application, request);
 
@@ -331,7 +332,7 @@ public class PhotoTestSteps {
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
                         .uri(PROFILE_PHOTO_URI + photoId)
-                        .method("PUT")
+                        .method(PUT)
                         .session(AUTHORIZED, LOGGED_IN_ID);
 
         Result changeProfilePhotoResult = route(application, request);
@@ -344,7 +345,7 @@ public class PhotoTestSteps {
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
                         .uri(DESTINATION_PHOTO_URI + destinationId)
-                        .method("POST")
+                        .method(POST)
                         .bodyJson(json)
                         .session(AUTHORIZED, LOGGED_IN_ID);
 
@@ -359,7 +360,7 @@ public class PhotoTestSteps {
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
                         .uri(DESTINATION_PHOTO_URI + destinationId)
-                        .method("DELETE")
+                        .method(DELETE)
                         .bodyJson(json)
                         .session(AUTHORIZED, LOGGED_IN_ID);
 

@@ -96,9 +96,9 @@
 
                 <template slot="row-details" slot-scope="row">
                     <single-destination
-                        :destination="row.item"
-                        :profile="profile"
-                        :userProfile="userProfile">
+                            :destination="row.item"
+                            :profile="profile"
+                            :userProfile="userProfile">
                     </single-destination>
                 </template>
 
@@ -255,18 +255,18 @@
              * Sets values for search.
              */
             searchDestinations() {
-                 if(this.validateFields(this.destinationNameValidation)
+                if (this.validateFields(this.destinationNameValidation)
                     && this.validateFields(this.destinationTypeValidation)
                     && this.validateFields(this.destinationDistrictValidation)
                     && this.validateFields(this.destinationLatitudeValidation)
                     && this.validateFields(this.destinationLongitudeValidation)
                     && this.validateFields(this.destinationCountryValidation)) {
-                     this.searchDestination = {
-                         name: this.searchName,
-                         type: this.searchType,
-                         district: this.searchDistrict,
-                         country: this.searchCountry
-                     };
+                    this.searchDestination = {
+                        name: this.searchName,
+                        type: this.searchType,
+                        district: this.searchDistrict,
+                        country: this.searchCountry
+                    };
                     this.queryDestinations();
                 }
 
