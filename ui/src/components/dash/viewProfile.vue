@@ -47,8 +47,7 @@
                                :userProfile="userProfile"
                                :adminView="adminView"
                                @makeProfilePhoto="setProfilePhoto"
-                               @removePhoto="refreshProfilePicture"
-                               @photos-saved="$emit('photos-saved', true)">
+                               @removePhoto="refreshProfilePicture">
                 </photo-gallery>
                 <!-- Displays a profile's trips -->
                 <your-trips :adminView="adminView"
