@@ -131,6 +131,14 @@
                         <b-spinner class="align-middle" v-if="retrievingProfiles"></b-spinner>
                         <strong>Can't find any profiles!</strong>
                     </div>
+                    <template slot="profilePhoto" slot-scope="row">
+                        <b-img :src="getProfilePictureThumbnail(row.item.profilePicture)"
+                               fluid
+                               rounded="circle"
+                               thumbnail
+                               @error="imageAlt">
+                        </b-img>
+                    </template>
                     <template slot="nationalities" slot-scope="row">
                         {{calculateNationalities(row.item.nationalities)}}
                     </template>
@@ -278,7 +286,9 @@
                     {value: 'Female', text: 'Female'},
                     {value: 'Other', text: 'Other'}
                 ],
-                fields: [{key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
+                fields: [
+                    {key: 'profilePhoto', label: "Profile Photo", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
                     {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
                     {key: 'nationalities', label: "Nationalities", sortable: true, class: 'tableWidthMedium'},
                     {key: 'gender', value: 'gender', sortable: true, class: 'tableWidthSmall'},
@@ -430,6 +440,27 @@
                         this.retrievingProfiles = false;
                         this.profiles = data;
                     })
+            },
+
+            /**
+             * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
+             */
+            getProfilePictureThumbnail(photo) {
+                if (photo !== null) {
+                    let photoId = photo.id;
+                    console.log(photo);
+                    return `/v1/photos/thumb/` + photoId;
+                } else {
+                    return "../../../static/default_profile_picture.png";
+                }
+            },
+
+            /**
+             * Displays default image when no image is found
+             * @param event     image error event
+             */
+            imageAlt(event) {
+                event.target.src = "../../../static/default_profile_picture.png"
             },
 
             /**
