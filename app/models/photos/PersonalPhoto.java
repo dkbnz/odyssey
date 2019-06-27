@@ -51,8 +51,8 @@ public class PersonalPhoto extends BaseModel {
         return isPublic;
     }
 
-    public void setPublic(Boolean aPublic) {
-        isPublic = aPublic;
+    public void setPublic(Boolean privacy) {
+        isPublic = privacy;
     }
 
     public static final Finder<Integer, PersonalPhoto> find = new Finder<>(PersonalPhoto.class);
