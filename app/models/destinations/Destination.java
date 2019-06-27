@@ -70,6 +70,12 @@ public class Destination extends BaseModel {
     @ManyToMany
     private List<PersonalPhoto> photoGallery = new ArrayList<>();
 
+    /**
+     * Stating the privacy of the destination if it is public or not
+     */
+    @Constraints.Required
+    private Boolean isPublic;
+
     public String getName() {
         return name;
     }
@@ -132,6 +138,14 @@ public class Destination extends BaseModel {
 
     public void changeOwner(Profile newOwner) {
         this.owner = newOwner;
+    }
+
+    public Boolean getPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(Boolean privacy) {
+        isPublic = privacy;
     }
 
     public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
