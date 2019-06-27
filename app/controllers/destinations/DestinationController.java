@@ -22,6 +22,7 @@ public class DestinationController extends Controller {
     public static final String DISTRICT = "district";
     public static final String LATITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
+    public static final String PRIVACY = "privacy";
 
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
@@ -193,6 +194,7 @@ public class DestinationController extends Controller {
         destination.setDistrict(json.get(DISTRICT).asText());
         destination.setLatitude(json.get(LATITUDE).asDouble());
         destination.setLongitude(json.get(LONGITUDE).asDouble());
+        destination.setPublic(json.has(PRIVACY) && json.get(PRIVACY).asBoolean());
 
         DestinationType destType = DestinationType.find.byId(json.get(TYPE).asInt());
 
