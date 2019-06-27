@@ -11,7 +11,7 @@
                      @privacy-update="updatePhotoPrivacy">
         </photo-table>
 
-        <b-button v-b-modal.addRemovePhotosModal variant="success" block>Add/Remove Destination Photo</b-button>
+        <b-button variant="success" @click="showModal('addRemovePhotosModal')" block>Add/Remove Destination Photo</b-button>
         <b-modal ref="addRemovePhotosModal" id="addRemovePhotosModal" hide-footer centered size="xl">
             <template slot="modal-title"><h3>Personal Photo Gallery</h3></template>
             <photo-table :selectedImages="personalPhotos"
@@ -175,7 +175,11 @@
                         self.alertMessage = "An error occurred when deleting a destination photo";
                     }
                 });
-            }
+            },
+
+            showModal(modal) {
+                this.$refs[modal].show();
+            },
 
         },
 
