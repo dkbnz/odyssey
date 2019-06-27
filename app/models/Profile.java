@@ -202,5 +202,17 @@ public class Profile extends BaseModel {
         return photoGallery.remove(photoToRemove);
     }
 
+    public void addDestination(Destination newDestination) {
+        this.myDestinations.add(newDestination);
+    }
+
+    public void removeDestination(Destination toRemove) {
+        this.myDestinations.remove(toRemove);
+    }
+
+    public List<Destination> getMyDestinations() {
+        return this.myDestinations;
+    }
+
     public static final Finder<Integer, Profile> find = new Finder<>(Profile.class);
 }
