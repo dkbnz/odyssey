@@ -60,6 +60,8 @@ create table destination (
   latitude                      double not null,
   longitude                     double not null,
   country                       varchar(255),
+  owner_id                      bigint,
+  is_public                     tinyint(1),
   constraint pk_destination primary key (id)
 );
 
@@ -168,6 +170,9 @@ create table trip_destination (
 create index ix_destination_type_id on destination (type_id);
 alter table destination add constraint fk_destination_type_id foreign key (type_id) references destination_type (id) on delete restrict on update restrict;
 
+create index ix_destination_owner_id on destination (owner_id);
+alter table destination add constraint fk_destination_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
+
 create index ix_destination_personal_photo_destination on destination_personal_photo (destination_id);
 alter table destination_personal_photo add constraint fk_destination_personal_photo_destination foreign key (destination_id) references destination (id) on delete restrict on update restrict;
 
@@ -217,6 +222,9 @@ alter table trip_destination add constraint fk_trip_destination_destination_id f
 
 alter table destination drop foreign key fk_destination_type_id;
 drop index ix_destination_type_id on destination;
+
+alter table destination drop foreign key fk_destination_owner_id;
+drop index ix_destination_owner_id on destination;
 
 alter table destination_personal_photo drop foreign key fk_destination_personal_photo_destination;
 drop index ix_destination_personal_photo_destination on destination_personal_photo;
