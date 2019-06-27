@@ -126,5 +126,13 @@ public class Destination extends BaseModel {
         return photoGallery.remove(photoToRemove);
     }
 
+    public Profile getOwner() {
+        return this.owner;
+    }
+
+    public void changeOwner(Profile newOwner) {
+        this.owner = newOwner;
+    }
+
     public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
 }
