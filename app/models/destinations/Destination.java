@@ -1,7 +1,9 @@
 package models.destinations;
 
 import io.ebean.Finder;
+import io.ebean.annotation.JsonIgnore;
 import models.BaseModel;
+import models.Profile;
 import models.photos.PersonalPhoto;
 import play.data.validation.Constraints;
 import javax.persistence.*;
@@ -53,6 +55,14 @@ public class Destination extends BaseModel {
      */
     @Constraints.Required
     private String country;
+
+    /**
+     * The owner of the destination
+     */
+    @JsonIgnore
+    @Constraints.Required
+    @ManyToOne
+    private Profile owner;
 
     /**
      * The destinations photo gallery
