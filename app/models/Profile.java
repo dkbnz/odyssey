@@ -56,7 +56,7 @@ public class Profile extends BaseModel {
     private PersonalPhoto profilePicture = new PersonalPhoto();
 
     @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
-    private List<Destination> MyDestinations = new ArrayList<>();
+    private List<Destination> myDestinations = new ArrayList<>();
 
     public PersonalPhoto getProfilePicture() {
         return profilePicture;
