@@ -9,6 +9,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import cucumber.api.java.Before;
+import org.apache.xpath.operations.Bool;
 import org.junit.*;
 import play.Application;
 import play.db.Database;
@@ -311,11 +312,15 @@ public class DestinationTestSteps {
         String latitude = list.get(0).get(LATITUDE_STRING);
         String longitude = list.get(0).get("Longitude");
         String country = list.get(0).get("Country");
+        String is_public = list.get(0).get("is_public");
+
+        //Test destinations are public by default
+        Boolean publicity = (is_public == null ||
+                !is_public.equalsIgnoreCase("false"));
 
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode json = mapper.createObjectNode();
-
 
         json.put(NAME, name);
         json.put(TYPE, type);
@@ -323,6 +328,7 @@ public class DestinationTestSteps {
         json.put(LONGITUDE, longitude);
         json.put(DISTRICT, district);
         json.put(COUNTRY, country);
+        json.put(IS_PUBLIC, publicity);
 
         return json;
     }
@@ -498,6 +504,14 @@ public class DestinationTestSteps {
 
         //Send search destinations request
         Assert.assertEquals(value, arrNode);
+    }
+
+    @Then("the response is empty")
+    public void theResponseIsEmpty() throws IOException {
+        JsonNode arrNode = new ObjectMapper().readTree(responseBody);
+
+        //Send search destinations request
+        Assert.assertEquals(0, arrNode.size());
     }
 
 

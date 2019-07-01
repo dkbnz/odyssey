@@ -7,7 +7,7 @@ Feature: Destination API Endpoint
 
   Scenario: Create a new destination with valid input
     Given I have a running application
-    Given I am logged in
+    And I am logged in
     When I create a new destination with the following valid values
       | Name    | Type | District | Latitude  | Longitude| Country     |
       | ASB     | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
@@ -81,3 +81,15 @@ Feature: Destination API Endpoint
     And the response contains at least one destination with latitude
       | Latitude    |
       | 24.5        |
+
+  Scenario: Search for a private destinations
+    Given I have a running application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name    | Type | District | Latitude  | Longitude| Country     | is_public  |
+      | ASB     | 3    | Nelson   | 24.5      | 34.6     | New Zealand | false      |
+    When I search for a destination with name
+      | Name    |
+      | ASB     |
+    Then the status code received is OK
+    And the response is empty
