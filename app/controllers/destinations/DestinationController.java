@@ -22,7 +22,8 @@ public class DestinationController extends Controller {
     public static final String DISTRICT = "district";
     public static final String LATITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
-    public static final String ISPUBLIC = "is_public";
+    public static final String OWNER = "owner_id";
+    public static final String IS_PUBLIC = "is_public";
 
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
@@ -61,21 +62,15 @@ public class DestinationController extends Controller {
         Map<String, String[]> queryString = request.queryString();
         List<Destination> destinations;
 
-        ExpressionList<Destination> expressionList = Destination.find.query().where();
-        String name = queryString.get(NAME)[0];
-        String type = queryString.get(TYPE)[0];
-        String latitude = queryString.get(LATITUDE)[0];
-        String longitude = queryString.get(LONGITUDE)[0];
-        String district = queryString.get(DISTRICT)[0];
-        String country = queryString.get(COUNTRY)[0];
+        String emptyString = "";
 
-        //Null checks
-        name = name == null ? "" : name;
-        type = type == null ? "" : type;
-        latitude = latitude == null ? "" : latitude;
-        longitude = longitude == null ? "" : longitude;
-        district = district == null ? "" : district;
-        country = country == null ? "" : country;
+        ExpressionList<Destination> expressionList = Destination.find.query().where();
+        String name =           queryString.get(NAME) == null         || queryString.get(NAME)[0] == null       ? emptyString : queryString.get(NAME)[0];
+        String type =           queryString.get(TYPE) == null         || queryString.get(TYPE)[0] == null       ? emptyString : queryString.get(TYPE)[0];
+        String latitude =       queryString.get(LATITUDE) == null     || queryString.get(LATITUDE)[0] == null   ? emptyString : queryString.get(LATITUDE)[0];
+        String longitude =      queryString.get(LONGITUDE) == null    || queryString.get(LONGITUDE)[0] == null  ? emptyString : queryString.get(LONGITUDE)[0];
+        String district =       queryString.get(DISTRICT) == null     || queryString.get(DISTRICT)[0] == null   ? emptyString : queryString.get(DISTRICT)[0];
+        String country =        queryString.get(COUNTRY) == null      || queryString.get(COUNTRY)[0] == null    ? emptyString : queryString.get(COUNTRY)[0];
 
         if (name.length() != 0) {
             expressionList.ilike(NAME, queryComparator(name));
@@ -95,6 +90,8 @@ public class DestinationController extends Controller {
         if (country.length() != 0) {
             expressionList.ilike(COUNTRY, queryComparator(country));
         }
+        expressionList.eq(IS_PUBLIC, true);
+
 
         destinations = expressionList.findList();
 
@@ -130,7 +127,7 @@ public class DestinationController extends Controller {
             return false;
         }
 
-        // Check range for latitude and longitude
+        // Check range for latitude and longitude""
         if (latitudeValue > LATITUDE_LIMIT || latitudeValue < -LATITUDE_LIMIT) {
             return false;
         }
@@ -194,7 +191,7 @@ public class DestinationController extends Controller {
         destination.setDistrict(json.get(DISTRICT).asText());
         destination.setLatitude(json.get(LATITUDE).asDouble());
         destination.setLongitude(json.get(LONGITUDE).asDouble());
-        destination.setPublic(json.has(ISPUBLIC) && json.get(ISPUBLIC).asBoolean());
+        destination.setPublic(json.has(IS_PUBLIC) && json.get(IS_PUBLIC).asBoolean());
 
         DestinationType destType = DestinationType.find.byId(json.get(TYPE).asInt());
 
