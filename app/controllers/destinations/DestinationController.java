@@ -12,6 +12,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repositories.DestinationRepository;
 import repositories.ProfileRepository;
+import util.AuthenticationUtil;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -122,6 +123,37 @@ public class DestinationController extends Controller {
 
         return ok(Json.toJson(destinations));
     }
+
+    /**
+     * Fetches all destinations by user.
+     * @return ok() (Http 200) response containing the destinations found in the response body.
+     */
+    private Result fetchByUser(Http.Request request, Integer userId) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+
+        Profile profileToChange = profileRepo.fetchSingleProfile(userId.intValue());
+
+        if (profileToChange == null) {
+            return badRequest();
+        }
+
+        if(!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
+            return forbidden();
+        }
+
+        List<Destination> destinations;
+        ExpressionList<Destination> expressionList = Destination.find.query().where();
+        expressionList.eq(OWNER, userId);
+
+        destinations = expressionList.findList();
+        return ok(Json.toJson(destinations));
+    }
+
 
     /**
      * Looks at all the input fields for creating a destination and determines if the input is valid or not.
