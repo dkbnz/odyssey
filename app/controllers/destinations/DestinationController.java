@@ -1,14 +1,19 @@
 package controllers.destinations;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.typesafe.config.Config;
 import io.ebean.ExpressionList;
+import models.Profile;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import repositories.DestinationRepository;
+import repositories.ProfileRepository;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +32,22 @@ public class DestinationController extends Controller {
 
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
+
+    private static final String AUTHORIZED = "authorized";
+    private static final String NOT_SIGNED_IN = "You are not logged in.";
+    private ProfileRepository profileRepo;
+    private DestinationRepository destinationRepo;
+    private Config config;
+
+    @Inject
+    public DestinationController(
+            ProfileRepository profileRepo,
+            DestinationRepository destinationRepo,
+            Config config) {
+        this.profileRepo = profileRepo;
+        this.destinationRepo = destinationRepo;
+        this.config = config;
+    }
 
 
     /**
@@ -168,19 +189,26 @@ public class DestinationController extends Controller {
      *                  the same name and district already exists in the database, returns badRequest() (Http 400).
      */
     public Result save(Http.Request request) {
-        JsonNode json = request.body().asJson();
+        return request.session()
+                .getOptional(AUTHORIZED)
+                .map(loggedInUserId -> {
+                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
 
-        if (!validInput(json)) {
-            return badRequest("Invalid input.");
-        }
-        if (destinationDoesNotExist(json)) {
-            Destination destination = createNewDestination(json);
-            destination.save();
-            return created("Created");
-        } else {
-            return badRequest("A destination with the name '" +json.get(NAME).asText() + "' and district '"
-                    + json.get(DISTRICT).asText() + "' already exists.");
-        }
+                    JsonNode json = request.body().asJson();
+
+                    if (!validInput(json)) {
+                        return badRequest("Invalid input.");
+                    }
+                    if (destinationDoesNotExist(json)) {
+                        Destination destination = createNewDestination(json);
+                        destination.save();
+                        return created("Created");
+                    } else {
+                        return badRequest("A destination with the name '" + json.get(NAME).asText() + "' and district '"
+                                + json.get(DISTRICT).asText() + "' already exists.");
+                    }
+                })
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
     /**

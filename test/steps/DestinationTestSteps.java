@@ -52,6 +52,11 @@ public class DestinationTestSteps {
      */
     private static final String DESTINATION_URI = "/v1/destinations";
 
+    /**
+     * Authorisation token for sessions
+     */
+    private static final String AUTHORIZED = "authorized";
+
 
     /**
      * The login endpoint uri.
@@ -66,16 +71,23 @@ public class DestinationTestSteps {
 
 
     /**
-     * A valid username for login credentials for admin user.
+     * Valid login credentials for an admin user.
      */
-    private static final String VALID_USERNAME = "admin@travelea.com";
-
+    private static final String ADMIN_USERNAME = "admin@travelea.com";
+    private static final String ADMIN_AUTHPASS = "admin1";
+    private static final String ADMIN_ID = "1";
 
     /**
-     * A valid password for login credentials for admin user.
+     * Valid login credentials for a regular user.
      */
-    private static final String VALID_AUTHPASS = "admin1";
+    private static final String REG_USERNAME = "guestUser@travelea.com";
+    private static final String REG_AUTHPASS = "guest123";
+    private static final String REG_ID = "2";
 
+    /**
+     * Currently logged-in user
+     */
+    private String LOGGED_IN_ID;
 
     /**
      * String to add the equals character (=) to build a query string.
@@ -219,7 +231,8 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(DESTINATION_URI);
+                .uri(DESTINATION_URI)
+                .session(AUTHORIZED, LOGGED_IN_ID);
         Result result = route(application, request);
         statusCode = result.status();
 
@@ -258,8 +271,9 @@ public class DestinationTestSteps {
      */
     @Given("I am logged in")
     public void iAmLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
+        loginRequest(REG_USERNAME, REG_AUTHPASS);
         assertEquals(OK, statusCode);
+        LOGGED_IN_ID = REG_ID;
     }
 
 
