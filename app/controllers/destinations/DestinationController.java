@@ -128,7 +128,7 @@ public class DestinationController extends Controller {
      * Fetches all destinations by user.
      * @return ok() (Http 200) response containing the destinations found in the response body.
      */
-    private Result fetchByUser(Http.Request request, Integer userId) {
+    public Result fetchByUser(Http.Request request, Long userId) {
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
