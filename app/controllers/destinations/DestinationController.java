@@ -200,8 +200,12 @@ public class DestinationController extends Controller {
                         return badRequest("Invalid input.");
                     }
                     if (destinationDoesNotExist(json)) {
-                        Destination destination = createNewDestination(json);
+                        Destination destination = createNewDestination(json, loggedInUser);
                         destination.save();
+
+                        loggedInUser.addDestination(destination);
+                        profileRepo.save(loggedInUser);
+
                         return created("Created");
                     } else {
                         return badRequest("A destination with the name '" + json.get(NAME).asText() + "' and district '"
@@ -216,7 +220,7 @@ public class DestinationController extends Controller {
      * @param json  the Json of the destination object.
      * @return      the new destination object.
      */
-    private Destination createNewDestination(JsonNode json) {
+    private Destination createNewDestination(JsonNode json, Profile owner) {
         Destination destination = new Destination();
         destination.setName(json.get(NAME).asText());
         destination.setCountry(json.get(COUNTRY).asText());
@@ -224,6 +228,7 @@ public class DestinationController extends Controller {
         destination.setLatitude(json.get(LATITUDE).asDouble());
         destination.setLongitude(json.get(LONGITUDE).asDouble());
         destination.setPublic(json.has(IS_PUBLIC) && json.get(IS_PUBLIC).asBoolean());
+        destination.changeOwner(owner);
 
         DestinationType destType = DestinationType.find.byId(json.get(TYPE).asInt());
 
