@@ -39,11 +39,15 @@ public class DestinationController extends Controller {
     }
 
     /**
-     * Fetches all destinations.
+     * Fetches all public destinations.
      * @return ok() (Http 200) response containing the destinations found in the response body.
      */
     private Result fetch() {
-        List<Destination> destinations = Destination.find.all();
+        List<Destination> destinations;
+        ExpressionList<Destination> expressionList = Destination.find.query().where();
+        expressionList.eq(IS_PUBLIC, true);
+
+        destinations = expressionList.findList();
         return ok(Json.toJson(destinations));
     }
 
@@ -104,15 +108,15 @@ public class DestinationController extends Controller {
      * @return          a boolean true if the input is valid.
      */
     private boolean validInput(JsonNode json) {
-        String name = json.get(NAME).asText();
-        String country = json.get(COUNTRY).asText();
-        String district = json.get(DISTRICT).asText();
-        String latitude = json.get(LATITUDE).asText();
-        String longitude = json.get(LONGITUDE).asText();
+        String name =       json.get(NAME).asText();
+        String country =    json.get(COUNTRY).asText();
+        String district =   json.get(DISTRICT).asText();
+        String latitude =   json.get(LATITUDE).asText();
+        String longitude =  json.get(LONGITUDE).asText();
 
         // Checks all fields contain data
-        if (name.length() == 0 || country.length() == 0 || district.length() == 0 || latitude.length() == 0
-                || longitude.length() == 0) {
+        if (name.length() == 0 || country.length() == 0 || district.length() == 0 ||
+                latitude.length() == 0  || longitude.length() == 0) {
             return false;
         }
 

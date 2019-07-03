@@ -26,6 +26,7 @@ import java.util.Map;
 
 import static controllers.destinations.DestinationController.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.OK;
@@ -269,8 +270,10 @@ public class DestinationTestSteps {
      */
     @And("a destination already exists with the following values")
     public void aDestinationExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        JsonNode json = convertDataTableToJsonNode(dataTable);
-        createDestinationRequest(json);
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            JsonNode json = convertDataTableToJsonNode(dataTable, i);
+            createDestinationRequest(json);
+        }
     }
 
 
@@ -288,13 +291,15 @@ public class DestinationTestSteps {
 
 
     /**
-     * Sends a request to create a new destination with valid values given in the data table.
+     * Sends a request to create a new destination with values given in the data table.
      * @param dataTable     The data table containing values to create the new destination.
      */
-    @When("I create a new destination with the following valid values")
-    public void iCreateANewDestinationWithTheFollowingValidValues(io.cucumber.datatable.DataTable dataTable) {
-        JsonNode json = convertDataTableToJsonNode(dataTable);
-        createDestinationRequest(json);
+    @When("I create a new destination with the following values")
+    public void iCreateANewDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            JsonNode json = convertDataTableToJsonNode(dataTable, i);
+            createDestinationRequest(json);
+        }
     }
 
 
@@ -303,16 +308,16 @@ public class DestinationTestSteps {
      * @param dataTable     The data table containing values of a destination.
      * @return              A JsonNode of a destination containing information from the data table.
      */
-    private JsonNode convertDataTableToJsonNode(io.cucumber.datatable.DataTable dataTable) {
+    private JsonNode convertDataTableToJsonNode(io.cucumber.datatable.DataTable dataTable, int index) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String name = list.get(0).get("Name");
-        String type = list.get(0).get("Type");
-        String district = list.get(0).get(DISTRICT_STRING);
-        String latitude = list.get(0).get(LATITUDE_STRING);
-        String longitude = list.get(0).get("Longitude");
-        String country = list.get(0).get("Country");
-        String is_public = list.get(0).get("is_public");
+        String name         = list.get(index).get("Name");
+        String type         = list.get(index).get("Type");
+        String district     = list.get(index).get(DISTRICT_STRING);
+        String latitude     = list.get(index).get(LATITUDE_STRING);
+        String longitude    = list.get(index).get("Longitude");
+        String country      = list.get(index).get("Country");
+        String is_public    = list.get(index).get("is_public");
 
         //Test destinations are public by default
         Boolean publicity = (is_public == null ||
@@ -331,28 +336,6 @@ public class DestinationTestSteps {
         json.put(IS_PUBLIC, publicity);
 
         return json;
-    }
-
-
-    /**
-     * Sends a request to create a new destination with invalid values given in the data table.
-     * @param dataTable     The data table containing values to create the new destination.
-     */
-    @When("I create a new destination with the following invalid values")
-    public void iCreateANewDestinationWithTheFollowingInvalidValues(io.cucumber.datatable.DataTable dataTable) {
-        JsonNode json = convertDataTableToJsonNode(dataTable);
-        createDestinationRequest(json);
-    }
-
-
-    /**
-     * Sends a request to create a new destination with duplicated values given in the data table.
-     * @param dataTable     The data table containing values to create the new destination.
-     */
-    @When("I create a new destination with the following duplicated values")
-    public void iCreateANewDestinationWithTheFollowingDuplicatedValues(io.cucumber.datatable.DataTable dataTable) {
-        JsonNode json = convertDataTableToJsonNode(dataTable);
-        createDestinationRequest(json);
     }
 
 
@@ -388,6 +371,14 @@ public class DestinationTestSteps {
         String value = getValueFromDataTable(LATITUDE_STRING, dataTable);
         String query = createSearchDestinationQueryString(LATITUDE, value);
 
+        //Send search destinations request
+        searchDestinationsRequest(query);
+    }
+
+
+    @When("I search for all destinations")
+    public void iSearchForAllDestinations() {
+        String query = createSearchDestinationQueryString("", "");
         //Send search destinations request
         searchDestinationsRequest(query);
     }
@@ -512,6 +503,14 @@ public class DestinationTestSteps {
 
         //Send search destinations request
         Assert.assertEquals(0, arrNode.size());
+    }
+
+    @Then("the response contains only public destinations")
+    public void theResponseContainsOnlyPublicDestinations() throws IOException {
+        JsonNode arrNode = new ObjectMapper().readTree(responseBody);
+        for (int i = 0 ; i < arrNode.size() ; i++) {
+            assertTrue(arrNode.get(i).get("public").asBoolean());
+        }
     }
 
 
