@@ -8,7 +8,7 @@ Feature: Destination API Endpoint
   Scenario: Create a new destination with valid input
     Given I have a running application
     And I am logged in
-    When I create a new destination with the following valid values
+    When I create a new destination with the following values
       | Name    | Type | District | Latitude  | Longitude| Country     |
       | ASB     | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
     Then the received status code is Created
@@ -16,7 +16,7 @@ Feature: Destination API Endpoint
   Scenario: Create a new destination with invalid name input
     Given I have a running application
     And I am logged in
-    When I create a new destination with the following invalid values
+    When I create a new destination with the following values
       | Name    | Type | District | Latitude  | Longitude| Country    |
       |         | 3    | Nelson   | 24.5      | 34.6     | New Zealand|
     Then the status code received is BadRequest
@@ -24,7 +24,7 @@ Feature: Destination API Endpoint
   Scenario: Create a new destination with invalid country input
     Given I have a running application
     And I am logged in
-    When I create a new destination with the following invalid values
+    When I create a new destination with the following values
       | Name    | Type | District | Latitude  | Longitude| Country    |
       | ASB     | 3    | Nelson   | 24.5      | 34.6     | New 1?!    |
     Then the status code received is BadRequest
@@ -35,7 +35,7 @@ Feature: Destination API Endpoint
     And a destination already exists with the following values
       | Name      | Type | District | Latitude  | Longitude| Country    |
       | Duplicate | 3    | Nelson   | 24.5      | 34.6     | New Zealand|
-    When I create a new destination with the following duplicated values
+    When I create a new destination with the following values
       | Name      | Type | District | Latitude  | Longitude| Country    |
       | Duplicate | 3    | Nelson   | 24.5      | 34.6     | New Zealand|
     Then the status code received is BadRequest
@@ -93,3 +93,29 @@ Feature: Destination API Endpoint
       | ASB     |
     Then the status code received is OK
     And the response is empty
+
+  Scenario: Search for all destinations
+    Given I have a running application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name      | Type | District | Latitude  | Longitude| Country     | is_public  |
+      | ASB       | 3    | Nelson   | 24.5      | 34.6     | New Zealand | true       |
+      | Big       | 4    | Gore     | 24.5      | 34.6     | New Zealand | true       |
+      | Phloomis  | 5    | Nelson   | 24.5      | 34.6     | New Zealand | false      |
+      | Styles    | 3    | Bally    | 24.5      | 34.6     | New Zealand | true       |
+    When I search for all destinations
+    Then the status code received is OK
+    And the response contains only public destinations
+
+#  Scenario: Search for destinations by owner
+#    Given I have a running application
+#    And I am logged in
+#    And a destination already exists with the following values
+#      | Name      | Type | District | Latitude  | Longitude| Country     | Owner
+#      | ASB       | 3    | Nelson   | 24.5      | 34.6     | New Zealand | 3
+#      | Big       | 4    | Gore     | 24.5      | 34.6     | New Zealand | 4
+#      | Phloomis  | 5    | Nelson   | 24.5      | 34.6     | New Zealand | 3
+#      | Styles    | 3    | Bally    | 24.5      | 34.6     | New Zealand | 3
+#    When I search for all destinations by user 3
+#    Then the status code received is OK
+#    And the response contains only destinations owned by the user with id 3
