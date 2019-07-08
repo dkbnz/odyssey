@@ -1,7 +1,6 @@
 <template>
-    <div class="containerWithNav">
-        <h1 class="page-title">Add a Destination</h1>
-        <p class="page-title"><i>Add a destination using the form below</i></p>
+    <div>
+        <h3 class="page-title">Add a Destination</h3>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act
@@ -94,7 +93,7 @@
 <script>
     export default {
         name: "addDestinations",
-        props: ['profile', 'destinations', 'destinationTypes'],
+        props: ['profile', 'destinationTypes'],
         data() {
             return {
                 destinationName: "",
@@ -230,7 +229,7 @@
                         if (response.ok) {
                             self.resetDestForm();
                             self.showAlert();
-                            self.emit('data-changed', true);
+                            self.emit('data-changed');
                             return JSON.parse(JSON.stringify(response));
                         } else {
                             self.errorMessage = "";

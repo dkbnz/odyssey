@@ -26,7 +26,6 @@
             this.getTravTypes(travTypes => this.travTypeOptions = travTypes);
             this.getDestinations();
             this.getDestinationTypes(destinationT => this.destinationTypes = destinationT);
-
         },
         data() {
             return {
@@ -100,7 +99,6 @@
             parseJSON(response) {
                 return response.json();
             },
-
             /**
              * Refreshes data when data has been changed.
              */
