@@ -10,7 +10,11 @@
                 ></your-destinations>
             </b-tab>
             <b-tab title="Public Destinations">
-                <public-destinations :profile="profile"></public-destinations>
+                <public-destinations
+                        :profile="profile"
+                        :destinationTypes="destinationTypes"
+                        @destination-click="destination => $emit('destination-click', destination)">
+                </public-destinations>
             </b-tab>
         </b-tabs>
     </div>

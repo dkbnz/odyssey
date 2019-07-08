@@ -2,17 +2,6 @@
     <div v-if="profile.length !== 0">
         <!--Shows tabs for destination page-->
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
-        <!--<b-navbar variant="light">-->
-            <!--<b-navbar-nav>-->
-                <!--<b-nav-item @click="togglePage(searchDestinations)">Search for a Destination</b-nav-item>-->
-                <!--<b-nav-item @click="togglePage(addDestinations)">Add a Destination</b-nav-item>-->
-            <!--</b-navbar-nav>-->
-        <!--</b-navbar>-->
-        <!--Displays currently selected page-->
-        <!--<search-destinations v-if="searchDestinations" :profile="profile"-->
-                             <!--:destinationTypes="destinationTypes"></search-destinations>-->
-        <!--<add-destinations @data-changed="emitDataChanged" v-if="addDestinations" :profile="profile"-->
-                          <!--:destinations="destinations" :destinationTypes="destinationTypes"></add-destinations>-->
 
         <div class="containerMain">
         <b-row>

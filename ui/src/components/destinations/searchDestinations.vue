@@ -1,7 +1,6 @@
 <template>
-    <div class="containerWithNav">
-        <h1 class="page-title">Search Destinations</h1>
-        <p class="page-title"><i>Search for a destination using any of the fields in the the form below</i></p>
+    <div>
+        <h3 class="page-title">Search Destinations</h3>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
         <div>
             <!--Input fields for searching for destinations-->
@@ -73,62 +72,6 @@
 
             <b-button @click="searchDestinations" block variant="primary">Search</b-button>
         </div>
-
-        <!--Table for displaying search results-->
-        <div style="margin-top: 40px">
-            <b-table :busy="destinations.length === 0"
-                     :current-page="currentPage"
-                     :fields="fields"
-                     :items="destinations"
-                     :per-page="perPage"
-                     :sort-by.sync="sortBy"
-                     :sort-desc.sync="sortDesc"
-                     responsive
-                     hover
-                     id="myFutureTrips"
-                     outlined
-                     striped
-                     @row-clicked="expandAdditionalInfo">
-                <div class="text-center my-2" slot="table-busy">
-                    <b-spinner class="align-middle" v-if="retrievingDestinations"></b-spinner>
-                    <strong>Can't find any destinations!</strong>
-                </div>
-
-                <template slot="row-details" slot-scope="row">
-                    <single-destination
-                            :destination="row.item"
-                            :profile="profile"
-                            :userProfile="userProfile">
-                    </single-destination>
-                </template>
-
-            </b-table>
-
-            <!--Settings for pagination & number of results displayed per page-->
-            <b-row>
-                <b-col cols="1">
-                    <b-form-group
-                            id="profiles-field"
-                            label-for="perPage">
-                        <b-form-select :options="optionViews" id="perPage" size="sm" trim
-                                       v-model="perPage"></b-form-select>
-                    </b-form-group>
-                </b-col>
-                <b-col cols="8">
-                    <b-pagination
-                            :per-page="perPage"
-                            :total-rows="rows"
-                            align="center"
-                            aria-controls="my-table"
-                            first-text="First"
-                            last-text="Last"
-                            size="sm"
-                            v-model="currentPage"
-                    ></b-pagination>
-                </b-col>
-            </b-row>
-        </div>
-
     </div>
 </template>
 
@@ -247,9 +190,6 @@
                 return !countryRegex.test(this.searchCountry);
             }
         },
-        mounted() {
-            this.queryDestinations();
-        },
         methods: {
             /**
              * Sets values for search.
@@ -270,13 +210,6 @@
                     this.queryDestinations();
                 }
 
-            },
-
-            /**
-             *
-             */
-            expandAdditionalInfo(row) {
-                this.$set(row, '_showDetails', !row._showDetails)
             },
 
             /**
@@ -316,7 +249,7 @@
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
-                        this.destinations = data;
+                        this.$emit('searched-destinations', data)
                         this.retrievingDestinations = false;
                     })
             },
