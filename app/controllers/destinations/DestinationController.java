@@ -148,7 +148,7 @@ public class DestinationController extends Controller {
 
         List<Destination> destinations;
         ExpressionList<Destination> expressionList = Destination.find.query().where();
-        expressionList.eq(OWNER,userId);
+        expressionList.eq(OWNER,profileToChange);
 
         destinations = expressionList.findList();
         return ok(Json.toJson(destinations));
@@ -243,7 +243,7 @@ public class DestinationController extends Controller {
                         return badRequest("Invalid input.");
                     }
                     if (destinationDoesNotExist(json)) {
-                        Destination destination = createNewDestination(json, loggedInUser);
+                        Destination destination = createNewDestination(json, profileToChange);
                         destination.save();
 
                         profileToChange.addDestination(destination);

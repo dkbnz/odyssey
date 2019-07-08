@@ -123,7 +123,7 @@ Feature: Destination API Endpoint
       | ASB       | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
       | Phloomis  | 5    | Nelson   | 24.5      | 34.6     | New Zealand |
       | Styles    | 3    | Bally    | 24.5      | 34.6     | New Zealand |
-    And a destination already exists for user 1 with the following values
+    And a destination already exists for user 2 with the following values
       | Name      | Type | District | Latitude  | Longitude| Country     |
       | Big       | 4    | Gore     | 24.5      | 34.6     | New Zealand |
     When I search for all destinations by user 2
