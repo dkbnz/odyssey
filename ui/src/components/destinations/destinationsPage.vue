@@ -33,7 +33,9 @@
                 <b-card>
                     <destination-sidebar
                             :profile="profile"
+                            :destinationTypes="destinationTypes"
                             @destination-click="destination => this.selectedDestination = destination"
+                            @data-changed="$emit('data-changed')"
                     ></destination-sidebar>
                 </b-card>
             </b-col>
@@ -87,13 +89,6 @@
                     this.searchDestinations = !this.searchDestinations;
                     this.addDestinations = !this.addDestinations;
                 }
-            },
-
-            /**
-             * Emits to the App Vue component to refresh the data when data has been changed.
-             */
-            emitDataChanged() {
-                this.emit('data-changed', true);
             }
         }
     }
