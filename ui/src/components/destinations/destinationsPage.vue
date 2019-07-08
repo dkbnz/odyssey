@@ -13,6 +13,7 @@
                              :destinationTypes="destinationTypes"></search-destinations>
         <add-destinations @data-changed="emitDataChanged" v-if="addDestinations" :profile="profile"
                           :destinations="destinations" :destinationTypes="destinationTypes"></add-destinations>
+        <destination-sidebar :profile="profile"></destination-sidebar>
         <footer-main></footer-main>
     </div>
     <div v-else>
@@ -26,16 +27,18 @@
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
     import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
+    import DestinationSidebar from "./destinationSidebar";
 
     export default {
         name: "destinationsPage",
         props: ['profile', 'destinations', 'destinationTypes'],
         components: {
+            DestinationSidebar,
             SearchDestinations,
             AddDestinations,
             NavBarMain,
             FooterMain,
-            UnauthorisedPrompt
+            UnauthorisedPrompt,
         },
         mounted() {
         },
