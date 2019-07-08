@@ -21,10 +21,12 @@
                     Destination Map
                 </b-card>
                 <b-card
-                        header="Destination"
+                        :header="selectedDestination.name"
                         style="margin-top: 10px">
-                    {{selectedDestination}}
-                    <!--<single-destination></single-destination>-->
+                    <single-destination
+                            :destination="selectedDestination"
+                            :profile="profile">
+                    </single-destination>
                 </b-card>
             </b-col>
             <b-col>
