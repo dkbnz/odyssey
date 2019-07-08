@@ -1,31 +1,52 @@
 <template>
-    <b-list-group>
-        <b-list-group-item v-for="destination in (yourDestinations)" href="#" class="flex-column align-items-start" @click="$emit('destination-click', destination)">
-            <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">{{destination.name}}</h5>
-                <small v-if="destination.public">Public</small>
-                <small v-else>Private</small>
-            </div>
+    <div>
+        <b-list-group v-if="addDestinationForm">
+            <b-list-group-item class="flex-column align-items-start">
+                <b-button @click="addDestinationForm = false" block variant="success">Return</b-button>
+            </b-list-group-item>
+            <b-list-group-item class="flex-column align-items-start">
+                <add-destinations v-if="addDestinationForm"
+                                  :profile="profile"
+                                  :destinationTypes="destinationTypes"
+                                  @data-changed="$emit('data-changed')">
+                </add-destinations>
+            </b-list-group-item>
+        </b-list-group>
+        <b-list-group v-else>
+            <b-list-group-item class="flex-column align-items-start">
+                <b-button variant="success" @click="addDestinationForm = true" block>Add Destination</b-button>
+            </b-list-group-item>
 
-            <p class="mb-1">
-                {{destination.district}}
-            </p>
-            <p class="mb-1">
-                {{destination.country}}
-            </p>
+            <b-list-group-item v-for="destination in (yourDestinations)" href="#" class="flex-column align-items-start" @click="$emit('destination-click', destination)">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{destination.name}}</h5>
+                    <small v-if="destination.public">Public</small>
+                    <small v-else>Private</small>
+                </div>
 
-        </b-list-group-item>
-    </b-list-group>
+                <p class="mb-1">
+                    {{destination.district}}
+                </p>
+                <p class="mb-1">
+                    {{destination.country}}
+                </p>
+
+            </b-list-group-item>
+        </b-list-group>
+    </div>
 </template>
 
 <script>
+    import AddDestinations from "./addDestinations";
     export default {
         name: "yourDestinations",
-        props: ['profile'],
+        components: {AddDestinations},
+        props: ['profile', 'destinationTypes'],
         data() {
             return {
                 yourDestinations: [],
-                destinationIndex: 0
+                destinationIndex: 0,
+                addDestinationForm: false
             }
         },
         mounted() {
