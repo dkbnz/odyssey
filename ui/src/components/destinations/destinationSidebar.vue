@@ -1,8 +1,15 @@
 <template>
     <div>
         <b-tabs content-class="mt-3">
-            <b-tab title="Your Destinations" active><your-destinations :profile="profile"></your-destinations></b-tab>
-            <b-tab title="Public Destinations"><public-destinations :profile="profile"></public-destinations></b-tab>
+            <b-tab title="Your Destinations" active>
+                <your-destinations
+                        :profile="profile"
+                        @destination-click="destination => $emit('destination-click', destination)"
+                ></your-destinations>
+            </b-tab>
+            <b-tab title="Public Destinations">
+                <public-destinations :profile="profile"></public-destinations>
+            </b-tab>
         </b-tabs>
     </div>
 
