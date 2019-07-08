@@ -40,6 +40,14 @@ Feature: Destination API Endpoint
       | Duplicate | 3    | Nelson   | 24.5      | 34.6     | New Zealand|
     Then the status code received is BadRequest
 
+  Scenario: Create a new destination with valid input for another user
+    Given I have a running application
+    And I am logged in as an admin user
+    When I create a new destination with the following values for another user
+      | Name    | Type | District | Latitude  | Longitude| Country     |
+      | ASB     | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
+    Then the received status code is Created
+
   Scenario: Search for a destination by name that exists
     Given I have a running application
     And I am logged in
@@ -107,15 +115,17 @@ Feature: Destination API Endpoint
     Then the status code received is OK
     And the response contains only public destinations
 
-#  Scenario: Search for destinations by owner
-#    Given I have a running application
-#    And I am logged in
-#    And a destination already exists with the following values
-#      | Name      | Type | District | Latitude  | Longitude| Country     | Owner
-#      | ASB       | 3    | Nelson   | 24.5      | 34.6     | New Zealand | 3
-#      | Big       | 4    | Gore     | 24.5      | 34.6     | New Zealand | 4
-#      | Phloomis  | 5    | Nelson   | 24.5      | 34.6     | New Zealand | 3
-#      | Styles    | 3    | Bally    | 24.5      | 34.6     | New Zealand | 3
-#    When I search for all destinations by user 3
-#    Then the status code received is OK
-#    And the response contains only destinations owned by the user with id 3
+  Scenario: Search for destinations by owner
+    Given I have a running application
+    And I am logged in as an admin user
+    And a destination already exists with the following values
+      | Name      | Type | District | Latitude  | Longitude| Country     |
+      | ASB       | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
+      | Phloomis  | 5    | Nelson   | 24.5      | 34.6     | New Zealand |
+      | Styles    | 3    | Bally    | 24.5      | 34.6     | New Zealand |
+    And a destination already exists for user 1 with the following values
+      | Name      | Type | District | Latitude  | Longitude| Country     |
+      | Big       | 4    | Gore     | 24.5      | 34.6     | New Zealand |
+    When I search for all destinations by user 2
+    Then the status code received is OK
+    And the response contains only destinations owned by the user with id 2

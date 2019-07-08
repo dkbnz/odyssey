@@ -29,7 +29,7 @@ POST    /v1/removeAdmin/:id             controllers.ProfileController.removeAdmi
 
 # Destinations
 GET     /v1/destinations                controllers.destinations.DestinationController.fetch(request: Request)
-POST    /v1/destinations                controllers.destinations.DestinationController.save(request: Request)
+POST    /v1/destinations/:userId        controllers.destinations.DestinationController.save(request: Request, userId: Long)
 GET     /v1/destinationTypes            controllers.destinations.DestinationController.getTypes()
 GET     /v1/destinations/:userId        controllers.destinations.DestinationController.fetchByUser(request: Request, userId: Long)
 
