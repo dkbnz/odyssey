@@ -9,15 +9,18 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import cucumber.api.java.Before;
+import models.destinations.Destination;
 import org.apache.xpath.operations.Bool;
 import org.junit.*;
 import play.Application;
+import play.api.libs.json.Json;
 import play.db.Database;
 
 import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.DestinationRepository;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -97,7 +100,7 @@ public class DestinationTestSteps {
     /**
      * Target user for destination changes
      */
-    private String TARGET_ID = REG_ID;
+    private String TARGET_ID;
 
     /**
      * String to add the equals character (=) to build a query string.
@@ -306,6 +309,7 @@ public class DestinationTestSteps {
      */
     @And("a destination already exists with the following values")
     public void aDestinationExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        TARGET_ID = LOGGED_IN_ID;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToJsonNode(dataTable, i);
             createDestinationRequest(json);
@@ -315,6 +319,7 @@ public class DestinationTestSteps {
     @Given("a destination already exists for user {int} with the following values")
     public void aDestinationAlreadyExistsForUserWithTheFollowingValues(Integer userId, io.cucumber.datatable.DataTable dataTable) {
         TARGET_ID = userId.toString();
+
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToJsonNode(dataTable, i);
             createDestinationRequest(json);
@@ -340,6 +345,7 @@ public class DestinationTestSteps {
      */
     @When("I create a new destination with the following values")
     public void iCreateANewDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        TARGET_ID = LOGGED_IN_ID;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToJsonNode(dataTable, i);
             createDestinationRequest(json);
@@ -348,6 +354,7 @@ public class DestinationTestSteps {
 
     @When("I create a new destination with the following values for another user")
     public void iCreateANewDestinationWithTheFollowingValuesForAnotherUser(io.cucumber.datatable.DataTable dataTable) {
+        TARGET_ID = LOGGED_IN_ID;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToJsonNode(dataTable, i);
             createDestinationRequest(json);
@@ -574,7 +581,6 @@ public class DestinationTestSteps {
 
     @Then("the response contains only public destinations")
     public void theResponseContainsOnlyPublicDestinations() throws IOException {
-        System.out.println(responseBody);
         JsonNode arrNode = new ObjectMapper().readTree(responseBody);
         for (int i = 0 ; i < arrNode.size() ; i++) {
             assertTrue(arrNode.get(i).get("public").asBoolean());
@@ -583,10 +589,15 @@ public class DestinationTestSteps {
 
 
     @Then("the response contains only destinations owned by the user with id {int}")
-    public void theResponseContainsOnlyDestinationsOwnedByTheUserWithId(Integer userId) throws IOException {
-        System.out.println(responseBody);
+    public void theResponseContainsOnlyDestinationsOwnedByTheUserWithId(Integer id) throws IOException {
+        Long userId = id.longValue();
         JsonNode arrNode = new ObjectMapper().readTree(responseBody);
-        assertTrue(false);
+        Long ownerId;
+        for (int i = 0 ; i < arrNode.size() ; i++) {
+            DestinationRepository destinationRepo = new DestinationRepository();
+            ownerId = destinationRepo.fetch(arrNode.get(i).get("id").asLong()).getOwner().getId();  //Gets owner id of destination
+            assertEquals(userId, ownerId);
+        }
     }
 
 
