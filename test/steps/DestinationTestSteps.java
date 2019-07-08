@@ -53,6 +53,11 @@ public class DestinationTestSteps {
     private static final String DESTINATION_URI = "/v1/destinations";
 
     /**
+     * The search by user endpoint uri.
+     */
+    private static final String SEARCH_BY_USER_URI = "/v1/destinations/";
+
+    /**
      * Authorisation token for sessions
      */
     private static final String AUTHORIZED = "authorized";
@@ -88,6 +93,11 @@ public class DestinationTestSteps {
      * Currently logged-in user
      */
     private String LOGGED_IN_ID;
+
+    /**
+     * Target user for destination changes
+     */
+    private String TARGET_ID = REG_ID;
 
     /**
      * String to add the equals character (=) to build a query string.
@@ -231,11 +241,10 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(DESTINATION_URI)
+                .uri(DESTINATION_URI + "/" + TARGET_ID)
                 .session(AUTHORIZED, LOGGED_IN_ID);
         Result result = route(application, request);
         statusCode = result.status();
-
     }
 
 
@@ -276,6 +285,19 @@ public class DestinationTestSteps {
         LOGGED_IN_ID = REG_ID;
     }
 
+    /**
+     * Attempts to send a log in request with user credentials from constants VALID_USERNAME
+     * and VALID_AUTHPASS.
+     *
+     * Asserts the login was successful with a status code of OK (200).
+     */
+    @Given("I am logged in as an admin user")
+    public void iAmLoggedInAsAnAdminUser() {
+        loginRequest(ADMIN_USERNAME, ADMIN_AUTHPASS);
+        assertEquals(OK, statusCode);
+        LOGGED_IN_ID = ADMIN_ID;
+    }
+
 
     /**
      * Sends a request to create a new destination with valid values given in the data table to
@@ -290,6 +312,14 @@ public class DestinationTestSteps {
         }
     }
 
+    @Given("a destination already exists for user {int} with the following values")
+    public void aDestinationAlreadyExistsForUserWithTheFollowingValues(Integer userId, io.cucumber.datatable.DataTable dataTable) {
+        TARGET_ID = userId.toString();
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            JsonNode json = convertDataTableToJsonNode(dataTable, i);
+            createDestinationRequest(json);
+        }
+    }
 
     /**
      * Sends a request to get all destinations.
@@ -310,6 +340,14 @@ public class DestinationTestSteps {
      */
     @When("I create a new destination with the following values")
     public void iCreateANewDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            JsonNode json = convertDataTableToJsonNode(dataTable, i);
+            createDestinationRequest(json);
+        }
+    }
+
+    @When("I create a new destination with the following values for another user")
+    public void iCreateANewDestinationWithTheFollowingValuesForAnotherUser(io.cucumber.datatable.DataTable dataTable) {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToJsonNode(dataTable, i);
             createDestinationRequest(json);
@@ -395,6 +433,19 @@ public class DestinationTestSteps {
         String query = createSearchDestinationQueryString("", "");
         //Send search destinations request
         searchDestinationsRequest(query);
+    }
+
+
+    @When("I search for all destinations by user {int}")
+    public void iSearchForAllDestinationsByUser(Integer userId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(SEARCH_BY_USER_URI + userId)
+                .session(AUTHORIZED, LOGGED_IN_ID);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
     }
 
 
@@ -511,6 +562,7 @@ public class DestinationTestSteps {
         Assert.assertEquals(value, arrNode);
     }
 
+
     @Then("the response is empty")
     public void theResponseIsEmpty() throws IOException {
         JsonNode arrNode = new ObjectMapper().readTree(responseBody);
@@ -519,12 +571,22 @@ public class DestinationTestSteps {
         Assert.assertEquals(0, arrNode.size());
     }
 
+
     @Then("the response contains only public destinations")
     public void theResponseContainsOnlyPublicDestinations() throws IOException {
+        System.out.println(responseBody);
         JsonNode arrNode = new ObjectMapper().readTree(responseBody);
         for (int i = 0 ; i < arrNode.size() ; i++) {
             assertTrue(arrNode.get(i).get("public").asBoolean());
         }
+    }
+
+
+    @Then("the response contains only destinations owned by the user with id {int}")
+    public void theResponseContainsOnlyDestinationsOwnedByTheUserWithId(Integer userId) throws IOException {
+        System.out.println(responseBody);
+        JsonNode arrNode = new ObjectMapper().readTree(responseBody);
+        assertTrue(false);
     }
 
 

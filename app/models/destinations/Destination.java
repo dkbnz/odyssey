@@ -1,7 +1,7 @@
 package models.destinations;
 
 import io.ebean.Finder;
-import io.ebean.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import models.BaseModel;
 import models.Profile;
 import models.photos.PersonalPhoto;
@@ -59,8 +59,8 @@ public class Destination extends BaseModel {
     /**
      * The owner of the destination
      */
-    @JsonIgnore
     @Constraints.Required
+    @JsonIgnore
     @ManyToOne
     private Profile owner;
 

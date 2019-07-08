@@ -28,7 +28,7 @@ public class DestinationController extends Controller {
     public static final String DISTRICT = "district";
     public static final String LATITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
-    public static final String OWNER = "owner_id";
+    public static final String OWNER = "owner";
     public static final String IS_PUBLIC = "is_public";
 
     private static final Double LATITUDE_LIMIT = 90.0;
@@ -148,7 +148,7 @@ public class DestinationController extends Controller {
 
         List<Destination> destinations;
         ExpressionList<Destination> expressionList = Destination.find.query().where();
-        expressionList.eq(OWNER, userId);
+        expressionList.eq(OWNER,userId);
 
         destinations = expressionList.findList();
         return ok(Json.toJson(destinations));
@@ -220,11 +220,22 @@ public class DestinationController extends Controller {
      * @return          Http response created() (Http 201) when the destination is saved. If a destination with
      *                  the same name and district already exists in the database, returns badRequest() (Http 400).
      */
-    public Result save(Http.Request request) {
+    public Result save(Http.Request request, Long userId) {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
                     Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
+
+                    Profile profileToChange = profileRepo.fetchSingleProfile(userId.intValue());
+
+                    if (profileToChange == null) {
+                        return badRequest();
+                    }
+
+                    if(!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
+                        return forbidden();
+                    }
+
 
                     JsonNode json = request.body().asJson();
 
@@ -235,8 +246,8 @@ public class DestinationController extends Controller {
                         Destination destination = createNewDestination(json, loggedInUser);
                         destination.save();
 
-                        loggedInUser.addDestination(destination);
-                        profileRepo.save(loggedInUser);
+                        profileToChange.addDestination(destination);
+                        profileRepo.save(profileToChange);
 
                         return created("Created");
                     } else {
