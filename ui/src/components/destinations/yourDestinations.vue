@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="addDestinationForm">
-            <b-button @click="addDestinationForm = false" block variant="success">Return</b-button>
+            <b-button @click="returnToList" block variant="success">Return</b-button>
             <b-list-group>
                 <b-list-group-item class="flex-column align-items-start">
                     <add-destinations v-if="addDestinationForm"
@@ -45,7 +45,7 @@
             return {
                 yourDestinations: [],
                 destinationIndex: 0,
-                addDestinationForm: false
+                addDestinationForm: false,
             }
         },
         mounted() {
@@ -61,7 +61,12 @@
                 })
                     .then(response => response.json())
                     .then(response => this.yourDestinations = response)
+            },
+            returnToList() {
+                this.getYourDestinations();
+                this.addDestinationForm = false;
             }
+
         }
     }
 </script>
