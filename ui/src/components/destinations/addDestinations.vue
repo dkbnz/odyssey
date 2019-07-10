@@ -210,7 +210,7 @@
              */
             addDestination(cb) {
                 let self = this;
-                fetch(`/v1/destinations`, {
+                fetch(`/v1/destinations/` + this.profile.id, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: (JSON.stringify({
