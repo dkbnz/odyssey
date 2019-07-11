@@ -1,5 +1,17 @@
 <template>
     <div>
+        <b-modal hide-footer id="editDestModal" ref="editDestModal" size="l" title="Edit Destination">
+            <add-destinations
+                    :containerClass="'noMarginsContainer'"
+                    :inputDestination="destination"
+                    :profile="profile"
+                    :heading="'Edit a Destination'"
+                    :destination-types="destinationTypes"
+                    @destinationSaved="refreshDestination()">
+            </add-destinations>
+            <b-button @click="dismissModal('editDestModal')" class="mr-2 float-right">Close</b-button>
+        </b-modal>
+
         <b-row>
             <b-col>
                 <p class="mb-1">
@@ -17,6 +29,7 @@
                 <p class="mb-1">
                     Longitude: {{destination.longitude}}
                 </p>
+                <b-button @click="editDestination" v-b-modal.editDestModal variant="warning" block>Edit</b-button>
             </b-col>
             <b-col cols="9">
                 <destination-gallery
@@ -25,12 +38,14 @@
                         :userProfile="userProfile">
                 </destination-gallery>
             </b-col>
+
         </b-row>
     </div>
 </template>
 
 <script>
     import DestinationGallery from "../photos/destinationGallery";
+    import AddDestinations from "./addDestinations";
 
     export default {
 
@@ -43,6 +58,7 @@
         props: {
             destination: Object,
             profile: Object,
+            destinationTypes: Array,
             userProfile: {
                 default: function() {
                     return this.profile;
@@ -50,7 +66,20 @@
             },
         },
         components: {
+            AddDestinations,
             DestinationGallery
+        },
+        methods: {
+            refreshDestination() {
+            },
+            /**
+             * Used to dismiss either the delete a trip confirmation modal or the edit a trip modal.
+             *
+             * @param modal, the modal that is wanting to be dismissed.
+             */
+            dismissModal(modal) {
+                this.$refs[modal].hide();
+            },
         }
     }
 </script>

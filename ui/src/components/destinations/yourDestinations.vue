@@ -7,6 +7,7 @@
                     <add-destinations v-if="addDestinationForm"
                                       :profile="profile"
                                       :destinationTypes="destinationTypes"
+                                      :heading="'Add a Destination'"
                                       @data-changed="$emit('data-changed')">
                     </add-destinations>
                 </b-list-group-item>

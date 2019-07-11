@@ -14,6 +14,7 @@
                         style="margin-top: 10px">
                     <single-destination
                             :destination="selectedDestination"
+                            :destination-types="destinationTypes"
                             :profile="profile">
                     </single-destination>
                 </b-card>
