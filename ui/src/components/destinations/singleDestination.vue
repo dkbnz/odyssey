@@ -3,7 +3,7 @@
         <b-modal hide-footer id="editDestModal" ref="editDestModal" size="l" title="Edit Destination">
             <add-destinations
                     :containerClass="'noMarginsContainer'"
-                    :inputDestination="destination"
+                    :inputDestination="copyDestination()"
                     :profile="profile"
                     :heading="'Edit a Destination'"
                     :destination-types="destinationTypes"
@@ -72,8 +72,13 @@
         methods: {
             refreshDestination() {
             },
+
+            copyDestination() {
+                return JSON.parse(JSON.stringify(this.destination))
+            },
+
             /**
-             * Used to dismiss either the delete a trip confirmation modal or the edit a trip modal.
+             * Used to dismiss the edit a destination modal.
              *
              * @param modal, the modal that is wanting to be dismissed.
              */

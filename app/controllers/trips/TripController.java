@@ -2,6 +2,7 @@ package controllers.trips;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.ExpressionList;
 import models.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
@@ -342,6 +343,11 @@ public class TripController extends Controller {
      */
     public Result fetchAll(Long id) {
         List<Trip> trips = repository.fetchAllTrips(id);
+        return ok(Json.toJson(trips));
+    }
+
+    public Result fetchTripByDestination(Http.Request request, Long destinationId) {
+        List<Trip> trips = repository.fetchAllTrips(destinationId);
         return ok(Json.toJson(trips));
     }
 

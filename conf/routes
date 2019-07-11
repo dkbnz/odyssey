@@ -32,6 +32,7 @@ GET     /v1/destinations                controllers.destinations.DestinationCont
 POST    /v1/destinations/:userId        controllers.destinations.DestinationController.save(request: Request, userId: Long)
 GET     /v1/destinationTypes            controllers.destinations.DestinationController.getTypes()
 GET     /v1/destinations/:userId        controllers.destinations.DestinationController.fetchByUser(request: Request, userId: Long)
+GET     /v1/destinationCheck/:destId    controllers.trips.TripController.fetchTripByDestination(request: Request, destId: Long)
 
 # Trips
 GET     /v1/trips/:userId               controllers.trips.TripController.fetchAll(userId: Long)

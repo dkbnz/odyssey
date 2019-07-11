@@ -21,6 +21,18 @@
             ></b-progress>
         </b-alert>
 
+        <b-modal hide-footer id="confirmEditModal" ref="confirmEditModal" size="l" title="Confirm Edit">
+            <div>
+                Are you sure you want to edit this destination?
+                This would affect the following trips:
+                <ul v-for="trip in destinationConflicts">
+                    <li>{{trip.name}}: {{trip.destinations[0].destination.name}} -
+                        {{trip.destinations[trip.destinations.length - 1].destination.name}}</li>
+                </ul>
+            </div>
+            <b-button @click="editDestination" class="mr-2 float-left" variant="success">Confirm</b-button>
+            <b-button @click="dismissModal('confirmEditModal')" class="mr-2 float-right" variant="danger">Cancel</b-button>
+        </b-modal>
 
         <!--Form for adding a destination-->
         <div>
@@ -42,7 +54,7 @@
                         </option>
                     </b-form-select>
                 </b-form-group>
-
+{{inputDestination.longitude}}
                 <b-form-group
                         id="district-field"
                         label="District:"
@@ -172,6 +184,7 @@
                 return true;
             },
             destinationLongitudeValidation() {
+                console.log("----------------------Here--------------------");
                 if (this.inputDestination.longitude === null) {
                     return null;
                 }
@@ -268,31 +281,40 @@
                     });
             },
 
+            /**
+             * Checks whether the destination being edited is present in any trips
+             *
+             * @param cb.
+             */
             validateEdit(cb) {
                 let self = this;
                 //TODO: Update this request to match route
-                fetch(`/v1/destinationConflicts/` + this.inputDestination.id, {
+                fetch(`/v1/destinationCheck/` + 88, {
                     accept: "application/json"
                 })
+                    .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(cb)
                     .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
-
                     .then(function(response) {
-                        if (response.ok) {
-                            self.resetDestForm();
-                            self.showAlert();
-                            self.emit('data-changed');
-                            return JSON.parse(JSON.stringify(response));
+                        if (self.destinationConflicts.length > 0) {
+                            self.displayConfirmation();
                         } else {
-                            self.errorMessage = "";
-                            self.showError = true;
-                            // response.clone().text().then(text => {
-                            //     self.errorMessage = text;
-                            // });
-                            self.errorMessage = response.status;
+                            self.heading = "FUCK";
                         }
+
+                        self.emit('data-changed');
+                        return JSON.parse(JSON.stringify(response));
+
                     });
+            },
+
+            displayConfirmation() {
+                this.$refs["confirmEditModal"].show();
+            },
+
+            editDestination() {
+
             },
 
             /**
@@ -309,6 +331,44 @@
              */
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
+            },
+
+            /**
+             * Used to dismiss the edit a destination modal.
+             *
+             * @param modal, the modal that is wanting to be dismissed.
+             */
+            dismissModal(modal) {
+                this.$refs[modal].hide();
+            },
+
+            /**
+             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
+             * console.
+             *
+             * @param response, passed back to the getAllTrips function to be parsed into a Json.
+             * @returns throws the error.
+             */
+            checkStatus(response) {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                }
+                const error = new Error(`HTTP Error ${response.statusText}`);
+                error.status = response.statusText;
+                error.response = response;
+                console.log(error);
+
+                self.errorMessage = "";
+                self.showError = true;
+                response.clone().text().then(text => {
+                    self.errorMessage = text;
+                });
+
+                throw error;
+            },
+
+            parseJSON(response) {
+                return response.json();
             },
         }
     }
