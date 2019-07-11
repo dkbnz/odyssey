@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3 class="page-title">Add a Destination</h3>
+        <h3 class="page-title">{{heading}}</h3>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act
@@ -32,14 +32,13 @@
                     <b-form-input id="name" v-model="inputDestination.name" type="text" required
                                   :state="destinationNameValidation"></b-form-input>
                 </b-form-group>
-
                 <b-form-group
                         id="type-field"
                         label="Destination Type:"
                         label-for="type">
-                    <b-form-select id="type" v-model="inputDestination.type" trim :state="destinationTypeValidation">
+                    <b-form-select id="type" v-model="inputDestination.type.id" trim :state="destinationTypeValidation">
                         <option v-for="destination in destinationTypes" :value="destination.id">
-                            {{destination.destinationTypes}}
+                            {{destination.destinationType}}
                         </option>
                     </b-form-select>
                 </b-form-group>
@@ -97,6 +96,7 @@
         props: {
             profile: Object,
             destinationTypes: Array,
+            heading: String,
             inputDestination: {
                 default: function () {
                     return {
@@ -106,6 +106,7 @@
                             id: null,
                             destinationType: "",
                         },
+                        // type: "",
                         district: "",
                         latitude: null,
                         longitude: null,
@@ -129,6 +130,7 @@
                 dismissCountDown: 0,
                 latitudeErrorMessage: "",
                 longitudeErrorMessage: "",
+                destinationConflicts: [],
             }
         },
         computed: {
@@ -144,7 +146,7 @@
                 return this.inputDestination.name.length > 0;
             },
             destinationTypeValidation() {
-                if (this.inputDestination.type.length === 0) {
+                if (this.inputDestination.type.id == null) {
                     return null;
                 }
                 return this.inputDestination.type.length > 0 || this.inputDestination.type !== null;
@@ -201,7 +203,12 @@
                     && this.destinationDistrictValidation && this.destinationLatitudeValidation
                     && this.destinationLongitudeValidation && this.destinationCountryValidation) {
                     this.showError = false;
-                    this.addDestination();
+
+                    if (this.inputDestination.id === null) {
+                        this.addDestination();
+                    } else {
+                        this.validateEdit();
+                    }
                 }
                 else {
                     this.errorMessage = ("Please enter in all fields!");
@@ -235,7 +242,7 @@
                     headers: {'content-type': 'application/json'},
                     body: (JSON.stringify({
                         "name": this.inputDestination.name,
-                        "type_id": this.inputDestination.type,
+                        "type_id": this.inputDestination.type.id,
                         "district": this.inputDestination.district,
                         "latitude": parseFloat(this.inputDestination.latitude),
                         "longitude": parseFloat(this.inputDestination.longitude),
@@ -257,6 +264,33 @@
                             response.clone().text().then(text => {
                                 self.errorMessage = text;
                             });
+                        }
+                    });
+            },
+
+            validateEdit(cb) {
+                let self = this;
+                //TODO: Update this request to match route
+                fetch(`/v1/destinationConflicts/` + this.inputDestination.id, {
+                    accept: "application/json"
+                })
+                    .then(this.parseJSON)
+                    .then(cb)
+                    .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
+
+                    .then(function(response) {
+                        if (response.ok) {
+                            self.resetDestForm();
+                            self.showAlert();
+                            self.emit('data-changed');
+                            return JSON.parse(JSON.stringify(response));
+                        } else {
+                            self.errorMessage = "";
+                            self.showError = true;
+                            // response.clone().text().then(text => {
+                            //     self.errorMessage = text;
+                            // });
+                            self.errorMessage = response.status;
                         }
                     });
             },
