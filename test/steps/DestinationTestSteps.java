@@ -316,6 +316,18 @@ public class DestinationTestSteps {
 
 
     /**
+     * Sends a logout request to the system
+     *
+     * Asserts the value of LOGGED_IN_ID is null.
+     */
+    @Given("I am not logged in")
+    public void iAmNotLoggedIn() {
+        logoutRequest();
+        assertNull(LOGGED_IN_ID);
+    }
+
+
+    /**
      * Sends a request to create a new destination with valid values given in the data table to
      * ensure a destination already exists in the database.
      * @param dataTable     The data table containing values to create the new destination.
