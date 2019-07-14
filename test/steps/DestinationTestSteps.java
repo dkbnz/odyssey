@@ -320,7 +320,7 @@ public class DestinationTestSteps {
     public void aDestinationExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         TARGET_ID = LOGGED_IN_ID;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode json = convertDataTableToJsonNode(dataTable, i);
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
         }
     }
@@ -354,7 +354,7 @@ public class DestinationTestSteps {
         TARGET_ID = userId.toString();
 
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode json = convertDataTableToJsonNode(dataTable, i);
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
         }
     }
@@ -380,7 +380,7 @@ public class DestinationTestSteps {
     public void iCreateANewDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         TARGET_ID = LOGGED_IN_ID;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode json = convertDataTableToJsonNode(dataTable, i);
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
         }
     }
@@ -389,7 +389,7 @@ public class DestinationTestSteps {
     public void iCreateANewDestinationWithTheFollowingValuesForAnotherUser(io.cucumber.datatable.DataTable dataTable) {
         TARGET_ID = LOGGED_IN_ID;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode json = convertDataTableToJsonNode(dataTable, i);
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
         }
     }
@@ -400,7 +400,7 @@ public class DestinationTestSteps {
      * @param dataTable     The data table containing values of a destination.
      * @return              A JsonNode of a destination containing information from the data table.
      */
-    private JsonNode convertDataTableToJsonNode(io.cucumber.datatable.DataTable dataTable, int index) {
+    private JsonNode convertDataTableToDestinationJson(io.cucumber.datatable.DataTable dataTable, int index) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         String name         = list.get(index).get("Name");
