@@ -302,7 +302,7 @@ public class DestinationController extends Controller {
      * @param request   Http request containing a Json body of fields to update in the destination.
      * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
      */
-    public Result edit(Long id, Http.Request request) {
+    public Result edit(Http.Request request, Long id) {
         JsonNode json = request.body().asJson();
 
         Destination oldDestination = Destination.find.byId(id.intValue());
