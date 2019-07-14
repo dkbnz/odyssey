@@ -613,8 +613,8 @@ public class DestinationTestSteps {
     /**
      * Checks if the status code received is Created (201).
      */
-    @Then("the received status code is Created")
-    public void theReceivedStatusCodeIsCreated() {
+    @Then("the status code received is Created")
+    public void theStatusCodeReceivedIsCreated() {
         assertEquals(CREATED, statusCode);
     }
 
