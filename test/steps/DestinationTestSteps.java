@@ -93,6 +93,15 @@ public class DestinationTestSteps {
     private static final String REG_ID = "2";
 
     /**
+     * Query parameters for selecting a specific destination.
+     */
+    private static final String DESTINATION_ID_FIELD ="id";
+    private static final String DESTINATION_NAME_FIELD = "name";
+    private static final String DESTINATION_DISTRICT_FIELD = "district";
+    private static final String DESTINATION_COUNTRY_FIELD = "country";
+
+
+    /**
      * Currently logged-in user
      */
     private String LOGGED_IN_ID;
@@ -316,6 +325,30 @@ public class DestinationTestSteps {
         }
     }
 
+
+    /**
+     * Gets and returns the ID of the destination described by the name, district and country passed to the method.
+     * @param destinationName the name of the destination.
+     * @param destinationDistrict the district of the destination.
+     * @param destinationCountry the country of the destination.
+     * @return the id of the destination matching the given values.
+     */
+    private Long getDestinationIdFromFields(String destinationName, String destinationDistrict, String destinationCountry) {
+        return Destination
+                .find.query()
+                .select(DESTINATION_ID_FIELD)
+                .where().eq(DESTINATION_NAME_FIELD, destinationName)
+                .eq(DESTINATION_DISTRICT_FIELD, destinationDistrict)
+                .eq(DESTINATION_COUNTRY_FIELD, destinationCountry)
+                .findSingleAttribute();
+    }
+
+
+    /**
+     * Creates one or many destinations under the ownership of the given user.
+     * @param userId the user who will be in ownership of the destination(s).
+     * @param dataTable the values of the destinations to be added.
+     */
     @Given("a destination already exists for user {int} with the following values")
     public void aDestinationAlreadyExistsForUserWithTheFollowingValues(Integer userId, io.cucumber.datatable.DataTable dataTable) {
         TARGET_ID = userId.toString();
