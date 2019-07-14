@@ -238,10 +238,11 @@ public class DestinationTestSteps {
      * Sends a fake request to the application to logout.
      */
     private void logoutRequest() {
-                Http.RequestBuilder request = fakeRequest()
+        Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .uri(LOGOUT_URI);
         route(application, request);
+        LOGGED_IN_ID = null;
     }
 
 
