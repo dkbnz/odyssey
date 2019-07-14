@@ -1,14 +1,22 @@
 <template>
     <div>
         <h3>Public Photos</h3>
-        <photo-table :photos="publicPhotos" :showDropdown="false">
+        <photo-table
+                :photos="publicPhotos"
+                :profile="profile"
+                :userProfile="userProfile"
+                :showDropdown="false">
         </photo-table>
 
         <h3>Your Photos</h3>
-        <photo-table :photos="personalPhotos"
+
+        <photo-table :selectedImages="personalPhotos"
+                     :photos="profile.photoGallery"
                      :profile="profile"
                      :userProfile="userProfile"
-                     @privacy-update="updatePhotoPrivacy">
+                     :showDropdown="true"
+                     @privacy-update="updatePhotoPrivacy"
+                     @photo-click="photoToggled">
         </photo-table>
 
         <b-button variant="success" @click="showModal('addRemovePhotosModal')" block>Add/Remove Destination Photo</b-button>
@@ -44,6 +52,11 @@
             profile: Object,
             userProfile: Object
         },
+        watch: {
+            destination () {
+                this.calculatePhotoSplit();
+            }
+        },
 
         mounted() {
             this.calculatePhotoSplit();
@@ -67,7 +80,6 @@
                     }
                 }
             },
-
 
             /**
              * Updates the photos list sent to the photoTable for a single privacy photo.
