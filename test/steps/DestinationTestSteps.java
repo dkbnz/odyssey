@@ -15,6 +15,7 @@ import play.Application;
 import play.db.Database;
 
 import play.db.evolutions.Evolutions;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -26,8 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import static controllers.destinations.DestinationController.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.OK;
@@ -602,6 +602,38 @@ public class DestinationTestSteps {
      */
     private String getValue(String searchField, String givenField, String givenValue) {
         return searchField.equals(givenField) ? givenValue : "";
+    }
+
+
+    /**
+     * Converts the values of a cucumber DataTable to a JSON node object, using only the information that was given.
+     * @param dataTable the cucumber datatable holding the values to be converted to JSON.
+     * @return the JSON representation of the DataTable
+     */
+    private JsonNode convertDataTableToEditDestination(io.cucumber.datatable.DataTable dataTable) {
+        int valueIndex = 0;
+        List<Map<String, String>> valueList = dataTable.asMaps(String.class, String.class);
+        Map<String, String> valueMap = valueList.get(valueIndex);
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode json = mapper.createObjectNode();
+
+        for (Map.Entry<String, String> entry : valueMap.entrySet()) {
+            json.put(entry.getKey(), entry.getValue());
+        }
+
+        return json;
+    }
+
+
+    /**
+     * Takes the information provided in the feature, and sends a put request to edit the destination.
+     * @param dataTable
+     */
+    @When("I attempt to edit the destination using the following values")
+    public void iAttemptToEditTheDestinationUsingTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        JsonNode editValues = convertDataTableToEditDestination(dataTable);
+        editDestinationRequest(editValues);
     }
 
 
