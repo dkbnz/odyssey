@@ -11,7 +11,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values
       | Name    | Type | District | Latitude  | Longitude| Country     |
       | ASB     | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
-    Then the received status code is Created
+    Then the status code received is Created
 
   Scenario: Create a new destination with invalid name input
     Given I have a running application
@@ -29,16 +29,38 @@ Feature: Destination API Endpoint
       | ASB     | 3    | Nelson   | 24.5      | 34.6     | New 1?!    |
     Then the status code received is BadRequest
 
-  Scenario: Create a destination with duplicated input
+  Scenario: Create a destination that already exists in my private destinations
     Given I have a running application
     And I am logged in
     And a destination already exists with the following values
-      | Name      | Type | District | Latitude  | Longitude| Country    |
-      | Duplicate | 3    | Nelson   | 24.5      | 34.6     | New Zealand|
+      | Name      | Type | District | Latitude  | Longitude| Country    | is_public |
+      | Duplicate | 3    | Nelson   | 24.5      | 34.6     | New Zealand| false     |
     When I create a new destination with the following values
-      | Name      | Type | District | Latitude  | Longitude| Country    |
-      | Duplicate | 3    | Nelson   | 24.5      | 34.6     | New Zealand|
+      | Name      | Type | District | Latitude  | Longitude| Country    | is_public |
+      | Duplicate | 3    | Nelson   | 24.5      | 34.6     | New Zealand| false     |
     Then the status code received is BadRequest
+
+  Scenario: Create a destination that already exists as a public destination
+    Given I have a running application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District | Latitude  | Longitude| Country    |
+      | DuplicateP | 3    | Nelson   | 24.5      | 34.6     | New Zealand|
+    When I create a new destination with the following values
+      | Name       | Type | District | Latitude  | Longitude| Country    |
+      | DuplicateP | 3    | Nelson   | 24.5      | 34.6     | New Zealand|
+    Then the status code received is BadRequest
+
+  Scenario: Create a destination that already exists as a private destination for another user
+    Given I have a running application
+    And I am logged in
+    And a destination already exists for user 3 with the following values
+      | Name          | Type | District | Latitude  | Longitude| Country    | is_public |
+      | DuplicatePriv | 3    | Nelson   | 24.5      | 34.6     | New Zealand| false     |
+    When I create a new destination with the following values
+      | Name          | Type | District | Latitude  | Longitude| Country    | is_public |
+      | DuplicatePriv | 3    | Nelson   | 24.5      | 34.6     | New Zealand| false     |
+    Then the status code received is Created
 
   Scenario: Create a new destination with valid input for another user
     Given I have a running application
@@ -46,7 +68,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values for another user
       | Name    | Type | District | Latitude  | Longitude| Country     |
       | ASB     | 3    | Nelson   | 24.5      | 34.6     | New Zealand |
-    Then the received status code is Created
+    Then the status code received is Created
 
   Scenario: Search for a destination by name that exists
     Given I have a running application

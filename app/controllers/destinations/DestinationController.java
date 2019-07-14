@@ -206,7 +206,6 @@ public class DestinationController extends Controller {
     private boolean destinationDoesNotExist(JsonNode json, Profile profileToChange) {
         String name = json.get(NAME).asText();
         String district = json.get(DISTRICT).asText();
-        System.out.println(json.toString());
 
         List<Destination> destinations = Destination.find.query().where()
                 .ilike(NAME, name)
@@ -219,7 +218,6 @@ public class DestinationController extends Controller {
                 .endJunction()
                 .endJunction()
                 .findList();
-        System.out.println(destinations.size());
         return (destinations.isEmpty());
     }
 
