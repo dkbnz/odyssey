@@ -10,10 +10,8 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import cucumber.api.java.Before;
 import models.destinations.Destination;
-import org.apache.xpath.operations.Bool;
 import org.junit.*;
 import play.Application;
-import play.api.libs.json.Json;
 import play.db.Database;
 
 import play.db.evolutions.Evolutions;
@@ -110,6 +108,11 @@ public class DestinationTestSteps {
      * Target user for destination changes
      */
     private String TARGET_ID;
+
+    /**
+     * The ID of the destination to edit
+     */
+    private String DESTINATION_ID;
 
     /**
      * String to add the equals character (=) to build a query string.
@@ -357,6 +360,13 @@ public class DestinationTestSteps {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
+
+            // Set DESTINATION_ID to the last added destination's ID. Does this through finding the ID
+            // through destination name.
+            String destName = json.get("name").asText();
+            String destDistrict = json.get("district").asText();
+            String destCountry = json.get("country").asText();
+            DESTINATION_ID = getDestinationIdFromFields(destName, destDistrict, destCountry).toString();
         }
     }
 
