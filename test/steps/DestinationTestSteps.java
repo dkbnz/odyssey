@@ -278,6 +278,20 @@ public class DestinationTestSteps {
         responseBody = Helpers.contentAsString(result);
     }
 
+    /**
+     * Sends a put request to the application to edit the values of the destination.
+     * @param json the date that the destination will be updated with.
+     */
+    private void editDestinationRequest(JsonNode json) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(PUT)
+                .bodyJson(json)
+                .uri(DESTINATION_URI + "/" + DESTINATION_ID)
+                .session(AUTHORIZED, LOGGED_IN_ID);
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
+
 
     /**
      * Asserts the fake application is in test mode.
