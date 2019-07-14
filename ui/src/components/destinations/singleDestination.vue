@@ -72,6 +72,7 @@
         methods: {
             refreshDestination() {
             },
+
             /**
              * Used to dismiss either the delete a trip confirmation modal or the edit a trip modal.
              *
