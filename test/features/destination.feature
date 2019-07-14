@@ -130,76 +130,76 @@ Feature: Destination API Endpoint
     Then the status code received is OK
     And the response contains only destinations owned by the user with id 2
 
-    Scenario: Attempt to edit a private destination while not logged in
-      Given I have a running application
-      And I am not logged in
-      And a destination already exists for user 2 with the following values
-        | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
-        | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
-      When I attempt to edit the destination using the following values
-        | Type | District | Latitude  | Longitude  | Country     |
-        | 3    | Sydney   | 33.838306 | 151.002007 | Australia |
-      Then the status code received is Unauthorised
+  Scenario: Attempt to edit a private destination while not logged in
+    Given I have a running application
+    And I am not logged in
+    And a destination already exists for user 2 with the following values
+      | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
+      | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
+    When I attempt to edit the destination using the following values
+      | Type | District | Latitude  | Longitude  | Country     |
+      | 3    | Sydney   | 33.838306 | 151.002007 | Australia |
+    Then the status code received is Unauthorised
 
-    Scenario: Attempt to edit a private destination as the owner
-      Given I have a running application
-      And I am logged in
-      And a destination already exists for user 2 with the following values
-        | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
-        | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
-      When I attempt to edit the destination using the following values
-        | Type | District | Latitude  | Longitude  | Country     |
-        | 3    | Sydney   | 33.838306 | 151.002007 | Australia |
-      Then the status code received is OK
+  Scenario: Attempt to edit a private destination as the owner
+    Given I have a running application
+    And I am logged in
+    And a destination already exists for user 2 with the following values
+      | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
+      | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
+    When I attempt to edit the destination using the following values
+      | Type | District | Latitude  | Longitude  | Country     |
+      | 3    | Sydney   | 33.838306 | 151.002007 | Australia |
+    Then the status code received is OK
 
-    Scenario: Attempt to edit a private destination as another user
-      Given I am running the application
-      And I am logged in
-      And a destination already exists for user 1 with the following values
-        | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
-        | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
-      When I attempt to edit the destination using the following values
-        | District | Country |
-        | Sydney   | Australia |
-      Then the status code I get is Forbidden
+  Scenario: Attempt to edit a private destination as another user
+    Given I am running the application
+    And I am logged in
+    And a destination already exists for user 1 with the following values
+      | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
+      | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
+    When I attempt to edit the destination using the following values
+      | District | Country |
+      | Sydney   | Australia |
+    Then the status code I get is Forbidden
 
-    Scenario: Attempt to edit a destination that does not exist
-      Given I am running the application
-      And I am logged in
-      When I attempt to edit the destination using the following values
-        | District | Country |
-        | Sydney | Australia |
-      Then the status code I get is Not Found
+  Scenario: Attempt to edit a destination that does not exist
+    Given I am running the application
+    And I am logged in
+    When I attempt to edit the destination using the following values
+      | District | Country |
+      | Sydney | Australia |
+    Then the status code I get is Not Found
 
-    Scenario: Attempt to edit a destination using an incorrect latitude value
-      Given I am running the application
-      And I am logged in
-      And a destination already exists for user 2 with the following values
-        | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
-        | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
-      When I attempt to edit the destination using the following values
-        | Latitude  |
-        | 100       |
-      Then the status code is BadRequest
+  Scenario: Attempt to edit a destination using an incorrect latitude value
+    Given I am running the application
+    And I am logged in
+    And a destination already exists for user 2 with the following values
+      | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
+      | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
+    When I attempt to edit the destination using the following values
+      | Latitude  |
+      | 100       |
+    Then the status code is BadRequest
 
-    Scenario: Attempt to edit a destination using an incorrect longitude value
-      Given I am running the application
-      And I am logged in
-      And a destination already exists for user 2 with the following values
-        | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
-        | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
-      When I attempt to edit the destination using the following values
-        | Longitude |
-        | 200       |
-      Then the status code is BadRequest
+  Scenario: Attempt to edit a destination using an incorrect longitude value
+    Given I am running the application
+    And I am logged in
+    And a destination already exists for user 2 with the following values
+      | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
+      | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
+    When I attempt to edit the destination using the following values
+      | Longitude |
+      | 200       |
+    Then the status code is BadRequest
 
-    Scenario: Attempt to edit a destination using an incorrect field name
-      Given I am running the application
-      And I am logged in
-      And a destination already exists for user 2 with the following values
-        | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
-        | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
-      When I attempt to edit the destination using the following values
-        | Typ | Ditsrict     |
-        | 5   | Christchurch |
-      Then the status code received is BadRequest
+  Scenario: Attempt to edit a destination using an incorrect field name
+    Given I am running the application
+    And I am logged in
+    And a destination already exists for user 2 with the following values
+      | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
+      | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
+    When I attempt to edit the destination using the following values
+      | Typ | Ditsrict     |
+      | 5   | Christchurch |
+    Then the status code received is BadRequest
