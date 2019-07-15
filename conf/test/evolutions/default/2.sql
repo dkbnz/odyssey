@@ -434,6 +434,9 @@ INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `lon
 (9376, 'Rotokahu Scenic Reserve', 79, 'Wellington', -39.154167, 175.188056, 'New Zealand'),
 (9486, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand');
 
+INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `longitude`, `country`, `owner_id`) VALUES
+(10000, 'Canterbury University', 3, 'Christchurch', -43.523434, 172.581681, 'New Zealand', 2);
+
 INSERT INTO `profile` (`id`, `username`, `password`, `first_name`, `middle_name`, `last_name`, `gender`, `date_of_birth`, `date_of_creation`, `is_admin`, `profile_picture_id`) VALUES
 (1, 'admin@travelea.com', '25F43B1486AD95A1398E3EEB3D83BC4010015FCC9BEDB35B432E00298D5021F7', 'Default', '', 'Admin', 'male', '2019-01-01', '2019-01-01 13:00:00.000000', 1, NULL),
 (2, 'guestUser@travelea.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Dave', '', 'McInloch', 'Other', '1998-10-18', '2019-04-17 15:31:19.579000', 0, NULL),
