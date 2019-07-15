@@ -318,6 +318,29 @@ public class DestinationController extends Controller {
         return ok("Deleted");
     }
 
+
+    /**
+     * Transfers the ownership of a destination to the default admin. Will be used when a public destination is used by
+     * another user.
+     *
+     * @param id        the id of the destination
+     * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
+     */
+    public Result transferDestinationOwnership(Long id) {
+        Destination destination = Destination.find.byId(id.intValue());
+        Profile defaultAdmin = Profile.find.byId(1);
+
+        if (destination == null) {
+            return notFound();
+        }
+
+        destination.changeOwner(defaultAdmin);
+
+        destination.save();
+        return ok("Destination ownership transferred");
+
+    }
+
     /**
      * Updates a destination based on input in the Http request body.
      *
