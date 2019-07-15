@@ -1,7 +1,9 @@
 package repositories;
 
+import models.Profile;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
+import play.mvc.Result;
 
 import java.util.List;
 
@@ -37,5 +39,21 @@ public class DestinationRepository {
      */
     public List<Destination> fetch(PersonalPhoto photo) {
         return Destination.find.query().where().eq(PHOTO_FIELD, photo).findList();
+    }
+
+
+    /**
+     * Transfers the ownership of a destination to the default admin. Will be used when a public destination is used by
+     * another user.
+     *
+     * @param destination the destination to be changed ownership of.
+     * @return            notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
+     */
+    public void transferDestinationOwnership(Destination destination) {
+        Profile defaultAdmin = Profile.find.byId(1);
+
+        destination.changeOwner(defaultAdmin);
+
+        destination.save();
     }
 }
