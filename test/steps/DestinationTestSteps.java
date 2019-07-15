@@ -397,6 +397,18 @@ public class DestinationTestSteps {
     }
 
     /**
+     * Queries the database for the destination described by the values in the dataTable.
+     * @param dataTable the information containing the destination(s) select in the database.
+     */
+    @Given("a destination has been created with the following values")
+    public void aDestinationHasBeenCreatedWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        for (int i = 0; i < dataTable.height()-1; i++) {
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
+
+        }
+    }
+
+    /**
      * Sends a request to get all destinations.
      */
     @When("I send a GET request to the destinations endpoint")
