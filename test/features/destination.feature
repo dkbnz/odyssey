@@ -70,6 +70,17 @@ Feature: Destination API Endpoint
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
     Then the status code received is Created
 
+  Scenario: Create a destination for another user that already exists as a public destination
+    Given I have a running application
+    And I am logged in as an admin user
+    And a destination already exists with the following values
+      | Name       | Type | District | Latitude | Longitude | Country     |
+      | DuplicateP | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    When I create a new destination with the following values for another user
+      | Name       | Type | District | Latitude | Longitude | Country     |
+      | DuplicateP | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    Then the status code received is BadRequest
+
   Scenario: Search for a destination by name that exists
     Given I have a running application
     And I am logged in
