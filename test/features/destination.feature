@@ -133,12 +133,12 @@ Feature: Destination API Endpoint
   Scenario: Attempt to edit a private destination while not logged in
     Given I have a running application
     And I am not logged in
-    And a destination already exists for user 2 with the following values
-      | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
-      | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
+    And a destination has been created with the following values
+      | Name                  | Type | District     | Latitude   | Longitude  | Country     | is_public |
+      | Canterbury University | 3    | Christchurch | -43.523434 | 172.581681 | New Zealand | false     |
     When I attempt to edit the destination using the following values
       | Type | District | Latitude  | Longitude  | Country     |
-      | 3    | Sydney   | 33.838306 | 151.002007 | Australia |
+      | 4    | Sydney   | 33.838306 | 151.002007 | Australia |
     Then the status code received is Unauthorised
 
   Scenario: Attempt to edit a private destination as the owner
