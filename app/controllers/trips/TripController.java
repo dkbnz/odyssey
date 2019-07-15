@@ -6,6 +6,7 @@ import models.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
+import repositories.DestinationRepository;
 import repositories.ProfileRepository;
 import repositories.TripRepository;
 import play.libs.Json;
@@ -32,12 +33,14 @@ public class TripController extends Controller {
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private TripRepository repository;
     private ProfileRepository profileRepo;
+    private DestinationRepository destinationRepo;
 
     @Inject
     public TripController(TripRepository tripRepo,
-                          ProfileRepository profileRepo) {
+                          ProfileRepository profileRepo, DestinationRepository destinationRepo) {
         this.repository = tripRepo;
         this.profileRepo = profileRepo;
+        this.destinationRepo = destinationRepo;
     }
 
 
@@ -90,6 +93,7 @@ public class TripController extends Controller {
                     if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
                         trip.setDestinations(destinationList);
                         repository.saveNewTrip(affectedProfile, trip);
+                        determineDestinationOwnershipTransfer(affectedProfile, destinationList);
                         return created();
                     } else {
                         return badRequest();
@@ -334,6 +338,20 @@ public class TripController extends Controller {
 
         return ok(Json.toJson(returnedTrip));
     }
+
+
+    public void determineDestinationOwnershipTransfer(Profile affectedProfile, List<TripDestination> destinations) {
+        for (int i = 0; i < destinations.size(); i++) {
+            Destination destination = destinations.get(i).getDestination();
+            Profile owner = destination.getOwner();
+
+            if (owner.getId() != 1 && destination.getPublic() && affectedProfile.getId() != owner.getId()) {
+                destinationRepo.transferDestinationOwnership(destination);
+            }
+
+        }
+    }
+
 
     /**
      * Fetches all the trips for a specified user
