@@ -99,6 +99,7 @@ public class TripController extends Controller {
                 .orElseGet(() -> unauthorized());
     }
 
+
     /**
      * Method for looking at the contents of the main Json body for a trip in a request.
      * NOTE: Does not examine array contents.
