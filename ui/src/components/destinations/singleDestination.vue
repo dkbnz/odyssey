@@ -63,7 +63,7 @@
                 default: function() {
                     return this.profile;
                 }
-            },
+            }
         },
         components: {
             AddDestinations,
@@ -80,7 +80,7 @@
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
-            },
+            }
         }
     }
 </script>
