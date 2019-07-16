@@ -41,7 +41,7 @@
                         id="name-field"
                         label="Destination Name:"
                         label-for="name">
-                    <b-form-input id="name" v-model="inputDestination.name" type="text" required
+                    <b-form-input id="name" @click="showError = false" v-model="inputDestination.name" type="text" required
                                   :state="destinationNameValidation"></b-form-input>
                 </b-form-group>
                 <b-form-group
@@ -59,7 +59,7 @@
                         id="district-field"
                         label="District:"
                         label-for="district">
-                    <b-form-input id="district" v-model="inputDestination.district" type="text" trim required
+                    <b-form-input id="district" @click="showError = false" v-model="inputDestination.district" type="text" trim required
                                   :state="destinationDistrictValidation"></b-form-input>
                 </b-form-group>
 

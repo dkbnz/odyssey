@@ -1,11 +1,15 @@
 package controllers.destinations;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
+import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Profile;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
+import models.trips.TripDestination;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -50,9 +54,52 @@ public class DestinationController extends Controller {
         this.config = config;
     }
 
+    /**
+     * Returns a Json object containing a count of trips that a specified destination is used in.
+     *
+     * @param request           Http request from the client containing authentication details
+     * @param destinationId     the id of the destination to find the number of dependent trips for.
+     * @return  ok()    (Http 200) response containing the number of trips a destination is used in.
+     */
+    public Result getTripsByDestination(Http.Request request, Long destinationId) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        Destination destination = destinationRepo.fetch(destinationId);
+        if (destination == null) {
+            return notFound();
+        }
+
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Integer destinationOwnerId = destination.getOwner().getId().intValue();
+        Profile destinationOwner = profileRepo.fetchSingleProfile(destinationOwnerId);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
+            return unauthorized();
+        }
+
+        int tripCount = Ebean.find(TripDestination.class)
+                .select("trip")
+                .where()
+                .eq("destination", destination)
+                .setDistinct(true)
+                .findSet()
+                .size();
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode returnJson = mapper.createObjectNode();
+
+        returnJson.put("count", tripCount);
+
+        return ok(returnJson);
+    }
+
 
     /**
      * Return a Json object listing all destination types in the database.
+     *
      * @return ok() (Http 200) response containing all the different types of destinations.
      */
     public Result getTypes() {
@@ -62,6 +109,7 @@ public class DestinationController extends Controller {
 
     /**
      * Fetches all public destinations.
+     *
      * @return ok() (Http 200) response containing the destinations found in the response body.
      */
     private Result fetch() {
@@ -75,6 +123,7 @@ public class DestinationController extends Controller {
 
     /**
      * Fetches all destinations based on Http request query parameters.
+     *
      * @param request   Http request containing query parameters to filter results.
      * @return          ok() (Http 200) response containing the destinations found in the response body.
      */
@@ -126,6 +175,7 @@ public class DestinationController extends Controller {
 
     /**
      * Fetches all destinations by user.
+     *
      * @return ok() (Http 200) response containing the destinations found in the response body.
      */
     public Result fetchByUser(Http.Request request, Long userId) {
@@ -157,6 +207,7 @@ public class DestinationController extends Controller {
 
     /**
      * Looks at all the input fields for creating a destination and determines if the input is valid or not.
+     *
      * @param json      the Json of the destination inputs.
      * @return          a boolean true if the input is valid.
      */
@@ -198,24 +249,38 @@ public class DestinationController extends Controller {
         return country.matches(nameRegEx);
     }
 
+
     /**
-     * Determines if a given Json input for creating a new destination already exists in the database.
-     * @param json      the Json of the destination inputs.
-     * @return          true if the destination does not exist in the database.
+     * Determines if a given Json input for creating a new destination already exists in the database. This is validated
+     * through the name and district of the new destination being the same as another destination that exists either in
+     * the user's private destinations or the public destinations.
+     *
+     * @param json              the Json of the destination inputs.
+     * @param profileToChange   the profile that the destination to be added is owned by.
+     * @return                  true if the destination does not exist in the appropriate database tables.
      */
-    private boolean destinationDoesNotExist(JsonNode json) {
+    private boolean destinationDoesNotExist(JsonNode json, Profile profileToChange) {
         String name = json.get(NAME).asText();
         String district = json.get(DISTRICT).asText();
 
         List<Destination> destinations = Destination.find.query().where()
                 .ilike(NAME, name)
                 .ilike(DISTRICT, district)
+                .disjunction()
+                    .eq(IS_PUBLIC, true)
+                    .conjunction()
+                        .eq(IS_PUBLIC, false)
+                        .eq(OWNER, profileToChange)
+                    .endJunction()
+                .endJunction()
                 .findList();
         return (destinations.isEmpty());
     }
 
+
     /**
      * Saves a new destination. Checks the destination to be saved doesn't already exist in the database.
+     *
      * @param request   Http request containing a Json body of the new destination details.
      * @return          Http response created() (Http 201) when the destination is saved. If a destination with
      *                  the same name and district already exists in the database, returns badRequest() (Http 400).
@@ -242,7 +307,7 @@ public class DestinationController extends Controller {
                     if (!validInput(json)) {
                         return badRequest("Invalid input.");
                     }
-                    if (destinationDoesNotExist(json)) {
+                    if (destinationDoesNotExist(json, profileToChange)) {
                         Destination destination = createNewDestination(json, profileToChange);
                         destination.save();
 
@@ -251,8 +316,9 @@ public class DestinationController extends Controller {
 
                         return created("Created");
                     } else {
-                        return badRequest("A destination with the name '" + json.get(NAME).asText() + "' and district '"
-                                + json.get(DISTRICT).asText() + "' already exists.");
+                        return badRequest("A destination with the name '" + json.get(NAME).asText() + "' and " +
+                                "district '" + json.get(DISTRICT).asText() + "' already exists either in your " +
+                                "destinations or public destinations lists.");
                     }
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
@@ -260,6 +326,7 @@ public class DestinationController extends Controller {
 
     /**
      * Creates a new destination object given a Json object.
+     *
      * @param json  the Json of the destination object.
      * @return      the new destination object.
      */
@@ -282,6 +349,7 @@ public class DestinationController extends Controller {
 
     /**
      * Deletes a destination from the database using the given destination id number.
+     *
      * @param id    the id of the destination.
      * @return      notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully deleted.
      */
@@ -296,8 +364,10 @@ public class DestinationController extends Controller {
         return ok("Deleted");
     }
 
+
     /**
      * Updates a destination based on input in the Http request body.
+     *
      * @param id        the id of the destination.
      * @param request   Http request containing a Json body of fields to update in the destination.
      * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
