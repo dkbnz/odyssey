@@ -2,10 +2,12 @@ package controllers.destinations;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
+import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Profile;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
+import models.trips.TripDestination;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -48,6 +50,35 @@ public class DestinationController extends Controller {
         this.profileRepo = profileRepo;
         this.destinationRepo = destinationRepo;
         this.config = config;
+    }
+
+    /**
+     * Returns a Json object containing a count of trips that a specified destination is used in.
+     *
+     * @param request           Http request from the client containing authentication details
+     * @param destinationId     the id of the destination to find the number of dependent trips for.
+     * @return  ok()    (Http 200) response containing the number of trips a destination is used in.
+     */
+    public Result getTripsByDestination(Http.Request request, Long destinationId) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        Destination destination = destinationRepo.fetch(destinationId);
+        if (destination == null) {
+            return notFound();
+        }
+
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Integer destinationOwnerId = destination.getOwner().getId().intValue();
+        Profile destinationOwner = profileRepo.fetchSingleProfile(destinationOwnerId);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
+            return unauthorized();
+        }
+
+        return ok(String.valueOf(Ebean.find(TripDestination.class).select("trip").where().eq("destination", destination).setDistinct(true).findSet().size()));
     }
 
 
