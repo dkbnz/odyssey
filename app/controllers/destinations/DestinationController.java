@@ -1,6 +1,8 @@
 package controllers.destinations;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
@@ -78,7 +80,20 @@ public class DestinationController extends Controller {
             return unauthorized();
         }
 
-        return ok(String.valueOf(Ebean.find(TripDestination.class).select("trip").where().eq("destination", destination).setDistinct(true).findSet().size()));
+        int tripCount = Ebean.find(TripDestination.class)
+                .select("trip")
+                .where()
+                .eq("destination", destination)
+                .setDistinct(true)
+                .findSet()
+                .size();
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode returnJson = mapper.createObjectNode();
+
+        returnJson.put("count", tripCount);
+
+        return ok(returnJson);
     }
 
 
