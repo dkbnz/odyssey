@@ -2,7 +2,6 @@ package controllers.trips;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.ebean.ExpressionList;
 import models.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;

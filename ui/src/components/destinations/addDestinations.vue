@@ -24,11 +24,13 @@
         <b-modal hide-footer id="confirmEditModal" ref="confirmEditModal" size="l" title="Confirm Edit">
             <div>
                 Are you sure you want to edit this destination?
-                This would affect the following trips:
-                <ul v-for="trip in destinationConflicts">
-                    <li>{{trip.name}}: {{trip.destinations[0].destination.name}} -
-                        {{trip.destinations[trip.destinations.length - 1].destination.name}}</li>
-                </ul>
+                <div v-if="destinationConflicts.length > 0">
+                    This would affect the following trips:
+                    <ul v-for="trip in destinationConflicts">
+                        <li>{{trip.name}}: {{trip.destinations[0].destination.name}} -
+                            {{trip.destinations[trip.destinations.length - 1].destination.name}}</li>
+                    </ul>
+                </div>
             </div>
             <b-button @click="editDestination" class="mr-2 float-left" variant="success">Confirm</b-button>
             <b-button @click="dismissModal('confirmEditModal')" class="mr-2 float-right" variant="danger">Cancel</b-button>
@@ -172,30 +174,31 @@
             destinationLatitudeValidation() {
                 if (this.inputDestination.latitude === null) {
                     return null;
-                }
-                if (isNaN(this.inputDestination.latitude)) {
+                } else if (isNaN(this.inputDestination.latitude)) {
                     this.latitudeErrorMessage = "Latitude: '" + this.inputDestination.latitude + "' is not a number!";
                     return false;
                 } else if (this.inputDestination.latitude > 90 || this.inputDestination.latitude < -90) {
                     this.latitudeErrorMessage = "Latitude: '" + this.inputDestination.latitude + "' must be between " +
                         "-90 and 90";
                     return false;
+                } else {
+                    return true;
                 }
-                return true;
+
             },
             destinationLongitudeValidation() {
                 if (this.inputDestination.longitude === null) {
                     return null;
-                }
-                if (isNaN(this.inputDestination.longitude)) {
+                } else if (isNaN(this.inputDestination.longitude)) {
                     this.longitudeErrorMessage = "Longitude: '" + this.inputDestination.longitude + "' is not a number!";
                     return false;
                 } else if (this.inputDestination.longitude > 180 || this.inputDestination.longitude < -180) {
                     this.longitudeErrorMessage = "Longitude: '" + this.inputDestination.longitude + "' must be between " +
                         "-180 and 180";
                     return false;
+                } else {
+                    return true;
                 }
-                return true;
             },
             destinationCountryValidation() {
                 if (this.inputDestination.country.length === 0) {
@@ -233,10 +236,13 @@
              */
             resetDestForm() {
                 this.inputDestination.name = "";
-                this.inputDestination.type = "";
+                this.inputDestination.type = {
+                    id: null,
+                    destinationType: "",
+                };
                 this.inputDestination.district = "";
-                this.inputDestination.latitude = "";
-                this.inputDestination.longitude = "";
+                this.inputDestination.latitude = null;
+                this.inputDestination.longitude = null;
                 this.inputDestination.country = "";
             },
 
@@ -261,22 +267,12 @@
                         "country": this.inputDestination.country
                     }))
                 })
-                    .then(this.parseJSON)
-                    .then(cb)
-
+                    .then(this.checkStatus)
                     .then(function(response) {
-                        if (response.ok) {
-                            self.resetDestForm();
-                            self.showAlert();
-                            self.emit('data-changed');
-                            return JSON.parse(JSON.stringify(response));
-                        } else {
-                            self.errorMessage = "";
-                            self.showError = true;
-                            response.clone().text().then(text => {
-                                self.errorMessage = text;
-                            });
-                        }
+                        self.resetDestForm();
+                        self.showAlert();
+                        self.emit('data-changed');
+                        return JSON.parse(JSON.stringify(response));
                     });
             },
 
@@ -288,7 +284,7 @@
             validateEdit(cb) {
                 let self = this;
                 //TODO: Update this request to match route
-                fetch(`/v1/destinationCheck/` + 88, {
+                fetch(`/v1/destinationCheck/` + this.profile.id, {
                     accept: "application/json"
                 })
                     .then(this.checkStatus)
@@ -296,11 +292,12 @@
                     .then(cb)
                     .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
                     .then(function(response) {
-                        if (self.destinationConflicts.length > 0) {
-                            self.displayConfirmation();
-                        } else {
-                            self.heading = "FUCK";
-                        }
+                        // if (self.destinationConflicts.length > 0) {
+                        //
+                        // } else {
+                        //     self.heading = "FUCK";
+                        // }
+                        self.displayConfirmation();
 
                         self.emit('data-changed');
                         return JSON.parse(JSON.stringify(response));
@@ -312,7 +309,7 @@
                 this.$refs["confirmEditModal"].show();
             },
 
-            editDestination() {
+            editDestination(cb) {
                 let self = this;
                 fetch(`/v1/destinations/` + this.inputDestination.id, {
                     method: 'PATCH',
@@ -396,6 +393,7 @@
             },
 
             parseJSON(response) {
+                console.log(response);
                 return response.json();
             },
         }
