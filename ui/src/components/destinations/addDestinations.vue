@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3 class="page-title">{{heading}}</h3>
+        <h3 class="page-title">{{heading}} a Destination</h3>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act
@@ -54,7 +54,7 @@
                         </option>
                     </b-form-select>
                 </b-form-group>
-{{inputDestination.longitude}}
+
                 <b-form-group
                         id="district-field"
                         label="District:"
@@ -96,7 +96,7 @@
                     </b-form-invalid-feedback>
                 </b-form-group>
 
-                <b-button @click="checkDestinationFields" block variant="primary">Add Destination</b-button>
+                <b-button @click="checkDestinationFields" block variant="primary">{{heading}} Destination</b-button>
             </b-form>
         </div>
     </div>
@@ -184,7 +184,6 @@
                 return true;
             },
             destinationLongitudeValidation() {
-                console.log("----------------------Here--------------------");
                 if (this.inputDestination.longitude === null) {
                     return null;
                 }
@@ -314,7 +313,36 @@
             },
 
             editDestination() {
+                let self = this;
+                fetch(`/v1/destinations/` + this.inputDestination.id, {
+                    method: 'PATCH',
+                    headers: {'content-type': 'application/json'},
+                    body: (JSON.stringify({
+                        "name": this.inputDestination.name,
+                        "type_id": this.inputDestination.type.id,
+                        "district": this.inputDestination.district,
+                        "latitude": parseFloat(this.inputDestination.latitude),
+                        "longitude": parseFloat(this.inputDestination.longitude),
+                        "country": this.inputDestination.country
+                    }))
+                })
+                    .then(this.parseJSON)
+                    .then(cb)
 
+                    .then(function(response) {
+                        if (response.ok) {
+                            self.resetDestForm();
+                            self.showAlert();
+                            self.emit('data-changed');
+                            return JSON.parse(JSON.stringify(response));
+                        } else {
+                            self.errorMessage = "";
+                            self.showError = true;
+                            response.clone().text().then(text => {
+                                self.errorMessage = text;
+                            });
+                        }
+                    });
             },
 
             /**
