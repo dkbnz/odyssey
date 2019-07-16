@@ -90,7 +90,7 @@
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
-            },
+            }
         }
     }
 </script>
