@@ -334,8 +334,8 @@ INSERT INTO passport (`id`, `country`) VALUES
 
 INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `longitude`, `country`, `is_public`, `owner_id`) VALUES
 (119, 'Angus Flat', 31, 'Canterbury', -43.65598, 170.48378, 'New Zealand', 'true', 5),
-(325, 'Baylys Beach Post Office', 10, 'North Auckland', -35.953527, 173.74573, 'New Zealand', 'true', 2),
-(567, 'Bow Alley Creek', 89, 'Otago', -45.239576, 170.851946, 'New Zealand', 'true', 1),
+(325, 'Baylys Beach Post Office', 10, 'North Auckland', -35.953527, 173.74573, 'New Zealand', 'false', 2),
+(567, 'Bow Alley Creek', 89, 'Otago', -45.239576, 170.851946, 'New Zealand', 'true', 2),
 (733, 'Cameron Stream', 89, 'Canterbury', -42.23865, 173.046403, 'New Zealand', 'true', 1),
 (858, 'Cerberus', 38, 'Wellington', -40.512442, 176.213727, 'New Zealand', 'true', 1),
 (1031, 'Courtenay Peak', 38, 'Otago', -44.529264, 168.195041, 'New Zealand', 'true', 1),

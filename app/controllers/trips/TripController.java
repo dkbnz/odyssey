@@ -93,7 +93,9 @@ public class TripController extends Controller {
                     if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
                         trip.setDestinations(destinationList);
                         repository.saveNewTrip(affectedProfile, trip);
-                        determineDestinationOwnershipTransfer(affectedProfile, destinationList);
+                        for (TripDestination tripDestination: destinationList) {
+                            determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
+                        }
                         return created();
                     } else {
                         return badRequest();
@@ -350,18 +352,18 @@ public class TripController extends Controller {
      * is public, not owned by the global admin and the affected profile is not the owner of the public destination.
      *
      * @param affectedProfile   the profile that is having the trip added to.
-     * @param destinations      the list of destinations that are stored in the trip.
+     * @param tripDestination   the destination that is stored in the trip.
      */
-    private void determineDestinationOwnershipTransfer(Profile affectedProfile, List<TripDestination> destinations) {
-        for (TripDestination tripDestination: destinations) {
-            Destination destination = tripDestination.getDestination();
-            Profile owner = destination.getOwner();
+    private Result determineDestinationOwnershipTransfer(Profile affectedProfile, TripDestination tripDestination) {
+        Destination destination = tripDestination.getDestination();
+        Profile owner = destination.getOwner();
 
-            // Destination is not owned by global admin, it is public and the user is not the owner of the destination.
-            if (owner.getId() != 1 && destination.getPublic() && !affectedProfile.getId().equals(owner.getId())) {
-                destinationRepo.transferDestinationOwnership(destination);
-            }
+        // Destination is not owned by global admin, it is public and the user is not the owner of the destination.
+        if (owner == null || owner.getId() != 1 && destination.getPublic() && !affectedProfile.getId().equals(owner.getId())) {
+            destinationRepo.transferDestinationOwnership(destination);
+            return ok("Destination ownership changed");
         }
+        return ok("Destination ownership deosn't need to be changed");
     }
 
 
