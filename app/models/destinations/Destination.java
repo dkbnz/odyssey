@@ -9,6 +9,7 @@ import play.data.validation.Constraints;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class for destinations that users signify an interest in.
@@ -38,14 +39,12 @@ public class Destination extends BaseModel {
 
     /**
      * The latitude of the destination.
-     *
      */
     @Constraints.Required
     private double latitude;
 
     /**
      * The longitude of the destination.
-     *
      */
     @Constraints.Required
     private double longitude;
@@ -149,4 +148,44 @@ public class Destination extends BaseModel {
     }
 
     public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
+
+    /**
+     * Checks if an Object is equal to this instance of Destination.
+     * A Destination is considered equal if:
+     * name, type, district, country, latitude and longitude are equal.
+     *
+     * @param obj   other object which this instance is being compared to.
+     * @return      true if this object is equal to obj.
+     */
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj == this) return true;
+        if (!(obj instanceof Destination)) return false;
+
+        Destination otherDest = (Destination) obj;
+
+        return otherDest.getName().equals(this.name) &&
+                otherDest.getType().equals(this.type) &&
+                otherDest.getDistrict().equals(this.district) &&
+                otherDest.getCountry().equals(this.country) &&
+                otherDest.getLatitude() == this.latitude &&
+                otherDest.getLongitude() == this.longitude;
+    }
+
+    /**
+     * Calculates the hashcode of this Destination using:
+     * name, type, district, country, latitude and longitude.
+     *
+     * @return  hashcode of the object.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.name,
+                this.type,
+                this.district,
+                this.country,
+                this.latitude,
+                this.longitude);
+    }
 }
