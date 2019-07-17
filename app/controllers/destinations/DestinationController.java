@@ -108,15 +108,22 @@ public class DestinationController extends Controller {
     }
 
     /**
-     * Fetches all public destinations.
+     * Fetches all destinations with no search query. This will include all public destinations and all private
+     * destinations for the logged in user.
      *
      * @return ok() (Http 200) response containing the destinations found in the response body.
      */
-    private Result fetch() {
+    private Result fetchAll(Http.Request request) {
         List<Destination> destinations;
         ExpressionList<Destination> expressionList = Destination.find.query().where();
-        expressionList.eq(IS_PUBLIC, true);
-
+        Profile user = Profile.find.byId(AuthenticationUtil.getLoggedInUserId(request));
+        expressionList.disjunction()
+                .eq(IS_PUBLIC, true)
+                .conjunction()
+                    .eq(IS_PUBLIC, false)
+                    .eq(OWNER, user)
+                .endJunction()
+            .endJunction();
         destinations = expressionList.findList();
         return ok(Json.toJson(destinations));
     }
@@ -130,7 +137,7 @@ public class DestinationController extends Controller {
     public Result fetch(Http.Request request) {
         //If there are no query parameters, return all destinations.
         if (request.queryString().isEmpty()) {
-            return fetch();
+            return fetchAll(request);
         }
 
         //Filter destinations based on query parameters.
@@ -166,7 +173,6 @@ public class DestinationController extends Controller {
             expressionList.ilike(COUNTRY, queryComparator(country));
         }
         expressionList.eq(IS_PUBLIC, true);
-
 
         destinations = expressionList.findList();
 
