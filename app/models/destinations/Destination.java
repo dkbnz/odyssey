@@ -163,14 +163,14 @@ public class Destination extends BaseModel {
         if (obj == this) return true;
         if (!(obj instanceof Destination)) return false;
 
-        Destination otherDest = (Destination) obj;
+        Destination other = (Destination) obj;
 
-        return otherDest.getName().equals(this.name) &&
-                otherDest.getType().equals(this.type) &&
-                otherDest.getDistrict().equals(this.district) &&
-                otherDest.getCountry().equals(this.country) &&
-                otherDest.getLatitude() == this.latitude &&
-                otherDest.getLongitude() == this.longitude;
+        return other.getName().equals(this.name) &&
+                other.getType().equals(this.type) &&
+                other.getDistrict().equals(this.district) &&
+                other.getCountry().equals(this.country) &&
+                other.getLatitude() == this.latitude &&
+                other.getLongitude() == this.longitude;
     }
 
     /**
