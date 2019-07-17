@@ -357,7 +357,8 @@ public class TripController extends Controller {
             Destination destination = tripDestination.getDestination();
             Profile owner = destination.getOwner();
 
-            if (owner.getId() != 1 && destination.getPublic() && affectedProfile.getId() != owner.getId()) {
+            // Destination is not owned by global admin, it is public and the user is not the owner of the destination.
+            if (owner.getId() != 1 && destination.getPublic() && !affectedProfile.getId().equals(owner.getId())) {
                 destinationRepo.transferDestinationOwnership(destination);
             }
         }
@@ -365,10 +366,10 @@ public class TripController extends Controller {
 
 
     /**
-     * Fetches all the trips for a specified user
+     * Fetches all the trips for a specified user.
      *
-     * @param id    the id of the user requested
-     * @return      the list of trips as a Json
+     * @param id    the id of the user requested.
+     * @return      the list of trips as a Json.
      */
     public Result fetchAll(Long id) {
         List<Trip> trips = repository.fetchAllTrips(id);
