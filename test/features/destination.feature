@@ -19,7 +19,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
       |      | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-    Then the status code received is BadRequest
+    Then the status code received is Bad Request
 
   Scenario: Create a new destination with invalid country input
     Given I have a running application
@@ -27,7 +27,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country |
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New 1?! |
-    Then the status code received is BadRequest
+    Then the status code received is Bad Request
 
   Scenario: Create a destination that already exists in my private destinations
     Given I have a running application
@@ -38,7 +38,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values
       | Name      | Type | District | Latitude | Longitude | Country     | is_public |
       | Duplicate | 3    | Nelson   | 24.5     | 34.6      | New Zealand | false     |
-    Then the status code received is BadRequest
+    Then the status code received is Bad Request
 
   Scenario: Create a destination that already exists as a public destination
     Given I have a running application
@@ -49,7 +49,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values
       | Name       | Type | District | Latitude | Longitude | Country     |
       | DuplicateP | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-    Then the status code received is BadRequest
+    Then the status code received is Bad Request
 
   Scenario: Create a destination that already exists as a private destination for another user
     Given I have a running application
@@ -79,7 +79,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values for another user
       | Name       | Type | District | Latitude | Longitude | Country     |
       | DuplicateP | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-    Then the status code received is BadRequest
+    Then the status code received is Bad Request
 
   Scenario: Search for a destination by name that exists
     Given I have a running application
@@ -194,7 +194,7 @@ Feature: Destination API Endpoint
     When I attempt to edit the destination using the following values
       | District | Country   |
       | Sydney   | Australia |
-    Then the status code I get is Forbidden
+    Then the status code received is Forbidden
 
   Scenario: Attempt to edit a destination that does not exist
     Given I am running the application
@@ -203,7 +203,7 @@ Feature: Destination API Endpoint
     When I attempt to edit the destination using the following values
       | District | Country   |
       | Sydney   | Australia |
-    Then the status code I get is Not Found
+    Then the status code received is Not Found
 
   Scenario: Attempt to edit a destination using an incorrect latitude value
     Given I am running the application
@@ -214,7 +214,7 @@ Feature: Destination API Endpoint
     When I attempt to edit the destination using the following values
       | Latitude |
       | 100      |
-    Then the status code is BadRequest
+    Then the status code received is Bad Request
 
   Scenario: Attempt to edit a destination using an incorrect longitude value
     Given I am running the application
@@ -225,7 +225,7 @@ Feature: Destination API Endpoint
     When I attempt to edit the destination using the following values
       | Longitude |
       | 200       |
-    Then the status code is BadRequest
+    Then the status code received is Bad Request
 
   Scenario: Attempt to delete a private destination as the owner when it is not used
     Given I am running the application
@@ -236,7 +236,7 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    Then the status code is OK
+    Then the status code received is OK
 
   Scenario: Attempt to delete a private destination as the owner when it is used
     Given I am running the application
@@ -250,7 +250,7 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    Then the status code is BadRequest
+    Then the status code received is Bad Request
 
   Scenario: Attempt to delete a public destination as the owner when it is not used
     Given I am running the application
@@ -261,7 +261,7 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
-    Then the status code is OK
+    Then the status code received is OK
 
   Scenario: Attempt to delete a public destination as the owner when it is used
     Given I am running the application
@@ -275,7 +275,7 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
-    Then the status code is BadRequest
+    Then the status code received is Bad Request
 
   Scenario: Attempt to delete a destination that does not exist
     Given I am running the application
@@ -283,7 +283,7 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    Then the status code is NotFound
+    Then the status code received is Not Found
 
   Scenario: Attempt to delete a private destination as another user
     Given I am running the application
@@ -294,7 +294,7 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    Then the status code is Forbidden
+    Then the status code received is Forbidden
 
   Scenario: Attempt to delete a public destination as another user
     Given I am running the application
@@ -305,7 +305,7 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
-    Then the status code is Forbidden
+    Then the status code received is Forbidden
 
   Scenario: Attempt to delete a private destination as an admin
     Given I am running the application
@@ -316,7 +316,7 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    Then the status code is OK
+    Then the status code received is OK
 
   Scenario: Attempt to delete a destination when not logged in
     Given I am running the application
@@ -324,4 +324,4 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    Then the status code is Unauthorised
+    Then the status code received is Unauthorised

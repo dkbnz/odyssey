@@ -32,7 +32,7 @@ public class DestinationController extends Controller {
     public static final String DISTRICT = "district";
     public static final String LATITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
-    public static final String OWNER = "owner";
+    private static final String OWNER = "owner";
     public static final String IS_PUBLIC = "is_public";
 
     private static final Double LATITUDE_LIMIT = 90.0;
@@ -380,8 +380,6 @@ public class DestinationController extends Controller {
         if (oldDestination == null) {
             return notFound();
         }
-
-        //TODO: only update given fields
 
         oldDestination.setName(json.get(NAME).asText());
         oldDestination.setCountry(json.get(COUNTRY).asText());
