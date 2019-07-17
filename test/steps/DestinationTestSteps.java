@@ -356,8 +356,10 @@ public class DestinationTestSteps {
      */
     @When("I send a GET request to the destinations endpoint")
     public void iSendAGetRequestToTheDestinationsEndpoint() {
+        TARGET_ID = LOGGED_IN_ID;
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
+                .session(AUTHORIZED, LOGGED_IN_ID)
                 .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
