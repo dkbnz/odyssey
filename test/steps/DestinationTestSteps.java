@@ -549,7 +549,6 @@ public class DestinationTestSteps {
     @When("I attempt to delete the destination with the following values")
     public void iAttemptToDeleteTheDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) throws IOException {
         // Get destination id from values given
-        System.out.println(dataTable);
         Long destinationId = getDestinationId(dataTable);
         Assert.assertNotNull(destinationId);
         // Send the delete request
@@ -622,9 +621,6 @@ public class DestinationTestSteps {
         searchDestinationsRequest(query);
 
         JsonNode destination = new ObjectMapper().readTree(responseBody).get(0);
-
-        System.out.println(query);
-        System.out.println(destination);
 
         return destination == null ? null : destination.get(DESTINATION_ID).asLong();
     }
