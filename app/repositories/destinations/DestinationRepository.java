@@ -56,4 +56,8 @@ public class DestinationRepository {
 
         destination.save();
     }
+
+    public void delete(Destination destination) {
+        destination.delete();
+    }
 }
