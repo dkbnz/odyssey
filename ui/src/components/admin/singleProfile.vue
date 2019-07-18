@@ -17,7 +17,7 @@
                             <b-nav-item @click="currentDisplay = 1">Edit Profile</b-nav-item>
                             <b-nav-item @click="currentDisplay = 2">View Trips</b-nav-item>
                             <b-nav-item @click="currentDisplay = 3">Add Trips</b-nav-item>
-                            <b-nav-item @click="currentDisplay = 4">Add Destination Photos</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 4">Destinations</b-nav-item>
                         </b-nav>
                     </b-collapse>
                     <b-navbar-toggle target="nav-collapse-admin"></b-navbar-toggle>
