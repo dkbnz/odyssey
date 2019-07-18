@@ -2,12 +2,8 @@ package repositories;
 
 
 import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import models.Profile;
 import models.destinations.Destination;
-import models.trips.Trip;
 import models.trips.TripDestination;
-import java.util.List;
 import java.util.Set;
 
 public class TripDestinationRepository {
