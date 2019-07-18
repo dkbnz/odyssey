@@ -105,7 +105,8 @@
                     type="password" v-model="rePassword">
             </b-form-input>
             <b-form-invalid-feedback :state="rePasswordValidation">
-                This isn't the same as the password!
+                This must be the same as the password and your must be between 5 and 15 characters and
+                password must contain two of: Uppercase, Lowercase, Number.
             </b-form-invalid-feedback>
             <b-form-valid-feedback :state="rePasswordValidation">
                 Looks Good
@@ -348,7 +349,9 @@
                 if (this.rePassword.length === 0) {
                     return null;
                 }
-                return this.saveProfile.password.length > 0 && this.rePassword === this.saveProfile.password;
+                let passwordRegex =
+                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
+                return this.saveProfile.password.length > 0 && this.rePassword === this.saveProfile.password && passwordRegex.test(this.rePassword);
             },
             dateOfBirthValidation() {
                 if (this.saveProfile.dateOfBirth.length === 0) {
@@ -404,9 +407,10 @@
             checkSaveProfile() {
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
                     && this.dateOfBirthValidation && this.genderValidation && this.nationalityValidation
-                    && this.travTypeValidation) {
-                    this.submitSaveProfile();
-                    this.$emit('profileSaved', true);
+                    && this.travTypeValidation && (this.passwordValidation === null || this.passwordValidation)
+                    && (this.rePasswordValidation === null || this.rePasswordValidation)) {
+                        this.submitSaveProfile();
+                        this.$emit('profileSaved', true);
                 } else {
                     this.showError = true;
                 }
