@@ -3,9 +3,9 @@
         <b-modal hide-footer id="editDestModal" ref="editDestModal" size="l" title="Edit Destination">
             <add-destinations
                     :containerClass="'noMarginsContainer'"
-                    :inputDestination="destination"
+                    :inputDestination="copiedDestination"
                     :profile="profile"
-                    :heading="'Edit a Destination'"
+                    :heading="'Edit'"
                     :destination-types="destinationTypes"
                     @destinationSaved="refreshDestination()">
             </add-destinations>
@@ -29,7 +29,7 @@
                 <p class="mb-1">
                     Longitude: {{destination.longitude}}
                 </p>
-                <b-button @click="editDestination" v-b-modal.editDestModal variant="warning" block>Edit</b-button>
+                <b-button @click="editDestination" variant="warning" block>Edit</b-button>
             </b-col>
             <b-col cols="9">
                 <destination-gallery
@@ -52,6 +52,7 @@
         name: "singleDestination",
         data: function () {
             return {
+                copiedDestination: null,
             }
         },
 
@@ -72,14 +73,24 @@
         methods: {
             refreshDestination() {
             },
+
+            copyDestination() {
+                return JSON.parse(JSON.stringify(this.destination))
+            },
+
+            editDestination() {
+                this.copiedDestination = this.copyDestination();
+                this.$refs["editDestModal"].show();
+            },
+
             /**
-             * Used to dismiss either the delete a trip confirmation modal or the edit a trip modal.
+             * Used to dismiss the edit a destination modal.
              *
              * @param modal, the modal that is wanting to be dismissed.
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
-            },
+            }
         }
     }
 </script>

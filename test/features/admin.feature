@@ -7,7 +7,7 @@ Feature: Having a admin system
     When An admin attempts to create a profile with the following fields:
       | username                 | password    | first_name | middle_name | last_name | date_of_birth | gender | nationality | traveller_type | passport_country |
       | adminNew@travelea.com    | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  | 1           | 1              | 1                |
-    Then the status code is Created
+    Then I receive a status code of 201
 
   Scenario: Admin updating a non-admin user successfully
     Given I am logged in as an admin

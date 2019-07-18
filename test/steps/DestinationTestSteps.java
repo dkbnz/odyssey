@@ -132,6 +132,11 @@ public class DestinationTestSteps {
 
     private static final String DISTRICT_STRING = "District";
     private static final String LATITUDE_STRING = "Latitude";
+    private static final String LONGITUDE_STRING = "Longitude";
+    private static final String COUNTRY_STRING = "Country";
+    private static final String TYPE_STRING = "Type";
+    private static final String NAME_STRING = "Name";
+    private static final String IS_PUBLIC_STRING = "is_public";
 
     /**
      * The fake application.
@@ -270,6 +275,7 @@ public class DestinationTestSteps {
     private void searchDestinationsRequest(String query) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
+                .session(AUTHORIZED, LOGGED_IN_ID)
                 .uri(DESTINATION_URI + query);
         Result result = route(application, request);
         statusCode = result.status();
@@ -315,8 +321,8 @@ public class DestinationTestSteps {
     }
 
     /**
-     * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_AUTHPASS.
+     * Attempts to send a log in request with user credentials from constants ADMIN_USERNAME
+     * and ADMIN_AUTHPASS.
      *
      * Asserts the login was successful with a status code of OK (200).
      */
@@ -407,13 +413,25 @@ public class DestinationTestSteps {
         assertTrue(responseBody.contains(destinationName));
     }
 
+
+    @Given("a destination with the following values is part of a trip")
+    public void aDestinationWithTheFollowingValuesIsPartOfATrip(io.cucumber.datatable.DataTable dataTable) {
+        // Get destination id from values given
+        //TODO: still working this out
+        // Create new trip with that destination and some others
+        throw new cucumber.api.PendingException();
+    }
+
+
     /**
      * Sends a request to get all destinations.
      */
     @When("I send a GET request to the destinations endpoint")
     public void iSendAGetRequestToTheDestinationsEndpoint() {
+        TARGET_ID = LOGGED_IN_ID;
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
+                .session(AUTHORIZED, LOGGED_IN_ID)
                 .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
@@ -433,6 +451,7 @@ public class DestinationTestSteps {
         }
     }
 
+
     @When("I create a new destination with the following values for another user")
     public void iCreateANewDestinationWithTheFollowingValuesForAnotherUser(io.cucumber.datatable.DataTable dataTable) {
         TARGET_ID = LOGGED_IN_ID;
@@ -451,13 +470,13 @@ public class DestinationTestSteps {
     private JsonNode convertDataTableToDestinationJson(io.cucumber.datatable.DataTable dataTable, int index) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String name         = list.get(index).get("Name");
-        String type         = list.get(index).get("Type");
+        String name         = list.get(index).get(NAME_STRING);
+        String type         = list.get(index).get(TYPE_STRING);
         String district     = list.get(index).get(DISTRICT_STRING);
         String latitude     = list.get(index).get(LATITUDE_STRING);
-        String longitude    = list.get(index).get("Longitude");
-        String country      = list.get(index).get("Country");
-        String is_public    = list.get(index).get("is_public");
+        String longitude    = list.get(index).get(LONGITUDE_STRING);
+        String country      = list.get(index).get(COUNTRY_STRING);
+        String is_public    = list.get(index).get(IS_PUBLIC_STRING);
 
         //Test destinations are public by default
         Boolean publicity = (is_public == null ||
@@ -519,6 +538,7 @@ public class DestinationTestSteps {
     @When("I search for all destinations")
     public void iSearchForAllDestinations() {
         String query = createSearchDestinationQueryString("", "");
+
         //Send search destinations request
         searchDestinationsRequest(query);
     }
@@ -534,6 +554,19 @@ public class DestinationTestSteps {
         statusCode = result.status();
 
         responseBody = Helpers.contentAsString(result);
+    }
+
+
+    @When("I attempt to delete the destination with the following values")
+    public void iAttemptToDeleteTheDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        // TODO: Still working on how to do this
+        // Get destination id from values given
+        JsonNode json = convertDataTableToDestinationJson(dataTable, 0);
+        // Create search query based on values given?
+
+        // Send the delete request
+
+        throw new cucumber.api.PendingException();
     }
 
 
@@ -597,11 +630,15 @@ public class DestinationTestSteps {
                 .append(AND)
                 .append(COUNTRY)
                 .append(EQUALS)
-                .append(country);
+                .append(country)
+
+                .append(AND)
+                .append(IS_PUBLIC)
+                .append(EQUALS)
+                .append("1");
 
         return stringBuilder.toString();
     }
-
 
     /**
      * Returns a string that is either empty or containing the given value.
@@ -658,7 +695,6 @@ public class DestinationTestSteps {
         String value = getValueFromDataTable("Name", dataTable);
         String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(NAME).asText();
 
-        //Send search destinations request
         Assert.assertEquals(value, arrNode);
     }
 
@@ -668,7 +704,6 @@ public class DestinationTestSteps {
         String value = getValueFromDataTable(DISTRICT_STRING, dataTable);
         String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(DISTRICT).asText();
 
-        //Send search destinations request
         Assert.assertEquals(value, arrNode);
     }
 
@@ -678,7 +713,6 @@ public class DestinationTestSteps {
         String value = getValueFromDataTable(LATITUDE_STRING, dataTable);
         String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(LATITUDE).asText();
 
-        //Send search destinations request
         Assert.assertEquals(value, arrNode);
     }
 
@@ -687,7 +721,6 @@ public class DestinationTestSteps {
     public void theResponseIsEmpty() throws IOException {
         JsonNode arrNode = new ObjectMapper().readTree(responseBody);
 
-        //Send search destinations request
         Assert.assertEquals(0, arrNode.size());
     }
 
@@ -726,16 +759,16 @@ public class DestinationTestSteps {
     /**
      * Checks if the status code received is Created (201).
      */
-    @Then("the received status code is Created")
-    public void theReceivedStatusCodeIsCreated() {
+    @Then("the status code received is Created")
+    public void theStatusCodeReceivedIsCreated() {
         assertEquals(CREATED, statusCode);
     }
 
 
     /**
-     * Checks if the status code received is BadRequest (400).
+     * Checks if the status code received is Bad Request (400).
      */
-    @Then("the status code received is BadRequest")
+    @Then("the status code received is Bad Request")
     public void theStatusCodeReceivedIsBadRequest() {
         assertEquals(BAD_REQUEST, statusCode);
     }
@@ -747,5 +780,23 @@ public class DestinationTestSteps {
     @Then("the status code received is Unauthorised")
     public void theStatusCodeReceivedIsUnauthorised() {
         assertEquals(UNAUTHORIZED, statusCode);
+    }
+
+
+    /**
+     * Checks if the status code received is Not Found (404).
+     */
+    @Then("the status code received is Not Found")
+    public void theStatusCodeReceivedIsNotFound() {
+        assertEquals(NOT_FOUND, statusCode);
+    }
+
+
+    /**
+     * Checks if the status code received is Forbidden (403).
+     */
+    @Then("the status code received is Forbidden")
+    public void theStatusCodeReceivedIsForbidden() {
+        assertEquals(FORBIDDEN, statusCode);
     }
 }
