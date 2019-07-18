@@ -375,7 +375,7 @@ public class DestinationController extends Controller {
             return notFound();
         }
 
-        destination.delete();
+        destinationRepo.delete(destination);
         return ok("Deleted");
     }
 
