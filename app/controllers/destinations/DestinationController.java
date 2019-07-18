@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
-import io.ebean.Ebean;
+
 import io.ebean.ExpressionList;
 import models.Profile;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
-import models.trips.TripDestination;
+
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
