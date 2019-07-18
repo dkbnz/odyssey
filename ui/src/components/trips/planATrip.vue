@@ -88,7 +88,7 @@
                                                trim
                                                v-model="tripDestination">
                                     <option :value="destination"
-                                            v-for="destination in destinations">
+                                            v-for="destination in destinationsList">
                                         {{destination.name}}
                                     </option>
                                 </b-form-select>
@@ -265,7 +265,6 @@
     export default {
         name: "PlanATrip",
         props: {
-            destinations: Array,
             profile: Object,
             inputTrip: {
                 default: function () {
@@ -319,7 +318,8 @@
                     {key: 'destination.country'},
                 ],
                 savingTrip: false,
-                letTripSaved: false
+                letTripSaved: false,
+                destinationsList: []
 
             }
         },
@@ -332,6 +332,9 @@
             rows() {
                 return this.inputTrip.destinations.length
             }
+        },
+        mounted() {
+            this.getDestinations(destinationsList => this.destinationsList = destinationsList);
         },
         methods: {
             /**
@@ -646,7 +649,38 @@
              */
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
-            }
+            },
+
+            getDestinations(updateDestinations) {
+                return fetch(`/v1/destinations`, {
+                    accept: "application/json"
+                })
+                    .then(this.parseJSON)
+                    .then(updateDestinations);
+            },
+
+            parseJSON(response) {
+                return response.json();
+            },
+
+            /**
+             * Sorts the destinations based on the name of the destination.
+             * @param first      for each destination, current destination
+             * @param next       for each destination, next destination
+             * @returns {number} depending on if destinations should be swapped or not -1, 1, 0
+             */
+            compare(first, next) {
+                const nameFirst = first.name.toUpperCase(); // ignore upper and lowercase
+                const nameSecond = next.name.toUpperCase(); // ignore upper and lowercase
+
+                if (nameFirst < nameSecond ) {
+                    return -1;
+                } else if (nameFirst > nameSecond ) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            },
         }
     }
 </script>
