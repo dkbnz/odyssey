@@ -6,7 +6,7 @@ import models.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
-import repositories.DestinationRepository;
+import repositories.destinations.DestinationRepository;
 import repositories.ProfileRepository;
 import repositories.TripRepository;
 import play.libs.Json;
@@ -109,7 +109,7 @@ public class TripController extends Controller {
     /**
      * Method for looking at the contents of the main Json body for a trip in a request.
      * NOTE: Does not examine array contents.
-     *
+     *isValidT
      * @param json      the Json body of a request received.
      * @return          false if Json doesn't contain a name or an array of destinations with at least two nodes, else
      *                  returns true.

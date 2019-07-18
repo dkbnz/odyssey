@@ -123,7 +123,12 @@ public class DestinationController extends Controller {
      */
     public Result fetch(Http.Request request) {
 
-        Profile loggedInUser = profileRepo.fetchSingleProfile(AuthenticationUtil.getLoggedInUserId(request));
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
 
         int pageNumber = 0;
         int pageSize = 50;
