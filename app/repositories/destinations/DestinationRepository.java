@@ -1,4 +1,4 @@
-package repositories;
+package repositories.destinations;
 
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
