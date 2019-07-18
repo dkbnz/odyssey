@@ -31,7 +31,12 @@
                     </p>
 
                 </b-list-group-item>
+                <div class="text-center my-2" slot="table-busy" v-if="yourDestinations.length === 0">
+                    <b-spinner class="align-middle" v-if="retrievingDestinations"></b-spinner>
+                    <strong>Can't find any destinations!</strong>
+                </div>
             </b-list-group>
+
         </div>
     </div>
 </template>
@@ -47,6 +52,7 @@
                 yourDestinations: [],
                 destinationIndex: 0,
                 addDestinationForm: false,
+                retrievingDestinations: false
             }
         },
         mounted() {
@@ -57,11 +63,13 @@
              * Make request to the backend to fetch the current users destinations
              */
             getYourDestinations() {
-                fetch(`/v1/destinations?owner?=` + this.profile.id, {
+                this.retrievingDestinations = true;
+                fetch(`/v1/destinations?owner=` + this.profile.id, {
                     accept: "application/json"
                 })
                     .then(response => response.json())
-                    .then(response => this.yourDestinations = response)
+                    .then(response => this.yourDestinations = response);
+                this.retrievingDestinations = false;
             },
             returnToList() {
                 this.getYourDestinations();

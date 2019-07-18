@@ -99,6 +99,13 @@ body {
     border-radius: 5px;
 }
 
+.noBordersContainer {
+    margin:0;
+    padding: 0;
+    background-color: white;
+    border-radius: 5px;
+}
+
 .adminProfilesContainer {
     padding: 1vh 3vw 3vw 3vw;
     background-color: white;

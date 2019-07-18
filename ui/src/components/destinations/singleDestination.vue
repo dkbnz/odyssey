@@ -2,7 +2,6 @@
     <div>
         <b-modal hide-footer id="editDestModal" ref="editDestModal" size="l" title="Edit Destination">
             <add-destinations
-                    :containerClass="'noMarginsContainer'"
                     :inputDestination="copiedDestination"
                     :profile="profile"
                     :heading="'Edit'"

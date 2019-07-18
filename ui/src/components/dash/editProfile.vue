@@ -1,153 +1,164 @@
 <template>
     <div :class="containerClass">
+        <h1 class="page-title">Edit Profile</h1>
+        <p class="page-title"><i>Edit your profile using the form below!</i></p>
         <!--First name field, with default set to the user's current first name. Validates inputted text-->
-        <b-form-group
-                id="firstName-field"
-                label="First Name(s):"
-                label-for="firstName">
-            <b-form-input :state="fNameValidation"
-                          id="firstName"
-                          trim
-                          type="text" v-model="saveProfile.firstName">
-            </b-form-input>
-            <b-form-invalid-feedback :state="fNameValidation">
-                Your first name must be between 1-100 characters and contain no numbers.
-            </b-form-invalid-feedback>
-            <b-form-valid-feedback :state="fNameValidation">
-                Looks Good
-            </b-form-valid-feedback>
-        </b-form-group>
+        <b-row>
+            <b-col>
+                <b-form-group
+                        id="firstName-field"
+                        label="First Name(s):"
+                        label-for="firstName">
+                    <b-form-input :state="fNameValidation"
+                                  id="firstName"
+                                  trim
+                                  type="text" v-model="saveProfile.firstName">
+                    </b-form-input>
+                    <b-form-invalid-feedback :state="fNameValidation">
+                        Your first name must be between 1-100 characters and contain no numbers.
+                    </b-form-invalid-feedback>
+                    <b-form-valid-feedback :state="fNameValidation">
+                        Looks Good
+                    </b-form-valid-feedback>
+                </b-form-group>
 
-        <!--Middle name field with default set to the user's current middle name. Validates inputted text-->
-        <b-form-group
-                id="middleName-field"
-                label="Middle Name(s):"
-                label-for="middleName">
-            <b-form-input :state="mNameValidation"
-                          id="middleName"
-                          trim
-                          type="text" v-model="saveProfile.middleName">
-            </b-form-input>
-            <b-form-invalid-feedback :state="mNameValidation">
-                Your middle name must be less than 100 characters and contain no numbers.
-            </b-form-invalid-feedback>
-            <b-form-valid-feedback :state="mNameValidation">
-                Looks Good
-            </b-form-valid-feedback>
-        </b-form-group>
+                <!--Middle name field with default set to the user's current middle name. Validates inputted text-->
+                <b-form-group
+                        id="middleName-field"
+                        label="Middle Name(s):"
+                        label-for="middleName">
+                    <b-form-input :state="mNameValidation"
+                                  id="middleName"
+                                  trim
+                                  type="text" v-model="saveProfile.middleName">
+                    </b-form-input>
+                    <b-form-invalid-feedback :state="mNameValidation">
+                        Your middle name must be less than 100 characters and contain no numbers.
+                    </b-form-invalid-feedback>
+                    <b-form-valid-feedback :state="mNameValidation">
+                        Looks Good
+                    </b-form-valid-feedback>
+                </b-form-group>
 
-        <!--Last name field with default set to the user's current last name. Validates inputted text-->
-        <b-form-group
-                id="lastName-field"
-                label="Last Name(s):"
-                label-for="lastName">
-            <b-form-input :state="lNameValidation"
-                          id="lastName"
-                          trim
-                          type="text" v-model="saveProfile.lastName">
-            </b-form-input>
-            <b-form-invalid-feedback :state="lNameValidation">
-                Your last name must be between 1-100 characters and contain no numbers.
-            </b-form-invalid-feedback>
-            <b-form-valid-feedback :state="lNameValidation">
-                Looks Good
-            </b-form-valid-feedback>
-        </b-form-group>
+                <!--Last name field with default set to the user's current last name. Validates inputted text-->
+                <b-form-group
+                        id="lastName-field"
+                        label="Last Name(s):"
+                        label-for="lastName">
+                    <b-form-input :state="lNameValidation"
+                                  id="lastName"
+                                  trim
+                                  type="text" v-model="saveProfile.lastName">
+                    </b-form-input>
+                    <b-form-invalid-feedback :state="lNameValidation">
+                        Your last name must be between 1-100 characters and contain no numbers.
+                    </b-form-invalid-feedback>
+                    <b-form-valid-feedback :state="lNameValidation">
+                        Looks Good
+                    </b-form-valid-feedback>
+                </b-form-group>
+            </b-col>
+            <b-col>
+                <!--Email field with default set to the user's current email. Validates inputted text-->
+                <b-form-group
+                        id="email-field"
+                        label="Email:"
+                        label-for="email">
+                    <b-form-input :state="emailValidation"
+                                  id="email"
+                                  trim
+                                  type="email" v-model="saveProfile.username">
+                    </b-form-input>
+                    <b-form-invalid-feedback :state="emailValidation">
+                        Your email must be valid and unique!
+                    </b-form-invalid-feedback>
+                    <b-form-valid-feedback :state="emailValidation">
+                        Looks Good
+                    </b-form-valid-feedback>
+                </b-form-group>
 
-        <!--Email field with default set to the user's current email. Validates inputted text-->
-        <b-form-group
-                id="email-field"
-                label="Email:"
-                label-for="email">
-            <b-form-input :state="emailValidation"
-                          id="email"
-                          trim
-                          type="email" v-model="saveProfile.username">
-            </b-form-input>
-            <b-form-invalid-feedback :state="emailValidation">
-                Your email must be valid and unique!
-            </b-form-invalid-feedback>
-            <b-form-valid-feedback :state="emailValidation">
-                Looks Good
-            </b-form-valid-feedback>
-        </b-form-group>
+                <!--Date of birth field with default set to the user's current date of birth. Validates inputted text-->
+                <b-form-group
+                        id="DOB-field"
+                        label="Date of Birth:"
+                        label-for="dateOfBirth">
+                    <b-form-input :state="dateOfBirthValidation"
+                                  :type="'date'"
+                                  id="dateOfBirth"
+                                  trim v-model="saveProfile.dateOfBirth">
+                    </b-form-input>
+                    <b-form-invalid-feedback :state="dateOfBirthValidation">
+                        You need a date of birth.
+                    </b-form-invalid-feedback>
+                    <b-form-valid-feedback :state="dateOfBirthValidation">
+                        Looks Good
+                    </b-form-valid-feedback>
+                </b-form-group>
 
-        <!--Password field which validates inputted text-->
-        <b-form-group
-                id="password-field"
-                label="Password:"
-                label-for="password">
-            <b-form-input :state="passwordValidation"
-                          id="password"
-                          placeholder="Unchanged"
-                          trim
-                          type="password" v-model="saveProfile.password">
-            </b-form-input>
-            <b-form-invalid-feedback :state="passwordValidation">
-                Your password must be between 5 and 15 characters and password must contain two of: Uppercase,
-                Lowercase, Number
-            </b-form-invalid-feedback>
-            <b-form-valid-feedback :state="passwordValidation">
-                Looks Good
-            </b-form-valid-feedback>
-        </b-form-group>
-
-        <!--Password re-entry field which validates inputted text-->
-        <b-form-group
-                id="passwordRE-field"
-                label="Retype Password:"
-                label-for="passwordre">
-            <b-form-input
-                    :state="rePasswordValidation"
-                    id="passwordre"
-                    placeholder="Unchanged"
-                    trim
-                    type="password" v-model="rePassword">
-            </b-form-input>
-            <b-form-invalid-feedback :state="rePasswordValidation">
-                This must be the same as the password and your must be between 5 and 15 characters and
-                password must contain two of: Uppercase, Lowercase, Number.
-            </b-form-invalid-feedback>
-            <b-form-valid-feedback :state="rePasswordValidation">
-                Looks Good
-            </b-form-valid-feedback>
-        </b-form-group>
-
-        <!--Date of birth field with default set to the user's current date of birth. Validates inputted text-->
-        <b-form-group
-                id="DOB-field"
-                label="Date of Birth:"
-                label-for="dateOfBirth">
-            <b-form-input :state="dateOfBirthValidation"
-                          :type="'date'"
-                          id="dateOfBirth"
-                          trim v-model="saveProfile.dateOfBirth">
-            </b-form-input>
-            <b-form-invalid-feedback :state="dateOfBirthValidation">
-                You need a date of birth.
-            </b-form-invalid-feedback>
-            <b-form-valid-feedback :state="dateOfBirthValidation">
-                Looks Good
-            </b-form-valid-feedback>
-        </b-form-group>
-
-        <!--Gender field with default set to the user's current gender. Validates inputted text-->
-        <b-form-group
-                id="gender-field"
-                label="Gender:"
-                label-for="gender">
-            <b-form-select :options=genderOptions
-                           :state="genderValidation"
-                           id="gender"
-                           required trim v-model="saveProfile.gender">
-            </b-form-select>
-            <b-form-invalid-feedback :state="genderValidation">
-                Please select a gender.
-            </b-form-invalid-feedback>
-            <b-form-valid-feedback :state="genderValidation">
-                Looks Good
-            </b-form-valid-feedback>
-        </b-form-group>
+                <!--Gender field with default set to the user's current gender. Validates inputted text-->
+                <b-form-group
+                        id="gender-field"
+                        label="Gender:"
+                        label-for="gender">
+                    <b-form-select :options=genderOptions
+                                   :state="genderValidation"
+                                   id="gender"
+                                   required trim v-model="saveProfile.gender">
+                    </b-form-select>
+                    <b-form-invalid-feedback :state="genderValidation">
+                        Please select a gender.
+                    </b-form-invalid-feedback>
+                    <b-form-valid-feedback :state="genderValidation">
+                        Looks Good
+                    </b-form-valid-feedback>
+                </b-form-group>
+            </b-col>
+        </b-row>
+        <b-row>
+            <b-col>
+                <!--Password field which validates inputted text-->
+                <b-form-group
+                        id="password-field"
+                        label="Password:"
+                        label-for="password">
+                    <b-form-input :state="passwordValidation"
+                                  id="password"
+                                  placeholder="Unchanged"
+                                  trim
+                                  type="password" v-model="saveProfile.password">
+                    </b-form-input>
+                    <b-form-invalid-feedback :state="passwordValidation">
+                        Your password must be between 5 and 15 characters and password must contain two of: Uppercase,
+                        Lowercase, Number
+                    </b-form-invalid-feedback>
+                    <b-form-valid-feedback :state="passwordValidation">
+                        Looks Good
+                    </b-form-valid-feedback>
+                </b-form-group>
+            </b-col>
+            <b-col>
+                <!--Password re-entry field which validates inputted text-->
+                <b-form-group
+                        id="passwordRE-field"
+                        label="Retype Password:"
+                        label-for="passwordre">
+                    <b-form-input
+                            :state="rePasswordValidation"
+                            id="passwordre"
+                            placeholder="Unchanged"
+                            trim
+                            type="password" v-model="rePassword">
+                    </b-form-input>
+                    <b-form-invalid-feedback :state="rePasswordValidation">
+                        This must be the same as the password and your must be between 5 and 15 characters and
+                        password must contain two of: Uppercase, Lowercase, Number.
+                    </b-form-invalid-feedback>
+                    <b-form-valid-feedback :state="rePasswordValidation">
+                        Looks Good
+                    </b-form-valid-feedback>
+                </b-form-group>
+            </b-col>
+        </b-row>
 
         <b-row>
             <!--Nationality field which displays user's current nationalities & all other nationalities.
