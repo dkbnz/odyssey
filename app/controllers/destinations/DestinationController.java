@@ -109,32 +109,14 @@ public class DestinationController extends Controller {
         return ok(Json.toJson(destinationTypes));
     }
 
-    /**
-     * Fetches all destinations with no search query. This will include all public destinations and all private
-     * destinations for the logged in user.
-     *
-     * @return ok() (Http 200) response containing the destinations found in the response body.
-     */
-    private Result fetchAll(Http.Request request) {
-        List<Destination> destinations;
-        ExpressionList<Destination> expressionList = Destination.find.query().where();
-        Profile user = Profile.find.byId(AuthenticationUtil.getLoggedInUserId(request));
-        expressionList.disjunction()
-                .eq(IS_PUBLIC, true)
-                .conjunction()
-                    .eq(IS_PUBLIC, false)
-                    .eq(OWNER, user)
-                .endJunction()
-            .endJunction();
-        destinations = expressionList.findList();
-        return ok(Json.toJson(destinations));
-    }
 
     /**
-     * Fetches all destinations based on Http request query parameters.
+     * Fetches all destinations based on Http request query parameters. This also includes pagination, destination
+     * ownership and the public or private query.
      *
      * @param request   Http request containing query parameters to filter results.
-     * @return          ok() (Http 200) response containing the destinations found in the response body.
+     * @return          ok() (Http 200) response containing the destinations found in the response body, forbidden()
+     *                  (Http 403) if the user has tried to access destinations they are not authorised for.
      */
     public Result fetch(Http.Request request) {
 
@@ -142,27 +124,19 @@ public class DestinationController extends Controller {
 
         int pageNumber = 0;
         int pageSize = 50;
-
-        //If there are no query parameters, return all destinations.
-        if (request.queryString().isEmpty()) {
-            return fetchAll(request);
-        }
-
-        //Filter destinations based on query parameters.
-        Map<String, String[]> queryString = request.queryString();
         List<Destination> destinations;
 
         ExpressionList<Destination> expressionList = Destination.find.query().where();
 
-        if (queryString.get(OWNER) != null && queryString.get(OWNER)[0] != null) {
-            Profile destinationOwner = profileRepo.fetchSingleProfile(Integer.valueOf(queryString.get(OWNER)[0]));
+        // Checks if the owner is specified in the query string and user is valid.
+        if (request.getQueryString(OWNER) != null && !request.getQueryString(OWNER).isEmpty()) {
+            Profile destinationOwner = profileRepo.fetchSingleProfile(Integer.valueOf(request.getQueryString(OWNER)));
 
             if (AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
-                expressionList.eq(OWNER, queryComparator(queryString.get(OWNER)[0]));
+                expressionList.eq(OWNER, destinationOwner);
             } else {
                 return forbidden();
             }
-
         } else {
             expressionList
             .disjunction()
@@ -174,35 +148,31 @@ public class DestinationController extends Controller {
             .endJunction();
         }
 
-        if (queryString.get(NAME) != null && queryString.get(NAME)[0] != null) {
-            expressionList.ilike(NAME, queryComparator(queryString.get(NAME)[0]));
+        if (request.getQueryString(NAME) != null && !request.getQueryString(NAME).isEmpty()) {
+            expressionList.ilike(NAME, queryComparator(request.getQueryString(NAME)));
         }
-        if (queryString.get(TYPE) != null && queryString.get(TYPE)[0] != null) {
-            expressionList.ilike(TYPE, queryString.get(TYPE)[0]);
+        if (request.getQueryString(TYPE) != null && !request.getQueryString(TYPE).isEmpty()) {
+            expressionList.ilike(TYPE, request.getQueryString(TYPE));
         }
-        if (queryString.get(LATITUDE) != null && queryString.get(LATITUDE)[0] != null) {
-            expressionList.eq(LATITUDE, Double.parseDouble(queryString.get(LATITUDE)[0]));
+        if (request.getQueryString(LATITUDE) != null && !request.getQueryString(LATITUDE).isEmpty()) {
+            expressionList.eq(LATITUDE, Double.parseDouble(request.getQueryString(LATITUDE)));
         }
-        if (queryString.get(LONGITUDE) != null && queryString.get(LONGITUDE)[0] != null) {
-            expressionList.eq(LONGITUDE, Double.parseDouble(queryString.get(LONGITUDE)[0]));
+        if (request.getQueryString(LONGITUDE) != null && !request.getQueryString(LONGITUDE).isEmpty()) {
+            expressionList.eq(LONGITUDE, Double.parseDouble(request.getQueryString(LONGITUDE)));
         }
-        if (queryString.get(DISTRICT) != null && queryString.get(DISTRICT)[0] != null) {
-            expressionList.ilike(DISTRICT, queryComparator(queryString.get(DISTRICT)[0]));
+        if (request.getQueryString(DISTRICT) != null && !request.getQueryString(DISTRICT).isEmpty()) {
+            expressionList.ilike(DISTRICT, queryComparator(request.getQueryString(DISTRICT)));
         }
-        if (queryString.get(COUNTRY) != null && queryString.get(COUNTRY)[0] != null) {
-            expressionList.ilike(COUNTRY, queryComparator(queryString.get(COUNTRY)[0]));
+        if (request.getQueryString(COUNTRY) != null && !request.getQueryString(COUNTRY).isEmpty()) {
+            expressionList.ilike(COUNTRY, queryComparator(request.getQueryString(COUNTRY)));
         }
-        if (queryString.get(COUNTRY) != null && queryString.get(COUNTRY)[0] != null) {
-            expressionList.ilike(COUNTRY, queryComparator(queryString.get(COUNTRY)[0]));
-        }
-
-        if (queryString.get(IS_PUBLIC) != null && queryString.get(IS_PUBLIC)[0] != null) {
-            expressionList.eq(IS_PUBLIC, queryString.get(IS_PUBLIC)[0]);
+        if (request.getQueryString(IS_PUBLIC) != null && !request.getQueryString(IS_PUBLIC).isEmpty()) {
+            expressionList.eq(IS_PUBLIC, request.getQueryString(IS_PUBLIC));
         }
 
         // If page query is set, load said page. Otherwise, return the first page.
-        if (queryString.get(PAGE) != null && queryString.get(PAGE)[0] != null) {
-            pageNumber = Integer.parseInt(queryString.get(PAGE)[0]);
+        if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
+            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
         }
 
         destinations = expressionList
