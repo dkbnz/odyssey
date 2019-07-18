@@ -245,7 +245,7 @@ Feature: Destination API Endpoint
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    And a destination with the following values is part of a trip
+    And a destination with the following values is used
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
     When I attempt to delete the destination with the following values
@@ -270,7 +270,7 @@ Feature: Destination API Endpoint
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
-    And a destination with the following values is part of a trip
+    And a destination with the following values is used
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
     When I attempt to delete the destination with the following values
