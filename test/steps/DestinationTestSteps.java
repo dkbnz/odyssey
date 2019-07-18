@@ -402,10 +402,10 @@ public class DestinationTestSteps {
      */
     @Given("a destination has been created with the following values")
     public void aDestinationHasBeenCreatedWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        for (int i = 0; i < dataTable.height()-1; i++) {
-            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
-
-        }
+        String destinationName = getValueFromDataTable("Name", dataTable);
+        String query = createSearchDestinationQueryString(NAME, destinationName);
+        searchDestinationsRequest(query);
+        assertTrue(responseBody.contains(destinationName));
     }
 
     /**
@@ -640,7 +640,7 @@ public class DestinationTestSteps {
 
     /**
      * Takes the information provided in the feature, and sends a put request to edit the destination.
-     * @param dataTable
+     * @param dataTable the data specified in the test feature.
      */
     @When("I attempt to edit the destination using the following values")
     public void iAttemptToEditTheDestinationUsingTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
