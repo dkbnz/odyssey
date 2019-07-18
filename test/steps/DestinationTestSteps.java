@@ -9,11 +9,8 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import cucumber.api.java.Before;
-import models.destinations.Destination;
-import org.apache.xpath.operations.Bool;
 import org.junit.*;
 import play.Application;
-import play.api.libs.json.Json;
 import play.db.Database;
 
 import play.db.evolutions.Evolutions;
@@ -118,6 +115,8 @@ public class DestinationTestSteps {
      * String to add the question mark character (?) to build a query string.
      */
     private static final String QUESTION_MARK = "?";
+
+    private static final String DESTINATION_ID = "id";
 
     private static final String DISTRICT_STRING = "District";
     private static final String LATITUDE_STRING = "Latitude";
@@ -268,6 +267,19 @@ public class DestinationTestSteps {
         statusCode = result.status();
 
         responseBody = Helpers.contentAsString(result);
+    }
+
+
+    /**
+     * Sends a request to delete a destination with the given destination id.
+     * @param destinationId     The destination id as a Long.
+     */
+    private void deleteDestinationRequest(Long destinationId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(DELETE)
+                .uri(DESTINATION_URI + "/" + destinationId);
+        Result result = route(application, request);
+        statusCode = result.status();
     }
 
 
@@ -476,7 +488,7 @@ public class DestinationTestSteps {
     public void iSearchForAllDestinationsByUser(Integer userId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .uri(SEARCH_BY_USER_URI + userId)
+                .uri(DESTINATION_URI + "/" + userId)
                 .session(AUTHORIZED, LOGGED_IN_ID);
         Result result = route(application, request);
         statusCode = result.status();
@@ -486,15 +498,81 @@ public class DestinationTestSteps {
 
 
     @When("I attempt to delete the destination with the following values")
-    public void iAttemptToDeleteTheDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        // TODO: Still working on how to do this
+    public void iAttemptToDeleteTheDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) throws IOException {
         // Get destination id from values given
-        JsonNode json = convertDataTableToJsonNode(dataTable, 0);
-        // Create search query based on values given?
-
+        Long destinationId = getDestinationId(dataTable);
+        Assert.assertNotNull(destinationId);
         // Send the delete request
+        deleteDestinationRequest(destinationId);
+    }
 
-        throw new cucumber.api.PendingException();
+
+    /**
+     * Gets a destination id based on values in the data table.
+     * @param dataTable         The data table containing values of a destination.
+     * @return                  Destination id as a Long, or null if no destination exists.
+     * @throws IOException      Exception thrown when response body json tree is not formatted correctly.
+     */
+    private Long getDestinationId(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        int index = 0;
+        String name         = list.get(index).get(NAME_STRING);
+        String type         = list.get(index).get(TYPE_STRING);
+        String district     = list.get(index).get(DISTRICT_STRING);
+        String latitude     = list.get(index).get(LATITUDE_STRING);
+        String longitude    = list.get(index).get(LONGITUDE_STRING);
+        String country      = list.get(index).get(COUNTRY_STRING);
+        String publicity    = list.get(index).get(IS_PUBLIC_STRING);
+
+        // Replace whitespace with + in name, district, country
+        name = name.replace(' ', '+');
+        district = district.replace(' ', '+');
+        country = country.replace(' ', '+');
+
+
+        StringBuilder stringBuilder = new StringBuilder()
+                .append(QUESTION_MARK)
+
+                .append(NAME)
+                .append(EQUALS)
+                .append(name)
+
+                .append(AND)
+                .append(TYPE)
+                .append(EQUALS)
+                .append(type)
+
+                .append(AND)
+                .append(LATITUDE)
+                .append(EQUALS)
+                .append(latitude)
+
+                .append(AND)
+                .append(LONGITUDE)
+                .append(EQUALS)
+                .append(longitude)
+
+                .append(AND)
+                .append(DISTRICT)
+                .append(EQUALS)
+                .append(district)
+
+                .append(AND)
+                .append(COUNTRY)
+                .append(EQUALS)
+                .append(country)
+
+                .append(AND)
+                .append(IS_PUBLIC)
+                .append(EQUALS)
+                .append(publicity);
+
+        String query = stringBuilder.toString();
+
+        searchDestinationsRequest(query);
+
+        JsonNode destination = new ObjectMapper().readTree(responseBody).get(0);
+        return destination == null ? null : destination.get(DESTINATION_ID).asLong();
     }
 
 
@@ -569,7 +647,7 @@ public class DestinationTestSteps {
      * @param searchField       The search field name as defined by the application.
      * @param givenField        The field name given to the test.
      * @param givenValue        The value to search for if the search and given fields match.
-     * @return
+     * @return                  A string that contains the given value or an empty string.
      */
     private String getValue(String searchField, String givenField, String givenValue) {
         return searchField.equals(givenField) ? givenValue : "";
@@ -583,7 +661,7 @@ public class DestinationTestSteps {
      */
     @Then("the response contains at least one destination with name")
     public void theResponseContainsAtLeastOneDestinationWithName(io.cucumber.datatable.DataTable dataTable) throws IOException {
-        String value = getValueFromDataTable("Name", dataTable);
+        String value = getValueFromDataTable(NAME_STRING, dataTable);
         String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(NAME).asText();
 
         Assert.assertEquals(value, arrNode);
