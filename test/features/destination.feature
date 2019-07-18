@@ -134,8 +134,8 @@ Feature: Destination API Endpoint
     Given I have a running application
     And I am not logged in
     And a destination has been created with the following values
-      | Name                  | Type | District     | Latitude   | Longitude  | Country     | is_public |
-      | Canterbury University | 3    | Christchurch | -43.523434 | 172.581681 | New Zealand | false     |
+      | Name       |
+      | Canterbury |
     When I attempt to edit the destination using the following values
       | Type | District | Latitude  | Longitude  | Country     |
       | 4    | Sydney   | 33.838306 | 151.002007 | Australia |
