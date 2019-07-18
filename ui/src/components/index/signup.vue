@@ -290,7 +290,7 @@
                 if (this.username.length === 0) {
                     return null;
                 }
-                let emailRegex = new RegExp("^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})");
+                let emailRegex = new RegExp("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$");
                 this.checkUsername();
                 return (emailRegex.test(this.username) && this.validEmail);
             },
