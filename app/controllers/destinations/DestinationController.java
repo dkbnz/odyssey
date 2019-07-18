@@ -34,6 +34,8 @@ public class DestinationController extends Controller {
     public static final String LONGITUDE = "longitude";
     private static final String OWNER = "owner";
     public static final String IS_PUBLIC = "is_public";
+    private static final String PAGE = "page";
+
 
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
@@ -135,6 +137,10 @@ public class DestinationController extends Controller {
      * @return          ok() (Http 200) response containing the destinations found in the response body.
      */
     public Result fetch(Http.Request request) {
+
+        int pageNumber = 0;
+        int pageSize = 50;
+
         //If there are no query parameters, return all destinations.
         if (request.queryString().isEmpty()) {
             return fetchAll(request);
@@ -144,37 +150,58 @@ public class DestinationController extends Controller {
         Map<String, String[]> queryString = request.queryString();
         List<Destination> destinations;
 
-        String emptyString = "";
-
         ExpressionList<Destination> expressionList = Destination.find.query().where();
-        String name =           queryString.get(NAME) == null         || queryString.get(NAME)[0] == null       ? emptyString : queryString.get(NAME)[0];
-        String type =           queryString.get(TYPE) == null         || queryString.get(TYPE)[0] == null       ? emptyString : queryString.get(TYPE)[0];
-        String latitude =       queryString.get(LATITUDE) == null     || queryString.get(LATITUDE)[0] == null   ? emptyString : queryString.get(LATITUDE)[0];
-        String longitude =      queryString.get(LONGITUDE) == null    || queryString.get(LONGITUDE)[0] == null  ? emptyString : queryString.get(LONGITUDE)[0];
-        String district =       queryString.get(DISTRICT) == null     || queryString.get(DISTRICT)[0] == null   ? emptyString : queryString.get(DISTRICT)[0];
-        String country =        queryString.get(COUNTRY) == null      || queryString.get(COUNTRY)[0] == null    ? emptyString : queryString.get(COUNTRY)[0];
 
-        if (name.length() != 0) {
-            expressionList.ilike(NAME, queryComparator(name));
-        }
-        if (type.length() != 0) {
-            expressionList.ilike(TYPE, type);
-        }
-        if (latitude.length() != 0) {
-            expressionList.eq(LATITUDE, Double.parseDouble(latitude));
-        }
-        if (longitude.length() != 0) {
-            expressionList.eq(LONGITUDE, Double.parseDouble(longitude));
-        }
-        if (district.length() != 0) {
-            expressionList.ilike(DISTRICT, queryComparator(district));
-        }
-        if (country.length() != 0) {
-            expressionList.ilike(COUNTRY, queryComparator(country));
-        }
-        expressionList.eq(IS_PUBLIC, true);
+        if (queryString.get(OWNER) != null && queryString.get(OWNER)[0] != null) {
+            Profile loggedInUser = profileRepo.fetchSingleProfile(AuthenticationUtil.getLoggedInUserId(request));
+            Profile destinationOwner = profileRepo.fetchSingleProfile(Integer.valueOf(queryString.get(OWNER)[0]));
 
-        destinations = expressionList.findList();
+            if (AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
+                expressionList.eq(OWNER, queryComparator(queryString.get(OWNER)[0]));
+            } else {
+                return forbidden();
+            }
+        } else {
+            // Owner is not specified.
+        }
+
+        if (queryString.get(NAME) != null && queryString.get(NAME)[0] != null) {
+            expressionList.ilike(NAME, queryComparator(queryString.get(NAME)[0]));
+        }
+        if (queryString.get(TYPE) != null && queryString.get(TYPE)[0] != null) {
+            expressionList.ilike(TYPE, queryString.get(TYPE)[0]);
+        }
+        if (queryString.get(LATITUDE) != null && queryString.get(LATITUDE)[0] != null) {
+            expressionList.eq(LATITUDE, Double.parseDouble(queryString.get(LATITUDE)[0]));
+        }
+        if (queryString.get(LONGITUDE) != null && queryString.get(LONGITUDE)[0] != null) {
+            expressionList.eq(LONGITUDE, Double.parseDouble(queryString.get(LONGITUDE)[0]));
+        }
+        if (queryString.get(DISTRICT) != null && queryString.get(DISTRICT)[0] != null) {
+            expressionList.ilike(DISTRICT, queryComparator(queryString.get(DISTRICT)[0]));
+        }
+        if (queryString.get(COUNTRY) != null && queryString.get(COUNTRY)[0] != null) {
+            expressionList.ilike(COUNTRY, queryComparator(queryString.get(COUNTRY)[0]));
+        }
+        if (queryString.get(COUNTRY) != null && queryString.get(COUNTRY)[0] != null) {
+            expressionList.ilike(COUNTRY, queryComparator(queryString.get(COUNTRY)[0]));
+        }
+
+        if (queryString.get(IS_PUBLIC) != null && queryString.get(IS_PUBLIC)[0] != null) {
+            expressionList.eq(IS_PUBLIC, queryComparator(queryString.get(IS_PUBLIC)[0]));
+        }
+
+        // If page query is set, load said page. Otherwise, return the first page.
+        if (queryString.get(PAGE) != null && queryString.get(PAGE)[0] != null) {
+            pageNumber = Integer.parseInt(queryString.get(PAGE)[0]);
+        }
+
+        destinations = expressionList
+                .order(NAME)
+                .setFirstRow(pageNumber*pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
 
         return ok(Json.toJson(destinations));
     }
