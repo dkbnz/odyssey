@@ -26,6 +26,7 @@ import java.util.Map;
 
 import static controllers.destinations.DestinationController.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.CREATED;
@@ -52,10 +53,12 @@ public class DestinationTestSteps {
      */
     private static final String DESTINATION_URI = "/v1/destinations";
 
+
     /**
-     * The search by user endpoint uri.
+     * The destination photos endpoint uri.
      */
-    private static final String SEARCH_BY_USER_URI = "/v1/destinations/";
+    private static final String DESTINATION_PHOTO_URI = "/v1/destinationPhotos/";
+
 
     /**
      * Authorisation token for sessions
@@ -82,6 +85,7 @@ public class DestinationTestSteps {
     private static final String ADMIN_AUTHPASS = "admin1";
     private static final String ADMIN_ID = "1";
 
+
     /**
      * Valid login credentials for a regular user.
      */
@@ -89,15 +93,18 @@ public class DestinationTestSteps {
     private static final String REG_AUTHPASS = "guest123";
     private static final String REG_ID = "2";
 
+
     /**
      * Currently logged-in user
      */
     private String LOGGED_IN_ID;
 
+
     /**
      * Target user for destination changes
      */
     private String TARGET_ID;
+
 
     /**
      * String to add the equals character (=) to build a query string.
@@ -117,7 +124,6 @@ public class DestinationTestSteps {
     private static final String QUESTION_MARK = "?";
 
     private static final String DESTINATION_ID = "id";
-
     private static final String DISTRICT_STRING = "District";
     private static final String LATITUDE_STRING = "Latitude";
     private static final String LONGITUDE_STRING = "Longitude";
@@ -354,12 +360,53 @@ public class DestinationTestSteps {
     }
 
 
-    @Given("a destination with the following values is part of a trip")
-    public void aDestinationWithTheFollowingValuesIsPartOfATrip(io.cucumber.datatable.DataTable dataTable) {
+    @Given("a destination with the following values is used")
+    public void aDestinationWithTheFollowingValuesIsUsed(io.cucumber.datatable.DataTable dataTable) throws IOException {
         // Get destination id from values given
-        //TODO: still working this out
-        // Create new trip with that destination and some others
-        throw new cucumber.api.PendingException();
+        Long destinationId = getDestinationId(dataTable);
+        assertNotNull(destinationId);
+
+        // Adding photo to the destination given
+        int photoId = 2;  // Photo id 2 is used as this is a personal photo for logged in user 2
+        addDestinationPhoto(photoId, destinationId);
+    }
+
+
+    /**
+     * Adds a photo with the given photoId to a destination with the given destinationId.
+     * @param photoId           id of the photo to be added.
+     * @param destinationId     id of the destination to be added.
+     */
+    private void addDestinationPhoto(int photoId, Long destinationId) {
+        JsonNode json = createDestinationPhotoJson(photoId);
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                        .uri(DESTINATION_PHOTO_URI + destinationId)
+                        .method(POST)
+                        .bodyJson(json)
+                        .session(AUTHORIZED, LOGGED_IN_ID);
+
+        Result addDestinationPhotoResult = route(application, request);
+        statusCode = addDestinationPhotoResult.status();
+    }
+
+
+    /**
+     * Creates a Json ObjectNode to be used for the destination photo.
+     *
+     * @param photoId the photoId of the photo to be added to the Json node.
+     * @return        the Json ObjectNode for the new destination photo.
+     */
+    private JsonNode createDestinationPhotoJson(int photoId) {
+        // complex json
+        ObjectMapper mapper = new ObjectMapper();
+
+        //Add values to a JsonNode
+        ObjectNode json = mapper.createObjectNode();
+
+        json.put("id", photoId);
+
+        return json;
     }
 
 
