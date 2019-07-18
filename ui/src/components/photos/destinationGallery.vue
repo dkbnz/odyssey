@@ -30,6 +30,7 @@
                          @privacy-update="updatePhotoPrivacy"
                          @photo-click="photoToggled">
             </photo-table>
+            <b-button @click="dismissModal('addRemovePhotosModal')" variant="success" block>OK</b-button>
         </b-modal>
 
     </div>
@@ -187,6 +188,16 @@
                         self.alertMessage = "An error occurred when deleting a destination photo";
                     }
                 });
+            },
+
+            /**
+             * Used to dismiss the Add a Photo to the Destination modal.
+             *
+             * @param modal, the modal that is wanting to be dismissed.
+             */
+            dismissModal(modal) {
+                this.$refs[modal].hide();
+            },
             },
 
             showModal(modal) {
