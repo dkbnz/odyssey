@@ -57,7 +57,7 @@
              * Make request to the backend to fetch the current users destinations
              */
             getYourDestinations() {
-                fetch(`/v1/destinations/` + this.profile.id, {
+                fetch(`/v1/destinations?owner?=` + this.profile.id, {
                     accept: "application/json"
                 })
                     .then(response => response.json())
