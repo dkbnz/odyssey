@@ -87,7 +87,7 @@
              *
              * @param photo           the photo that's changing status.
              */
-            updatePhotoPrivacy: function(photo) {
+            updatePhotoPrivacy: function (photo) {
                 let self = this;
 
                 fetch('/v1/photos', {
@@ -121,7 +121,7 @@
              */
             indexOfById(arrayToCheck, object) {
                 for (let i = 0; i < arrayToCheck.length; i++) {
-                    if(arrayToCheck[i].id === object.id) {
+                    if (arrayToCheck[i].id === object.id) {
                         return i;
                     }
                 }
@@ -198,12 +198,10 @@
             dismissModal(modal) {
                 this.$refs[modal].hide();
             },
-            },
 
             showModal(modal) {
                 this.$refs[modal].show();
             },
-
         },
 
         components: {
