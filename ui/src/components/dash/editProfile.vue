@@ -105,7 +105,8 @@
                     type="password" v-model="rePassword">
             </b-form-input>
             <b-form-invalid-feedback :state="rePasswordValidation">
-                This isn't the same as the password!
+                This must be the same as the password and your must be between 5 and 15 characters and
+                password must contain two of: Uppercase, Lowercase, Number.
             </b-form-invalid-feedback>
             <b-form-valid-feedback :state="rePasswordValidation">
                 Looks Good
@@ -257,7 +258,7 @@
         <!--Displayed if there are input errors when "Save Profile" is clicked-->
         <b-alert dismissible v-model="showError" variant="danger">The form contains errors!</b-alert>
         <!--Validates inputs then updates user data if valid-->
-        <b-button @click="checkSaveProfile" block size="lg" variant="success">Save Profile</b-button>
+        <b-button :disabled="!checkSaveProfile()" @click="submitSaveProfile" block size="lg" variant="success">Save Profile</b-button>
     </div>
 </template>
 
@@ -348,7 +349,9 @@
                 if (this.rePassword.length === 0) {
                     return null;
                 }
-                return this.saveProfile.password.length > 0 && this.rePassword === this.saveProfile.password;
+                let passwordRegex =
+                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
+                return this.saveProfile.password.length > 0 && this.rePassword === this.saveProfile.password && passwordRegex.test(this.rePassword);
             },
             dateOfBirthValidation() {
                 if (this.saveProfile.dateOfBirth.length === 0) {
@@ -405,10 +408,16 @@
                 if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
                     && this.dateOfBirthValidation && this.genderValidation && this.nationalityValidation
                     && this.travTypeValidation) {
-                    this.submitSaveProfile();
-                    this.$emit('profileSaved', true);
+                    if (this.passwordValidation == null || (this.passwordValidation === true && this.rePasswordValidation === true)) {
+                        this.showError = false;
+                        return true;
+                    } else {
+                        this.showError = true;
+                        return false;
+                    }
                 } else {
                     this.showError = true;
+                    return false;
                 }
             },
 
@@ -417,18 +426,22 @@
              */
             submitSaveProfile() {
                 let self = this;
-                fetch('/v1/profile/' + this.profile.id, {
-                    method: 'PUT',
-                    headers: {'content-type': 'application/json'},
-                    body: JSON.stringify(this.saveProfile)
-                }).then(function (response) {
-                    if (!self.adminView) {
-                        self.$router.go();
-                    }
-                    self.$emit('profile-saved', self.saveProfile);
-                    window.scrollTo(0, 0);
-                    return response.json();
-                })
+                if (this.checkSaveProfile) {
+                    this.$emit('profileSaved', true);
+
+                    fetch('/v1/profile/' + this.profile.id, {
+                        method: 'PUT',
+                        headers: {'content-type': 'application/json'},
+                        body: JSON.stringify(this.saveProfile)
+                    }).then(function (response) {
+                        if (!self.adminView) {
+                            self.$router.go();
+                        }
+                        self.$emit('profile-saved', self.saveProfile);
+                        window.scrollTo(0, 0);
+                        return response.json();
+                    })
+                }
             },
 
             /**

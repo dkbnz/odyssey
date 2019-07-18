@@ -1,5 +1,5 @@
 # Evolutions script
-conf/evolutions/default/1.sql
+conf/evolutions/default/*.sql
 
 # Temporary photo directories
 temp/
