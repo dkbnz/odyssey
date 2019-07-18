@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3 class="page-title">{{heading}}</h3>
+        <h3 class="page-title">{{heading}} a Destination</h3>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act
@@ -21,6 +21,20 @@
             ></b-progress>
         </b-alert>
 
+        <b-modal hide-footer id="confirmEditModal" ref="confirmEditModal" size="l" title="Confirm Edit">
+            <div>
+                Are you sure you want to edit this destination?
+                <div v-if="destinationConflicts.length > 0">
+                    This would affect the following trips:
+                    <ul v-for="trip in destinationConflicts">
+                        <li>{{trip.name}}: {{trip.destinations[0].destination.name}} -
+                            {{trip.destinations[trip.destinations.length - 1].destination.name}}</li>
+                    </ul>
+                </div>
+            </div>
+            <b-button @click="editDestination" class="mr-2 float-left" variant="success">Confirm</b-button>
+            <b-button @click="dismissModal('confirmEditModal')" class="mr-2 float-right" variant="danger">Cancel</b-button>
+        </b-modal>
 
         <!--Form for adding a destination-->
         <div>
@@ -29,7 +43,7 @@
                         id="name-field"
                         label="Destination Name:"
                         label-for="name">
-                    <b-form-input id="name" v-model="inputDestination.name" type="text" required
+                    <b-form-input id="name" @click="showError = false" v-model="inputDestination.name" type="text" required
                                   :state="destinationNameValidation"></b-form-input>
                 </b-form-group>
                 <b-form-group
@@ -47,7 +61,7 @@
                         id="district-field"
                         label="District:"
                         label-for="district">
-                    <b-form-input id="district" v-model="inputDestination.district" type="text" trim required
+                    <b-form-input id="district" @click="showError = false" v-model="inputDestination.district" type="text" trim required
                                   :state="destinationDistrictValidation"></b-form-input>
                 </b-form-group>
 
@@ -84,7 +98,7 @@
                     </b-form-invalid-feedback>
                 </b-form-group>
 
-                <b-button @click="checkDestinationFields" block variant="primary">Add Destination</b-button>
+                <b-button @click="checkDestinationFields" block variant="primary">{{heading}} Destination</b-button>
             </b-form>
         </div>
     </div>
@@ -160,30 +174,31 @@
             destinationLatitudeValidation() {
                 if (this.inputDestination.latitude === null) {
                     return null;
-                }
-                if (isNaN(this.inputDestination.latitude)) {
+                } else if (isNaN(this.inputDestination.latitude)) {
                     this.latitudeErrorMessage = "Latitude: '" + this.inputDestination.latitude + "' is not a number!";
                     return false;
                 } else if (this.inputDestination.latitude > 90 || this.inputDestination.latitude < -90) {
                     this.latitudeErrorMessage = "Latitude: '" + this.inputDestination.latitude + "' must be between " +
                         "-90 and 90";
                     return false;
+                } else {
+                    return true;
                 }
-                return true;
+
             },
             destinationLongitudeValidation() {
                 if (this.inputDestination.longitude === null) {
                     return null;
-                }
-                if (isNaN(this.inputDestination.longitude)) {
+                } else if (isNaN(this.inputDestination.longitude)) {
                     this.longitudeErrorMessage = "Longitude: '" + this.inputDestination.longitude + "' is not a number!";
                     return false;
                 } else if (this.inputDestination.longitude > 180 || this.inputDestination.longitude < -180) {
                     this.longitudeErrorMessage = "Longitude: '" + this.inputDestination.longitude + "' must be between " +
                         "-180 and 180";
                     return false;
+                } else {
+                    return true;
                 }
-                return true;
             },
             destinationCountryValidation() {
                 if (this.inputDestination.country.length === 0) {
@@ -221,10 +236,13 @@
              */
             resetDestForm() {
                 this.inputDestination.name = "";
-                this.inputDestination.type = "";
+                this.inputDestination.type = {
+                    id: null,
+                    destinationType: "",
+                };
                 this.inputDestination.district = "";
-                this.inputDestination.latitude = "";
-                this.inputDestination.longitude = "";
+                this.inputDestination.latitude = null;
+                this.inputDestination.longitude = null;
                 this.inputDestination.country = "";
             },
 
@@ -239,6 +257,62 @@
                 let self = this;
                 fetch(`/v1/destinations/` + this.profile.id, {
                     method: 'POST',
+                    headers: {'content-type': 'application/json'},
+                    body: (JSON.stringify({
+                        "name": this.inputDestination.name,
+                        "type_id": this.inputDestination.type.id,
+                        "district": this.inputDestination.district,
+                        "latitude": parseFloat(this.inputDestination.latitude),
+                        "longitude": parseFloat(this.inputDestination.longitude),
+                        "country": this.inputDestination.country
+                    }))
+                })
+                    .then(this.checkStatus)
+                    .then(function(response) {
+                        self.resetDestForm();
+                        self.showAlert();
+                        self.emit('data-changed');
+                        return JSON.parse(JSON.stringify(response));
+                    });
+            },
+
+            /**
+             * Checks whether the destination being edited is present in any trips
+             *
+             * @param cb.
+             */
+            validateEdit(cb) {
+                let self = this;
+                //TODO: Update this request to match route
+                fetch(`/v1/destinationCheck/` + this.profile.id, {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(cb)
+                    .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
+                    .then(function(response) {
+                        // if (self.destinationConflicts.length > 0) {
+                        //
+                        // } else {
+                        //     self.heading = "FUCK";
+                        // }
+                        self.displayConfirmation();
+
+                        self.emit('data-changed');
+                        return JSON.parse(JSON.stringify(response));
+
+                    });
+            },
+
+            displayConfirmation() {
+                this.$refs["confirmEditModal"].show();
+            },
+
+            editDestination(cb) {
+                let self = this;
+                fetch(`/v1/destinations/` + this.inputDestination.id, {
+                    method: 'PATCH',
                     headers: {'content-type': 'application/json'},
                     body: (JSON.stringify({
                         "name": this.inputDestination.name,
@@ -268,33 +342,6 @@
                     });
             },
 
-            validateEdit(cb) {
-                let self = this;
-                //TODO: Update this request to match route
-                fetch(`/v1/destinationConflicts/` + this.inputDestination.id, {
-                    accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then(cb)
-                    .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
-
-                    .then(function(response) {
-                        if (response.ok) {
-                            self.resetDestForm();
-                            self.showAlert();
-                            self.emit('data-changed');
-                            return JSON.parse(JSON.stringify(response));
-                        } else {
-                            self.errorMessage = "";
-                            self.showError = true;
-                            // response.clone().text().then(text => {
-                            //     self.errorMessage = text;
-                            // });
-                            self.errorMessage = response.status;
-                        }
-                    });
-            },
-
             /**
              * Used to allow an alert to countdown on the successful saving of a destination.
              *
@@ -309,6 +356,45 @@
              */
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
+            },
+
+            /**
+             * Used to dismiss the edit a destination modal.
+             *
+             * @param modal, the modal that is wanting to be dismissed.
+             */
+            dismissModal(modal) {
+                this.$refs[modal].hide();
+            },
+
+            /**
+             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
+             * console.
+             *
+             * @param response, passed back to the getAllTrips function to be parsed into a Json.
+             * @returns throws the error.
+             */
+            checkStatus(response) {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                }
+                const error = new Error(`HTTP Error ${response.statusText}`);
+                error.status = response.statusText;
+                error.response = response;
+                console.log(error);
+
+                self.errorMessage = "";
+                self.showError = true;
+                response.clone().text().then(text => {
+                    self.errorMessage = text;
+                });
+
+                throw error;
+            },
+
+            parseJSON(response) {
+                console.log(response);
+                return response.json();
             },
         }
     }

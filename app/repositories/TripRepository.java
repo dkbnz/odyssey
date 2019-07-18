@@ -2,6 +2,7 @@ package repositories;
 
 import io.ebean.ExpressionList;
 import models.Profile;
+import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
 
@@ -15,6 +16,7 @@ public class TripRepository {
 
     /**
      * Saves a new trip to a profile's list of trips, which is persisted to our database.
+     *
      * @param profile       The profile having a new trip created.
      * @param trip          The new trip being created for profile.
      */
@@ -29,6 +31,7 @@ public class TripRepository {
 
     /**
      * Updates a trip with new attributes and destinations
+     *
      * @param profile           The profile which is having a trip be updated
      * @param trip              The updated trip
      * @param destinationList   List of destinations to be added to the trip
@@ -42,6 +45,7 @@ public class TripRepository {
 
     /**
      * Updates an existing trip as well as the profile it belongs to within the database.
+     *
      * @param profile       The profile having its trip updated with an edited trip.
      * @param trip          The existing trip being updated after editing.
      */
@@ -58,6 +62,7 @@ public class TripRepository {
     /**
      * Removes the existing TripDestinations from a trip being edited.
      * Is used before parsing the request body in edit which will contain all the updated trips, "cleaning the slate".
+     *
      * @param trip          The trip having its destinations deleted before editing
      */
     public void removeTripDestinations(Trip trip) {
@@ -75,6 +80,7 @@ public class TripRepository {
     /**
      * Removes a single trip from a profile's list of trips, and deletes the trip from the profile before updating the profile.
      * This method is used in TripController inside the 'destroy' method.
+     *
      * @param profile       The profile having its trip deleted.
      * @param trip          The trip being deleted from a profile.
      */
@@ -93,6 +99,7 @@ public class TripRepository {
 
     /**
      * Finds all the trips with a specified user id.
+     *
      * @param id            The profile id.
      * @return              The list of trips.
      */
@@ -111,6 +118,7 @@ public class TripRepository {
 
     /**
      * Finds a single trip with a given id. Returns null if no such trip was found.
+     *
      * @param tripId        The id of the trip.
      * @return              The Trip object associated with the id. Null if no trip was found.
      */
@@ -121,6 +129,7 @@ public class TripRepository {
 
     /**
      * Finds the profile id of the trip's owner.
+     *
      * @param tripId        The id of the trip.
      * @return              The profile id of the owner of the trip.
      */

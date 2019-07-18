@@ -6,6 +6,7 @@ import models.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
+import repositories.DestinationRepository;
 import repositories.ProfileRepository;
 import repositories.TripRepository;
 import play.libs.Json;
@@ -32,12 +33,14 @@ public class TripController extends Controller {
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private TripRepository repository;
     private ProfileRepository profileRepo;
+    private DestinationRepository destinationRepo;
 
     @Inject
     public TripController(TripRepository tripRepo,
-                          ProfileRepository profileRepo) {
+                          ProfileRepository profileRepo, DestinationRepository destinationRepo) {
         this.repository = tripRepo;
         this.profileRepo = profileRepo;
+        this.destinationRepo = destinationRepo;
     }
 
 
@@ -90,6 +93,9 @@ public class TripController extends Controller {
                     if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
                         trip.setDestinations(destinationList);
                         repository.saveNewTrip(affectedProfile, trip);
+                        for (TripDestination tripDestination: destinationList) {
+                            determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
+                        }
                         return created();
                     } else {
                         return badRequest();
@@ -98,6 +104,7 @@ public class TripController extends Controller {
                 })
                 .orElseGet(() -> unauthorized());
     }
+
 
     /**
      * Method for looking at the contents of the main Json body for a trip in a request.
@@ -125,6 +132,7 @@ public class TripController extends Controller {
         }
         return true;
     }
+
 
     /**
      * Updates a single trip for selected user's profile.
@@ -185,6 +193,7 @@ public class TripController extends Controller {
             return badRequest();
         }
     }
+
 
     /**
      * Parse the ArrayNode from a valid request's Json body to create a list of TripDestination objects
@@ -248,6 +257,7 @@ public class TripController extends Controller {
         return result;
     }
 
+
     /**
      * Checks the start and end dates to make sure that the start date does not happen after the end date but if either
      * is null this does not apply
@@ -267,6 +277,7 @@ public class TripController extends Controller {
                     || LocalDate.parse(startDate).equals(LocalDate.parse(endDate)));
         }
     }
+
 
     /**
      * Checks if all of the start/end dates within a trip are in valid order, to be called after saving a reorder
@@ -301,6 +312,7 @@ public class TripController extends Controller {
         return true;
     }
 
+
     /**
      * Fetches a single trip from the database for a logged in user.
      *
@@ -334,16 +346,39 @@ public class TripController extends Controller {
         return ok(Json.toJson(returnedTrip));
     }
 
+
     /**
-     * Fetches all the trips for a specified user
+     * Determines if any of the destinations in a trip need to have their ownership changed. This is if the destination
+     * is public, not owned by the global admin and the affected profile is not the owner of the public destination.
      *
-     * @param id    the id of the user requested
-     * @return      the list of trips as a Json
+     * @param affectedProfile   the profile that is having the trip added to.
+     * @param tripDestination   the destination that is stored in the trip.
+     */
+    private Result determineDestinationOwnershipTransfer(Profile affectedProfile, TripDestination tripDestination) {
+        Destination destination = tripDestination.getDestination();
+        Profile owner = destination.getOwner();
+
+        // Destination is not owned by global admin, it is public and the user is not the owner of the destination.
+        if (owner == null || owner.getId() != 1 && destination.getPublic() && !affectedProfile.getId().equals(owner.getId())) {
+            destinationRepo.transferDestinationOwnership(destination);
+            return ok("Destination ownership changed");
+        }
+        return ok("Destination ownership deosn't need to be changed");
+    }
+
+
+    /**
+     * Fetches all the trips for a specified user.
+     *
+     * @param id    the id of the user requested.
+     * @return      the list of trips as a Json.
      */
     public Result fetchAll(Long id) {
         List<Trip> trips = repository.fetchAllTrips(id);
         return ok(Json.toJson(trips));
     }
+
+
 
     /**
      * Deletes a trip from the user currently logged in.
@@ -357,7 +392,6 @@ public class TripController extends Controller {
      *                  Otherwise, if trip is successfully deleted, returns ok() (Http 200).
      */
     public Result destroy(Http.Request request, Long tripId) {
-
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
@@ -385,6 +419,5 @@ public class TripController extends Controller {
         repository.deleteTripFromProfile(tripOwner, trip);
         // Deletion successful.
         return ok();
-
     }
 }
