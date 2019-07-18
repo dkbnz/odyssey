@@ -10,13 +10,13 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.DestinationRepository;
+import repositories.destinations.DestinationRepository;
 import repositories.ProfileRepository;
+import repositories.destinations.DestinationTypeRepository;
 import util.AuthenticationUtil;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static util.QueryUtil.queryComparator;
 
@@ -31,6 +31,8 @@ public class DestinationController extends Controller {
     public static final String OWNER = "owner";
     public static final String IS_PUBLIC = "is_public";
 
+
+
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
 
@@ -38,15 +40,18 @@ public class DestinationController extends Controller {
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private ProfileRepository profileRepo;
     private DestinationRepository destinationRepo;
+    private DestinationTypeRepository destinationTypeRepo;
     private Config config;
 
     @Inject
     public DestinationController(
             ProfileRepository profileRepo,
             DestinationRepository destinationRepo,
+            DestinationTypeRepository destinationTypeRepo,
             Config config) {
         this.profileRepo = profileRepo;
         this.destinationRepo = destinationRepo;
+        this.destinationTypeRepo = destinationTypeRepo;
         this.config = config;
     }
 
@@ -305,25 +310,51 @@ public class DestinationController extends Controller {
     public Result edit(Http.Request request, Long id) {
         JsonNode json = request.body().asJson();
 
-        Destination oldDestination = Destination.find.byId(id.intValue());
+        Destination currentDestination = destinationRepo.fetch(id);
 
-        if (oldDestination == null) {
+        if (currentDestination == null) {
             return notFound();
         }
 
-        //TODO: only update given fields
+        Iterator<String> fieldIterator = json.fieldNames();
+        while (fieldIterator.hasNext()) {
+            String fieldName = fieldIterator.next();
+            switch (fieldName) {
 
-        oldDestination.setName(json.get(NAME).asText());
-        oldDestination.setCountry(json.get(COUNTRY).asText());
-        oldDestination.setDistrict(json.get(DISTRICT).asText());
-        oldDestination.setLatitude(json.get(LATITUDE).asDouble());
-        oldDestination.setLongitude(json.get(LONGITUDE).asDouble());
+                case NAME:
+                    currentDestination.setName(json.get(NAME).asText());
+                    break;
 
-        DestinationType destType = DestinationType.find.byId(json.get(TYPE).asInt());
-        oldDestination.setType(destType);
+                case COUNTRY:
+                    currentDestination.setCountry(json.get(COUNTRY).asText());
+                    break;
 
-        oldDestination.update();
+                case DISTRICT:
+                    currentDestination.setDistrict(json.get(DISTRICT).asText());
+                    break;
 
-        return ok("Updated");
+                case TYPE:
+                    DestinationType type = destinationTypeRepo.fetch(json.get(TYPE).asLong());
+                    currentDestination.setType(type);
+                    break;
+
+                case LATITUDE:
+                    currentDestination.setLatitude(json.get(LATITUDE).asLong());
+                    break;
+
+                case LONGITUDE:
+                    currentDestination.setLongitude(json.get(LONGITUDE).asLong());
+                    break;
+
+                case IS_PUBLIC:
+                    currentDestination.setPublic(json.get(IS_PUBLIC).asBoolean());
+                    break;
+
+                default:
+                    return badRequest();
+            }
+        }
+        currentDestination.update();
+        return ok("Destination updated");
     }
 }
