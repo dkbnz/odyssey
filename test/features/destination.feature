@@ -54,7 +54,7 @@ Feature: Destination API Endpoint
 
   Scenario: Create a destination that already exists as a private destination for another user
     Given I have a running application
-    And I am logged in
+    And I am logged in as an admin user
     And a destination already exists for user 3 with the following values
       | Name          | Type | District | Latitude | Longitude | Country     | is_public |
       | DuplicatePriv | 3    | Nelson   | 24.5     | 34.6      | New Zealand | false     |
