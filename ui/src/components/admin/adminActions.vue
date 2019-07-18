@@ -39,11 +39,6 @@
                             </sign-up>
                         </b-collapse>
                     </b-card>
-                    <b-card
-                            header="Manage Destinations"
-                            style="margin-top: 10px">
-                        Some content
-                    </b-card>
                 </b-col>
             </b-row>
         </div>
