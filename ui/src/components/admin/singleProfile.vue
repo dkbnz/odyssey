@@ -8,7 +8,9 @@
                         <b-nav class="singleProfileNav" vertical>
                             <b-nav-item @click="goBack">Go Back</b-nav-item>
                             <b-navbar-brand @click="currentDisplay = 0" class="nav-bar-brand">
-                                <b-img :src="getProfilePictureThumbnail()" fluid rounded="circle" width="50%">
+                                <b-img :src="getProfilePictureThumbnail()"
+                                       onerror="this.src = '../../../static/default_profile_picture.png'"
+                                       fluid rounded="circle" width="50%">
                                 </b-img>
                                 {{editProfile.firstName}}
                             </b-navbar-brand>

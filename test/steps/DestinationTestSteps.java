@@ -268,6 +268,7 @@ public class DestinationTestSteps {
     private void searchDestinationsRequest(String query) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
+                .session(AUTHORIZED, LOGGED_IN_ID)
                 .uri(DESTINATION_URI + query);
         Result result = route(application, request);
         statusCode = result.status();
@@ -683,7 +684,12 @@ public class DestinationTestSteps {
                 .append(AND)
                 .append(COUNTRY)
                 .append(EQUALS)
-                .append(country);
+                .append(country)
+
+                .append(AND)
+                .append(IS_PUBLIC)
+                .append(EQUALS)
+                .append("1");
 
         return stringBuilder.toString();
     }
