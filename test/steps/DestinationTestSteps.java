@@ -15,11 +15,10 @@ import play.Application;
 import play.db.Database;
 
 import play.db.evolutions.Evolutions;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.DestinationRepository;
+import repositories.destinations.DestinationRepository;
 
 import java.io.IOException;
 import java.util.HashMap;

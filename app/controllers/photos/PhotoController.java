@@ -12,7 +12,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.DestinationRepository;
+import repositories.destinations.DestinationRepository;
 import repositories.photos.PersonalPhotoRepository;
 import repositories.ProfileRepository;
 import util.AuthenticationUtil;
