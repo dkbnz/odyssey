@@ -138,6 +138,8 @@ public class DestinationController extends Controller {
      */
     public Result fetch(Http.Request request) {
 
+        Profile loggedInUser = profileRepo.fetchSingleProfile(AuthenticationUtil.getLoggedInUserId(request));
+
         int pageNumber = 0;
         int pageSize = 50;
 
@@ -153,7 +155,6 @@ public class DestinationController extends Controller {
         ExpressionList<Destination> expressionList = Destination.find.query().where();
 
         if (queryString.get(OWNER) != null && queryString.get(OWNER)[0] != null) {
-            Profile loggedInUser = profileRepo.fetchSingleProfile(AuthenticationUtil.getLoggedInUserId(request));
             Profile destinationOwner = profileRepo.fetchSingleProfile(Integer.valueOf(queryString.get(OWNER)[0]));
 
             if (AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
@@ -161,8 +162,16 @@ public class DestinationController extends Controller {
             } else {
                 return forbidden();
             }
+
         } else {
-            // Owner is not specified.
+            expressionList
+            .disjunction()
+                .eq(IS_PUBLIC, true)
+                    .conjunction()
+                    .eq(IS_PUBLIC, false)
+                .eq(OWNER, loggedInUser)
+                .endJunction()
+            .endJunction();
         }
 
         if (queryString.get(NAME) != null && queryString.get(NAME)[0] != null) {
@@ -188,7 +197,7 @@ public class DestinationController extends Controller {
         }
 
         if (queryString.get(IS_PUBLIC) != null && queryString.get(IS_PUBLIC)[0] != null) {
-            expressionList.eq(IS_PUBLIC, queryComparator(queryString.get(IS_PUBLIC)[0]));
+            expressionList.eq(IS_PUBLIC, queryString.get(IS_PUBLIC)[0]);
         }
 
         // If page query is set, load said page. Otherwise, return the first page.
