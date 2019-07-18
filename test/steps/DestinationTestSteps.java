@@ -46,6 +46,11 @@ public class DestinationTestSteps {
      */
     private String responseBody;
 
+    /**
+     * The ID of the destination to be updated.
+     */
+    private String destinationId;
+
 
     /**
      * The destination endpoint uri.
