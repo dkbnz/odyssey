@@ -4,18 +4,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
-import io.ebean.Ebean;
+
 import io.ebean.ExpressionList;
 import models.Profile;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
-import models.trips.TripDestination;
+
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.DestinationRepository;
 import repositories.ProfileRepository;
+import repositories.TripDestinationRepository;
 import util.AuthenticationUtil;
 
 import javax.inject.Inject;
@@ -42,15 +43,18 @@ public class DestinationController extends Controller {
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private ProfileRepository profileRepo;
     private DestinationRepository destinationRepo;
+    private TripDestinationRepository tripDestinationRepo;
     private Config config;
 
     @Inject
     public DestinationController(
             ProfileRepository profileRepo,
             DestinationRepository destinationRepo,
+            TripDestinationRepository tripDestinationRepo,
             Config config) {
         this.profileRepo = profileRepo;
         this.destinationRepo = destinationRepo;
+        this.tripDestinationRepo = tripDestinationRepo;
         this.config = config;
     }
 
@@ -80,13 +84,7 @@ public class DestinationController extends Controller {
             return unauthorized();
         }
 
-        int tripCount = Ebean.find(TripDestination.class)
-                .select("trip")
-                .where()
-                .eq("destination", destination)
-                .setDistinct(true)
-                .findSet()
-                .size();
+        int tripCount = tripDestinationRepo.fetchTripsContainingDestination(destination).size();
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode returnJson = mapper.createObjectNode();
