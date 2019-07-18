@@ -378,10 +378,6 @@ public class TripController extends Controller {
         return ok(Json.toJson(trips));
     }
 
-    public Result fetchTripByDestination(Http.Request request, Long destinationId) {
-        List<Trip> trips = repository.fetchAllTrips(destinationId);
-        return ok(Json.toJson(trips));
-    }
 
 
     /**
