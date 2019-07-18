@@ -12,7 +12,7 @@ create table destination (
   longitude                     double not null,
   country                       varchar(255),
   owner_id                      bigint,
-  is_public                     tinyint(1),
+  is_public                     boolean,
   constraint pk_destination primary key (id)
 );
 
@@ -174,11 +174,11 @@ alter table trip_destination add constraint fk_trip_destination_destination_id f
 alter table destination drop constraint if exists fk_destination_type_id;
 drop index if exists ix_destination_type_id;
 
-alter table destination drop foreign key fk_destination_owner_id;
-drop index ix_destination_owner_id on destination;
+alter table destination drop constraint if exists fk_destination_owner_id;
+drop index if exists ix_destination_owner_id;
 
-alter table destination_personal_photo drop foreign key fk_destination_personal_photo_destination;
-drop index ix_destination_personal_photo_destination on destination_personal_photo;
+alter table destination_personal_photo drop constraint if exists fk_destination_personal_photo_destination;
+drop index if exists ix_destination_personal_photo_destination;
 
 alter table destination_personal_photo drop constraint if exists fk_destination_personal_photo_personal_photo;
 drop index if exists ix_destination_personal_photo_personal_photo;
