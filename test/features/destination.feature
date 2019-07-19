@@ -167,10 +167,7 @@ Feature: Destination API Endpoint
   Scenario: Attempt to edit a private destination while not logged in
     Given I have a running application
     And I am not logged in
-    And a destination has been created with the following values
-      | Name       |
-      | Canterbury |
-    When I attempt to edit the destination using the following values
+    When I attempt to edit destination 10000 using the following values
       | Type | District | Latitude  | Longitude  | Country     |
       | 4    | Sydney   | 33.838306 | 151.002007 | Australia |
     Then the status code received is Unauthorised
@@ -189,10 +186,7 @@ Feature: Destination API Endpoint
   Scenario: Attempt to edit a private destination as another user
     Given I am running the application
     And I am logged in
-    And a destination has been created with the following values
-      | Name       |
-      | University |
-    When I attempt to edit the destination using the following values
+    When I attempt to edit destination 10000 using the following values
       | District | Country   |
       | Sydney   | Australia |
     Then the status code received is Forbidden
@@ -200,7 +194,7 @@ Feature: Destination API Endpoint
   Scenario: Attempt to edit a destination that does not exist
     Given I am running the application
     And I am logged in
-    When I attempt to edit the destination using the following values
+    When I attempt to edit destination -4 using the following values
       | District | Country |
       | Sydney | Australia |
     Then the status code received is Not Found
@@ -214,7 +208,7 @@ Feature: Destination API Endpoint
     When I attempt to edit the destination using the following values
       | Latitude  |
       | 100       |
-    Then the status code is BadRequest
+    Then the status code received is Bad Request
 
   Scenario: Attempt to edit a destination using an incorrect longitude value
     Given I am running the application
@@ -225,7 +219,7 @@ Feature: Destination API Endpoint
     When I attempt to edit the destination using the following values
       | Longitude |
       | 200       |
-    Then the status code is BadRequest
+    Then the status code received is Bad Request
 
   Scenario: Attempt to edit a destination using an incorrect field name
     Given I am running the application
@@ -236,7 +230,7 @@ Feature: Destination API Endpoint
     When I attempt to edit the destination using the following values
       | Typ | Ditsrict     |
       | 5   | Christchurch |
-    Then the status code received is BadRequest
+    Then the status code received is Bad Request
 
   Scenario: Attempt to delete a private destination as the owner when it is not used
     Given I am running the application
@@ -296,10 +290,12 @@ Feature: Destination API Endpoint
 
   Scenario: Attempt to delete a private destination as another user
     Given I am running the application
-    And I am logged in
+    And I am logged in as an admin user
     And a destination already exists for user 3 with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And I am not logged in
+    And I am logged in
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
@@ -307,10 +303,12 @@ Feature: Destination API Endpoint
 
   Scenario: Attempt to delete a public destination as another user
     Given I am running the application
-    And I am logged in
+    And I am logged in as an admin user
     And a destination already exists for user 3 with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    And I am not logged in
+    And I am logged in
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
