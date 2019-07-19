@@ -160,7 +160,7 @@ public class DestinationController extends Controller {
             expressionList.ilike(NAME, queryComparator(request.getQueryString(NAME)));
         }
         if (request.getQueryString(TYPE) != null && !request.getQueryString(TYPE).isEmpty()) {
-            expressionList.ilike(TYPE, request.getQueryString(TYPE));
+            expressionList.eq(TYPE, request.getQueryString(TYPE));
         }
         if (request.getQueryString(LATITUDE) != null && !request.getQueryString(LATITUDE).isEmpty()) {
             expressionList.eq(LATITUDE, Double.parseDouble(request.getQueryString(LATITUDE)));
