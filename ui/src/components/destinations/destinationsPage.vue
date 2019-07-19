@@ -26,7 +26,6 @@
                     <b-card>
                         <destination-sidebar
                                 :profile="profile"
-                                :destinationTypes="destinationTypes"
                                 @destination-click="destination => this.selectedDestination = destination"
                                 @data-changed="$emit('data-changed')"
                         ></destination-sidebar>
