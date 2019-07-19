@@ -254,7 +254,7 @@ public class DestinationTestSteps {
                 .method(POST)
                 .uri(LOGOUT_URI);
         route(application, request);
-        LOGGED_IN_ID = null;
+        loggedInId = null;
     }
 
 
@@ -297,7 +297,7 @@ public class DestinationTestSteps {
                 .method(PUT)
                 .bodyJson(json)
                 .uri(DESTINATION_URI + "/" + destinationId)
-                .session(AUTHORIZED, LOGGED_IN_ID);
+                .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -356,12 +356,12 @@ public class DestinationTestSteps {
     /**
      * Sends a logout request to the system
      *
-     * Asserts the value of LOGGED_IN_ID is null.
+     * Asserts the value of loggedInId is null.
      */
     @Given("I am not logged in")
     public void iAmNotLoggedIn() {
         logoutRequest();
-        assertNull(LOGGED_IN_ID);
+        assertNull(loggedInId);
     }
 
 
