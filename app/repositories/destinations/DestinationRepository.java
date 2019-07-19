@@ -1,4 +1,4 @@
-package repositories;
+package repositories.destinations;
 
 import models.Profile;
 import models.destinations.Destination;
