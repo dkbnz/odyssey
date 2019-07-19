@@ -28,7 +28,10 @@
                 <p class="mb-1">
                     Longitude: {{destination.longitude}}
                 </p>
-                <b-button @click="editDestination" variant="warning"  block>Edit</b-button>
+                <b-button @click="editDestination" variant="warning"
+                          v-if="destination.owner.id === profile.id" block>
+                    Edit
+                </b-button>
             </b-col>
             <b-col cols="9">
                 <destination-gallery

@@ -61,7 +61,6 @@ public class Destination extends BaseModel {
      */
     @Constraints.Required
     @ManyToOne
-    @JsonIgnore
     private Profile owner;
 
     /**
