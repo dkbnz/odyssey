@@ -189,9 +189,9 @@ Feature: Destination API Endpoint
   Scenario: Attempt to edit a private destination as another user
     Given I am running the application
     And I am logged in
-    And a destination already exists for user 1 with the following values
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And a destination has been created with the following values
+      | Name       |
+      | University |
     When I attempt to edit the destination using the following values
       | District | Country   |
       | Sydney   | Australia |
