@@ -63,12 +63,14 @@ public class DestinationController extends Controller {
     }
 
     /**
-     * Returns a Json object containing a count of trips that a specified destination is used in.
+     * Returns a Json object containing a count of trips that a specified destination is used in. As well as a list of
+     * each trips name and owner.
      *
      * @param request           Http request from the client containing authentication details
      * @param destinationId     the id of the destination to find the number of dependent trips for.
-     * @return                  ok()    (Http 200) response containing the number of trips a destination is used in,
-     *                          forbidden() (Http 403) if the user is not allowed to access this number.
+     * @return                  ok()    (Http 200) response containing the number of trips a destination is used in as
+     *                          well as the list of each trips name and its owner's name. Otherwise, returns forbidden()
+     *                          (Http 403) if the user is not allowed to access this number.
      */
     public Result getTripsByDestination(Http.Request request, Long destinationId) {
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
