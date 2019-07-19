@@ -11,6 +11,27 @@
             <b-button @click="dismissModal('editDestModal')" class="mr-2 float-right">Close</b-button>
         </b-modal>
 
+        <b-modal hide-footer id="deleteDestModal" ref="deleteDestModal" size="l" title="Delete Destination">
+            <p v-if="tripsUsedCount.count === 1">This destination is used by {{tripsUsedCount.count}} trip.<br>
+                Are you sure you want to delete it?
+            </p>
+            <p v-else>This destination is used by {{tripsUsedCount.count}} trips. <br>
+                Are you sure you want to delete it?
+            </p>
+            <b-row>
+                <b-col>
+                    <b-button @click="dismissModal('deleteDestModal')" class="mr-2 float-right" variant="success" block>
+                        No
+                    </b-button>
+                </b-col>
+                <b-col>
+                    <b-button @click="dismissModal('deleteDestModal')" class="mr-2 float-right" variant="danger" block>
+                        Yes
+                    </b-button>
+                </b-col>
+            </b-row>
+        </b-modal>
+
         <b-row>
             <b-col>
                 <p class="mb-1">
@@ -31,6 +52,10 @@
                 <b-button @click="editDestination" variant="warning"
                           v-if="destination.owner.id === profile.id" block>
                     Edit
+                </b-button>
+                <b-button @click="deleteDestination" variant="danger"
+                          v-if="destination.owner.id === profile.id" block>
+                    Delete
                 </b-button>
             </b-col>
             <b-col cols="9">
@@ -55,6 +80,7 @@
         data: function () {
             return {
                 copiedDestination: null,
+                tripsUsedCount: 0
             }
         },
 
@@ -83,6 +109,20 @@
             editDestination() {
                 this.copiedDestination = this.copyDestination();
                 this.$refs["editDestModal"].show();
+            },
+
+            deleteDestination() {
+                this.copiedDestination = this.copyDestination();
+                this.$refs["deleteDestModal"].show();
+                this.getTripsUsedBy();
+            },
+
+            getTripsUsedBy() {
+                fetch(`/v1/destinationCheck/` + this.copiedDestination.id, {
+                    accept: "application/json"
+                })
+                    .then(response => response.json())
+                    .then(response => this.tripsUsedCount = response);
             },
 
             /**

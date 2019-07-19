@@ -65,7 +65,8 @@ public class DestinationController extends Controller {
      *
      * @param request           Http request from the client containing authentication details
      * @param destinationId     the id of the destination to find the number of dependent trips for.
-     * @return  ok()    (Http 200) response containing the number of trips a destination is used in.
+     * @return                  ok()    (Http 200) response containing the number of trips a destination is used in,
+     *                          forbidden() (Http 403) if the user is not allowed to access this number.
      */
     public Result getTripsByDestination(Http.Request request, Long destinationId) {
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
@@ -83,7 +84,7 @@ public class DestinationController extends Controller {
         Profile destinationOwner = profileRepo.fetchSingleProfile(destinationOwnerId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
-            return unauthorized();
+            return forbidden();
         }
 
         int tripCount = tripDestinationRepo.fetchTripsContainingDestination(destination).size();
