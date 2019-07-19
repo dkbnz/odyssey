@@ -1,6 +1,7 @@
 package models.trips;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Finder;
 import models.BaseModel;
 import models.destinations.Destination;
@@ -35,7 +36,12 @@ public class TripDestination extends BaseModel {
      * The trip that the trip destination is part of.
      */
     @ManyToOne
+    @JsonIgnore
     private Trip trip;
+
+    public Trip getTrip() {
+        return trip;
+    }
 
     /**
      * The destination this trip destination is associated with.
