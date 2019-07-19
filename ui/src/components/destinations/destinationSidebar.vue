@@ -38,7 +38,24 @@
     import AddDestinations from "./addDestinations";
     export default {
         name: "destinationSidebar",
-        props: ['profile', 'destinationTypes'],
+        props: ['profile'],
+        data() {
+            return {
+                destinationTypes: []
+            }
+        },
+        mounted() {
+            this.getDestinationTypes(destinationT => this.destinationTypes = destinationT);
+        },
+        methods: {
+            getDestinationTypes(updateDestinationTypes) {
+                return fetch(`/v1/destinationTypes`, {
+                    accept: "application/json"
+                })
+                    .then(response => response.json())
+                    .then(updateDestinationTypes);
+            },
+        },
         components: {DestinationSearchList, AddDestinations}
     }
 </script>
