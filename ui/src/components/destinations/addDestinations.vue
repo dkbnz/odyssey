@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3 class="page-title">{{heading}} a Destination</h3>
+        <h4 class="page-title">{{heading}} a Destination</h4>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act

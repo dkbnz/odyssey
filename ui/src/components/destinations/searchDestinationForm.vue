@@ -1,6 +1,7 @@
 <template>
     <div>
-        <h3 class="page-title">Search Destinations</h3>
+        <h4 class="page-title" v-if="searchPublic">Search Public Destinations</h4>
+        <h4 class="page-title" v-else>Search Your Destinations</h4>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
         <div>
             <!--Input fields for searching for destinations-->
@@ -79,8 +80,9 @@
     import SingleDestination from "../destinations/singleDestination";
 
     export default {
-        name: "searchDestinations",
+        name: "searchDestinationForm.vue",
         props: {
+            searchPublic: Boolean,
             destinationTypes: Array,
             profile: Object,
             userProfile: {
