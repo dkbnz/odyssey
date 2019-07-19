@@ -101,7 +101,7 @@ export default {
                 "&latitude=" + destinationToSearch.latitude +
                 "&longitude=" + destinationToSearch.longitude +
                 "&country=" + destinationToSearch.country +
-                (this.searchPublic ? "&public=1" : "&owner=" + this.profile.id) +
+                (this.searchPublic ? "&is_public=1" : "&owner=" + this.profile.id) +
                 "&page=" + this.queryPage;
 
             return fetch(`/v1/destinations` + searchQuery, {
