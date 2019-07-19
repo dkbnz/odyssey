@@ -97,13 +97,13 @@ public class DestinationTestSteps {
     /**
      * Currently logged-in user
      */
-    private String LOGGED_IN_ID;
+    private String loggedInId;
 
 
     /**
      * Target user for destination changes
      */
-    private String TARGET_ID;
+    private String targetId;
 
 
     /**
@@ -254,8 +254,8 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(DESTINATION_URI + "/" + TARGET_ID)
-                .session(AUTHORIZED, LOGGED_IN_ID);
+                .uri(DESTINATION_URI + "/" + targetId)
+                .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -268,7 +268,7 @@ public class DestinationTestSteps {
     private void searchDestinationsRequest(String query) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, LOGGED_IN_ID)
+                .session(AUTHORIZED, loggedInId)
                 .uri(DESTINATION_URI + query);
         Result result = route(application, request);
         statusCode = result.status();
@@ -284,7 +284,7 @@ public class DestinationTestSteps {
     private void deleteDestinationRequest(Long destinationId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(DELETE)
-                .session(AUTHORIZED, LOGGED_IN_ID)
+                .session(AUTHORIZED, loggedInId)
                 .uri(DESTINATION_URI + "/" + destinationId);
         Result result = route(application, request);
         statusCode = result.status();
@@ -310,7 +310,7 @@ public class DestinationTestSteps {
     public void iAmLoggedIn() {
         loginRequest(REG_USERNAME, REG_AUTHPASS);
         assertEquals(OK, statusCode);
-        LOGGED_IN_ID = REG_ID;
+        loggedInId = REG_ID;
     }
 
     /**
@@ -323,7 +323,7 @@ public class DestinationTestSteps {
     public void iAmLoggedInAsAnAdminUser() {
         loginRequest(ADMIN_USERNAME, ADMIN_AUTHPASS);
         assertEquals(OK, statusCode);
-        LOGGED_IN_ID = ADMIN_ID;
+        loggedInId = ADMIN_ID;
     }
 
 
@@ -343,7 +343,7 @@ public class DestinationTestSteps {
      */
     @And("a destination already exists with the following values")
     public void aDestinationExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        TARGET_ID = LOGGED_IN_ID;
+        targetId = loggedInId;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToJsonNode(dataTable, i);
             createDestinationRequest(json);
@@ -353,7 +353,7 @@ public class DestinationTestSteps {
 
     @Given("a destination already exists for user {int} with the following values")
     public void aDestinationAlreadyExistsForUserWithTheFollowingValues(Integer userId, io.cucumber.datatable.DataTable dataTable) {
-        TARGET_ID = userId.toString();
+        targetId = userId.toString();
 
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToJsonNode(dataTable, i);
@@ -386,7 +386,7 @@ public class DestinationTestSteps {
                         .uri(DESTINATION_PHOTO_URI + destinationId)
                         .method(POST)
                         .bodyJson(json)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInId);
 
         Result addDestinationPhotoResult = route(application, request);
         statusCode = addDestinationPhotoResult.status();
@@ -417,10 +417,10 @@ public class DestinationTestSteps {
      */
     @When("I send a GET request to the destinations endpoint")
     public void iSendAGetRequestToTheDestinationsEndpoint() {
-        TARGET_ID = LOGGED_IN_ID;
+        targetId = loggedInId;
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, LOGGED_IN_ID)
+                .session(AUTHORIZED, loggedInId)
                 .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
@@ -433,7 +433,7 @@ public class DestinationTestSteps {
      */
     @When("I create a new destination with the following values")
     public void iCreateANewDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        TARGET_ID = LOGGED_IN_ID;
+        targetId = loggedInId;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToJsonNode(dataTable, i);
             createDestinationRequest(json);
@@ -443,7 +443,7 @@ public class DestinationTestSteps {
 
     @When("I create a new destination with the following values for another user")
     public void iCreateANewDestinationWithTheFollowingValuesForAnotherUser(io.cucumber.datatable.DataTable dataTable) {
-        TARGET_ID = LOGGED_IN_ID;
+        targetId = loggedInId;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToJsonNode(dataTable, i);
             createDestinationRequest(json);
@@ -538,7 +538,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri(DESTINATION_URI + "/" + userId)
-                .session(AUTHORIZED, LOGGED_IN_ID);
+                .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
 
@@ -554,6 +554,27 @@ public class DestinationTestSteps {
         // Send the delete request
         deleteDestinationRequest(destinationId);
     }
+
+
+    @When("I attempt to delete the destination with id {int}")
+    public void iAttemptToDeleteTheDestinationWithId(Integer destinationId) {
+        deleteDestinationRequest(destinationId.longValue());
+    }
+
+
+//    @When("I attempt to delete the destination with the following values while unauthorised")
+//    public void iAttemptToDeleteTheDestinationWithTheFollowingValuesWhileUnauthorised(io.cucumber.datatable.DataTable dataTable) throws IOException {
+//        // Get destination id from values given
+//        Long destinationId = getDestinationId(dataTable);
+//        Assert.assertNotNull(destinationId);
+//
+//        // Send the unauthorised delete request
+//        Http.RequestBuilder request = fakeRequest()
+//                .method(DELETE)
+//                .uri(DESTINATION_URI + "/" + destinationId);
+//        Result result = route(application, request);
+//        statusCode = result.status();
+//    }
 
 
     /**

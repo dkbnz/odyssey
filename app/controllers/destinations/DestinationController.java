@@ -140,15 +140,15 @@ public class DestinationController extends Controller {
             } else {
                 return forbidden();
             }
-        } else {
+        } else if (!loggedInUser.getIsAdmin()) {
             expressionList
-            .disjunction()
-                .eq(IS_PUBLIC, true)
-                    .conjunction()
-                    .eq(IS_PUBLIC, false)
-                .eq(OWNER, loggedInUser)
-                .endJunction()
-            .endJunction();
+                    .disjunction()
+                        .eq(IS_PUBLIC, true)
+                        .conjunction()
+                            .eq(IS_PUBLIC, false)
+                            .eq(OWNER, loggedInUser)
+                        .endJunction()
+                    .endJunction();
         }
 
         if (request.getQueryString(NAME) != null && !request.getQueryString(NAME).isEmpty()) {
