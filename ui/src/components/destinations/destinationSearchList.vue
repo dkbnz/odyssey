@@ -1,9 +1,9 @@
 <template>
     <div>
-        <div v-if="shownDiv === 0">
+        <div v-if="showSearch">
             <b-list-group>
                 <b-list-group-item class="flex-column align-items-start">
-                    <search-destinations v-if="shownDiv === 0"
+                    <search-destinations v-if="showSearch"
                                          :search-public="searchPublic"
                                          :profile="profile"
                                          :destinationTypes="destinationTypes"
@@ -12,11 +12,8 @@
                 </b-list-group-item>
             </b-list-group>
         </div>
-        <div class="d-flex justify-content-center mb-3" v-if="shownDiv === 1">
-            <b-spinner label="Loading..."></b-spinner>
-        </div>
-        <div v-if="shownDiv === 2">
-            <b-button variant="success" @click="shownDiv = 0" block>Search</b-button>
+        <div v-else>
+            <b-button variant="success" @click="showSearch = true" block>Search</b-button>
             <b-list-group class="scroll">
                 <b-list-group-item v-for="destination in (foundDestinations)" href="#" class="flex-column align-items-start" @click="$emit('destination-click', destination)">
                     <div class="d-flex w-100 justify-content-between">
@@ -37,13 +34,18 @@
 
                 </b-list-group-item>
                 <b-list-group-item href="#" class="flex-column justify-content-center">
-                    <div v-if="moreResults">
-                        <b-button variant="success" @click="getMore" block>More</b-button>
-                        <!--<b-spinner label="Loading..."></b-spinner>-->
+                    <div class="d-flex justify-content-center" v-if="loadingResults">
+                        <b-spinner label="Loading..."></b-spinner>
                     </div>
-                    <div v-else>
-                        <h5 class="mb-1">No More Results</h5>
+                    <div class="d-flex justify-content-center" v-else>
+                        <div v-if="moreResults">
+                            <b-button variant="success" @click="getMore" block>More</b-button>
+                        </div>
+                        <div v-else>
+                            <h5 class="mb-1">No More Results</h5>
+                        </div>
                     </div>
+
                 </b-list-group-item>
             </b-list-group>
         </div>
@@ -59,7 +61,8 @@ export default {
     data() {
        return {
            foundDestinations: [],
-           shownDiv: 0, //0 - Search, 1 - Loading, 2 - Listing
+           showSearch: true,
+           loadingResults: true,
            moreResults: true,
            destToSearch: {},
            queryPage: 0
@@ -79,13 +82,13 @@ export default {
          * Resets the data fields and performs the initial search query when a user clicks search
          */
        initialQuery(destinationToSearch) {
-           console.log("click!");
-           this.shownDiv = 1;
-           this.foundDestinations = [];
+           this.loadingResults = true;
+           this.showSearch = false;
            this.queryPage = 0;
+           this.foundDestinations = [];
            this.destToSearch = destinationToSearch;
            this.queryDestinations(this.destToSearch);
-           this.shownDiv = 2;
+           this.loadingResults = false;
        },
         /**
          * Runs a query which searches through the destinations in the database and returns all which
