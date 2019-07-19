@@ -709,6 +709,7 @@ public class DestinationTestSteps {
         String longitude = getValue(LONGITUDE, searchField, searchValue);
         String district = getValue(DISTRICT, searchField, searchValue);
         String country = getValue(COUNTRY, searchField, searchValue);
+        String publicity = getValue(IS_PUBLIC, searchField, searchValue);
 
 
         StringBuilder stringBuilder = new StringBuilder()
@@ -746,7 +747,7 @@ public class DestinationTestSteps {
                 .append(AND)
                 .append(IS_PUBLIC)
                 .append(EQUALS)
-                .append("1");
+                .append(publicity);
 
         return stringBuilder.toString();
     }
