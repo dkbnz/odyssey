@@ -18,7 +18,7 @@
                 <!--Dropdown field for destination types-->
                 <b-form-select id="type" trim v-model="searchType">
                     <template slot="first">
-                        <option :value="'Any'">-- Any --</option>
+                        <option value="">-- Any --</option>
                     </template>
                     <option :value="destination.id" v-for="destination in destinationTypes"
                             :state="destinationTypeValidation">
@@ -201,13 +201,15 @@
                     && this.validateFields(this.destinationLatitudeValidation)
                     && this.validateFields(this.destinationLongitudeValidation)
                     && this.validateFields(this.destinationCountryValidation)) {
-                    this.searchDestination = {
+                    this.$emit('searched-destination', {
                         name: this.searchName,
                         type: this.searchType,
                         district: this.searchDistrict,
+                        latitude: this.searchLatitude,
+                        longitude: this.searchLongitude,
                         country: this.searchCountry
-                    };
-                    this.queryDestinations();
+                    });
+                    //this.queryDestinations();
                 }
 
             },
@@ -238,18 +240,19 @@
                 }
                 let searchQuery =
                     "?name=" + this.searchName +
-                    "&type_id=" + searchTypeLocal +
+                    "&type_id=" + this.searchType +
                     "&district=" + this.searchDistrict +
                     "&latitude=" + this.searchLatitude +
                     "&longitude=" + this.searchLongitude +
                     "&country=" + this.searchCountry;
+
                 return fetch(`/v1/destinations` + searchQuery, {
                     dataType: 'html'
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
-                        this.$emit('searched-destinations', data)
+                        this.$emit('searched-destinations', data);
                         this.retrievingDestinations = false;
                     })
             },

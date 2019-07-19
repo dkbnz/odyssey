@@ -58,6 +58,10 @@ public class DestinationRepository {
     }
 
     public void delete(Destination destination) {
+        // Clear the destination photos
+        destination.clearPhotoGallery();
+        destination.update();
+        // Delete destination
         destination.delete();
     }
 }

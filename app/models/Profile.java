@@ -46,6 +46,7 @@ public class Profile extends BaseModel {
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Passport> passports = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(cascade=CascadeType.ALL, mappedBy = "profile")
     private List<Trip> trips = new ArrayList<>();
 

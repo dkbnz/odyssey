@@ -34,6 +34,7 @@ GET     /v1/destinationTypes            controllers.destinations.DestinationCont
 GET     /v1/destinations/:userId        controllers.destinations.DestinationController.fetchByUser(request: Request, userId: Long)
 PUT     /v1/destinations/:destId        controllers.destinations.DestinationController.edit(request: Request, destId: Long)
 GET     /v1/destinationCheck/:destinationId    controllers.destinations.DestinationController.getTripsByDestination(request: Request, destinationId: Long)
+DELETE  /v1/destinations/:destinationId controllers.destinations.DestinationController.destroy(request: Request, destinationId: Long)
 
 # Trips
 GET     /v1/trips/:userId               controllers.trips.TripController.fetchAll(userId: Long)

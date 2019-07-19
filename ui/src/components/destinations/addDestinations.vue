@@ -120,7 +120,6 @@
                             id: null,
                             destinationType: "",
                         },
-                        // type: "",
                         district: "",
                         latitude: null,
                         longitude: null,
