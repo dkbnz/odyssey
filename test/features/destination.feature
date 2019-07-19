@@ -281,9 +281,7 @@ Feature: Destination API Endpoint
   Scenario: Attempt to delete a destination that does not exist
     Given I am running the application
     And I am logged in
-    When I attempt to delete the destination with the following values
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    When I attempt to delete the destination with id 100
     Then the status code received is Not Found
 
   Scenario: Attempt to delete a private destination as another user
@@ -322,7 +320,5 @@ Feature: Destination API Endpoint
   Scenario: Attempt to delete a destination when not logged in
     Given I am running the application
     And I am not logged in
-    When I attempt to delete the destination with the following values
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    When I attempt to delete the destination with id 119
     Then the status code received is Unauthorised
