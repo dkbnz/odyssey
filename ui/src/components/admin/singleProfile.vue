@@ -17,7 +17,7 @@
                             <b-nav-item @click="currentDisplay = 1">Edit Profile</b-nav-item>
                             <b-nav-item @click="currentDisplay = 2">View Trips</b-nav-item>
                             <b-nav-item @click="currentDisplay = 3">Add Trips</b-nav-item>
-                            <b-nav-item @click="currentDisplay = 4">Add Destination Photos</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 4">Destinations</b-nav-item>
                         </b-nav>
                     </b-collapse>
                     <b-navbar-toggle target="nav-collapse-admin"></b-navbar-toggle>
@@ -27,6 +27,7 @@
 
             <b-col cols="10">
                 <view-profile
+                        :containerClass="'adminContainer'"
                         :adminView="adminView"
                         :destinations="destinations"
                         :nationalityOptions="nationalityOptions"
@@ -62,14 +63,14 @@
                         :subHeading="'Book your next trip!'"
                         v-if="currentDisplay === 3">
                 </plan-a-trip>
-                <search-destinations
-                        :containerClass="'adminContainer'"
+                <destinations-page
+                        :containerClass="'noBordersContainer'"
                         :destinationTypes="destinationTypes"
                         :adminView="adminView"
                         :destinations="destinations"
                         :profile="editProfile"
                         v-if="currentDisplay === 4">
-                </search-destinations>
+                </destinations-page>
             </b-col>
         </b-row>
     </div>
@@ -81,7 +82,7 @@
     import PlanATrip from './../trips/planATrip.vue'
     import YourTrips from './../trips/yourTrips.vue'
     import EditProfile from "./../dash/editProfile.vue"
-    import SearchDestinations from "./../destinations/searchDestinations.vue"
+    import DestinationsPage from "./../destinations/destinationsPage.vue"
 
     export default {
         name: "singleProfile",
@@ -137,7 +138,7 @@
             YourTrips,
             EditProfile,
             NavBarMain,
-            SearchDestinations
+            DestinationsPage
         }
     }
 </script>

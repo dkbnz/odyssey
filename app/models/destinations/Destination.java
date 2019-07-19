@@ -5,6 +5,7 @@ import io.ebean.Finder;
 import models.BaseModel;
 import models.Profile;
 import models.photos.PersonalPhoto;
+import models.trips.TripDestination;
 import play.data.validation.Constraints;
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -60,7 +61,6 @@ public class Destination extends BaseModel {
      */
     @Constraints.Required
     @ManyToOne
-    @JsonIgnore
     private Profile owner;
 
     /**
@@ -74,6 +74,13 @@ public class Destination extends BaseModel {
      */
     @Constraints.Required
     private Boolean isPublic;
+
+    /**
+     * List of trip destinations that the destination is associated with.
+     */
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "destination")
+    private List<TripDestination> tripDestination;
 
     public String getName() {
         return name;
@@ -129,6 +136,10 @@ public class Destination extends BaseModel {
 
     public boolean removePhotoFromGallery(PersonalPhoto photoToRemove) {
         return photoGallery.remove(photoToRemove);
+    }
+
+    public void clearPhotoGallery() {
+        photoGallery.clear();
     }
 
     public Profile getOwner() {

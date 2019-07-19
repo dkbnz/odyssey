@@ -145,15 +145,15 @@ public class DestinationController extends Controller {
             } else {
                 return forbidden();
             }
-        } else {
+        } else if (!loggedInUser.getIsAdmin()) {
             expressionList
-            .disjunction()
-                .eq(IS_PUBLIC, true)
-                    .conjunction()
-                    .eq(IS_PUBLIC, false)
-                .eq(OWNER, loggedInUser)
-                .endJunction()
-            .endJunction();
+                    .disjunction()
+                        .eq(IS_PUBLIC, true)
+                        .conjunction()
+                            .eq(IS_PUBLIC, false)
+                            .eq(OWNER, loggedInUser)
+                        .endJunction()
+                    .endJunction();
         }
 
         if (request.getQueryString(NAME) != null && !request.getQueryString(NAME).isEmpty()) {
@@ -370,14 +370,24 @@ public class DestinationController extends Controller {
     /**
      * Deletes a destination from the database using the given destination id number.
      *
-     * @param id    the id of the destination.
-     * @return      notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully deleted.
+     * @param destinationId     the id of the destination.
+     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully deleted.
      */
-    public Result destroy(Long id) {
-        Destination destination = Destination.find.byId(id.intValue());
+    public Result destroy(Http.Request request, Long destinationId) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        Destination destination = Destination.find.byId(destinationId.intValue());
 
         if (destination == null) {
             return notFound();
+        }
+
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        if (!AuthenticationUtil.validUser(loggedInUser, destination.getOwner())) {
+            return forbidden();
         }
 
         destinationRepo.delete(destination);
