@@ -403,13 +403,24 @@ public class DestinationController extends Controller {
      * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
      */
     public Result edit(Http.Request request, Long id) {
-        JsonNode json = request.body().asJson();
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
 
         Destination currentDestination = destinationRepo.fetch(id);
 
         if (currentDestination == null) {
             return notFound();
         }
+
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, currentDestination.getOwner())) {
+            return forbidden();
+        }
+
+        JsonNode json = request.body().asJson();
 
         Iterator<String> fieldIterator = json.fieldNames();
         while (fieldIterator.hasNext()) {
@@ -434,11 +445,22 @@ public class DestinationController extends Controller {
                     break;
 
                 case LATITUDE:
-                    currentDestination.setLatitude(json.get(LATITUDE).asLong());
+                    double latitude = json.get(LATITUDE).asDouble();
+                    if (latitude > LATITUDE_LIMIT || latitude < -LATITUDE_LIMIT) {
+                        return badRequest();
+                    } else {
+                        currentDestination.setLatitude(latitude);
+                    }
                     break;
 
                 case LONGITUDE:
-                    currentDestination.setLongitude(json.get(LONGITUDE).asLong());
+                    double longitude = json.get(LONGITUDE).asDouble();
+                    if (longitude > LONGITUDE_LIMIT || longitude < -LONGITUDE_LIMIT) {
+                        return badRequest();
+                    } else {
+                        currentDestination.setLatitude(longitude);
+                    }
+                    currentDestination.setLongitude(json.get(LONGITUDE).asDouble());
                     break;
 
                 case IS_PUBLIC:
