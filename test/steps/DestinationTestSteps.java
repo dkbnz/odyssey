@@ -822,6 +822,20 @@ public class DestinationTestSteps {
 
 
     /**
+     * Takes the information provided in by the cucumber feature, and sends a put request to edit the destination specified
+     * by `destinationId`.
+     * @param destinationId the destination to be edited.
+     * @param dataTable the information used to edit the destination.
+     */
+    @When("I attempt to edit destination {int} using the following values")
+    public void iAttemptToEditDestinationUsingTheFollowingValues(Integer destinationId, io.cucumber.datatable.DataTable dataTable) {
+        JsonNode editValues = convertDataTableToEditDestination(dataTable);
+        this.destinationId = destinationId.toString();
+        editDestinationRequest(editValues);
+    }
+
+
+    /**
      * Checks if the response body from the previous query contains at least one destination with a given name.
      * @param dataTable     The data table containing the name of the destination that should exist in the
      *                      response.
