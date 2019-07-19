@@ -138,6 +138,10 @@ public class Destination extends BaseModel {
         return photoGallery.remove(photoToRemove);
     }
 
+    public void clearPhotoGallery() {
+        photoGallery.clear();
+    }
+
     public Profile getOwner() {
         return this.owner;
     }
