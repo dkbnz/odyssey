@@ -16,7 +16,7 @@ TravelEA may be run on Windows or Linux/OSX. The build instructions for each ope
 ## Build instructions (Windows/Linux)
 1. Clone the repository by running `git clone https://eng-git.canterbury.ac.nz/seng302-2019/team-100.git`
 2. Enter the cloned git repository using `cd team-100`
-3. Run `sbt dist`.
+3. Run `sbt dist` (Note: internet must be enabled).
 4. Navigate to `team-100-sprint_*/target/universal`
 5. Extract the `seng302-team-100-everyware-0.0.1-SNAPSHOT.zip` into your desired install location.
 
@@ -28,7 +28,8 @@ TravelEA may be run on Windows or Linux/OSX. The build instructions for each ope
 
 #### Linux
 1. Navigate into the newly extracted `${INSTALL_LOCATION}/seng302-team-100-everyware-0.0.1-SNAPSHOT/bin` folder
-2. Execute the `seng302-team-100-everyware` file
+2. Open the folder in the terminal and type `chmod -x seng302-team-100-everyware`. This enables the file to be executable. 
+3. Double click the `seng302-team-100-everyware` file and click `Run in Terminal`.
 
 Congratulations, TravelEA should now be running!
 Your browser should open onto the TravelEA website, but if it does not navigate to `localhost:8080`.  
