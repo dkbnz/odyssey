@@ -381,44 +381,22 @@ public class DestinationTestSteps {
 
 
     /**
-     * Gets and returns the ID of the destination described by the name, district and country passed to the method.
-     * @param destinationName the name of the destination.
-     * @param destinationDistrict the district of the destination.
-     * @param destinationCountry the country of the destination.
-     * @return the id of the destination matching the given values.
-     */
-    private Long getDestinationIdFromFields(String destinationName, String destinationDistrict, String destinationCountry) {
-        return Destination
-                .find.query()
-                .select(DESTINATION_ID_FIELD)
-                .where().eq(DESTINATION_NAME_FIELD, destinationName)
-                .eq(DESTINATION_DISTRICT_FIELD, destinationDistrict)
-                .eq(DESTINATION_COUNTRY_FIELD, destinationCountry)
-                .findSingleAttribute();
-    }
-
-
-    /**
      * Creates one or many destinations under the ownership of the given user.
      * @param userId the user who will be in ownership of the destination(s).
      * @param dataTable the values of the destinations to be added.
      */
     @Given("a destination already exists for user {int} with the following values")
-    public void aDestinationAlreadyExistsForUserWithTheFollowingValues(Integer userId, io.cucumber.datatable.DataTable dataTable) {
+    public void aDestinationAlreadyExistsForUserWithTheFollowingValues(Integer userId, io.cucumber.datatable.DataTable dataTable) throws IOException {
         targetId = userId.toString();
 
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
 
-            // Set destinationId to the last added destination's ID. Does this through finding the ID
-            // through destination name.
-            String destName = json.get("name").asText();
-            String destDistrict = json.get("district").asText();
-            String destCountry = json.get("country").asText();
-            destinationId = getDestinationIdFromFields(destName, destDistrict, destCountry).toString();
+            destinationId = getDestinationId(dataTable).toString();
         }
     }
+
 
     /**
      * Queries the database for the destination described by the values in the dataTable.
@@ -631,21 +609,6 @@ public class DestinationTestSteps {
     public void iAttemptToDeleteTheDestinationWithId(Integer destinationId) {
         deleteDestinationRequest(destinationId.longValue());
     }
-
-
-//    @When("I attempt to delete the destination with the following values while unauthorised")
-//    public void iAttemptToDeleteTheDestinationWithTheFollowingValuesWhileUnauthorised(io.cucumber.datatable.DataTable dataTable) throws IOException {
-//        // Get destination id from values given
-//        Long destinationId = getDestinationId(dataTable);
-//        Assert.assertNotNull(destinationId);
-//
-//        // Send the unauthorised delete request
-//        Http.RequestBuilder request = fakeRequest()
-//                .method(DELETE)
-//                .uri(DESTINATION_URI + "/" + destinationId);
-//        Result result = route(application, request);
-//        statusCode = result.status();
-//    }
 
 
     /**
