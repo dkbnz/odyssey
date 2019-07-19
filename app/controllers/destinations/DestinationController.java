@@ -2,6 +2,7 @@ package controllers.destinations;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 
@@ -10,6 +11,8 @@ import models.Profile;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
 
+import models.trips.Trip;
+import models.trips.TripDestination;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -20,8 +23,7 @@ import repositories.TripDestinationRepository;
 import util.AuthenticationUtil;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static util.QueryUtil.queryComparator;
 
@@ -87,12 +89,30 @@ public class DestinationController extends Controller {
             return forbidden();
         }
 
-        int tripCount = tripDestinationRepo.fetchTripsContainingDestination(destination).size();
+        Set<TripDestination> tripDestinationSet =
+                new HashSet<>(tripDestinationRepo.fetchTripsContainingDestination(destination));
+        List<TripDestination> tripDestinationList = tripDestinationRepo.fetchTripsContainingDestination(destination);
+
+        List<Map> matchingTrips = new ArrayList<>();
+        for (TripDestination tripDestination: tripDestinationList) {
+            Trip tempTrip = Trip.find.byId(tripDestination.getTrip().getId().intValue());
+            Map<Object, Object> tripDetails = new HashMap<>();
+            tripDetails.put("tripId", tempTrip.getId());
+            tripDetails.put("tripName", tempTrip.getName());
+            tripDetails.put("userId", tempTrip.getProfile().getId());
+            tripDetails.put("firstName", tempTrip.getProfile().getFirstName());
+            tripDetails.put("lastName", tempTrip.getProfile().getLastName());
+            matchingTrips.add(tripDetails);
+        }
+
+        int tripCount = tripDestinationSet.size();
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode returnJson = mapper.createObjectNode();
+        ArrayNode matchTrips = mapper.valueToTree(matchingTrips);
 
         returnJson.put("count", tripCount);
+        returnJson.putArray("matchingTrips").addAll(matchTrips);
 
         return ok(returnJson);
     }

@@ -11,14 +11,31 @@
             <b-button @click="dismissModal('editDestModal')" class="mr-2 float-right">Close</b-button>
         </b-modal>
 
-        <b-modal hide-footer id="deleteDestModal" ref="deleteDestModal" size="l" title="Delete Destination">
-            <p v-if="tripsUsedCount.count === 1">This destination is used by {{tripsUsedCount.count}} trip.<br>
+        <b-modal id="deleteDestModal" ref="deleteDestModal" size="xl" title="Delete Destination">
+            <p v-if="tripsUsed.count === 1">This destination is used by {{tripsUsed.count}} trip.<br>
                 Are you sure you want to delete it?
             </p>
-            <p v-else>This destination is used by {{tripsUsedCount.count}} trips. <br>
+            <p v-else>This destination is used by {{tripsUsed.count}} trips. <br>
                 Are you sure you want to delete it?
             </p>
-            <b-row>
+            <b-list-group
+            style="overflow-y: scroll; height: 30vh;">
+                <b-list-group-item class="flex-column align-items-start"
+                                   v-for="trip in tripsUsed.matchingTrips">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Name: {{trip.tripName}}</h5>
+                    </div>
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Created by: {{trip.firstName}} {{trip.lastName}}</h5>
+                    </div>
+                </b-list-group-item>
+                <b-list-group-item v-if="tripsUsed.matchingTrips > 5">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">... and {{tripsUsed.count - 5}} more</h5>
+                    </div>
+                </b-list-group-item>
+            </b-list-group>
+            <template slot="modal-footer">
                 <b-col>
                     <b-button @click="dismissModal('deleteDestModal')" class="mr-2 float-right" variant="success" block>
                         No
@@ -29,7 +46,8 @@
                         Yes
                     </b-button>
                 </b-col>
-            </b-row>
+            </template>
+
         </b-modal>
 
         <b-row>
@@ -73,14 +91,15 @@
 <script>
     import DestinationGallery from "../photos/destinationGallery";
     import AddDestinations from "./addDestinations";
+    import YourTrips from "../trips/yourTrips";
 
     export default {
 
         name: "singleDestination",
         data: function () {
             return {
-                copiedDestination: null,
-                tripsUsedCount: 0
+                copiedDestination: "",
+                tripsUsed: ""
             }
         },
 
@@ -96,7 +115,8 @@
         },
         components: {
             AddDestinations,
-            DestinationGallery
+            DestinationGallery,
+            YourTrips
         },
         methods: {
             refreshDestination() {
@@ -122,7 +142,7 @@
                     accept: "application/json"
                 })
                     .then(response => response.json())
-                    .then(response => this.tripsUsedCount = response);
+                    .then(response => this.tripsUsed = response);
             },
 
             /**
