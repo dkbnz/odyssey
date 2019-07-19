@@ -4,6 +4,7 @@
             <b-list-group>
                 <b-list-group-item class="flex-column align-items-start">
                     <search-destinations v-if="shownDiv === 0"
+                                         :search-public="searchPublic"
                                          :profile="profile"
                                          :destinationTypes="destinationTypes"
                                          @searched-destination="initialQuery"
@@ -17,9 +18,14 @@
         <div v-if="shownDiv === 2">
             <b-button variant="success" @click="shownDiv = 0" block>Search</b-button>
             <b-list-group class="scroll">
-                <b-list-group-item v-for="destination in (publicDestinations)" href="#" class="flex-column align-items-start" @click="$emit('destination-click', destination)">
+                <b-list-group-item v-for="destination in (foundDestinations)" href="#" class="flex-column align-items-start" @click="$emit('destination-click', destination)">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">{{destination.name}}</h5>
+
+                        <div v-if="!searchPublic">
+                            <small v-if="destination.public">Public</small>
+                            <small v-else>Private</small>
+                        </div>
                     </div>
 
                     <p class="mb-1">
@@ -36,9 +42,7 @@
                         <!--<b-spinner label="Loading..."></b-spinner>-->
                     </div>
                     <div v-else>
-                        <p class="mb-1">
-                            No More Results
-                        </p>
+                        <h5 class="mb-1">No More Results</h5>
                     </div>
                 </b-list-group-item>
             </b-list-group>
@@ -47,14 +51,14 @@
 </template>
 
 <script>
-import SearchDestinations from "./searchDestinations";
+import SearchDestinations from "./searchDestinationForm";
 export default {
-   name: "publicDestinations",
+   name: "foundDestinations",
    components: {SearchDestinations},
-   props: ['profile', 'destinationTypes'],
+   props: ['profile', 'destinationTypes', 'searchPublic'],
     data() {
        return {
-           publicDestinations: [],
+           foundDestinations: [],
            shownDiv: 0, //0 - Search, 1 - Loading, 2 - Listing
            moreResults: true,
            destToSearch: {},
@@ -63,14 +67,22 @@ export default {
     },
     methods: {
 
+       /**
+        * Function to retrieve more destinations when a user reaches the bottom of the list.
+        */
        getMore() {
            this.queryPage += 1;
            this.queryDestinations(this.destToSearch);
        },
 
+        /**
+         * Resets the data fields and performs the initial search query when a user clicks search
+         */
        initialQuery(destinationToSearch) {
+           console.log("click!");
            this.shownDiv = 1;
-           this.publicDestinations = [];
+           this.foundDestinations = [];
+           this.queryPage = 0;
            this.destToSearch = destinationToSearch;
            this.queryDestinations(this.destToSearch);
            this.shownDiv = 2;
@@ -89,6 +101,7 @@ export default {
                 "&latitude=" + destinationToSearch.latitude +
                 "&longitude=" + destinationToSearch.longitude +
                 "&country=" + destinationToSearch.country +
+                (this.searchPublic ? "&public=1" : "&owner=" + this.profile.id) +
                 "&page=" + this.queryPage;
 
             return fetch(`/v1/destinations` + searchQuery, {
@@ -97,11 +110,11 @@ export default {
                 .then(this.checkStatus)
                 .then(this.parseJSON)
                 .then((data) => {
-                    if (data === undefined || data.length == 0) {
+                    if (data === undefined || data.length < 50) {
                         this.moreResults = false;
                     }
                     for (var i = 0; i < data.length; i++) {
-                        this.publicDestinations.push(data[i]);
+                        this.foundDestinations.push(data[i]);
                     }
                 })
         },

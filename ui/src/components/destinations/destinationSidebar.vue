@@ -2,19 +2,31 @@
     <div>
         <b-tabs content-class="mt-3">
             <b-tab title="Your Destinations" active>
-                <your-destinations
-                        :profile="profile"
-                        :destinationTypes="destinationTypes"
-                        @destination-click="destination => $emit('destination-click', destination)"
-                        @data-changed="$emit('data-changed')"
-                ></your-destinations>
-            </b-tab>
-            <b-tab title="Public Destinations">
-                <public-destinations
+                <destination-search-list
+                        :search-public="false"
                         :profile="profile"
                         :destinationTypes="destinationTypes"
                         @destination-click="destination => $emit('destination-click', destination)">
-                </public-destinations>
+                </destination-search-list>
+            </b-tab>
+            <b-tab title="Public Destinations">
+                <destination-search-list
+                        :search-public="true"
+                        :profile="profile"
+                        :destinationTypes="destinationTypes"
+                        @destination-click="destination => $emit('destination-click', destination)">
+                </destination-search-list>
+            </b-tab>
+            <b-tab title="Add">
+                <b-list-group>
+                    <b-list-group-item class="flex-column align-items-start">
+                        <add-destinations :profile="profile"
+                                          :destinationTypes="destinationTypes"
+                                          :heading="'Add'"
+                                          @data-changed="$emit('data-changed')">
+                        </add-destinations>
+                    </b-list-group-item>
+                </b-list-group>
             </b-tab>
         </b-tabs>
     </div>
@@ -22,12 +34,12 @@
 </template>
 
 <script>
-    import YourDestinations from "./yourDestinations";
-    import PublicDestinations from "./publicDestinations";
+    import DestinationSearchList from "./destinationSearchList";
+    import AddDestinations from "./addDestinations";
     export default {
         name: "destinationSidebar",
         props: ['profile', 'destinationTypes'],
-        components: {PublicDestinations, YourDestinations}
+        components: {DestinationSearchList, AddDestinations}
     }
 </script>
 

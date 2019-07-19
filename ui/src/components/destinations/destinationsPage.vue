@@ -42,7 +42,7 @@
 </template>
 
 <script>
-    import SearchDestinations from './searchDestinations.vue'
+    import SearchDestinations from './searchDestinationForm.vue'
     import AddDestinations from './addDestinations.vue'
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
