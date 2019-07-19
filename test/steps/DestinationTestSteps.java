@@ -787,12 +787,36 @@ public class DestinationTestSteps {
         int valueIndex = 0;
         List<Map<String, String>> valueList = dataTable.asMaps(String.class, String.class);
         Map<String, String> valueMap = valueList.get(valueIndex);
-
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode json = mapper.createObjectNode();
 
         for (Map.Entry<String, String> entry : valueMap.entrySet()) {
-            json.put(entry.getKey(), entry.getValue());
+            String key;
+            String value = entry.getValue();
+
+            switch (entry.getKey()) {
+                case TYPE_STRING:
+                    key = TYPE;
+                    break;
+                case DISTRICT_STRING:
+                    key = DISTRICT;
+                    break;
+                case LATITUDE_STRING:
+                    key = LATITUDE;
+                    break;
+                case LONGITUDE_STRING:
+                    key = LONGITUDE;
+                    break;
+                case COUNTRY_STRING:
+                    key = COUNTRY;
+                    break;
+                case IS_PUBLIC_STRING:
+                    key = IS_PUBLIC;
+                    break;
+                default:
+                    key = null;
+            }
+            json.put(key, value);
         }
 
         return json;
