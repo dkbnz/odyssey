@@ -290,10 +290,12 @@ Feature: Destination API Endpoint
 
   Scenario: Attempt to delete a private destination as another user
     Given I am running the application
-    And I am logged in
+    And I am logged in as an admin user
     And a destination already exists for user 3 with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And I am not logged in
+    And I am logged in
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
@@ -301,10 +303,12 @@ Feature: Destination API Endpoint
 
   Scenario: Attempt to delete a public destination as another user
     Given I am running the application
-    And I am logged in
+    And I am logged in as an admin user
     And a destination already exists for user 3 with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    And I am not logged in
+    And I am logged in
     When I attempt to delete the destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |

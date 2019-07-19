@@ -9,6 +9,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import cucumber.api.java.Before;
+import io.ebean.ExpressionList;
 import models.destinations.Destination;
 import org.junit.*;
 import play.Application;
@@ -31,6 +32,7 @@ import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
+import static util.QueryUtil.queryComparator;
 
 public class DestinationTestSteps {
 
@@ -97,14 +99,6 @@ public class DestinationTestSteps {
     private static final String REG_AUTHPASS = "guest123";
     private static final String REG_ID = "2";
 
-    /**
-     * Query parameters for selecting a specific destination.
-     */
-    private static final String DESTINATION_ID_FIELD ="id";
-    private static final String DESTINATION_NAME_FIELD = "name";
-    private static final String DESTINATION_DISTRICT_FIELD = "district";
-    private static final String DESTINATION_COUNTRY_FIELD = "country";
-
 
     /**
      * Currently logged-in user
@@ -134,7 +128,6 @@ public class DestinationTestSteps {
      */
     private static final String QUESTION_MARK = "?";
 
-    private static final String DESTINATION_ID = "id";
     private static final String DISTRICT_STRING = "District";
     private static final String LATITUDE_STRING = "Latitude";
     private static final String LONGITUDE_STRING = "Longitude";
@@ -393,7 +386,10 @@ public class DestinationTestSteps {
             JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
 
-            destinationId = getDestinationId(dataTable).toString();
+            // Saves the last created destination id
+            Long id = getDestinationId(dataTable);
+            Assert.assertNotNull(id);
+            destinationId = id.toString();
         }
     }
 
@@ -615,9 +611,8 @@ public class DestinationTestSteps {
      * Gets a destination id based on values in the data table.
      * @param dataTable         The data table containing values of a destination.
      * @return                  Destination id as a Long, or null if no destination exists.
-     * @throws IOException      Exception thrown when response body json tree is not formatted correctly.
      */
-    private Long getDestinationId(io.cucumber.datatable.DataTable dataTable) throws IOException {
+    private Long getDestinationId(io.cucumber.datatable.DataTable dataTable) {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         int index = 0;
         String name         = list.get(index).get(NAME_STRING);
@@ -628,56 +623,20 @@ public class DestinationTestSteps {
         String country      = list.get(index).get(COUNTRY_STRING);
         String publicity    = list.get(index).get(IS_PUBLIC_STRING);
 
-        // Replace whitespace with + in name, district, country
-        name        = name.replace(' ', '+');
-        district    = district.replace(' ', '+');
-        country     = country.replace(' ', '+');
+        // Build search query to find destination
+        ExpressionList<Destination> expressionList =
+                Destination.find.query().where()
+                .ilike(NAME, queryComparator(name))
+                .eq(TYPE, type)
+                .eq(LATITUDE, latitude)
+                .eq(LONGITUDE, longitude)
+                .ilike(DISTRICT, queryComparator(district))
+                .ilike(COUNTRY, queryComparator(country))
+                .eq(IS_PUBLIC, publicity);
 
+        Destination destination = expressionList.findOne();
 
-        StringBuilder stringBuilder = new StringBuilder()
-                .append(QUESTION_MARK)
-
-                .append(NAME)
-                .append(EQUALS)
-                .append(name)
-
-                .append(AND)
-                .append(TYPE)
-                .append(EQUALS)
-                .append(type)
-
-                .append(AND)
-                .append(LATITUDE)
-                .append(EQUALS)
-                .append(latitude)
-
-                .append(AND)
-                .append(LONGITUDE)
-                .append(EQUALS)
-                .append(longitude)
-
-                .append(AND)
-                .append(DISTRICT)
-                .append(EQUALS)
-                .append(district)
-
-                .append(AND)
-                .append(COUNTRY)
-                .append(EQUALS)
-                .append(country)
-
-                .append(AND)
-                .append(IS_PUBLIC)
-                .append(EQUALS)
-                .append(publicity);
-
-        String query = stringBuilder.toString();
-
-        searchDestinationsRequest(query);
-
-        JsonNode destination = new ObjectMapper().readTree(responseBody).get(0);
-
-        return destination == null ? null : destination.get(DESTINATION_ID).asLong();
+        return destination == null ? null : destination.getId();
     }
 
 
