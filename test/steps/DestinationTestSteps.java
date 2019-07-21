@@ -48,10 +48,11 @@ public class DestinationTestSteps {
      */
     private String responseBody;
 
+
     /**
      * The ID of the destination to be updated.
      */
-    private String destinationId;
+    private Long destinationId;
 
 
     /**
@@ -98,6 +99,14 @@ public class DestinationTestSteps {
     private static final String REG_USERNAME = "guestUser@travelea.com";
     private static final String REG_AUTHPASS = "guest123";
     private static final String REG_ID = "2";
+
+
+    /**
+     * Valid login credentials for an alternate user.
+     */
+    private static final String ALT_USERNAME = "testuser1@email.com";
+    private static final String ALT_AUTHPASS = "guest123";
+    private static final String ALT_ID = "3";
 
 
     /**
@@ -332,6 +341,20 @@ public class DestinationTestSteps {
         loggedInId = REG_ID;
     }
 
+
+    /**
+     * Attempts to send a log in request with user credentials from constants VALID_USERNAME
+     * and VALID_AUTHPASS.
+     *
+     * Asserts the login was successful with a status code of OK (200).
+     */
+    @Given("I am logged in as an alternate user")
+    public void iAmLoggedInAsAnAlternateUser() {
+        loginRequest(ALT_USERNAME, ALT_AUTHPASS);
+        assertEquals(OK, statusCode);
+        loggedInId = ALT_ID;
+    }
+
     /**
      * Attempts to send a log in request with user credentials from constants ADMIN_USERNAME
      * and ADMIN_AUTHPASS.
@@ -369,6 +392,10 @@ public class DestinationTestSteps {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
+
+            // Saves the last created destination id
+            Long id = getDestinationId(dataTable);
+            destinationId = id;
         }
     }
 
@@ -389,7 +416,7 @@ public class DestinationTestSteps {
             // Saves the last created destination id
             Long id = getDestinationId(dataTable);
             Assert.assertNotNull(id);
-            destinationId = id.toString();
+            destinationId = id;
         }
     }
 
@@ -407,14 +434,8 @@ public class DestinationTestSteps {
     }
 
 
-    @Given("a destination with the following values is used")
-    public void aDestinationWithTheFollowingValuesIsUsed(io.cucumber.datatable.DataTable dataTable) throws IOException {
-        // Get destination id from values given
-        Long destinationId = getDestinationId(dataTable);
-        assertNotNull(destinationId);
-
-        // Adding photo to the destination given
-        int photoId = 2;  // Photo id 2 is used as this is a personal photo for logged in user 2
+    @Given("the destination has a photo with id {int}")
+    public void theDestinationHasAPhotoWithId(Integer photoId) {
         addDestinationPhoto(photoId, destinationId);
     }
 
@@ -591,11 +612,8 @@ public class DestinationTestSteps {
     }
 
 
-    @When("I attempt to delete the destination with the following values")
-    public void iAttemptToDeleteTheDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) throws IOException {
-        // Get destination id from values given
-        Long destinationId = getDestinationId(dataTable);
-        Assert.assertNotNull(destinationId);
+    @When("I attempt to delete the destination")
+    public void iAttemptToDeleteTheDestination() {
         // Send the delete request
         deleteDestinationRequest(destinationId);
     }
@@ -604,6 +622,11 @@ public class DestinationTestSteps {
     @When("I attempt to delete the destination with id {int}")
     public void iAttemptToDeleteTheDestinationWithId(Integer destinationId) {
         deleteDestinationRequest(destinationId.longValue());
+    }
+
+    @When("I add a photo with id {int} to the destination")
+    public void iAddAPhotoWithIdToTheDestination(Integer photoId) {
+        addDestinationPhoto(photoId, destinationId);
     }
 
 
@@ -789,7 +812,7 @@ public class DestinationTestSteps {
     @When("I attempt to edit destination {int} using the following values")
     public void iAttemptToEditDestinationUsingTheFollowingValues(Integer destinationId, io.cucumber.datatable.DataTable dataTable) {
         JsonNode editValues = convertDataTableToEditDestination(dataTable);
-        this.destinationId = destinationId.toString();
+        this.destinationId = destinationId.longValue();
         editDestinationRequest(editValues);
     }
 
@@ -828,17 +851,18 @@ public class DestinationTestSteps {
 
     @Then("the response is empty")
     public void theResponseIsEmpty() throws IOException {
+        System.out.println(responseBody);
         JsonNode arrNode = new ObjectMapper().readTree(responseBody);
 
         Assert.assertEquals(0, arrNode.size());
     }
 
 
-    @Then("the response contains only public destinations")
-    public void theResponseContainsOnlyPublicDestinations() throws IOException {
+    @Then("the response contains only own or public destinations")
+    public void theResponseContainsOnlyOwnOrPublicDestinations() throws IOException {
         JsonNode arrNode = new ObjectMapper().readTree(responseBody);
         for (int i = 0 ; i < arrNode.size() ; i++) {
-            assertTrue(arrNode.get(i).get("public").asBoolean());
+            assertTrue(arrNode.get(i).get("public").asBoolean() || arrNode.get(i).get("owner").get("id").asText() == loggedInId);
         }
     }
 
@@ -853,6 +877,14 @@ public class DestinationTestSteps {
             ownerId = destinationRepo.fetch(arrNode.get(i).get("id").asLong()).getOwner().getId();  //Gets owner id of destination
             assertEquals(userId, ownerId);
         }
+    }
+
+    @Then("the owner is user {int}")
+    public void theOwnerIsUser(Integer userId) {
+        DestinationRepository destinationRepo = new DestinationRepository();
+        Destination destination = destinationRepo.fetch(destinationId);
+        Long expectedId = userId.longValue();
+        assertEquals(expectedId, destination.getOwner().getId());
     }
 
 
