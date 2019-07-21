@@ -492,7 +492,8 @@ INSERT INTO `personal_photo` (`id`, `photo_id`, `profile_id`, `is_public`) VALUE
 (2, 2, 2, true),
 (3, 3, 2, true),
 (4, 4, 1, true),
-(5, 5, 2, true);
+(5, 5, 2, true),
+(6, 3, 3, true);
 
 INSERT INTO `destination_personal_photo` (`destination_id`, `personal_photo_id`) VALUES
 (119, 3),
