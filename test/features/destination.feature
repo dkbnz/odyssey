@@ -352,6 +352,32 @@ Feature: Destination API Endpoint
     And I am logged in as an alternate user
     When I add a photo with id 2 to the destination
     Then the owner is user 1
+
+  Scenario: Retrieving destination usage for 1 trip
+    Given I am running the application
+    And I am logged in
+    And the following json containing a trip is sent:
+      """
+        {
+          "trip_name": "A Holiday Away",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : "1990-12-12",
+              "end_date" : "1991-12-12"
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    When I request the destination usage for destination with id 1155
+    Then the status code received is OK
+    And the trip count is 1
+    And the photo count is 0
 #
 #  Scenario: Merging two destinations which have photos
 #    Given I am running the application
