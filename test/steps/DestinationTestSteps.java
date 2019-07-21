@@ -816,6 +816,24 @@ public class DestinationTestSteps {
         editDestinationRequest(editValues);
     }
 
+    @When("I request the destination usage for destination with id {int}")
+    public void iRequestTheDestinationUsageForDestinationWithId(Integer destinationId) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+    @Then("the trip count is {int}")
+    public void theTripCountIs(Integer tripCountExpected) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+    @Then("the photo count is {int}")
+    public void thePhotoCountIs(Integer photoCountExpected) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
 
     /**
      * Checks if the response body from the previous query contains at least one destination with a given name.
