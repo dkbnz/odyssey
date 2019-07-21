@@ -488,7 +488,7 @@ public class DestinationController extends Controller {
                     break;
 
                 case IS_PUBLIC:
-                    currentDestination.setPublic(json.get(IS_PUBLIC).asBoolean());
+                    setPrivacy(currentDestination, json.get(IS_PUBLIC).asBoolean());
                     break;
 
                 default:
@@ -497,5 +497,44 @@ public class DestinationController extends Controller {
         }
         currentDestination.update();
         return ok("Destination updated");
+    }
+
+    /**
+     * Set the privacy of a destination.
+     *
+     * If the privacy is being changed (i.e current privacy != privacy to set),
+     * Then look for destinations that are similar and merge them into this one.
+     * This should only occur when changing private -> public. As program prevents
+     * private destinations being made when there is a public equivalent, there should
+     * be no destinations found when changing public -> private.
+     *
+     * Method does not authenticate.
+     *
+     * @param destinationToUpdate
+     * @param isPublic
+     */
+    private void setPrivacy(Destination destinationToUpdate, Boolean isPublic) {
+        if (destinationToUpdate.getPublic() == isPublic) return;
+
+        List<Destination> similarDestinations = destinationRepo.findEqual(destinationToUpdate);
+
+        if (!similarDestinations.isEmpty()) {
+            while (!similarDestinations.isEmpty()) {
+                Destination destinationToMerge = similarDestinations.iterator().next();
+                destinationToUpdate.consume(destinationToMerge);
+
+                // Update destination that has had attributes taken to prevent deletion of attributes via cascading
+                destinationRepo.update(destinationToMerge);
+                // Merged destination no longer needed, delete.
+                destinationRepo.delete(destinationToMerge);
+
+                similarDestinations.remove(destinationToMerge);
+            }
+            // Destination has been merged from other sources, change owner to admin.
+            destinationRepo.transferDestinationOwnership(destinationToUpdate);
+        }
+
+        destinationToUpdate.setPublic(isPublic);
+        destinationRepo.update(destinationToUpdate);
     }
 }
