@@ -18,7 +18,8 @@
                         <single-destination
                                 :destination="selectedDestination"
                                 :destination-types="destinationTypes"
-                                :profile="profile">
+                                :profile="profile"
+                                @destination-saved="refreshDestinations">
                         </single-destination>
                     </b-card>
                 </b-col>
@@ -27,6 +28,7 @@
                         <destination-sidebar
                                 :profile="profile"
                                 @destination-click="destination => this.selectedDestination = destination"
+                                :key="refreshDestinationData"
                                 @data-changed="$emit('data-changed')"
                         ></destination-sidebar>
                     </b-card>
@@ -81,7 +83,8 @@
             return {
                 searchDestinations: true,
                 addDestinations: false,
-                selectedDestination: {}
+                selectedDestination: {},
+                refreshDestinationData: 0
             }
         },
         methods: {
@@ -95,6 +98,11 @@
                     this.searchDestinations = !this.searchDestinations;
                     this.addDestinations = !this.addDestinations;
                 }
+            },
+
+            refreshDestinations(refreshedDestination) {
+                this.refreshDestinationData += 1;
+                this.selectedDestination = refreshedDestination;
             }
         }
     }

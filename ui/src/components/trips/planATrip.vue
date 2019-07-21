@@ -80,30 +80,34 @@
                         <b-form @reset="resetDestForm">
                             <b-container fluid>
                                 <b-row>
-
                                     <b-col>
                                         <h6 class="mb-1">Selected Destination:</h6>
-                                        <b-list-group >
-                                            <b-list-group-item href="#" class="flex-column align-items-start" label="Hello">
+                                        <b-list-group>
+                                            <b-list-group-item href="#" class="flex-column align-items-start"
+                                                               id="selectedDestination"
+                                                               :disabled="selectedDestination.length === '{}'">
                                                 <div class="d-flex w-100 justify-content-between">
-                                                    <h5 class="mb-1" v-if="selectedDestination.name">{{selectedDestination.name}}</h5>
+                                                    <h5 class="mb-1" v-if="selectedDestination.name">
+                                                        {{selectedDestination.name}}
+                                                    </h5>
                                                     <h5 class="mb-1" v-else>Select a Destination</h5>
 
                                                     <small>
                                                         <div class="d-flex justify-content-right">
-                                                            <b-button pill variant="primary"  @click="checkDestination" v-if="selectedDestination.name">+</b-button>
+                                                            <b-button variant="primary"
+                                                                      @click="checkDestination"
+                                                                      v-if="selectedDestination.name">Add to Trip
+                                                            </b-button>
                                                         </div>
                                                     </small>
                                                 </div>
 
-                                                <p class="mb-1">
+                                                <p>
                                                     {{selectedDestination.district}}
                                                 </p>
-                                                <p class="mb-1">
+                                                <p>
                                                     {{selectedDestination.country}}
                                                 </p>
-
-
                                             </b-list-group-item>
                                         </b-list-group>
                                     </b-col>
