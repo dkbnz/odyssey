@@ -66,16 +66,17 @@ public class DestinationController extends Controller {
     }
 
     /**
-     * Returns a Json object containing a count of trips that a specified destination is used in. As well as a list of
-     * each trips name and owner.
+     * Returns a Json object containing a count of trips that a specified destination is used in and how many photos
+     * that destination contains. As well as a list of each trips name and owner.
      *
      * @param request           Http request from the client containing authentication details
-     * @param destinationId     the id of the destination to find the number of dependent trips for.
-     * @return                  ok()    (Http 200) response containing the number of trips a destination is used in as
-     *                          well as the list of each trips name and its owner's name. Otherwise, returns forbidden()
+     * @param destinationId     the id of the destination to find the number of dependent trips for and photos.
+     * @return                  ok()    (Http 200) response containing the number of photos in a destination,
+     *                          trips a destination is used in as well as the list of each trips name and its owner's
+     *                          name. Otherwise, returns forbidden()
      *                          (Http 403) if the user is not allowed to access this number.
      */
-    public Result getTripsByDestination(Http.Request request, Long destinationId) {
+    public Result getDestinationUsage(Http.Request request, Long destinationId) {
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
@@ -94,8 +95,29 @@ public class DestinationController extends Controller {
             return forbidden();
         }
 
-        Set<TripDestination> tripDestinationSet =
-                new HashSet<>(tripDestinationRepo.fetchTripsContainingDestination(destination));
+        List<Map> matchingTrips = getTripsUsedByDestination(destination);
+
+        int photoCount = destination.getPhotoGallery().size();
+        int tripCount = matchingTrips.size();
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode returnJson = mapper.createObjectNode();
+        ArrayNode matchTrips = mapper.valueToTree(matchingTrips);
+
+        returnJson.put("tripCount", tripCount);
+        returnJson.put("photoCount", photoCount);
+        returnJson.putArray("matchingTrips").addAll(matchTrips);
+
+        return ok(returnJson);
+    }
+
+
+    /**
+     * Gets a list of all the trips that uses a particular destination
+     * @param destination destination you want to search for
+     * @return a list of all the associated trips
+     */
+    private List<Map> getTripsUsedByDestination(Destination destination) {
         List<TripDestination> tripDestinationList = tripDestinationRepo.fetchTripsContainingDestination(destination);
 
         List<Map> matchingTrips = new ArrayList<>();
@@ -109,17 +131,7 @@ public class DestinationController extends Controller {
             tripDetails.put("lastName", tempTrip.getProfile().getLastName());
             matchingTrips.add(tripDetails);
         }
-
-        int tripCount = tripDestinationSet.size();
-
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode returnJson = mapper.createObjectNode();
-        ArrayNode matchTrips = mapper.valueToTree(matchingTrips);
-
-        returnJson.put("count", tripCount);
-        returnJson.putArray("matchingTrips").addAll(matchTrips);
-
-        return ok(returnJson);
+        return matchingTrips;
     }
 
 
@@ -213,6 +225,7 @@ public class DestinationController extends Controller {
 
         return ok(Json.toJson(destinations));
     }
+
 
     /**
      * Fetches all destinations by user.
@@ -365,6 +378,7 @@ public class DestinationController extends Controller {
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
+
     /**
      * Creates a new destination object given a Json object.
      *
@@ -387,6 +401,7 @@ public class DestinationController extends Controller {
 
         return destination;
     }
+
 
     /**
      * Deletes a destination from the database using the given destination id number.
@@ -495,6 +510,7 @@ public class DestinationController extends Controller {
         currentDestination.update();
         return ok("Destination updated");
     }
+
 
     /**
      * Set the privacy of a destination.
