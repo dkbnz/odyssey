@@ -80,7 +80,7 @@ public class Destination extends BaseModel {
      */
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "destination")
-    private List<TripDestination> tripDestination;
+    private List<TripDestination> tripDestinations;
 
     public String getName() {
         return name;
@@ -198,5 +198,59 @@ public class Destination extends BaseModel {
                 this.country,
                 this.latitude,
                 this.longitude);
+    }
+
+    /**
+     * Used to merge destinations. Will extract desired attributes from a given destination
+     * Then add them to this destination.
+     *
+     * @param other     other destination to take attributes from.
+     */
+    public void consume(Destination other) {
+        if (!this.equals(other)) return;
+
+        // Take all TripDestinations
+        TripDestination tripDestinationToConsume = other.getTripDestination();
+        while(tripDestinationToConsume != null) {
+            this.addTripDestination(tripDestinationToConsume);
+            other.removeTripDestination(tripDestinationToConsume);
+            tripDestinationToConsume = other.getTripDestination();
+        }
+
+        // Take all PersonalPhotos
+        PersonalPhoto personalPhotoToConsume = other.getPhoto();
+        while(personalPhotoToConsume != null) {
+            this.addPhotoToGallery(personalPhotoToConsume);
+            other.removePhotoFromGallery(personalPhotoToConsume);
+            personalPhotoToConsume = other.getPhoto();
+        }
+    }
+
+    private boolean addTripDestination(TripDestination tripDestination) {
+        return tripDestinations.add(tripDestination);
+    }
+
+    private boolean removeTripDestination(TripDestination tripDestination) {
+        return tripDestinations.remove(tripDestination);
+    }
+
+    /**
+     * Returns a TripDestination associated to this Destination.
+     * No particular order is guaranteed.
+     *
+     * @return      next available TripDestination in the list or null if none exists
+     */
+    private TripDestination getTripDestination() {
+        return this.tripDestinations.iterator().next();
+    }
+
+    /**
+     * Returns a PersonalPhoto associated to this Destination.
+     * No particular order is guaranteed.
+     *
+     * @return      next available PersonalPhoto in the list or null if none exists
+     */
+    private PersonalPhoto getPhoto() {
+        return this.photoGallery.iterator().next();
     }
 }
