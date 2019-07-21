@@ -519,14 +519,17 @@ public class DestinationController extends Controller {
         List<Destination> similarDestinations = destinationRepo.findEqual(destinationToUpdate);
 
         if (!similarDestinations.isEmpty()) {
-            while (!similarDestinations.isEmpty()) {
+            while (similarDestinations.iterator().hasNext()) {
                 Destination destinationToMerge = similarDestinations.iterator().next();
                 destinationToUpdate.consume(destinationToMerge);
 
                 // Update destination that has had attributes taken to prevent deletion of attributes via cascading
                 destinationRepo.update(destinationToMerge);
+                System.out.println(destinationToMerge.getTripDestinations());
                 // Merged destination no longer needed, delete.
                 destinationRepo.delete(destinationToMerge);
+                System.out.println(destinationToMerge.getTripDestinations());
+
 
                 similarDestinations.remove(destinationToMerge);
             }
@@ -536,5 +539,6 @@ public class DestinationController extends Controller {
 
         destinationToUpdate.setPublic(isPublic);
         destinationRepo.update(destinationToUpdate);
+        System.out.println(destinationToUpdate.getTripDestinations());
     }
 }

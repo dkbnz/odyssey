@@ -55,7 +55,7 @@ public class DestinationRepository {
 
         destination.changeOwner(defaultAdmin);
 
-        destination.save();
+        update(destination);
     }
 
     public void delete(Destination destination) {
