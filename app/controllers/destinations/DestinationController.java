@@ -217,6 +217,7 @@ public class DestinationController extends Controller {
         return ok(Json.toJson(destinations));
     }
 
+
     /**
      * Fetches all destinations by user.
      *
@@ -368,6 +369,7 @@ public class DestinationController extends Controller {
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
 
+
     /**
      * Creates a new destination object given a Json object.
      *
@@ -390,6 +392,7 @@ public class DestinationController extends Controller {
 
         return destination;
     }
+
 
     /**
      * Deletes a destination from the database using the given destination id number.
@@ -498,6 +501,7 @@ public class DestinationController extends Controller {
         currentDestination.update();
         return ok("Destination updated");
     }
+
 
     /**
      * Set the privacy of a destination.
