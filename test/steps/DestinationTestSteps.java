@@ -624,11 +624,6 @@ public class DestinationTestSteps {
         deleteDestinationRequest(destinationId.longValue());
     }
 
-    @When("I add a photo with id {int} to the destination")
-    public void iAddAPhotoWithIdToTheDestination(Integer photoId) {
-        addDestinationPhoto(photoId, destinationId);
-    }
-
 
     /**
      * Gets a destination id based on values in the data table.

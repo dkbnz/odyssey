@@ -40,9 +40,6 @@ public class DestinationController extends Controller {
     public static final String IS_PUBLIC = "is_public";
     private static final String PAGE = "page";
 
-
-
-
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
 
@@ -504,7 +501,7 @@ public class DestinationController extends Controller {
      *
      * If the privacy is being changed (i.e current privacy != privacy to set),
      * Then look for destinations that are similar and merge them into this one.
-     * This should only occur when changing private -> public. As program prevents
+     * This should only occur when changing private -> public. Since the program prevents
      * private destinations being made when there is a public equivalent, there should
      * be no destinations found when changing public -> private.
      *
@@ -533,7 +530,6 @@ public class DestinationController extends Controller {
             // Destination has been merged from other sources, change owner to admin.
             destinationRepo.transferDestinationOwnership(destinationToUpdate);
         }
-
         destinationToUpdate.setPublic(isPublic);
         destinationRepo.update(destinationToUpdate);
     }
