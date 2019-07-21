@@ -1,4 +1,4 @@
-Feature: Having a profile system
+Feature: Profile API Endpoint
 
 
   Scenario: Get all profiles

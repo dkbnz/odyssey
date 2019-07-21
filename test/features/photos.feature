@@ -1,4 +1,4 @@
-Feature: CRUD of photos
+Feature: Photos API Endpoint
 
   Scenario: Successfully uploading a photo to my own profile
     Given I have a application running
