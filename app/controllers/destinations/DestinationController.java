@@ -482,7 +482,7 @@ public class DestinationController extends Controller {
                     if (longitude > LONGITUDE_LIMIT || longitude < -LONGITUDE_LIMIT) {
                         return badRequest();
                     } else {
-                        currentDestination.setLatitude(longitude);
+                        currentDestination.setLongitude(longitude);
                     }
                     currentDestination.setLongitude(json.get(LONGITUDE).asDouble());
                     break;

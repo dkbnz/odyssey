@@ -6,9 +6,9 @@
                     :profile="profile"
                     :heading="'Edit'"
                     :destination-types="destinationTypes"
-                    @destinationSaved="refreshDestination()">
+                    @destination-saved="destinationSaved">
             </add-destinations>
-            <b-button @click="dismissModal('editDestModal')" class="mr-2 float-right">Close</b-button>
+            <b-button @click="dismissModal('editDestModal')" class="mr-3 buttonMargins float-right">Close</b-button>
         </b-modal>
 
         <b-modal id="deleteDestModal" ref="deleteDestModal" size="xl" title="Delete Destination">
@@ -27,11 +27,6 @@
                     </div>
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">Created by: {{trip.firstName}} {{trip.lastName}}</h5>
-                    </div>
-                </b-list-group-item>
-                <b-list-group-item v-if="tripsUsed.matchingTrips > 5">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">... and {{tripsUsed.count - 5}} more</h5>
                     </div>
                 </b-list-group-item>
             </b-list-group>
@@ -53,32 +48,32 @@
         <b-row>
             <b-col>
                 <p class="mb-1">
-                    Type: {{destination.type.destinationType}}
+                    Type: {{viewDestination.type.destinationType}}
                 </p>
                 <p class="mb-1">
-                    District: {{destination.district}}
+                    District: {{viewDestination.district}}
                 </p>
                 <p class="mb-1">
-                    Country: {{destination.country}}
+                    Country: {{viewDestination.country}}
                 </p>
                 <p class="mb-1">
-                    Latitude: {{destination.latitude}}
+                    Latitude: {{viewDestination.latitude}}
                 </p>
                 <p class="mb-1">
-                    Longitude: {{destination.longitude}}
+                    Longitude: {{viewDestination.longitude}}
                 </p>
                 <b-button @click="editDestination" variant="warning"
-                          v-if="destination.owner.id === profile.id" block>
+                          v-if="viewDestination.owner.id === profile.id" block>
                     Edit
                 </b-button>
                 <b-button @click="deleteDestination" variant="danger"
-                          v-if="destination.owner.id === profile.id" block>
+                          v-if="viewDestination.owner.id === profile.id" block>
                     Delete
                 </b-button>
             </b-col>
             <b-col cols="9">
                 <destination-gallery
-                        :destination="destination"
+                        :destination="viewDestination"
                         :profile="profile"
                         :userProfile="userProfile">
                 </destination-gallery>
@@ -99,7 +94,10 @@
         data: function () {
             return {
                 copiedDestination: "",
-                tripsUsed: ""
+                tripsUsed: "",
+                dismissSecs: 3,
+                dismissCountDown: 0,
+                refreshDestination: null
             }
         },
 
@@ -113,13 +111,22 @@
                 }
             },
         },
+
         components: {
             AddDestinations,
             DestinationGallery,
             YourTrips
         },
+
+        computed: {
+            viewDestination() {
+                return this.destination;
+            }
+        },
+
         methods: {
-            refreshDestination() {
+            destinationSaved(savedDestination) {
+                this.$emit('destination-saved', savedDestination);
             },
 
             copyDestination() {
@@ -143,6 +150,22 @@
                 })
                     .then(response => response.json())
                     .then(response => this.tripsUsed = response);
+            },
+
+            /**
+             * Used to allow an alert to countdown on the successful saving of a destination.
+             *
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown
+            },
+
+            /**
+             * Displays the countdown alert on the successful saving of a destination.
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
             },
 
             /**
