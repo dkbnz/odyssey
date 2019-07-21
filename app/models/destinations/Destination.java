@@ -79,7 +79,7 @@ public class Destination extends BaseModel {
      * List of trip destinations that the destination is associated with.
      */
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "destination")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "destination")
     private List<TripDestination> tripDestinations;
 
     public String getName() {
@@ -214,16 +214,18 @@ public class Destination extends BaseModel {
         // Take all TripDestinations
         TripDestination tripDestinationToConsume = other.getTripDestination();
         while(tripDestinationToConsume != null) {
-            this.addTripDestination(tripDestinationToConsume);
             other.removeTripDestination(tripDestinationToConsume);
+            this.addTripDestination(tripDestinationToConsume);
+            tripDestinationToConsume.setDestination(this);
+            tripDestinationToConsume.update();
             tripDestinationToConsume = other.getTripDestination();
         }
 
         // Take all PersonalPhotos
         PersonalPhoto personalPhotoToConsume = other.getPhoto();
         while(personalPhotoToConsume != null) {
-            this.addPhotoToGallery(personalPhotoToConsume);
             other.removePhotoFromGallery(personalPhotoToConsume);
+            this.addPhotoToGallery(personalPhotoToConsume);
             personalPhotoToConsume = other.getPhoto();
         }
     }
@@ -246,6 +248,7 @@ public class Destination extends BaseModel {
         if (this.tripDestinations.iterator().hasNext()) {
             return this.tripDestinations.iterator().next();
         }
+        this.tripDestinations.clear();
         return null;
     }
 
@@ -260,5 +263,9 @@ public class Destination extends BaseModel {
             return this.photoGallery.iterator().next();
         }
         return null;
+    }
+
+    public List<TripDestination> getTripDestinations() {
+        return tripDestinations;
     }
 }
