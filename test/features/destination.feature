@@ -130,6 +130,8 @@ Feature: Destination API Endpoint
     And a destination already exists with the following values
       | Name | Type | District | Latitude | Longitude | Country     | is_public |
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand | false     |
+    And I am not logged in
+    And I am logged in as an alternate user
     When I search for a destination with name
       | Name |
       | ASB  |
@@ -147,19 +149,19 @@ Feature: Destination API Endpoint
       | Styles   | 3    | Bally    | 24.5     | 34.6      | New Zealand | true      |
     When I search for all destinations
     Then the status code received is OK
-    And the response contains only public destinations
+    And the response contains only own or public destinations
 
   Scenario: Search for destinations by owner
     Given I have a running application
     And I am logged in as an admin user
     And a destination already exists with the following values
-      | Name     | Type | District | Latitude | Longitude | Country     |
-      | ASB      | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-      | Phloomis | 5    | Nelson   | 24.5     | 34.6      | New Zealand |
-      | Styles   | 3    | Bally    | 24.5     | 34.6      | New Zealand |
+      | Name      | Type | District | Latitude | Longitude | Country     | is_public |
+      | ASB       | 3    | Nelson   | 24.5     | 34.6      | New Zealand | true      |
+      | Phloomis  | 5    | Nelson   | 24.5     | 34.6      | New Zealand | true      |
+      | Styles    | 3    | Bally    | 24.5     | 34.6      | New Zealand | true      |
     And a destination already exists for user 2 with the following values
-      | Name | Type | District | Latitude | Longitude | Country     |
-      | Big  | 4    | Gore     | 24.5     | 34.6      | New Zealand |
+      | Name      | Type | District | Latitude | Longitude | Country     | is_public |
+      | Big       | 4    | Gore     | 24.5     | 34.6      | New Zealand | true      |
     When I search for all destinations by user 2
     Then the status code received is OK
     And the response contains only destinations owned by the user with id 2
@@ -168,8 +170,8 @@ Feature: Destination API Endpoint
     Given I have a running application
     And I am not logged in
     When I attempt to edit destination 10000 using the following values
-      | Type | District | Latitude  | Longitude  | Country     |
-      | 4    | Sydney   | 33.838306 | 151.002007 | Australia |
+      | Type | District | Latitude  | Longitude  | Country      |
+      | 4    | Sydney   | 33.838306 | 151.002007 | Australia    |
     Then the status code received is Unauthorised
 
   Scenario: Attempt to edit a private destination as the owner
@@ -238,9 +240,7 @@ Feature: Destination API Endpoint
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    When I attempt to delete the destination with the following values
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    When I attempt to delete the destination
     Then the status code received is OK
 
   Scenario: Attempt to delete a private destination as the owner when it is used
@@ -249,12 +249,8 @@ Feature: Destination API Endpoint
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    And a destination with the following values is used
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    When I attempt to delete the destination with the following values
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And the destination has a photo with id 2
+    When I attempt to delete the destination
     Then the status code received is Bad Request
 
   Scenario: Attempt to delete a public destination as the owner when it is not used
@@ -263,9 +259,7 @@ Feature: Destination API Endpoint
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
-    When I attempt to delete the destination with the following values
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    When I attempt to delete the destination
     Then the status code received is OK
 
   Scenario: Attempt to delete a public destination as the owner when it is used
@@ -274,12 +268,8 @@ Feature: Destination API Endpoint
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
-    And a destination with the following values is used
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
-    When I attempt to delete the destination with the following values
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    And the destination has a photo with id 2
+    When I attempt to delete the destination
     Then the status code received is Bad Request
 
   Scenario: Attempt to delete a destination that does not exist
@@ -296,9 +286,7 @@ Feature: Destination API Endpoint
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
     And I am not logged in
     And I am logged in
-    When I attempt to delete the destination with the following values
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    When I attempt to delete the destination
     Then the status code received is Forbidden
 
   Scenario: Attempt to delete a public destination as another user
@@ -309,9 +297,7 @@ Feature: Destination API Endpoint
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
     And I am not logged in
     And I am logged in
-    When I attempt to delete the destination with the following values
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    When I attempt to delete the destination
     Then the status code received is Forbidden
 
   Scenario: Attempt to delete a private destination as an admin
@@ -320,9 +306,7 @@ Feature: Destination API Endpoint
     And a destination already exists for user 3 with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    When I attempt to delete the destination with the following values
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    When I attempt to delete the destination
     Then the status code received is OK
 
   Scenario: Attempt to delete a used public destination as an admin
@@ -331,9 +315,7 @@ Feature: Destination API Endpoint
     And a destination already exists for user 3 with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
-    When I attempt to delete the destination with the following values
-      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    When I attempt to delete the destination
     Then the status code received is OK
 
   Scenario: Attempt to delete a destination when not logged in
@@ -341,3 +323,47 @@ Feature: Destination API Endpoint
     And I am not logged in
     When I attempt to delete the destination with id 119
     Then the status code received is Unauthorised
+
+  Scenario: Previous owner uses a private destination
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    When I add a photo with id 2 to the destination
+    Then the owner is user 2
+
+  Scenario: Previous owner uses a public destination
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    When I add a photo with id 2 to the destination
+    Then the owner is user 2
+
+  Scenario: Another user uses a public destination
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    And I am not logged in
+    And I am logged in as an alternate user
+    When I add a photo with id 2 to the destination
+    Then the owner is user 1
+#
+#  Scenario: Merging two destinations which have photos
+#    Given I am running the application
+#    And I am logged in
+#    And a destination already exists with the following values
+#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+#    And the destination has a photo with id 1
+#    And I am not logged in
+#    And I am logged in as an alternate user
+#    And a destination already exists with the following values
+#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+#    And the destination has a photo with id 2
+
