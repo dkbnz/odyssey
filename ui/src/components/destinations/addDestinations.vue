@@ -153,7 +153,7 @@
                         latitude: null,
                         longitude: null,
                         country: "",
-                        public: true
+                        public: false
                     }
                 }
             },
@@ -267,6 +267,7 @@
                 this.inputDestination.latitude = null;
                 this.inputDestination.longitude = null;
                 this.inputDestination.country = "";
+                this.inputDestination.public = false;
             },
 
 
