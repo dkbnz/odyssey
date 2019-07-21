@@ -51,32 +51,32 @@
         <b-row>
             <b-col>
                 <p class="mb-1">
-                    Type: {{viewDestination.type.destinationType}}
+                    Type: {{destination.type.destinationType}}
                 </p>
                 <p class="mb-1">
-                    District: {{viewDestination.district}}
+                    District: {{destination.district}}
                 </p>
                 <p class="mb-1">
-                    Country: {{viewDestination.country}}
+                    Country: {{destination.country}}
                 </p>
                 <p class="mb-1">
-                    Latitude: {{viewDestination.latitude}}
+                    Latitude: {{destination.latitude}}
                 </p>
                 <p class="mb-1">
-                    Longitude: {{viewDestination.longitude}}
+                    Longitude: {{destination.longitude}}
                 </p>
                 <b-button @click="editDestination" variant="warning"
-                          v-if="viewDestination.owner.id === profile.id" block>
+                          v-if="destination.owner.id === profile.id" block>
                     Edit
                 </b-button>
                 <b-button @click="confirmDeleteDestination" variant="danger"
-                          v-if="viewDestination.owner.id === profile.id" block>
+                          v-if="destination.owner.id === profile.id" block>
                     Delete
                 </b-button>
             </b-col>
             <b-col cols="9">
                 <destination-gallery
-                        :destination="viewDestination"
+                        :destination="destination"
                         :profile="profile"
                         :userProfile="userProfile">
                 </destination-gallery>
@@ -120,32 +120,48 @@
             YourTrips
         },
 
-        computed: {
-            viewDestination() {
-                return this.destination;
-            }
-        },
-
         methods: {
+            /**
+             * Emits destination saved event to the destinations page, this is so data can be re-rendered.
+             * @param savedDestination      the that is saved and emitted to the parent component.
+             */
             destinationSaved(savedDestination) {
                 this.$emit('destination-saved', savedDestination);
             },
 
+
+            /**
+             * Used to convert the destination object into a Json object.
+             */
             copyDestination() {
                 return JSON.parse(JSON.stringify(this.destination))
             },
 
+
+            /**
+             * Copies the selected destination and displays the edit destination modal.
+             */
             editDestination() {
                 this.copiedDestination = this.copyDestination();
                 this.$refs["editDestModal"].show();
             },
 
+
+            /**
+             * Copies the selected destination, displays the delete destination modal and retrieves all the trips that
+             * the destination is used in.
+             */
             confirmDeleteDestination() {
                 this.copiedDestination = this.copyDestination();
                 this.$refs["deleteDestModal"].show();
                 this.getTripsUsedBy();
             },
 
+
+            /**
+             * Send the Http request to delete the specified destination. If successfully deleted, the delete modal is
+             * hidden and the list of destinations refreshed. Otherwise, an error is shown.
+             */
             deleteDestination() {
                 let self = this;
                 fetch(`/v1/destinations/` + this.copiedDestination.id, {
@@ -161,6 +177,10 @@
                     });
             },
 
+
+            /**
+             * Sends an Http request to check which trips a destination is used in.
+             */
             getTripsUsedBy() {
                 fetch(`/v1/destinationCheck/` + this.copiedDestination.id, {
                     accept: "application/json"
