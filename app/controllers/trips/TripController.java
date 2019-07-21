@@ -381,7 +381,6 @@ public class TripController extends Controller {
     }
 
 
-
     /**
      * Deletes a trip from the user currently logged in.
      *
