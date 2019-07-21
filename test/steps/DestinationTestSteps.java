@@ -760,7 +760,7 @@ public class DestinationTestSteps {
                     key = IS_PUBLIC;
                     break;
                 default:
-                    key = null;
+                    key = entry.getKey();
             }
             json.put(key, value);
         }
