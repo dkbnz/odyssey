@@ -385,7 +385,7 @@ Feature: Destination API Endpoint
 
   Scenario: Retrieving destination usage for 1 trip
     Given I am running the application
-    And I am logged in
+    And I am logged in as an admin user
     And the following json containing a trip is sent:
       """
         {
@@ -407,7 +407,56 @@ Feature: Destination API Endpoint
     When I request the destination usage for destination with id 1155
     Then the status code received is OK
     And the trip count is 1
+    And the number of trips received is 1
     And the photo count is 0
+
+  Scenario: Retrieving destination usage for 1 photo
+    Given I am running the application
+    And I am logged in as an admin user
+    And a photo exists with id 1
+    When I add a photo with id 1 to an existing destination with id 1155
+    And I request the destination usage for destination with id 1155
+    Then the status code received is OK
+    And the trip count is 0
+    And the number of trips received is 0
+    And the photo count is 1
+
+  Scenario: Retrieving destination usage for 0 photos and 0 trips
+    Given I am running the application
+    And I am logged in as an admin user
+    When I request the destination usage for destination with id 1155
+    Then the status code received is OK
+    And the trip count is 0
+    And the number of trips received is 0
+    And the photo count is 0
+
+  Scenario: Retrieving destination usage for 1 photo and 1 trip
+    Given I am running the application
+    And I am logged in as an admin user
+    And the following json containing a trip is sent:
+      """
+        {
+          "trip_name": "A Holiday Away",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : "1990-12-12",
+              "end_date" : "1991-12-12"
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    When I add a photo with id 1 to an existing destination with id 1155
+    And I request the destination usage for destination with id 1155
+    Then the status code received is OK
+    And the trip count is 1
+    And the number of trips received is 1
+    And the photo count is 1
 #
 #  Scenario: Merging two destinations which have photos
 #    Given I am running the application
