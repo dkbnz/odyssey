@@ -432,7 +432,11 @@ INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `lon
 (9293, 'Raincliff Historic Reserve', 39, 'Canterbury', -44.1625, 170.993056, 'New Zealand', 'true', 1),
 (9355, 'Ripapa Island Historic Reserve', 39, 'Canterbury', -43.620528, 172.754173, 'New Zealand', 'true', 1),
 (9376, 'Rotokahu Scenic Reserve', 79, 'Wellington', -39.154167, 175.188056, 'New Zealand', 'true', 1),
-(9486, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'true', 1);
+(9487, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 2),
+(9488, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 3),
+(9489, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 4),
+(9490, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 5),
+(9491, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 6),
 
 INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `longitude`, `country`, `owner_id`) VALUES
 (10000, 'Canterbury University', 3, 'Christchurch', -43.523434, 172.581681, 'New Zealand', 3);

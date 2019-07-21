@@ -204,6 +204,8 @@ public class Destination extends BaseModel {
      * Used to merge destinations. Will extract desired attributes from a given destination
      * Then add them to this destination.
      *
+     * Will only consume if the given Destination is equal.
+     *
      * @param other     other destination to take attributes from.
      */
     public void consume(Destination other) {

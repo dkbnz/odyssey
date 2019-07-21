@@ -1,5 +1,6 @@
 package repositories.destinations;
 
+import io.ebean.Ebean;
 import models.Profile;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
@@ -63,5 +64,24 @@ public class DestinationRepository {
         destination.update();
         // Delete destination
         destination.delete();
+    }
+
+    /**
+     * Returns a list of Destinations that are equal, excluding the given Destination
+     *
+     * @param destination   Destination to search with.
+     * @return              List of destinations that are equal.
+     */
+    public List<Destination> findEqual(Destination destination) {
+        return Ebean.find(Destination.class)
+                .where()
+                .eq("name", destination.getName())
+                .eq("type", destination.getType())
+                .eq("district", destination.getDistrict())
+                .eq("latitude", destination.getLatitude())
+                .eq("longitude", destination.getLongitude())
+                .eq("country", destination.getCountry())
+                .ne("id", destination.getId())
+                .findList();
     }
 }
