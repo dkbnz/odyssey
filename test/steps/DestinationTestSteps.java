@@ -11,6 +11,7 @@ import cucumber.api.java.en.When;
 import cucumber.api.java.Before;
 import io.ebean.ExpressionList;
 import models.destinations.Destination;
+import models.photos.PersonalPhoto;
 import org.junit.*;
 import play.Application;
 import play.db.Database;
@@ -22,9 +23,7 @@ import play.test.Helpers;
 import repositories.destinations.DestinationRepository;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static controllers.destinations.DestinationController.*;
 import static org.junit.Assert.*;
@@ -672,7 +671,8 @@ public class DestinationTestSteps {
                 .ilike(COUNTRY, queryComparator(country))
                 .eq(IS_PUBLIC, publicity);
 
-        Destination destination = expressionList.findOne();
+        List<Destination> destinations = expressionList.findList();
+        Destination destination = destinations.size() > 0 ? destinations.get(destinations.size() - 1) : null;
 
         return destination == null ? null : destination.getId();
     }
@@ -910,7 +910,6 @@ public class DestinationTestSteps {
 
     @Then("the response is empty")
     public void theResponseIsEmpty() throws IOException {
-        System.out.println(responseBody);
         JsonNode arrNode = new ObjectMapper().readTree(responseBody);
 
         Assert.assertEquals(0, arrNode.size());
@@ -938,12 +937,46 @@ public class DestinationTestSteps {
         }
     }
 
+
+    /**
+     * Tests that the owner of the destination is the specified user
+     * @param userId    id of the expected owner
+     */
     @Then("the owner is user {int}")
     public void theOwnerIsUser(Integer userId) {
         DestinationRepository destinationRepo = new DestinationRepository();
         Destination destination = destinationRepo.fetch(destinationId);
         Long expectedId = userId.longValue();
         assertEquals(expectedId, destination.getOwner().getId());
+    }
+
+
+    /**
+     * Tests that the destination's photos contain the given photos
+     * @param dataTable     ids of the photos expected
+     */
+    @Then("the destination will have photos with the following ids")
+    public void theDestinationWillHavePhotosWithTheFollowingIds(io.cucumber.datatable.DataTable dataTable) {
+        DestinationRepository destinationRepo = new DestinationRepository();
+        Destination destination = destinationRepo.fetch(destinationId);
+
+        List<String> photoIds = getPhotoIds(destination);
+        List<String> expectedIds = dataTable.asList();
+        expectedIds = expectedIds.subList(1, expectedIds.size());
+
+        Collections.sort(expectedIds);
+        Collections.sort(photoIds);
+
+        assertEquals(expectedIds, photoIds);
+    }
+
+    private List<String> getPhotoIds(Destination destination) {
+        List<String> photoIds = new ArrayList<String>();
+        for (PersonalPhoto photo : destination.getPhotoGallery()) {
+            photoIds.add(photo.getId().toString());
+        }
+
+        return photoIds;
     }
 
 

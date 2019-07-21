@@ -23,7 +23,8 @@
         <b-modal id="confirmEditModal" ref="confirmEditModal" size="l" title="Confirm Edit">
             <div>
                 Are you sure you want to edit this destination?
-                <div v-if="destinationConflicts.matchingTrips !== undefined && destinationConflicts.matchingTrips.length > 0">
+                <div v-if="destinationConflicts.matchingTrips !== undefined
+                        && destinationConflicts.matchingTrips.length > 0">
                     <p v-if="destinationConflicts.count === 1">
                         This would affect the following {{destinationConflicts.count}} trip:
                     </p>
@@ -53,7 +54,9 @@
                     </b-button>
                 </b-col>
                 <b-col>
-                    <b-button @click="editDestination" class="mr-2 float-right" block variant="success">Confirm</b-button>
+                    <b-button @click="editDestination" class="mr-2 float-right" block variant="success">
+                        Confirm
+                    </b-button>
                 </b-col>
             </template>
         </b-modal>
@@ -65,8 +68,10 @@
                         id="name-field"
                         label="Destination Name:"
                         label-for="name">
-                    <b-form-input id="name" @click="showError = false" v-model="inputDestination.name" type="text" required
-                                  :state="destinationNameValidation"></b-form-input>
+                    <b-form-input id="name" @click="showError = false" v-model="inputDestination.name" type="text"
+                                  required
+                                  :state="destinationNameValidation">
+                    </b-form-input>
                 </b-form-group>
                 <b-form-group
                         id="type-field"
@@ -83,8 +88,9 @@
                         id="district-field"
                         label="District:"
                         label-for="district">
-                    <b-form-input id="district" @click="showError = false" v-model="inputDestination.district" type="text" trim required
-                                  :state="destinationDistrictValidation"></b-form-input>
+                    <b-form-input id="district" @click="showError = false" v-model="inputDestination.district"
+                                  type="text" trim required :state="destinationDistrictValidation">
+                    </b-form-input>
                 </b-form-group>
 
                 <b-form-group
@@ -153,7 +159,7 @@
                         latitude: null,
                         longitude: null,
                         country: "",
-                        public: true
+                        public: false
                     }
                 }
             },
@@ -267,6 +273,7 @@
                 this.inputDestination.latitude = null;
                 this.inputDestination.longitude = null;
                 this.inputDestination.country = "";
+                this.inputDestination.public = false;
             },
 
 

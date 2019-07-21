@@ -371,7 +371,8 @@ Feature: Destination API Endpoint
     When I add a photo with id 2 to the destination
     Then the owner is user 2
 
-#  TODO: Hayden - in implementation
+  # Waiting for implementation
+  # TODO: Hayden
 #  Scenario: Another user uses a public destination
 #    Given I am running the application
 #    And I am logged in
@@ -382,6 +383,10 @@ Feature: Destination API Endpoint
 #    And I am logged in as an alternate user
 #    When I add a photo with id 2 to the destination
 #    Then the owner is user 1
+
+
+  # Waiting for implementation
+  # TODO: Hayden
 
   Scenario: Retrieving destination usage for 1 trip
     Given I am running the application
@@ -471,4 +476,10 @@ Feature: Destination API Endpoint
 #      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
 #      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
 #    And the destination has a photo with id 2
-
+#    When I attempt to edit the destination using the following values
+#      | is_public |
+#      | true      |
+#    Then the destination will have photos with the following ids
+#      | id    |
+#      | 1     |
+#      | 2     |
