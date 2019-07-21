@@ -342,8 +342,8 @@ public class DestinationTestSteps {
 
 
     /**
-     * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_AUTHPASS.
+     * Attempts to send a log in request with user credentials from constants ALT_USERNAME
+     * and ALT_AUTHPASS.
      *
      * Asserts the login was successful with a status code of OK (200).
      */

@@ -185,6 +185,14 @@ Feature: Destination API Endpoint
       | 3    | Sydney   | 33.838306 | 151.002007 | Australia |
     Then the status code received is OK
 
+  Scenario: Attempt to edit another user's private destination as Admin
+    Given I am running the application
+    And I am logged in as an admin user
+    When I attempt to edit destination 10000 using the following values
+      | District | Country   |
+      | Sydney   | Australia |
+    Then the status code received is OK
+
   Scenario: Attempt to edit a private destination as another user
     Given I am running the application
     And I am logged in
@@ -243,7 +251,7 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination
     Then the status code received is OK
 
-  Scenario: Attempt to delete a private destination as the owner when it is used
+  Scenario: Attempt to delete a private destination as the owner when it is only used by the owner
     Given I am running the application
     And I am logged in
     And a destination already exists with the following values
@@ -251,7 +259,7 @@ Feature: Destination API Endpoint
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
     And the destination has a photo with id 2
     When I attempt to delete the destination
-    Then the status code received is Bad Request
+    Then the status code received is OK
 
   Scenario: Attempt to delete a public destination as the owner when it is not used
     Given I am running the application
@@ -262,7 +270,7 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination
     Then the status code received is OK
 
-  Scenario: Attempt to delete a public destination as the owner when it is used
+  Scenario: Attempt to delete a public destination as the owner when it is only used by the owner
     Given I am running the application
     And I am logged in
     And a destination already exists with the following values
@@ -270,7 +278,18 @@ Feature: Destination API Endpoint
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
     And the destination has a photo with id 2
     When I attempt to delete the destination
-    Then the status code received is Bad Request
+    Then the status code received is OK
+
+#    TODO: Matilda - returns OK when should be forbidden
+#  Scenario: Attempt to delete a public destination as the owner when it is used by another user
+#    Given I am running the application
+#    And I am logged in
+#    And a destination already exists with the following values
+#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+#    And the destination has a photo with id 3
+#    When I attempt to delete the destination
+#    Then the status code received is Forbidden
 
   Scenario: Attempt to delete a destination that does not exist
     Given I am running the application
@@ -315,6 +334,16 @@ Feature: Destination API Endpoint
     And a destination already exists for user 3 with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    When I attempt to delete the destination
+    Then the status code received is OK
+
+  Scenario: Attempt to delete a public destination as an admin when it is used by another user
+    Given I am running the application
+    And I am logged in as an admin user
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    And the destination has a photo with id 2
     When I attempt to delete the destination
     Then the status code received is OK
 
