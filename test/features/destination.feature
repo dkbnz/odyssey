@@ -280,16 +280,19 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination
     Then the status code received is OK
 
-#    TODO: Matilda - returns OK when should be forbidden
-#  Scenario: Attempt to delete a public destination as the owner when it is used by another user
-#    Given I am running the application
-#    And I am logged in
-#    And a destination already exists with the following values
-#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
-#    And the destination has a photo with id 3
-#    When I attempt to delete the destination
-#    Then the status code received is Forbidden
+  Scenario: Attempt to delete a public destination as the owner when it is used by another user
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    And I am not logged in
+    And I am logged in as an alternate user
+    And the destination has a photo with id 6
+    And I am not logged in
+    And I am logged in
+    When I attempt to delete the destination
+    Then the status code received is Forbidden
 
   Scenario: Attempt to delete a destination that does not exist
     Given I am running the application
@@ -359,7 +362,7 @@ Feature: Destination API Endpoint
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    When I add a photo with id 2 to the destination
+    And the destination has a photo with id 2
     Then the owner is user 2
 
   Scenario: Previous owner uses a public destination
@@ -368,7 +371,7 @@ Feature: Destination API Endpoint
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
-    When I add a photo with id 2 to the destination
+    And the destination has a photo with id 2
     Then the owner is user 2
 
 #  TODO: Hayden - in implementation
@@ -396,4 +399,24 @@ Feature: Destination API Endpoint
 #      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
 #      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
 #    And the destination has a photo with id 2
+
+  Scenario: Transferring the ownership of a public destination to default admin when photo is added by another user
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    And I am not logged in
+    And I am logged in as an alternate user
+    And the destination has a photo with id 6
+    Then the owner is user 1
+
+  Scenario: The ownership is not changed when the owner adds a photo to their own un-used public destination
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    And the destination has a photo with id 3
+    Then the owner is user 2
 
