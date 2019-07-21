@@ -325,6 +325,17 @@ Feature: Destination API Endpoint
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
     Then the status code received is OK
 
+  Scenario: Attempt to delete a used public destination as an admin
+    Given I am running the application
+    And I am logged in as an admin user
+    And a destination already exists for user 3 with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    When I attempt to delete the destination with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    Then the status code received is OK
+
   Scenario: Attempt to delete a destination when not logged in
     Given I am running the application
     And I am not logged in
