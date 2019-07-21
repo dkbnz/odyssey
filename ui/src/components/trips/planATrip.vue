@@ -59,211 +59,236 @@
             </b-button>
         </b-modal>
 
-        <b-form>
+        <b-row>
+            <b-col cols="8">
+                <b-card>
+                    <b-form>
 
-            <b-container fluid>
-                <b-form-group
-                        id="trip_name-field"
-                        label="Trip Name:"
-                        label-for="trip_name">
-                    <b-form-input :type="'text'"
-                                  id="trip_name"
-                                  trim
-                                  v-model="inputTrip.name"></b-form-input>
-                </b-form-group>
-            </b-container>
-
-            <!-- Form for adding a destination. Reset on destination add -->
-            <b-form @reset="resetDestForm">
-                <b-container fluid>
-                    <b-row>
-
-                        <b-col>
+                        <b-container fluid>
                             <b-form-group
-                                    id="destination-field"
-                                    label="Add a Destination:"
-                                    label-for="destination">
-                                <b-form-select :type="'text'"
-                                               id="destination"
-                                               trim
-                                               v-model="tripDestination">
-                                    <option :value="destination"
-                                            v-for="destination in destinationsList">
-                                        {{destination.name}}
-                                    </option>
-                                </b-form-select>
-                            </b-form-group>
-                        </b-col>
-
-                        <b-col>
-                            <b-form-group
-                                    id="inDate-field"
-                                    label="In Date (optional):"
-                                    label-for="inDate">
-                                <b-form-input :type="'date'"
-                                              id="inDate"
-                                              max='9999-12-31'
+                                    id="trip_name-field"
+                                    label="Trip Name:"
+                                    label-for="trip_name">
+                                <b-form-input :type="'text'"
+                                              id="trip_name"
                                               trim
-                                              v-model="inDate"></b-form-input>
+                                              v-model="inputTrip.name"></b-form-input>
                             </b-form-group>
-                        </b-col>
+                        </b-container>
 
-                        <b-col>
-                            <b-form-group
-                                    id="outDate-field"
-                                    label="Out Date (optional):"
-                                    label-for="outDate">
-                                <b-form-input :type="'date'"
-                                              id="outDate"
-                                              max='9999-12-31'
-                                              trim
-                                              v-model="outDate"></b-form-input>
-                            </b-form-group>
-                        </b-col>
-                    </b-row>
+                        <!-- Form for adding a destination. Reset on destination add -->
+                        <b-form @reset="resetDestForm">
+                            <b-container fluid>
+                                <b-row>
 
-                    <b-button @click="checkDestination"
-                              class="mr-2 float-right"
-                              variant="primary">
-                        Add Destination
-                    </b-button>
+                                    <b-col>
+                                        <h6 class="mb-1">Selected Destination:</h6>
+                                        <b-list-group >
+                                            <b-list-group-item href="#" class="flex-column align-items-start" label="Hello">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                    <h5 class="mb-1" v-if="selectedDestination.name">{{selectedDestination.name}}</h5>
+                                                    <h5 class="mb-1" v-else>Select a Destination</h5>
 
-                </b-container>
-            </b-form>
-        </b-form>
+                                                    <small>
+                                                        <div class="d-flex justify-content-right">
+                                                            <b-button pill variant="primary"  @click="checkDestination" v-if="selectedDestination.name">+</b-button>
+                                                        </div>
+                                                    </small>
+                                                </div>
 
-        <b-container fluid style="margin-top: 50px">
-            <!-- Table displaying all added destinations -->
-            <b-table :current-page="currentPage" :fields="fields" :items="inputTrip.destinations"
-                     :per-page="perPage"
-                     hover
-                     id="myTrips"
-                     outlined
-                     ref="tripDestTable"
-                     striped>
+                                                <p class="mb-1">
+                                                    {{selectedDestination.district}}
+                                                </p>
+                                                <p class="mb-1">
+                                                    {{selectedDestination.country}}
+                                                </p>
 
-            <!-- Buttons that appear for each destination added to table -->
-            <template slot="actions" slot-scope="row">
-                <!--Opens edit modal-->
-                <b-button size="sm"
-                          v-b-modal.editModal
-                          @click="populateModal(row.item)"
-                          variant="success"
-                          class="mr-2"
-                          block>Edit
-                </b-button>
-                <!-- Shows additional details about the selected destination -->
-                <b-button size="sm"
-                          @click="row.toggleDetails"
-                          variant="warning"
-                          class="mr-2"
-                          block>
-                    {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
-                </b-button>
-                <!--Removes destination from table-->
-                <b-button size="sm"
-                          @click="deleteDestination(row.index)"
-                          variant="danger"
-                          class="mr-2"
-                          block>Delete
-                </b-button>
-            </template>
 
-                <!-- Buttons to shift destinations up/down in table -->
-                <template slot="order" slot-scope="row">
-                    <b-button :disabled="inputTrip.destinations.length === 1 || row.index === 0"
-                              @click="moveUp(row.index)"
-                              class="mr-2"
-                              size="sm"
-                              variant="success">&uarr;
-                    </b-button>
-                    <b-button :disabled="inputTrip.destinations.length === 1 ||
+                                            </b-list-group-item>
+                                        </b-list-group>
+                                    </b-col>
+
+                                    <b-col>
+                                        <b-form-group
+                                                id="inDate-field"
+                                                label="In Date (optional):"
+                                                label-for="inDate">
+                                            <b-form-input :type="'date'"
+                                                          id="inDate"
+                                                          max='9999-12-31'
+                                                          trim
+                                                          v-model="inDate"></b-form-input>
+                                        </b-form-group>
+                                        <b-form-group
+                                                id="outDate-field"
+                                                label="Out Date (optional):"
+                                                label-for="outDate">
+                                            <b-form-input :type="'date'"
+                                                          id="outDate"
+                                                          max='9999-12-31'
+                                                          trim
+                                                          v-model="outDate"></b-form-input>
+                                        </b-form-group>
+                                    </b-col>
+
+
+                                </b-row>
+
+                                <!--<b-button @click="checkDestination"-->
+                                          <!--class="mr-2 float-right"-->
+                                          <!--variant="primary">-->
+                                    <!--Add Destination-->
+                                <!--</b-button>-->
+
+                            </b-container>
+                        </b-form>
+                    </b-form>
+
+                    <b-container fluid style="margin-top: 20px">
+                        <!-- Table displaying all added destinations -->
+                        <b-table :current-page="currentPage" :fields="fields" :items="inputTrip.destinations"
+                                 :per-page="perPage"
+                                 hover
+                                 id="myTrips"
+                                 outlined
+                                 ref="tripDestTable"
+                                 striped>
+
+                            <!-- Buttons that appear for each destination added to table -->
+                            <template slot="actions" slot-scope="row">
+                                <!--Opens edit modal-->
+                                <b-button size="sm"
+                                          v-b-modal.editModal
+                                          @click="populateModal(row.item)"
+                                          variant="success"
+                                          class="mr-2"
+                                          block>Edit
+                                </b-button>
+                                <!-- Shows additional details about the selected destination -->
+                                <b-button size="sm"
+                                          @click="row.toggleDetails"
+                                          variant="warning"
+                                          class="mr-2"
+                                          block>
+                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+                                </b-button>
+                                <!--Removes destination from table-->
+                                <b-button size="sm"
+                                          @click="deleteDestination(row.index)"
+                                          variant="danger"
+                                          class="mr-2"
+                                          block>Delete
+                                </b-button>
+                            </template>
+
+                            <!-- Buttons to shift destinations up/down in table -->
+                            <template slot="order" slot-scope="row">
+                                <b-button :disabled="inputTrip.destinations.length === 1 || row.index === 0"
+                                          @click="moveUp(row.index)"
+                                          class="mr-2"
+                                          size="sm"
+                                          variant="success">&uarr;
+                                </b-button>
+                                <b-button :disabled="inputTrip.destinations.length === 1 ||
                            row.index === inputTrip.destinations.length-1"
-                              @click="moveDown(row.index)"
-                              class="mr-2"
-                              size="sm"
-                              variant="success">&darr;
-                    </b-button>
-                </template>
+                                          @click="moveDown(row.index)"
+                                          class="mr-2"
+                                          size="sm"
+                                          variant="success">&darr;
+                                </b-button>
+                            </template>
 
-                <!-- Additional details about selected destination, shown when 'Show Details' button is clicked -->
-                <template slot="row-details" slot-scope="row">
-                    <b-card>
-                        <b-row class="mb-2">
-                            <b-col class="text-sm-right" sm="3"><b>Type:</b></b-col>
-                            <b-col>{{ row.item.destination.type.destinationType }}</b-col>
+                            <!-- Additional details about selected destination, shown when 'Show Details' button is clicked -->
+                            <template slot="row-details" slot-scope="row">
+                                <b-card>
+                                    <b-row class="mb-2">
+                                        <b-col class="text-sm-right" sm="3"><b>Type:</b></b-col>
+                                        <b-col>{{ row.item.destination.type.destinationType }}</b-col>
+                                    </b-row>
+
+                                    <b-row class="mb-2">
+                                        <b-col class="text-sm-right" sm="3"><b>District:</b></b-col>
+                                        <b-col>{{ row.item.destination.district }}</b-col>
+                                    </b-row>
+
+                                    <b-row class="mb-2">
+                                        <b-col class="text-sm-right" sm="3"><b>Latitude:</b></b-col>
+                                        <b-col>{{ row.item.destination.latitude }}</b-col>
+                                    </b-row>
+
+                                    <b-row class="mb-2">
+                                        <b-col class="text-sm-right" sm="3"><b>Longitude:</b></b-col>
+                                        <b-col>{{ row.item.destination.longitude }}</b-col>
+                                    </b-row>
+
+                                    <b-row class="mb-2">
+                                        <b-col class="text-sm-right" sm="3"><b>Country:</b></b-col>
+                                        <b-col>{{ row.item.destination.country }}</b-col>
+                                    </b-row>
+                                </b-card>
+                            </template>
+
+                        </b-table>
+                        <!-- Determines pagination and number of results per row of the table -->
+                        <b-row>
+                            <b-col cols="1">
+                                <b-form-group
+                                        id="numItems-field"
+                                        label-for="perPage">
+                                    <b-form-select :options="optionViews"
+                                                   id="perPage"
+                                                   size="sm"
+                                                   trim v-model="perPage">
+                                    </b-form-select>
+                                </b-form-group>
+                            </b-col>
+                            <b-col cols="8">
+                                <b-pagination
+                                        :per-page="perPage"
+                                        :total-rows="rows"
+                                        align="center"
+                                        aria-controls="my-table"
+                                        first-text="First"
+                                        last-text="Last"
+                                        size="sm"
+                                        v-model="currentPage">
+                                </b-pagination>
+                            </b-col>
                         </b-row>
-
-                        <b-row class="mb-2">
-                            <b-col class="text-sm-right" sm="3"><b>District:</b></b-col>
-                            <b-col>{{ row.item.destination.district }}</b-col>
-                        </b-row>
-
-                        <b-row class="mb-2">
-                            <b-col class="text-sm-right" sm="3"><b>Latitude:</b></b-col>
-                            <b-col>{{ row.item.destination.latitude }}</b-col>
-                        </b-row>
-
-                        <b-row class="mb-2">
-                            <b-col class="text-sm-right" sm="3"><b>Longitude:</b></b-col>
-                            <b-col>{{ row.item.destination.longitude }}</b-col>
-                        </b-row>
-
-                        <b-row class="mb-2">
-                            <b-col class="text-sm-right" sm="3"><b>Country:</b></b-col>
-                            <b-col>{{ row.item.destination.country }}</b-col>
-                        </b-row>
-                    </b-card>
-                </template>
-
-            </b-table>
-            <!-- Determines pagination and number of results per row of the table -->
-            <b-row>
-                <b-col cols="1">
-                    <b-form-group
-                            id="numItems-field"
-                            label-for="perPage">
-                        <b-form-select :options="optionViews"
-                                       id="perPage"
-                                       size="sm"
-                                       trim v-model="perPage">
-                        </b-form-select>
-                    </b-form-group>
-                </b-col>
-                <b-col cols="8">
-                    <b-pagination
-                            :per-page="perPage"
-                            :total-rows="rows"
-                            align="center"
-                            aria-controls="my-table"
-                            first-text="First"
-                            last-text="Last"
-                            size="sm"
-                            v-model="currentPage">
-                    </b-pagination>
-                </b-col>
-            </b-row>
-            <b-button @click="validateTrip"
-                      block class="mr-2 float-right"
-                      variant="primary">
-                <b-spinner label="Spinning"
-                           small
-                           v-if="savingTrip"
-                           variant="dark">
-                    Saving...
-                </b-spinner>
-                Save Trip
-            </b-button>
-        </b-container>
-
+                        <b-button @click="validateTrip"
+                                  block class="mr-2 float-right"
+                                  variant="primary">
+                            <b-spinner label="Spinning"
+                                       small
+                                       v-if="savingTrip"
+                                       variant="dark">
+                                Saving...
+                            </b-spinner>
+                            Save Trip
+                        </b-button>
+                    </b-container>
+                </b-card>
+            </b-col>
+            <b-col>
+                <b-card>
+                    <destination-sidebar
+                            :profile="profile"
+                            @destination-click="destination => this.selectedDestination = destination"
+                            @data-changed="$emit('data-changed')"
+                    ></destination-sidebar>
+                </b-card>
+            </b-col>
+        </b-row>
 
     </div>
 </template>
 
 
 <script>
+    import DestinationSidebar from "../destinations/destinationSidebar";
     export default {
         name: "PlanATrip",
+        components: {DestinationSidebar},
         props: {
             profile: Object,
             inputTrip: {
@@ -319,8 +344,8 @@
                 ],
                 savingTrip: false,
                 letTripSaved: false,
-                destinationsList: []
-
+                destinationsList: [],
+                selectedDestination: {}
             }
         },
         computed: {
@@ -343,7 +368,7 @@
              * Then ensures the start date is before the end date.
              */
             checkDestination() {
-                if (this.tripDestination) {
+                if (this.selectedDestination) {
                     let startDate = new Date(this.inDate);
                     let endDate = new Date(this.outDate);
 
@@ -370,15 +395,15 @@
                 this.showError = false;
                 this.inputTrip.destinations.push({
                     destination: {
-                        id: this.tripDestination.id,
-                        name: this.tripDestination.name,
+                        id: this.selectedDestination.id,
+                        name: this.selectedDestination.name,
                         type: {
-                            destinationType: this.tripDestination.type.destinationType
+                            destinationType: this.selectedDestination.type.destinationType
                         },
-                        district: this.tripDestination.district,
-                        latitude: this.tripDestination.latitude,
-                        longitude: this.tripDestination.longitude,
-                        country: this.tripDestination.country
+                        district: this.selectedDestination.district,
+                        latitude: this.selectedDestination.latitude,
+                        longitude: this.selectedDestination.longitude,
+                        country: this.selectedDestination.country
                     },
                     startDate: this.inDate,
                     endDate: this.outDate

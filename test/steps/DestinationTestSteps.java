@@ -9,6 +9,8 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import cucumber.api.java.Before;
+import io.ebean.ExpressionList;
+import models.destinations.Destination;
 import org.junit.*;
 import play.Application;
 import play.db.Database;
@@ -17,7 +19,7 @@ import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.DestinationRepository;
+import repositories.destinations.DestinationRepository;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -25,13 +27,12 @@ import java.util.List;
 import java.util.Map;
 
 import static controllers.destinations.DestinationController.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
+import static util.QueryUtil.queryComparator;
 
 public class DestinationTestSteps {
 
@@ -46,6 +47,11 @@ public class DestinationTestSteps {
      * The Json body of the response.
      */
     private String responseBody;
+
+    /**
+     * The ID of the destination to be updated.
+     */
+    private String destinationId;
 
 
     /**
@@ -97,14 +103,13 @@ public class DestinationTestSteps {
     /**
      * Currently logged-in user
      */
-    private String LOGGED_IN_ID;
+    private String loggedInId;
 
 
     /**
      * Target user for destination changes
      */
-    private String TARGET_ID;
-
+    private String targetId;
 
     /**
      * String to add the equals character (=) to build a query string.
@@ -123,7 +128,6 @@ public class DestinationTestSteps {
      */
     private static final String QUESTION_MARK = "?";
 
-    private static final String DESTINATION_ID = "id";
     private static final String DISTRICT_STRING = "District";
     private static final String LATITUDE_STRING = "Latitude";
     private static final String LONGITUDE_STRING = "Longitude";
@@ -239,10 +243,11 @@ public class DestinationTestSteps {
      * Sends a fake request to the application to logout.
      */
     private void logoutRequest() {
-                Http.RequestBuilder request = fakeRequest()
+        Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .uri(LOGOUT_URI);
         route(application, request);
+        loggedInId = null;
     }
 
 
@@ -254,8 +259,8 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(DESTINATION_URI + "/" + TARGET_ID)
-                .session(AUTHORIZED, LOGGED_IN_ID);
+                .uri(DESTINATION_URI + "/" + targetId)
+                .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
     }
@@ -268,12 +273,26 @@ public class DestinationTestSteps {
     private void searchDestinationsRequest(String query) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, LOGGED_IN_ID)
+                .session(AUTHORIZED, loggedInId)
                 .uri(DESTINATION_URI + query);
         Result result = route(application, request);
         statusCode = result.status();
 
         responseBody = Helpers.contentAsString(result);
+    }
+
+    /**
+     * Sends a put request to the application to edit the values of the destination.
+     * @param json the date that the destination will be updated with.
+     */
+    private void editDestinationRequest(JsonNode json) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(PUT)
+                .bodyJson(json)
+                .uri(DESTINATION_URI + "/" + destinationId)
+                .session(AUTHORIZED, loggedInId);
+        Result result = route(application, request);
+        statusCode = result.status();
     }
 
 
@@ -284,6 +303,7 @@ public class DestinationTestSteps {
     private void deleteDestinationRequest(Long destinationId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(DELETE)
+                .session(AUTHORIZED, loggedInId)
                 .uri(DESTINATION_URI + "/" + destinationId);
         Result result = route(application, request);
         statusCode = result.status();
@@ -309,7 +329,7 @@ public class DestinationTestSteps {
     public void iAmLoggedIn() {
         loginRequest(REG_USERNAME, REG_AUTHPASS);
         assertEquals(OK, statusCode);
-        LOGGED_IN_ID = REG_ID;
+        loggedInId = REG_ID;
     }
 
     /**
@@ -322,16 +342,19 @@ public class DestinationTestSteps {
     public void iAmLoggedInAsAnAdminUser() {
         loginRequest(ADMIN_USERNAME, ADMIN_AUTHPASS);
         assertEquals(OK, statusCode);
-        LOGGED_IN_ID = ADMIN_ID;
+        loggedInId = ADMIN_ID;
     }
 
 
     /**
-     * Sends a logout request.
+     * Sends a logout request to the system
+     *
+     * Asserts the value of loggedInId is null.
      */
     @Given("I am not logged in")
     public void iAmNotLoggedIn() {
         logoutRequest();
+        assertNull(loggedInId);
     }
 
 
@@ -342,22 +365,45 @@ public class DestinationTestSteps {
      */
     @And("a destination already exists with the following values")
     public void aDestinationExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        TARGET_ID = LOGGED_IN_ID;
+        targetId = loggedInId;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode json = convertDataTableToJsonNode(dataTable, i);
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
         }
     }
 
 
+    /**
+     * Creates one or many destinations under the ownership of the given user.
+     * @param userId the user who will be in ownership of the destination(s).
+     * @param dataTable the values of the destinations to be added.
+     */
     @Given("a destination already exists for user {int} with the following values")
-    public void aDestinationAlreadyExistsForUserWithTheFollowingValues(Integer userId, io.cucumber.datatable.DataTable dataTable) {
-        TARGET_ID = userId.toString();
+    public void aDestinationAlreadyExistsForUserWithTheFollowingValues(Integer userId, io.cucumber.datatable.DataTable dataTable) throws IOException {
+        targetId = userId.toString();
 
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode json = convertDataTableToJsonNode(dataTable, i);
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
+
+            // Saves the last created destination id
+            Long id = getDestinationId(dataTable);
+            Assert.assertNotNull(id);
+            destinationId = id.toString();
         }
+    }
+
+
+    /**
+     * Queries the database for the destination described by the values in the dataTable.
+     * @param dataTable the information containing the destination(s) select in the database.
+     */
+    @Given("a destination has been created with the following values")
+    public void aDestinationHasBeenCreatedWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        String destinationName = getValueFromDataTable("Name", dataTable);
+        String query = createSearchDestinationQueryString(NAME, destinationName);
+        searchDestinationsRequest(query);
+        assertTrue(responseBody.contains(destinationName));
     }
 
 
@@ -385,7 +431,7 @@ public class DestinationTestSteps {
                         .uri(DESTINATION_PHOTO_URI + destinationId)
                         .method(POST)
                         .bodyJson(json)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInId);
 
         Result addDestinationPhotoResult = route(application, request);
         statusCode = addDestinationPhotoResult.status();
@@ -416,10 +462,10 @@ public class DestinationTestSteps {
      */
     @When("I send a GET request to the destinations endpoint")
     public void iSendAGetRequestToTheDestinationsEndpoint() {
-        TARGET_ID = LOGGED_IN_ID;
+        targetId = loggedInId;
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, LOGGED_IN_ID)
+                .session(AUTHORIZED, loggedInId)
                 .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
@@ -432,9 +478,9 @@ public class DestinationTestSteps {
      */
     @When("I create a new destination with the following values")
     public void iCreateANewDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        TARGET_ID = LOGGED_IN_ID;
+        targetId = loggedInId;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode json = convertDataTableToJsonNode(dataTable, i);
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
         }
     }
@@ -442,9 +488,9 @@ public class DestinationTestSteps {
 
     @When("I create a new destination with the following values for another user")
     public void iCreateANewDestinationWithTheFollowingValuesForAnotherUser(io.cucumber.datatable.DataTable dataTable) {
-        TARGET_ID = LOGGED_IN_ID;
+        targetId = loggedInId;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode json = convertDataTableToJsonNode(dataTable, i);
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
         }
     }
@@ -455,7 +501,7 @@ public class DestinationTestSteps {
      * @param dataTable     The data table containing values of a destination.
      * @return              A JsonNode of a destination containing information from the data table.
      */
-    private JsonNode convertDataTableToJsonNode(io.cucumber.datatable.DataTable dataTable, int index) {
+    private JsonNode convertDataTableToDestinationJson(io.cucumber.datatable.DataTable dataTable, int index) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         String name         = list.get(index).get(NAME_STRING);
@@ -537,7 +583,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri(DESTINATION_URI + "/" + userId)
-                .session(AUTHORIZED, LOGGED_IN_ID);
+                .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
 
@@ -555,13 +601,18 @@ public class DestinationTestSteps {
     }
 
 
+    @When("I attempt to delete the destination with id {int}")
+    public void iAttemptToDeleteTheDestinationWithId(Integer destinationId) {
+        deleteDestinationRequest(destinationId.longValue());
+    }
+
+
     /**
      * Gets a destination id based on values in the data table.
      * @param dataTable         The data table containing values of a destination.
      * @return                  Destination id as a Long, or null if no destination exists.
-     * @throws IOException      Exception thrown when response body json tree is not formatted correctly.
      */
-    private Long getDestinationId(io.cucumber.datatable.DataTable dataTable) throws IOException {
+    private Long getDestinationId(io.cucumber.datatable.DataTable dataTable) {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         int index = 0;
         String name         = list.get(index).get(NAME_STRING);
@@ -572,10 +623,52 @@ public class DestinationTestSteps {
         String country      = list.get(index).get(COUNTRY_STRING);
         String publicity    = list.get(index).get(IS_PUBLIC_STRING);
 
-        // Replace whitespace with + in name, district, country
-        name = name.replace(' ', '+');
-        district = district.replace(' ', '+');
-        country = country.replace(' ', '+');
+        // Build search query to find destination
+        ExpressionList<Destination> expressionList =
+                Destination.find.query().where()
+                .ilike(NAME, queryComparator(name))
+                .eq(TYPE, type)
+                .eq(LATITUDE, latitude)
+                .eq(LONGITUDE, longitude)
+                .ilike(DISTRICT, queryComparator(district))
+                .ilike(COUNTRY, queryComparator(country))
+                .eq(IS_PUBLIC, publicity);
+
+        Destination destination = expressionList.findOne();
+
+        return destination == null ? null : destination.getId();
+    }
+
+
+    /**
+     * Gets a value associated with a given field from the given data table.
+     * @param field         The title of the data table column to extract.
+     * @param dataTable     The data table containing the value to extract.
+     * @return              A String of the value extracted.
+     */
+    private String getValueFromDataTable(String field, io.cucumber.datatable.DataTable dataTable) {
+        //Get all input from the data table
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        return list.get(0).get(field);
+    }
+
+
+    /**
+     * Creates a query string for the search destination request.
+     * Builds this query string with empty values except for the given search value associated
+     * with the given search field.
+     * @param searchField       The search field name for the given value.
+     * @param searchValue       The given search value for associated field.
+     * @return                  The complete query string.
+     */
+    private String createSearchDestinationQueryString(String searchField, String searchValue) {
+        String name = getValue(NAME, searchField, searchValue);
+        String type = getValue(TYPE, searchField, searchValue);
+        String latitude = getValue(LATITUDE, searchField, searchValue);
+        String longitude = getValue(LONGITUDE, searchField, searchValue);
+        String district = getValue(DISTRICT, searchField, searchValue);
+        String country = getValue(COUNTRY, searchField, searchValue);
+        String publicity = getValue(IS_PUBLIC, searchField, searchValue);
 
 
         StringBuilder stringBuilder = new StringBuilder()
@@ -615,82 +708,6 @@ public class DestinationTestSteps {
                 .append(EQUALS)
                 .append(publicity);
 
-        String query = stringBuilder.toString();
-
-        searchDestinationsRequest(query);
-
-        JsonNode destination = new ObjectMapper().readTree(responseBody).get(0);
-        return destination == null ? null : destination.get(DESTINATION_ID).asLong();
-    }
-
-
-    /**
-     * Gets a value associated with a given field from the given data table.
-     * @param field         The title of the data table column to extract.
-     * @param dataTable     The data table containing the value to extract.
-     * @return              A String of the value extracted.
-     */
-    private String getValueFromDataTable(String field, io.cucumber.datatable.DataTable dataTable) {
-        //Get all input from the data table
-        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        return list.get(0).get(field);
-    }
-
-
-    /**
-     * Creates a query string for the search destination request.
-     * Builds this query string with empty values except for the given search value associated
-     * with the given search field.
-     * @param searchField       The search field name for the given value.
-     * @param searchValue       The given search value for associated field.
-     * @return                  The complete query string.
-     */
-    private String createSearchDestinationQueryString(String searchField, String searchValue) {
-        String name = getValue(NAME, searchField, searchValue);
-        String type = getValue(TYPE, searchField, searchValue);
-        String latitude = getValue(LATITUDE, searchField, searchValue);
-        String longitude = getValue(LONGITUDE, searchField, searchValue);
-        String district = getValue(DISTRICT, searchField, searchValue);
-        String country = getValue(COUNTRY, searchField, searchValue);
-
-
-        StringBuilder stringBuilder = new StringBuilder()
-                .append(QUESTION_MARK)
-
-                .append(NAME)
-                .append(EQUALS)
-                .append(name)
-
-                .append(AND)
-                .append(TYPE)
-                .append(EQUALS)
-                .append(type)
-
-                .append(AND)
-                .append(LATITUDE)
-                .append(EQUALS)
-                .append(latitude)
-
-                .append(AND)
-                .append(LONGITUDE)
-                .append(EQUALS)
-                .append(longitude)
-
-                .append(AND)
-                .append(DISTRICT)
-                .append(EQUALS)
-                .append(district)
-
-                .append(AND)
-                .append(COUNTRY)
-                .append(EQUALS)
-                .append(country)
-
-                .append(AND)
-                .append(IS_PUBLIC)
-                .append(EQUALS)
-                .append("1");
-
         return stringBuilder.toString();
     }
 
@@ -704,6 +721,76 @@ public class DestinationTestSteps {
      */
     private String getValue(String searchField, String givenField, String givenValue) {
         return searchField.equals(givenField) ? givenValue : "";
+    }
+
+
+    /**
+     * Converts the values of a cucumber DataTable to a JSON node object, using only the information that was given.
+     * @param dataTable the cucumber datatable holding the values to be converted to JSON.
+     * @return the JSON representation of the DataTable
+     */
+    private JsonNode convertDataTableToEditDestination(io.cucumber.datatable.DataTable dataTable) {
+        int valueIndex = 0;
+        List<Map<String, String>> valueList = dataTable.asMaps(String.class, String.class);
+        Map<String, String> valueMap = valueList.get(valueIndex);
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode json = mapper.createObjectNode();
+
+        for (Map.Entry<String, String> entry : valueMap.entrySet()) {
+            String key;
+            String value = entry.getValue();
+
+            switch (entry.getKey()) {
+                case TYPE_STRING:
+                    key = TYPE;
+                    break;
+                case DISTRICT_STRING:
+                    key = DISTRICT;
+                    break;
+                case LATITUDE_STRING:
+                    key = LATITUDE;
+                    break;
+                case LONGITUDE_STRING:
+                    key = LONGITUDE;
+                    break;
+                case COUNTRY_STRING:
+                    key = COUNTRY;
+                    break;
+                case IS_PUBLIC_STRING:
+                    key = IS_PUBLIC;
+                    break;
+                default:
+                    key = null;
+            }
+            json.put(key, value);
+        }
+
+        return json;
+    }
+
+
+    /**
+     * Takes the information provided in the feature, and sends a put request to edit the destination.
+     * @param dataTable the data specified in the test feature.
+     */
+    @When("I attempt to edit the destination using the following values")
+    public void iAttemptToEditTheDestinationUsingTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        JsonNode editValues = convertDataTableToEditDestination(dataTable);
+        editDestinationRequest(editValues);
+    }
+
+
+    /**
+     * Takes the information provided in by the cucumber feature, and sends a put request to edit the destination specified
+     * by `destinationId`.
+     * @param destinationId the destination to be edited.
+     * @param dataTable the information used to edit the destination.
+     */
+    @When("I attempt to edit destination {int} using the following values")
+    public void iAttemptToEditDestinationUsingTheFollowingValues(Integer destinationId, io.cucumber.datatable.DataTable dataTable) {
+        JsonNode editValues = convertDataTableToEditDestination(dataTable);
+        this.destinationId = destinationId.toString();
+        editDestinationRequest(editValues);
     }
 
 
