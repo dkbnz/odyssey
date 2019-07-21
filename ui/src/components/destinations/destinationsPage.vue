@@ -29,7 +29,7 @@
                     <b-card
                             :header="selectedDestination.name"
                             style="margin-top: 10px">
-                        <div v-if="selectedDestination !== '{}'">
+                        <div v-if="selectedDestination.name === undefined">
                             No Destination Selected
                         </div>
                         <single-destination
@@ -122,16 +122,26 @@
                 }
             },
 
+            /**
+             * Re-renders the destination search side panel and displays the edited destination on the page.
+             *
+             * @param refreshedDestination  the recently edited destination.
+             */
             refreshDestinations(refreshedDestination) {
                 this.refreshDestinationData += 1;
                 this.selectedDestination = refreshedDestination;
             },
 
+
+            /**
+             * Re-renders the view single destination panel and shows a confirmation of deletion alert.
+             */
             destinationDeleted() {
                 this.selectedDestination = {};
                 this.refreshSingleDestination += 1;
                 this.showAlert();
             },
+
 
             /**
              * Used to allow an alert to countdown on the successful saving of a destination.

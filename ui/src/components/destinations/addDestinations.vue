@@ -306,16 +306,14 @@
              * Checks whether the destination being edited is present in any trips. This is to display a confirmation
              * message to the user.
              *
-             * @param cb.
              */
-            validateEdit(cb) {
+            validateEdit() {
                 let self = this;
                 fetch(`/v1/destinationCheck/` + this.inputDestination.id, {
                     accept: "application/json"
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
-                    .then(cb)
                     .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
                     .then(function(response) {
                         self.displayConfirmation();
