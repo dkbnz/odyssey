@@ -243,7 +243,10 @@ public class Destination extends BaseModel {
      * @return      next available TripDestination in the list or null if none exists
      */
     private TripDestination getTripDestination() {
-        return this.tripDestinations.iterator().next();
+        if (this.tripDestinations.iterator().hasNext()) {
+            return this.tripDestinations.iterator().next();
+        }
+        return null;
     }
 
     /**
@@ -253,6 +256,9 @@ public class Destination extends BaseModel {
      * @return      next available PersonalPhoto in the list or null if none exists
      */
     private PersonalPhoto getPhoto() {
-        return this.photoGallery.iterator().next();
+        if (this.photoGallery.iterator().hasNext()) {
+            return this.photoGallery.iterator().next();
+        }
+        return null;
     }
 }
