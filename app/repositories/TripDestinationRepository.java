@@ -10,7 +10,7 @@ import java.util.List;
 public class TripDestinationRepository {
 
     /**
-     * fetches one tripDestination thats contain the given destination for each unique trip id
+     * Fetches one tripDestination thats contain the given destination for each unique trip id
      *
      * @param destination   the destination being searched for
      * @return              the set of tripDestinations found
