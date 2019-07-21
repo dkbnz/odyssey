@@ -296,7 +296,7 @@
                     .then(function(response) {
                         self.resetDestForm();
                         self.showAlert();
-                        self.emit('data-changed');
+                        self.$emit('data-changed');
                         return JSON.parse(JSON.stringify(response));
                     });
             },

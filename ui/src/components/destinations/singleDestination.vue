@@ -12,6 +12,9 @@
         </b-modal>
 
         <b-modal id="deleteDestModal" ref="deleteDestModal" size="xl" title="Delete Destination">
+            <b-alert v-model="showError" variant="danger" dismissible>
+                Could not delete destination!
+            </b-alert>
             <p v-if="tripsUsed.count === 1">This destination is used by {{tripsUsed.count}} trip.<br>
                 Are you sure you want to delete it?
             </p>
@@ -19,7 +22,7 @@
                 Are you sure you want to delete it?
             </p>
             <b-list-group
-            style="overflow-y: scroll; height: 30vh;">
+            style="overflow-y: scroll; height: 30vh;" v-if="tripsUsed.count > 0">
                 <b-list-group-item class="flex-column align-items-start"
                                    v-for="trip in tripsUsed.matchingTrips">
                     <div class="d-flex w-100 justify-content-between">
@@ -37,7 +40,7 @@
                     </b-button>
                 </b-col>
                 <b-col>
-                    <b-button @click="dismissModal('deleteDestModal')" class="mr-2 float-right" variant="danger" block>
+                    <b-button @click="deleteDestination" class="mr-2 float-right" variant="danger" block>
                         Yes
                     </b-button>
                 </b-col>
@@ -66,7 +69,7 @@
                           v-if="viewDestination.owner.id === profile.id" block>
                     Edit
                 </b-button>
-                <b-button @click="deleteDestination" variant="danger"
+                <b-button @click="confirmDeleteDestination" variant="danger"
                           v-if="viewDestination.owner.id === profile.id" block>
                     Delete
                 </b-button>
@@ -95,9 +98,8 @@
             return {
                 copiedDestination: "",
                 tripsUsed: "",
-                dismissSecs: 3,
-                dismissCountDown: 0,
-                refreshDestination: null
+                refreshDestination: null,
+                showError: false
             }
         },
 
@@ -138,10 +140,25 @@
                 this.$refs["editDestModal"].show();
             },
 
-            deleteDestination() {
+            confirmDeleteDestination() {
                 this.copiedDestination = this.copyDestination();
                 this.$refs["deleteDestModal"].show();
                 this.getTripsUsedBy();
+            },
+
+            deleteDestination() {
+                let self = this;
+                fetch(`/v1/destinations/` + this.copiedDestination.id, {
+                    method: 'DELETE'
+                }).then(function(response) {
+                        if (response.ok) {
+                            self.dismissModal('deleteDestModal');
+                            self.$emit('destination-deleted');
+                        }
+                        else {
+                            self.showError = true;
+                        }
+                    });
             },
 
             getTripsUsedBy() {
@@ -152,21 +169,6 @@
                     .then(response => this.tripsUsed = response);
             },
 
-            /**
-             * Used to allow an alert to countdown on the successful saving of a destination.
-             *
-             * @param dismissCountDown      the name of the alert.
-             */
-            countDownChanged(dismissCountDown) {
-                this.dismissCountDown = dismissCountDown
-            },
-
-            /**
-             * Displays the countdown alert on the successful saving of a destination.
-             */
-            showAlert() {
-                this.dismissCountDown = this.dismissSecs
-            },
 
             /**
              * Used to dismiss the edit a destination modal.
