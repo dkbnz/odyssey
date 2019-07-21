@@ -12,14 +12,33 @@
                     <b-card>
                         Destination Map
                     </b-card>
+                    <b-alert
+                            :show="dismissCountDown"
+                            @dismiss-count-down="countDownChanged"
+                            @dismissed="dismissCountDown=0"
+                            dismissible
+                            variant="success">
+                        <p>Destination Successfully Deleted</p>
+                        <b-progress
+                                :max="dismissSecs"
+                                :value="dismissCountDown"
+                                height="4px"
+                                variant="success"
+                        ></b-progress>
+                    </b-alert>
                     <b-card
                             :header="selectedDestination.name"
                             style="margin-top: 10px">
+                        <div v-if="selectedDestination !== '{}'">
+                            No Destination Selected
+                        </div>
                         <single-destination
+                                :key="refreshSingleDestination"
                                 :destination="selectedDestination"
                                 :destination-types="destinationTypes"
                                 :profile="profile"
-                                @destination-saved="refreshDestinations">
+                                @destination-saved="refreshDestinations"
+                                @destination-deleted="destinationDeleted">
                         </single-destination>
                     </b-card>
                 </b-col>
@@ -84,7 +103,10 @@
                 searchDestinations: true,
                 addDestinations: false,
                 selectedDestination: {},
-                refreshDestinationData: 0
+                refreshDestinationData: 0,
+                refreshSingleDestination: 0,
+                dismissSecs: 3,
+                dismissCountDown: 0
             }
         },
         methods: {
@@ -103,6 +125,29 @@
             refreshDestinations(refreshedDestination) {
                 this.refreshDestinationData += 1;
                 this.selectedDestination = refreshedDestination;
+            },
+
+            destinationDeleted() {
+                this.selectedDestination = {};
+                this.refreshSingleDestination += 1;
+                this.showAlert();
+            },
+
+            /**
+             * Used to allow an alert to countdown on the successful saving of a destination.
+             *
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown
+            },
+
+
+            /**
+             * Displays the countdown alert on the successful saving of a destination.
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
             }
         }
     }
