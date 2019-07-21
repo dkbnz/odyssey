@@ -27,6 +27,10 @@ public class Trip extends BaseModel {
     @JsonIgnore
     private Profile profile;
 
+    public Profile getProfile() {
+        return profile;
+    }
+
     /**
      * The trips destinations for the trip
      */

@@ -48,9 +48,6 @@
                         self.destinations = (response.sort(self.compare));
                     });
             },
-
-
-
             getDestinationTypes(updateDestinationTypes) {
                 return fetch(`/v1/destinationTypes`, {
                     accept: "application/json"
