@@ -185,6 +185,14 @@ Feature: Destination API Endpoint
       | 3    | Sydney   | 33.838306 | 151.002007 | Australia |
     Then the status code received is OK
 
+  Scenario: Attempt to edit another user's private destination as Admin
+    Given I am running the application
+    And I am logged in as an admin user
+    When I attempt to edit destination 10000 using the following values
+      | District | Country   |
+      | Sydney   | Australia |
+    Then the status code received is OK
+
   Scenario: Attempt to edit a private destination as another user
     Given I am running the application
     And I am logged in
