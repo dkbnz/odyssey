@@ -527,7 +527,7 @@ public class DestinationController extends Controller {
                 destinationRepo.update(destinationToMerge);
                 System.out.println(destinationToMerge.getTripDestinations());
                 // Merged destination no longer needed, delete.
-                destinationRepo.delete(destinationToMerge);
+                //destinationRepo.delete(destinationToMerge);
                 System.out.println(destinationToMerge.getTripDestinations());
 
 
