@@ -280,16 +280,19 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination
     Then the status code received is OK
 
-#    TODO: Matilda - returns OK when should be forbidden
-#  Scenario: Attempt to delete a public destination as the owner when it is used by another user
-#    Given I am running the application
-#    And I am logged in
-#    And a destination already exists with the following values
-#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
-#    And the destination has a photo with id 3
-#    When I attempt to delete the destination
-#    Then the status code received is Forbidden
+  Scenario: Attempt to delete a public destination as the owner when it is used by another user
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    And I am not logged in
+    And I am logged in as an alternate user
+    And the destination has a photo with id 6
+    And I am not logged in
+    And I am logged in
+    When I attempt to delete the destination
+    Then the status code received is Forbidden
 
   Scenario: Attempt to delete a destination that does not exist
     Given I am running the application
@@ -359,7 +362,7 @@ Feature: Destination API Endpoint
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-    When I add a photo with id 2 to the destination
+    And the destination has a photo with id 2
     Then the owner is user 2
 
   Scenario: Previous owner uses a public destination
@@ -368,11 +371,11 @@ Feature: Destination API Endpoint
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
-    When I add a photo with id 2 to the destination
+    And the destination has a photo with id 2
     Then the owner is user 2
 
-  # Waiting for implementation
-  # TODO: Hayden
+#  # Waiting for implementation
+#  # TODO: Hayden
 #  Scenario: Another user uses a public destination
 #    Given I am running the application
 #    And I am logged in
@@ -383,10 +386,10 @@ Feature: Destination API Endpoint
 #    And I am logged in as an alternate user
 #    When I add a photo with id 2 to the destination
 #    Then the owner is user 1
-
-
-  # Waiting for implementation
-  # TODO: Hayden
+#
+#
+##   Waiting for implementation
+##   TODO: Hayden
 #  Scenario: Merging two destinations which have photos
 #    Given I am running the application
 #    And I am logged in
@@ -407,3 +410,123 @@ Feature: Destination API Endpoint
 #      | id    |
 #      | 1     |
 #      | 2     |
+#
+#
+##   Waiting for implementation
+##   TODO: Hayden
+#  Scenario: Merging two destinations are used in trips
+#    Given I am running the application
+#    And I am logged in
+#    And a destination already exists with the following values
+#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+#    And the destination is used in trip "Trip 1"
+#    And I am not logged in
+#    And I am logged in as an admin user
+#    And a destination already exists with the following values
+#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+#    And the destination is used in trip "Trip 2"
+#    When I attempt to edit the destination using the following values
+#      | is_public |
+#      | true      |
+#    Then the destination will be used in the following trips
+#      | Trip name   |
+#      | Trip 1      |
+#      | Trip 2      |
+
+  Scenario: Retrieving destination usage for 1 trip
+    Given I am running the application
+    And I am logged in as an admin user
+    And the following json containing a trip is sent:
+      """
+        {
+          "trip_name": "A Holiday Away",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : "1990-12-12",
+              "end_date" : "1991-12-12"
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    When I request the destination usage for destination with id 1155
+    Then the status code received is OK
+    And the trip count is 1
+    And the number of trips received is 1
+    And the photo count is 0
+
+  Scenario: Retrieving destination usage for 1 photo
+    Given I am running the application
+    And I am logged in as an admin user
+    And a photo exists with id 1
+    When I add a photo with id 1 to an existing destination with id 1155
+    And I request the destination usage for destination with id 1155
+    Then the status code received is OK
+    And the trip count is 0
+    And the number of trips received is 0
+    And the photo count is 1
+
+  Scenario: Retrieving destination usage for 0 photos and 0 trips
+    Given I am running the application
+    And I am logged in as an admin user
+    When I request the destination usage for destination with id 1155
+    Then the status code received is OK
+    And the trip count is 0
+    And the number of trips received is 0
+    And the photo count is 0
+
+  Scenario: Retrieving destination usage for 1 photo and 1 trip
+    Given I am running the application
+    And I am logged in as an admin user
+    And the following json containing a trip is sent:
+      """
+        {
+          "trip_name": "A Holiday Away",
+          "trip_destinations" : [
+            {
+              "destination_id" : "1155",
+              "start_date" : "1990-12-12",
+              "end_date" : "1991-12-12"
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    When I add a photo with id 1 to an existing destination with id 1155
+    And I request the destination usage for destination with id 1155
+    Then the status code received is OK
+    And the trip count is 1
+    And the number of trips received is 1
+    And the photo count is 1
+
+
+  Scenario: Transferring the ownership of a public destination to default admin when photo is added by another user
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    And I am not logged in
+    And I am logged in as an alternate user
+    And the destination has a photo with id 6
+    Then the owner is user 1
+
+  Scenario: The ownership is not changed when the owner adds a photo to their own un-used public destination
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    And the destination has a photo with id 3
+    Then the owner is user 2
