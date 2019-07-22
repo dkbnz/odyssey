@@ -55,20 +55,20 @@ public class Destination extends BaseModel {
     private String country;
 
     /**
-     * The owner of the destination
+     * The owner of the destination.
      */
     @Constraints.Required
     @ManyToOne
     private Profile owner;
 
     /**
-     * The destinations photo gallery
+     * The destinations photo gallery.
      */
     @ManyToMany
     private Set<PersonalPhoto> photoGallery = new TreeSet<>();
 
     /**
-     * Stating the privacy of the destination if it is public or not
+     * Stating the privacy of the destination if it is public or not.
      */
     @Constraints.Required
     private Boolean isPublic;
@@ -235,10 +235,24 @@ public class Destination extends BaseModel {
         }
     }
 
+
+    /**
+     * Adds the specified destination to the list of trip destinations.
+     *
+     * @param tripDestination the destination to be added to the list.
+     * @return                the list of trip destinations.
+     */
     private boolean addTripDestination(TripDestination tripDestination) {
         return tripDestinations.add(tripDestination);
     }
 
+
+    /**
+     * Removes the specified destination to the list of trip destinations.
+     *
+     * @param tripDestination the destination to be removed from the list.
+     * @return                the list of trip destinations.
+     */
     private boolean removeTripDestination(TripDestination tripDestination) {
         return tripDestinations.remove(tripDestination);
     }

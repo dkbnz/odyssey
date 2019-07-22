@@ -49,6 +49,7 @@ public class PhotoController extends Controller {
     private DestinationRepository destinationRepo;
     private Config config;
 
+
     @Inject
     public PhotoController(
             ProfileRepository profileRepo,
@@ -107,7 +108,7 @@ public class PhotoController extends Controller {
     /**
      * Returns whether or not a list of uploaded photos are valid.
      *
-     * @param photos    list of photos to be validated
+     * @param photos    list of photos to be validated.
      * @return          true if all photo files are valid.
      */
     private boolean validatePhotos(List<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
@@ -136,7 +137,8 @@ public class PhotoController extends Controller {
      * @param filename      filename of saved photo.
      * @param isPublic      boolean flag of if photo is public.
      */
-    private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic) throws IOException {
+    private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic)
+            throws IOException {
         Photo photoToAdd = new Photo();
         photoToAdd.setMainFilename(getPhotoFilePath(false) + filename);
         photoToAdd.setThumbnailFilename(getPhotoFilePath(true) + filename);
@@ -550,8 +552,8 @@ public class PhotoController extends Controller {
 
 
     /**
-     * Adds a personal photo to a given destination's photo gallery
-     * and checks authorization for admins and logged in users
+     * Adds a personal photo to a given destination's photo gallery and checks authorization for admins and logged
+     * in users.
      *
      * @param request           Http request from the client.
      * @param destinationId     the destination id that we are adding the given photo too.
@@ -589,9 +591,7 @@ public class PhotoController extends Controller {
                         if (destination != null) {
                             destination.addPhotoToGallery(personalPhoto);
                             destinationRepo.update(destination);
-
                             changeOwnership(photoOwner, destination);
-
                             return created(Json.toJson(destination.getPhotoGallery()));
                         } else {
                             return notFound();
@@ -618,8 +618,8 @@ public class PhotoController extends Controller {
 
 
     /**
-     * Removes a personal photo to a given destination's photo gallery
-     * and checks authorization for admins and logged in users
+     * Removes a personal photo to a given destination's photo gallery and checks authorization for admins and logged
+     * in users.
      *
      * @param request           Http request from the client.
      * @param destinationId     the destination id that we are removing the given photo from.

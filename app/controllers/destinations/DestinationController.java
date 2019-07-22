@@ -4,66 +4,69 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.Config;
-
 import io.ebean.ExpressionList;
-import models.Profile;
-import models.destinations.Destination;
-import models.destinations.DestinationType;
-
-import models.trips.Trip;
-import models.trips.TripDestination;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import javax.inject.Inject;
+import java.util.*;
+
+import models.Profile;
+import models.destinations.Destination;
+import models.destinations.DestinationType;
+import models.trips.Trip;
+import models.trips.TripDestination;
 import repositories.destinations.DestinationRepository;
 import repositories.ProfileRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.TripDestinationRepository;
 import util.AuthenticationUtil;
-
-import javax.inject.Inject;
-import java.util.*;
-
 import static util.QueryUtil.queryComparator;
+
 
 public class DestinationController extends Controller {
 
-    public static final String NAME = "name";
-    public static final String TYPE = "type_id";
-    public static final String COUNTRY = "country";
-    public static final String DISTRICT = "district";
-    public static final String LATITUDE = "latitude";
-    public static final String LONGITUDE = "longitude";
+    private static final String NAME = "name";
+    private static final String TYPE = "type_id";
+    private static final String COUNTRY = "country";
+    private static final String DISTRICT = "district";
+    private static final String LATITUDE = "latitude";
+    private static final String LONGITUDE = "longitude";
     private static final String OWNER = "owner";
-    public static final String IS_PUBLIC = "is_public";
+    private static final String IS_PUBLIC = "is_public";
     private static final String PAGE = "page";
-
+    private static final String AUTHORIZED = "authorized";
+    private static final String NOT_SIGNED_IN = "You are not logged in.";
+    private static final String TRIP_COUNT = "trip_count";
+    private static final String PHOTO_COUNT = "photo_count";
+    private static final String MATCHING_TRIPS = "matching_trips";
+    private static final String TRIP_ID = "trip_id";
+    private static final String TRIP_NAME = "trip_name";
+    private static final String USER_ID = "user_id";
+    private static final String FIRST_NAME = "first_name";
+    private static final String LAST_NAME = "last_name";
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
 
-    private static final String AUTHORIZED = "authorized";
-    private static final String NOT_SIGNED_IN = "You are not logged in.";
     private ProfileRepository profileRepo;
     private DestinationRepository destinationRepo;
     private DestinationTypeRepository destinationTypeRepo;
     private TripDestinationRepository tripDestinationRepo;
-    private Config config;
+
 
     @Inject
     public DestinationController(
             ProfileRepository profileRepo,
             DestinationRepository destinationRepo,
             DestinationTypeRepository destinationTypeRepo,
-            TripDestinationRepository tripDestinationRepo,
-            Config config) {
+            TripDestinationRepository tripDestinationRepo) {
         this.profileRepo = profileRepo;
         this.destinationRepo = destinationRepo;
         this.destinationTypeRepo = destinationTypeRepo;
         this.tripDestinationRepo = tripDestinationRepo;
-        this.config = config;
     }
+
 
     /**
      * Returns a Json object containing a count of trips that a specified destination is used in and how many photos
@@ -104,18 +107,19 @@ public class DestinationController extends Controller {
         ObjectNode returnJson = mapper.createObjectNode();
         ArrayNode matchTrips = mapper.valueToTree(matchingTrips);
 
-        returnJson.put("tripCount", tripCount);
-        returnJson.put("photoCount", photoCount);
-        returnJson.putArray("matchingTrips").addAll(matchTrips);
+        returnJson.put(TRIP_COUNT, tripCount);
+        returnJson.put(PHOTO_COUNT, photoCount);
+        returnJson.putArray(MATCHING_TRIPS).addAll(matchTrips);
 
         return ok(returnJson);
     }
 
 
     /**
-     * Gets a list of all the trips that uses a particular destination
-     * @param destination destination you want to search for
-     * @return a list of all the associated trips
+     * Gets a list of all the trips that uses a particular destination.
+     *
+     * @param destination destination you want to search for.
+     * @return a list of all the associated trips.
      */
     private List<Map> getTripsUsedByDestination(Destination destination) {
         List<TripDestination> tripDestinationList = tripDestinationRepo.fetchTripsContainingDestination(destination);
@@ -124,11 +128,11 @@ public class DestinationController extends Controller {
         for (TripDestination tripDestination: tripDestinationList) {
             Trip tempTrip = Trip.find.byId(tripDestination.getTrip().getId().intValue());
             Map<Object, Object> tripDetails = new HashMap<>();
-            tripDetails.put("tripId", tempTrip.getId());
-            tripDetails.put("tripName", tempTrip.getName());
-            tripDetails.put("userId", tempTrip.getProfile().getId());
-            tripDetails.put("firstName", tempTrip.getProfile().getFirstName());
-            tripDetails.put("lastName", tempTrip.getProfile().getLastName());
+            tripDetails.put(TRIP_ID, tempTrip.getId());
+            tripDetails.put(TRIP_NAME, tempTrip.getName());
+            tripDetails.put(USER_ID, tempTrip.getProfile().getId());
+            tripDetails.put(FIRST_NAME, tempTrip.getProfile().getFirstName());
+            tripDetails.put(LAST_NAME, tempTrip.getProfile().getLastName());
             matchingTrips.add(tripDetails);
         }
         return matchingTrips;
@@ -406,7 +410,8 @@ public class DestinationController extends Controller {
      * Deletes a destination from the database using the given destination id number.
      *
      * @param destinationId     the id of the destination.
-     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully deleted.
+     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if
+     *                          successfully deleted.
      */
     public Result destroy(Http.Request request, Long destinationId) {
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
@@ -522,8 +527,8 @@ public class DestinationController extends Controller {
      *
      * Method does not authenticate.
      *
-     * @param destinationToUpdate
-     * @param isPublic
+     * @param destinationToUpdate   the destination that to be updated.
+     * @param isPublic              the boolean value to determine if the destination to be updated should be updated.
      */
     private void setPrivacy(Destination destinationToUpdate, Boolean isPublic) {
         if (destinationToUpdate.getPublic() == isPublic) return;
@@ -537,8 +542,6 @@ public class DestinationController extends Controller {
 
                 // Save destination that has had attributes taken to prevent deletion of attributes via cascading
                 destinationRepo.save(destinationToUpdate);
-
-
                 destinationRepo.save(destinationToMerge);
                 destinationRepo.delete(destinationToMerge);
 

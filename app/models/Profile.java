@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Profile entity managed by Ebean
+ * Profile entity managed by Ebean.
  */
 @Entity
 @Table(name = "profile")

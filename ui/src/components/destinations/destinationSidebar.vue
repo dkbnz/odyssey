@@ -45,7 +45,7 @@
             }
         },
         mounted() {
-            this.getDestinationTypes(destinationT => this.destinationTypes = destinationT);
+            this.getDestinationTypes(destinationTypesTemp => this.destinationTypes = destinationTypesTemp);
         },
         methods: {
             getDestinationTypes(updateDestinationTypes) {

@@ -23,23 +23,23 @@
         <b-modal id="confirmEditModal" ref="confirmEditModal" size="l" title="Confirm Edit">
             <div>
                 Are you sure you want to edit this destination?
-                <div v-if="destinationConflicts.matchingTrips !== undefined
-                        && destinationConflicts.matchingTrips.length > 0">
-                    <p v-if="destinationConflicts.count === 1">
-                        This would affect the following {{destinationConflicts.count}} trip:
+                <div v-if="destinationConflicts.matching_trips !== undefined
+                        && destinationConflicts.matching_trips.length > 0">
+                    <p v-if="destinationConflicts.trip_count === 1">
+                        This would affect the following {{destinationConflicts.trip_count}} trip:
                     </p>
                     <p v-else>
-                        This would affect the following {{destinationConflicts.count}} trips:
+                        This would affect the following {{destinationConflicts.trip_count}} trips:
                     </p>
                     <b-list-group
                             style="overflow-y: scroll; height: 30vh;">
                         <b-list-group-item class="flex-column align-items-start"
-                                           v-for="trip in destinationConflicts.matchingTrips">
+                                           v-for="trip in destinationConflicts.matching_trips">
                             <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Name: {{trip.tripName}}</h5>
+                                <h5 class="mb-1">Name: {{trip.trip_name}}</h5>
                             </div>
                             <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Created by: {{trip.firstName}} {{trip.lastName}}</h5>
+                                <h5 class="mb-1">Created by: {{trip.first_name}} {{trip.last_name}}</h5>
                             </div>
                         </b-list-group-item>
                     </b-list-group>
@@ -245,6 +245,7 @@
                     && this.destinationDistrictValidation && this.destinationLatitudeValidation
                     && this.destinationLongitudeValidation && this.destinationCountryValidation
             },
+
 
             /**
              * Checks that all fields are present and runs validation.

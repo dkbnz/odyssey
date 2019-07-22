@@ -3,60 +3,60 @@
 # ~~~~
 
 # Redirect index to Vue frontend. Must stay at top of Routes for production.
-GET      /                              controllers.Assets.at(path="/public", file="index.html")
+GET      /                                      controllers.Assets.at(path="/public", file="index.html")
 
 # Get lists
-GET     /v1/travtypes                   controllers.TravellerTypeController.list()
-GET     /v1/nationalities               controllers.NationalityController.list()
+GET     /v1/travtypes                           controllers.TravellerTypeController.list()
+GET     /v1/nationalities                       controllers.NationalityController.list()
 
 # Authentication
-POST    /v1/login                       controllers.AuthenticationController.login(request: Request)
-POST    /v1/logout                      controllers.AuthenticationController.logout()
-POST    /v1/checkUsername               controllers.ProfileController.checkUsername(request: Request)
+POST    /v1/login                               controllers.AuthenticationController.login(request: Request)
+POST    /v1/logout                              controllers.AuthenticationController.logout()
+POST    /v1/checkUsername                       controllers.ProfileController.checkUsername(request: Request)
 
 # Profile
-GET     /v1/profile                     controllers.ProfileController.fetch(request: Request)
-PUT     /v1/profile/:id                 controllers.ProfileController.update(request: Request, id: Long)
-DELETE  /v1/profile/:id                 controllers.ProfileController.delete(request: Request, id: Long)
+GET     /v1/profile                             controllers.ProfileController.fetch(request: Request)
+PUT     /v1/profile/:id                         controllers.ProfileController.update(request: Request, id: Long)
+DELETE  /v1/profile/:id                         controllers.ProfileController.delete(request: Request, id: Long)
 
 # User Profiles
-GET     /v1/profiles                    controllers.ProfileController.list(request: Request)
-POST    /v1/profiles                    controllers.ProfileController.create(request: Request)
+GET     /v1/profiles                            controllers.ProfileController.list(request: Request)
+POST    /v1/profiles                            controllers.ProfileController.create(request: Request)
 
 # Admin
-POST    /v1/makeAdmin/:id               controllers.ProfileController.makeAdmin(request: Request, id: Long)
-POST    /v1/removeAdmin/:id             controllers.ProfileController.removeAdmin(request: Request, id: Long)
+POST    /v1/makeAdmin/:id                       controllers.ProfileController.makeAdmin(request: Request, id: Long)
+POST    /v1/removeAdmin/:id                     controllers.ProfileController.removeAdmin(request: Request, id: Long)
 
 # Destinations
-GET     /v1/destinations                    controllers.destinations.DestinationController.fetch(request: Request)
-POST    /v1/destinations/:userId            controllers.destinations.DestinationController.save(request: Request, userId: Long)
-GET     /v1/destinationTypes                controllers.destinations.DestinationController.getTypes()
-GET     /v1/destinations/:userId            controllers.destinations.DestinationController.fetchByUser(request: Request, userId: Long)
-PUT     /v1/destinations/:destId            controllers.destinations.DestinationController.edit(request: Request, destId: Long)
-GET     /v1/destinationCheck/:destinationId controllers.destinations.DestinationController.getDestinationUsage(request: Request, destinationId: Long)
-DELETE  /v1/destinations/:destinationId     controllers.destinations.DestinationController.destroy(request: Request, destinationId: Long)
+GET     /v1/destinations                        controllers.destinations.DestinationController.fetch(request: Request)
+POST    /v1/destinations/:userId                controllers.destinations.DestinationController.save(request: Request, userId: Long)
+GET     /v1/destinationTypes                    controllers.destinations.DestinationController.getTypes()
+GET     /v1/destinations/:userId                controllers.destinations.DestinationController.fetchByUser(request: Request, userId: Long)
+PUT     /v1/destinations/:destId                controllers.destinations.DestinationController.edit(request: Request, destId: Long)
+GET     /v1/destinationCheck/:destinationId     controllers.destinations.DestinationController.getDestinationUsage(request: Request, destinationId: Long)
+DELETE  /v1/destinations/:destinationId         controllers.destinations.DestinationController.destroy(request: Request, destinationId: Long)
 
 # Trips
-GET     /v1/trips/:userId               controllers.trips.TripController.fetchAll(userId: Long)
-POST    /v1/trips/:userId               controllers.trips.TripController.create(request: Request, userId: Long)
-DELETE  /v1/trips/:tripId               controllers.trips.TripController.destroy(request: Request, tripId: Long)
-PATCH   /v1/trips/:tripId               controllers.trips.TripController.edit(request: Request, tripId: Long)
+GET     /v1/trips/:userId                       controllers.trips.TripController.fetchAll(userId: Long)
+POST    /v1/trips/:userId                       controllers.trips.TripController.create(request: Request, userId: Long)
+DELETE  /v1/trips/:tripId                       controllers.trips.TripController.destroy(request: Request, tripId: Long)
+PATCH   /v1/trips/:tripId                       controllers.trips.TripController.edit(request: Request, tripId: Long)
 
 # Photo
-GET     /v1/photos/thumb/:photoId       controllers.photos.PhotoController.fetch(request: Request, photoId: Long, thumbnail:Boolean ?= true)
-GET     /v1/photos/:photoId             controllers.photos.PhotoController.fetch(request: Request, photoId: Long, thumbnail:Boolean ?= false)
-GET     /v1/photos/user/:userId         controllers.photos.PhotoController.list(request: Request, userId: Long)
-POST    /v1/photos/:userId              controllers.photos.PhotoController.upload(request: Request, userId: Long)
-PATCH   /v1/photos                      controllers.photos.PhotoController.changePrivacy(request: Request)
-DELETE  /v1/photos/:photoId             controllers.photos.PhotoController.destroy(request: Request, photoId: Long)
+GET     /v1/photos/thumb/:photoId               controllers.photos.PhotoController.fetch(request: Request, photoId: Long, thumbnail:Boolean ?= true)
+GET     /v1/photos/:photoId                     controllers.photos.PhotoController.fetch(request: Request, photoId: Long, thumbnail:Boolean ?= false)
+GET     /v1/photos/user/:userId                 controllers.photos.PhotoController.list(request: Request, userId: Long)
+POST    /v1/photos/:userId                      controllers.photos.PhotoController.upload(request: Request, userId: Long)
+PATCH   /v1/photos                              controllers.photos.PhotoController.changePrivacy(request: Request)
+DELETE  /v1/photos/:photoId                     controllers.photos.PhotoController.destroy(request: Request, photoId: Long)
 
 # Profile Photo
-PUT     /v1/profilePhoto/:photoId       controllers.photos.PhotoController.updateProfilePhoto(request: Request, photoId: Long)
-DELETE  /v1/profilePhoto/:userId        controllers.photos.PhotoController.destroyProfilePhoto(request: Request, userId: Long)
+PUT     /v1/profilePhoto/:photoId               controllers.photos.PhotoController.updateProfilePhoto(request: Request, photoId: Long)
+DELETE  /v1/profilePhoto/:userId                controllers.photos.PhotoController.destroyProfilePhoto(request: Request, userId: Long)
 
 # Destination Photos
 POST    /v1/destinationPhotos/:destinationId    controllers.photos.PhotoController.addDestinationPhoto(request: Request, destinationId: Long)
 DELETE  /v1/destinationPhotos/:destinationId    controllers.photos.PhotoController.removeDestinationPhoto(request: Request, destinationId: Long)
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
-GET     /*file                          controllers.Assets.at(path="/public", file)
+GET     /*file                                  controllers.Assets.at(path="/public", file)

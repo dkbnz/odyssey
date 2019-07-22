@@ -12,7 +12,7 @@ import javax.persistence.OneToMany;
 import java.util.List;
 
 /**
- * Class for holding trips for a user with all their trip destinations and trip name
+ * Class for holding trips for a user with all their trip destinations and trip name.
  */
 @Entity
 public class Trip extends BaseModel {
@@ -32,7 +32,7 @@ public class Trip extends BaseModel {
     }
 
     /**
-     * The trips destinations for the trip
+     * The trips destinations for the trip.
      */
     @OneToMany(mappedBy="trip", cascade=CascadeType.ALL)
     private List<TripDestination> destinations;
@@ -54,7 +54,7 @@ public class Trip extends BaseModel {
     }
 
     /**
-     * A finder used to search for a trip
+     * A finder used to search for a trip.
      */
     public static final Finder<Integer, Trip> find = new Finder<>(Trip.class);
 

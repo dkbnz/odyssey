@@ -16,7 +16,7 @@ public class DestinationType extends BaseModel {
     }
 
     /**
-     * The name of a destination type
+     * The name of a destination type.
      */
     @Constraints.Required
     private String destinationType;
@@ -34,8 +34,7 @@ public class DestinationType extends BaseModel {
 
     /**
      * Checks if an Object is equal to this instance of DestinationType.
-     * A DestinationType is considered equal if:
-     * destinationType are equal.
+     * A DestinationType is considered equal if destinationType are equal.
      *
      * @param obj   other object which this instance is being compared to.
      * @return      true if this object is equal to obj.
@@ -53,8 +52,7 @@ public class DestinationType extends BaseModel {
 
 
     /**
-     * Calculates the hashcode of this DestinationType using:
-     * destinationType
+     * Calculates the hashcode of this DestinationType using destinationType.
      *
      * @return  hashcode of the object.
      */

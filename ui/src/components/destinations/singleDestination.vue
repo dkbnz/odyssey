@@ -15,23 +15,23 @@
             <b-alert v-model="showError" variant="danger" dismissible>
                 Could not delete destination!
             </b-alert>
-            <p v-if="destinationUsage.photoCount === 1">This destination contains {{destinationUsage.photoCount}} photo.</p>
-            <p v-else>This destination contains {{destinationUsage.photoCount}} photos.</p>
-            <p v-if="destinationUsage.tripCount === 1">This destination is used by {{destinationUsage.tripCount}} trip.<br>
+            <p v-if="destinationUsage.photo_count === 1">This destination contains {{destinationUsage.photo_count}} photo.</p>
+            <p v-else>This destination contains {{destinationUsage.photo_count}} photos.</p>
+            <p v-if="destinationUsage.trip_count === 1">This destination is used by {{destinationUsage.trip_count}} trip.<br>
                 Are you sure you want to delete it?
             </p>
-            <p v-else>This destination is used by {{destinationUsage.tripCount}} trips. <br>
+            <p v-else>This destination is used by {{destinationUsage.trip_count}} trips. <br>
                 Are you sure you want to delete it?
             </p>
             <b-list-group
-            style="overflow-y: scroll; height: 30vh;" v-if="destinationUsage.tripCount > 0">
+            style="overflow-y: scroll; height: 30vh;" v-if="destinationUsage.trip_count > 0">
                 <b-list-group-item class="flex-column align-items-start"
-                                   v-for="trip in destinationUsage.matchingTrips">
+                                   v-for="trip in destinationUsage.matching_trips">
                     <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Name: {{trip.tripName}}</h5>
+                        <h5 class="mb-1">Name: {{trip.trip_name}}</h5>
                     </div>
                     <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Created by: {{trip.firstName}} {{trip.lastName}}</h5>
+                        <h5 class="mb-1">Created by: {{trip.first_name}} {{trip.last_name}}</h5>
                     </div>
                 </b-list-group-item>
             </b-list-group>
