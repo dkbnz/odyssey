@@ -1,4 +1,4 @@
-Feature: Having a admin system
+Feature: Admin API Endpoint
 
   Scenario: Attempting to create a new user from the admin panel
     Given I have a running application
