@@ -10,7 +10,12 @@ import java.util.List;
 
 public class DestinationRepository {
 
+
+    private static final int DEFAULT_ADMIN_ID = 1;
+
+
     private static final String PHOTO_FIELD = "photoGallery.photo";
+
 
     /**
      * Update the destination object.
@@ -40,6 +45,7 @@ public class DestinationRepository {
         return Destination.find.byId(destinationId.intValue());
     }
 
+
     /**
      * Finds all the destinations that contain a given photo.
      *
@@ -52,20 +58,10 @@ public class DestinationRepository {
 
 
     /**
-     * Transfers the ownership of a destination to the default admin. Will be used when a public destination is used by
-     * another user.
+     * Deletes the destination specified.
      *
-     * @param destination the destination to be changed ownership of.
-     * @return            notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
+     * @param destination       The destination to delete from the database.
      */
-    public void transferDestinationOwnership(Destination destination) {
-        Profile defaultAdmin = Profile.find.byId(1);
-
-        destination.changeOwner(defaultAdmin);
-
-        save(destination);
-    }
-
     public void delete(Destination destination) {
         // Clear the destination photos
         destination.clearPhotoGallery();
@@ -73,6 +69,22 @@ public class DestinationRepository {
         // Delete destination
         destination.delete();
     }
+
+
+    /**
+     * Transfers the ownership of a destination to the default admin. Will be used when a public destination is used by
+     * another user.
+     *
+     * @param destination the destination to be changed ownership of.
+     */
+    public void transferDestinationOwnership(Destination destination) {
+        Profile defaultAdmin = Profile.find.byId(DEFAULT_ADMIN_ID);
+
+        destination.changeOwner(defaultAdmin);
+
+        update(destination);
+    }
+
 
     /**
      * Returns a list of Destinations that are equal, excluding the given Destination
