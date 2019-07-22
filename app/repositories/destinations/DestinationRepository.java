@@ -21,6 +21,14 @@ public class DestinationRepository {
         destination.update();
     }
 
+    /**
+     * Save the destination object.
+     *
+     * @param destination       the destination being saved.
+     */
+    public void save(Destination destination) {
+        destination.save();
+    }
 
     /**
      * Retrieve a Destination by its Id.
@@ -55,7 +63,7 @@ public class DestinationRepository {
 
         destination.changeOwner(defaultAdmin);
 
-        update(destination);
+        save(destination);
     }
 
     public void delete(Destination destination) {

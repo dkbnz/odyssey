@@ -8,6 +8,7 @@ import models.Profile;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import java.util.Objects;
 
 @Entity
 public class PersonalPhoto extends BaseModel {
@@ -59,5 +60,32 @@ public class PersonalPhoto extends BaseModel {
 
     public static Finder<Integer, PersonalPhoto> getFind() {
         return find;
+    }
+
+    /**
+     * Checks if an Object is equal to this instance of PersonalPhoto.
+     *
+     * @param obj   other object which this instance is being compared to.
+     * @return      true if this object is equal to obj.
+     */
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj == this) return true;
+        if (!(obj instanceof PersonalPhoto)) return false;
+
+        PersonalPhoto other = (PersonalPhoto) obj;
+
+        return other.getId() == this.getId();
+    }
+
+    /**
+     * Calculates the hashcode of this PersonalPhoto
+     *
+     * @return  hashcode of the object.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getId());
     }
 }

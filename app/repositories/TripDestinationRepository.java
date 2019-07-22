@@ -24,4 +24,13 @@ public class TripDestinationRepository {
                 .setDistinct(true)
                 .findList();
     }
+
+    /**
+     * Save the TripDestination object.
+     *
+     * @param tripDestination       the TripDestination being saved.
+     */
+    public void save(TripDestination tripDestination) {
+        tripDestination.save();
+    }
 }
