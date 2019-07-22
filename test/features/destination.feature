@@ -593,7 +593,7 @@ Feature: Destination API Endpoint
       | Name           | Type  | District         | Latitude   | Longitude     | Country     |
       | Private Glade  | 39    | Canterbury       | -44.1625   | 170.993056    | New Zealand |
     When I request the destination usage for destination with id 9001
-    Then the status code received is Unauthorised
+    Then the status code received is Forbidden
 
   Scenario: Retrieving destination usage for a private destination an admin
     Given I am running the application
