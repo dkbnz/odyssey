@@ -15,16 +15,18 @@
             <b-alert v-model="showError" variant="danger" dismissible>
                 Could not delete destination!
             </b-alert>
-            <p v-if="tripsUsed.count === 1">This destination is used by {{tripsUsed.count}} trip.<br>
+            <p v-if="destinationUsage.photoCount === 1">This destination contains {{destinationUsage.photoCount}} photo.</p>
+            <p v-else>This destination contains {{destinationUsage.photoCount}} photos.</p>
+            <p v-if="destinationUsage.tripCount === 1">This destination is used by {{destinationUsage.tripCount}} trip.<br>
                 Are you sure you want to delete it?
             </p>
-            <p v-else>This destination is used by {{tripsUsed.count}} trips. <br>
+            <p v-else>This destination is used by {{destinationUsage.tripCount}} trips. <br>
                 Are you sure you want to delete it?
             </p>
             <b-list-group
-            style="overflow-y: scroll; height: 30vh;" v-if="tripsUsed.count > 0">
+            style="overflow-y: scroll; height: 30vh;" v-if="destinationUsage.tripCount > 0">
                 <b-list-group-item class="flex-column align-items-start"
-                                   v-for="trip in tripsUsed.matchingTrips">
+                                   v-for="trip in destinationUsage.matchingTrips">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">Name: {{trip.tripName}}</h5>
                     </div>
@@ -66,11 +68,11 @@
                     Longitude: {{destination.longitude}}
                 </p>
                 <b-button @click="editDestination" variant="warning"
-                          v-if="destination.owner.id === profile.id" block>
+                          v-if="destination.owner.id === profile.id || profile.isAdmin" block>
                     Edit
                 </b-button>
                 <b-button @click="confirmDeleteDestination" variant="danger"
-                          v-if="destination.owner.id === profile.id" block>
+                          v-if="destination.owner.id === profile.id || profile.isAdmin" block>
                     Delete
                 </b-button>
             </b-col>
@@ -97,7 +99,7 @@
         data: function () {
             return {
                 copiedDestination: "",
-                tripsUsed: "",
+                destinationUsage: "",
                 refreshDestination: null,
                 showError: false
             }
@@ -186,7 +188,7 @@
                     accept: "application/json"
                 })
                     .then(response => response.json())
-                    .then(response => this.tripsUsed = response);
+                    .then(response => this.destinationUsage = response);
             },
 
 

@@ -1,7 +1,9 @@
 package steps;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
@@ -11,6 +13,8 @@ import cucumber.api.java.en.When;
 import cucumber.api.java.Before;
 import io.ebean.ExpressionList;
 import models.destinations.Destination;
+import models.photos.PersonalPhoto;
+import models.trips.Trip;
 import org.junit.*;
 import play.Application;
 import play.db.Database;
@@ -22,9 +26,7 @@ import play.test.Helpers;
 import repositories.destinations.DestinationRepository;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static controllers.destinations.DestinationController.*;
 import static org.junit.Assert.*;
@@ -56,6 +58,12 @@ public class DestinationTestSteps {
 
 
     /**
+     * The size of the list of trips recieved.
+     */
+    private int tripCountRecieved;
+
+
+    /**
      * The destination endpoint uri.
      */
     private static final String DESTINATION_URI = "/v1/destinations";
@@ -65,6 +73,18 @@ public class DestinationTestSteps {
      * The destination photos endpoint uri.
      */
     private static final String DESTINATION_PHOTO_URI = "/v1/destinationPhotos/";
+
+
+    /**
+     * The trips endpoint uri.
+     */
+    private static final String TRIPS_URI = "/v1/trips/";
+
+
+    /**
+     * The endpoint uri for checking which trips a destination is used in.
+     */
+    private static final String DESTINATION_CHECK_URI = "/v1/destinationCheck/";
 
 
     /**
@@ -144,6 +164,9 @@ public class DestinationTestSteps {
     private static final String TYPE_STRING = "Type";
     private static final String NAME_STRING = "Name";
     private static final String IS_PUBLIC_STRING = "is_public";
+    private static final String TRIP_COUNT = "tripCount";
+    private static final String PHOTO_COUNT = "photoCount";
+    private static final String MATCHING_TRIPS = "matchingTrips";
 
     /**
      * The fake application.
@@ -343,8 +366,8 @@ public class DestinationTestSteps {
 
 
     /**
-     * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_AUTHPASS.
+     * Attempts to send a log in request with user credentials from constants ALT_USERNAME
+     * and ALT_AUTHPASS.
      *
      * Asserts the login was successful with a status code of OK (200).
      */
@@ -397,6 +420,45 @@ public class DestinationTestSteps {
             Long id = getDestinationId(dataTable);
             destinationId = id;
         }
+    }
+
+    @Given("the destination is used in trip {string}")
+    public void theDestinationIsUsedInTrip(String tripName) {
+        JsonNode json = createNewTripJson(tripName);
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED, loggedInId)
+                .bodyJson(json)
+                .uri(TRIPS_URI + loggedInId);
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
+
+    private JsonNode createNewTripJson(String tripName) {
+        //Add values to a JsonNode
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode json = mapper.createObjectNode();
+
+        json.put("trip_name", tripName);
+        ArrayNode destinationsNode = json.putArray("trip_destinations");
+
+        ObjectNode destinationNode1 = destinationsNode.addObject(); //Adding destinations to trip
+        destinationNode1.put("destination_id", "1155");
+        destinationNode1.put("start_date", "1990-12-12");
+        destinationNode1.put("end_date", "1991-12-12");
+
+        ObjectNode destinationNode2 = destinationsNode.addObject(); //Adding destinations to trip
+        destinationNode2.put("destination_id", "567");
+        destinationNode2.put("start_date", "1992-12-12");
+        destinationNode2.put("end_date", "1993-12-12");
+
+        ObjectNode destinationNode3 = destinationsNode.addObject(); //Adding destinations to trip
+        destinationNode3.put("destination_id", destinationId.toString());
+        destinationNode3.put("start_date", "1994-12-12");
+        destinationNode3.put("end_date", "1995-12-12");
+
+        return json;
     }
 
 
@@ -657,7 +719,8 @@ public class DestinationTestSteps {
                 .ilike(COUNTRY, queryComparator(country))
                 .eq(IS_PUBLIC, publicity);
 
-        Destination destination = expressionList.findOne();
+        List<Destination> destinations = expressionList.findList();
+        Destination destination = destinations.size() > 0 ? destinations.get(destinations.size() - 1) : null;
 
         return destination == null ? null : destination.getId();
     }
@@ -816,6 +879,50 @@ public class DestinationTestSteps {
         editDestinationRequest(editValues);
     }
 
+    @When("I request the destination usage for destination with id {int}")
+    public void iRequestTheDestinationUsageForDestinationWithId(Integer destinationId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(DESTINATION_CHECK_URI + destinationId)
+                .session(AUTHORIZED, loggedInId);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
+    }
+
+    @When("I add a photo with id {int} to an existing destination with id {int}")
+    public void iAddAPhotoToASpecifiedDestination(Integer photoId, Integer destinationId) {
+        JsonNode json = createDestinationPhotoJson(photoId);
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                        .uri(DESTINATION_PHOTO_URI + destinationId)
+                        .method(POST)
+                        .bodyJson(json)
+                        .session(AUTHORIZED, loggedInId);
+
+        Result addDestinationPhotoResult = route(application, request);
+        statusCode = addDestinationPhotoResult.status();
+    }
+
+    @Then("the trip count is {int}")
+    public void theTripCountIs(int tripCountExpected) throws IOException {
+        int tripCount = new ObjectMapper().readTree(responseBody).get(TRIP_COUNT).asInt();
+        tripCountRecieved = new ObjectMapper().readTree(responseBody).get(MATCHING_TRIPS).size();
+        Assert.assertEquals(tripCountExpected, tripCount);
+    }
+
+    @Then("the number of trips received is {int}")
+    public void theNumberOfTripsReceivedIs(int tripListSize) throws IOException {
+        Assert.assertEquals(tripCountRecieved, tripListSize);
+    }
+
+    @Then("the photo count is {int}")
+    public void thePhotoCountIs(int photoCountExpected) throws IOException {
+        int photoCount = new ObjectMapper().readTree(responseBody).get(PHOTO_COUNT).asInt();
+        Assert.assertEquals(photoCountExpected, photoCount);
+    }
+
 
     /**
      * Checks if the response body from the previous query contains at least one destination with a given name.
@@ -851,7 +958,6 @@ public class DestinationTestSteps {
 
     @Then("the response is empty")
     public void theResponseIsEmpty() throws IOException {
-        System.out.println(responseBody);
         JsonNode arrNode = new ObjectMapper().readTree(responseBody);
 
         Assert.assertEquals(0, arrNode.size());
@@ -879,12 +985,93 @@ public class DestinationTestSteps {
         }
     }
 
+
+    /**
+     * Tests that the owner of the destination is the specified user
+     * @param userId    id of the expected owner
+     */
     @Then("the owner is user {int}")
     public void theOwnerIsUser(Integer userId) {
         DestinationRepository destinationRepo = new DestinationRepository();
         Destination destination = destinationRepo.fetch(destinationId);
         Long expectedId = userId.longValue();
         assertEquals(expectedId, destination.getOwner().getId());
+    }
+
+
+    /**
+     * Tests that the destination's photos contain the given photos
+     * @param dataTable     ids of the photos expected
+     */
+    @Then("the destination will have photos with the following ids")
+    public void theDestinationWillHavePhotosWithTheFollowingIds(io.cucumber.datatable.DataTable dataTable) {
+        DestinationRepository destinationRepo = new DestinationRepository();
+        Destination destination = destinationRepo.fetch(destinationId);
+
+        List<String> photoIds = getPhotoIds(destination);
+        List<String> expectedIds = new ArrayList<>(dataTable.asList());
+        expectedIds = expectedIds.subList(1, expectedIds.size());
+
+        Collections.sort(expectedIds);
+        Collections.sort(photoIds);
+
+        assertEquals(expectedIds, photoIds);
+    }
+
+
+    /**
+     * Gets an id list of the photos in the given destination
+     * @param destination   the destination to check the photos in
+     * @return              a list of the photo ids
+     */
+    private List<String> getPhotoIds(Destination destination) {
+        List<String> photoIds = new ArrayList<>();
+        for (PersonalPhoto photo : destination.getPhotoGallery()) {
+            photoIds.add(photo.getId().toString());
+        }
+
+        return photoIds;
+    }
+
+
+    /**
+     * Checks that the active destination is used in the given trips
+     * @param dataTable     names of the trips the destination is expected to work in
+     * @throws IOException
+     */
+    @Then("the destination will be used in the following trips")
+    public void theDestinationWillBeUsedInTheFollowingTrips(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        DestinationRepository destinationRepo = new DestinationRepository();
+        Destination destination = destinationRepo.fetch(destinationId);
+
+        List<String> names = getTripNames();
+        List<String> expectedNames = new ArrayList<>(dataTable.asList());
+        expectedNames = expectedNames.subList(1, expectedNames.size());
+
+        Collections.sort(expectedNames);
+        Collections.sort(names);
+
+        assertEquals(expectedNames, names);
+    }
+
+    private List<String> getTripNames() throws IOException {
+        List<String> names = new ArrayList<>();
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, loggedInId)
+                .uri(DESTINATION_CHECK_URI + destinationId);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        JsonNode arrNode = new ObjectMapper().readTree(Helpers.contentAsString(result));
+        ArrayNode trips = (ArrayNode) arrNode.get("matchingTrips");
+
+        for (JsonNode trip : trips) {
+            names.add(trip.get("tripName").asText());
+        }
+
+        return names;
     }
 
 

@@ -158,6 +158,7 @@ public class Destination extends BaseModel {
 
     public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
 
+
     /**
      * Checks if an Object is equal to this instance of Destination.
      * A Destination is considered equal if:
@@ -182,6 +183,7 @@ public class Destination extends BaseModel {
                 other.getLongitude() == this.longitude;
     }
 
+
     /**
      * Calculates the hashcode of this Destination using:
      * name, type, district, country, latitude and longitude.
@@ -197,6 +199,7 @@ public class Destination extends BaseModel {
                 this.latitude,
                 this.longitude);
     }
+
 
     /**
      * Used to merge destinations. Will extract desired attributes from a given destination
@@ -240,6 +243,7 @@ public class Destination extends BaseModel {
         return tripDestinations.remove(tripDestination);
     }
 
+
     /**
      * Returns a TripDestination associated to this Destination.
      * No particular order is guaranteed.
@@ -253,6 +257,7 @@ public class Destination extends BaseModel {
         this.tripDestinations.clear();
         return null;
     }
+
 
     /**
      * Returns a PersonalPhoto associated to this Destination.

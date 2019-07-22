@@ -589,6 +589,9 @@ public class PhotoController extends Controller {
                         if (destination != null) {
                             destination.addPhotoToGallery(personalPhoto);
                             destinationRepo.update(destination);
+
+                            changeOwnership(photoOwner, destination);
+
                             return created(Json.toJson(destination.getPhotoGallery()));
                         } else {
                             return notFound();
@@ -597,6 +600,20 @@ public class PhotoController extends Controller {
 
                     return forbidden();
                 }).orElseGet(() -> unauthorized());
+    }
+
+
+    /**
+     * Checks if the ownership of the destination needs to be transferred to the default admin.
+     * Only carries this out if the check passes.
+     *
+     * @param profileAddingPhoto the profile adding a photo to a destination.
+     * @param destination        the destination the photo is being added to.
+     */
+    private void changeOwnership(Profile profileAddingPhoto, Destination destination) {
+        if (destination.getPublic() && !profileAddingPhoto.equals(destination.getOwner())) {
+            destinationRepo.transferDestinationOwnership(destination);
+        }
     }
 
 

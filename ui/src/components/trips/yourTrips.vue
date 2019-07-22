@@ -437,6 +437,13 @@
                         self.futureTrips = [];
                         self.pastTrips = [];
                         for (let i = 0; i < trips.length; i++) {
+
+                            trips[i].destinations.sort((a, b) => {
+                                if(a.listOrder > b.listOrder) return 1;
+                                if(a.listOrder < b.listOrder) return -1;
+                                return 0;
+                            });
+
                             let destinationDates = [];
                             for (let j = 0; j < trips[i].destinations.length; j++) {
                                 if (trips[i].destinations[j].startDate !== null) {

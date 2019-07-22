@@ -436,7 +436,8 @@ INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `lon
 (9488, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 3),
 (9489, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 4),
 (9490, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 5),
-(9491, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 6);
+(9491, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 6),
+(9001, 'Private Glade', 39, 'Canterbury', -44.1625, 170.993056, 'New Zealand', 'False', 3);
 
 INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `longitude`, `country`, `owner_id`) VALUES
 (10000, 'Canterbury University', 3, 'Christchurch', -43.523434, 172.581681, 'New Zealand', 3);
@@ -485,14 +486,17 @@ INSERT INTO `photo` (`id`, `main_filename`, `thumbnail_filename`, `upload_date`,
 (2, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e317', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e317', '2019-05-25', 2, 'image/png'),
 (3, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e318', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e318', '2019-05-25', 2, 'image/png'),
 (4, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e319', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e319', '2019-05-25', 3, 'image/png'),
-(5, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', '2019-05-25', 2, 'image/png');
+(5, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', '2019-05-25', 2, 'image/png'),
+(6, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', '2019-05-25', 3, 'image/png');
+
 
 INSERT INTO `personal_photo` (`id`, `photo_id`, `profile_id`, `is_public`) VALUES
 (1, 1, 1, true),
 (2, 2, 2, true),
 (3, 3, 2, true),
 (4, 4, 1, true),
-(5, 5, 2, true);
+(5, 5, 2, true),
+(6, 6, 3, true);
 
 INSERT INTO `destination_personal_photo` (`destination_id`, `personal_photo_id`) VALUES
 (119, 3),
