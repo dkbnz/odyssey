@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3>Public Photos</h3>
+        <h3>Public Destination Photos</h3>
         <photo-table
                 :photos="publicPhotos"
                 :profile="profile"
@@ -8,15 +8,13 @@
                 :showDropdown="false">
         </photo-table>
 
-        <h3>Your Photos</h3>
+        <h3>Your Destination Photos</h3>
 
-        <photo-table :selectedImages="personalPhotos"
-                     :photos="profile.photoGallery"
+        <photo-table :photos="personalPhotos"
                      :profile="profile"
                      :userProfile="userProfile"
                      :showDropdown="true"
-                     @privacy-update="updatePhotoPrivacy"
-                     @photo-click="photoToggled">
+                     @privacy-update="updatePhotoPrivacy">
         </photo-table>
 
         <b-button variant="success" @click="showModal('addRemovePhotosModal')" block>Add/Remove Destination Photo</b-button>
