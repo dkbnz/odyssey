@@ -419,6 +419,7 @@
              * Used after the destination is added, resets the form for adding a destination.
              */
             resetDestForm() {
+                this.selectedDestination = {};
                 this.tripDestination = "";
                 this.inDate = "";
                 this.outDate = "";
