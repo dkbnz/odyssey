@@ -68,11 +68,11 @@
                     Longitude: {{destination.longitude}}
                 </p>
                 <b-button @click="editDestination" variant="warning"
-                          v-if="destination.owner.id === profile.id" block>
+                          v-if="destination.owner.id === profile.id || profile.isAdmin" block>
                     Edit
                 </b-button>
                 <b-button @click="confirmDeleteDestination" variant="danger"
-                          v-if="destination.owner.id === profile.id" block>
+                          v-if="destination.owner.id === profile.id || profile.isAdmin" block>
                     Delete
                 </b-button>
             </b-col>
