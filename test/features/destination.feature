@@ -385,8 +385,8 @@ Feature: Destination API Endpoint
 #    Then the owner is user 1
 
 
-  # Waiting for implementation
-  # TODO: Hayden
+#   Waiting for implementation
+#   TODO: Hayden
 #  Scenario: Merging two destinations which have photos
 #    Given I am running the application
 #    And I am logged in
@@ -407,3 +407,27 @@ Feature: Destination API Endpoint
 #      | id    |
 #      | 1     |
 #      | 2     |
+
+
+#   Waiting for implementation
+#   TODO: Hayden
+#  Scenario: Merging two destinations are used in trips
+#    Given I am running the application
+#    And I am logged in
+#    And a destination already exists with the following values
+#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+#    And the destination is used in trip "Trip 1"
+#    And I am not logged in
+#    And I am logged in as an admin user
+#    And a destination already exists with the following values
+#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+#    And the destination is used in trip "Trip 2"
+#    When I attempt to edit the destination using the following values
+#      | is_public |
+#      | true      |
+#    Then the destination will be used in the following trips
+#      | Trip name   |
+#      | Trip 1      |
+#      | Trip 2      |
