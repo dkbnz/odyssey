@@ -133,7 +133,7 @@
                     Public Destination
                 </b-form-checkbox>
 
-                <b-button @click="checkDestinationFields" block variant="primary">{{heading}} Destination</b-button>
+                <b-button :disabled="!validateFields()" @click="checkDestinationFields" block variant="primary">{{heading}} Destination</b-button>
             </b-form>
         </div>
     </div>
@@ -153,7 +153,7 @@
                         name: "",
                         type: {
                             id: null,
-                            destinationType: "",
+                            destinationType: ""
                         },
                         district: "",
                         latitude: null,
@@ -162,7 +162,7 @@
                         public: false
                     }
                 }
-            },
+            }
         },
         data() {
             return {
@@ -172,7 +172,7 @@
                 dismissCountDown: 0,
                 latitudeErrorMessage: "",
                 longitudeErrorMessage: "",
-                destinationConflicts: [],
+                destinationConflicts: []
             }
         },
         computed: {
@@ -238,13 +238,20 @@
         },
         methods: {
             /**
+             * Checks all of the input fields for valid input
+             */
+            validateFields() {
+                return this.destinationNameValidation && this.destinationTypeValidation
+                    && this.destinationDistrictValidation && this.destinationLatitudeValidation
+                    && this.destinationLongitudeValidation && this.destinationCountryValidation
+            },
+
+            /**
              * Checks that all fields are present and runs validation.
              * On fail shows errors.
              */
             checkDestinationFields() {
-                if(this.destinationNameValidation && this.destinationTypeValidation
-                    && this.destinationDistrictValidation && this.destinationLatitudeValidation
-                    && this.destinationLongitudeValidation && this.destinationCountryValidation) {
+                if(this.validateFields()) {
                     this.showError = false;
 
                     if (this.inputDestination.id === null) {
@@ -252,10 +259,12 @@
                     } else {
                         this.validateEdit();
                     }
+                    return true;
                 }
                 else {
                     this.errorMessage = ("Please enter in all fields!");
                     this.showError = true;
+                    return false;
                 }
             },
 
