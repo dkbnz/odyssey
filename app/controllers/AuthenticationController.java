@@ -73,6 +73,7 @@ public class AuthenticationController extends Controller {
 
     /**
      * Hashes a password string using the SHA 256 method from the MessageDigest library.
+     *
      * @param password                  the string that is requested to be hashed.
      * @return                          a string of the hashed binary array as a hexadecimal string.
      * @throws NoSuchAlgorithmException if the algorithm specified does not exist for the MessageDigest library.

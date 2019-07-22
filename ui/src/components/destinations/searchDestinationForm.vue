@@ -211,10 +211,10 @@
                         longitude: this.searchLongitude,
                         country: this.searchCountry
                     });
-                    //this.queryDestinations();
                 }
 
             },
+
 
             /**
              * Checks each of the validation fields to ensure they are return either null (no value is given), or the
@@ -227,6 +227,7 @@
                     return true;
                 }
             },
+
 
             /**
              * Runs a query which searches through the destinations in the database and returns all which
@@ -259,6 +260,7 @@
                     })
             },
 
+
             /**
              * Displays an error if search failed.
              *
@@ -276,6 +278,13 @@
                 throw error;
             },
 
+
+            /**
+             * Converts the retrieved Http response to a Json format.
+             *
+             * @param response the Http response.
+             * @returns the Http response body as Json.
+             */
             parseJSON(response) {
                 return response.json();
             }

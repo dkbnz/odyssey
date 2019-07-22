@@ -2,7 +2,6 @@ package repositories;
 
 import io.ebean.ExpressionList;
 import models.Profile;
-import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
 
@@ -17,8 +16,8 @@ public class TripRepository {
     /**
      * Saves a new trip to a profile's list of trips, which is persisted to our database.
      *
-     * @param profile       The profile having a new trip created.
-     * @param trip          The new trip being created for profile.
+     * @param profile       the profile having a new trip created.
+     * @param trip          the new trip being created for profile.
      */
     public void saveNewTrip(Profile profile, Trip trip) {
 
@@ -29,12 +28,13 @@ public class TripRepository {
         profile.save();
     }
 
+
     /**
-     * Updates a trip with new attributes and destinations
+     * Updates a trip with new attributes and destinations.
      *
-     * @param profile           The profile which is having a trip be updated
-     * @param trip              The updated trip
-     * @param destinationList   List of destinations to be added to the trip
+     * @param profile           the profile which is having a trip be updated.
+     * @param trip              the updated trip.
+     * @param destinationList   list of destinations to be added to the trip.
      */
     public void updateTrip(Profile profile, Trip trip, List<TripDestination> destinationList) {
         trip.setDestinations(destinationList);
@@ -46,8 +46,8 @@ public class TripRepository {
     /**
      * Updates an existing trip as well as the profile it belongs to within the database.
      *
-     * @param profile       The profile having its trip updated with an edited trip.
-     * @param trip          The existing trip being updated after editing.
+     * @param profile       the profile having its trip updated with an edited trip.
+     * @param trip          the existing trip being updated after editing.
      */
     public void updateOldTrip(Profile profile, Trip trip) {
 
@@ -63,7 +63,7 @@ public class TripRepository {
      * Removes the existing TripDestinations from a trip being edited.
      * Is used before parsing the request body in edit which will contain all the updated trips, "cleaning the slate".
      *
-     * @param trip          The trip having its destinations deleted before editing
+     * @param trip          the trip having its destinations deleted before editing.
      */
     public void removeTripDestinations(Trip trip) {
 
@@ -78,11 +78,12 @@ public class TripRepository {
 
 
     /**
-     * Removes a single trip from a profile's list of trips, and deletes the trip from the profile before updating the profile.
+     * Removes a single trip from a profile's list of trips, and deletes the trip from the profile before updating
+     * the profile.
      * This method is used in TripController inside the 'destroy' method.
      *
-     * @param profile       The profile having its trip deleted.
-     * @param trip          The trip being deleted from a profile.
+     * @param profile       the profile having its trip deleted.
+     * @param trip          the trip being deleted from a profile.
      */
     public void deleteTripFromProfile(Profile profile, Trip trip) {
 
@@ -100,8 +101,8 @@ public class TripRepository {
     /**
      * Finds all the trips with a specified user id.
      *
-     * @param id            The profile id.
-     * @return              The list of trips.
+     * @param id            the profile id.
+     * @return              the list of trips.
      */
     public List<Trip> fetchAllTrips(Long id) {
 
@@ -119,8 +120,8 @@ public class TripRepository {
     /**
      * Finds a single trip with a given id. Returns null if no such trip was found.
      *
-     * @param tripId        The id of the trip.
-     * @return              The Trip object associated with the id. Null if no trip was found.
+     * @param tripId        the id of the trip.
+     * @return              the Trip object associated with the id. Null if no trip was found.
      */
     public Trip fetchSingleTrip(Long tripId) {
         return Trip.getFind().byId(tripId.intValue());
@@ -130,8 +131,8 @@ public class TripRepository {
     /**
      * Finds the profile id of the trip's owner.
      *
-     * @param tripId        The id of the trip.
-     * @return              The profile id of the owner of the trip.
+     * @param tripId        the id of the trip.
+     * @return              the profile id of the owner of the trip.
      */
     public static Long fetchTripOwner(Long tripId) {
         return Trip.getFind().query().select("profile.id").where().eq(TRIP_ID, tripId).findSingleAttribute();

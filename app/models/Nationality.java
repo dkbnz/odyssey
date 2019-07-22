@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 
 
 /**
- * Nationality entity managed by Ebean
+ * Nationality entity managed by Ebean.
  */
 @Entity
 public class Nationality extends BaseModel {

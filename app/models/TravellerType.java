@@ -5,13 +5,13 @@ import play.data.validation.Constraints;
 import javax.persistence.Entity;
 
 /**
- * TravellerType entity managed by Ebean
+ * TravellerType entity managed by Ebean.
  */
 @Entity
 public class TravellerType extends BaseModel {
 
     /**
-     * The name of a traveller type
+     * The name of a traveller type.
      */
     @Constraints.Required
     private String travellerType;

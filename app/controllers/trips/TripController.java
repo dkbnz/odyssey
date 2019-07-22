@@ -36,6 +36,7 @@ public class TripController extends Controller {
     private ProfileRepository profileRepo;
     private DestinationRepository destinationRepo;
 
+
     @Inject
     public TripController(TripRepository tripRepo,
                           ProfileRepository profileRepo, DestinationRepository destinationRepo) {
@@ -110,7 +111,7 @@ public class TripController extends Controller {
     /**
      * Method for looking at the contents of the main Json body for a trip in a request.
      * NOTE: Does not examine array contents.
-     *isValidT
+     *
      * @param json      the Json body of a request received.
      * @return          false if Json doesn't contain a name or an array of destinations with at least two nodes, else
      *                  returns true.
@@ -198,10 +199,10 @@ public class TripController extends Controller {
 
     /**
      * Parse the ArrayNode from a valid request's Json body to create a list of TripDestination objects
-     * This method is used when creating a trip and when editing a trip
+     * This method is used when creating a trip and when editing a trip.
      *
-     * @param tripDestinations      the array of trip destinations
-     * @return                      an array of destinations
+     * @param tripDestinations      the array of trip destinations.
+     * @return                      an array of destinations.
      */
     private List<TripDestination> parseTripDestinations(ArrayNode tripDestinations) {
 
@@ -261,10 +262,10 @@ public class TripController extends Controller {
 
     /**
      * Checks the start and end dates to make sure that the start date does not happen after the end date but if either
-     * is null this does not apply
+     * is null this does not apply.
      *
-     * @param startDate     starting date as string
-     * @param endDate       ending date as string
+     * @param startDate     starting date as string.
+     * @param endDate       ending date as string.
      * @return              true if the dates are valid (blank, null, or start date occurs before or at the same time as
      *                      end date), otherwise returns false.
      */
@@ -281,11 +282,11 @@ public class TripController extends Controller {
 
 
     /**
-     * Checks if all of the start/end dates within a trip are in valid order, to be called after saving a reorder
+     * Checks if all of the start/end dates within a trip are in valid order, to be called after saving a reorder.
      *
-     *  @param tripDestinations  array of all the destinations in the trip in the new order
+     * @param tripDestinations  array of all the destinations in the trip in the new order.
      * @return                  true if all the dates of destinations within a trip are in chronological order,
-     *                          false otherwise
+     *                          false otherwise.
      */
     private boolean isValidDateOrder(List<TripDestination> tripDestinations) {
         // Adds all dates within the list of trip destinations to an array if they aren't null
@@ -360,7 +361,8 @@ public class TripController extends Controller {
         Profile owner = destination.getOwner();
 
         // Destination is not owned by global admin, it is public, and the user is not the owner of the destination.
-        if (owner == null || owner.getId() != DEFAULT_ADMIN_ID && destination.getPublic() && !affectedProfile.getId().equals(owner.getId())) {
+        if (owner == null || owner.getId() != DEFAULT_ADMIN_ID && destination.getPublic()
+                && !affectedProfile.getId().equals(owner.getId())) {
             destinationRepo.transferDestinationOwnership(destination);
             return ok("Destination ownership changed");
         }

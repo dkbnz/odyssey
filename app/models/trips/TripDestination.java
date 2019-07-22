@@ -11,7 +11,7 @@ import javax.persistence.CascadeType;
 import java.time.LocalDate;
 
 /**
- * Class for holding a certain trips destinations, start and end dates
+ * Class for holding a certain trips destinations, start and end dates.
  */
 @Entity
 public class TripDestination extends BaseModel {

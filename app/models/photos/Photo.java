@@ -27,7 +27,7 @@ public class Photo extends BaseModel {
     private String thumbnailFilename;
 
     /**
-     * Content type of the saved image
+     * Content type of the saved image.
      */
     @JsonIgnore
     private String contentType;

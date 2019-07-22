@@ -80,7 +80,7 @@ public class PersonalPhoto extends BaseModel {
     }
 
     /**
-     * Calculates the hashcode of this PersonalPhoto
+     * Calculates the hashcode of this PersonalPhoto.
      *
      * @return  hashcode of the object.
      */

@@ -390,6 +390,7 @@
                 }
             },
 
+
             /**
              * Method to add the destination to the list of trip destinations. This also adds the destination to the
              * table so the destination can be reordered or edited. After the destination is added, the form for adding
@@ -415,6 +416,7 @@
                 this.resetDestForm();
             },
 
+
             /**
              * Used after the destination is added, resets the form for adding a destination.
              */
@@ -425,16 +427,20 @@
                 this.outDate = "";
             },
 
+
             /**
              * Method to delete a destination from the list of trip destinations.
+             *
              * @param rowIndex      the index of the row in the table
              */
             deleteDestination(rowIndex) {
                 this.inputTrip.destinations.splice(rowIndex, 1);
             },
 
+
             /**
              * Used to populate the modal to edit a destination dates in the trip.
+             *
              * @param row           the selected row (destination) in the table.
              */
             populateModal(row) {
@@ -443,9 +449,11 @@
                 this.editOutDate = row.endDate;
             },
 
+
             /**
              * Used to save the destination that is being edited.
              * Checks the start date is before the end date.
+             *
              * @param row           the row (destination) being edited.
              * @param editInDate    the in date being edited.
              * @param editOutDate   the out date being edited.
@@ -469,6 +477,7 @@
                 }
             },
 
+
             /**
              * Used to dismiss the modal used to edit the destination.
              */
@@ -480,6 +489,7 @@
             /**
              * Used to move a destination in the table up one place. The trip isn't checked for duplicates until it is
              * saved.
+             *
              * @param rowIndex      the row index of the destination in the table.
              */
             moveUp(rowIndex) {
@@ -490,9 +500,11 @@
                 this.$refs.tripDestTable.refresh();
             },
 
+
             /**
              * Used to move a destination in the table down one place. The trip isn't checked for duplicates until it is
              * saved.
+             *
              * @param rowIndex      the row index of the destination in the table.
              */
             moveDown(rowIndex) {
@@ -502,6 +514,7 @@
                 this.inputTrip.destinations[downIndex] = swapRow;
                 this.$refs.tripDestTable.refresh();
             },
+
 
             /**
              * Used to check the trip trying to be saved is valid.
@@ -545,8 +558,10 @@
                 }
             },
 
+
             /**
              * Used to check if there are duplicate destinations next to one another in a trip upon the trip save.
+             *
              * @returns {boolean}, true if there is duplicates, false otherwise.
              */
             checkDuplicateDestinations() {
@@ -564,8 +579,10 @@
                 }
             },
 
+
             /**
              * Used to show an alert saying there are duplicate destinations next to one another in the trip.
+             *
              * @param error The error message to be displayed
              */
             showDuplicateDestError(error) {
@@ -574,10 +591,12 @@
                     + error;
             },
 
+
             /**
              * Checks all the destination dates in a trip to ensure that the end date of a destination is before its
              * following destination start date, or if the dates are null.
-             * @returns {boolean} true if the dates are valid, false otherwise
+             *
+             * @returns {boolean} true if the dates are valid, false otherwise.
              */
             checkValidDestinationDates() {
                 let destinationList = this.inputTrip.destinations;
@@ -603,11 +622,13 @@
                 return true;
             },
 
+
             /**
              * Uses a fetch method (POST) to save a new trip. If there is an error for some reason, this is shown to the
              * user.
              * If the trip is successfully saved, then an alert is shown to the user and the trip form is reset.
-             * @param trip      the trip to be saved
+             *
+             * @param trip      the trip to be saved.
              */
             saveNewTrip(trip) {
                 this.savingTrip = true;
@@ -635,10 +656,12 @@
                 });
             },
 
+
             /**
              * Uses a fetch method (PATCH) to save an old trip. If there is an error for some reason, this is shown to
              * the user.
              * If the trip is successfully saved, then an alert is shown to the user and the trip form is reset.
+             *
              * @param trip      the trip to be saved
              * @param tripId    the id of the trip to be saved. This is required because the trip is being edited.
              */
@@ -666,6 +689,7 @@
                 });
             },
 
+
             /**
              * Displays the countdown alert on the successful saving of a trip.
              */
@@ -673,14 +697,22 @@
                 this.dismissCountDown = this.dismissSecs
             },
 
+
             /**
              * Used to allow an alert to countdown on the successful saving of a trip.
+             *
              * @param dismissCountDown      the name of the alert.
              */
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
             },
 
+
+            /**
+             * Retrieves the list of all destinations.
+             *
+             * @param updateDestinations    the list of destinations to be updated.
+             */
             getDestinations(updateDestinations) {
                 return fetch(`/v1/destinations`, {
                     accept: "application/json"
@@ -689,12 +721,21 @@
                     .then(updateDestinations);
             },
 
+
+            /**
+             * Converts the retrieved Http response to a Json format.
+             *
+             * @param response the Http response.
+             * @returns the Http response body as Json.
+             */
             parseJSON(response) {
                 return response.json();
             },
 
+
             /**
              * Sorts the destinations based on the name of the destination.
+             *
              * @param first      for each destination, current destination
              * @param next       for each destination, next destination
              * @returns {number} depending on if destinations should be swapped or not -1, 1, 0
@@ -710,7 +751,7 @@
                 } else {
                     return 0;
                 }
-            },
+            }
         }
     }
 </script>

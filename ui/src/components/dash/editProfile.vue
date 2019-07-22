@@ -9,15 +9,15 @@
                         id="firstName-field"
                         label="First Name(s):"
                         label-for="firstName">
-                    <b-form-input :state="fNameValidation"
+                    <b-form-input :state="firstNameValidation"
                                   id="firstName"
                                   trim
                                   type="text" v-model="saveProfile.firstName">
                     </b-form-input>
-                    <b-form-invalid-feedback :state="fNameValidation">
+                    <b-form-invalid-feedback :state="firstNameValidation">
                         Your first name must be between 1-100 characters and contain no numbers.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="fNameValidation">
+                    <b-form-valid-feedback :state="firstNameValidation">
                         Looks Good
                     </b-form-valid-feedback>
                 </b-form-group>
@@ -27,15 +27,15 @@
                         id="middleName-field"
                         label="Middle Name(s):"
                         label-for="middleName">
-                    <b-form-input :state="mNameValidation"
+                    <b-form-input :state="middleNameValidation"
                                   id="middleName"
                                   trim
                                   type="text" v-model="saveProfile.middleName">
                     </b-form-input>
-                    <b-form-invalid-feedback :state="mNameValidation">
+                    <b-form-invalid-feedback :state="middleNameValidation">
                         Your middle name must be less than 100 characters and contain no numbers.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="mNameValidation">
+                    <b-form-valid-feedback :state="middleNameValidation">
                         Looks Good
                     </b-form-valid-feedback>
                 </b-form-group>
@@ -45,15 +45,15 @@
                         id="lastName-field"
                         label="Last Name(s):"
                         label-for="lastName">
-                    <b-form-input :state="lNameValidation"
+                    <b-form-input :state="lastNameValidation"
                                   id="lastName"
                                   trim
                                   type="text" v-model="saveProfile.lastName">
                     </b-form-input>
-                    <b-form-invalid-feedback :state="lNameValidation">
+                    <b-form-invalid-feedback :state="lastNameValidation">
                         Your last name must be between 1-100 characters and contain no numbers.
                     </b-form-invalid-feedback>
-                    <b-form-valid-feedback :state="lNameValidation">
+                    <b-form-valid-feedback :state="lastNameValidation">
                         Looks Good
                     </b-form-valid-feedback>
                 </b-form-group>
@@ -139,12 +139,12 @@
             <b-col>
                 <!--Password re-entry field which validates inputted text-->
                 <b-form-group
-                        id="passwordRE-field"
+                        id="passwordRe-field"
                         label="Retype Password:"
-                        label-for="passwordre">
+                        label-for="passwordRe">
                     <b-form-input
                             :state="rePasswordValidation"
-                            id="passwordre"
+                            id="passwordRe"
                             placeholder="Unchanged"
                             trim
                             type="password" v-model="rePassword">
@@ -322,18 +322,18 @@
              *
              * @returns {boolean} true if input is valid, false if invalid, or null if field remains unselected.
              */
-            fNameValidation() {
+            firstNameValidation() {
                 if (this.saveProfile.firstName.length === 0) {
                     return false;
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.saveProfile.firstName);
             },
-            mNameValidation() {
+            middleNameValidation() {
                 let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.saveProfile.middleName) || this.saveProfile.middleName.length === 0;
             },
-            lNameValidation() {
+            lastNameValidation() {
                 if (this.saveProfile.lastName.length === 0) {
                     return false;
                 }
@@ -412,14 +412,16 @@
 
             },
 
+
             /**
              * Runs all field validation. If any errors occur, displays an error.
              */
             checkSaveProfile() {
-                if (this.fNameValidation && this.mNameValidation && this.lNameValidation && this.emailValidation
-                    && this.dateOfBirthValidation && this.genderValidation && this.nationalityValidation
-                    && this.travTypeValidation) {
-                    if (this.passwordValidation == null || (this.passwordValidation === true && this.rePasswordValidation === true)) {
+                if (this.firstNameValidation && this.middleNameValidation && this.lastNameValidation
+                    && this.emailValidation && this.dateOfBirthValidation && this.genderValidation
+                    && this.nationalityValidation && this.travTypeValidation) {
+                    if (this.passwordValidation == null
+                        || (this.passwordValidation === true && this.rePasswordValidation === true)) {
                         this.showError = false;
                         return true;
                     } else {
@@ -431,6 +433,7 @@
                     return false;
                 }
             },
+
 
             /**
              * Sends profile changes to profileController and reloads page using the Vue Router.
@@ -455,9 +458,9 @@
                 }
             },
 
+
             /**
-             * Check for duplicates of nationalities/passports/traveller types in order to
-             * remove them from "other" option fields.
+             * Check for duplicates of nationalities in order to remove them from "other" option fields.
              *
              * @param id of nationality to check.
              * @returns {boolean} true if value is duplicate of user's current.
@@ -469,6 +472,13 @@
                     }
                 }
             },
+
+            /**
+             * Check for duplicates of passports in order to remove them from "other" option fields.
+             *
+             * @param id of passport to check.
+             * @returns {boolean} true if value is duplicate of user's current.
+             */
             duplicatePassport(id) {
                 for (let i = 0; i < this.profile.passports.length; i++) {
                     if (this.profile.passports[i].id === id) {
@@ -476,6 +486,14 @@
                     }
                 }
             },
+
+
+            /**
+             * Check for duplicates of traveller types in order to remove them from "other" option fields.
+             *
+             * @param id of traveller type to check.
+             * @returns {boolean} true if value is duplicate of user's current.
+             */
             duplicateTravType(id) {
                 for (let i = 0; i < this.profile.travellerTypes.length; i++) {
                     if (this.profile.travellerTypes[i].id === id) {
@@ -483,7 +501,6 @@
                     }
                 }
             }
-        },
-        components: {}
+        }
     }
 </script>

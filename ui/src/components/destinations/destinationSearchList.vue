@@ -15,7 +15,9 @@
         <div v-else>
             <b-button variant="success" @click="showSearch = true" block>Search</b-button>
             <b-list-group class="scroll">
-                <b-list-group-item v-for="destination in (foundDestinations)" href="#" class="flex-column align-items-start" @click="$emit('destination-click', destination)">
+                <b-list-group-item v-for="destination in (foundDestinations)" href="#"
+                                   class="flex-column align-items-start"
+                                   @click="$emit('destination-click', destination)">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">{{destination.name}}</h5>
 
@@ -53,95 +55,104 @@
 </template>
 
 <script>
-import SearchDestinations from "./searchDestinationForm";
-export default {
-   name: "foundDestinations",
-   components: {SearchDestinations},
-   props: ['profile', 'destinationTypes', 'searchPublic'],
-    data() {
-       return {
-           foundDestinations: [],
-           showSearch: true,
-           loadingResults: true,
-           moreResults: true,
-           destToSearch: {},
-           queryPage: 0
-       }
-    },
-    methods: {
+    import SearchDestinations from "./searchDestinationForm";
+    export default {
+       name: "foundDestinations",
+       components: {SearchDestinations},
+       props: ['profile', 'destinationTypes', 'searchPublic'],
+        data() {
+           return {
+               foundDestinations: [],
+               showSearch: true,
+               loadingResults: true,
+               moreResults: true,
+               destToSearch: {},
+               queryPage: 0
+           }
+        },
+        methods: {
+           /**
+            * Function to retrieve more destinations when a user reaches the bottom of the list.
+            */
+           getMore() {
+               this.queryPage += 1;
+               this.queryDestinations(this.destToSearch);
+           },
 
-       /**
-        * Function to retrieve more destinations when a user reaches the bottom of the list.
-        */
-       getMore() {
-           this.queryPage += 1;
-           this.queryDestinations(this.destToSearch);
-       },
 
-        /**
-         * Resets the data fields and performs the initial search query when a user clicks search
-         */
-       initialQuery(destinationToSearch) {
-           this.loadingResults = true;
-           this.showSearch = false;
-           this.queryPage = 0;
-           this.foundDestinations = [];
-           this.destToSearch = destinationToSearch;
-           this.queryDestinations(this.destToSearch);
-           this.loadingResults = false;
-       },
-        /**
-         * Runs a query which searches through the destinations in the database and returns all which
-         * follow the search criteria.
-         *
-         * @returns {Promise<Response | never>}
-         */
-        queryDestinations(destinationToSearch) {
-            let searchQuery =
-                "?name=" + destinationToSearch.name +
-                "&type_id=" + destinationToSearch.type +
-                "&district=" + destinationToSearch.district +
-                "&latitude=" + destinationToSearch.latitude +
-                "&longitude=" + destinationToSearch.longitude +
-                "&country=" + destinationToSearch.country +
-                (this.searchPublic ? "&is_public=1" : "&owner=" + this.profile.id) +
-                "&page=" + this.queryPage;
+            /**
+             * Resets the data fields and performs the initial search query when a user clicks search
+             */
+           initialQuery(destinationToSearch) {
+               this.loadingResults = true;
+               this.showSearch = false;
+               this.queryPage = 0;
+               this.foundDestinations = [];
+               this.destToSearch = destinationToSearch;
+               this.queryDestinations(this.destToSearch);
+               this.loadingResults = false;
+           },
 
-            return fetch(`/v1/destinations` + searchQuery, {
-                dataType: 'html'
-            })
-                .then(this.checkStatus)
-                .then(this.parseJSON)
-                .then((data) => {
-                    if (data === undefined || data.length < 50) {
-                        this.moreResults = false;
-                    }
-                    for (var i = 0; i < data.length; i++) {
-                        this.foundDestinations.push(data[i]);
-                    }
+
+            /**
+             * Runs a query which searches through the destinations in the database and returns all which
+             * follow the search criteria.
+             *
+             * @returns {Promise<Response | never>}
+             */
+            queryDestinations(destinationToSearch) {
+                let searchQuery =
+                    "?name=" + destinationToSearch.name +
+                    "&type_id=" + destinationToSearch.type +
+                    "&district=" + destinationToSearch.district +
+                    "&latitude=" + destinationToSearch.latitude +
+                    "&longitude=" + destinationToSearch.longitude +
+                    "&country=" + destinationToSearch.country +
+                    (this.searchPublic ? "&is_public=1" : "&owner=" + this.profile.id) +
+                    "&page=" + this.queryPage;
+
+                return fetch(`/v1/destinations` + searchQuery, {
+                    dataType: 'html'
                 })
-        },
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then((data) => {
+                        if (data === undefined || data.length < 50) {
+                            this.moreResults = false;
+                        }
+                        for (var i = 0; i < data.length; i++) {
+                            this.foundDestinations.push(data[i]);
+                        }
+                    })
+            },
 
-        checkStatus(response) {
-            if (response.status >= 200 && response.status < 300) {
-                return response;
+
+            /**
+             * Checks the Http response for errors.
+             *
+             * @param response the retrieved Http response.
+             * @returns {*} throws the Http response error.
+             */
+            checkStatus(response) {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                }
+                const error = new Error(`HTTP Error ${response.statusText}`);
+                error.status = response.statusText;
+                error.response = response;
+                console.log(error);
+                throw error;
+            },
+
+
+            /**
+             * Converts the Http response body to a Json.
+             * @param response  the received Http response.
+             * @returns {*}     the response body as a Json object.
+             */
+            parseJSON(response) {
+                return response.json();
             }
-            const error = new Error(`HTTP Error ${response.statusText}`);
-            error.status = response.statusText;
-            error.response = response;
-            console.log(error);
-            throw error;
-        },
-
-        parseJSON(response) {
-            return response.json();
         }
     }
-
-
-}
 </script>
-
-<style scoped>
-
-</style>

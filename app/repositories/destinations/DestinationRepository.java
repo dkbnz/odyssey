@@ -4,16 +4,12 @@ import io.ebean.Ebean;
 import models.Profile;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
-import play.mvc.Result;
 
 import java.util.List;
 
 public class DestinationRepository {
 
-
     private static final int DEFAULT_ADMIN_ID = 1;
-
-
     private static final String PHOTO_FIELD = "photoGallery.photo";
 
 
@@ -60,7 +56,7 @@ public class DestinationRepository {
     /**
      * Deletes the destination specified.
      *
-     * @param destination       The destination to delete from the database.
+     * @param destination       the destination to delete from the database.
      */
     public void delete(Destination destination) {
         // Clear the destination photos
