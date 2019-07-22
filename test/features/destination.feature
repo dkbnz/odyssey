@@ -374,8 +374,8 @@ Feature: Destination API Endpoint
     And the destination has a photo with id 2
     Then the owner is user 2
 
-  # Waiting for implementation
-  # TODO: Hayden
+#  # Waiting for implementation
+#  # TODO: Hayden
 #  Scenario: Another user uses a public destination
 #    Given I am running the application
 #    And I am logged in
@@ -386,10 +386,10 @@ Feature: Destination API Endpoint
 #    And I am logged in as an alternate user
 #    When I add a photo with id 2 to the destination
 #    Then the owner is user 1
-
-
-#   Waiting for implementation
-#   TODO: Hayden
+#
+#
+##   Waiting for implementation
+##   TODO: Hayden
 #  Scenario: Merging two destinations which have photos
 #    Given I am running the application
 #    And I am logged in
@@ -410,10 +410,10 @@ Feature: Destination API Endpoint
 #      | id    |
 #      | 1     |
 #      | 2     |
-
-
-#   Waiting for implementation
-#   TODO: Hayden
+#
+#
+##   Waiting for implementation
+##   TODO: Hayden
 #  Scenario: Merging two destinations are used in trips
 #    Given I am running the application
 #    And I am logged in
