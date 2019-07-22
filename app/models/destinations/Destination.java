@@ -8,9 +8,7 @@ import models.photos.PersonalPhoto;
 import models.trips.TripDestination;
 import play.data.validation.Constraints;
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Class for destinations that users signify an interest in.
@@ -67,7 +65,7 @@ public class Destination extends BaseModel {
      * The destinations photo gallery
      */
     @ManyToMany
-    private List<PersonalPhoto> photoGallery = new ArrayList<>();
+    private Set<PersonalPhoto> photoGallery = new TreeSet<>();
 
     /**
      * Stating the privacy of the destination if it is public or not
@@ -128,7 +126,7 @@ public class Destination extends BaseModel {
 
     public void setCountry(String country) { this.country = country; }
 
-    public List<PersonalPhoto> getPhotoGallery() { return photoGallery; }
+    public Set<PersonalPhoto> getPhotoGallery() { return photoGallery; }
 
     public boolean addPhotoToGallery(PersonalPhoto photoToAdd) {
         return photoGallery.add(photoToAdd);
@@ -215,9 +213,13 @@ public class Destination extends BaseModel {
         TripDestination tripDestinationToConsume = other.getTripDestination();
         while(tripDestinationToConsume != null) {
             other.removeTripDestination(tripDestinationToConsume);
-            this.addTripDestination(tripDestinationToConsume);
+
+            tripDestinationToConsume.setId(null); //Resave with New Id
             tripDestinationToConsume.setDestination(this);
-            tripDestinationToConsume.update();
+            tripDestinationToConsume.insert();
+
+            this.addTripDestination(tripDestinationToConsume);
+
             tripDestinationToConsume = other.getTripDestination();
         }
 
@@ -262,6 +264,7 @@ public class Destination extends BaseModel {
         if (this.photoGallery.iterator().hasNext()) {
             return this.photoGallery.iterator().next();
         }
+        this.photoGallery.clear();
         return null;
     }
 

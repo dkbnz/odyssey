@@ -68,7 +68,6 @@ public class AuthenticationController extends Controller {
                     }
 
                     return unauthorized("Invalid user credentials provided");
-
                 });
     }
 
