@@ -555,10 +555,6 @@ Feature: Destination API Endpoint
     And the destination has a photo with id 3
     Then the owner is user 2
 
-
-
-
-
   Scenario: Retrieving destination usage when not logged in
     Given I am running the application
     And I am not logged in
@@ -573,7 +569,6 @@ Feature: Destination API Endpoint
     And I am logged in
     When I request the destination usage for destination with id 1
     Then the status code received is Not Found
-
 
   Scenario: Retrieving destination usage for my own private destination
     Given I am running the application

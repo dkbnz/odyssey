@@ -164,9 +164,19 @@ public class DestinationTestSteps {
     private static final String TYPE_STRING = "Type";
     private static final String NAME_STRING = "Name";
     private static final String IS_PUBLIC_STRING = "is_public";
-    private static final String TRIP_COUNT = "tripCount";
-    private static final String PHOTO_COUNT = "photoCount";
-    private static final String MATCHING_TRIPS = "matchingTrips";
+    private static final String TRIP_COUNT = "trip_count";
+    private static final String PHOTO_COUNT = "photo_count";
+    private static final String MATCHING_TRIPS = "matching_trips";
+    private static final String TRIP_NAME = "trip_name";
+
+    private static final String DISTRICT = "district";
+    private static final String LATITUDE = "latitude";
+    private static final String LONGITUDE = "longitude";
+    private static final String COUNTRY = "country";
+    private static final String TYPE = "type_id";
+    private static final String NAME = "name";
+    private static final String IS_PUBLIC = "is_public";
+
 
     /**
      * The fake application.
@@ -987,8 +997,9 @@ public class DestinationTestSteps {
 
 
     /**
-     * Tests that the owner of the destination is the specified user
-     * @param userId    id of the expected owner
+     * Tests that the owner of the destination is the specified user.
+     *
+     * @param userId    id of the expected owner.
      */
     @Then("the owner is user {int}")
     public void theOwnerIsUser(Integer userId) {
@@ -1000,8 +1011,9 @@ public class DestinationTestSteps {
 
 
     /**
-     * Tests that the destination's photos contain the given photos
-     * @param dataTable     ids of the photos expected
+     * Tests that the destination's photos contain the given photos.
+     *
+     * @param dataTable     ids of the photos expected.
      */
     @Then("the destination will have photos with the following ids")
     public void theDestinationWillHavePhotosWithTheFollowingIds(io.cucumber.datatable.DataTable dataTable) {
@@ -1021,8 +1033,9 @@ public class DestinationTestSteps {
 
     /**
      * Gets an id list of the photos in the given destination
-     * @param destination   the destination to check the photos in
-     * @return              a list of the photo ids
+     *
+     * @param destination   the destination to check the photos in.
+     * @return              a list of the photo ids.
      */
     private List<String> getPhotoIds(Destination destination) {
         List<String> photoIds = new ArrayList<>();
@@ -1035,9 +1048,10 @@ public class DestinationTestSteps {
 
 
     /**
-     * Checks that the active destination is used in the given trips
-     * @param dataTable     names of the trips the destination is expected to work in
-     * @throws IOException
+     * Checks that the active destination is used in the given trips.
+     * @param dataTable     names of the trips the destination is expected to work in.
+     *
+     * @throws IOException in case of an error.
      */
     @Then("the destination will be used in the following trips")
     public void theDestinationWillBeUsedInTheFollowingTrips(io.cucumber.datatable.DataTable dataTable) throws IOException {
@@ -1065,10 +1079,10 @@ public class DestinationTestSteps {
         statusCode = result.status();
 
         JsonNode arrNode = new ObjectMapper().readTree(Helpers.contentAsString(result));
-        ArrayNode trips = (ArrayNode) arrNode.get("matchingTrips");
+        ArrayNode trips = (ArrayNode) arrNode.get(MATCHING_TRIPS);
 
         for (JsonNode trip : trips) {
-            names.add(trip.get("tripName").asText());
+            names.add(trip.get(TRIP_NAME).asText());
         }
 
         return names;
