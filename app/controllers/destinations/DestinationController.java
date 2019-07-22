@@ -370,8 +370,7 @@ public class DestinationController extends Controller {
 
                         return created("Created");
                     } else {
-                        return badRequest("A destination with the name '" + json.get(NAME).asText() + "' and " +
-                                "district '" + json.get(DISTRICT).asText() + "' already exists either in your " +
+                        return badRequest("A destination with these details already exists either in your " +
                                 "destinations or public destinations lists.");
                     }
                 })
