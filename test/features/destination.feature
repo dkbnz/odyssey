@@ -556,3 +556,50 @@ Feature: Destination API Endpoint
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
     And the destination has a photo with id 3
     Then the owner is user 2
+
+
+
+
+
+  Scenario: Retrieving destination usage when not logged in
+    Given I am running the application
+    And I am not logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | Angus Flat | 31   | Canterbury   | -43.65598| 170.48378 | New Zealand | true      |
+    When I request the destination usage for destination with id 119
+    Then the status code received is Unauthorised
+
+  Scenario: Retrieving destination usage for a destination that doesn't exist
+    Given I am running the application
+    And I am logged in
+    When I request the destination usage for destination with id 1
+    Then the status code received is Not Found
+
+
+  Scenario: Retrieving destination usage for my own private destination
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name                      | Type  | District         | Latitude   | Longitude     | Country     |
+      | Baylys Beach Post Office  | 10    | North Auckland   | -35.953527 | 173.74573     | New Zealand |
+    And I request the destination usage for destination with id 325
+    Then the status code received is OK
+
+  Scenario: Retrieving destination usage for a private destination as another user
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name           | Type  | District         | Latitude   | Longitude     | Country     |
+      | Private Glade  | 39    | Canterbury       | -44.1625   | 170.993056    | New Zealand |
+    When I request the destination usage for destination with id 9001
+    Then the status code received is Forbidden
+
+  Scenario: Retrieving destination usage for a private destination an admin
+    Given I am running the application
+    And I am logged in as an admin user
+    And a destination already exists with the following values
+      | Name                      | Type  | District         | Latitude   | Longitude     | Country     |
+      | Baylys Beach Post Office  | 10    | North Auckland   | -35.953527 | 173.74573     | New Zealand |
+    And I request the destination usage for destination with id 325
+    Then the status code received is OK
