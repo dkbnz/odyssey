@@ -31,6 +31,7 @@ public class TripController extends Controller {
     private static final String DESTINATION_ID = "destination_id";
     private static final String TRIP_ID = "trip_id";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
+    private static final int DEFAULT_ADMIN_ID = 1;
     private TripRepository repository;
     private ProfileRepository profileRepo;
     private DestinationRepository destinationRepo;
@@ -358,11 +359,12 @@ public class TripController extends Controller {
         Destination destination = tripDestination.getDestination();
         Profile owner = destination.getOwner();
 
-        // Destination is not owned by global admin, it is public and the user is not the owner of the destination.
-        if (owner == null || owner.getId() != 1 && destination.getPublic() && !affectedProfile.getId().equals(owner.getId())) {
+        // Destination is not owned by global admin, it is public, and the user is not the owner of the destination.
+        if (owner == null || owner.getId() != DEFAULT_ADMIN_ID && destination.getPublic() && !affectedProfile.getId().equals(owner.getId())) {
             destinationRepo.transferDestinationOwnership(destination);
             return ok("Destination ownership changed");
         }
+
         return ok("Destination ownership deosn't need to be changed");
     }
 
@@ -377,7 +379,6 @@ public class TripController extends Controller {
         List<Trip> trips = repository.fetchAllTrips(id);
         return ok(Json.toJson(trips));
     }
-
 
 
     /**

@@ -58,6 +58,12 @@ public class DestinationTestSteps {
 
 
     /**
+     * The size of the list of trips recieved.
+     */
+    private int tripCountRecieved;
+
+
+    /**
      * The destination endpoint uri.
      */
     private static final String DESTINATION_URI = "/v1/destinations";
@@ -158,6 +164,9 @@ public class DestinationTestSteps {
     private static final String TYPE_STRING = "Type";
     private static final String NAME_STRING = "Name";
     private static final String IS_PUBLIC_STRING = "is_public";
+    private static final String TRIP_COUNT = "tripCount";
+    private static final String PHOTO_COUNT = "photoCount";
+    private static final String MATCHING_TRIPS = "matchingTrips";
 
     /**
      * The fake application.
@@ -677,11 +686,6 @@ public class DestinationTestSteps {
         deleteDestinationRequest(destinationId.longValue());
     }
 
-    @When("I add a photo with id {int} to the destination")
-    public void iAddAPhotoWithIdToTheDestination(Integer photoId) {
-        addDestinationPhoto(photoId, destinationId);
-    }
-
 
     /**
      * Gets a destination id based on values in the data table.
@@ -868,6 +872,50 @@ public class DestinationTestSteps {
         JsonNode editValues = convertDataTableToEditDestination(dataTable);
         this.destinationId = destinationId.longValue();
         editDestinationRequest(editValues);
+    }
+
+    @When("I request the destination usage for destination with id {int}")
+    public void iRequestTheDestinationUsageForDestinationWithId(Integer destinationId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(DESTINATON_CHECK_URI + destinationId)
+                .session(AUTHORIZED, loggedInId);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
+    }
+
+    @When("I add a photo with id {int} to an existing destination with id {int}")
+    public void iAddAPhotoToASpecifiedDestination(Integer photoId, Integer destinationId) {
+        JsonNode json = createDestinationPhotoJson(photoId);
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                        .uri(DESTINATION_PHOTO_URI + destinationId)
+                        .method(POST)
+                        .bodyJson(json)
+                        .session(AUTHORIZED, loggedInId);
+
+        Result addDestinationPhotoResult = route(application, request);
+        statusCode = addDestinationPhotoResult.status();
+    }
+
+    @Then("the trip count is {int}")
+    public void theTripCountIs(int tripCountExpected) throws IOException {
+        int tripCount = new ObjectMapper().readTree(responseBody).get(TRIP_COUNT).asInt();
+        tripCountRecieved = new ObjectMapper().readTree(responseBody).get(MATCHING_TRIPS).size();
+        Assert.assertEquals(tripCountExpected, tripCount);
+    }
+
+    @Then("the number of trips received is {int}")
+    public void theNumberOfTripsReceivedIs(int tripListSize) throws IOException {
+        Assert.assertEquals(tripCountRecieved, tripListSize);
+    }
+
+    @Then("the photo count is {int}")
+    public void thePhotoCountIs(int photoCountExpected) throws IOException {
+        int photoCount = new ObjectMapper().readTree(responseBody).get(PHOTO_COUNT).asInt();
+        Assert.assertEquals(photoCountExpected, photoCount);
     }
 
 
