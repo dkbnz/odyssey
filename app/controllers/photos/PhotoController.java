@@ -607,8 +607,8 @@ public class PhotoController extends Controller {
      * Checks if the ownership of the destination needs to be transferred to the default admin.
      * Only carries this out if the check passes.
      *
-     * @param profileAddingPhoto The profile adding a photo to a destination.
-     * @param destination        The destination the photo is being added to.
+     * @param profileAddingPhoto the profile adding a photo to a destination.
+     * @param destination        the destination the photo is being added to.
      */
     private void changeOwnership(Profile profileAddingPhoto, Destination destination) {
         if (destination.getPublic() && !profileAddingPhoto.equals(destination.getOwner())) {
