@@ -686,6 +686,11 @@ public class DestinationTestSteps {
         deleteDestinationRequest(destinationId.longValue());
     }
 
+    @When("I add a photo with id {int} to the destination")
+    public void iAddAPhotoWithIdToTheDestination(Integer photoId) {
+        addDestinationPhoto(photoId, destinationId);
+    }
+
 
     /**
      * Gets a destination id based on values in the data table.
@@ -878,7 +883,7 @@ public class DestinationTestSteps {
     public void iRequestTheDestinationUsageForDestinationWithId(Integer destinationId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .uri(DESTINATON_CHECK_URI + destinationId)
+                .uri(DESTINATION_CHECK_URI + destinationId)
                 .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
@@ -1004,7 +1009,7 @@ public class DestinationTestSteps {
         Destination destination = destinationRepo.fetch(destinationId);
 
         List<String> photoIds = getPhotoIds(destination);
-        List<String> expectedIds = dataTable.asList();
+        List<String> expectedIds = new ArrayList<>(dataTable.asList());
         expectedIds = expectedIds.subList(1, expectedIds.size());
 
         Collections.sort(expectedIds);
