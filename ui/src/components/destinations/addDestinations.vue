@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3 class="page-title">{{heading}} a Destination</h3>
+        <h4 class="page-title">{{heading}} a Destination</h4>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act
@@ -10,9 +10,8 @@
                 @dismiss-count-down="countDownChanged"
                 @dismissed="dismissCountDown=0"
                 dismissible
-                variant="success"
-        >
-            <p>Destination Successfully Added</p>
+                variant="success">
+            <p>Destination Successfully {{heading}}ed</p>
             <b-progress
                     :max="dismissSecs"
                     :value="dismissCountDown"
@@ -21,19 +20,45 @@
             ></b-progress>
         </b-alert>
 
-        <b-modal hide-footer id="confirmEditModal" ref="confirmEditModal" size="l" title="Confirm Edit">
+        <b-modal id="confirmEditModal" ref="confirmEditModal" size="l" title="Confirm Edit">
             <div>
                 Are you sure you want to edit this destination?
-                <div v-if="destinationConflicts.length > 0">
-                    This would affect the following trips:
-                    <ul v-for="trip in destinationConflicts">
-                        <li>{{trip.name}}: {{trip.destinations[0].destination.name}} -
-                            {{trip.destinations[trip.destinations.length - 1].destination.name}}</li>
-                    </ul>
+                <div v-if="destinationConflicts.matchingTrips !== undefined
+                        && destinationConflicts.matchingTrips.length > 0">
+                    <p v-if="destinationConflicts.count === 1">
+                        This would affect the following {{destinationConflicts.count}} trip:
+                    </p>
+                    <p v-else>
+                        This would affect the following {{destinationConflicts.count}} trips:
+                    </p>
+                    <b-list-group
+                            style="overflow-y: scroll; height: 30vh;">
+                        <b-list-group-item class="flex-column align-items-start"
+                                           v-for="trip in destinationConflicts.matchingTrips">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Name: {{trip.tripName}}</h5>
+                            </div>
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Created by: {{trip.firstName}} {{trip.lastName}}</h5>
+                            </div>
+                        </b-list-group-item>
+                    </b-list-group>
                 </div>
             </div>
-            <b-button @click="editDestination" class="mr-2 float-left" variant="success">Confirm</b-button>
-            <b-button @click="dismissModal('confirmEditModal')" class="mr-2 float-right" variant="danger">Cancel</b-button>
+            <template slot="modal-footer">
+                <b-col>
+                    <b-button @click="dismissModal('confirmEditModal')"
+                              class="mr-2 float-right"
+                              block
+                              variant="danger">Cancel
+                    </b-button>
+                </b-col>
+                <b-col>
+                    <b-button @click="editDestination" class="mr-2 float-right" block variant="success">
+                        Confirm
+                    </b-button>
+                </b-col>
+            </template>
         </b-modal>
 
         <!--Form for adding a destination-->
@@ -43,8 +68,10 @@
                         id="name-field"
                         label="Destination Name:"
                         label-for="name">
-                    <b-form-input id="name" @click="showError = false" v-model="inputDestination.name" type="text" required
-                                  :state="destinationNameValidation"></b-form-input>
+                    <b-form-input id="name" @click="showError = false" v-model="inputDestination.name" type="text"
+                                  required
+                                  :state="destinationNameValidation">
+                    </b-form-input>
                 </b-form-group>
                 <b-form-group
                         id="type-field"
@@ -61,8 +88,9 @@
                         id="district-field"
                         label="District:"
                         label-for="district">
-                    <b-form-input id="district" @click="showError = false" v-model="inputDestination.district" type="text" trim required
-                                  :state="destinationDistrictValidation"></b-form-input>
+                    <b-form-input id="district" @click="showError = false" v-model="inputDestination.district"
+                                  type="text" trim required :state="destinationDistrictValidation">
+                    </b-form-input>
                 </b-form-group>
 
                 <b-form-group
@@ -97,6 +125,13 @@
                         Country cannot have any numbers in it!
                     </b-form-invalid-feedback>
                 </b-form-group>
+                <b-form-checkbox
+                        v-if="inputDestination.id !== null"
+                        switch
+                        v-model="inputDestination.public"
+                        required>
+                    Public Destination
+                </b-form-checkbox>
 
                 <b-button @click="checkDestinationFields" block variant="primary">{{heading}} Destination</b-button>
             </b-form>
@@ -120,26 +155,19 @@
                             id: null,
                             destinationType: "",
                         },
-                        // type: "",
                         district: "",
                         latitude: null,
                         longitude: null,
                         country: "",
+                        public: false
                     }
                 }
             },
         },
         data() {
             return {
-                // name: "",
-                // type: "",
-                // district: "",
-                // latitude: null,
-                // longitude: null,
-                // country: "",
                 showError: false,
                 errorMessage: "",
-                successTripAddedAlert: false,
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 latitudeErrorMessage: "",
@@ -231,6 +259,7 @@
                 }
             },
 
+
             /**
              * Sets all fields to blank.
              */
@@ -244,7 +273,9 @@
                 this.inputDestination.latitude = null;
                 this.inputDestination.longitude = null;
                 this.inputDestination.country = "";
+                this.inputDestination.public = false;
             },
+
 
             /**
              * Adds new destination to database, then resets form and shows success alert.
@@ -264,73 +295,70 @@
                         "district": this.inputDestination.district,
                         "latitude": parseFloat(this.inputDestination.latitude),
                         "longitude": parseFloat(this.inputDestination.longitude),
-                        "country": this.inputDestination.country
+                        "country": this.inputDestination.country,
+                        "is_public": this.inputDestination.public
                     }))
                 })
                     .then(this.checkStatus)
                     .then(function(response) {
                         self.resetDestForm();
                         self.showAlert();
-                        self.emit('data-changed');
+                        self.$emit('data-changed');
                         return JSON.parse(JSON.stringify(response));
                     });
             },
 
+
             /**
-             * Checks whether the destination being edited is present in any trips
+             * Checks whether the destination being edited is present in any trips. This is to display a confirmation
+             * message to the user.
              *
-             * @param cb.
              */
-            validateEdit(cb) {
+            validateEdit() {
                 let self = this;
-                //TODO: Update this request to match route
-                fetch(`/v1/destinationCheck/` + this.profile.id, {
+                fetch(`/v1/destinationCheck/` + this.inputDestination.id, {
                     accept: "application/json"
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
-                    .then(cb)
                     .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
                     .then(function(response) {
-                        // if (self.destinationConflicts.length > 0) {
-                        //
-                        // } else {
-                        //     self.heading = "FUCK";
-                        // }
                         self.displayConfirmation();
-
-                        self.emit('data-changed');
-                        return JSON.parse(JSON.stringify(response));
-
                     });
             },
 
+
+            /**
+             * Displays the confirmation edit modal.
+             */
             displayConfirmation() {
                 this.$refs["confirmEditModal"].show();
             },
 
-            editDestination(cb) {
-                let self = this;
-                fetch(`/v1/destinations/` + this.inputDestination.id, {
-                    method: 'PATCH',
-                    headers: {'content-type': 'application/json'},
-                    body: (JSON.stringify({
-                        "name": this.inputDestination.name,
-                        "type_id": this.inputDestination.type.id,
-                        "district": this.inputDestination.district,
-                        "latitude": parseFloat(this.inputDestination.latitude),
-                        "longitude": parseFloat(this.inputDestination.longitude),
-                        "country": this.inputDestination.country
-                    }))
-                })
-                    .then(this.parseJSON)
-                    .then(cb)
 
-                    .then(function(response) {
+            /**
+             * Sends the edited destination to the Http endpoint to be saved.
+             */
+            editDestination() {
+                let self = this;
+                let jsonBody = JSON.stringify({
+                    "name": this.inputDestination.name,
+                    "type_id": this.inputDestination.type.id,
+                    "district": this.inputDestination.district,
+                    "latitude": parseFloat(this.inputDestination.latitude),
+                    "longitude": parseFloat(this.inputDestination.longitude),
+                    "country": this.inputDestination.country,
+                    "is_public": this.inputDestination.public
+                });
+                fetch(`/v1/destinations/` + this.inputDestination.id, {
+                    method: 'PUT',
+                    headers: {'content-type': 'application/json'},
+                    body: jsonBody
+                }).then(function(response) {
                         if (response.ok) {
-                            self.resetDestForm();
                             self.showAlert();
-                            self.emit('data-changed');
+                            self.dismissModal('confirmEditModal');
+                            self.$emit('destination-saved', self.inputDestination);
                             return JSON.parse(JSON.stringify(response));
                         } else {
                             self.errorMessage = "";
@@ -342,6 +370,7 @@
                     });
             },
 
+
             /**
              * Used to allow an alert to countdown on the successful saving of a destination.
              *
@@ -351,12 +380,14 @@
                 this.dismissCountDown = dismissCountDown
             },
 
+
             /**
              * Displays the countdown alert on the successful saving of a destination.
              */
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
             },
+
 
             /**
              * Used to dismiss the edit a destination modal.
@@ -366,6 +397,7 @@
             dismissModal(modal) {
                 this.$refs[modal].hide();
             },
+
 
             /**
              * Used to check the response of a fetch method. If there is an error code, the code is printed to the
@@ -381,19 +413,23 @@
                 const error = new Error(`HTTP Error ${response.statusText}`);
                 error.status = response.statusText;
                 error.response = response;
-                console.log(error);
 
-                self.errorMessage = "";
-                self.showError = true;
+                this.errorMessage = "";
                 response.clone().text().then(text => {
-                    self.errorMessage = text;
+                    this.errorMessage = text;
+                    this.showError = true;
                 });
-
                 throw error;
             },
 
+
+            /**
+             * Converts the retrieved Http response to a Json format.
+             *
+             * @param response the Http response.
+             * @returns the Http response body as Json.
+             */
             parseJSON(response) {
-                console.log(response);
                 return response.json();
             },
         }

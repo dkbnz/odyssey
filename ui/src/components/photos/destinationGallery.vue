@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3>Public Photos</h3>
+        <h3>Public Destination Photos</h3>
         <photo-table
                 :photos="publicPhotos"
                 :profile="profile"
@@ -8,15 +8,13 @@
                 :showDropdown="false">
         </photo-table>
 
-        <h3>Your Photos</h3>
+        <h3>Your Destination Photos</h3>
 
-        <photo-table :selectedImages="personalPhotos"
-                     :photos="profile.photoGallery"
+        <photo-table :photos="personalPhotos"
                      :profile="profile"
                      :userProfile="userProfile"
                      :showDropdown="true"
-                     @privacy-update="updatePhotoPrivacy"
-                     @photo-click="photoToggled">
+                     @privacy-update="updatePhotoPrivacy">
         </photo-table>
 
         <b-button variant="success" @click="showModal('addRemovePhotosModal')" block>Add/Remove Destination Photo</b-button>
@@ -30,6 +28,7 @@
                          @privacy-update="updatePhotoPrivacy"
                          @photo-click="photoToggled">
             </photo-table>
+            <b-button @click="dismissModal('addRemovePhotosModal')" variant="success" block>OK</b-button>
         </b-modal>
 
     </div>
@@ -86,7 +85,7 @@
              *
              * @param photo           the photo that's changing status.
              */
-            updatePhotoPrivacy: function(photo) {
+            updatePhotoPrivacy: function (photo) {
                 let self = this;
 
                 fetch('/v1/photos', {
@@ -120,7 +119,7 @@
              */
             indexOfById(arrayToCheck, object) {
                 for (let i = 0; i < arrayToCheck.length; i++) {
-                    if(arrayToCheck[i].id === object.id) {
+                    if (arrayToCheck[i].id === object.id) {
                         return i;
                     }
                 }
@@ -189,10 +188,18 @@
                 });
             },
 
+            /**
+             * Used to dismiss the Add a Photo to the Destination modal.
+             *
+             * @param modal, the modal that is wanting to be dismissed.
+             */
+            dismissModal(modal) {
+                this.$refs[modal].hide();
+            },
+
             showModal(modal) {
                 this.$refs[modal].show();
             },
-
         },
 
         components: {

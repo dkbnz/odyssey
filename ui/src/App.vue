@@ -48,26 +48,6 @@
                         self.destinations = (response.sort(self.compare));
                     });
             },
-
-            /**
-             * Sorts the destinations based on the name of the destination.
-             * @param first      for each destination, current destination
-             * @param next       for each destination, next destination
-             * @returns {number} depending on if destinations should be swapped or not -1, 1, 0
-             */
-            compare(first, next) {
-                const nameFirst = first.name.toUpperCase(); // ignore upper and lowercase
-                const nameSecond = next.name.toUpperCase(); // ignore upper and lowercase
-
-                if (nameFirst < nameSecond ) {
-                    return -1;
-                } else if (nameFirst > nameSecond ) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            },
-
             getDestinationTypes(updateDestinationTypes) {
                 return fetch(`/v1/destinationTypes`, {
                     accept: "application/json"

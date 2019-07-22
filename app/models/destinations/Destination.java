@@ -5,6 +5,7 @@ import io.ebean.Finder;
 import models.BaseModel;
 import models.Profile;
 import models.photos.PersonalPhoto;
+import models.trips.TripDestination;
 import play.data.validation.Constraints;
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -60,7 +61,6 @@ public class Destination extends BaseModel {
      */
     @Constraints.Required
     @ManyToOne
-    @JsonIgnore
     private Profile owner;
 
     /**
@@ -74,6 +74,13 @@ public class Destination extends BaseModel {
      */
     @Constraints.Required
     private Boolean isPublic;
+
+    /**
+     * List of trip destinations that the destination is associated with.
+     */
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "destination")
+    private List<TripDestination> tripDestinations;
 
     public String getName() {
         return name;
@@ -131,6 +138,10 @@ public class Destination extends BaseModel {
         return photoGallery.remove(photoToRemove);
     }
 
+    public void clearPhotoGallery() {
+        photoGallery.clear();
+    }
+
     public Profile getOwner() {
         return this.owner;
     }
@@ -148,6 +159,7 @@ public class Destination extends BaseModel {
     }
 
     public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
+
 
     /**
      * Checks if an Object is equal to this instance of Destination.
@@ -173,6 +185,7 @@ public class Destination extends BaseModel {
                 other.getLongitude() == this.longitude;
     }
 
+
     /**
      * Calculates the hashcode of this Destination using:
      * name, type, district, country, latitude and longitude.
@@ -187,5 +200,70 @@ public class Destination extends BaseModel {
                 this.country,
                 this.latitude,
                 this.longitude);
+    }
+
+
+    /**
+     * Used to merge destinations. Will extract desired attributes from a given destination
+     * Then add them to this destination.
+     *
+     * Will only consume if the given Destination is equal.
+     *
+     * @param other     other destination to take attributes from.
+     */
+    public void consume(Destination other) {
+        if (!this.equals(other)) return;
+
+        // Take all TripDestinations
+        TripDestination tripDestinationToConsume = other.getTripDestination();
+        while(tripDestinationToConsume != null) {
+            this.addTripDestination(tripDestinationToConsume);
+            other.removeTripDestination(tripDestinationToConsume);
+            tripDestinationToConsume = other.getTripDestination();
+        }
+
+        // Take all PersonalPhotos
+        PersonalPhoto personalPhotoToConsume = other.getPhoto();
+        while(personalPhotoToConsume != null) {
+            this.addPhotoToGallery(personalPhotoToConsume);
+            other.removePhotoFromGallery(personalPhotoToConsume);
+            personalPhotoToConsume = other.getPhoto();
+        }
+    }
+
+    private boolean addTripDestination(TripDestination tripDestination) {
+        return tripDestinations.add(tripDestination);
+    }
+
+    private boolean removeTripDestination(TripDestination tripDestination) {
+        return tripDestinations.remove(tripDestination);
+    }
+
+
+    /**
+     * Returns a TripDestination associated to this Destination.
+     * No particular order is guaranteed.
+     *
+     * @return      next available TripDestination in the list or null if none exists
+     */
+    private TripDestination getTripDestination() {
+        if (this.tripDestinations.iterator().hasNext()) {
+            return this.tripDestinations.iterator().next();
+        }
+        return null;
+    }
+
+
+    /**
+     * Returns a PersonalPhoto associated to this Destination.
+     * No particular order is guaranteed.
+     *
+     * @return      next available PersonalPhoto in the list or null if none exists
+     */
+    private PersonalPhoto getPhoto() {
+        if (this.photoGallery.iterator().hasNext()) {
+            return this.photoGallery.iterator().next();
+        }
+        return null;
     }
 }

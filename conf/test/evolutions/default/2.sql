@@ -432,7 +432,14 @@ INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `lon
 (9293, 'Raincliff Historic Reserve', 39, 'Canterbury', -44.1625, 170.993056, 'New Zealand', 'true', 1),
 (9355, 'Ripapa Island Historic Reserve', 39, 'Canterbury', -43.620528, 172.754173, 'New Zealand', 'true', 1),
 (9376, 'Rotokahu Scenic Reserve', 79, 'Wellington', -39.154167, 175.188056, 'New Zealand', 'true', 1),
-(9486, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'true', 1);
+(9487, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 2),
+(9488, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 3),
+(9489, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 4),
+(9490, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 5),
+(9491, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', 'false', 6);
+
+INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `longitude`, `country`, `owner_id`) VALUES
+(10000, 'Canterbury University', 3, 'Christchurch', -43.523434, 172.581681, 'New Zealand', 3);
 
 INSERT INTO `profile` (`id`, `username`, `password`, `first_name`, `middle_name`, `last_name`, `gender`, `date_of_birth`, `date_of_creation`, `is_admin`, `profile_picture_id`) VALUES
 (1, 'admin@travelea.com', '25F43B1486AD95A1398E3EEB3D83BC4010015FCC9BEDB35B432E00298D5021F7', 'Default', '', 'Admin', 'male', '2019-01-01', '2019-01-01 13:00:00.000000', 1, NULL),
@@ -478,14 +485,17 @@ INSERT INTO `photo` (`id`, `main_filename`, `thumbnail_filename`, `upload_date`,
 (2, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e317', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e317', '2019-05-25', 2, 'image/png'),
 (3, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e318', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e318', '2019-05-25', 2, 'image/png'),
 (4, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e319', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e319', '2019-05-25', 3, 'image/png'),
-(5, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', '2019-05-25', 2, 'image/png');
+(5, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', '2019-05-25', 2, 'image/png'),
+(6, 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', 'temp/935330b4-1adb-4d4c-9b2b-2e2a5638e316', '2019-05-25', 3, 'image/png');
+
 
 INSERT INTO `personal_photo` (`id`, `photo_id`, `profile_id`, `is_public`) VALUES
 (1, 1, 1, true),
 (2, 2, 2, true),
 (3, 3, 2, true),
 (4, 4, 1, true),
-(5, 5, 2, true);
+(5, 5, 2, true),
+(6, 6, 3, true);
 
 INSERT INTO `destination_personal_photo` (`destination_id`, `personal_photo_id`) VALUES
 (119, 3),

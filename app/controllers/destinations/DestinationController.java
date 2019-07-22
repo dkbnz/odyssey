@@ -2,6 +2,7 @@ package controllers.destinations;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 
@@ -10,18 +11,20 @@ import models.Profile;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
 
+import models.trips.Trip;
+import models.trips.TripDestination;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.DestinationRepository;
+import repositories.destinations.DestinationRepository;
 import repositories.ProfileRepository;
+import repositories.destinations.DestinationTypeRepository;
 import repositories.TripDestinationRepository;
 import util.AuthenticationUtil;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static util.QueryUtil.queryComparator;
 
@@ -35,6 +38,7 @@ public class DestinationController extends Controller {
     public static final String LONGITUDE = "longitude";
     private static final String OWNER = "owner";
     public static final String IS_PUBLIC = "is_public";
+    private static final String PAGE = "page";
 
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
@@ -43,6 +47,7 @@ public class DestinationController extends Controller {
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private ProfileRepository profileRepo;
     private DestinationRepository destinationRepo;
+    private DestinationTypeRepository destinationTypeRepo;
     private TripDestinationRepository tripDestinationRepo;
     private Config config;
 
@@ -50,22 +55,28 @@ public class DestinationController extends Controller {
     public DestinationController(
             ProfileRepository profileRepo,
             DestinationRepository destinationRepo,
+            DestinationTypeRepository destinationTypeRepo,
             TripDestinationRepository tripDestinationRepo,
             Config config) {
         this.profileRepo = profileRepo;
         this.destinationRepo = destinationRepo;
+        this.destinationTypeRepo = destinationTypeRepo;
         this.tripDestinationRepo = tripDestinationRepo;
         this.config = config;
     }
 
     /**
-     * Returns a Json object containing a count of trips that a specified destination is used in.
+     * Returns a Json object containing a count of trips that a specified destination is used in and how many photos
+     * that destination contains. As well as a list of each trips name and owner.
      *
      * @param request           Http request from the client containing authentication details
-     * @param destinationId     the id of the destination to find the number of dependent trips for.
-     * @return  ok()    (Http 200) response containing the number of trips a destination is used in.
+     * @param destinationId     the id of the destination to find the number of dependent trips for and photos.
+     * @return                  ok()    (Http 200) response containing the number of photos in a destination,
+     *                          trips a destination is used in as well as the list of each trips name and its owner's
+     *                          name. Otherwise, returns forbidden()
+     *                          (Http 403) if the user is not allowed to access this number.
      */
-    public Result getTripsByDestination(Http.Request request, Long destinationId) {
+    public Result getDestinationUsage(Http.Request request, Long destinationId) {
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
@@ -81,17 +92,46 @@ public class DestinationController extends Controller {
         Profile destinationOwner = profileRepo.fetchSingleProfile(destinationOwnerId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
-            return unauthorized();
+            return forbidden();
         }
 
-        int tripCount = tripDestinationRepo.fetchTripsContainingDestination(destination).size();
+        List<Map> matchingTrips = getTripsUsedByDestination(destination);
+
+        int photoCount = destination.getPhotoGallery().size();
+        int tripCount = matchingTrips.size();
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode returnJson = mapper.createObjectNode();
+        ArrayNode matchTrips = mapper.valueToTree(matchingTrips);
 
-        returnJson.put("count", tripCount);
+        returnJson.put("tripCount", tripCount);
+        returnJson.put("photoCount", photoCount);
+        returnJson.putArray("matchingTrips").addAll(matchTrips);
 
         return ok(returnJson);
+    }
+
+
+    /**
+     * Gets a list of all the trips that uses a particular destination
+     * @param destination destination you want to search for
+     * @return a list of all the associated trips
+     */
+    private List<Map> getTripsUsedByDestination(Destination destination) {
+        List<TripDestination> tripDestinationList = tripDestinationRepo.fetchTripsContainingDestination(destination);
+
+        List<Map> matchingTrips = new ArrayList<>();
+        for (TripDestination tripDestination: tripDestinationList) {
+            Trip tempTrip = Trip.find.byId(tripDestination.getTrip().getId().intValue());
+            Map<Object, Object> tripDetails = new HashMap<>();
+            tripDetails.put("tripId", tempTrip.getId());
+            tripDetails.put("tripName", tempTrip.getName());
+            tripDetails.put("userId", tempTrip.getProfile().getId());
+            tripDetails.put("firstName", tempTrip.getProfile().getFirstName());
+            tripDetails.put("lastName", tempTrip.getProfile().getLastName());
+            matchingTrips.add(tripDetails);
+        }
+        return matchingTrips;
     }
 
 
@@ -105,77 +145,87 @@ public class DestinationController extends Controller {
         return ok(Json.toJson(destinationTypes));
     }
 
-    /**
-     * Fetches all destinations with no search query. This will include all public destinations and all private
-     * destinations for the logged in user.
-     *
-     * @return ok() (Http 200) response containing the destinations found in the response body.
-     */
-    private Result fetchAll(Http.Request request) {
-        List<Destination> destinations;
-        ExpressionList<Destination> expressionList = Destination.find.query().where();
-        Profile user = Profile.find.byId(AuthenticationUtil.getLoggedInUserId(request));
-        expressionList.disjunction()
-                .eq(IS_PUBLIC, true)
-                .conjunction()
-                    .eq(IS_PUBLIC, false)
-                    .eq(OWNER, user)
-                .endJunction()
-            .endJunction();
-        destinations = expressionList.findList();
-        return ok(Json.toJson(destinations));
-    }
 
     /**
-     * Fetches all destinations based on Http request query parameters.
+     * Fetches all destinations based on Http request query parameters. This also includes pagination, destination
+     * ownership and the public or private query.
      *
      * @param request   Http request containing query parameters to filter results.
-     * @return          ok() (Http 200) response containing the destinations found in the response body.
+     * @return          ok() (Http 200) response containing the destinations found in the response body, forbidden()
+     *                  (Http 403) if the user has tried to access destinations they are not authorised for.
      */
     public Result fetch(Http.Request request) {
-        //If there are no query parameters, return all destinations.
-        if (request.queryString().isEmpty()) {
-            return fetchAll(request);
+
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
         }
 
-        //Filter destinations based on query parameters.
-        Map<String, String[]> queryString = request.queryString();
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+
+        int pageNumber = 0;
+        int pageSize = 50;
         List<Destination> destinations;
 
-        String emptyString = "";
-
         ExpressionList<Destination> expressionList = Destination.find.query().where();
-        String name =           queryString.get(NAME) == null         || queryString.get(NAME)[0] == null       ? emptyString : queryString.get(NAME)[0];
-        String type =           queryString.get(TYPE) == null         || queryString.get(TYPE)[0] == null       ? emptyString : queryString.get(TYPE)[0];
-        String latitude =       queryString.get(LATITUDE) == null     || queryString.get(LATITUDE)[0] == null   ? emptyString : queryString.get(LATITUDE)[0];
-        String longitude =      queryString.get(LONGITUDE) == null    || queryString.get(LONGITUDE)[0] == null  ? emptyString : queryString.get(LONGITUDE)[0];
-        String district =       queryString.get(DISTRICT) == null     || queryString.get(DISTRICT)[0] == null   ? emptyString : queryString.get(DISTRICT)[0];
-        String country =        queryString.get(COUNTRY) == null      || queryString.get(COUNTRY)[0] == null    ? emptyString : queryString.get(COUNTRY)[0];
 
-        if (name.length() != 0) {
-            expressionList.ilike(NAME, queryComparator(name));
-        }
-        if (type.length() != 0) {
-            expressionList.ilike(TYPE, type);
-        }
-        if (latitude.length() != 0) {
-            expressionList.eq(LATITUDE, Double.parseDouble(latitude));
-        }
-        if (longitude.length() != 0) {
-            expressionList.eq(LONGITUDE, Double.parseDouble(longitude));
-        }
-        if (district.length() != 0) {
-            expressionList.ilike(DISTRICT, queryComparator(district));
-        }
-        if (country.length() != 0) {
-            expressionList.ilike(COUNTRY, queryComparator(country));
-        }
-        expressionList.eq(IS_PUBLIC, true);
+        // Checks if the owner is specified in the query string and user is valid.
+        if (request.getQueryString(OWNER) != null && !request.getQueryString(OWNER).isEmpty()) {
+            Profile destinationOwner = profileRepo.fetchSingleProfile(Integer.valueOf(request.getQueryString(OWNER)));
 
-        destinations = expressionList.findList();
+            if (AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
+                expressionList.eq(OWNER, destinationOwner);
+            } else {
+                return forbidden();
+            }
+        } else if (!loggedInUser.getIsAdmin()) {
+            expressionList
+                    .disjunction()
+                        .eq(IS_PUBLIC, true)
+                        .conjunction()
+                            .eq(IS_PUBLIC, false)
+                            .eq(OWNER, loggedInUser)
+                        .endJunction()
+                    .endJunction();
+        }
+
+        if (request.getQueryString(NAME) != null && !request.getQueryString(NAME).isEmpty()) {
+            expressionList.ilike(NAME, queryComparator(request.getQueryString(NAME)));
+        }
+        if (request.getQueryString(TYPE) != null && !request.getQueryString(TYPE).isEmpty()) {
+            expressionList.eq(TYPE, request.getQueryString(TYPE));
+        }
+        if (request.getQueryString(LATITUDE) != null && !request.getQueryString(LATITUDE).isEmpty()) {
+            expressionList.eq(LATITUDE, Double.parseDouble(request.getQueryString(LATITUDE)));
+        }
+        if (request.getQueryString(LONGITUDE) != null && !request.getQueryString(LONGITUDE).isEmpty()) {
+            expressionList.eq(LONGITUDE, Double.parseDouble(request.getQueryString(LONGITUDE)));
+        }
+        if (request.getQueryString(DISTRICT) != null && !request.getQueryString(DISTRICT).isEmpty()) {
+            expressionList.ilike(DISTRICT, queryComparator(request.getQueryString(DISTRICT)));
+        }
+        if (request.getQueryString(COUNTRY) != null && !request.getQueryString(COUNTRY).isEmpty()) {
+            expressionList.ilike(COUNTRY, queryComparator(request.getQueryString(COUNTRY)));
+        }
+        if (request.getQueryString(IS_PUBLIC) != null && !request.getQueryString(IS_PUBLIC).isEmpty()) {
+            expressionList.eq(IS_PUBLIC, request.getQueryString(IS_PUBLIC));
+        }
+
+        // If page query is set, load said page. Otherwise, return the first page.
+        if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
+            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
+        }
+
+        destinations = expressionList
+                .order(NAME)
+                .setFirstRow(pageNumber*pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
 
         return ok(Json.toJson(destinations));
     }
+
 
     /**
      * Fetches all destinations by user.
@@ -320,13 +370,13 @@ public class DestinationController extends Controller {
 
                         return created("Created");
                     } else {
-                        return badRequest("A destination with the name '" + json.get(NAME).asText() + "' and " +
-                                "district '" + json.get(DISTRICT).asText() + "' already exists either in your " +
+                        return badRequest("A destination with these details already exists either in your " +
                                 "destinations or public destinations lists.");
                     }
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
+
 
     /**
      * Creates a new destination object given a Json object.
@@ -351,20 +401,31 @@ public class DestinationController extends Controller {
         return destination;
     }
 
+
     /**
      * Deletes a destination from the database using the given destination id number.
      *
-     * @param id    the id of the destination.
-     * @return      notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully deleted.
+     * @param destinationId     the id of the destination.
+     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully deleted.
      */
-    public Result destroy(Long id) {
-        Destination destination = Destination.find.byId(id.intValue());
+    public Result destroy(Http.Request request, Long destinationId) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        Destination destination = Destination.find.byId(destinationId.intValue());
 
         if (destination == null) {
             return notFound();
         }
 
-        destination.delete();
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        if (!AuthenticationUtil.validUser(loggedInUser, destination.getOwner())) {
+            return forbidden();
+        }
+
+        destinationRepo.delete(destination);
         return ok("Deleted");
     }
 
@@ -376,26 +437,115 @@ public class DestinationController extends Controller {
      * @param request   Http request containing a Json body of fields to update in the destination.
      * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
      */
-    public Result edit(Long id, Http.Request request) {
-        JsonNode json = request.body().asJson();
+    public Result edit(Http.Request request, Long id) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
 
-        Destination oldDestination = Destination.find.byId(id.intValue());
+        Destination currentDestination = destinationRepo.fetch(id);
 
-        if (oldDestination == null) {
+        if (currentDestination == null) {
             return notFound();
         }
 
-        oldDestination.setName(json.get(NAME).asText());
-        oldDestination.setCountry(json.get(COUNTRY).asText());
-        oldDestination.setDistrict(json.get(DISTRICT).asText());
-        oldDestination.setLatitude(json.get(LATITUDE).asDouble());
-        oldDestination.setLongitude(json.get(LONGITUDE).asDouble());
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
 
-        DestinationType destType = DestinationType.find.byId(json.get(TYPE).asInt());
-        oldDestination.setType(destType);
+        if (!AuthenticationUtil.validUser(loggedInUser, currentDestination.getOwner())) {
+            return forbidden();
+        }
 
-        oldDestination.update();
+        JsonNode json = request.body().asJson();
 
-        return ok("Updated");
+        Iterator<String> fieldIterator = json.fieldNames();
+        while (fieldIterator.hasNext()) {
+            String fieldName = fieldIterator.next();
+            switch (fieldName) {
+
+                case NAME:
+                    currentDestination.setName(json.get(NAME).asText());
+                    break;
+
+                case COUNTRY:
+                    currentDestination.setCountry(json.get(COUNTRY).asText());
+                    break;
+
+                case DISTRICT:
+                    currentDestination.setDistrict(json.get(DISTRICT).asText());
+                    break;
+
+                case TYPE:
+                    DestinationType type = destinationTypeRepo.fetch(json.get(TYPE).asLong());
+                    currentDestination.setType(type);
+                    break;
+
+                case LATITUDE:
+                    double latitude = json.get(LATITUDE).asDouble();
+                    if (latitude > LATITUDE_LIMIT || latitude < -LATITUDE_LIMIT) {
+                        return badRequest();
+                    } else {
+                        currentDestination.setLatitude(latitude);
+                    }
+                    break;
+
+                case LONGITUDE:
+                    double longitude = json.get(LONGITUDE).asDouble();
+                    if (longitude > LONGITUDE_LIMIT || longitude < -LONGITUDE_LIMIT) {
+                        return badRequest();
+                    } else {
+                        currentDestination.setLongitude(longitude);
+                    }
+                    currentDestination.setLongitude(json.get(LONGITUDE).asDouble());
+                    break;
+
+                case IS_PUBLIC:
+                    setPrivacy(currentDestination, json.get(IS_PUBLIC).asBoolean());
+                    break;
+
+                default:
+                    return badRequest();
+            }
+        }
+        currentDestination.update();
+        return ok("Destination updated");
+    }
+
+
+    /**
+     * Set the privacy of a destination.
+     *
+     * If the privacy is being changed (i.e current privacy != privacy to set),
+     * Then look for destinations that are similar and merge them into this one.
+     * This should only occur when changing private -> public. Since the program prevents
+     * private destinations being made when there is a public equivalent, there should
+     * be no destinations found when changing public -> private.
+     *
+     * Method does not authenticate.
+     *
+     * @param destinationToUpdate
+     * @param isPublic
+     */
+    private void setPrivacy(Destination destinationToUpdate, Boolean isPublic) {
+        if (destinationToUpdate.getPublic() == isPublic) return;
+
+        List<Destination> similarDestinations = destinationRepo.findEqual(destinationToUpdate);
+
+        if (!similarDestinations.isEmpty()) {
+            while (!similarDestinations.isEmpty()) {
+                Destination destinationToMerge = similarDestinations.iterator().next();
+                destinationToUpdate.consume(destinationToMerge);
+
+                // Update destination that has had attributes taken to prevent deletion of attributes via cascading
+                destinationRepo.update(destinationToMerge);
+                // Merged destination no longer needed, delete.
+                destinationRepo.delete(destinationToMerge);
+
+                similarDestinations.remove(destinationToMerge);
+            }
+            // Destination has been merged from other sources, change owner to admin.
+            destinationRepo.transferDestinationOwnership(destinationToUpdate);
+        }
+        destinationToUpdate.setPublic(isPublic);
+        destinationRepo.update(destinationToUpdate);
     }
 }
