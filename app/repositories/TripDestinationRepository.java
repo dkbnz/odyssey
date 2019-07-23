@@ -24,6 +24,7 @@ public class TripDestinationRepository {
                 .findList();
     }
 
+
     /**
      * Save the TripDestination object.
      *
