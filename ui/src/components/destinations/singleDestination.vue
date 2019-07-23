@@ -37,12 +37,12 @@
             </b-list-group>
             <template slot="modal-footer">
                 <b-col>
-                    <b-button @click="dismissModal('deleteDestModal')" class="mr-2 float-right" variant="success" block>
+                    <b-button @click="dismissModal('deleteDestModal')" class="mr-2 float-right" variant="primary" block>
                         No
                     </b-button>
                 </b-col>
                 <b-col>
-                    <b-button @click="deleteDestination" class="mr-2 float-right" variant="danger" block>
+                    <b-button @click="deleteDestination" class="mr-2 float-right" variant="secondary" block>
                         Yes
                     </b-button>
                 </b-col>
