@@ -172,3 +172,8 @@ a {
 .buttonMargins {
     margin-top: 5px;
 }
+
+.descriptionText {
+    font-size: 12px;
+    color: grey;
+}
