@@ -438,9 +438,12 @@
                         self.pastTrips = [];
                         for (let i = 0; i < trips.length; i++) {
 
+                            // Sort the list of destinations of each trip using the list order
                             trips[i].destinations.sort((a, b) => {
-                                if(a.listOrder > b.listOrder) return 1;
-                                if(a.listOrder < b.listOrder) return -1;
+                                // This is a comparison function that .sort needs to determine how to order the list
+
+                                if (a.listOrder > b.listOrder) return 1;
+                                if (a.listOrder < b.listOrder) return -1;
                                 return 0;
                             });
 
