@@ -249,6 +249,7 @@ public class TripController extends Controller {
                 newTripDestination.setStartDate(parsedStartDate);
                 newTripDestination.setEndDate(parsedEndDate);
                 newTripDestination.setListOrder(order++);
+
                 // Add created destination to the list of trip destinations.
                 result.add(newTripDestination);
                 previousDestination = id;
