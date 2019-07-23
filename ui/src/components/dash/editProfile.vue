@@ -327,7 +327,9 @@
                     {value: 'Female', text: 'Female'},
                     {value: 'Other', text: 'Other'}
                 ],
-                nationalitiesSelected: []
+                nationalitiesSelected: [],
+                passportsSelected: [],
+                travellerTypesSelected: []
 
             }
         },
@@ -412,10 +414,28 @@
 
             saveProfileNationalities: {
                 get() {
-                    this.nationalitiesSelected = this.profile.nationalities;
+                    return this.profile.nationalities;
                 },
-                set(nationality) {
-                    this.nationalitiesSelected = nationality;
+                set(nationalities) {
+                    this.nationalitiesSelected = nationalities;
+                }
+            },
+
+            saveProfilePassports: {
+                get() {
+                    return this.profile.passports;
+                },
+                set(passports) {
+                    this.passportsSelected = passports;
+                }
+            },
+
+            saveProfileTravellerTypes: {
+                get() {
+                    return this.profile.travellerTypes;
+                },
+                set(travellerTypes) {
+                    this.travellerTypesSelected = travellerTypes;
                 }
             }
         },
@@ -466,9 +486,14 @@
                 let self = this;
                 if (this.checkSaveProfile) {
                     this.$emit('profileSaved', true);
-                    console.log(this.saveProfileNationalities);
-                    this.saveProfile.nationalities = this.saveProfileNationalities;
-                    console.log(this.saveProfile.nationalities);
+
+                    this.saveProfileNationalities = this.nationalitiesSelected;
+                    this.saveProfilePassports = this.passportsSelected;
+                    this.saveProfileTravellerTypes = this.travellerTypesSelected;
+
+                    // this.saveProfile.nationalities = this.nationalitiesSelected;
+                    // this.saveProfile.passports = this.passportsSelected;
+                    // this.saveProfile.travellerTypes = this.travellerTypesSelected;
 
                     fetch('/v1/profile/' + this.profile.id, {
                         method: 'PUT',
@@ -478,7 +503,7 @@
                         if (!self.adminView) {
                             //self.$router.go();
                         }
-                        self.$emit('profile-saved', self.saveProfile);
+                        //self.$emit('profile-saved', self.saveProfile);
                         window.scrollTo(0, 0);
                         return response.json();
                     })
