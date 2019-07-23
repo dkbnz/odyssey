@@ -164,6 +164,8 @@
             <!--Nationality field which displays user's current nationalities & all other nationalities.
             Validates inputted text-->
             <b-col>
+
+                {{profile.nationalities}}
                 <b-form-group
                         id="nationalities-field"
                         label="Nationality:"
@@ -171,23 +173,35 @@
                     <b-form-select :required="true"
                                    :state="nationalityValidation"
                                    id="nationality"
-                                   multiple trim v-model="saveProfile.nationalities">
-                        <optgroup label="Current Nationalities: (Please select these if you want to use them!)">
-                            <option :selected="true"
-                                    :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}"
-                                    v-for="nationality in profile.nationalities">
-                                {{nationality.nationality}}
-                            </option>
-                        </optgroup>
-                        <!--Removes user's current nationalities from options-->
-                        <optgroup label="Other Nationalities:">
-                            <option :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}"
-                                    v-for="nationality in nationalityOptions"
-                                    v-if="!duplicateNationality(nationality.id)">
-                                {{nationality.nationality}}
-                            </option>
-                        </optgroup>
+                                   multiple
+                                   trim
+                                   v-model="saveProfileNationalities">
+                        <option
+                                v-for="nationality in nationalityOptions"
+                                :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}">
+                            {{nationality.nationality}}
+                        </option>
                     </b-form-select>
+<!--                    <b-form-select :required="true"-->
+<!--                                   :state="nationalityValidation"-->
+<!--                                   id="nationality"-->
+<!--                                   multiple trim v-model="saveProfile.nationalities">-->
+<!--                        <optgroup label="Current Nationalities: (Please select these if you want to use them!)">-->
+<!--                            <option :selected="true"-->
+<!--                                    :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}"-->
+<!--                                    v-for="nationality in profile.nationalities">-->
+<!--                                {{nationality.nationality}}-->
+<!--                            </option>-->
+<!--                        </optgroup>-->
+<!--                        &lt;!&ndash;Removes user's current nationalities from options&ndash;&gt;-->
+<!--                        <optgroup label="Other Nationalities:">-->
+<!--                            <option :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}"-->
+<!--                                    v-for="nationality in nationalityOptions"-->
+<!--                                    v-if="!duplicateNationality(nationality.id)">-->
+<!--                                {{nationality.nationality}}-->
+<!--                            </option>-->
+<!--                        </optgroup>-->
+<!--                    </b-form-select>-->
                     <b-form-invalid-feedback :state="nationalityValidation">
                         Please select at least one nationality.
                     </b-form-invalid-feedback>
@@ -312,7 +326,8 @@
                     {value: 'Male', text: 'Male'},
                     {value: 'Female', text: 'Female'},
                     {value: 'Other', text: 'Other'}
-                ]
+                ],
+                nationalitiesSelected: []
 
             }
         },
@@ -377,10 +392,10 @@
                 return this.saveProfile.gender.length > 0;
             },
             nationalityValidation() {
-                if (this.saveProfile.nationalities.length === 0) {
+                if (this.saveProfileNationalities.length === 0) {
                     return false;
                 }
-                return this.saveProfile.nationalities.length > 0;
+                return this.saveProfileNationalities.length > 0;
             },
             passportValidation() {
                 if (this.saveProfile.passports.length === 0) {
@@ -393,6 +408,15 @@
                     return false;
                 }
                 return this.saveProfile.travellerTypes.length > 0;
+            },
+
+            saveProfileNationalities: {
+                get() {
+                    this.nationalitiesSelected = this.profile.nationalities;
+                },
+                set(nationality) {
+                    this.nationalitiesSelected = nationality;
+                }
             }
         },
         methods: {
@@ -442,6 +466,9 @@
                 let self = this;
                 if (this.checkSaveProfile) {
                     this.$emit('profileSaved', true);
+                    console.log(this.saveProfileNationalities);
+                    this.saveProfile.nationalities = this.saveProfileNationalities;
+                    console.log(this.saveProfile.nationalities);
 
                     fetch('/v1/profile/' + this.profile.id, {
                         method: 'PUT',
@@ -449,7 +476,7 @@
                         body: JSON.stringify(this.saveProfile)
                     }).then(function (response) {
                         if (!self.adminView) {
-                            self.$router.go();
+                            //self.$router.go();
                         }
                         self.$emit('profile-saved', self.saveProfile);
                         window.scrollTo(0, 0);
