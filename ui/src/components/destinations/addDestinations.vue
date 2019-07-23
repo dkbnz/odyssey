@@ -130,7 +130,7 @@
                         switch
                         v-model="inputDestination.public"
                         required>
-                    Public Destination
+                    {{isPublic}} Destination
                 </b-form-checkbox>
 
                 <b-button :disabled="!validateFields()" @click="checkDestinationFields" block variant="primary">{{heading}} Destination</b-button>
@@ -200,7 +200,7 @@
                 return this.inputDestination.district.length > 0;
             },
             destinationLatitudeValidation() {
-                if (this.inputDestination.latitude === null) {
+                if (this.inputDestination.latitude === null || this.inputDestination.latitude.length === 0) {
                     return null;
                 } else if (isNaN(this.inputDestination.latitude)) {
                     this.latitudeErrorMessage = "Latitude: '" + this.inputDestination.latitude + "' is not a number!";
@@ -215,7 +215,7 @@
 
             },
             destinationLongitudeValidation() {
-                if (this.inputDestination.longitude === null) {
+                if (this.inputDestination.longitude === null || this.inputDestination.longitude.length === 0) {
                     return null;
                 } else if (isNaN(this.inputDestination.longitude)) {
                     this.longitudeErrorMessage = "Longitude: '" + this.inputDestination.longitude + "' is not a number!";
@@ -234,6 +234,13 @@
                 }
                 let countryRegex = /\d/;
                 return !countryRegex.test(this.inputDestination.country);
+            },
+            isPublic() {
+                // Tells users editing a destination whether they've made the destination public or private.
+                if (this.inputDestination.public) {
+                    return "Public";
+                }
+                return "Private";
             }
         },
         methods: {
