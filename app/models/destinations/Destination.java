@@ -80,81 +80,102 @@ public class Destination extends BaseModel {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "destination")
     private List<TripDestination> tripDestinations;
 
+
     public String getName() {
         return name;
     }
+
 
     public void setName(String name) {
         this.name = name;
     }
 
+
     public DestinationType getType() {
         return type;
     }
+
 
     public void setType(DestinationType type) {
         this.type = type;
     }
 
+
     public String getDistrict() {
         return district;
     }
+
 
     public void setDistrict(String district) {
         this.district = district;
     }
 
+
     public double getLatitude() {
         return latitude;
     }
+
 
     public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
+
     public double getLongitude() {
         return longitude;
     }
+
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
+
     public String getCountry() {
         return country;
     }
 
+
     public void setCountry(String country) { this.country = country; }
 
+
     public Set<PersonalPhoto> getPhotoGallery() { return photoGallery; }
+
 
     public boolean addPhotoToGallery(PersonalPhoto photoToAdd) {
         return photoGallery.add(photoToAdd);
     }
 
+
     public boolean removePhotoFromGallery(PersonalPhoto photoToRemove) {
         return photoGallery.remove(photoToRemove);
     }
+
 
     public void clearPhotoGallery() {
         photoGallery.clear();
     }
 
+
     public Profile getOwner() {
         return this.owner;
     }
+
 
     public void changeOwner(Profile newOwner) {
         this.owner = newOwner;
     }
 
+
     public Boolean getPublic() {
         return isPublic;
     }
 
+
     public void setPublic(Boolean privacy) {
         isPublic = privacy;
     }
+
 
     public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
 
@@ -286,6 +307,7 @@ public class Destination extends BaseModel {
         this.photoGallery.clear();
         return null;
     }
+
 
     public List<TripDestination> getTripDestinations() {
         return tripDestinations;

@@ -22,6 +22,7 @@ public class DestinationRepository {
         destination.update();
     }
 
+
     /**
      * Save the destination object.
      *
@@ -30,6 +31,7 @@ public class DestinationRepository {
     public void save(Destination destination) {
         destination.save();
     }
+
 
     /**
      * Retrieve a Destination by its Id.
