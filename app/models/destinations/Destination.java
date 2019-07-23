@@ -263,7 +263,7 @@ public class Destination extends BaseModel {
      * @param tripDestination the destination to be added to the list.
      * @return                the list of trip destinations.
      */
-    private boolean addTripDestination(TripDestination tripDestination) {
+    public boolean addTripDestination(TripDestination tripDestination) {
         return tripDestinations.add(tripDestination);
     }
 
