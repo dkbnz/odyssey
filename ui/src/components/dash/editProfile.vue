@@ -171,22 +171,14 @@
                     <b-form-select :required="true"
                                    :state="nationalityValidation"
                                    id="nationality"
-                                   multiple trim v-model="saveProfile.nationalities">
-                        <optgroup label="Current Nationalities: (Please select these if you want to use them!)">
-                            <option :selected="true"
-                                    :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}"
-                                    v-for="nationality in profile.nationalities">
-                                {{nationality.nationality}}
-                            </option>
-                        </optgroup>
-                        <!--Removes user's current nationalities from options-->
-                        <optgroup label="Other Nationalities:">
-                            <option :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}"
-                                    v-for="nationality in nationalityOptions"
-                                    v-if="!duplicateNationality(nationality.id)">
-                                {{nationality.nationality}}
-                            </option>
-                        </optgroup>
+                                   multiple
+                                   trim
+                                   v-model="saveProfileNationalities">
+                        <option
+                                v-for="nationality in nationalityOptions"
+                                :value="{id: nationality.id, nationality: nationality.nationality, country: nationality.country}">
+                            {{nationality.nationality}}
+                        </option>
                     </b-form-select>
                     <b-form-invalid-feedback :state="nationalityValidation">
                         Please select at least one nationality.
@@ -206,23 +198,15 @@
                         label-for="passports">
                     <b-form-select :required="true"
                                    :state="passportValidation"
-                                   id="passports"
-                                   multiple trim v-model="saveProfile.passports">
-                        <optgroup label="Current Passports: (Please select these if you want to use them!)">
-                            <option :selected="true"
-                                    :value="{id: passport.id, country: passport.country}"
-                                    v-for="passport in profile.passports">
-                                {{passport.country}}
-                            </option>
-                        </optgroup>
-                        <!--Removes user's current passports from options-->
-                        <optgroup label="Other Passports:">
-                            <option :value="{id: nationality.id, country: nationality.country}"
-                                    v-for="nationality in nationalityOptions"
-                                    v-if="!duplicatePassport(nationality.id)">
-                                {{nationality.country}}
-                            </option>
-                        </optgroup>
+                                   id="passport"
+                                   multiple
+                                   trim
+                                   v-model="saveProfilePassports">
+                        <option
+                                v-for="passport in nationalityOptions"
+                                :value="{id: passport.id, country: passport.country}">
+                            {{passport.country}}
+                        </option>
                     </b-form-select>
                     <b-form-invalid-feedback :state="passportValidation">
                         Please select at least one passport country.
@@ -240,23 +224,17 @@
                 id="travType-field"
                 label="Traveller Type(s):"
                 label-for="travType">
-            <b-form-select :state="travTypeValidation" id="travType"
-                           lg
-                           multiple trim v-model="saveProfile.travellerTypes">
-                <optgroup label="Current Traveller Types: (Please select these if you want to use them!)">
-                    <option :value="{id: travType.id, travellerType: travType.travellerType}"
-                            v-for="travType in profile.travellerTypes">
-                        {{travType.travellerType}}
-                    </option>
-                </optgroup>
-                <!--Removes user's current traveller types from options-->
-                <optgroup label="Other Traveller Types">
-                    <option :value="{id: travType.id, travellerType: travType.travellerType}"
-                            v-for="travType in travTypeOptions"
-                            v-if="!duplicateTravType(travType.id)">
-                        {{travType.travellerType}}
-                    </option>
-                </optgroup>
+            <b-form-select :required="true"
+                           :state="travTypeValidation"
+                           id="travType"
+                           multiple
+                           trim
+                           v-model="saveProfileTravellerTypes">
+                <option
+                        v-for="travellerType in travTypeOptions"
+                        :value="{id: travellerType.id, travellerType: travellerType.travellerType}">
+                    {{travellerType.travellerType}}
+                </option>
             </b-form-select>
             <b-form-invalid-feedback :state="travTypeValidation">
                 Please select at least one traveller type.
@@ -312,7 +290,10 @@
                     {value: 'Male', text: 'Male'},
                     {value: 'Female', text: 'Female'},
                     {value: 'Other', text: 'Other'}
-                ]
+                ],
+                nationalitiesSelected: [],
+                passportsSelected: [],
+                travellerTypesSelected: []
 
             }
         },
@@ -377,22 +358,69 @@
                 return this.saveProfile.gender.length > 0;
             },
             nationalityValidation() {
-                if (this.saveProfile.nationalities.length === 0) {
+                if (this.saveProfileNationalities.length === 0) {
                     return false;
                 }
-                return this.saveProfile.nationalities.length > 0;
+                return this.saveProfileNationalities.length > 0;
             },
             passportValidation() {
-                if (this.saveProfile.passports.length === 0) {
+                if (this.saveProfilePassports.length === 0) {
                     return null;
                 }
-                return this.saveProfile.passports.length > 0;
+                return this.saveProfilePassports.length > 0;
             },
             travTypeValidation() {
-                if (this.saveProfile.travellerTypes.length === 0) {
+                if (this.saveProfileTravellerTypes.length === 0) {
                     return false;
                 }
-                return this.saveProfile.travellerTypes.length > 0;
+                return this.saveProfileTravellerTypes.length > 0;
+            },
+
+
+            /**
+             * Default value for the profile nationalities so already selected.
+             *
+             */
+            saveProfileNationalities: {
+                get() {
+                    return this.profile.nationalities;
+                },
+                set(nationalities) {
+                    this.nationalitiesSelected = nationalities;
+                }
+            },
+
+
+            /**
+             * Default value for the profile passports so already selected.
+             *
+             */
+            saveProfilePassports: {
+                get() {
+                    return this.profile.passports;
+                },
+                set(passports) {
+                    this.passportsSelected = passports;
+                }
+            },
+
+
+            /**
+             * Default value for the profile traveller types so already selected.
+             *
+             */
+            saveProfileTravellerTypes: {
+                get() {
+                    let travellerTypes = JSON.parse(JSON.stringify(this.profile.travellerTypes));
+                    for (let i = 0; i < travellerTypes.length; i++) {
+                        delete travellerTypes[i].description;
+                        delete travellerTypes[i].imgUrl;
+                    }
+                    return travellerTypes;
+                },
+                set(travellerTypes) {
+                    this.travellerTypesSelected = travellerTypes;
+                }
             }
         },
         methods: {
@@ -436,12 +464,51 @@
 
 
             /**
+             * Sets the appropriate nationality value for the saved profile.
+             */
+            retrieveNationalities() {
+                if(this.nationalitiesSelected.length !== 0) {
+                    this.saveProfile.nationalities = this.nationalitiesSelected;
+                } else {
+                    this.saveProfile.nationalities = this.profile.nationalities;
+                }
+            },
+
+
+            /**
+             * Sets the appropriate passport value for the saved profile.
+             */
+            retrievePassports() {
+                if(this.passportsSelected.length !== 0) {
+                    this.saveProfile.passports = this.passportsSelected;
+                } else {
+                    this.saveProfile.passports = this.profile.passports;
+                }
+            },
+
+
+            /**
+             * Sets the appropriate traveller type value for the saved profile.
+             */
+            retrieveTravellerTypes() {
+                if(this.travellerTypesSelected.length !== 0) {
+                    this.saveProfile.travellerTypes = this.travellerTypesSelected;
+                } else {
+                    this.saveProfile.travellerTypes = this.profile.travellerTypes;
+                }
+            },
+
+
+            /**
              * Sends profile changes to profileController and reloads page using the Vue Router.
              */
             submitSaveProfile() {
                 let self = this;
                 if (this.checkSaveProfile) {
                     this.$emit('profileSaved', true);
+                    this.retrieveNationalities();
+                    this.retrievePassports();
+                    this.retrieveTravellerTypes();
 
                     fetch('/v1/profile/' + this.profile.id, {
                         method: 'PUT',
