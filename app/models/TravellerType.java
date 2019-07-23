@@ -20,17 +20,21 @@ public class TravellerType extends BaseModel {
 
     private String imgUrl;
 
+
     public String getTravellerType() {
         return travellerType;
     }
+
 
     public String getDescription() {
         return description;
     }
 
+
     public String getImgUrl() {
         return imgUrl;
     }
+
 
     public static final Finder<Integer, TravellerType> find = new Finder<>(TravellerType.class);
 }

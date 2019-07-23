@@ -13,13 +13,16 @@ public class Nationality extends BaseModel {
     private String nationality;
     private String country;
 
+
     public String getNationality() {
         return nationality;
     }
 
+
     public String getCountry() {
         return country;
     }
+
 
     public static final Finder<Integer, Nationality> find = new Finder<>(Nationality.class);
 }

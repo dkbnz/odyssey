@@ -11,9 +11,11 @@ public class DestinationType extends BaseModel {
 
     public DestinationType() {}
 
+
     public DestinationType(String destinationType) {
         this.destinationType = destinationType;
     }
+
 
     /**
      * The name of a destination type.
@@ -21,13 +23,16 @@ public class DestinationType extends BaseModel {
     @Constraints.Required
     private String destinationType;
 
+
     public String getDestinationType() {
         return destinationType;
     }
 
+
     public void setDestinationType(String destinationType) {
         this.destinationType = destinationType;
     }
+
 
     public static final Finder<Integer, DestinationType> find = new Finder<>(DestinationType.class);
 
