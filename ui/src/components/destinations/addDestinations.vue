@@ -200,7 +200,7 @@
                 return this.inputDestination.district.length > 0;
             },
             destinationLatitudeValidation() {
-                if (this.inputDestination.latitude === null) {
+                if (this.inputDestination.latitude === null || this.inputDestination.latitude.length === 0) {
                     return null;
                 } else if (isNaN(this.inputDestination.latitude)) {
                     this.latitudeErrorMessage = "Latitude: '" + this.inputDestination.latitude + "' is not a number!";
@@ -215,7 +215,7 @@
 
             },
             destinationLongitudeValidation() {
-                if (this.inputDestination.longitude === null) {
+                if (this.inputDestination.longitude === null || this.inputDestination.longitude.length === 0) {
                     return null;
                 } else if (isNaN(this.inputDestination.longitude)) {
                     this.longitudeErrorMessage = "Longitude: '" + this.inputDestination.longitude + "' is not a number!";
