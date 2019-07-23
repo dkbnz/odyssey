@@ -356,6 +356,19 @@ Feature: Destination API Endpoint
     When I attempt to delete the destination with id 119
     Then the status code received is Unauthorised
 
+
+#    TODO - Matilda, issue #68
+#  Scenario: Deleting a destination as the owner, deletes the trip
+#    Given I am running the application
+#    And I am logged in
+#    And a destination already exists with the following values
+#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+#    And the destination is used in trip "Trip 1"
+#    When I attempt to delete the destination
+#    Then the status code received is OK
+#    And the trip with name "Trip 1" is deleted
+
   Scenario: Previous owner uses a private destination
     Given I am running the application
     And I am logged in
