@@ -130,7 +130,7 @@
                         switch
                         v-model="inputDestination.public"
                         required>
-                    Public Destination
+                    {{isPublic}} Destination
                 </b-form-checkbox>
 
                 <b-button :disabled="!validateFields()" @click="checkDestinationFields" block variant="primary">{{heading}} Destination</b-button>
@@ -234,6 +234,13 @@
                 }
                 let countryRegex = /\d/;
                 return !countryRegex.test(this.inputDestination.country);
+            },
+            isPublic() {
+                // Tells users editing a destination whether they've made the destination public or private.
+                if (this.inputDestination.public) {
+                    return "Public";
+                }
+                return "Private";
             }
         },
         methods: {
