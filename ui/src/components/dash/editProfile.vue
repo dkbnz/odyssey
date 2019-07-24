@@ -459,9 +459,6 @@
                         return true;
                     } else {
                         this.showError = true;
-                        setTimeout(function() {
-                            this.showError = false;
-                        }, 3000);
                         return false;
                     }
                 } else {
