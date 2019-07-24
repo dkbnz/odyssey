@@ -36,6 +36,11 @@ PUT     /v1/destinations/:destId                controllers.destinations.Destina
 GET     /v1/destinationCheck/:destinationId     controllers.destinations.DestinationController.getDestinationUsage(request: Request, destinationId: Long)
 DELETE  /v1/destinations/:destinationId         controllers.destinations.DestinationController.destroy(request: Request, destinationId: Long)
 
+
+POST    /v1/destinations/:destinationId/travellerTypes/:travellerTypeId           controllers.destinations.DestinationTravellerTypeController.create(request: Request, destinationId: Long, travellerTypeId: Long)
+DELETE  /v1/destinations/:destinationId/travellerTypes/:travellerTypeId           controllers.destinations.DestinationTravellerTypeController.destroy(request: Request, destinationId: Long, travellerTypeId: Long)
+POST    /v1/destinations/:destinationId/travellerTypes/:travellerTypeId/request   controllers.destinations.DestinationTravellerTypeController.createRequest(request: Request, destinationId: Long, travellerTypeId: Long)
+
 # Trips
 GET     /v1/trips/:userId                       controllers.trips.TripController.fetchAll(userId: Long)
 POST    /v1/trips/:userId                       controllers.trips.TripController.create(request: Request, userId: Long)

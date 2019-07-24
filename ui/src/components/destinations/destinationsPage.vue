@@ -35,6 +35,7 @@
                         <single-destination
                                 :key="refreshSingleDestination"
                                 :destination="selectedDestination"
+                                :travTypeOptions="travTypeOptions"
                                 :destination-types="destinationTypes"
                                 :profile="profile"
                                 @destination-saved="refreshDestinations"
@@ -85,7 +86,8 @@
                 default: function() {
                     return false;
                 }
-            }
+            },
+            travTypeOptions: Array
         },
         components: {
             SingleDestination,
