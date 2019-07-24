@@ -224,6 +224,10 @@ public class Destination extends BaseModel {
     }
 
     public void setTravellerTypes(Set<TravellerType> travellerTypes) {
+        // TravellerTypes have been decided, clear propositions
+        proposedTravellerTypesAdd.clear();
+        proposedTravellerTypesRemove.clear();
+
         this.travellerTypes = travellerTypes;
     }
 
@@ -242,44 +246,6 @@ public class Destination extends BaseModel {
     public void setProposedTravellerTypesRemove(Set<TravellerType> proposedTravellerTypesRemove) {
         this.proposedTravellerTypesRemove = proposedTravellerTypesRemove;
     }
-
-
-
-    public boolean addTravellerType(TravellerType travellerTypeToAdd) {
-
-        // As we are now adding the traveller type, we do not want it in proposed to add.
-        this.removeProposedTravellerTypeAdd(travellerTypeToAdd);
-
-        return travellerTypes.add(travellerTypeToAdd);
-    }
-
-    public boolean removeTravellerType(TravellerType travellerTypeToRemove) {
-
-        // As we are now removing the traveller type, we do not want it in proposed to remove.
-        this.removeProposedTravellerTypeRemove(travellerTypeToRemove);
-
-        return travellerTypes.remove(travellerTypeToRemove);
-    }
-
-    public boolean addProposedTravellerTypeAdd(TravellerType travellerTypeToAdd) {
-        return proposedTravellerTypesAdd.add(travellerTypeToAdd);
-    }
-
-    public boolean removeProposedTravellerTypeAdd(TravellerType travellerTypeToRemove) {
-        return proposedTravellerTypesAdd.remove(travellerTypeToRemove);
-    }
-
-
-    public boolean addProposedTravellerTypeRemove(TravellerType travellerTypeToAdd) {
-        return proposedTravellerTypesRemove.add(travellerTypeToAdd);
-    }
-
-    public boolean removeProposedTravellerTypeRemove(TravellerType travellerTypeToRemove) {
-        return proposedTravellerTypesRemove.remove(travellerTypeToRemove);
-    }
-
-
-
 
     public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
 
