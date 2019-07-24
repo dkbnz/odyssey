@@ -1,18 +1,27 @@
 package models.destinations;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class DestinationTest {
 
+    private DestinationType destinationType1;
+    private DestinationType destinationType2;
+    private Destination testDestination1;
+    private Destination testDestination2;
+
+    @Before
+    public void setUp() {
+        destinationType1 = new DestinationType();
+        destinationType2 = new DestinationType();
+        testDestination1 = new Destination();
+        testDestination2 = new Destination();
+    }
+
     @Test
     public void testEqual() {
-        DestinationType destinationType1 = new DestinationType();
-        DestinationType destinationType2 = new DestinationType();
-        Destination testDestination1 = new Destination();
-        Destination testDestination2 = new Destination();
-
         destinationType1.setDestinationType("Stream");
         destinationType2.setDestinationType("Stream");
 
@@ -35,11 +44,6 @@ public class DestinationTest {
 
     @Test
     public void testNameNotEqual() {
-        DestinationType destinationType1 = new DestinationType();
-        DestinationType destinationType2 = new DestinationType();
-        Destination testDestination1 = new Destination();
-        Destination testDestination2 = new Destination();
-
         destinationType1.setDestinationType("Stream");
         destinationType2.setDestinationType("Stream");
 
@@ -62,11 +66,6 @@ public class DestinationTest {
 
     @Test
     public void testTypeNotEqual() {
-        DestinationType destinationType1 = new DestinationType();
-        DestinationType destinationType2 = new DestinationType();
-        Destination testDestination1 = new Destination();
-        Destination testDestination2 = new Destination();
-
         // DestinationType not equal therefore Destination not equal, Ceteris paribus
         destinationType1.setDestinationType("River");
         destinationType2.setDestinationType("Stream");
@@ -90,11 +89,6 @@ public class DestinationTest {
 
     @Test
     public void testLatitudeNotEqual() {
-        DestinationType destinationType1 = new DestinationType();
-        DestinationType destinationType2 = new DestinationType();
-        Destination testDestination1 = new Destination();
-        Destination testDestination2 = new Destination();
-
         destinationType1.setDestinationType("River");
         destinationType2.setDestinationType("River");
 
@@ -118,11 +112,6 @@ public class DestinationTest {
 
     @Test
     public void testEqualHashCode() {
-        DestinationType destinationType1 = new DestinationType();
-        DestinationType destinationType2 = new DestinationType();
-        Destination testDestination1 = new Destination();
-        Destination testDestination2 = new Destination();
-
         destinationType1.setDestinationType("Stream");
         destinationType2.setDestinationType("Stream");
 
@@ -145,11 +134,6 @@ public class DestinationTest {
 
     @Test
     public void testNameNotEqualHashCode() {
-        DestinationType destinationType1 = new DestinationType();
-        DestinationType destinationType2 = new DestinationType();
-        Destination testDestination1 = new Destination();
-        Destination testDestination2 = new Destination();
-
         destinationType1.setDestinationType("Stream");
         destinationType2.setDestinationType("Stream");
 
@@ -172,11 +156,6 @@ public class DestinationTest {
 
     @Test
     public void testTypeNotEqualHashCode() {
-        DestinationType destinationType1 = new DestinationType();
-        DestinationType destinationType2 = new DestinationType();
-        Destination testDestination1 = new Destination();
-        Destination testDestination2 = new Destination();
-
         // DestinationType not equal therefore Destination not equal, Ceteris paribus
         destinationType1.setDestinationType("River");
         destinationType2.setDestinationType("Stream");
@@ -200,11 +179,6 @@ public class DestinationTest {
 
     @Test
     public void testLatitudeNotEqualHashCode() {
-        DestinationType destinationType1 = new DestinationType();
-        DestinationType destinationType2 = new DestinationType();
-        Destination testDestination1 = new Destination();
-        Destination testDestination2 = new Destination();
-
         destinationType1.setDestinationType("River");
         destinationType2.setDestinationType("River");
 

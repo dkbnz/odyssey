@@ -193,6 +193,12 @@ public class DestinationTestSteps {
     private Database database;
 
     /**
+     * Repository to access the destinations in the running application.
+     */
+    private DestinationRepository destinationRepo = new DestinationRepository();
+
+
+    /**
      * Runs before each test scenario.
      * Sets up a fake application for testing.
      * Applies configuration settings to use an in memory database for the fake application.
@@ -991,7 +997,6 @@ public class DestinationTestSteps {
         JsonNode arrNode = new ObjectMapper().readTree(responseBody);
         Long ownerId;
         for (int i = 0 ; i < arrNode.size() ; i++) {
-            DestinationRepository destinationRepo = new DestinationRepository();
             ownerId = destinationRepo.fetch(arrNode.get(i).get("id").asLong()).getOwner().getId();  //Gets owner id of destination
             assertEquals(userId, ownerId);
         }
@@ -1005,7 +1010,6 @@ public class DestinationTestSteps {
      */
     @Then("the owner is user {int}")
     public void theOwnerIsUser(Integer userId) {
-        DestinationRepository destinationRepo = new DestinationRepository();
         Destination destination = destinationRepo.fetch(destinationId);
         Long expectedId = userId.longValue();
         assertEquals(expectedId, destination.getOwner().getId());
@@ -1019,7 +1023,6 @@ public class DestinationTestSteps {
      */
     @Then("the destination will have photos with the following ids")
     public void theDestinationWillHavePhotosWithTheFollowingIds(io.cucumber.datatable.DataTable dataTable) {
-        DestinationRepository destinationRepo = new DestinationRepository();
         Destination destination = destinationRepo.fetch(destinationId);
 
         List<String> photoIds = getPhotoIds(destination);
@@ -1057,7 +1060,6 @@ public class DestinationTestSteps {
      */
     @Then("the destination will be used in the following trips")
     public void theDestinationWillBeUsedInTheFollowingTrips(io.cucumber.datatable.DataTable dataTable) throws IOException {
-        DestinationRepository destinationRepo = new DestinationRepository();
         Destination destination = destinationRepo.fetch(destinationId);
 
         List<String> names = getTripNames();
