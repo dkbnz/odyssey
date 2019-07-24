@@ -71,19 +71,22 @@
                     Traveller Types:
                 </p>
                 <ul>
-                    <li v-for="travellerType in travellerTypes">
-                        {{travellerType}} <b-button v-if="showEditTravellerTypes" variant="link" style="color: red">x</b-button>
+                    <li v-for="travellerType in destination.travellerTypes">
+                        {{travellerType.travellerType}}
                     </li>
                 </ul>
                 <b-button variant="link" @click="calculateCurrentTravellerTypes(); showEditTravellerTypes = !showEditTravellerTypes">Modify Traveller Types</b-button>
-                <div v-if="showEditTravellerTypes">
-                    <b-form>
-                        <b-form-select v-model="calculatedTravellerTypes" md="4">
-                            <option v-for="travellerType in travTypeOptions" :disabled="duplicateType(travellerType)">
+                <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
+                <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
+                <div v-if="showEditTravellerTypes" class="travellerTypeDiv">
+                    <b-form-group label="Add Traveller Types:">
+                        <b-form-checkbox-group id="addTravellerTypes" v-model="calculatedTravellerTypes">
+                            <b-form-checkbox v-for="travellerType in travTypeOptions" :value="travellerType">
                                 {{travellerType.travellerType}}
-                            </option>
-                        </b-form-select>
-                    </b-form>
+                            </b-form-checkbox>
+                        </b-form-checkbox-group>
+                    </b-form-group>
+                    <b-button variant="primary" @click="requestTravellerTypeChange" block>Send Change Request</b-button>
                 </div>
 
                 <b-button @click="editDestination" variant="warning"
@@ -121,9 +124,11 @@
                 destinationUsage: "",
                 refreshDestination: null,
                 showError: false,
-                travellerTypes: ['Groupie', 'Functional/Business'],
                 showEditTravellerTypes: false,
-                calculatedTravellerTypes: []
+                calculatedTravellerTypes: [],
+                alertMessage: "",
+                showTravellerTypeUpdateSuccess: false,
+                showTravellerTypeUpdateFailure: false
             }
         },
 
@@ -231,21 +236,64 @@
              * @returns {string[]} the list of traveller types for the current destination.
              */
             calculateCurrentTravellerTypes() {
-                this.calculatedTravellerTypes = this.travellerTypes;
+                this.calculatedTravellerTypes = this.destination.travellerTypes;
             },
 
 
+            /**
+             * Checks the traveller type list for a destination against the traveller type options
+             * to disable the current destination traveller types.
+             *
+             * @param travellerType the traveller type being checked for a duplicate.
+             * @returns {boolean} true if duplicate found; false otherwise.
+             */
             duplicateType(travellerType) {
-                for (let i = 0; i < this.travellerTypes.length; i++) {
-                    if (travellerType.travellerType === this.travellerTypes[i]) {
+                for (let i = 0; i < this.destination.travellerTypes.length; i++) {
+                    if (travellerType.travellerType === this.destination.travellerTypes[i].travellerType) {
                         return true;
                     }
                 }
+            },
+
+
+            /**
+             * Sends a request to the back end, which contains all the traveller types.
+             */
+            requestTravellerTypeChange() {
+                let url = `/v1/destinations/` + this.destination.id + `/travellerTypes`;
+                let self = this;
+                if (this.destination.owner.id !== this.profile.id || !this.profile.isAdmin) {
+                    url += `/request`;
+                }
+                fetch(url, {
+                    method: 'POST',
+                    headers: {'content-type': 'application/json'},
+                    body: JSON.stringify(this.calculatedTravellerTypes)
+                })
+                    .then(function(response) {
+                        if (response.ok) {
+                            self.alertMessage = "Destination traveller types updated.";
+                            self.showTravellerTypeUpdateSuccess = true;
+                            setTimeout(function () {
+                                self.showTravellerTypeUpdateSuccess = false;
+                            }, 3000);
+                        } else {
+                            self.alertMessage = "Cannot update traveller types.";
+                            self.showTravellerTypeUpdateFailure = true;
+                            setTimeout(function () {
+                                self.showTravellerTypeUpdateFailure = false;
+                            }, 3000);
+                        }
+                        self.$emit('data-changed');
+                        return JSON.parse(JSON.stringify(response));
+                    });
             }
         }
     }
 </script>
 
-<style scoped>
-
+<style>
+    .travellerTypeDiv {
+        margin-bottom: 7px;
+    }
 </style>
