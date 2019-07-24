@@ -12,15 +12,14 @@ import play.mvc.Result;
 import repositories.ProfileRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.destinations.TravellerTypeRepository;
+import util.AuthenticationUtil;
 
-import static play.mvc.Results.forbidden;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static play.mvc.Results.ok;
-import static play.mvc.Results.unauthorized;
+import static play.mvc.Results.*;
 
 public class DestinationTravellerTypeController {
 
@@ -37,6 +36,14 @@ public class DestinationTravellerTypeController {
         this.travellerTypeRepo = travellerTypeRepo;
     }
 
+
+    /**
+     * Takes a JsonNode that is an array of traveller types. Will then iterate
+     * over the array and produce a list of traveller types.
+     *
+     * @param travellerTypesNode    a JsonNode containing a list of serialized traveller types
+     * @return                      a list of traveller types
+     */
     private List<TravellerType> getTravellerTypeFromNode(JsonNode travellerTypesNode) {
         List<TravellerType> travellerTypes = new ArrayList<>();
 
@@ -50,70 +57,116 @@ public class DestinationTravellerTypeController {
         return travellerTypes;
     }
 
+
     /**
-     * Method to set the traveller types for a destination
+     * Method to set the traveller types for a destination.
+     * Request body is expected to be a jsonArray of traveller types.
+     * If method executes successfully, given traveller types will be set as
+     * recommended traveller types for a destination.
+     * All proposed traveller types will be cleared.
      *
-     * @param request
-     * @param destinationId
-     * @return
+     * @param request           Http request containing a Json body of traveller types
+     * @param destinationId     id of the destination for which the traveller types are set
+     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
      */
     public Result create(Http.Request request, Long destinationId) {
 
-        // Authenticate
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
 
         Destination destinationToMutate = destinationRepo.fetch(destinationId);
 
-        // Check for null
+        if (destinationToMutate == null) {
+            return notFound();
+        }
+
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, destinationToMutate.getOwner())) {
+            return forbidden();
+        }
 
         JsonNode jsonBody = request.body().asJson();
 
-        destinationToMutate.setTravellerTypes(
-                new HashSet<>(
-                        getTravellerTypeFromNode(jsonBody)
-                )
+        Set<TravellerType> travellerTypesToSet = new HashSet<>(
+                getTravellerTypeFromNode(jsonBody)
         );
 
-        // Decisions have been made, clear proposal sets.
-        destinationToMutate.getProposedTravellerTypesAdd().clear();
-        destinationToMutate.getProposedTravellerTypesRemove().clear();
+        // Prevent the user from adding traveller types that do not already exist
+        travellerTypesToSet.retainAll(
+                travellerTypeRepo.findAll()
+        );
+
+        destinationToMutate.setTravellerTypes(
+                travellerTypesToSet
+        );
 
         destinationRepo.save(destinationToMutate);
         return ok();
     }
 
+
     /**
-     * Method to propose traveller types for a destination
+     * Method to propose traveller types for a destination.
+     * Request body is expected to be a jsonArray of traveller types.
+     * If method executes successfully, given traveller types will be split between
+     * proposed to add or proposed to remove depending on their presence in the current set.
      *
-     * @param request
-     * @param destinationId
-     * @return
+     * @param request           Http request containing a Json body of traveller types
+     * @param destinationId     id of the destination for which the traveller types are proposed
+     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
      */
     public Result propose(Http.Request request, Long destinationId) {
-        // Authenticate
+
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
 
         Destination destinationToMutate = destinationRepo.fetch(destinationId);
 
-        // Check for null
+        if (destinationToMutate == null) {
+            return notFound();
+        }
+
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, destinationToMutate.getOwner())) {
+            return forbidden();
+        }
 
         JsonNode jsonBody = request.body().asJson();
+
+        if(jsonBody == null || !jsonBody.isArray()) {
+            return badRequest();
+        }
 
         Set<TravellerType> currentTravellerTypes = destinationToMutate.getTravellerTypes();
         Set<TravellerType> proposedTravellerTypes = new HashSet<>(getTravellerTypeFromNode(jsonBody));
 
-        // Proposed to add. Is given set - current set
+        // Prevent the user from proposing traveller types that do not already exist
+        proposedTravellerTypes.retainAll(
+                travellerTypeRepo.findAll()
+        );
+
+        // Proposed to add = proposed set - current set
         Set<TravellerType> proposedAddTravellerTypes = new HashSet<>(proposedTravellerTypes);
         proposedAddTravellerTypes.removeAll(currentTravellerTypes);
 
-        // Proposed to remove. Is current set - given set
+        // Proposed to remove = current set - proposed set
         Set<TravellerType> proposedRemoveTravellerTypes = new HashSet<>(currentTravellerTypes);
         proposedRemoveTravellerTypes.removeAll(proposedTravellerTypes);
 
+        // Set both of the proposed sets
         destinationToMutate.setProposedTravellerTypesAdd(proposedAddTravellerTypes);
         destinationToMutate.setProposedTravellerTypesRemove(proposedRemoveTravellerTypes);
 
         destinationRepo.save(destinationToMutate);
         return ok();
     }
+
 
     /**
      * Gets all the destinations that have traveller type proposals that are not currently accepted or rejected
