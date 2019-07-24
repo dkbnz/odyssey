@@ -35,12 +35,16 @@ public class TripDestination extends BaseModel {
     /**
      * The trip that the trip destination is part of.
      */
-    @ManyToOne
     @JsonIgnore
+    @ManyToOne(cascade=CascadeType.ALL)
     private Trip trip;
 
     public Trip getTrip() {
         return trip;
+    }
+
+    public void clearTrip() {
+        trip = null;
     }
 
     /**
