@@ -285,15 +285,6 @@
                     {value: 'Female', text: 'Female'},
                     {value: 'Other', text: 'Other'}
                 ],
-                fields: [
-                    {key: 'profilePhoto', label: "Profile Photo", sortable: true, class: 'tableWidthSmall'},
-                    {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
-                    {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
-                    {key: 'nationalities', label: "Nationalities", sortable: true, class: 'tableWidthMedium'},
-                    {key: 'gender', value: 'gender', sortable: true, class: 'tableWidthSmall'},
-                    {key: 'age', value: 'age', sortable: true, class: 'tableWidthSmall'},
-                    {key: 'travellerType', label: "Traveller Types", sortable: true, class: 'tableWidthMedium'},
-                    {key: 'actions', class: 'tableWidthMedium'}],
                 profiles: [],
                 retrievingProfiles: false,
                 selectedProfile: "",
@@ -522,6 +513,25 @@
              */
             rows() {
                 return this.profiles.length;
+            },
+
+            fields() {
+                if (!this.adminView) {
+                    return [
+                        {key: 'profilePhoto', label: "Photo", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'nationalities', label: "Nationalities", sortable: true, class: 'tableWidthMedium'},
+                        {key: 'gender', value: 'gender', sortable: true, class: 'tableWidthSmall'},
+                        {key: 'age', value: 'age', sortable: true, class: 'tableWidthSmall'},
+                        {key: 'travellerType', label: "Traveller Types", sortable: true, class: 'tableWidthMedium'},
+                        {key: 'actions', class: 'tableWidthMedium'}]
+                }
+                return [
+                    {key: 'profilePhoto', label: "Photo", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'actions', class: 'tableWidthMedium'}]
             }
         }
     }

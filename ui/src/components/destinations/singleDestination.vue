@@ -75,7 +75,7 @@
                         {{travellerType.travellerType}}
                     </li>
                 </ul>
-                <b-button variant="link" @click="calculateCurrentTravellerTypes(); showEditTravellerTypes = !showEditTravellerTypes">Modify Traveller Types</b-button>
+                <b-button variant="link" @click="calculateCurrentTravellerTypes(); showEditTravellerTypes = !showEditTravellerTypes">{{travellerTypeLinkText}}</b-button>
                 <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
                 <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
                 <div v-if="showEditTravellerTypes" class="travellerTypeDiv">
@@ -86,7 +86,7 @@
                             </b-form-checkbox>
                         </b-form-checkbox-group>
                     </b-form-group>
-                    <b-button variant="primary" @click="requestTravellerTypeChange" block>Send Change Request</b-button>
+                    <b-button variant="primary" @click="requestTravellerTypeChange" block>{{travellerTypeButtonText}}</b-button>
                 </div>
 
                 <b-button @click="editDestination" variant="warning"
@@ -142,6 +142,22 @@
                 }
             },
             travTypeOptions: Array
+        },
+
+        computed: {
+            travellerTypeButtonText() {
+                if (this.profile.id === this.destination.owner.id || this.profile.isAdmin) {
+                    return "Change Traveller Types"
+                }
+                return "Propose Traveller Types"
+            },
+
+            travellerTypeLinkText() {
+                if (this.profile.id === this.destination.owner.id || this.profile.isAdmin) {
+                    return "Change Traveller Types"
+                }
+                return "Propose Traveller Types"
+            }
         },
 
         components: {
@@ -263,7 +279,7 @@
                 let url = `/v1/destinations/` + this.destination.id + `/travellerTypes`;
                 let self = this;
                 if (this.destination.owner.id !== this.profile.id || !this.profile.isAdmin) {
-                    url += `/request`;
+                    url += `/propose`;
                 }
                 fetch(url, {
                     method: 'POST',
