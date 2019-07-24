@@ -166,21 +166,25 @@ public class DestinationTravellerTypeController {
 
 
     /**
-     * Gets all the destinations that have traveller type proposals that are not currently accepted or rejected
+     * Gets all the destinations that have traveller type proposals that are not currently accepted or rejected.
      *
-     * @param request the request from the front end that contains login info
-     * @return a json result of all the destinations with proposals
+     * @param request the request from the front end that contains login info.
+     * @return a json result of all the destinations with proposals.
      */
     public Result fetchProposedDestinations(Http.Request request) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(loggedInUserId -> {
-                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
-                    if (!loggedInUser.getIsAdmin()) {
-                        return forbidden();
-                    }
-                    return ok(Json.toJson(destinationRepo.fetchProposed()));
-                }).orElseGet(() -> unauthorized(NOT_SIGNED_IN));
+
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+
+        if (!loggedInUser.getIsAdmin()) {
+            return forbidden();
+        }
+
+        return ok(Json.toJson(destinationRepo.fetchProposed()));
     }
 
 }
