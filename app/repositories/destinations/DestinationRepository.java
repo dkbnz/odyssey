@@ -69,6 +69,22 @@ public class DestinationRepository {
     }
 
 
+    public void safeDelete(Destination destination) {
+        // Clear the destination photos
+        destination.clearPhotoGallery();
+        destination.update();
+        //Clear the trip destinations
+        System.out.println(destination.getTripDestinations().size());
+        System.out.println(fetch(destination.getId()).getTripDestinations().size());
+        destination.clearTripDestinations();
+        destination.update();
+        System.out.println(destination.getTripDestinations().size());
+        System.out.println(fetch(destination.getId()).getTripDestinations().size());
+        // Delete destination
+        destination.delete();
+    }
+
+
     /**
      * Transfers the ownership of a destination to the default admin. Will be used when a public destination is used by
      * another user.
