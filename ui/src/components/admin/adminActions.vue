@@ -42,7 +42,7 @@
                         <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
                         <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
                         <!-- Loop through the list of proposals and generate an area to accept/reject for each one -->
-                        <!--v-for="destination in travellerTypeProposals"-->
+                        <!-- v-if="travellerTypeProposals.length > 0" v-for="destination in travellerTypeProposals"-->
                         <div>
                             <b-row>
                                 <b-col>
@@ -113,6 +113,9 @@
                                 </b-button>
                             </b-row>
                         </div>
+                        <!--<div v-else>-->
+                            <!--<p>No proposals could be found.</p>-->
+                        <!--</div>-->
                     </b-card>
                 </b-col>
             </b-row>

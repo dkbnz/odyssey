@@ -260,28 +260,12 @@
 
 
             /**
-             * Checks the traveller type list for a destination against the traveller type options
-             * to disable the current destination traveller types.
-             *
-             * @param travellerType the traveller type being checked for a duplicate.
-             * @returns {boolean} true if duplicate found; false otherwise.
-             */
-            duplicateType(travellerType) {
-                for (let i = 0; i < this.destination.travellerTypes.length; i++) {
-                    if (travellerType.travellerType === this.destination.travellerTypes[i].travellerType) {
-                        return true;
-                    }
-                }
-            },
-
-
-            /**
              * Sends a request to the back end, which contains all the traveller types.
              */
             requestTravellerTypeChange() {
                 let url = `/v1/destinations/` + this.destination.id + `/travellerTypes`;
                 let self = this;
-                if (this.destination.owner.id !== this.profile.id || !this.profile.isAdmin) {
+                if (this.destination.owner.id !== this.profile.id && !this.profile.isAdmin) {
                     url += `/propose`;
                 }
                 fetch(url, {
@@ -320,5 +304,10 @@
 <style>
     .travellerTypeDiv {
         margin-bottom: 7px;
+    }
+
+    p {
+        margin: 0;
+        padding: 0;
     }
 </style>
