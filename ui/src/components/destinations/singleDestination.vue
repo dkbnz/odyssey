@@ -147,6 +147,16 @@
             travTypeOptions: Array
         },
 
+        watch: {
+            /**
+             * When the destination prop changes, hide the show edit traveller types section, this is show the section
+             * can update.
+             */
+            destination () {
+                this.showEditTravellerTypes = false;
+            }
+        },
+
         computed: {
             travellerTypeButtonText() {
                 if (this.profile.id === this.destination.owner.id || this.profile.isAdmin) {
