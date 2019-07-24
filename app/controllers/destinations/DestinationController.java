@@ -538,11 +538,16 @@ public class DestinationController extends Controller {
         if (!similarDestinations.isEmpty()) {
             while (similarDestinations.iterator().hasNext()) {
                 Destination destinationToMerge = similarDestinations.iterator().next();
+
                 destinationToUpdate.consume(destinationToMerge);
 
+
+
                 // Save destination that has had attributes taken to prevent deletion of attributes via cascading
-                destinationRepo.save(destinationToUpdate);
-                destinationRepo.save(destinationToMerge);
+
+                destinationRepo.update(destinationToUpdate);
+                destinationRepo.update(destinationToMerge);
+
                 destinationRepo.delete(destinationToMerge);
 
                 similarDestinations.remove(destinationToMerge);

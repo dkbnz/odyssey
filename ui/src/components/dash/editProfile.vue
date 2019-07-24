@@ -2,6 +2,7 @@
     <div :class="containerClass">
         <h1 class="page-title">Edit Profile</h1>
         <p class="page-title"><i>Edit your profile using the form below!</i></p>
+        <b-alert variant="success" v-model="showSuccess">Profile successfully saved!</b-alert>
         <!--First name field, with default set to the user's current first name. Validates inputted text-->
         <b-row>
             <b-col>
@@ -180,6 +181,7 @@
                             {{nationality.nationality}}
                         </option>
                     </b-form-select>
+                    <p class="descriptionText">Use 'Ctrl-Click' to select more than one.</p>
                     <b-form-invalid-feedback :state="nationalityValidation">
                         Please select at least one nationality.
                     </b-form-invalid-feedback>
@@ -208,6 +210,7 @@
                             {{passport.country}}
                         </option>
                     </b-form-select>
+                    <p class="descriptionText">Use 'Ctrl-Click' to select more than one.</p>
                     <b-form-invalid-feedback :state="passportValidation">
                         Please select at least one passport country.
                     </b-form-invalid-feedback>
@@ -236,6 +239,7 @@
                     {{travellerType.travellerType}}
                 </option>
             </b-form-select>
+            <p class="descriptionText">Use 'Ctrl-Click' to select more than one.</p>
             <b-form-invalid-feedback :state="travTypeValidation">
                 Please select at least one traveller type.
             </b-form-invalid-feedback>
@@ -285,6 +289,7 @@
                 },
                 rePassword: "",
                 validEmail: false,
+                showSuccess: false,
                 showError: false,
                 genderOptions: [
                     {value: 'Male', text: 'Male'},
@@ -520,6 +525,11 @@
                     }).then(function (response) {
                         if (!self.adminView) {
                             self.$router.go();
+                        } else {
+                            self.showSuccess = true;
+                            setTimeout(function() {
+                                self.showSuccess = false;
+                            }, 3000)
                         }
                         self.$emit('profile-saved', self.saveProfile);
                         window.scrollTo(0, 0);

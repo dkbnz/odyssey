@@ -168,6 +168,8 @@ public class DestinationTestSteps {
     private static final String PHOTO_COUNT = "photo_count";
     private static final String MATCHING_TRIPS = "matching_trips";
     private static final String TRIP_NAME = "trip_name";
+    private static final String TRIP_NAME_FIELD = "name";
+
 
     private static final String DISTRICT = "district";
     private static final String LATITUDE = "latitude";
@@ -1086,6 +1088,13 @@ public class DestinationTestSteps {
         }
 
         return names;
+    }
+
+
+    @Then("the trip with name {string} is deleted")
+    public void theTripWithNameIsDeleted(String tripName) {
+        List<Trip> trips = Trip.find.query().where().ilike(TRIP_NAME_FIELD, queryComparator(tripName)).findList();
+        Assert.assertEquals(0, trips.size());
     }
 
 
