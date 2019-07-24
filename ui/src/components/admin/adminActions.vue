@@ -39,14 +39,21 @@
                         </b-collapse>
                     </b-card>
                     <b-card header="Destination Traveller Types">
-                        <b-alert v-model="showSuccess" variant="success"></b-alert>
+                        <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
+                        <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
+                        <!-- Loop through the list of proposals and generate an area to accept/reject for each one -->
+                        <!--v-for="destination in travellerTypeProposals"-->
                         <div>
                             <b-row>
                                 <b-col>
                                     <h5 class="mb-1">Name</h5>
                                 </b-col>
                                 <b-col>
-                                    <b-button size="sm" style="margin-bottom: 5px" variant="warning" @click="showDestinationDetails = !showDestinationDetails">Show More Details</b-button>
+                                    <b-button size="sm" class="buttonMarginsBottom"
+                                              variant="warning"
+                                              @click="showDestinationDetails = !showDestinationDetails">
+                                        Show More Details
+                                    </b-button>
                                 </b-col>
                             </b-row>
                             <div v-if="showDestinationDetails">
@@ -58,56 +65,54 @@
                             <b-row>
                                 <b-col>
                                     <b-card>
-                                        <h7 class="page-title">Current</h7>
+                                        <h6 class="page-title">Current</h6>
+                                        <div>
+                                            <!--v-for="travellerType in destination.travellerTypes"-->
+                                            <p class="mb-1">
+                                                <!--{{travellerType.travellerType}}-->
+                                            </p>
+                                        </div>
                                     </b-card>
                                 </b-col>
                                 <b-col>
                                     <b-card>
-                                        <h7 class="page-title">Proposed Additions</h7>
+                                        <h6 class="page-title">Proposed Additions</h6>
                                         <div>
-                                            <p class="mb-1" v-for="travellerType in travellerTypeDestination">
-                                                {{travellerType.travellerType}}
+                                            <!--v-for="travellerType in destination.proposedTravellerTypesAdd"-->
+                                            <p class="mb-1" >
+                                                <!--{{travellerType.travellerType}}-->
                                             </p>
-                                            <b-button variant="success" size="sm" @click="addToTravellerTypes(travellerType)">&#10003;</b-button>
+                                            <b-button variant="success" size="sm"
+                                                      @click="addTravellerTypes(destination, travellerType)">
+                                                &#10003;
+                                            </b-button>
                                         </div>
                                     </b-card>
 
                                 </b-col>
                                 <b-col>
                                     <b-card>
-                                        <h7 class="page-title">Proposed Removals</h7>
+                                        <h6 class="page-title">Proposed Removals</h6>
                                         <div>
-                                            <p class="mb-1" v-for="travellerType in travellerTypeDestination">
-                                                {{travellerType.travellerType}}
+                                            <!--v-for="travellerType in destination.proposedTravellerTypesRemove"-->
+                                            <p class="mb-1" >
+                                                <!--{{travellerType.travellerType}}-->
                                             </p>
-                                            <b-button variant="danger" size="sm" @click="addToTravellerTypes(travellerType)">&#10003;</b-button>
+                                            <b-button variant="danger" size="sm"
+                                                      @click="removeTravellerTypes(destination, travellerType)">
+                                                &#10003;
+                                            </b-button>
                                         </div>
                                     </b-card>
                                 </b-col>
                             </b-row>
+                            <b-row>
+                                <b-button variant="primary" class="buttonMarginsTop"
+                                          @click="sendTravellerTypes(destination)" block>
+                                    Submit
+                                </b-button>
+                            </b-row>
                         </div>
-
-
-
-
-                        <b-list-group>
-                            <b-list-group-item class="flex-column align-items-start"
-                                               v-for="destination in travellerTypeProposals">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">Name: {{destination.name}}</h5>
-                                </div>
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">Traveller Types Added:</h5>
-                                    <div v-for="travellerTypeDestination in destination.proposedTravellerTypesAdd">
-                                        <p class="mb-1" v-for="travellerType in travellerTypeDestination">
-                                            {{travellerType.travellerType}}
-                                        </p>
-                                        <b-button variant="success" @click="addToTravellerTypes(travellerType)">&#10003;</b-button>
-                                        <b-button variant="success">&#10007;</b-button>
-                                    </div>
-                                </div>
-                            </b-list-group-item>
-                        </b-list-group>
                     </b-card>
                 </b-col>
             </b-row>
@@ -130,13 +135,16 @@
                 showCollapse: false,
                 showSuccess: false,
                 travellerTypeProposals: [],
-                destinationTravellerTypesToAdd: [],
-                showDestinationDetails: false
+                showDestinationDetails: false,
+                alertMessage: "",
+                showTravellerTypeUpdateSuccess: false,
+                showTravellerTypeUpdateFailure: false
             }
         },
 
         mounted() {
-            this.getTravellerTypeProposals(travellerTypeProposals => this.travellerTypeProposals = travellerTypeProposals);
+            this.getTravellerTypeProposals(travellerTypeProposals =>
+                this.travellerTypeProposals = travellerTypeProposals);
         },
         methods: {
             /**
@@ -150,6 +158,7 @@
                 this.showSuccess = true;
             },
 
+
             /**
              * Emits the selected profile to the adminPanel page, this is so an admin can modify the profile.
              * @param editProfile   the selected profile to be modified by an admin.
@@ -158,16 +167,72 @@
                 this.$emit('admin-edit', editProfile);
             },
 
+
+            /**
+             * Retrieves the list of traveller type proposals to display on the frontend. Admin can then accept/reject
+             * proposals.
+             *
+             *@param updateTravellerTypeProposals   the variable to update the list of traveller type propsals.
+             */
             getTravellerTypeProposals(updateTravellerTypeProposals) {
                 return fetch(`/v1/destinations/proposals`, {
                     accept: "application/json"
                 })
-                    .then(response => response.json())
+                    .then(response => JSON.parse(JSON.stringify(response)))
                     .then(updateTravellerTypeProposals);
             },
 
-            addToTravellerTypes(travellerType) {
 
+            /**
+             * Adds the traveller type to the list of traveller types for said destination.
+             *
+             * @param travellerType     the traveller type to be added.
+             */
+            addTravellerTypes(destination, travellerType) {
+                destination.travellerTypes.push(travellerType);
+            },
+
+
+            /**
+             * Removes the traveller type from the list of traveller types for said destination.
+             *
+             * @param travellerType     the traveller type to be removed.
+             */
+            removeTravellerTypes(destination, travellerType) {
+                for (let i = 0; i <= destination.travellerTypes.length; i++) {
+                    if (destination.travellerTypes[i] === travellerType) {
+                        destination.travellerTypes.splice(i, 1);
+                    }
+                }
+            },
+
+
+            /**
+             * Sends a request to the back end, which contains all the traveller types.
+             */
+            sendTravellerTypes(destination) {
+                let self = this;
+                fetch(`/v1/destinations/` + destination.id + `/travellerTypes`, {
+                    method: 'POST',
+                    headers: {'content-type': 'application/json'},
+                    body: JSON.stringify(destination.travellerTypes)
+                })
+                    .then(function(response) {
+                        if (response.ok) {
+                            self.alertMessage = "Destination traveller types updated.";
+                            self.showTravellerTypeUpdateSuccess = true;
+                            setTimeout(function () {
+                                self.showTravellerTypeUpdateSuccess = false;
+                            }, 3000);
+                        } else {
+                            self.alertMessage = "Cannot update traveller types.";
+                            self.showTravellerTypeUpdateFailure = true;
+                            setTimeout(function () {
+                                self.showTravellerTypeUpdateFailure = false;
+                            }, 3000);
+                        }
+                        return JSON.parse(JSON.stringify(response));
+                    });
             }
         },
         components: {
@@ -176,9 +241,3 @@
         }
     }
 </script>
-
-<style>
-    .hidden_header {
-        display: none;
-    }
-</style>

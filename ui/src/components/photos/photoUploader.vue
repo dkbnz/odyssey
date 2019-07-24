@@ -12,8 +12,8 @@
                      placeholder="Choose file..."
                      v-model="files"
         ></b-form-file>
-        <b-button @click="files = null" class="btn btn-info buttonMargins">Clear Selected Files</b-button>
-        <b-button :disabled="files == null || files.length === 0" @click="save()" class="btn btn-info buttonMargins">
+        <b-button @click="files = null" class="btn btn-info buttonMarginsTop">Clear Selected Files</b-button>
+        <b-button :disabled="files == null || files.length === 0" @click="save()" class="btn btn-info buttonMarginsTop">
             Save
         </b-button>
     </div>

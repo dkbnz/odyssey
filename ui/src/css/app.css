@@ -176,8 +176,12 @@ a {
     cursor: pointer
 }
 
-.buttonMargins {
+.buttonMarginsTop {
     margin-top: 5px;
+}
+
+.buttonMarginsBottom {
+    margin-bottom: 5px
 }
 
 .descriptionText {
