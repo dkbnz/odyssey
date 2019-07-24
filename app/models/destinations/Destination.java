@@ -157,6 +157,37 @@ public class Destination extends BaseModel {
     }
 
 
+    public List<TripDestination> getTripDestinations() {
+        return tripDestinations;
+    }
+
+    /**
+     * Adds the specified destination to the list of trip destinations.
+     *
+     * @param tripDestination the destination to be added to the list.
+     * @return                the list of trip destinations.
+     */
+    public boolean addTripDestination(TripDestination tripDestination) {
+        return tripDestinations.add(tripDestination);
+    }
+
+
+    /**
+     * Removes the specified destination to the list of trip destinations.
+     *
+     * @param tripDestination the destination to be removed from the list.
+     * @return                the list of trip destinations.
+     */
+    private boolean removeTripDestination(TripDestination tripDestination) {
+        return tripDestinations.remove(tripDestination);
+    }
+
+
+    public void clearTripDestinations() {
+        tripDestinations.clear();
+    }
+
+
     public Profile getOwner() {
         return this.owner;
     }
@@ -233,6 +264,20 @@ public class Destination extends BaseModel {
     public void consume(Destination other) {
         if (!this.equals(other)) return;
 
+        //TODO: WIP - Matilda & Hayden
+//        // Takes all trip destinations from other into this destination
+//        List<TripDestination> tripDestinations = other.getTripDestinations();
+//        for (TripDestination tripDestination: tripDestinations) {
+//            tripDestination.setId(null); //Resave with New Id
+//            tripDestination.setDestination(this);
+//            tripDestination.update();
+//            tripDestination.insert();
+//            this.addTripDestination(tripDestination);
+//        }
+//
+//        // Remove all links from other trip destinations to the trip
+//        other.clearTripDestinations();
+
         // Take all TripDestinations
         TripDestination tripDestinationToConsume = other.getTripDestination();
         while(tripDestinationToConsume != null) {
@@ -254,28 +299,6 @@ public class Destination extends BaseModel {
             this.addPhotoToGallery(personalPhotoToConsume);
             personalPhotoToConsume = other.getPhoto();
         }
-    }
-
-
-    /**
-     * Adds the specified destination to the list of trip destinations.
-     *
-     * @param tripDestination the destination to be added to the list.
-     * @return                the list of trip destinations.
-     */
-    public boolean addTripDestination(TripDestination tripDestination) {
-        return tripDestinations.add(tripDestination);
-    }
-
-
-    /**
-     * Removes the specified destination to the list of trip destinations.
-     *
-     * @param tripDestination the destination to be removed from the list.
-     * @return                the list of trip destinations.
-     */
-    private boolean removeTripDestination(TripDestination tripDestination) {
-        return tripDestinations.remove(tripDestination);
     }
 
 
@@ -308,8 +331,4 @@ public class Destination extends BaseModel {
         return null;
     }
 
-
-    public List<TripDestination> getTripDestinations() {
-        return tripDestinations;
-    }
 }
