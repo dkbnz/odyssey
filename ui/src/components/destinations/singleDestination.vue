@@ -8,7 +8,7 @@
                     :destination-types="destinationTypes"
                     @destination-saved="destinationSaved">
             </add-destinations>
-            <b-button @click="dismissModal('editDestModal')" class="mr-3 buttonMargins float-right">Close</b-button>
+            <b-button @click="dismissModal('editDestModal')" class="mr-3 buttonMarginsTop float-right">Close</b-button>
         </b-modal>
 
         <b-modal id="deleteDestModal" ref="deleteDestModal" size="xl" title="Delete Destination">
@@ -70,11 +70,14 @@
                 <p class="mb-1">
                     Traveller Types:
                 </p>
-                <ul>
+                <ul v-if="destination.travellerTypes.length > 0">
                     <li v-for="travellerType in destination.travellerTypes">
                         {{travellerType.travellerType}}
                     </li>
                 </ul>
+                <p v-else class="descriptionText">
+                    No Traveller Types for this destination!
+                </p>
                 <b-button variant="link" @click="calculateCurrentTravellerTypes(); showEditTravellerTypes = !showEditTravellerTypes">{{travellerTypeLinkText}}</b-button>
                 <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
                 <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
@@ -288,7 +291,13 @@
                 })
                     .then(function(response) {
                         if (response.ok) {
-                            self.alertMessage = "Destination traveller types updated.";
+                            if(self.destination.owner.id === self.profile.id || self.profile.isAdmin) {
+                                self.destination.travellerTypes = self.calculatedTravellerTypes;
+                                self.alertMessage = "Destination traveller types updated.";
+                            } else {
+                                self.alertMessage = "Update request sent.";
+                            }
+
                             self.showTravellerTypeUpdateSuccess = true;
                             setTimeout(function () {
                                 self.showTravellerTypeUpdateSuccess = false;
