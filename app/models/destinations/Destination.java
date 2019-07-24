@@ -86,9 +86,12 @@ public class Destination extends BaseModel {
     private Set<TravellerType> travellerTypes;
 
     @ManyToMany
-    @JoinTable(name = "destination_proposed_traveller_type")
-    private Set<TravellerType> proposedTravellerTypes;
+    @JoinTable(name = "destination_proposed_traveller_type_add")
+    private Set<TravellerType> proposedTravellerTypesAdd;
 
+    @ManyToMany
+    @JoinTable(name = "destination_proposed_traveller_type_remove")
+    private Set<TravellerType> proposedTravellerTypesRemove;
 
     public String getName() {
         return name;
@@ -224,31 +227,58 @@ public class Destination extends BaseModel {
         this.travellerTypes = travellerTypes;
     }
 
-    public Set<TravellerType> getProposedTravellerTypes() {
-        return proposedTravellerTypes;
+    public Set<TravellerType> getProposedTravellerTypesAdd() {
+        return proposedTravellerTypesAdd;
     }
 
-    public void setProposedTravellerTypes(Set<TravellerType> proposedTravellerTypes) {
-        this.proposedTravellerTypes = proposedTravellerTypes;
+    public void setProposedTravellerTypesAdd(Set<TravellerType> proposedTravellerTypesAdd) {
+        this.proposedTravellerTypesAdd = proposedTravellerTypesAdd;
+    }
+
+    public Set<TravellerType> getProposedTravellerTypesRemove() {
+        return proposedTravellerTypesRemove;
+    }
+
+    public void setProposedTravellerTypesRemove(Set<TravellerType> proposedTravellerTypesRemove) {
+        this.proposedTravellerTypesRemove = proposedTravellerTypesRemove;
     }
 
 
 
     public boolean addTravellerType(TravellerType travellerTypeToAdd) {
+
+        // As we are now adding the traveller type, we do not want it in proposed to add.
+        this.removeProposedTravellerTypeAdd(travellerTypeToAdd);
+
         return travellerTypes.add(travellerTypeToAdd);
     }
 
     public boolean removeTravellerType(TravellerType travellerTypeToRemove) {
+
+        // As we are now removing the traveller type, we do not want it in proposed to remove.
+        this.removeProposedTravellerTypeRemove(travellerTypeToRemove);
+
         return travellerTypes.remove(travellerTypeToRemove);
     }
 
-    public boolean addProposedTravellerType(TravellerType travellerTypeToAdd) {
-        return proposedTravellerTypes.add(travellerTypeToAdd);
+    public boolean addProposedTravellerTypeAdd(TravellerType travellerTypeToAdd) {
+        return proposedTravellerTypesAdd.add(travellerTypeToAdd);
     }
 
-    public boolean removeProposedTravellerType(TravellerType travellerTypeToRemove) {
-        return proposedTravellerTypes.remove(travellerTypeToRemove);
+    public boolean removeProposedTravellerTypeAdd(TravellerType travellerTypeToRemove) {
+        return proposedTravellerTypesAdd.remove(travellerTypeToRemove);
     }
+
+
+    public boolean addProposedTravellerTypeRemove(TravellerType travellerTypeToAdd) {
+        return proposedTravellerTypesRemove.add(travellerTypeToAdd);
+    }
+
+    public boolean removeProposedTravellerTypeRemove(TravellerType travellerTypeToRemove) {
+        return proposedTravellerTypesRemove.remove(travellerTypeToRemove);
+    }
+
+
 
 
     public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);

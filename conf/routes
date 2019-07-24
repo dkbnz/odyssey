@@ -36,10 +36,10 @@ PUT     /v1/destinations/:destId                controllers.destinations.Destina
 GET     /v1/destinationCheck/:destinationId     controllers.destinations.DestinationController.getDestinationUsage(request: Request, destinationId: Long)
 DELETE  /v1/destinations/:destinationId         controllers.destinations.DestinationController.destroy(request: Request, destinationId: Long)
 
+POST    /v1/destinations/:destinationId/travellerTypes              controllers.destinations.DestinationTravellerTypeController.create(request: Request, destinationId: Long)
 
-POST    /v1/destinations/:destinationId/travellerTypes/:travellerTypeId           controllers.destinations.DestinationTravellerTypeController.create(request: Request, destinationId: Long, travellerTypeId: Long)
-DELETE  /v1/destinations/:destinationId/travellerTypes/:travellerTypeId           controllers.destinations.DestinationTravellerTypeController.destroy(request: Request, destinationId: Long, travellerTypeId: Long)
-POST    /v1/destinations/:destinationId/travellerTypes/:travellerTypeId/request   controllers.destinations.DestinationTravellerTypeController.createRequest(request: Request, destinationId: Long, travellerTypeId: Long)
+#POST    /v1/destinations/:destinationId/travellerTypes/propose      controllers.destinations.DestinationTravellerTypeController.propose(request: Request, destinationId: Long)
+#DELETE  /v1/destinations/:destinationId/travellerTypes/reject       controllers.destinations.DestinationTravellerTypeController.reject(request: Request, destinationId: Long)
 
 # Trips
 GET     /v1/trips/:userId                       controllers.trips.TripController.fetchAll(userId: Long)
