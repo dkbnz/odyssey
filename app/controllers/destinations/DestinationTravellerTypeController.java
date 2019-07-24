@@ -31,9 +31,12 @@ public class DestinationTravellerTypeController {
     private static final String NOT_SIGNED_IN = "You are not logged in.";
 
     @Inject
-    public DestinationTravellerTypeController(DestinationRepository destinationRepo, TravellerTypeRepository travellerTypeRepo) {
+    public DestinationTravellerTypeController(DestinationRepository destinationRepo,
+                                              TravellerTypeRepository travellerTypeRepo,
+                                              ProfileRepository profileRepo) {
         this.destinationRepo = destinationRepo;
         this.travellerTypeRepo = travellerTypeRepo;
+        this.profileRepo = profileRepo;
     }
 
 
@@ -129,12 +132,6 @@ public class DestinationTravellerTypeController {
 
         if (destinationToMutate == null) {
             return notFound();
-        }
-
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
-
-        if (!AuthenticationUtil.validUser(loggedInUser, destinationToMutate.getOwner())) {
-            return forbidden();
         }
 
         JsonNode jsonBody = request.body().asJson();
