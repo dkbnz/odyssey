@@ -541,10 +541,7 @@ public class DestinationController extends Controller {
 
                 destinationToUpdate.consume(destinationToMerge);
 
-
-
                 // Save destination that has had attributes taken to prevent deletion of attributes via cascading
-
                 destinationRepo.update(destinationToUpdate);
                 destinationRepo.update(destinationToMerge);
 
