@@ -381,7 +381,6 @@
                 return this.saveProfileTravellerTypes.length > 0;
             },
 
-
             /**
              * Default value for the profile nationalities so already selected.
              *
