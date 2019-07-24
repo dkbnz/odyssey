@@ -6,6 +6,7 @@ import models.destinations.Destination;
 import models.photos.PersonalPhoto;
 
 import java.util.List;
+import java.util.Set;
 
 public class DestinationRepository {
 
@@ -55,13 +56,21 @@ public class DestinationRepository {
         return Destination.find.query().where().eq(PHOTO_FIELD, photo).findList();
     }
 
+
     /**
-     * Finds all the destinations that have proposed traveller types
+     * Finds all the destinations that have proposed traveller types.
      *
-     * @return            list of destinations that have proposed traveller types
+     * @return      list of destinations that have proposed traveller types.
      */
     public List<Destination> fetchProposed() {
-        return Destination.find.query().where().eq(TRAVELLER_TYPE_PROPOSED, "{}").findList();
+        return Ebean.find(Destination.class)
+            .select("destination")
+            .where()
+            .disjunction()
+            .isNotEmpty("proposedTravellerTypesAdd")
+            .isNotEmpty("proposedTravellerTypesRemove")
+            .endJunction()
+            .findList();
     }
 
 
