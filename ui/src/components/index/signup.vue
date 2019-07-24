@@ -369,25 +369,6 @@
                 return this.travellerTypes.length > 0;
             },
 
-            /**
-             * Checks that all validation tests pass to determine error message visibility.
-             *
-             * @returns {*} false if validation tests pass.
-             */
-            bioFromValidation() {
-                if (this.fNameValidation &&
-                    this.mNameValidation &&
-                    this.lNameValidation &&
-                    this.emailValidation &&
-                    this.passwordValidation &&
-                    this.rePasswordValidation &&
-                    this.dateOfBirthValidation &&
-                    this.genderValidation) {
-                    return false;
-                }
-                return true;
-            },
-
 
             /**
              * Get the current date and return it in the format.
@@ -422,9 +403,7 @@
                     this.showError = false;
                     this.nextPage();
                 } else {
-                    while (this.bioFromValidation()) {
                         this.showError = true;
-                    }
                     return false
                 }
             },
