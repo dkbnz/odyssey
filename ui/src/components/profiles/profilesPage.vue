@@ -166,13 +166,19 @@
                             <b-button @click="emitAdminEdit(row.item)" block class="mr-2" size="sm" variant="warning">
                                 Show More Details
                             </b-button>
-
+                            <b-button :disabled="row.item.id===1" @click="sendProfileToModal(row.item)"
+                                      block class="mr-2" size="sm"
+                                      v-b-modal.deleteProfileModal v-if="profile.isAdmin && row.item.id !== 1"
+                                      variant="danger">
+                                Delete
+                            </b-button>
                         </b-row>
                         <!-- If user is not admin, can only see other profiles -->
                         <b-row class="text-center" v-else>
                             <b-button @click="row.toggleDetails" block class="mr-2" size="sm" variant="warning">
                                 {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
                             </b-button>
+
                         </b-row>
                     </template>
                     <template slot="row-details" slot-scope="row">
