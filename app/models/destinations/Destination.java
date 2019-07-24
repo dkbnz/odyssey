@@ -77,7 +77,7 @@ public class Destination extends BaseModel {
      * List of trip destinations that the destination is associated with.
      */
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "destination")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "destination", orphanRemoval=true)
     private List<TripDestination> tripDestinations;
 
 
@@ -283,9 +283,9 @@ public class Destination extends BaseModel {
         while(tripDestinationToConsume != null) {
             other.removeTripDestination(tripDestinationToConsume);
 
-            tripDestinationToConsume.setId(null); //Resave with New Id
-            tripDestinationToConsume.setDestination(this);
-            tripDestinationToConsume.insert();
+            //tripDestinationToConsume.setId(null); //Resave with New Id
+//            tripDestinationToConsume.setDestination(this);
+//            tripDestinationToConsume.insert();
 
             this.addTripDestination(tripDestinationToConsume);
 
