@@ -438,6 +438,9 @@
                         travellerTypes: this.travellerTypes
                     };
                     this.saveProfile(profile);
+                } else {
+                    this.showError = true;
+                    this.alertMessage = "You must select a Nationality and a Traveller Type";
                 }
             },
 
