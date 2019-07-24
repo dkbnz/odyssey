@@ -73,6 +73,7 @@ public class TripRepository {
 
         // Go through and delete each one from the database.
         for (TripDestination destination : destinations) {
+            destination.clearTrip();
             destination.delete();
         }
     }
