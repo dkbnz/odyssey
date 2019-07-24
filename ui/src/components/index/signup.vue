@@ -370,6 +370,26 @@
             },
 
             /**
+             * Checks that all validation tests pass to determine error message visibility.
+             *
+             * @returns {*} false if validation tests pass.
+             */
+            bioFromValidation() {
+                if (this.fNameValidation &&
+                    this.mNameValidation &&
+                    this.lNameValidation &&
+                    this.emailValidation &&
+                    this.passwordValidation &&
+                    this.rePasswordValidation &&
+                    this.dateOfBirthValidation &&
+                    this.genderValidation) {
+                    return false;
+                }
+                return true;
+            },
+
+
+            /**
              * Get the current date and return it in the format.
              * yyyy-mm-dd.
              *
@@ -402,7 +422,9 @@
                     this.showError = false;
                     this.nextPage();
                 } else {
-                    this.showError = true;
+                    while (this.bioFromValidation()) {
+                        this.showError = true;
+                    }
                     return false
                 }
             },
