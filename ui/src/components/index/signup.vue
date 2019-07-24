@@ -116,7 +116,7 @@
                     </b-form-invalid-feedback>
                 </b-form-group>
 
-                <b-alert dismissible v-model="showError" variant="danger">The form contains errors!</b-alert>
+                <b-alert dismissible v-model="showError" variant="danger">The form contains errors! Please ensure that all fields are green</b-alert>
                 <b-button @click="checkPersonalForm" block variant="primary">Next</b-button>
 
             </b-form>
@@ -153,7 +153,7 @@
                                 id="passports-field"
                                 label="Passport Country:"
                                 label-for="passports">
-                            <b-form-select :state="passportValidation"
+                            <b-form-select
                                            id="passports"
                                            multiple
                                            trim v-model="passports">
@@ -162,9 +162,6 @@
                                     {{nationality.country}}
                                 </option>
                             </b-form-select>
-                            <b-form-invalid-feedback :state="passportValidation">
-                                Please select at least one passport country.
-                            </b-form-invalid-feedback>
                         </b-form-group>
                     </b-col>
                 </b-row>
@@ -359,17 +356,6 @@
                 return this.nationalities.length > 0;
             },
 
-            /**
-             * Validates the passport selection input from the user.
-             *
-             * @returns {*} true if input is valid.
-             */
-            passportValidation() {
-                if (this.passports.length === 0) {
-                    return null;
-                }
-                return this.passports.length > 0;
-            },
 
             /**
              * Validates the traveller type input from the user.
@@ -417,6 +403,9 @@
                     this.nextPage();
                 } else {
                     this.showError = true;
+                    setTimeout(function() {
+                        this.showError = false;
+                    }, 3000);
                 }
             },
 
@@ -424,7 +413,7 @@
              * Runs second page validation and creates an object using all inputs.
              */
             checkAssociateForm() {
-                if (this.nationalityValidation && this.passportValidation && this.travTypeValidation) {
+                if (this.nationalityValidation && this.travTypeValidation) {
                     let profile = {
                         firstName: this.firstName,
                         middleName: this.middleName,
