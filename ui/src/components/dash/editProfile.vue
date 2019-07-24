@@ -245,7 +245,7 @@
         </b-form-group>
 
         <!--Displayed if there are input errors when "Save Profile" is clicked-->
-        <b-alert dismissible v-model="showError" variant="danger">The form contains errors!</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger">The form contains errors! Please ensure that no fields are red</b-alert>
         <!--Validates inputs then updates user data if valid-->
         <b-button :disabled="!checkSaveProfile()" @click="submitSaveProfile" block size="lg" variant="success">Save Profile</b-button>
     </div>
@@ -454,6 +454,9 @@
                         return true;
                     } else {
                         this.showError = true;
+                        setTimeout(function() {
+                            this.showError = false;
+                        }, 3000);
                         return false;
                     }
                 } else {
