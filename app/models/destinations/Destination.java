@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Finder;
 import models.BaseModel;
 import models.Profile;
+import models.TravellerType;
 import models.photos.PersonalPhoto;
 import models.trips.TripDestination;
 import play.data.validation.Constraints;
@@ -79,6 +80,14 @@ public class Destination extends BaseModel {
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "destination", orphanRemoval=true)
     private List<TripDestination> tripDestinations;
+
+    @ManyToMany
+    @JoinTable(name = "destination_traveller_type")
+    private Set<TravellerType> travellerTypes;
+
+    @ManyToMany
+    @JoinTable(name = "destination_proposed_traveller_type")
+    private Set<TravellerType> proposedTravellerTypes;
 
 
     public String getName() {
@@ -205,6 +214,40 @@ public class Destination extends BaseModel {
 
     public void setPublic(Boolean privacy) {
         isPublic = privacy;
+    }
+
+    public Set<TravellerType> getTravellerTypes() {
+        return travellerTypes;
+    }
+
+    public void setTravellerTypes(Set<TravellerType> travellerTypes) {
+        this.travellerTypes = travellerTypes;
+    }
+
+    public Set<TravellerType> getProposedTravellerTypes() {
+        return proposedTravellerTypes;
+    }
+
+    public void setProposedTravellerTypes(Set<TravellerType> proposedTravellerTypes) {
+        this.proposedTravellerTypes = proposedTravellerTypes;
+    }
+
+
+
+    public boolean addTravellerType(TravellerType travellerTypeToAdd) {
+        return travellerTypes.add(travellerTypeToAdd);
+    }
+
+    public boolean removeTravellerType(TravellerType travellerTypeToRemove) {
+        return travellerTypes.remove(travellerTypeToRemove);
+    }
+
+    public boolean addProposedTravellerType(TravellerType travellerTypeToAdd) {
+        return proposedTravellerTypes.add(travellerTypeToAdd);
+    }
+
+    public boolean removeProposedTravellerType(TravellerType travellerTypeToRemove) {
+        return proposedTravellerTypes.remove(travellerTypeToRemove);
     }
 
 

@@ -67,6 +67,25 @@
                 <p class="mb-1">
                     Longitude: {{destination.longitude}}
                 </p>
+                <p class="mb-1">
+                    Traveller Types:
+                </p>
+                <ul>
+                    <li v-for="travellerType in travellerTypes">
+                        {{travellerType}} <b-button v-if="showEditTravellerTypes" variant="link" style="color: red">x</b-button>
+                    </li>
+                </ul>
+                <b-button variant="link" @click="calculateCurrentTravellerTypes(); showEditTravellerTypes = !showEditTravellerTypes">Modify Traveller Types</b-button>
+                <div v-if="showEditTravellerTypes">
+                    <b-form>
+                        <b-form-select v-model="calculatedTravellerTypes" md="4">
+                            <option v-for="travellerType in travTypeOptions" :disabled="duplicateType(travellerType)">
+                                {{travellerType.travellerType}}
+                            </option>
+                        </b-form-select>
+                    </b-form>
+                </div>
+
                 <b-button @click="editDestination" variant="warning"
                           v-if="destination.owner.id === profile.id || profile.isAdmin" block>
                     Edit
@@ -101,7 +120,10 @@
                 copiedDestination: "",
                 destinationUsage: "",
                 refreshDestination: null,
-                showError: false
+                showError: false,
+                travellerTypes: ['Groupie', 'Functional/Business'],
+                showEditTravellerTypes: false,
+                calculatedTravellerTypes: []
             }
         },
 
@@ -114,6 +136,7 @@
                     return this.profile;
                 }
             },
+            travTypeOptions: Array
         },
 
         components: {
@@ -199,6 +222,25 @@
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
+            },
+
+
+            /**
+             * Used to calculate the current traveller types for a destination so changes can be made/suggested.
+             *
+             * @returns {string[]} the list of traveller types for the current destination.
+             */
+            calculateCurrentTravellerTypes() {
+                this.calculatedTravellerTypes = this.travellerTypes;
+            },
+
+
+            duplicateType(travellerType) {
+                for (let i = 0; i < this.travellerTypes.length; i++) {
+                    if (travellerType.travellerType === this.travellerTypes[i]) {
+                        return true;
+                    }
+                }
             }
         }
     }
