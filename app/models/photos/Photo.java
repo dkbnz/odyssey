@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Finder;
 import models.BaseModel;
 import models.Profile;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import java.time.LocalDate;
@@ -46,7 +48,7 @@ public class Photo extends BaseModel {
      * The profile that added the photo.
      */
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Profile uploadProfile;
 
 
