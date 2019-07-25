@@ -52,22 +52,25 @@ public class DestinationController extends Controller {
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
 
-    private ProfileRepository profileRepo;
-    private DestinationRepository destinationRepo;
-    private DestinationTypeRepository destinationTypeRepo;
-    private TripDestinationRepository tripDestinationRepo;
+    private ProfileRepository profileRepository;
+    private DestinationRepository destinationRepository;
+    private DestinationTypeRepository destinationTypeRepository;
+    private TripDestinationRepository tripDestinationRepository;
+    private TripRepository tripRepository;
 
 
     @Inject
     public DestinationController(
-            ProfileRepository profileRepo,
-            DestinationRepository destinationRepo,
-            DestinationTypeRepository destinationTypeRepo,
-            TripDestinationRepository tripDestinationRepo) {
-        this.profileRepo = profileRepo;
-        this.destinationRepo = destinationRepo;
-        this.destinationTypeRepo = destinationTypeRepo;
-        this.tripDestinationRepo = tripDestinationRepo;
+            ProfileRepository profileRepository,
+            DestinationRepository destinationRepository,
+            DestinationTypeRepository destinationTypeRepository,
+            TripDestinationRepository tripDestinationRepository,
+            TripRepository tripRepository) {
+        this.profileRepository = profileRepository;
+        this.destinationRepository = destinationRepository;
+        this.destinationTypeRepository = destinationTypeRepository;
+        this.tripDestinationRepository = tripDestinationRepository;
+        this.tripRepository = tripRepository;
     }
 
 
@@ -88,14 +91,14 @@ public class DestinationController extends Controller {
             return unauthorized();
         }
 
-        Destination destination = destinationRepo.fetch(destinationId);
+        Destination destination = destinationRepository.fetch(destinationId);
         if (destination == null) {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
         Integer destinationOwnerId = destination.getOwner().getId().intValue();
-        Profile destinationOwner = profileRepo.fetchSingleProfile(destinationOwnerId);
+        Profile destinationOwner = profileRepository.fetchSingleProfile(destinationOwnerId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
             return forbidden();
@@ -109,7 +112,7 @@ public class DestinationController extends Controller {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode returnJson = mapper.createObjectNode();
         ArrayNode matchTrips = mapper.valueToTree(matchingTrips);
-        ArrayNode matchDestinations = mapper.valueToTree(destinationRepo.findEqual(destination));
+        ArrayNode matchDestinations = mapper.valueToTree(destinationRepository.findEqual(destination));
 
         returnJson.put(TRIP_COUNT, tripCount);
         returnJson.put(PHOTO_COUNT, photoCount);
@@ -129,8 +132,7 @@ public class DestinationController extends Controller {
      * @return a list of all the associated trips.
      */
     private List<Map> getTripsUsedByDestination(Destination destination) {
-
-        List<TripDestination> tripDestinationList = tripDestinationRepo.fetchTripsContainingDestination(destination);
+        List<TripDestination> tripDestinationList = tripDestinationRepository.fetchTripsContainingDestination(destination);
 
         List<Map> matchingTrips = new ArrayList<>();
         for (TripDestination tripDestination: tripDestinationList) {
@@ -173,7 +175,7 @@ public class DestinationController extends Controller {
             return unauthorized();
         }
 
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         int pageNumber = 0;
         int pageSize = 50;
@@ -183,7 +185,7 @@ public class DestinationController extends Controller {
 
         // Checks if the owner is specified in the query string and user is valid.
         if (request.getQueryString(OWNER) != null && !request.getQueryString(OWNER).isEmpty()) {
-            Profile destinationOwner = profileRepo.fetchSingleProfile(Integer.valueOf(request.getQueryString(OWNER)));
+            Profile destinationOwner = profileRepository.fetchSingleProfile(Integer.valueOf(request.getQueryString(OWNER)));
 
             if (AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
                 expressionList.eq(OWNER, destinationOwner);
@@ -250,9 +252,9 @@ public class DestinationController extends Controller {
             return unauthorized();
         }
 
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
-        Profile profileToChange = profileRepo.fetchSingleProfile(userId.intValue());
+        Profile profileToChange = profileRepository.fetchSingleProfile(userId.intValue());
 
         if (profileToChange == null) {
             return badRequest();
@@ -355,9 +357,9 @@ public class DestinationController extends Controller {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
-                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
+                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
 
-                    Profile profileToChange = profileRepo.fetchSingleProfile(userId.intValue());
+                    Profile profileToChange = profileRepository.fetchSingleProfile(userId.intValue());
 
                     if (profileToChange == null) {
                         return badRequest();
@@ -378,7 +380,7 @@ public class DestinationController extends Controller {
                         destination.save();
 
                         profileToChange.addDestination(destination);
-                        profileRepo.save(profileToChange);
+                        profileRepository.save(profileToChange);
 
                         return created("Created");
                     } else {
@@ -433,12 +435,12 @@ public class DestinationController extends Controller {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
         if (!AuthenticationUtil.validUser(loggedInUser, destination.getOwner())) {
             return forbidden();
         }
 
-        destinationRepo.delete(destination);
+        destinationRepository.delete(destination);
         return ok("Deleted");
     }
 
@@ -456,13 +458,13 @@ public class DestinationController extends Controller {
             return unauthorized();
         }
 
-        Destination currentDestination = destinationRepo.fetch(id);
+        Destination currentDestination = destinationRepository.fetch(id);
 
         if (currentDestination == null) {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, currentDestination.getOwner())) {
             return forbidden();
@@ -488,7 +490,7 @@ public class DestinationController extends Controller {
                     break;
 
                 case TYPE:
-                    DestinationType type = destinationTypeRepo.fetch(json.get(TYPE).asLong());
+                    DestinationType type = destinationTypeRepository.fetch(json.get(TYPE).asLong());
                     currentDestination.setType(type);
                     break;
 
@@ -541,28 +543,28 @@ public class DestinationController extends Controller {
     private void setPrivacy(Destination destinationToUpdate, Boolean isPublic) {
         if (destinationToUpdate.getPublic() == isPublic) return;
 
-        List<Destination> similarDestinations = destinationRepo.findEqual(destinationToUpdate);
+        List<Destination> similarDestinations = destinationRepository.findEqual(destinationToUpdate);
 
         if (!similarDestinations.isEmpty()) {
-            for (Destination destinationToMerge: similarDestinations) {
+            for (Destination destinationToMerge : similarDestinations) {
                 consume(destinationToUpdate, destinationToMerge);
             }
             // Destination has been merged from other sources, change owner to admin.
-            destinationRepo.transferDestinationOwnership(destinationToUpdate);
+            destinationRepository.transferDestinationOwnership(destinationToUpdate);
         }
         destinationToUpdate.setPublic(isPublic);
-        destinationRepo.save(destinationToUpdate);
+        destinationRepository.save(destinationToUpdate);
     }
 
 
     /**
-     * Used to merge destinations. Will extract desired attributes from a destinationToMerge and adds them to
-     * destinationToUpdate.
+     * Used to merge destinations. Will extract desired attributes from a destinationToMerge and adds them to destinationToUpdate.
      * Then, updates each destination and deletes destinationToMerge.
      *
      * Will only consume if the given Destination is equal.
-     * @param destinationToUpdate   destination that gains the attributes of destinationToMerge
-     * @param destinationToMerge    destination that is being consumed by destinationToUpdate
+     *
+     * @param destinationToUpdate   destination that gains the attributes of destinationToMerge.
+     * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
      */
     private void consume(Destination destinationToUpdate, Destination destinationToMerge) {
         if (!destinationToUpdate.equals(destinationToMerge)) return;
@@ -571,10 +573,10 @@ public class DestinationController extends Controller {
         mergePersonalPhotos(destinationToUpdate, destinationToMerge);
 
         // Save destination that has had attributes taken to prevent deletion of attributes via cascading
-        destinationRepo.update(destinationToUpdate);
-        destinationRepo.update(destinationToMerge);
+        destinationRepository.update(destinationToUpdate);
+        destinationRepository.update(destinationToMerge);
 
-        destinationRepo.delete(destinationToMerge);
+        destinationRepository.delete(destinationToMerge);
     }
 
 
@@ -582,8 +584,8 @@ public class DestinationController extends Controller {
      * Takes the trip destinations from the destinationToMerge and adds them to the destinationToUpdate.
      * Then removes these trip destinations from the destinationToMerge.
      *
-     * @param destinationToUpdate   destination that gains the trip destinations of destinationToMerge
-     * @param destinationToMerge    destination that is being consumed by destinationToUpdate
+     * @param destinationToUpdate   destination that gains the trip destinations of destinationToMerge.
+     * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
      */
     private void mergeTripDestinations(Destination destinationToUpdate, Destination destinationToMerge) {
         // Takes all trip destinations from other into this destination
@@ -606,17 +608,17 @@ public class DestinationController extends Controller {
             tripDestination.clearTrip();
 
             // Persist updates
-            tripDestinationRepo.update(tripDestination);
-            TripRepository tripRepo = new TripRepository();
-            tripRepo.update(trip);
+            tripDestinationRepository.update(tripDestination);
+            tripRepository.update(trip);
         }
     }
 
 
     /**
      * Takes the personal photos from the destinationToMerge and adds them to the destinationToMerge.
-     * @param destinationToUpdate   destination that gains the personal photos of destinationToMerge
-     * @param destinationToMerge    destination that is being consumed by destinationToUpdate
+     *
+     * @param destinationToUpdate   destination that gains the personal photos of destinationToMerge.
+     * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
      */
     private void mergePersonalPhotos(Destination destinationToUpdate, Destination destinationToMerge) {
         // Take all PersonalPhotos
