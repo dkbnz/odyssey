@@ -105,6 +105,7 @@ public class DestinationController extends Controller {
         }
 
         Set<Trip> matchingTrips = tripRepository.fetch(destination);
+        //System.out.println(matchingTrips);
 
         int photoCount = destination.getPhotoGallery().size();
         int tripCount = matchingTrips.size();
@@ -544,10 +545,15 @@ public class DestinationController extends Controller {
         mergeTripDestinations(destinationToUpdate, destinationToMerge);
         mergePersonalPhotos(destinationToUpdate, destinationToMerge);
 
+
         // Save destination that has had attributes taken to prevent deletion of attributes via cascading
         destinationRepository.update(destinationToUpdate);
         destinationRepository.update(destinationToMerge);
 
+
+
+//        System.out.println(getTripsUsedByDestination(destinationToMerge));
+//        System.out.println(getTripsUsedByDestination(destinationToUpdate));
         destinationRepository.delete(destinationToMerge);
     }
 
@@ -561,29 +567,78 @@ public class DestinationController extends Controller {
      */
     private void mergeTripDestinations(Destination destinationToUpdate, Destination destinationToMerge) {
         // Takes all trip destinations from other into this destination
-        TripRepository tripRepository = new TripRepository();
+        //TripRepository tripRepository = new TripRepository();
+//        System.out.println("U " + destinationToUpdate.getId());
+//        System.out.println("M " + destinationToMerge.getId());
+//        System.out.println(destinationToMerge.getTripDestinations().size());
         for (TripDestination tripDestination : destinationToMerge.getTripDestinations()) {
 
-            // Create duplicate tripDestination but change destination
-            TripDestination newTripDestination = new TripDestination();
-            newTripDestination.setDestination(destinationToUpdate);
-            newTripDestination.setStartDate(tripDestination.getStartDate());
-            newTripDestination.setEndDate(tripDestination.getEndDate());
-            newTripDestination.setListOrder(tripDestination.getListOrder());
+//            // Add trip dest to update
+//            destinationToUpdate.addTripDestination(tripDestination);
+//            // Remove trip dest from merge
+////            destinationToMerge.removeTripDestination(tripDestination);
+//            // Persist
+//            tripDestinationRepository.update(tripDestination);
+//            destinationRepository.update(destinationToUpdate);
+//            destinationRepository.update(destinationToMerge);
 
-            // Add trip destination
-            destinationToUpdate.addTripDestination(newTripDestination);
-            Trip trip = tripDestination.getTrip();
-            trip.addDestinations(newTripDestination);
+            //System.out.println(getTripsUsedByDestination(destinationToMerge));
 
-            // Remove old trip destination
-            trip.removeDestinations(tripDestination);
-            tripDestination.clearTrip();
-
-            // Persist updates
+//            System.out.println(tripDestination.getDestination().getId());
+            tripDestination.setDestination(destinationToUpdate);
+//            System.out.println(tripDestination.getDestination().getId());
+            //destinationToMerge.removeTripDestination(tripDestination);
+            //System.out.println(destinationToMerge.getTripDestinations().size());
+            //
+            destinationRepository.update(destinationToUpdate);
             tripDestinationRepository.update(tripDestination);
+            tripRepository.update(tripDestination.getTrip());
+            System.out.println("X " + tripDestination.getTrip().getDestinations().get(2).getDestination().getId());
+
+            //System.out.println(getTripsUsedByDestination(destinationToMerge));
+//            System.out.println(tripDestination.getDestination().getId());
+
+//            // Create duplicate tripDestination but change destination
+//            TripDestination newTripDestination = new TripDestination();
+//            newTripDestination.setDestination(destinationToUpdate);
+//            newTripDestination.setStartDate(tripDestination.getStartDate());
+//            newTripDestination.setEndDate(tripDestination.getEndDate());
+//            newTripDestination.setListOrder(tripDestination.getListOrder());
+//            System.out.println(tripDestination.getId());
+            //System.out.println(newTripDestination.getDestination().getName());
+//
+//            // Add trip destination
+//            Trip trip = tripDestination.getTrip();
+//            trip.addDestinations(newTripDestination);
+//            tripDestinationRepository.save(newTripDestination);
+//            System.out.println(trip.getDestinations().get(3).getId());
+////
+////            // Remove old trip destination
+//            trip.removeDestinations(tripDestination);
+//            tripDestination.clearTrip();
+//
+//            // Persist updates
+//            tripDestinationRepository.update(tripDestination);
+
+
 //            tripRepository.update(trip);
+//            System.out.println(trip.getDestinations().size());
         }
+        destinationToMerge.clearTripDestinations();
+
+        System.out.println(getTripsUsedByDestination(destinationToMerge));
+        System.out.println(getTripsUsedByDestination(destinationToUpdate));
+        List<TripDestination> tripDestinations = Trip.find.byId(1).getDestinations();
+
+        for (TripDestination tripDestination: tripDestinations) {
+            System.out.println(tripDestination.getDestination().getId());
+        }
+
+        destinationRepository.update(destinationToUpdate);
+        destinationRepository.update(destinationToMerge);
+
+        System.out.println(getTripsUsedByDestination(destinationToMerge));
+        System.out.println(getTripsUsedByDestination(destinationToUpdate));
     }
 
 
