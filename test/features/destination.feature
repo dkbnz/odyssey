@@ -467,6 +467,23 @@ Feature: Destination API Endpoint
       | Trip 1      |
       | Trip 2      |
 
+#  Scenario: Merging two public destinations upon editing one to be identical to the other
+#    Given I am running the application
+#    And I am logged in as an admin user
+#    And a destination already exists with the following values
+#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+#    And a destination already exists with the following values
+#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+#      | University | 4    | chch         | 24.5     | 34.6      | New Zealand | true      |
+#    When I attempt to edit the destination using the following values
+#      | District     |
+#      | Christchurch |
+#    Then the status code received is OK
+#    And there is only one destination with the following values
+#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+
   Scenario: Retrieving destination usage for 1 trip
     Given I am running the application
     And I am logged in as an admin user
