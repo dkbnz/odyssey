@@ -1,6 +1,5 @@
 package steps;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -157,6 +156,7 @@ public class DestinationTestSteps {
      */
     private static final String QUESTION_MARK = "?";
 
+
     private static final String DISTRICT_STRING = "District";
     private static final String LATITUDE_STRING = "Latitude";
     private static final String LONGITUDE_STRING = "Longitude";
@@ -191,6 +191,7 @@ public class DestinationTestSteps {
      * Database instance for the fake application.
      */
     private Database database;
+
 
     /**
      * Repository to access the destinations in the running application.
@@ -331,6 +332,7 @@ public class DestinationTestSteps {
         responseBody = Helpers.contentAsString(result);
     }
 
+
     /**
      * Sends a put request to the application to edit the values of the destination.
      * @param json the date that the destination will be updated with.
@@ -396,6 +398,7 @@ public class DestinationTestSteps {
         loggedInId = ALT_ID;
     }
 
+
     /**
      * Attempts to send a log in request with user credentials from constants ADMIN_USERNAME
      * and ADMIN_AUTHPASS.
@@ -440,6 +443,7 @@ public class DestinationTestSteps {
         }
     }
 
+
     @Given("the destination is used in trip {string}")
     public void theDestinationIsUsedInTrip(String tripName) {
         JsonNode json = createNewTripJson(tripName);
@@ -452,6 +456,7 @@ public class DestinationTestSteps {
         Result result = route(application, request);
         statusCode = result.status();
     }
+
 
     private JsonNode createNewTripJson(String tripName) {
         //Add values to a JsonNode
@@ -704,6 +709,7 @@ public class DestinationTestSteps {
         deleteDestinationRequest(destinationId.longValue());
     }
 
+
     @When("I add a photo with id {int} to the destination")
     public void iAddAPhotoWithIdToTheDestination(Integer photoId) {
         addDestinationPhoto(photoId, destinationId);
@@ -716,6 +722,14 @@ public class DestinationTestSteps {
      * @return                  Destination id as a Long, or null if no destination exists.
      */
     private Long getDestinationId(io.cucumber.datatable.DataTable dataTable) {
+        List<Destination> destinations = getDestinationList(dataTable);
+        Destination destination = destinations.size() > 0 ? destinations.get(destinations.size() - 1) : null;
+
+        return destination == null ? null : destination.getId();
+    }
+
+
+    private List<Destination> getDestinationList(io.cucumber.datatable.DataTable dataTable) {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         int index = 0;
         String name         = list.get(index).get(NAME_STRING);
@@ -729,18 +743,15 @@ public class DestinationTestSteps {
         // Build search query to find destination
         ExpressionList<Destination> expressionList =
                 Destination.find.query().where()
-                .ilike(NAME, queryComparator(name))
-                .eq(TYPE, type)
-                .eq(LATITUDE, latitude)
-                .eq(LONGITUDE, longitude)
-                .ilike(DISTRICT, queryComparator(district))
-                .ilike(COUNTRY, queryComparator(country))
-                .eq(IS_PUBLIC, publicity);
+                        .ilike(NAME, queryComparator(name))
+                        .eq(TYPE, type)
+                        .eq(LATITUDE, latitude)
+                        .eq(LONGITUDE, longitude)
+                        .ilike(DISTRICT, queryComparator(district))
+                        .ilike(COUNTRY, queryComparator(country))
+                        .eq(IS_PUBLIC, publicity);
 
-        List<Destination> destinations = expressionList.findList();
-        Destination destination = destinations.size() > 0 ? destinations.get(destinations.size() - 1) : null;
-
-        return destination == null ? null : destination.getId();
+        return expressionList.findList();
     }
 
 
@@ -814,6 +825,7 @@ public class DestinationTestSteps {
 
         return stringBuilder.toString();
     }
+
 
     /**
      * Returns a string that is either empty or containing the given value.
@@ -897,6 +909,7 @@ public class DestinationTestSteps {
         editDestinationRequest(editValues);
     }
 
+
     @When("I request the destination usage for destination with id {int}")
     public void iRequestTheDestinationUsageForDestinationWithId(Integer destinationId) {
         Http.RequestBuilder request = fakeRequest()
@@ -908,6 +921,7 @@ public class DestinationTestSteps {
 
         responseBody = Helpers.contentAsString(result);
     }
+
 
     @When("I add a photo with id {int} to an existing destination with id {int}")
     public void iAddAPhotoToASpecifiedDestination(Integer photoId, Integer destinationId) {
@@ -923,6 +937,14 @@ public class DestinationTestSteps {
         statusCode = addDestinationPhotoResult.status();
     }
 
+
+    @Then("there is only one destination with the following values")
+    public void thereIsOnlyOneDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        List<Destination> destinations = getDestinationList(dataTable);
+        Assert.assertEquals(1, destinations.size());
+    }
+
+
     @Then("the trip count is {int}")
     public void theTripCountIs(int tripCountExpected) throws IOException {
         int tripCount = new ObjectMapper().readTree(responseBody).get(TRIP_COUNT).asInt();
@@ -930,10 +952,12 @@ public class DestinationTestSteps {
         Assert.assertEquals(tripCountExpected, tripCount);
     }
 
+
     @Then("the number of trips received is {int}")
     public void theNumberOfTripsReceivedIs(int tripListSize) throws IOException {
         Assert.assertEquals(tripCountRecieved, tripListSize);
     }
+
 
     @Then("the photo count is {int}")
     public void thePhotoCountIs(int photoCountExpected) throws IOException {
@@ -1071,6 +1095,7 @@ public class DestinationTestSteps {
 
         assertEquals(expectedNames, names);
     }
+
 
     private List<String> getTripNames() throws IOException {
         List<String> names = new ArrayList<>();
