@@ -66,7 +66,7 @@
                                 <b-row>
                                     <b-col>
                                         <b-card>
-                                            <h6 class="page-title">Current</h6>
+                                            <h5 class="page-title">Current</h5>
                                             <div v-for="travellerType in destination.travellerTypes">
                                                 <p class="mb-1">
                                                     {{travellerType.travellerType}}
@@ -76,13 +76,13 @@
                                     </b-col>
                                     <b-col>
                                         <b-card>
-                                            <h6 class="page-title">Proposed Additions</h6>
+                                            <h5 class="page-title">Additions</h5>
                                             <div v-for="travellerType in destination.proposedTravellerTypesAdd">
                                                 <b-row>
-                                                    <b-col cols="12" md="8">
+                                                    <b-col cols="16" md="10">
                                                         {{travellerType.travellerType}}
                                                     </b-col>
-                                                    <b-col cols="6" md="4">
+                                                    <b-col cols="8" md="2">
                                                         <b-button variant="success" class="proposalButton"
                                                                   @click="addTravellerTypes(destination, travellerType)">
                                                             &#10003;
@@ -91,17 +91,16 @@
                                                 </b-row>
                                             </div>
                                         </b-card>
-
                                     </b-col>
                                     <b-col>
                                         <b-card>
-                                            <h6 class="page-title">Proposed Removals</h6>
+                                            <h5 class="page-title">Removals</h5>
                                             <div v-for="travellerType in destination.proposedTravellerTypesRemove">
                                                 <b-row>
-                                                    <b-col cols="12" md="8">
+                                                    <b-col cols="16" md="10">
                                                         {{travellerType.travellerType}}
                                                     </b-col>
-                                                    <b-col cols="6" md="4">
+                                                    <b-col cols="8" md="2">
                                                         <b-button variant="danger" class="proposalButton"
                                                                   @click="removeTravellerTypes(destination, travellerType)">
                                                             &#10003;
