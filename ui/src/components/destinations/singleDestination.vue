@@ -15,9 +15,12 @@
             <b-alert v-model="showError" variant="danger" dismissible>
                 Could not delete destination!
             </b-alert>
-            <p v-if="destinationUsage.photo_count === 1">This destination contains {{destinationUsage.photo_count}} photo.</p>
+            <p v-if="destinationUsage.photo_count === 1">
+                This destination contains {{destinationUsage.photo_count}} photo.
+            </p>
             <p v-else>This destination contains {{destinationUsage.photo_count}} photos.</p>
-            <p v-if="destinationUsage.trip_count === 1">This destination is used by {{destinationUsage.trip_count}} trip.<br>
+            <p v-if="destinationUsage.trip_count === 1">
+                This destination is used by {{destinationUsage.trip_count}} trip.<br>
                 Are you sure you want to delete it?
             </p>
             <p v-else>This destination is used by {{destinationUsage.trip_count}} trips. <br>
@@ -26,7 +29,7 @@
             <b-list-group
             style="overflow-y: scroll; height: 30vh;" v-if="destinationUsage.trip_count > 0">
                 <b-list-group-item class="flex-column align-items-start"
-                                   v-for="trip in destinationUsage.matching_trips">
+                                   v-for="trip in destinationUsage.matching_trips" :key="trip.id">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">Name: {{trip.trip_name}}</h5>
                     </div>
@@ -78,18 +81,24 @@
                 <p v-else class="descriptionText">
                     No Traveller Types for this destination!
                 </p>
-                <b-button variant="link" @click="calculateCurrentTravellerTypes(); showEditTravellerTypes = !showEditTravellerTypes">{{travellerTypeLinkText}}</b-button>
+                <b-button variant="link"
+                          @click="calculateCurrentTravellerTypes(); showEditTravellerTypes = !showEditTravellerTypes">
+                    {{travellerTypeLinkText}}
+                </b-button>
                 <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
                 <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
                 <div v-if="showEditTravellerTypes" class="travellerTypeDiv">
                     <b-form-group label="Add Traveller Types:">
                         <b-form-checkbox-group id="addTravellerTypes" v-model="calculatedTravellerTypes">
-                            <b-form-checkbox v-for="travellerType in travTypeOptions" :value="travellerType">
+                            <b-form-checkbox v-for="travellerType in travTypeOptions" :value="travellerType"
+                                             :key="travellerType.id">
                                 {{travellerType.travellerType}}
                             </b-form-checkbox>
                         </b-form-checkbox-group>
                     </b-form-group>
-                    <b-button variant="primary" @click="requestTravellerTypeChange" block>{{travellerTypeButtonText}}</b-button>
+                    <b-button variant="primary" @click="requestTravellerTypeChange" block>
+                        {{travellerTypeButtonText}}
+                    </b-button>
                 </div>
 
                 <b-button @click="editDestination" variant="warning"
