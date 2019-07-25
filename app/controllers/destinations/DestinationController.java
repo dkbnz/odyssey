@@ -43,6 +43,7 @@ public class DestinationController extends Controller {
     private static final String TRIP_COUNT = "trip_count";
     private static final String PHOTO_COUNT = "photo_count";
     private static final String MATCHING_TRIPS = "matching_trips";
+    private static final String MATCHING_DESTINATIONS = "matching_destinations";
     private static final String TRIP_ID = "trip_id";
     private static final String TRIP_NAME = "trip_name";
     private static final String USER_ID = "user_id";
@@ -111,10 +112,14 @@ public class DestinationController extends Controller {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode returnJson = mapper.createObjectNode();
         ArrayNode matchTrips = mapper.valueToTree(matchingTrips);
+        ArrayNode matchDestinations = mapper.valueToTree(destinationRepo.findEqual(destination));
 
         returnJson.put(TRIP_COUNT, tripCount);
         returnJson.put(PHOTO_COUNT, photoCount);
         returnJson.putArray(MATCHING_TRIPS).addAll(matchTrips);
+        returnJson.putArray(MATCHING_DESTINATIONS).addAll(matchDestinations);
+
+
 
         return ok(returnJson);
     }
