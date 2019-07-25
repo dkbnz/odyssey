@@ -33,16 +33,16 @@ public class TripController extends Controller {
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private static final int DEFAULT_ADMIN_ID = 1;
     private TripRepository repository;
-    private ProfileRepository profileRepo;
-    private DestinationRepository destinationRepo;
+    private ProfileRepository profileRepository;
+    private DestinationRepository destinationRepository;
 
 
     @Inject
-    public TripController(TripRepository tripRepo,
-                          ProfileRepository profileRepo, DestinationRepository destinationRepo) {
-        this.repository = tripRepo;
-        this.profileRepo = profileRepo;
-        this.destinationRepo = destinationRepo;
+    public TripController(TripRepository tripRepository,
+                          ProfileRepository profileRepository, DestinationRepository destinationRepository) {
+        this.repository = tripRepository;
+        this.profileRepository = profileRepository;
+        this.destinationRepository = destinationRepository;
     }
 
 
@@ -60,7 +60,7 @@ public class TripController extends Controller {
                 .map(userId -> {
 
                     Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
-                    Profile affectedProfile = profileRepo.fetchSingleProfile(affectedUserId.intValue());
+                    Profile affectedProfile = profileRepository.fetchSingleProfile(affectedUserId.intValue());
 
                     if (loggedInUser == null) {
                         return unauthorized();
@@ -163,8 +163,8 @@ public class TripController extends Controller {
             return badRequest();
         }
 
-        Profile tripOwner = profileRepo.fetchSingleProfile(ownerId.intValue());
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile tripOwner = profileRepository.fetchSingleProfile(ownerId.intValue());
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
             return forbidden();
@@ -364,7 +364,7 @@ public class TripController extends Controller {
         // Destination is not owned by global admin, it is public, and the user is not the owner of the destination.
         if (owner == null || owner.getId() != DEFAULT_ADMIN_ID && destination.getPublic()
                 && !affectedProfile.getId().equals(owner.getId())) {
-            destinationRepo.transferDestinationOwnership(destination);
+            destinationRepository.transferDestinationOwnership(destination);
             return ok("Destination ownership changed");
         }
 
@@ -412,8 +412,8 @@ public class TripController extends Controller {
         if (ownerId == null) {
             return badRequest();
         }
-        Profile tripOwner = profileRepo.fetchSingleProfile(ownerId.intValue());
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile tripOwner = profileRepository.fetchSingleProfile(ownerId.intValue());
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
             return forbidden();
