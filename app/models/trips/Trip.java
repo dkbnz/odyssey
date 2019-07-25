@@ -89,11 +89,6 @@ public class Trip extends BaseModel {
     }
 
 
-    /**
-     * A finder used to search for a trip.
-     */
-    public static final Finder<Integer, Trip> find = new Finder<>(Trip.class);
-
     public static Finder<Integer, Trip> getFind() {
         return find;
     }
