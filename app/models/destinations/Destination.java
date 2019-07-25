@@ -172,22 +172,6 @@ public class Destination extends BaseModel {
     }
 
 
-    /**
-     * Removes the specified destination to the list of trip destinations.
-     *
-     * @param tripDestination the destination to be removed from the list.
-     * @return                the list of trip destinations.
-     */
-    private boolean removeTripDestination(TripDestination tripDestination) {
-        return tripDestinations.remove(tripDestination);
-    }
-
-
-    public void clearTripDestinations() {
-        tripDestinations.clear();
-    }
-
-
     public Profile getOwner() {
         return this.owner;
     }
@@ -253,82 +237,18 @@ public class Destination extends BaseModel {
     }
 
 
-    /**
-     * Used to merge destinations. Will extract desired attributes from a given destination
-     * Then add them to this destination.
-     *
-     * Will only consume if the given Destination is equal.
-     *
-     * @param other     other destination to take attributes from.
-     */
-    public void consume(Destination other) {
-        if (!this.equals(other)) return;
-
-        //TODO: WIP - Matilda & Hayden
-//        // Takes all trip destinations from other into this destination
-//        List<TripDestination> tripDestinations = other.getTripDestinations();
-//        for (TripDestination tripDestination: tripDestinations) {
-//            tripDestination.setId(null); //Resave with New Id
-//            tripDestination.setDestination(this);
-//            tripDestination.update();
-//            tripDestination.insert();
-//            this.addTripDestination(tripDestination);
-//        }
-//
-//        // Remove all links from other trip destinations to the trip
-//        other.clearTripDestinations();
-
-        // Take all TripDestinations
-        TripDestination tripDestinationToConsume = other.getTripDestination();
-        while(tripDestinationToConsume != null) {
-            other.removeTripDestination(tripDestinationToConsume);
-
-            //tripDestinationToConsume.setId(null); //Resave with New Id
-//            tripDestinationToConsume.setDestination(this);
-//            tripDestinationToConsume.insert();
-
-            this.addTripDestination(tripDestinationToConsume);
-
-            tripDestinationToConsume = other.getTripDestination();
-        }
-
-        // Take all PersonalPhotos
-        PersonalPhoto personalPhotoToConsume = other.getPhoto();
-        while(personalPhotoToConsume != null) {
-            other.removePhotoFromGallery(personalPhotoToConsume);
-            this.addPhotoToGallery(personalPhotoToConsume);
-            personalPhotoToConsume = other.getPhoto();
-        }
-    }
-
-
-    /**
-     * Returns a TripDestination associated to this Destination.
-     * No particular order is guaranteed.
-     *
-     * @return      next available TripDestination in the list or null if none exists
-     */
-    private TripDestination getTripDestination() {
-        if (this.tripDestinations.iterator().hasNext()) {
-            return this.tripDestinations.iterator().next();
-        }
-        this.tripDestinations.clear();
-        return null;
-    }
-
-
-    /**
-     * Returns a PersonalPhoto associated to this Destination.
-     * No particular order is guaranteed.
-     *
-     * @return      next available PersonalPhoto in the list or null if none exists
-     */
-    private PersonalPhoto getPhoto() {
-        if (this.photoGallery.iterator().hasNext()) {
-            return this.photoGallery.iterator().next();
-        }
-        this.photoGallery.clear();
-        return null;
+    public String toString() {
+        return "{ " +
+                "name: " + this.name + ", " +
+                "type: " + this.type + ", " +
+                "district: " + this.district + ", " +
+                "latitude: " + this.latitude + ", " +
+                "longitude: " + this.longitude + ", " +
+                "country: " + this.country + ", " +
+                "owner: " + this.owner + ", " +
+                "photoGallery: List of size " + this.photoGallery.size() + ", " +
+                "isPublic: " + this.isPublic + ", " +
+                "tripDestinations: List of size " + this.tripDestinations.size() + "}";
     }
 
 }

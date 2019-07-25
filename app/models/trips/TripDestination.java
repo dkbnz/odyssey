@@ -89,4 +89,13 @@ public class TripDestination extends BaseModel {
     }
 
     public static final Finder<Integer, TripDestination> find = new Finder<>(TripDestination.class);
+
+    public String toString() {
+        return "{ " +
+                "startDate: " + this.startDate + ", " +
+                "endDate: " + this.endDate + ", " +
+                "listOrder: " + this.listOrder + ", " +
+                "trip: " + this.trip + ", " +
+                "destination: " + this.destination + "}";
+    }
 }

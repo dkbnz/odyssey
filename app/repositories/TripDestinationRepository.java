@@ -33,4 +33,12 @@ public class TripDestinationRepository {
     public void save(TripDestination tripDestination) {
         tripDestination.save();
     }
+
+
+    /**
+     * Updates the TripDestination object.
+     *
+     * @param tripDestination       the TripDestination being updated.
+     */
+    public void update(TripDestination tripDestination) { tripDestination.update(); }
 }

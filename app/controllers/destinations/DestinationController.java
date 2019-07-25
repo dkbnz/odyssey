@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.ExpressionList;
+import models.photos.PersonalPhoto;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -17,6 +18,7 @@ import models.destinations.Destination;
 import models.destinations.DestinationType;
 import models.trips.Trip;
 import models.trips.TripDestination;
+import repositories.TripRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.ProfileRepository;
 import repositories.destinations.DestinationTypeRepository;
@@ -126,6 +128,10 @@ public class DestinationController extends Controller {
 
         List<Map> matchingTrips = new ArrayList<>();
         for (TripDestination tripDestination: tripDestinationList) {
+//            System.out.println(tripDestination);
+//            System.out.println(tripDestination.getTrip());
+//            System.out.println(Trip.find.byId(1));
+//            System.out.println(tripDestination.getTrip().getId());
             Trip tempTrip = Trip.find.byId(tripDestination.getTrip().getId().intValue());
             Map<Object, Object> tripDetails = new HashMap<>();
             tripDetails.put(TRIP_ID, tempTrip.getId());
@@ -536,23 +542,87 @@ public class DestinationController extends Controller {
         List<Destination> similarDestinations = destinationRepo.findEqual(destinationToUpdate);
 
         if (!similarDestinations.isEmpty()) {
-            while (similarDestinations.iterator().hasNext()) {
-                Destination destinationToMerge = similarDestinations.iterator().next();
-
-                destinationToUpdate.consume(destinationToMerge);
-
-                // Save destination that has had attributes taken to prevent deletion of attributes via cascading
-                destinationRepo.update(destinationToUpdate);
-                destinationRepo.update(destinationToMerge);
-
-                destinationRepo.delete(destinationToMerge);
-
-                similarDestinations.remove(destinationToMerge);
+            for (Destination destinationToMerge: similarDestinations) {
+                consume(destinationToUpdate, destinationToMerge);
             }
             // Destination has been merged from other sources, change owner to admin.
             destinationRepo.transferDestinationOwnership(destinationToUpdate);
         }
         destinationToUpdate.setPublic(isPublic);
         destinationRepo.save(destinationToUpdate);
+    }
+
+
+    /**
+     * Used to merge destinations. Will extract desired attributes from a destinationToMerge and adds them to
+     * destinationToUpdate.
+     * Then, updates each destination and deletes destinationToMerge.
+     *
+     * Will only consume if the given Destination is equal.
+     * @param destinationToUpdate   destination that gains the attributes of destinationToMerge
+     * @param destinationToMerge    destination that is being consumed by destinationToUpdate
+     */
+    private void consume(Destination destinationToUpdate, Destination destinationToMerge) {
+        if (!destinationToUpdate.equals(destinationToMerge)) return;
+
+        mergeTripDestinations(destinationToUpdate, destinationToMerge);
+        mergePersonalPhotos(destinationToUpdate, destinationToMerge);
+
+        // Save destination that has had attributes taken to prevent deletion of attributes via cascading
+        destinationRepo.update(destinationToUpdate);
+        destinationRepo.update(destinationToMerge);
+
+        destinationRepo.delete(destinationToMerge);
+    }
+
+
+    /**
+     * Takes the trip destinations from the destinationToMerge and adds them to the destinationToUpdate.
+     * Then removes these trip destinations from the destinationToMerge.
+     *
+     * @param destinationToUpdate   destination that gains the trip destinations of destinationToMerge
+     * @param destinationToMerge    destination that is being consumed by destinationToUpdate
+     */
+    private void mergeTripDestinations(Destination destinationToUpdate, Destination destinationToMerge) {
+        // Takes all trip destinations from other into this destination
+        for (TripDestination tripDestination : destinationToMerge.getTripDestinations()) {
+
+            // Create duplicate tripDestination but change destination
+            TripDestination newTripDestination = new TripDestination();
+            newTripDestination.setDestination(destinationToUpdate);
+            newTripDestination.setStartDate(tripDestination.getStartDate());
+            newTripDestination.setEndDate(tripDestination.getEndDate());
+            newTripDestination.setListOrder(tripDestination.getListOrder());
+
+            // Add trip destination
+            destinationToUpdate.addTripDestination(newTripDestination);
+            Trip trip = tripDestination.getTrip();
+            trip.addDestinations(newTripDestination);
+
+            // Remove old trip destination
+            trip.removeDestinations(tripDestination);
+            tripDestination.clearTrip();
+
+            // Persist updates
+            tripDestinationRepo.update(tripDestination);
+            TripRepository tripRepo = new TripRepository();
+            tripRepo.update(trip);
+        }
+    }
+
+
+    /**
+     * Takes the personal photos from the destinationToMerge and adds them to the destinationToMerge.
+     * @param destinationToUpdate   destination that gains the personal photos of destinationToMerge
+     * @param destinationToMerge    destination that is being consumed by destinationToUpdate
+     */
+    private void mergePersonalPhotos(Destination destinationToUpdate, Destination destinationToMerge) {
+        // Take all PersonalPhotos
+        for (PersonalPhoto photo : destinationToMerge.getPhotoGallery()) {
+            // Remove photo from destination being merged
+            destinationToMerge.removePhotoFromGallery(photo);
+            // Save to destination to update
+            destinationToUpdate.addPhotoToGallery(photo);
+        }
     }
 }
