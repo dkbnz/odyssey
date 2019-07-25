@@ -172,6 +172,16 @@ public class Destination extends BaseModel {
     }
 
 
+
+    public boolean removeTripDestination(TripDestination tripDestination) {
+        return tripDestinations.remove(tripDestination);
+    }
+
+    public void clearTripDestinations() {
+        tripDestinations.clear();
+    }
+
+
     public Profile getOwner() {
         return this.owner;
     }
@@ -237,18 +247,18 @@ public class Destination extends BaseModel {
     }
 
 
-    public String toString() {
-        return "{ " +
-                "name: " + this.name + ", " +
-                "type: " + this.type + ", " +
-                "district: " + this.district + ", " +
-                "latitude: " + this.latitude + ", " +
-                "longitude: " + this.longitude + ", " +
-                "country: " + this.country + ", " +
-                "owner: " + this.owner + ", " +
-                "photoGallery: List of size " + this.photoGallery.size() + ", " +
-                "isPublic: " + this.isPublic + ", " +
-                "tripDestinations: List of size " + this.tripDestinations.size() + "}";
-    }
+//    public String toString() {
+//        return "{ " +
+//                "name: " + this.name + ", " +
+//                "type: " + this.type + ", " +
+//                "district: " + this.district + ", " +
+//                "latitude: " + this.latitude + ", " +
+//                "longitude: " + this.longitude + ", " +
+//                "country: " + this.country + ", " +
+//                "owner: " + this.owner + ", " +
+//                "photoGallery: List of size " + this.photoGallery.size() + ", " +
+//                "isPublic: " + this.isPublic + ", " +
+//                "tripDestinations: List of size " + this.tripDestinations.size() + "}";
+//    }
 
 }

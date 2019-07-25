@@ -1105,11 +1105,11 @@ public class DestinationTestSteps {
         Result result = route(application, request);
         statusCode = result.status();
 
-        JsonNode arrNode = new ObjectMapper().readTree(Helpers.contentAsString(result));
-        ArrayNode trips = (ArrayNode) arrNode.get(MATCHING_TRIPS);
+        responseBody = Helpers.contentAsString(result);
+        JsonNode matchingTrips = new ObjectMapper().readTree(responseBody).get(MATCHING_TRIPS);
 
-        for (JsonNode trip : trips) {
-            names.add(trip.get(TRIP_NAME).asText());
+        for (JsonNode trip : matchingTrips) {
+            names.add(trip.get(TRIP_NAME_FIELD).asText());
         }
 
         return names;

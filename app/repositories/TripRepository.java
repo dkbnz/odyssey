@@ -139,8 +139,9 @@ public class TripRepository {
 
     public Set<Trip> fetch(Destination usedDestination) {
         List<TripDestination> tripDestinations = TripDestination.find.query().where().eq("destination", usedDestination).findList();
-
+        //System.out.println(tripDestinations.get(0).getTrip().getName());
         Set<Trip> trips = new HashSet<>();
+
 
         for (TripDestination tripDestination : tripDestinations) {
             trips.add(tripDestination.getTrip());
