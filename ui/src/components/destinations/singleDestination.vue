@@ -296,9 +296,9 @@
                         if (response.ok) {
                             if(self.destination.owner.id === self.profile.id || self.profile.isAdmin) {
                                 self.destination.travellerTypes = self.calculatedTravellerTypes;
-                                self.alertMessage = "Destination traveller types updated.";
+                                self.alertMessage = "Destination traveller types updated";
                             } else {
-                                self.alertMessage = "Update request sent.";
+                                self.alertMessage = "Update request sent";
                             }
 
                             self.showTravellerTypeUpdateSuccess = true;
@@ -306,7 +306,7 @@
                                 self.showTravellerTypeUpdateSuccess = false;
                             }, 3000);
                         } else {
-                            self.alertMessage = "Cannot update traveller types.";
+                            self.alertMessage = "Cannot update traveller types";
                             self.showTravellerTypeUpdateFailure = true;
                             setTimeout(function () {
                                 self.showTravellerTypeUpdateFailure = false;
