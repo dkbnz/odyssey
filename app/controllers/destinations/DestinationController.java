@@ -104,7 +104,7 @@ public class DestinationController extends Controller {
             return forbidden();
         }
 
-        List<Map> matchingTrips = getTripsUsedByDestination(destination);
+        Set<Trip> matchingTrips = tripRepository.fetch(destination);
 
         int photoCount = destination.getPhotoGallery().size();
         int tripCount = matchingTrips.size();
@@ -118,8 +118,6 @@ public class DestinationController extends Controller {
         returnJson.put(PHOTO_COUNT, photoCount);
         returnJson.putArray(MATCHING_TRIPS).addAll(matchTrips);
         returnJson.putArray(MATCHING_DESTINATIONS).addAll(matchDestinations);
-
-
 
         return ok(returnJson);
     }
@@ -136,7 +134,8 @@ public class DestinationController extends Controller {
 
         List<Map> matchingTrips = new ArrayList<>();
         for (TripDestination tripDestination: tripDestinationList) {
-            Trip temporaryTrip = Trip.find.byId(tripDestination.getTrip().getId().intValue());
+
+            Trip temporaryTrip = tripDestination.getTrip();
             Map<Object, Object> tripDetails = new HashMap<>();
             tripDetails.put(TRIP_ID, temporaryTrip.getId());
             tripDetails.put(TRIP_NAME, temporaryTrip.getName());
@@ -472,88 +471,61 @@ public class DestinationController extends Controller {
 
         JsonNode json = request.body().asJson();
 
-        Iterator<String> fieldIterator = json.fieldNames();
-        while (fieldIterator.hasNext()) {
-            String fieldName = fieldIterator.next();
-            switch (fieldName) {
+        currentDestination = Json.fromJson(json, Destination.class);
 
-                case NAME:
-                    currentDestination.setName(json.get(NAME).asText());
-                    break;
-
-                case COUNTRY:
-                    currentDestination.setCountry(json.get(COUNTRY).asText());
-                    break;
-
-                case DISTRICT:
-                    currentDestination.setDistrict(json.get(DISTRICT).asText());
-                    break;
-
-                case TYPE:
-                    DestinationType type = destinationTypeRepository.fetch(json.get(TYPE).asLong());
-                    currentDestination.setType(type);
-                    break;
-
-                case LATITUDE:
-                    double latitude = json.get(LATITUDE).asDouble();
-                    if (latitude > LATITUDE_LIMIT || latitude < -LATITUDE_LIMIT) {
-                        return badRequest();
-                    } else {
-                        currentDestination.setLatitude(latitude);
-                    }
-                    break;
-
-                case LONGITUDE:
-                    double longitude = json.get(LONGITUDE).asDouble();
-                    if (longitude > LONGITUDE_LIMIT || longitude < -LONGITUDE_LIMIT) {
-                        return badRequest();
-                    } else {
-                        currentDestination.setLongitude(longitude);
-                    }
-                    currentDestination.setLongitude(json.get(LONGITUDE).asDouble());
-                    break;
-
-                case IS_PUBLIC:
-                    setPrivacy(currentDestination, json.get(IS_PUBLIC).asBoolean());
-                    break;
-
-                default:
-                    return badRequest();
-            }
+        if (currentDestination.getLongitude() > LONGITUDE_LIMIT || currentDestination.getLongitude() < -LONGITUDE_LIMIT) {
+            return badRequest();
         }
-        currentDestination.update();
+
+        if (currentDestination.getLatitude() > LATITUDE_LIMIT || currentDestination.getLatitude() < -LATITUDE_LIMIT) {
+            return badRequest();
+        }
+
+        mergeDestinations(currentDestination);
+        destinationRepository.update(currentDestination);
         return ok("Destination updated");
     }
 
 
     /**
-     * Set the privacy of a destination.
+     * Merges a given destination with similar destinations if required.
      *
-     * If the privacy is being changed (i.e current privacy != privacy to set),
-     * Then look for destinations that are similar and merge them into this one.
-     * This should only occur when changing private -> public. Since the program prevents
-     * private destinations being made when there is a public equivalent, there should
-     * be no destinations found when changing public -> private.
-     *
-     * Method does not authenticate.
-     *
-     * @param destinationToUpdate   the destination that to be updated.
-     * @param isPublic              the boolean value to determine if the destination to be updated should be updated.
+     * @param destinationToUpdate   the destination that needs to be merged.
      */
-    private void setPrivacy(Destination destinationToUpdate, Boolean isPublic) {
-        if (destinationToUpdate.getPublic() == isPublic) return;
-
+    private void mergeDestinations(Destination destinationToUpdate) {
         List<Destination> similarDestinations = destinationRepository.findEqual(destinationToUpdate);
 
-        if (!similarDestinations.isEmpty()) {
-            for (Destination destinationToMerge : similarDestinations) {
-                consume(destinationToUpdate, destinationToMerge);
+        if (shouldMerge(destinationToUpdate, similarDestinations)) {
+            if (!similarDestinations.isEmpty()) {
+                for (Destination destinationToMerge: similarDestinations) {
+                    consume(destinationToUpdate, destinationToMerge);
+                }
+                // Destination has been merged from other sources, change owner to admin.
+                destinationRepository.transferDestinationOwnership(destinationToUpdate);
             }
-            // Destination has been merged from other sources, change owner to admin.
-            destinationRepository.transferDestinationOwnership(destinationToUpdate);
         }
-        destinationToUpdate.setPublic(isPublic);
-        destinationRepository.save(destinationToUpdate);
+    }
+
+
+    /**
+     * Determines if the given destination and similar destinations should be merged into a single destination.
+     *
+     * @param destinationToUpdate   the destination that consumes similar destinations
+     * @param similarDestinations   the list of similar destinations to destinationToUpdate
+     * @return                      true if destinationToUpdate is public or any destinations in similarDestinations is
+     *                              public. False otherwise.
+     */
+    private boolean shouldMerge(Destination destinationToUpdate, List<Destination> similarDestinations) {
+        if (destinationToUpdate.getPublic()) {
+            return true;
+        }
+
+        for (Destination destination: similarDestinations) {
+            if (destination.getPublic()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -589,6 +561,7 @@ public class DestinationController extends Controller {
      */
     private void mergeTripDestinations(Destination destinationToUpdate, Destination destinationToMerge) {
         // Takes all trip destinations from other into this destination
+        TripRepository tripRepository = new TripRepository();
         for (TripDestination tripDestination : destinationToMerge.getTripDestinations()) {
 
             // Create duplicate tripDestination but change destination
@@ -609,7 +582,7 @@ public class DestinationController extends Controller {
 
             // Persist updates
             tripDestinationRepository.update(tripDestination);
-            tripRepository.update(trip);
+//            tripRepository.update(trip);
         }
     }
 

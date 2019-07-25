@@ -380,15 +380,8 @@
              */
             editDestination() {
                 let self = this;
-                let jsonBody = JSON.stringify({
-                    "name": this.inputDestination.name,
-                    "type_id": this.inputDestination.type.id,
-                    "district": this.inputDestination.district,
-                    "latitude": parseFloat(this.inputDestination.latitude),
-                    "longitude": parseFloat(this.inputDestination.longitude),
-                    "country": this.inputDestination.country,
-                    "is_public": this.inputDestination.public
-                });
+                let jsonBody = JSON.stringify(this.inputDestination);
+
                 fetch(`/v1/destinations/` + this.inputDestination.id, {
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},

@@ -2,10 +2,13 @@ package repositories;
 
 import io.ebean.ExpressionList;
 import models.Profile;
+import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class TripRepository {
@@ -131,5 +134,18 @@ public class TripRepository {
      */
     public static Long fetchTripOwner(Long tripId) {
         return Trip.getFind().query().select("profile.id").where().eq(TRIP_ID, tripId).findSingleAttribute();
+    }
+
+
+    public Set<Trip> fetch(Destination usedDestination) {
+        List<TripDestination> tripDestinations = TripDestination.find.query().where().eq("destination", usedDestination).findList();
+
+        Set<Trip> trips = new HashSet<>();
+
+        for (TripDestination tripDestination : tripDestinations) {
+            trips.add(tripDestination.getTrip());
+        }
+
+        return trips;
     }
 }
