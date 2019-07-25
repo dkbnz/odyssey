@@ -12,6 +12,7 @@ import cucumber.api.java.en.When;
 import cucumber.api.java.Before;
 import io.ebean.ExpressionList;
 import models.destinations.Destination;
+import models.destinations.DestinationType;
 import models.photos.PersonalPhoto;
 import models.trips.Trip;
 import org.junit.*;
@@ -19,6 +20,7 @@ import play.Application;
 import play.db.Database;
 
 import play.db.evolutions.Evolutions;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -847,41 +849,39 @@ public class DestinationTestSteps {
      */
     private JsonNode convertDataTableToEditDestination(io.cucumber.datatable.DataTable dataTable) {
         int valueIndex = 0;
+        Destination editDestination = destinationRepository.fetch(destinationId);
+        if (editDestination == null) {
+            editDestination = new Destination();
+        }
         List<Map<String, String>> valueList = dataTable.asMaps(String.class, String.class);
         Map<String, String> valueMap = valueList.get(valueIndex);
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode json = mapper.createObjectNode();
 
         for (Map.Entry<String, String> entry : valueMap.entrySet()) {
-            String key;
             String value = entry.getValue();
 
             switch (entry.getKey()) {
                 case TYPE_STRING:
-                    key = TYPE;
+                    editDestination.setType(DestinationType.find.byId(Integer.valueOf(value)));
                     break;
                 case DISTRICT_STRING:
-                    key = DISTRICT;
+                    editDestination.setDistrict(value);
                     break;
                 case LATITUDE_STRING:
-                    key = LATITUDE;
+                    editDestination.setLatitude(Double.valueOf(value));
                     break;
                 case LONGITUDE_STRING:
-                    key = LONGITUDE;
+                    editDestination.setLongitude(Double.valueOf(value));
                     break;
                 case COUNTRY_STRING:
-                    key = COUNTRY;
+                    editDestination.setCountry(value);
                     break;
                 case IS_PUBLIC_STRING:
-                    key = IS_PUBLIC;
+                    editDestination.setPublic(Boolean.valueOf(value));
                     break;
-                default:
-                    key = entry.getKey();
             }
-            json.put(key, value);
         }
 
-        return json;
+        return Json.toJson(editDestination);
     }
 
 
@@ -904,8 +904,8 @@ public class DestinationTestSteps {
      */
     @When("I attempt to edit destination {int} using the following values")
     public void iAttemptToEditDestinationUsingTheFollowingValues(Integer destinationId, io.cucumber.datatable.DataTable dataTable) {
-        JsonNode editValues = convertDataTableToEditDestination(dataTable);
         this.destinationId = destinationId.longValue();
+        JsonNode editValues = convertDataTableToEditDestination(dataTable);
         editDestinationRequest(editValues);
     }
 
@@ -1084,8 +1084,6 @@ public class DestinationTestSteps {
      */
     @Then("the destination will be used in the following trips")
     public void theDestinationWillBeUsedInTheFollowingTrips(io.cucumber.datatable.DataTable dataTable) throws IOException {
-        Destination destination = destinationRepository.fetch(destinationId);
-
         List<String> names = getTripNames();
         List<String> expectedNames = new ArrayList<>(dataTable.asList());
         expectedNames = expectedNames.subList(1, expectedNames.size());
