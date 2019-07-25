@@ -42,7 +42,7 @@
                         <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
                         <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
                         <!-- Loop through the list of proposals and generate an area to accept/reject for each one -->
-                        <div v-if="travellerTypeProposals.length > 0">
+                        <div v-if="travellerTypeProposals.length > 0" class="proposalDiv">
                             <b-card v-for="destination in travellerTypeProposals"
                                     class="proposals" :key="destination.id">
                                 <b-row>
@@ -253,14 +253,14 @@
                 })
                     .then(function(response) {
                         if (response.ok) {
-                            self.alertMessage = "Destination traveller types updated.";
+                            self.alertMessage = "Destination traveller types updated";
                             self.showTravellerTypeUpdateSuccess = true;
                             setTimeout(function () {
                                 self.showTravellerTypeUpdateSuccess = false;
                             }, 3000);
                             self.removeProposed(destination);
                         } else {
-                            self.alertMessage = "Cannot update traveller types.";
+                            self.alertMessage = "Cannot update traveller types";
                             self.showTravellerTypeUpdateFailure = true;
                             setTimeout(function () {
                                 self.showTravellerTypeUpdateFailure = false;
@@ -286,5 +286,10 @@
         width: 20px;
         font-size: 12px;
         padding: 0
+    }
+
+    .proposalDiv {
+        max-height: 100vh;
+        overflow: scroll;
     }
 </style>
