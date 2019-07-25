@@ -397,7 +397,6 @@ Feature: Destination API Endpoint
     When I add a photo with id 6 to the destination
     Then the owner is user 1
 
-
   Scenario: Merging two destinations which have photos
     Given I am running the application
     And I am logged in
@@ -418,7 +417,6 @@ Feature: Destination API Endpoint
       | id    |
       | 2     |
       | 6     |
-
 
   Scenario: Merging three destinations which have photos
     Given I am running the application
@@ -447,7 +445,6 @@ Feature: Destination API Endpoint
       | 1     |
       | 2     |
       | 6     |
-
 
   Scenario: Merging two destinations are used in trips
     Given I am running the application
