@@ -195,7 +195,7 @@ public class DestinationTestSteps {
     /**
      * Repository to access the destinations in the running application.
      */
-    private DestinationRepository destinationRepo = new DestinationRepository();
+    private DestinationRepository destinationRepository = new DestinationRepository();
 
 
     /**
@@ -997,7 +997,7 @@ public class DestinationTestSteps {
         JsonNode arrNode = new ObjectMapper().readTree(responseBody);
         Long ownerId;
         for (int i = 0 ; i < arrNode.size() ; i++) {
-            ownerId = destinationRepo.fetch(arrNode.get(i).get("id").asLong()).getOwner().getId();  //Gets owner id of destination
+            ownerId = destinationRepository.fetch(arrNode.get(i).get("id").asLong()).getOwner().getId();  //Gets owner id of destination
             assertEquals(userId, ownerId);
         }
     }
@@ -1010,7 +1010,7 @@ public class DestinationTestSteps {
      */
     @Then("the owner is user {int}")
     public void theOwnerIsUser(Integer userId) {
-        Destination destination = destinationRepo.fetch(destinationId);
+        Destination destination = destinationRepository.fetch(destinationId);
         Long expectedId = userId.longValue();
         assertEquals(expectedId, destination.getOwner().getId());
     }
@@ -1023,7 +1023,7 @@ public class DestinationTestSteps {
      */
     @Then("the destination will have photos with the following ids")
     public void theDestinationWillHavePhotosWithTheFollowingIds(io.cucumber.datatable.DataTable dataTable) {
-        Destination destination = destinationRepo.fetch(destinationId);
+        Destination destination = destinationRepository.fetch(destinationId);
 
         List<String> photoIds = getPhotoIds(destination);
         List<String> expectedIds = new ArrayList<>(dataTable.asList());
@@ -1060,7 +1060,7 @@ public class DestinationTestSteps {
      */
     @Then("the destination will be used in the following trips")
     public void theDestinationWillBeUsedInTheFollowingTrips(io.cucumber.datatable.DataTable dataTable) throws IOException {
-        Destination destination = destinationRepo.fetch(destinationId);
+        Destination destination = destinationRepository.fetch(destinationId);
 
         List<String> names = getTripNames();
         List<String> expectedNames = new ArrayList<>(dataTable.asList());
