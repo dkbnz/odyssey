@@ -31,6 +31,7 @@ public class Trip extends BaseModel {
         return profile;
     }
 
+
     /**
      * The trips destinations for the trip.
      */
@@ -60,6 +61,7 @@ public class Trip extends BaseModel {
     public boolean removeDestinations(TripDestination destination) {
         return destinations.remove(destination);
     }
+
 
     /**
      * A finder used to search for a trip.

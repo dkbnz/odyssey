@@ -134,13 +134,13 @@ public class DestinationController extends Controller {
 
         List<Map> matchingTrips = new ArrayList<>();
         for (TripDestination tripDestination: tripDestinationList) {
-            Trip tempTrip = Trip.find.byId(tripDestination.getTrip().getId().intValue());
+            Trip temporaryTrip = Trip.find.byId(tripDestination.getTrip().getId().intValue());
             Map<Object, Object> tripDetails = new HashMap<>();
-            tripDetails.put(TRIP_ID, tempTrip.getId());
-            tripDetails.put(TRIP_NAME, tempTrip.getName());
-            tripDetails.put(USER_ID, tempTrip.getProfile().getId());
-            tripDetails.put(FIRST_NAME, tempTrip.getProfile().getFirstName());
-            tripDetails.put(LAST_NAME, tempTrip.getProfile().getLastName());
+            tripDetails.put(TRIP_ID, temporaryTrip.getId());
+            tripDetails.put(TRIP_NAME, temporaryTrip.getName());
+            tripDetails.put(USER_ID, temporaryTrip.getProfile().getId());
+            tripDetails.put(FIRST_NAME, temporaryTrip.getProfile().getFirstName());
+            tripDetails.put(LAST_NAME, temporaryTrip.getProfile().getLastName());
             matchingTrips.add(tripDetails);
         }
         return matchingTrips;
