@@ -78,10 +78,28 @@ Feature: Suggesting traveller types for a destination.
     Then I receive status code of 200
 
 
-  Scenario: Admin requesting proposed destinations in the admin panel where there is 1 destination to update
+  Scenario: Admin requesting proposed destinations in the admin panel for a proposed add
     Given The application is operational
     And The user is logged in as an admin
     And There is a destination with one traveller type to add
     When A request for proposed destinations is sent
     Then the status code received on the admin panel is OK
-    And There is 1 destination to update
+    And There is a destination to update
+
+  Scenario: Admin requesting proposed destinations in the admin panel for a proposed remove
+    Given The application is operational
+    And The user is logged in as an admin
+    And There is a destination with one traveller type assigned
+    And There is a destination with one traveller type to remove
+    When A request for proposed destinations is sent
+    Then the status code received on the admin panel is OK
+    And There is a destination to update
+
+  Scenario: Admin requesting proposed destinations in the admin panel for a proposed add and remove
+    Given The application is operational
+    And The user is logged in as an admin
+    And There is a destination with one traveller type assigned
+    And There is a destination with one traveller type to add
+    When A request for proposed destinations is sent
+    Then the status code received on the admin panel is OK
+    And There is a destination to update
