@@ -31,7 +31,7 @@ public class TripRepository {
 
 
     /**
-     * Updates a trip with new attributes and destinations.
+     * Updates a trip with new attributes and destinations. Also updates the profile.
      *
      * @param profile           the profile which is having a trip be updated.
      * @param trip              the updated trip.
@@ -45,18 +45,11 @@ public class TripRepository {
 
 
     /**
-     * Updates an existing trip as well as the profile it belongs to within the database.
-     *
-     * @param profile       the profile having its trip updated with an edited trip.
-     * @param trip          the existing trip being updated after editing.
+     * Updates a trip.
+     * @param trip      The trip to update.
      */
-    public void updateOldTrip(Profile profile, Trip trip) {
-
-        // Update the trip on the database with its edited details.
+    public void update(Trip trip) {
         trip.update();
-
-        // Update the profile containing the trip.
-        profile.update();
     }
 
 

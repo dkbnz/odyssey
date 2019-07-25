@@ -53,6 +53,14 @@ public class Trip extends BaseModel {
         this.destinations = destinations;
     }
 
+    public boolean addDestinations(TripDestination destination) {
+        return destinations.add(destination);
+    }
+
+    public boolean removeDestinations(TripDestination destination) {
+        return destinations.remove(destination);
+    }
+
     /**
      * A finder used to search for a trip.
      */
