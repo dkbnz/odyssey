@@ -541,7 +541,7 @@ public class DestinationController extends Controller {
         List<Destination> similarDestinations = destinationRepo.findEqual(destinationToUpdate);
 
         if (!similarDestinations.isEmpty()) {
-            for (Destination destinationToMerge: similarDestinations) {
+            for (Destination destinationToMerge : similarDestinations) {
                 consume(destinationToUpdate, destinationToMerge);
             }
             // Destination has been merged from other sources, change owner to admin.
@@ -553,13 +553,13 @@ public class DestinationController extends Controller {
 
 
     /**
-     * Used to merge destinations. Will extract desired attributes from a destinationToMerge and adds them to
-     * destinationToUpdate.
+     * Used to merge destinations. Will extract desired attributes from a destinationToMerge and adds them to destinationToUpdate.
      * Then, updates each destination and deletes destinationToMerge.
      *
      * Will only consume if the given Destination is equal.
-     * @param destinationToUpdate   destination that gains the attributes of destinationToMerge
-     * @param destinationToMerge    destination that is being consumed by destinationToUpdate
+     *
+     * @param destinationToUpdate   destination that gains the attributes of destinationToMerge.
+     * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
      */
     private void consume(Destination destinationToUpdate, Destination destinationToMerge) {
         if (!destinationToUpdate.equals(destinationToMerge)) return;
@@ -579,8 +579,8 @@ public class DestinationController extends Controller {
      * Takes the trip destinations from the destinationToMerge and adds them to the destinationToUpdate.
      * Then removes these trip destinations from the destinationToMerge.
      *
-     * @param destinationToUpdate   destination that gains the trip destinations of destinationToMerge
-     * @param destinationToMerge    destination that is being consumed by destinationToUpdate
+     * @param destinationToUpdate   destination that gains the trip destinations of destinationToMerge.
+     * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
      */
     private void mergeTripDestinations(Destination destinationToUpdate, Destination destinationToMerge) {
         // Takes all trip destinations from other into this destination
@@ -611,8 +611,9 @@ public class DestinationController extends Controller {
 
     /**
      * Takes the personal photos from the destinationToMerge and adds them to the destinationToMerge.
-     * @param destinationToUpdate   destination that gains the personal photos of destinationToMerge
-     * @param destinationToMerge    destination that is being consumed by destinationToUpdate
+     *
+     * @param destinationToUpdate   destination that gains the personal photos of destinationToMerge.
+     * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
      */
     private void mergePersonalPhotos(Destination destinationToUpdate, Destination destinationToMerge) {
         // Take all PersonalPhotos
