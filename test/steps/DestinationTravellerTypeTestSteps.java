@@ -1,6 +1,10 @@
 package steps;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.PendingException;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -24,6 +28,7 @@ import repositories.destinations.DestinationRepository;
 import repositories.destinations.TravellerTypeRepository;
 
 import java.util.ArrayList;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,13 +64,12 @@ public class DestinationTravellerTypeTestSteps {
     /**
      * The login endpoint uri.
      */
-    private static final String LOGIN_URI = "/v1/login";
-
+    private static final String TRAVELLER_TYPE_PROPOSE_URI = "/travellerTypes/propose";
 
     /**
-     * The logout endpoint uri.
+     * The destinations propose endpoint uri.
      */
-    private static final String LOGOUT_URI = "/v1/logout";
+    private static final String DESTINATIONS_GET_PROPOSE_URI = "/v1/destinations/proposals";
 
 
     /**
@@ -83,20 +87,13 @@ public class DestinationTravellerTypeTestSteps {
     /**
      * Valid login credentials for an admin user.
      */
-    private static final String ADMIN_USERNAME = "admin@travelea.com";
-    private static final String ADMIN_AUTHPASS = "admin1";
     private static final String ADMIN_ID = "1";
 
 
     /**
      * Valid login credentials for a regular user.
      */
-    private static final String REG_USERNAME = "guestUser@travelea.com";
-    private static final String REG_AUTHPASS = "guest123";
     private static final String REG_ID = "2";
-
-    private Destination destinationOfInterest;
-
 
     /**
      * The fake application.
@@ -213,22 +210,77 @@ public class DestinationTravellerTypeTestSteps {
 
     @Given("There is a destination with one traveller type to add")
     public void thereIsADestinationWithOneTravellerTypeToAdd() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+        List<TravellerType> travellerTypeList = new ArrayList<>();
+        travellerTypeList.add(travellerTypeRepo.findAll().get(0));
+        JsonNode json = Json.toJson(travellerTypeList);
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED, loggedInId)
+                .bodyJson(json)
+                .uri(DESTINATION_URI + 119 + TRAVELLER_TYPE_PROPOSE_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
+
+    }
+
+
+    @Given("There is a destination with one traveller type assigned")
+    public void thereIsADestinationWithOneTravellerTypeAssigned() {
+        List<TravellerType> travellerTypeList = new ArrayList<>();
+        travellerTypeList.add(travellerTypeRepo.findAll().get(1));
+        JsonNode json = Json.toJson(travellerTypeList);
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED, loggedInId)
+                .bodyJson(json)
+                .uri(DESTINATION_URI + 119 + TRAVELLER_TYPES);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
+    }
+
+
+    @Given("There is a destination with one traveller type to remove")
+    public void thereIsADestinationWithOneTravellerTypeToRemove() {
+        List<TravellerType> travellerTypeList = new ArrayList<>();
+        JsonNode json = Json.toJson(travellerTypeList);
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED, loggedInId)
+                .bodyJson(json)
+                .uri(DESTINATION_URI + 119 + TRAVELLER_TYPE_PROPOSE_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
     }
 
 
     @When("A request for proposed destinations is sent")
     public void aRequestForProposedDestinationsIsSent() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, loggedInId)
+                .uri(DESTINATIONS_GET_PROPOSE_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
     }
 
-    @Then("There is {int} destination to update")
-    public void thereIsDestinationToUpdate(Integer int1) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+
+    @Then("There is a destination to update")
+    public void thereIsDestinationToUpdate() throws IOException {
+        Integer receivedAmount = new ObjectMapper().readTree(responseBody).size();
+        Assert.assertEquals(1, receivedAmount.intValue());
     }
+
 
     @Then("the status code received on the admin panel is OK")
     public void theStatusCodeIsCreated() throws BeansException {
@@ -251,7 +303,7 @@ public class DestinationTravellerTypeTestSteps {
 
     @And("^I (.*)own destination with id (\\d+) and it is (.*)$")
     public void iOwnDestinationWithIdAndItIs(String ownOrNot, int destinationId, String publicOrPrivate) throws Throwable {
-        destinationOfInterest = destinationRepo.fetch(Long.valueOf(destinationId));
+        Destination destinationOfInterest = destinationRepo.fetch(Long.valueOf(destinationId));
 
         // Ensure we can find a destination
         Assert.assertNotNull(destinationOfInterest);
