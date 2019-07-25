@@ -55,6 +55,7 @@ public class DestinationController extends Controller {
     private DestinationRepository destinationRepo;
     private DestinationTypeRepository destinationTypeRepo;
     private TripDestinationRepository tripDestinationRepo;
+    private TripRepository tripRepo;
 
 
     @Inject
@@ -62,11 +63,13 @@ public class DestinationController extends Controller {
             ProfileRepository profileRepo,
             DestinationRepository destinationRepo,
             DestinationTypeRepository destinationTypeRepo,
-            TripDestinationRepository tripDestinationRepo) {
+            TripDestinationRepository tripDestinationRepo,
+            TripRepository tripRepo) {
         this.profileRepo = profileRepo;
         this.destinationRepo = destinationRepo;
         this.destinationTypeRepo = destinationTypeRepo;
         this.tripDestinationRepo = tripDestinationRepo;
+        this.tripRepo = tripRepo;
     }
 
 
@@ -128,10 +131,6 @@ public class DestinationController extends Controller {
 
         List<Map> matchingTrips = new ArrayList<>();
         for (TripDestination tripDestination: tripDestinationList) {
-//            System.out.println(tripDestination);
-//            System.out.println(tripDestination.getTrip());
-//            System.out.println(Trip.find.byId(1));
-//            System.out.println(tripDestination.getTrip().getId());
             Trip tempTrip = Trip.find.byId(tripDestination.getTrip().getId().intValue());
             Map<Object, Object> tripDetails = new HashMap<>();
             tripDetails.put(TRIP_ID, tempTrip.getId());
@@ -605,7 +604,6 @@ public class DestinationController extends Controller {
 
             // Persist updates
             tripDestinationRepo.update(tripDestination);
-            TripRepository tripRepo = new TripRepository();
             tripRepo.update(trip);
         }
     }
