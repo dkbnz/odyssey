@@ -17,7 +17,7 @@
             <b-list-group class="scroll">
                 <b-list-group-item v-for="destination in (foundDestinations)" href="#"
                                    class="flex-column align-items-start"
-                                   @click="$emit('destination-click', destination)">
+                                   @click="$emit('destination-click', destination)" :key="destination.id">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">{{destination.name}}</h5>
 
