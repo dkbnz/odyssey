@@ -26,7 +26,7 @@
             <b-list-group
             style="overflow-y: scroll; height: 30vh;" v-if="destinationUsage.trip_count > 0">
                 <b-list-group-item class="flex-column align-items-start"
-                                   v-for="trip in destinationUsage.matching_trips">
+                                   v-for="trip in destinationUsage.matching_trips" :key="trip.id">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">Name: {{trip.trip_name}}</h5>
                     </div>
