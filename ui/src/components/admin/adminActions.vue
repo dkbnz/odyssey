@@ -43,7 +43,8 @@
                         <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
                         <!-- Loop through the list of proposals and generate an area to accept/reject for each one -->
                         <div v-if="travellerTypeProposals.length > 0">
-                            <b-card v-for="destination in travellerTypeProposals" class="proposals">
+                            <b-card v-for="destination in travellerTypeProposals"
+                                    class="proposals" :key="destination.id">
                                 <b-row>
                                     <b-col>
                                         <h5 class="mb-1">{{destination.name}}</h5>
