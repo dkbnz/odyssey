@@ -9,8 +9,8 @@
             </p>
             <b-row>
                 <b-col cols="8">
-                    <b-card>
-                        Destination Map
+                    <b-card ref="maps">
+                        <google-map></google-map>
                     </b-card>
                     <b-alert
                             :show="dismissCountDown"
@@ -69,6 +69,7 @@
     import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
     import DestinationSidebar from "./destinationSidebar";
     import SingleDestination from "./singleDestination";
+    import GoogleMap from "../map/googleMap";
 
     export default {
         name: "destinationsPage",
@@ -95,6 +96,7 @@
             NavBarMain,
             FooterMain,
             UnauthorisedPrompt,
+            GoogleMap
         },
         mounted() {
         },
