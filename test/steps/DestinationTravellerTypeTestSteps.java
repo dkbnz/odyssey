@@ -1,20 +1,31 @@
 package steps;
 
 
+import cucumber.api.PendingException;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import io.cucumber.datatable.DataTable;
+import models.TravellerType;
+import models.destinations.Destination;
 import org.junit.Assert;
 import org.springframework.beans.BeansException;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
+import play.libs.Json;
+import play.mvc.Http;
+import play.mvc.Result;
 import play.test.Helpers;
 import repositories.destinations.DestinationRepository;
+import repositories.destinations.TravellerTypeRepository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -58,6 +69,18 @@ public class DestinationTravellerTypeTestSteps {
 
 
     /**
+     * The destination endpoint uri.
+     */
+    private static final String DESTINATION_URI = "/v1/destinations/";
+
+
+    /**
+     * The logout endpoint uri.
+     */
+    private static final String TRAVELLER_TYPES = "/travellerTypes";
+
+
+    /**
      * Valid login credentials for an admin user.
      */
     private static final String ADMIN_USERNAME = "admin@travelea.com";
@@ -71,6 +94,8 @@ public class DestinationTravellerTypeTestSteps {
     private static final String REG_USERNAME = "guestUser@travelea.com";
     private static final String REG_AUTHPASS = "guest123";
     private static final String REG_ID = "2";
+
+    private Destination destinationOfInterest;
 
 
     /**
@@ -89,6 +114,12 @@ public class DestinationTravellerTypeTestSteps {
      * Repository to access the destinations in the running application.
      */
     private DestinationRepository destinationRepo = new DestinationRepository();
+
+
+    /**
+     * Repository to access the destinations in the running application.
+     */
+    private TravellerTypeRepository travellerTypeRepo = new TravellerTypeRepository();
 
 
     /**
@@ -204,4 +235,64 @@ public class DestinationTravellerTypeTestSteps {
         Assert.assertEquals(OK, statusCode);
     }
 
+
+
+
+    @Given("Im logged in as a regular user")
+    public void imLoggedInAsARegularUser() {
+        loggedInId = REG_ID;
+    }
+
+    @Given("Im logged in as an admin user")
+    public void imLoggedInAsAnAdminUser() {
+        loggedInId = ADMIN_ID;
+    }
+
+
+    @And("^I (.*)own destination with id (\\d+) and it is (.*)$")
+    public void iOwnDestinationWithIdAndItIs(String ownOrNot, int destinationId, String publicOrPrivate) throws Throwable {
+        destinationOfInterest = destinationRepo.fetch(Long.valueOf(destinationId));
+
+        // Ensure we can find a destination
+        Assert.assertNotNull(destinationOfInterest);
+
+        // If we are wanting public destination then get public should be true too. false otherwise
+        assertEquals(
+                destinationOfInterest.getPublic(),
+                publicOrPrivate.equals("public")
+        );
+
+        // If we own the destination, logged in should be equal. If not equal and we want it to be then throw assertion
+        assertEquals(
+                destinationOfInterest.getOwner().getId().toString().equals(loggedInId),
+                ownOrNot.equals("")
+        );
+    }
+
+    @Then("^I receive status code of (\\d+)$")
+    public void iReceiveAStatusCodeOf(int expectedStatusCode) throws Throwable {
+        Assert.assertEquals(expectedStatusCode, statusCode);
+    }
+
+    @When("^I (.*) the following traveller types for destination id (.*)$")
+    public void iTheFollowingTravellerTypesForDestinationId(String suggestOrSet, String destinationId, DataTable travellerTypeIds) throws Throwable {
+
+        List<TravellerType> travellerTypeList = new ArrayList<>();
+
+        for (String travellerTypeId : travellerTypeIds.asList()) {
+            travellerTypeList.add(
+                    travellerTypeRepo.findById(
+                            Long.valueOf(travellerTypeId)
+                    )
+            );
+        }
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED, loggedInId)
+                .bodyJson(Json.toJson(travellerTypeList))
+                .uri(DESTINATION_URI + destinationId + TRAVELLER_TYPES + (suggestOrSet.equals("suggest") ? "/propose" : ""));
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
 }
