@@ -438,7 +438,7 @@ INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `lon
 (8966, 'Onaero River Scenic Reserve', 79, 'Taranaki', -38.998611, 174.365556, 'New Zealand', true, 1),
 (9241, 'Pukerau Red Tussock Scientific Reserve', 80, 'Southland', -46.09692, 169.077353, 'New Zealand', true, 1),
 (9293, 'Raincliff Historic Reserve', 39, 'Canterbury', -44.1625, 170.993056, 'New Zealand', true, 1),
-(9355, 'Ripapa Island Historic Reserve', 39, 'Canterbury', -43.620528, 172.754173, 'New Zealand', true, 1),
+(9355, 'Ripapa Island Historic Reserve', 39, 'Canterbury', -43.620528, 172.754173, 'New Zealand', false, 1),
 (9376, 'Rotokahu Scenic Reserve', 79, 'Wellington', -39.154167, 175.188056, 'New Zealand', true, 1),
 (9487, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', false, 2),
 (9488, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', false, 3),

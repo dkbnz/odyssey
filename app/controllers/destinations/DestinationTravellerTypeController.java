@@ -107,7 +107,7 @@ public class DestinationTravellerTypeController {
         );
 
         destinationRepo.save(destinationToMutate);
-        return ok();
+        return ok(Json.toJson(destinationToMutate));
     }
 
 
@@ -161,7 +161,7 @@ public class DestinationTravellerTypeController {
         destinationToMutate.setProposedTravellerTypesRemove(proposedRemoveTravellerTypes);
 
         destinationRepo.save(destinationToMutate);
-        return ok();
+        return ok(Json.toJson(destinationToMutate));
     }
 
 
