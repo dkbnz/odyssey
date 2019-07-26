@@ -137,9 +137,14 @@ public class TripRepository {
     }
 
 
+    /**
+     * Finds the set of Trips a destination is used in.
+     *
+     * @param usedDestination   the destination to be checked if is used in any trips.
+     * @return                  the set of Trips a destination is used in.
+     */
     public Set<Trip> fetch(Destination usedDestination) {
         List<TripDestination> tripDestinations = TripDestination.find.query().where().eq("destination", usedDestination).findList();
-        //System.out.println(tripDestinations.get(0).getTrip().getName());
         Set<Trip> trips = new HashSet<>();
 
 

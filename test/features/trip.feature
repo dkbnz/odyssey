@@ -470,7 +470,7 @@ Feature: Trip API Endpoint
         }
       """
     Then the response status code is Forbidden
-    
+
   Scenario: Changing ownership of public destination not owned by me when used in a trip
     Given I have an application running
     And I am logged as the following user

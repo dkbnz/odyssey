@@ -76,7 +76,7 @@ public class Destination extends BaseModel {
     /**
      * List of trip destinations that the destination is associated with.
      */
-    @JsonIgnore
+    //@JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "destination", orphanRemoval=true)
     private List<TripDestination> tripDestinations;
 
