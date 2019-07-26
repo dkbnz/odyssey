@@ -26,6 +26,17 @@ public class TripDestinationRepository {
 
 
     /**
+     * Fetches a single TripDestination by the id given.
+     *
+     * @param tripDestinationId     the id of the TripDestination to be found.
+     * @return                      the TripDestination object of the matching TripDestination.
+     */
+    public TripDestination fetch(Long tripDestinationId) {
+        return TripDestination.find.byId(tripDestinationId.intValue());
+    }
+
+
+    /**
      * Save the TripDestination object.
      *
      * @param tripDestination       the TripDestination being saved.
@@ -36,9 +47,21 @@ public class TripDestinationRepository {
 
 
     /**
+     * Deletes the trip destination.
+     *
+     * @param tripDestination       the TripDestination to be deleted.
+     */
+    public void delete(TripDestination tripDestination) {
+        tripDestination.delete();
+    }
+
+
+    /**
      * Updates the TripDestination object.
      *
      * @param tripDestination       the TripDestination being updated.
      */
-    public void update(TripDestination tripDestination) { tripDestination.update(); }
+    public void update(TripDestination tripDestination) {
+        tripDestination.update();
+    }
 }
