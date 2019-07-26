@@ -1,5 +1,7 @@
 <template>
-    <div id="map" class="mapDiv">
+    <div>
+        <div id="map" class="mapDiv">
+        </div>
     </div>
 
 </template>
@@ -10,10 +12,7 @@
         name: "googleMap.vue",
         props: {
             destinations: {
-                type: Array,
-                default() {
-                    return []
-                }
+                type: Array
             },
             latitude: {
                 type: Number,
@@ -35,9 +34,15 @@
         },
         mounted() {
             this.initMap();
+            this.createMarker();
         },
         data() {
             return {}
+        },
+        watch: {
+            destinations: function() {
+                this.createMarker();
+            }
         },
         methods: {
             initMap() {
@@ -45,17 +50,14 @@
                     center: {lat: this.latitude, lng: this.longitude},
                     zoom: this.zoom
                 });
-                this.createMarker();
             },
             createMarker() {
-                for (let i = 0; i < this.destinations.length; i++) {
-                    console.log(i);
+                for (let i = 0; i < this.destinations.length-1; i++) {
+                    let marker = new google.maps.Marker({
+                        position: {lat: this.destinations[i].latitude, lng: this.destinations[i].longitude},
+                        map: this.$map,
+                        title: this.destinations[i].name});
                 }
-                let marker = new google.maps.Marker({
-                    position: {lat: -41.272804, lng: 173.299565},
-                    map: this.$map,
-                    title: "Centre of NZ"
-                });
             }
         }
 
