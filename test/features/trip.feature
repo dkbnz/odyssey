@@ -25,7 +25,6 @@ Feature: Trip API Endpoint
       """
     Then the response status code is Created
 
-
   Scenario: Delete a trip as the trip's owner
     Given I have an application running
     And I am logged as the following user
@@ -53,7 +52,6 @@ Feature: Trip API Endpoint
       | Name            |
       | Test Adventure  |
     Then the response status code is OK
-
 
   Scenario: Delete other user's trip as an admin
     Given I have an application running
@@ -83,7 +81,6 @@ Feature: Trip API Endpoint
       | Test Adventure  |
     Then the response status code is OK
 
-
   Scenario: Delete a another user's trip as a standard user
     Given I have an application running
     And I am logged as the following user
@@ -112,7 +109,6 @@ Feature: Trip API Endpoint
       | Test Adventure  |
     Then the response status code is Forbidden
 
-
   Scenario: Attempt to add a trip with one destination
     Given I have an application running
     And I am logged in with credentials
@@ -132,7 +128,6 @@ Feature: Trip API Endpoint
         }
       """
     Then the response status code is BadRequest
-
 
   Scenario: Attempt to add a trip with no name
     Given I have an application running
@@ -157,7 +152,6 @@ Feature: Trip API Endpoint
         }
       """
     Then the response status code is BadRequest
-
 
   Scenario: Attempt to add a trip with duplicate destinations in series
     Given I have an application running
@@ -184,7 +178,6 @@ Feature: Trip API Endpoint
       """
     Then the response status code is BadRequest
 
-
   Scenario: Attempt to add a trip with inappropriately ordered dates
     Given I have an application running
     And I am logged in with credentials
@@ -209,7 +202,6 @@ Feature: Trip API Endpoint
         }
       """
     Then the response status code is BadRequest
-
 
   Scenario: Edit a trip as the trip's owner with valid name
     Given I have an application running
@@ -345,7 +337,6 @@ Feature: Trip API Endpoint
       """
     Then the response status code is BadRequest
 
-
   Scenario: Edit a trip as the trip's owner with invalid destinations
     Given I have an application running
     And I am logged as the following user
@@ -388,7 +379,6 @@ Feature: Trip API Endpoint
         }
       """
     Then the response status code is BadRequest
-
 
   Scenario: Edit other user's trip as an admin
     Given I have an application running
@@ -438,7 +428,6 @@ Feature: Trip API Endpoint
       """
     Then the response status code is OK
 
-
   Scenario: Edit a another user's trip as a standard user
     Given I have an application running
     And I am logged as the following user
@@ -481,7 +470,7 @@ Feature: Trip API Endpoint
         }
       """
     Then the response status code is Forbidden
-    
+
   Scenario: Changing ownership of public destination not owned by me when used in a trip
     Given I have an application running
     And I am logged as the following user

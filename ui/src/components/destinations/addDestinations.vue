@@ -36,10 +36,32 @@
                         <b-list-group-item class="flex-column align-items-start"
                                            v-for="trip in destinationConflicts.matching_trips" :key="trip.id">
                             <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Name: {{trip.trip_name}}</h5>
+                                <h5 class="mb-1">Name: {{trip.name}}</h5>
                             </div>
                             <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Created by: {{trip.first_name}} {{trip.last_name}}</h5>
+                                <h5 class="mb-1">Created by: {{trip.profile.firstName}} {{trip.profile.lastName}}</h5>
+                            </div>
+                        </b-list-group-item>
+                    </b-list-group>
+                </div>
+                <div v-if="destinationConflicts.matching_destinations !== undefined
+                        && destinationConflicts.matching_destinations.length > 0">
+                    <p v-if="destinationConflicts.matching_destinations.length === 1">
+                        This will merge the following 1 private destination:
+                    </p>
+                    <p v-else>
+                        This will merge the following {{destinationConflicts.matching_destinations.length}} private destinations:
+                    </p>
+                    <b-list-group
+                            style="overflow-y: scroll; height: 30vh;">
+                        <b-list-group-item class="flex-column align-items-start"
+                                           v-for="destination in destinationConflicts.matching_destinations"
+                                           :key="destination.id">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Name: {{destination.name}}</h5>
+                            </div>
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Created by: {{destination.owner.firstName}} {{destination.owner.firstName}}</h5>
                             </div>
                         </b-list-group-item>
                     </b-list-group>
@@ -358,15 +380,8 @@
              */
             editDestination() {
                 let self = this;
-                let jsonBody = JSON.stringify({
-                    "name": this.inputDestination.name,
-                    "type_id": this.inputDestination.type.id,
-                    "district": this.inputDestination.district,
-                    "latitude": parseFloat(this.inputDestination.latitude),
-                    "longitude": parseFloat(this.inputDestination.longitude),
-                    "country": this.inputDestination.country,
-                    "is_public": this.inputDestination.public
-                });
+                let jsonBody = JSON.stringify(this.inputDestination);
+
                 fetch(`/v1/destinations/` + this.inputDestination.id, {
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},
