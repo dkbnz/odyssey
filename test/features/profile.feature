@@ -1,4 +1,4 @@
-Feature: Having a profile system
+Feature: Profile API Endpoint
 
 
   Scenario: Get all profiles
@@ -32,7 +32,7 @@ Feature: Having a profile system
     When A user attempts to create a profile with the following fields:
       | username                 | password    | first_name | middle_name | last_name | date_of_birth | gender | nationality | traveller_type | passport_country |
       | TestUser123@travelea.com | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  | 1           | 1              | 1                |
-    Then the status code received is Created
+    Then the status code is Created
 
   Scenario: Attempting to sign up with a formatted email
     Given I have a running application
@@ -40,7 +40,7 @@ Feature: Having a profile system
     When A user attempts to create a profile with the following fields:
       | username                    | password    | first_name | middle_name | last_name | date_of_birth | gender | nationality | traveller_type | passport_country |
       | Test.User.123@travelea.com  | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  | 1           | 1              | 1                |
-    Then the status code received is Created
+    Then the status code is Created
 
   Scenario: Attempting to update an existing user
     Given I have a running application

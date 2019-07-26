@@ -8,8 +8,8 @@ public class PersonalPhotoRepository {
     /**
      * Fetches a single personal photo by the photo id number.
      *
-     * @param photoId the id number of the photo.
-     * @return the PersonalPhoto object given by the personal photo.
+     * @param photoId   the id number of the photo.
+     * @return          the PersonalPhoto object given by the personal photo.
      */
     public PersonalPhoto fetch(Long photoId) {
         return PersonalPhoto.getFind().byId(photoId.intValue());
@@ -17,7 +17,7 @@ public class PersonalPhotoRepository {
 
 
     /**
-     * Deletes a personal photo
+     * Deletes a personal photo.
      *
      * @param photo      the PersonalPhoto object of the photo.
      */
@@ -26,7 +26,7 @@ public class PersonalPhotoRepository {
     }
 
     /**
-     * Updates a personal photo
+     * Updates a personal photo.
      *
      * @param photo      the PersonalPhoto object of the photo.
      */

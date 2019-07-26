@@ -12,7 +12,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.DestinationRepository;
+import repositories.destinations.DestinationRepository;
 import repositories.photos.PersonalPhotoRepository;
 import repositories.ProfileRepository;
 import util.AuthenticationUtil;
@@ -44,20 +44,21 @@ public class PhotoController extends Controller {
     private static final String IS_PUBLIC = "public";
     private static final int IMAGE_DIMENSION = 200;
 
-    private ProfileRepository profileRepo;
-    private PersonalPhotoRepository personalPhotoRepo;
-    private DestinationRepository destinationRepo;
+    private ProfileRepository profileRepository;
+    private PersonalPhotoRepository personalPhotoRepository;
+    private DestinationRepository destinationRepository;
     private Config config;
+
 
     @Inject
     public PhotoController(
-            ProfileRepository profileRepo,
-            PersonalPhotoRepository personalPhotoRepo,
-            DestinationRepository destinationRepo,
+            ProfileRepository profileRepository,
+            PersonalPhotoRepository personalPhotoRepository,
+            DestinationRepository destinationRepository,
             Config config) {
-        this.profileRepo = profileRepo;
-        this.personalPhotoRepo = personalPhotoRepo;
-        this.destinationRepo = destinationRepo;
+        this.profileRepository = profileRepository;
+        this.personalPhotoRepository = personalPhotoRepository;
+        this.destinationRepository = destinationRepository;
         this.config = config;
     }
 
@@ -107,7 +108,7 @@ public class PhotoController extends Controller {
     /**
      * Returns whether or not a list of uploaded photos are valid.
      *
-     * @param photos    list of photos to be validated
+     * @param photos    list of photos to be validated.
      * @return          true if all photo files are valid.
      */
     private boolean validatePhotos(List<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
@@ -136,7 +137,8 @@ public class PhotoController extends Controller {
      * @param filename      filename of saved photo.
      * @param isPublic      boolean flag of if photo is public.
      */
-    private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic) throws IOException {
+    private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic)
+            throws IOException {
         Photo photoToAdd = new Photo();
         photoToAdd.setMainFilename(getPhotoFilePath(false) + filename);
         photoToAdd.setThumbnailFilename(getPhotoFilePath(true) + filename);
@@ -150,7 +152,7 @@ public class PhotoController extends Controller {
         personalPhoto.setProfile(profileToAdd);
 
         profileToAdd.addPhotoToGallery(personalPhoto);
-        profileRepo.save(profileToAdd);
+        profileRepository.save(profileToAdd);
     }
 
 
@@ -171,26 +173,26 @@ public class PhotoController extends Controller {
             return unauthorized();
         }
 
-        PersonalPhoto photo = personalPhotoRepo.fetch(photoId);
+        PersonalPhoto photo = personalPhotoRepository.fetch(photoId);
 
         if (photo == null) {
             return notFound();
         }
 
         Profile photoOwner = photo.getProfile();
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
             return forbidden();
         }
         if (photoOwner != null) {
-            for(Destination destination : destinationRepo.fetch(photo)) {
+            for(Destination destination : destinationRepository.fetch(photo)) {
                 destination.removePhotoFromGallery(photo);
-                destinationRepo.update(destination);
+                destinationRepository.update(destination);
             }
             photoOwner.removePhotoFromGallery(photo);
-            personalPhotoRepo.delete(photo);
-            profileRepo.update(photoOwner);
+            personalPhotoRepository.delete(photo);
+            profileRepository.update(photoOwner);
             return ok();
         }
         return badRequest();
@@ -213,9 +215,9 @@ public class PhotoController extends Controller {
             return unauthorized();
         }
 
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
-        Profile profileToChange = profileRepo.fetchSingleProfile(userId.intValue());
+        Profile profileToChange = profileRepository.fetchSingleProfile(userId.intValue());
 
         if (profileToChange == null) {
             return badRequest();
@@ -225,7 +227,7 @@ public class PhotoController extends Controller {
             return forbidden();
         }
 
-        profileRepo.deleteProfilePhoto(profileToChange);
+        profileRepository.deleteProfilePhoto(profileToChange);
         return ok();
     }
 
@@ -245,7 +247,7 @@ public class PhotoController extends Controller {
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
 
-                    PersonalPhoto personalPhoto = personalPhotoRepo.fetch(photoId);
+                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(photoId);
 
                     if (personalPhoto == null) {
                         return badRequest();
@@ -253,7 +255,7 @@ public class PhotoController extends Controller {
 
                     Profile owner = personalPhoto.getProfile();
 
-                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
+                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
 
                     if (owner == null) {
                         return notFound();
@@ -264,11 +266,11 @@ public class PhotoController extends Controller {
                     }
 
                     if (personalPhoto.getPublic()) {
-                        profileRepo.setProfilePhoto(personalPhoto, owner);
+                        profileRepository.setProfilePhoto(personalPhoto, owner);
                         return ok();
                     } else {
-                        personalPhotoRepo.updatePrivacy(owner, personalPhoto, "true");
-                        profileRepo.setProfilePhoto(personalPhoto, owner);
+                        personalPhotoRepository.updatePrivacy(owner, personalPhoto, "true");
+                        profileRepository.setProfilePhoto(personalPhoto, owner);
                         return ok();
                     }
                 }).orElseGet(() -> unauthorized());
@@ -300,10 +302,10 @@ public class PhotoController extends Controller {
                     Long personalPhotoId = json.get(PHOTO_ID).asLong();
                     String isPublic = json.get(IS_PUBLIC).asText();
 
-                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
+                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
                     Profile profileToChange;
 
-                    PersonalPhoto personalPhoto = personalPhotoRepo.fetch(personalPhotoId);
+                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
 
                     if (personalPhoto == null) {
                         return notFound();
@@ -320,13 +322,13 @@ public class PhotoController extends Controller {
                     }
 
                     if(AuthenticationUtil.validUser(loggedInUser, owner)) {
-                        profileToChange = profileRepo.fetchSingleProfile(owner.getId().intValue());
+                        profileToChange = profileRepository.fetchSingleProfile(owner.getId().intValue());
                     } else {
                         return forbidden();
                     }
 
                     if (profileToChange != null) {
-                        personalPhotoRepo.updatePrivacy(profileToChange, personalPhoto, isPublic);
+                        personalPhotoRepository.updatePrivacy(profileToChange, personalPhoto, isPublic);
                         return ok(Json.toJson(profileToChange.getPhotoGallery()));
                     }
                     return internalServerError("Can't change privacy of photo");
@@ -373,7 +375,7 @@ public class PhotoController extends Controller {
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
 
-                    Profile user = profileRepo.fetchSingleProfile(userId.intValue());
+                    Profile user = profileRepository.fetchSingleProfile(userId.intValue());
 
                     JsonNode userJson = (Json.toJson(user));
 
@@ -403,8 +405,8 @@ public class PhotoController extends Controller {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
-                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(loggedInUserId));
-                    Profile profileToAdd = profileRepo.fetchSingleProfile(userId.intValue());
+                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
+                    Profile profileToAdd = profileRepository.fetchSingleProfile(userId.intValue());
 
                     if (profileToAdd == null) {
                         return badRequest(); // User does not exist in the system.
@@ -530,7 +532,7 @@ public class PhotoController extends Controller {
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
 
-                    PersonalPhoto personalPhoto = personalPhotoRepo.fetch(personalPhotoId);
+                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
 
                     if (personalPhoto == null)
                         return notFound("Image could not be found.");
@@ -538,7 +540,7 @@ public class PhotoController extends Controller {
                     if (personalPhoto.getPublic())
                         return getImageResult(personalPhoto.getPhoto(), getThumbnail);
 
-                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(userId));
+                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(userId));
                     Profile owner = personalPhoto.getProfile();
 
                     if(AuthenticationUtil.validUser(loggedInUser, owner))
@@ -550,8 +552,8 @@ public class PhotoController extends Controller {
 
 
     /**
-     * Adds a personal photo to a given destination's photo gallery
-     * and checks authorization for admins and logged in users
+     * Adds a personal photo to a given destination's photo gallery and checks authorization for admins and logged
+     * in users.
      *
      * @param request           Http request from the client.
      * @param destinationId     the destination id that we are adding the given photo too.
@@ -574,7 +576,7 @@ public class PhotoController extends Controller {
 
                     Long personalPhotoId = json.get(PHOTO_ID).asLong();
 
-                    PersonalPhoto personalPhoto = personalPhotoRepo.fetch(personalPhotoId);
+                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
 
                     if (personalPhoto == null) {
                         return notFound("Image could not be found.");
@@ -582,13 +584,14 @@ public class PhotoController extends Controller {
 
                     Profile photoOwner = personalPhoto.getProfile();
 
-                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(userId));
+                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(userId));
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
-                        Destination destination = destinationRepo.fetch(destinationId);
+                        Destination destination = destinationRepository.fetch(destinationId);
                         if (destination != null) {
                             destination.addPhotoToGallery(personalPhoto);
-                            destinationRepo.update(destination);
+                            destinationRepository.update(destination);
+                            changeOwnership(photoOwner, destination);
                             return created(Json.toJson(destination.getPhotoGallery()));
                         } else {
                             return notFound();
@@ -601,8 +604,22 @@ public class PhotoController extends Controller {
 
 
     /**
-     * Removes a personal photo to a given destination's photo gallery
-     * and checks authorization for admins and logged in users
+     * Checks if the ownership of the destination needs to be transferred to the default admin.
+     * Only carries this out if the check passes.
+     *
+     * @param profileAddingPhoto the profile adding a photo to a destination.
+     * @param destination        the destination the photo is being added to.
+     */
+    private void changeOwnership(Profile profileAddingPhoto, Destination destination) {
+        if (destination.getPublic() && !profileAddingPhoto.equals(destination.getOwner())) {
+            destinationRepository.transferDestinationOwnership(destination);
+        }
+    }
+
+
+    /**
+     * Removes a personal photo to a given destination's photo gallery and checks authorization for admins and logged
+     * in users.
      *
      * @param request           Http request from the client.
      * @param destinationId     the destination id that we are removing the given photo from.
@@ -625,7 +642,7 @@ public class PhotoController extends Controller {
 
                     Long personalPhotoId = json.get(PHOTO_ID).asLong();
 
-                    PersonalPhoto personalPhoto = personalPhotoRepo.fetch(personalPhotoId);
+                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
 
                     if (personalPhoto == null) {
                         return notFound("Image could not be found.");
@@ -633,13 +650,13 @@ public class PhotoController extends Controller {
 
                     Profile photoOwner = personalPhoto.getProfile();
 
-                    Profile loggedInUser = profileRepo.fetchSingleProfile(Integer.valueOf(userId));
+                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(userId));
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
-                        Destination destination = destinationRepo.fetch(destinationId);
+                        Destination destination = destinationRepository.fetch(destinationId);
                         if (destination != null) {
                             destination.removePhotoFromGallery(personalPhoto);
-                            destinationRepo.update(destination);
+                            destinationRepository.update(destination);
                             return ok(Json.toJson(destination.getPhotoGallery()));
                         } else {
                             return notFound();

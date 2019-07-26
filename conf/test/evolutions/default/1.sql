@@ -9,6 +9,8 @@ create table destination (
   latitude                      double not null,
   longitude                     double not null,
   country                       varchar(255),
+  owner_id                      bigint,
+  is_public                     boolean,
   constraint pk_destination primary key (id)
 );
 

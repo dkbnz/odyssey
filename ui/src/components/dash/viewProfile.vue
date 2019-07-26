@@ -4,7 +4,7 @@
             <div :class="containerClass">
                 <!-- The profile picture of the current profile being viewed. -->
                 <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
-                       @click="showImage" @error="imageAlt">
+                       @click="showImage" onerror="this.src = '../../../static/default_profile_picture.png'">
                 </b-img>
                 <b-alert
                         class="m-1"
@@ -57,7 +57,8 @@
                 </your-trips>
             </div>
             <b-modal hide-footer centered ref="profilePictureModal" title="Profile Picture" size="xl">
-                <b-img-lazy :src="profileImageFull" center fluid></b-img-lazy>
+                <b-img-lazy :src="profileImageFull" onerror="this.src = '../../../static/default_profile_picture.png'"
+                            center fluid></b-img-lazy>
                 <b-row>
                     <b-col>
                         <b-button

@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.DestinationRepository;
+import repositories.destinations.DestinationRepository;
 import repositories.ProfileRepository;
 import repositories.photos.PersonalPhotoRepository;
 import static org.mockito.ArgumentMatchers.any;

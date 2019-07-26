@@ -72,14 +72,14 @@ body {
 /* Styling for other pages */
 
 .containerMain {
-    margin: 5vh 10vw 0 10vw;
+    margin: 5vh 5vw 0 5vw;
     padding: 50px;
     background-color: white;
     border-radius: 5px;
 }
 
 .containerWithNav {
-    margin: 7vh 10vw 0 10vw;
+    margin: 7vh 5vw 0 5vw;
     padding: 50px 3vw 3vw 3vw;
     background-color: white;
     border-radius: 5px;
@@ -95,6 +95,13 @@ body {
 .noMarginsContainer {
     margin: 0;
     padding: 1vh 3vw 3vw 3vw;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.noBordersContainer {
+    margin: 0 1vw 0 0 ;
+    padding: 0;
     background-color: white;
     border-radius: 5px;
 }
@@ -160,4 +167,13 @@ a {
 
 .nav-bar-brand {
     cursor: pointer
+}
+
+.buttonMargins {
+    margin-top: 5px;
+}
+
+.descriptionText {
+    font-size: 12px;
+    color: grey;
 }

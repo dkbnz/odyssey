@@ -1,17 +1,23 @@
 <template>
     <div>
-        <h3>Public Photos</h3>
-        <photo-table :photos="publicPhotos" :showDropdown="false">
+        <h3>Public Destination Photos</h3>
+        <photo-table
+                :photos="publicPhotos"
+                :profile="profile"
+                :userProfile="userProfile"
+                :showDropdown="false">
         </photo-table>
 
-        <h3>Your Photos</h3>
+        <h3>Your Destination Photos</h3>
+
         <photo-table :photos="personalPhotos"
                      :profile="profile"
                      :userProfile="userProfile"
+                     :showDropdown="true"
                      @privacy-update="updatePhotoPrivacy">
         </photo-table>
 
-        <b-button v-b-modal.addRemovePhotosModal variant="success" block>Add/Remove Destination Photo</b-button>
+        <b-button variant="success" @click="showModal('addRemovePhotosModal')" block>Add/Remove Destination Photo</b-button>
         <b-modal ref="addRemovePhotosModal" id="addRemovePhotosModal" hide-footer centered size="xl">
             <template slot="modal-title"><h3>Personal Photo Gallery</h3></template>
             <photo-table :selectedImages="personalPhotos"
@@ -45,6 +51,11 @@
             profile: Object,
             userProfile: Object
         },
+        watch: {
+            destination () {
+                this.calculatePhotoSplit();
+            }
+        },
 
         mounted() {
             this.calculatePhotoSplit();
@@ -69,13 +80,12 @@
                 }
             },
 
-
             /**
              * Updates the photos list sent to the photoTable for a single privacy photo.
              *
              * @param photo           the photo that's changing status.
              */
-            updatePhotoPrivacy: function(photo) {
+            updatePhotoPrivacy: function (photo) {
                 let self = this;
 
                 fetch('/v1/photos', {
@@ -109,7 +119,7 @@
              */
             indexOfById(arrayToCheck, object) {
                 for (let i = 0; i < arrayToCheck.length; i++) {
-                    if(arrayToCheck[i].id === object.id) {
+                    if (arrayToCheck[i].id === object.id) {
                         return i;
                     }
                 }
@@ -187,6 +197,9 @@
                 this.$refs[modal].hide();
             },
 
+            showModal(modal) {
+                this.$refs[modal].show();
+            },
         },
 
         components: {
