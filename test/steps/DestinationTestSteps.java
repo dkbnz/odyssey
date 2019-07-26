@@ -2,6 +2,7 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
@@ -9,26 +10,32 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import cucumber.api.java.Before;
+import io.ebean.ExpressionList;
+import models.destinations.Destination;
+import models.destinations.DestinationType;
+import models.photos.PersonalPhoto;
+import models.trips.Trip;
 import org.junit.*;
 import play.Application;
 import play.db.Database;
 
 import play.db.evolutions.Evolutions;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.destinations.DestinationRepository;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static controllers.destinations.DestinationController.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
+import static util.QueryUtil.queryComparator;
 
 public class DestinationTestSteps {
 
@@ -46,9 +53,45 @@ public class DestinationTestSteps {
 
 
     /**
+     * The ID of the destination to be updated.
+     */
+    private Long destinationId;
+
+
+    /**
+     * The size of the list of trips recieved.
+     */
+    private int tripCountRecieved;
+
+
+    /**
      * The destination endpoint uri.
      */
     private static final String DESTINATION_URI = "/v1/destinations";
+
+
+    /**
+     * The destination photos endpoint uri.
+     */
+    private static final String DESTINATION_PHOTO_URI = "/v1/destinationPhotos/";
+
+
+    /**
+     * The trips endpoint uri.
+     */
+    private static final String TRIPS_URI = "/v1/trips/";
+
+
+    /**
+     * The endpoint uri for checking which trips a destination is used in.
+     */
+    private static final String DESTINATION_CHECK_URI = "/v1/destinationCheck/";
+
+
+    /**
+     * Authorisation token for sessions
+     */
+    private static final String AUTHORIZED = "authorized";
 
 
     /**
@@ -64,16 +107,39 @@ public class DestinationTestSteps {
 
 
     /**
-     * A valid username for login credentials for admin user.
+     * Valid login credentials for an admin user.
      */
-    private static final String VALID_USERNAME = "admin@travelea.com";
+    private static final String ADMIN_USERNAME = "admin@travelea.com";
+    private static final String ADMIN_AUTHPASS = "admin1";
+    private static final String ADMIN_ID = "1";
 
 
     /**
-     * A valid password for login credentials for admin user.
+     * Valid login credentials for a regular user.
      */
-    private static final String VALID_AUTHPASS = "admin1";
+    private static final String REG_USERNAME = "guestUser@travelea.com";
+    private static final String REG_AUTHPASS = "guest123";
+    private static final String REG_ID = "2";
 
+
+    /**
+     * Valid login credentials for an alternate user.
+     */
+    private static final String ALT_USERNAME = "testuser1@email.com";
+    private static final String ALT_AUTHPASS = "guest123";
+    private static final String ALT_ID = "3";
+
+
+    /**
+     * Currently logged-in user
+     */
+    private String loggedInId;
+
+
+    /**
+     * Target user for destination changes
+     */
+    private String targetId;
 
     /**
      * String to add the equals character (=) to build a query string.
@@ -92,8 +158,29 @@ public class DestinationTestSteps {
      */
     private static final String QUESTION_MARK = "?";
 
+
     private static final String DISTRICT_STRING = "District";
     private static final String LATITUDE_STRING = "Latitude";
+    private static final String LONGITUDE_STRING = "Longitude";
+    private static final String COUNTRY_STRING = "Country";
+    private static final String TYPE_STRING = "Type";
+    private static final String NAME_STRING = "Name";
+    private static final String IS_PUBLIC_STRING = "is_public";
+    private static final String TRIP_COUNT = "trip_count";
+    private static final String PHOTO_COUNT = "photo_count";
+    private static final String MATCHING_TRIPS = "matching_trips";
+    private static final String TRIP_NAME = "trip_name";
+    private static final String TRIP_NAME_FIELD = "name";
+
+
+    private static final String DISTRICT = "district";
+    private static final String LATITUDE = "latitude";
+    private static final String LONGITUDE = "longitude";
+    private static final String COUNTRY = "country";
+    private static final String TYPE = "type_id";
+    private static final String NAME = "name";
+    private static final String IS_PUBLIC = "is_public";
+
 
     /**
      * The fake application.
@@ -106,6 +193,13 @@ public class DestinationTestSteps {
      * Database instance for the fake application.
      */
     private Database database;
+
+
+    /**
+     * Repository to access the destinations in the running application.
+     */
+    private DestinationRepository destinationRepository = new DestinationRepository();
+
 
     /**
      * Runs before each test scenario.
@@ -202,10 +296,11 @@ public class DestinationTestSteps {
      * Sends a fake request to the application to logout.
      */
     private void logoutRequest() {
-                Http.RequestBuilder request = fakeRequest()
+        Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .uri(LOGOUT_URI);
         route(application, request);
+        loggedInId = null;
     }
 
 
@@ -217,10 +312,10 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(DESTINATION_URI);
+                .uri(DESTINATION_URI + "/" + targetId)
+                .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
-
     }
 
 
@@ -231,11 +326,44 @@ public class DestinationTestSteps {
     private void searchDestinationsRequest(String query) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
+                .session(AUTHORIZED, loggedInId)
                 .uri(DESTINATION_URI + query);
         Result result = route(application, request);
         statusCode = result.status();
 
         responseBody = Helpers.contentAsString(result);
+    }
+
+
+    /**
+     * Sends a put request to the application to edit the values of the destination.
+     * @param json the date that the destination will be updated with.
+     */
+    private void editDestinationRequest(JsonNode json) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(PUT)
+                .bodyJson(json)
+                .uri(DESTINATION_URI + "/" + destinationId)
+                .session(AUTHORIZED, loggedInId);
+        Result result = route(application, request);
+        statusCode = result.status();
+        //System.out.println(json.get("public"));
+       // String id = json.get("id").toString();
+        //System.out.println(destinationRepository.fetch(Long.parseLong(id)).getPublic());
+    }
+
+
+    /**
+     * Sends a request to delete a destination with the given destination id.
+     * @param destinationId     The destination id as a Long.
+     */
+    private void deleteDestinationRequest(Long destinationId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(DELETE)
+                .session(AUTHORIZED, loggedInId)
+                .uri(DESTINATION_URI + "/" + destinationId);
+        Result result = route(application, request);
+        statusCode = result.status();
     }
 
 
@@ -256,8 +384,49 @@ public class DestinationTestSteps {
      */
     @Given("I am logged in")
     public void iAmLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
+        loginRequest(REG_USERNAME, REG_AUTHPASS);
         assertEquals(OK, statusCode);
+        loggedInId = REG_ID;
+    }
+
+
+    /**
+     * Attempts to send a log in request with user credentials from constants ALT_USERNAME
+     * and ALT_AUTHPASS.
+     *
+     * Asserts the login was successful with a status code of OK (200).
+     */
+    @Given("I am logged in as an alternate user")
+    public void iAmLoggedInAsAnAlternateUser() {
+        loginRequest(ALT_USERNAME, ALT_AUTHPASS);
+        assertEquals(OK, statusCode);
+        loggedInId = ALT_ID;
+    }
+
+
+    /**
+     * Attempts to send a log in request with user credentials from constants ADMIN_USERNAME
+     * and ADMIN_AUTHPASS.
+     *
+     * Asserts the login was successful with a status code of OK (200).
+     */
+    @Given("I am logged in as an admin user")
+    public void iAmLoggedInAsAnAdminUser() {
+        loginRequest(ADMIN_USERNAME, ADMIN_AUTHPASS);
+        assertEquals(OK, statusCode);
+        loggedInId = ADMIN_ID;
+    }
+
+
+    /**
+     * Sends a logout request to the system
+     *
+     * Asserts the value of loggedInId is null.
+     */
+    @Given("I am not logged in")
+    public void iAmNotLoggedIn() {
+        logoutRequest();
+        assertNull(loggedInId);
     }
 
 
@@ -268,8 +437,134 @@ public class DestinationTestSteps {
      */
     @And("a destination already exists with the following values")
     public void aDestinationExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        JsonNode json = convertDataTableToJsonNode(dataTable);
-        createDestinationRequest(json);
+        targetId = loggedInId;
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
+            createDestinationRequest(json);
+
+            // Saves the last created destination id
+            Long id = getDestinationId(dataTable);
+            destinationId = id;
+        }
+    }
+
+
+    @Given("the destination is used in trip {string}")
+    public void theDestinationIsUsedInTrip(String tripName) {
+        JsonNode json = createNewTripJson(tripName);
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED, loggedInId)
+                .bodyJson(json)
+                .uri(TRIPS_URI + loggedInId);
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
+
+
+    private JsonNode createNewTripJson(String tripName) {
+        //Add values to a JsonNode
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode json = mapper.createObjectNode();
+
+        json.put("trip_name", tripName);
+        ArrayNode destinationsNode = json.putArray("trip_destinations");
+
+        ObjectNode destinationNode1 = destinationsNode.addObject(); //Adding destinations to trip
+        destinationNode1.put("destination_id", "1155");
+        destinationNode1.put("start_date", "1990-12-12");
+        destinationNode1.put("end_date", "1991-12-12");
+
+        ObjectNode destinationNode2 = destinationsNode.addObject(); //Adding destinations to trip
+        destinationNode2.put("destination_id", "567");
+        destinationNode2.put("start_date", "1992-12-12");
+        destinationNode2.put("end_date", "1993-12-12");
+
+        ObjectNode destinationNode3 = destinationsNode.addObject(); //Adding destinations to trip
+        destinationNode3.put("destination_id", destinationId.toString());
+        destinationNode3.put("start_date", "1994-12-12");
+        destinationNode3.put("end_date", "1995-12-12");
+
+        return json;
+    }
+
+
+    /**
+     * Creates one or many destinations under the ownership of the given user.
+     * @param userId the user who will be in ownership of the destination(s).
+     * @param dataTable the values of the destinations to be added.
+     */
+    @Given("a destination already exists for user {int} with the following values")
+    public void aDestinationAlreadyExistsForUserWithTheFollowingValues(Integer userId, io.cucumber.datatable.DataTable dataTable) throws IOException {
+        targetId = userId.toString();
+
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
+            createDestinationRequest(json);
+
+            // Saves the last created destination id
+            Long id = getDestinationId(dataTable);
+            Assert.assertNotNull(id);
+            destinationId = id;
+        }
+    }
+
+
+    /**
+     * Queries the database for the destination described by the values in the dataTable.
+     * @param dataTable the information containing the destination(s) select in the database.
+     */
+    @Given("a destination has been created with the following values")
+    public void aDestinationHasBeenCreatedWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        String destinationName = getValueFromDataTable("Name", dataTable);
+        String query = createSearchDestinationQueryString(NAME, destinationName);
+        searchDestinationsRequest(query);
+        assertTrue(responseBody.contains(destinationName));
+    }
+
+
+    @Given("the destination has a photo with id {int}")
+    public void theDestinationHasAPhotoWithId(Integer photoId) {
+        addDestinationPhoto(photoId, destinationId);
+    }
+
+
+    /**
+     * Adds a photo with the given photoId to a destination with the given destinationId.
+     * @param photoId           id of the photo to be added.
+     * @param destinationId     id of the destination to be added.
+     */
+    private void addDestinationPhoto(int photoId, Long destinationId) {
+        JsonNode json = createDestinationPhotoJson(photoId);
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                        .uri(DESTINATION_PHOTO_URI + destinationId)
+                        .method(POST)
+                        .bodyJson(json)
+                        .session(AUTHORIZED, loggedInId);
+
+        Result addDestinationPhotoResult = route(application, request);
+        statusCode = addDestinationPhotoResult.status();
+    }
+
+
+    /**
+     * Creates a Json ObjectNode to be used for the destination photo.
+     *
+     * @param photoId the photoId of the photo to be added to the Json node.
+     * @return        the Json ObjectNode for the new destination photo.
+     */
+    private JsonNode createDestinationPhotoJson(int photoId) {
+        // complex json
+        ObjectMapper mapper = new ObjectMapper();
+
+        //Add values to a JsonNode
+        ObjectNode json = mapper.createObjectNode();
+
+        json.put("id", photoId);
+
+        return json;
     }
 
 
@@ -278,8 +573,10 @@ public class DestinationTestSteps {
      */
     @When("I send a GET request to the destinations endpoint")
     public void iSendAGetRequestToTheDestinationsEndpoint() {
+        targetId = loggedInId;
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
+                .session(AUTHORIZED, loggedInId)
                 .uri(DESTINATION_URI);
         Result result = route(application, request);
         statusCode = result.status();
@@ -287,13 +584,26 @@ public class DestinationTestSteps {
 
 
     /**
-     * Sends a request to create a new destination with valid values given in the data table.
+     * Sends a request to create a new destination with values given in the data table.
      * @param dataTable     The data table containing values to create the new destination.
      */
-    @When("I create a new destination with the following valid values")
-    public void iCreateANewDestinationWithTheFollowingValidValues(io.cucumber.datatable.DataTable dataTable) {
-        JsonNode json = convertDataTableToJsonNode(dataTable);
-        createDestinationRequest(json);
+    @When("I create a new destination with the following values")
+    public void iCreateANewDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        targetId = loggedInId;
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
+            createDestinationRequest(json);
+        }
+    }
+
+
+    @When("I create a new destination with the following values for another user")
+    public void iCreateANewDestinationWithTheFollowingValuesForAnotherUser(io.cucumber.datatable.DataTable dataTable) {
+        targetId = loggedInId;
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            JsonNode json = convertDataTableToDestinationJson(dataTable, i);
+            createDestinationRequest(json);
+        }
     }
 
 
@@ -302,20 +612,24 @@ public class DestinationTestSteps {
      * @param dataTable     The data table containing values of a destination.
      * @return              A JsonNode of a destination containing information from the data table.
      */
-    private JsonNode convertDataTableToJsonNode(io.cucumber.datatable.DataTable dataTable) {
+    private JsonNode convertDataTableToDestinationJson(io.cucumber.datatable.DataTable dataTable, int index) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String name = list.get(0).get("Name");
-        String type = list.get(0).get("Type");
-        String district = list.get(0).get(DISTRICT_STRING);
-        String latitude = list.get(0).get(LATITUDE_STRING);
-        String longitude = list.get(0).get("Longitude");
-        String country = list.get(0).get("Country");
+        String name         = list.get(index).get(NAME_STRING);
+        String type         = list.get(index).get(TYPE_STRING);
+        String district     = list.get(index).get(DISTRICT_STRING);
+        String latitude     = list.get(index).get(LATITUDE_STRING);
+        String longitude    = list.get(index).get(LONGITUDE_STRING);
+        String country      = list.get(index).get(COUNTRY_STRING);
+        String is_public    = list.get(index).get(IS_PUBLIC_STRING);
+
+        //Test destinations are public by default
+        Boolean publicity = (is_public == null ||
+                !is_public.equalsIgnoreCase("false"));
 
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode json = mapper.createObjectNode();
-
 
         json.put(NAME, name);
         json.put(TYPE, type);
@@ -323,30 +637,9 @@ public class DestinationTestSteps {
         json.put(LONGITUDE, longitude);
         json.put(DISTRICT, district);
         json.put(COUNTRY, country);
+        json.put(IS_PUBLIC, publicity);
 
         return json;
-    }
-
-
-    /**
-     * Sends a request to create a new destination with invalid values given in the data table.
-     * @param dataTable     The data table containing values to create the new destination.
-     */
-    @When("I create a new destination with the following invalid values")
-    public void iCreateANewDestinationWithTheFollowingInvalidValues(io.cucumber.datatable.DataTable dataTable) {
-        JsonNode json = convertDataTableToJsonNode(dataTable);
-        createDestinationRequest(json);
-    }
-
-
-    /**
-     * Sends a request to create a new destination with duplicated values given in the data table.
-     * @param dataTable     The data table containing values to create the new destination.
-     */
-    @When("I create a new destination with the following duplicated values")
-    public void iCreateANewDestinationWithTheFollowingDuplicatedValues(io.cucumber.datatable.DataTable dataTable) {
-        JsonNode json = convertDataTableToJsonNode(dataTable);
-        createDestinationRequest(json);
     }
 
 
@@ -387,6 +680,86 @@ public class DestinationTestSteps {
     }
 
 
+    @When("I search for all destinations")
+    public void iSearchForAllDestinations() {
+        String query = createSearchDestinationQueryString("", "");
+
+        //Send search destinations request
+        searchDestinationsRequest(query);
+    }
+
+
+    @When("I search for all destinations by user {int}")
+    public void iSearchForAllDestinationsByUser(Integer userId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(DESTINATION_URI + "/" + userId)
+                .session(AUTHORIZED, loggedInId);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
+    }
+
+
+    @When("I attempt to delete the destination")
+    public void iAttemptToDeleteTheDestination() {
+        // Send the delete request
+        deleteDestinationRequest(destinationId);
+    }
+
+
+    @When("I attempt to delete the destination with id {int}")
+    public void iAttemptToDeleteTheDestinationWithId(Integer destinationId) {
+        deleteDestinationRequest(destinationId.longValue());
+    }
+
+
+    @When("I add a photo with id {int} to the destination")
+    public void iAddAPhotoWithIdToTheDestination(Integer photoId) {
+        addDestinationPhoto(photoId, destinationId);
+    }
+
+
+    /**
+     * Gets a destination id based on values in the data table.
+     * @param dataTable         The data table containing values of a destination.
+     * @return                  Destination id as a Long, or null if no destination exists.
+     */
+    private Long getDestinationId(io.cucumber.datatable.DataTable dataTable) {
+        List<Destination> destinations = getDestinationList(dataTable);
+        Destination destination = destinations.size() > 0 ? destinations.get(destinations.size() - 1) : null;
+
+        return destination == null ? null : destination.getId();
+    }
+
+
+    private List<Destination> getDestinationList(io.cucumber.datatable.DataTable dataTable) {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        int index = 0;
+        String name         = list.get(index).get(NAME_STRING);
+        String type         = list.get(index).get(TYPE_STRING);
+        String district     = list.get(index).get(DISTRICT_STRING);
+        String latitude     = list.get(index).get(LATITUDE_STRING);
+        String longitude    = list.get(index).get(LONGITUDE_STRING);
+        String country      = list.get(index).get(COUNTRY_STRING);
+        String publicity    = list.get(index).get(IS_PUBLIC_STRING);
+
+        // Build search query to find destination
+        ExpressionList<Destination> expressionList =
+                Destination.find.query().where()
+                        .ilike(NAME, queryComparator(name))
+                        .eq(TYPE, type)
+                        .eq(LATITUDE, latitude)
+                        .eq(LONGITUDE, longitude)
+                        .ilike(DISTRICT, queryComparator(district))
+                        .ilike(COUNTRY, queryComparator(country))
+                        .eq(IS_PUBLIC, publicity);
+
+        return expressionList.findList();
+    }
+
+
     /**
      * Gets a value associated with a given field from the given data table.
      * @param field         The title of the data table column to extract.
@@ -415,6 +788,7 @@ public class DestinationTestSteps {
         String longitude = getValue(LONGITUDE, searchField, searchValue);
         String district = getValue(DISTRICT, searchField, searchValue);
         String country = getValue(COUNTRY, searchField, searchValue);
+        String publicity = getValue(IS_PUBLIC, searchField, searchValue);
 
 
         StringBuilder stringBuilder = new StringBuilder()
@@ -447,7 +821,12 @@ public class DestinationTestSteps {
                 .append(AND)
                 .append(COUNTRY)
                 .append(EQUALS)
-                .append(country);
+                .append(country)
+
+                .append(AND)
+                .append(IS_PUBLIC)
+                .append(EQUALS)
+                .append(publicity);
 
         return stringBuilder.toString();
     }
@@ -459,10 +838,134 @@ public class DestinationTestSteps {
      * @param searchField       The search field name as defined by the application.
      * @param givenField        The field name given to the test.
      * @param givenValue        The value to search for if the search and given fields match.
-     * @return
+     * @return                  A string that contains the given value or an empty string.
      */
     private String getValue(String searchField, String givenField, String givenValue) {
         return searchField.equals(givenField) ? givenValue : "";
+    }
+
+
+    /**
+     * Converts the values of a cucumber DataTable to a JSON node object, using only the information that was given.
+     * @param dataTable the cucumber datatable holding the values to be converted to JSON.
+     * @return the JSON representation of the DataTable
+     */
+    private JsonNode convertDataTableToEditDestination(io.cucumber.datatable.DataTable dataTable) {
+        int valueIndex = 0;
+        Destination editDestination = destinationRepository.fetch(destinationId);
+        if (editDestination == null) {
+            editDestination = new Destination();
+        }
+        List<Map<String, String>> valueList = dataTable.asMaps(String.class, String.class);
+        Map<String, String> valueMap = valueList.get(valueIndex);
+
+        for (Map.Entry<String, String> entry : valueMap.entrySet()) {
+            String value = entry.getValue();
+
+            switch (entry.getKey()) {
+                case TYPE_STRING:
+                    editDestination.setType(DestinationType.find.byId(Integer.valueOf(value)));
+                    break;
+                case DISTRICT_STRING:
+                    editDestination.setDistrict(value);
+                    break;
+                case LATITUDE_STRING:
+                    editDestination.setLatitude(Double.valueOf(value));
+                    break;
+                case LONGITUDE_STRING:
+                    editDestination.setLongitude(Double.valueOf(value));
+                    break;
+                case COUNTRY_STRING:
+                    editDestination.setCountry(value);
+                    break;
+                case IS_PUBLIC_STRING:
+                    editDestination.setPublic(Boolean.valueOf(value));
+                    break;
+            }
+        }
+
+        return Json.toJson(editDestination);
+    }
+
+
+    /**
+     * Takes the information provided in the feature, and sends a put request to edit the destination.
+     * @param dataTable the data specified in the test feature.
+     */
+    @When("I attempt to edit the destination using the following values")
+    public void iAttemptToEditTheDestinationUsingTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        JsonNode editValues = convertDataTableToEditDestination(dataTable);
+        editDestinationRequest(editValues);
+    }
+
+
+    /**
+     * Takes the information provided in by the cucumber feature, and sends a put request to edit the destination specified
+     * by `destinationId`.
+     * @param destinationId the destination to be edited.
+     * @param dataTable the information used to edit the destination.
+     */
+    @When("I attempt to edit destination {int} using the following values")
+    public void iAttemptToEditDestinationUsingTheFollowingValues(Integer destinationId, io.cucumber.datatable.DataTable dataTable) {
+        this.destinationId = destinationId.longValue();
+        JsonNode editValues = convertDataTableToEditDestination(dataTable);
+        editDestinationRequest(editValues);
+    }
+
+
+    @When("I request the destination usage for destination with id {int}")
+    public void iRequestTheDestinationUsageForDestinationWithId(Integer destinationId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(DESTINATION_CHECK_URI + destinationId)
+                .session(AUTHORIZED, loggedInId);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
+    }
+
+
+    @When("I add a photo with id {int} to an existing destination with id {int}")
+    public void iAddAPhotoToASpecifiedDestination(Integer photoId, Integer destinationId) {
+        JsonNode json = createDestinationPhotoJson(photoId);
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                        .uri(DESTINATION_PHOTO_URI + destinationId)
+                        .method(POST)
+                        .bodyJson(json)
+                        .session(AUTHORIZED, loggedInId);
+
+        Result addDestinationPhotoResult = route(application, request);
+        statusCode = addDestinationPhotoResult.status();
+    }
+
+
+    @Then("there is only one destination with the following values")
+    public void thereIsOnlyOneDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        List<Destination> destinations = getDestinationList(dataTable);
+        Assert.assertEquals(1, destinations.size());
+    }
+
+
+    @Then("the trip count is {int}")
+    public void theTripCountIs(int tripCountExpected) throws IOException {
+        int tripCount = new ObjectMapper().readTree(responseBody).get(TRIP_COUNT).asInt();
+        tripCountRecieved = new ObjectMapper().readTree(responseBody).get(MATCHING_TRIPS).size();
+        Assert.assertEquals(tripCountExpected, tripCount);
+    }
+
+
+    @Then("the number of trips received is {int}")
+    public void theNumberOfTripsReceivedIs(int tripListSize) throws IOException {
+        Assert.assertEquals(tripCountRecieved, tripListSize);
+    }
+
+
+    @Then("the photo count is {int}")
+    public void thePhotoCountIs(int photoCountExpected) throws IOException {
+        int photoCount = new ObjectMapper().readTree(responseBody).get(PHOTO_COUNT).asInt();
+        Assert.assertEquals(photoCountExpected, photoCount);
     }
 
 
@@ -473,10 +976,9 @@ public class DestinationTestSteps {
      */
     @Then("the response contains at least one destination with name")
     public void theResponseContainsAtLeastOneDestinationWithName(io.cucumber.datatable.DataTable dataTable) throws IOException {
-        String value = getValueFromDataTable("Name", dataTable);
+        String value = getValueFromDataTable(NAME_STRING, dataTable);
         String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(NAME).asText();
 
-        //Send search destinations request
         Assert.assertEquals(value, arrNode);
     }
 
@@ -486,7 +988,6 @@ public class DestinationTestSteps {
         String value = getValueFromDataTable(DISTRICT_STRING, dataTable);
         String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(DISTRICT).asText();
 
-        //Send search destinations request
         Assert.assertEquals(value, arrNode);
     }
 
@@ -496,8 +997,132 @@ public class DestinationTestSteps {
         String value = getValueFromDataTable(LATITUDE_STRING, dataTable);
         String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(LATITUDE).asText();
 
-        //Send search destinations request
         Assert.assertEquals(value, arrNode);
+    }
+
+
+    @Then("the response is empty")
+    public void theResponseIsEmpty() throws IOException {
+        JsonNode arrNode = new ObjectMapper().readTree(responseBody);
+
+        Assert.assertEquals(0, arrNode.size());
+    }
+
+
+    @Then("the response contains only own or public destinations")
+    public void theResponseContainsOnlyOwnOrPublicDestinations() throws IOException {
+        JsonNode arrNode = new ObjectMapper().readTree(responseBody);
+        for (int i = 0 ; i < arrNode.size() ; i++) {
+            assertTrue(arrNode.get(i).get("public").asBoolean() || arrNode.get(i).get("owner").get("id").asText() == loggedInId);
+        }
+    }
+
+
+    @Then("the response contains only destinations owned by the user with id {int}")
+    public void theResponseContainsOnlyDestinationsOwnedByTheUserWithId(Integer id) throws IOException {
+        Long userId = id.longValue();
+        JsonNode arrNode = new ObjectMapper().readTree(responseBody);
+        Long ownerId;
+        for (int i = 0 ; i < arrNode.size() ; i++) {
+            ownerId = destinationRepository.fetch(arrNode.get(i).get("id").asLong()).getOwner().getId();  //Gets owner id of destination
+            assertEquals(userId, ownerId);
+        }
+    }
+
+
+    /**
+     * Tests that the owner of the destination is the specified user.
+     *
+     * @param userId    id of the expected owner.
+     */
+    @Then("the owner is user {int}")
+    public void theOwnerIsUser(Integer userId) {
+        Destination destination = destinationRepository.fetch(destinationId);
+        Long expectedId = userId.longValue();
+        assertEquals(expectedId, destination.getOwner().getId());
+    }
+
+
+    /**
+     * Tests that the destination's photos contain the given photos.
+     *
+     * @param dataTable     ids of the photos expected.
+     */
+    @Then("the destination will have photos with the following ids")
+    public void theDestinationWillHavePhotosWithTheFollowingIds(io.cucumber.datatable.DataTable dataTable) {
+        Destination destination = destinationRepository.fetch(destinationId);
+
+        List<String> photoIds = getPhotoIds(destination);
+        List<String> expectedIds = new ArrayList<>(dataTable.asList());
+        expectedIds = expectedIds.subList(1, expectedIds.size());
+
+        Collections.sort(expectedIds);
+        Collections.sort(photoIds);
+
+        assertEquals(expectedIds, photoIds);
+    }
+
+
+    /**
+     * Gets an id list of the photos in the given destination
+     *
+     * @param destination   the destination to check the photos in.
+     * @return              a list of the photo ids.
+     */
+    private List<String> getPhotoIds(Destination destination) {
+        List<String> photoIds = new ArrayList<>();
+        for (PersonalPhoto photo : destination.getPhotoGallery()) {
+            photoIds.add(photo.getId().toString());
+        }
+
+        return photoIds;
+    }
+
+
+    /**
+     * Checks that the active destination is used in the given trips.
+     * @param dataTable     names of the trips the destination is expected to work in.
+     *
+     * @throws IOException in case of an error.
+     */
+    @Then("the destination will be used in the following trips")
+    public void theDestinationWillBeUsedInTheFollowingTrips(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        List<String> names = getTripNames();
+        List<String> expectedNames = new ArrayList<>(dataTable.asList());
+        expectedNames = expectedNames.subList(1, expectedNames.size());
+
+        Collections.sort(expectedNames);
+        Collections.sort(names);
+
+        assertEquals(expectedNames, names);
+    }
+
+
+    private List<String> getTripNames() throws IOException {
+        List<String> names = new ArrayList<>();
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, loggedInId)
+                .uri(DESTINATION_CHECK_URI + destinationId);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
+        JsonNode matchingTrips = new ObjectMapper().readTree(responseBody).get(MATCHING_TRIPS);
+
+        for (JsonNode trip : matchingTrips) {
+            names.add(trip.get(TRIP_NAME_FIELD).asText());
+        }
+
+        return names;
+    }
+
+
+    @Then("the trip with name {string} is deleted")
+    public void theTripWithNameIsDeleted(String tripName) {
+        List<Trip> trips = Trip.find.query().where().ilike(TRIP_NAME_FIELD, queryComparator(tripName)).findList();
+        Assert.assertEquals(0, trips.size());
     }
 
 
@@ -513,16 +1138,16 @@ public class DestinationTestSteps {
     /**
      * Checks if the status code received is Created (201).
      */
-    @Then("the received status code is Created")
-    public void theReceivedStatusCodeIsCreated() {
+    @Then("the status code received is Created")
+    public void theStatusCodeReceivedIsCreated() {
         assertEquals(CREATED, statusCode);
     }
 
 
     /**
-     * Checks if the status code received is BadRequest (400).
+     * Checks if the status code received is Bad Request (400).
      */
-    @Then("the status code received is BadRequest")
+    @Then("the status code received is Bad Request")
     public void theStatusCodeReceivedIsBadRequest() {
         assertEquals(BAD_REQUEST, statusCode);
     }
@@ -534,5 +1159,23 @@ public class DestinationTestSteps {
     @Then("the status code received is Unauthorised")
     public void theStatusCodeReceivedIsUnauthorised() {
         assertEquals(UNAUTHORIZED, statusCode);
+    }
+
+
+    /**
+     * Checks if the status code received is Not Found (404).
+     */
+    @Then("the status code received is Not Found")
+    public void theStatusCodeReceivedIsNotFound() {
+        assertEquals(NOT_FOUND, statusCode);
+    }
+
+
+    /**
+     * Checks if the status code received is Forbidden (403).
+     */
+    @Then("the status code received is Forbidden")
+    public void theStatusCodeReceivedIsForbidden() {
+        assertEquals(FORBIDDEN, statusCode);
     }
 }

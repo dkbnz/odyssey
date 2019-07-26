@@ -1,7 +1,7 @@
 <template>
-    <div class="containerWithNav">
-        <h1 class="page-title">Search Destinations</h1>
-        <p class="page-title"><i>Search for a destination using any of the fields in the the form below</i></p>
+    <div>
+        <h4 class="page-title" v-if="searchPublic">Search Public Destinations</h4>
+        <h4 class="page-title" v-else>Search Your Destinations</h4>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
         <div>
             <!--Input fields for searching for destinations-->
@@ -19,7 +19,7 @@
                 <!--Dropdown field for destination types-->
                 <b-form-select id="type" trim v-model="searchType">
                     <template slot="first">
-                        <option :value="'Any'">-- Any --</option>
+                        <option value="">-- Any --</option>
                     </template>
                     <option :value="destination.id" v-for="destination in destinationTypes"
                             :state="destinationTypeValidation">
@@ -73,62 +73,6 @@
 
             <b-button @click="searchDestinations" block variant="primary">Search</b-button>
         </div>
-
-        <!--Table for displaying search results-->
-        <div style="margin-top: 40px">
-            <b-table :busy="destinations.length === 0"
-                     :current-page="currentPage"
-                     :fields="fields"
-                     :items="destinations"
-                     :per-page="perPage"
-                     :sort-by.sync="sortBy"
-                     :sort-desc.sync="sortDesc"
-                     responsive
-                     hover
-                     id="myFutureTrips"
-                     outlined
-                     striped
-                     @row-clicked="expandAdditionalInfo">
-                <div class="text-center my-2" slot="table-busy">
-                    <b-spinner class="align-middle" v-if="retrievingDestinations"></b-spinner>
-                    <strong>Can't find any destinations!</strong>
-                </div>
-
-                <template slot="row-details" slot-scope="row">
-                    <single-destination
-                            :destination="row.item"
-                            :profile="profile"
-                            :userProfile="userProfile">
-                    </single-destination>
-                </template>
-
-            </b-table>
-
-            <!--Settings for pagination & number of results displayed per page-->
-            <b-row>
-                <b-col cols="1">
-                    <b-form-group
-                            id="profiles-field"
-                            label-for="perPage">
-                        <b-form-select :options="optionViews" id="perPage" size="sm" trim
-                                       v-model="perPage"></b-form-select>
-                    </b-form-group>
-                </b-col>
-                <b-col cols="8">
-                    <b-pagination
-                            :per-page="perPage"
-                            :total-rows="rows"
-                            align="center"
-                            aria-controls="my-table"
-                            first-text="First"
-                            last-text="Last"
-                            size="sm"
-                            v-model="currentPage"
-                    ></b-pagination>
-                </b-col>
-            </b-row>
-        </div>
-
     </div>
 </template>
 
@@ -136,8 +80,9 @@
     import SingleDestination from "../destinations/singleDestination";
 
     export default {
-        name: "searchDestinations",
+        name: "searchDestinationForm.vue",
         props: {
+            searchPublic: Boolean,
             destinationTypes: Array,
             profile: Object,
             userProfile: {
@@ -247,9 +192,6 @@
                 return !countryRegex.test(this.searchCountry);
             }
         },
-        mounted() {
-            this.queryDestinations();
-        },
         methods: {
             /**
              * Sets values for search.
@@ -261,23 +203,18 @@
                     && this.validateFields(this.destinationLatitudeValidation)
                     && this.validateFields(this.destinationLongitudeValidation)
                     && this.validateFields(this.destinationCountryValidation)) {
-                    this.searchDestination = {
+                    this.$emit('searched-destination', {
                         name: this.searchName,
                         type: this.searchType,
                         district: this.searchDistrict,
+                        latitude: this.searchLatitude,
+                        longitude: this.searchLongitude,
                         country: this.searchCountry
-                    };
-                    this.queryDestinations();
+                    });
                 }
 
             },
 
-            /**
-             *
-             */
-            expandAdditionalInfo(row) {
-                this.$set(row, '_showDetails', !row._showDetails)
-            },
 
             /**
              * Checks each of the validation fields to ensure they are return either null (no value is given), or the
@@ -290,6 +227,7 @@
                     return true;
                 }
             },
+
 
             /**
              * Runs a query which searches through the destinations in the database and returns all which
@@ -305,21 +243,23 @@
                 }
                 let searchQuery =
                     "?name=" + this.searchName +
-                    "&type_id=" + searchTypeLocal +
+                    "&type_id=" + this.searchType +
                     "&district=" + this.searchDistrict +
                     "&latitude=" + this.searchLatitude +
                     "&longitude=" + this.searchLongitude +
                     "&country=" + this.searchCountry;
+
                 return fetch(`/v1/destinations` + searchQuery, {
                     dataType: 'html'
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
-                        this.destinations = data;
+                        this.$emit('searched-destinations', data);
                         this.retrievingDestinations = false;
                     })
             },
+
 
             /**
              * Displays an error if search failed.
@@ -338,6 +278,13 @@
                 throw error;
             },
 
+
+            /**
+             * Converts the retrieved Http response to a Json format.
+             *
+             * @param response the Http response.
+             * @returns the Http response body as Json.
+             */
             parseJSON(response) {
                 return response.json();
             }

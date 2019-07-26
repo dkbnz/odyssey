@@ -6,6 +6,7 @@ import models.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
+import repositories.destinations.DestinationRepository;
 import repositories.ProfileRepository;
 import repositories.TripRepository;
 import play.libs.Json;
@@ -30,14 +31,18 @@ public class TripController extends Controller {
     private static final String DESTINATION_ID = "destination_id";
     private static final String TRIP_ID = "trip_id";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
+    private static final int DEFAULT_ADMIN_ID = 1;
     private TripRepository repository;
-    private ProfileRepository profileRepo;
+    private ProfileRepository profileRepository;
+    private DestinationRepository destinationRepository;
+
 
     @Inject
-    public TripController(TripRepository tripRepo,
-                          ProfileRepository profileRepo) {
-        this.repository = tripRepo;
-        this.profileRepo = profileRepo;
+    public TripController(TripRepository tripRepository,
+                          ProfileRepository profileRepository, DestinationRepository destinationRepository) {
+        this.repository = tripRepository;
+        this.profileRepository = profileRepository;
+        this.destinationRepository = destinationRepository;
     }
 
 
@@ -55,7 +60,7 @@ public class TripController extends Controller {
                 .map(userId -> {
 
                     Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
-                    Profile affectedProfile = profileRepo.fetchSingleProfile(affectedUserId.intValue());
+                    Profile affectedProfile = profileRepository.fetchSingleProfile(affectedUserId.intValue());
 
                     if (loggedInUser == null) {
                         return unauthorized();
@@ -90,6 +95,9 @@ public class TripController extends Controller {
                     if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
                         trip.setDestinations(destinationList);
                         repository.saveNewTrip(affectedProfile, trip);
+                        for (TripDestination tripDestination: destinationList) {
+                            determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
+                        }
                         return created();
                     } else {
                         return badRequest();
@@ -98,6 +106,7 @@ public class TripController extends Controller {
                 })
                 .orElseGet(() -> unauthorized());
     }
+
 
     /**
      * Method for looking at the contents of the main Json body for a trip in a request.
@@ -126,6 +135,7 @@ public class TripController extends Controller {
         return true;
     }
 
+
     /**
      * Updates a single trip for selected user's profile.
      *
@@ -153,8 +163,8 @@ public class TripController extends Controller {
             return badRequest();
         }
 
-        Profile tripOwner = profileRepo.fetchSingleProfile(ownerId.intValue());
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile tripOwner = profileRepository.fetchSingleProfile(ownerId.intValue());
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
             return forbidden();
@@ -186,12 +196,13 @@ public class TripController extends Controller {
         }
     }
 
+
     /**
      * Parse the ArrayNode from a valid request's Json body to create a list of TripDestination objects
-     * This method is used when creating a trip and when editing a trip
+     * This method is used when creating a trip and when editing a trip.
      *
-     * @param tripDestinations      the array of trip destinations
-     * @return                      an array of destinations
+     * @param tripDestinations      the array of trip destinations.
+     * @return                      an array of destinations.
      */
     private List<TripDestination> parseTripDestinations(ArrayNode tripDestinations) {
 
@@ -238,6 +249,7 @@ public class TripController extends Controller {
                 newTripDestination.setStartDate(parsedStartDate);
                 newTripDestination.setEndDate(parsedEndDate);
                 newTripDestination.setListOrder(order++);
+
                 // Add created destination to the list of trip destinations.
                 result.add(newTripDestination);
                 previousDestination = id;
@@ -248,12 +260,13 @@ public class TripController extends Controller {
         return result;
     }
 
+
     /**
      * Checks the start and end dates to make sure that the start date does not happen after the end date but if either
-     * is null this does not apply
+     * is null this does not apply.
      *
-     * @param startDate     starting date as string
-     * @param endDate       ending date as string
+     * @param startDate     starting date as string.
+     * @param endDate       ending date as string.
      * @return              true if the dates are valid (blank, null, or start date occurs before or at the same time as
      *                      end date), otherwise returns false.
      */
@@ -268,12 +281,13 @@ public class TripController extends Controller {
         }
     }
 
+
     /**
-     * Checks if all of the start/end dates within a trip are in valid order, to be called after saving a reorder
+     * Checks if all of the start/end dates within a trip are in valid order, to be called after saving a reorder.
      *
-     *  @param tripDestinations  array of all the destinations in the trip in the new order
+     * @param tripDestinations  array of all the destinations in the trip in the new order.
      * @return                  true if all the dates of destinations within a trip are in chronological order,
-     *                          false otherwise
+     *                          false otherwise.
      */
     private boolean isValidDateOrder(List<TripDestination> tripDestinations) {
         // Adds all dates within the list of trip destinations to an array if they aren't null
@@ -300,6 +314,7 @@ public class TripController extends Controller {
         }
         return true;
     }
+
 
     /**
      * Fetches a single trip from the database for a logged in user.
@@ -334,16 +349,40 @@ public class TripController extends Controller {
         return ok(Json.toJson(returnedTrip));
     }
 
+
     /**
-     * Fetches all the trips for a specified user
+     * Determines if any of the destinations in a trip need to have their ownership changed. This is if the destination
+     * is public, not owned by the global admin and the affected profile is not the owner of the public destination.
      *
-     * @param id    the id of the user requested
-     * @return      the list of trips as a Json
+     * @param affectedProfile   the profile that is having the trip added to.
+     * @param tripDestination   the destination that is stored in the trip.
+     */
+    private Result determineDestinationOwnershipTransfer(Profile affectedProfile, TripDestination tripDestination) {
+        Destination destination = tripDestination.getDestination();
+        Profile owner = destination.getOwner();
+
+        // Destination is not owned by global admin, it is public, and the user is not the owner of the destination.
+        if (owner == null || owner.getId() != DEFAULT_ADMIN_ID && destination.getPublic()
+                && !affectedProfile.getId().equals(owner.getId())) {
+            destinationRepository.transferDestinationOwnership(destination);
+            return ok("Destination ownership changed");
+        }
+
+        return ok("Destination ownership deosn't need to be changed");
+    }
+
+
+    /**
+     * Fetches all the trips for a specified user.
+     *
+     * @param id    the id of the user requested.
+     * @return      the list of trips as a Json.
      */
     public Result fetchAll(Long id) {
         List<Trip> trips = repository.fetchAllTrips(id);
         return ok(Json.toJson(trips));
     }
+
 
     /**
      * Deletes a trip from the user currently logged in.
@@ -357,7 +396,6 @@ public class TripController extends Controller {
      *                  Otherwise, if trip is successfully deleted, returns ok() (Http 200).
      */
     public Result destroy(Http.Request request, Long tripId) {
-
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
@@ -374,8 +412,8 @@ public class TripController extends Controller {
         if (ownerId == null) {
             return badRequest();
         }
-        Profile tripOwner = profileRepo.fetchSingleProfile(ownerId.intValue());
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile tripOwner = profileRepository.fetchSingleProfile(ownerId.intValue());
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
             return forbidden();
@@ -385,6 +423,5 @@ public class TripController extends Controller {
         repository.deleteTripFromProfile(tripOwner, trip);
         // Deletion successful.
         return ok();
-
     }
 }

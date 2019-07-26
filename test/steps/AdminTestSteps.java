@@ -212,11 +212,6 @@ public class AdminTestSteps {
 
     }
 
-    @Then("the status code is Created")
-    public void theStatusCodeIsCreated() {
-        Assert.assertEquals(CREATED, statusCode);
-    }
-
     /**
      * Converts given data table information and creates a profile json for creating a profile
      * @param dataTable the data table from cucumber

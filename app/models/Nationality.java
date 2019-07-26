@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 
 
 /**
- * Nationality entity managed by Ebean
+ * Nationality entity managed by Ebean.
  */
 @Entity
 public class Nationality extends BaseModel {
@@ -13,13 +13,16 @@ public class Nationality extends BaseModel {
     private String nationality;
     private String country;
 
+
     public String getNationality() {
         return nationality;
     }
 
+
     public String getCountry() {
         return country;
     }
+
 
     public static final Finder<Integer, Nationality> find = new Finder<>(Nationality.class);
 }
