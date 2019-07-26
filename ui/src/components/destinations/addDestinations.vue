@@ -36,10 +36,10 @@
                         <b-list-group-item class="flex-column align-items-start"
                                            v-for="trip in destinationConflicts.matching_trips" :key="trip.id">
                             <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Name: {{trip.trip_name}}</h5>
+                                <h5 class="mb-1">Name: {{trip.name}}</h5>
                             </div>
                             <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Created by: {{trip.first_name}} {{trip.last_name}}</h5>
+                                <h5 class="mb-1">Created by: {{trip.profile.firstName}} {{trip.profile.lastName}}</h5>
                             </div>
                         </b-list-group-item>
                     </b-list-group>
