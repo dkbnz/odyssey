@@ -76,8 +76,8 @@ public class Destination extends BaseModel {
     /**
      * List of trip destinations that the destination is associated with.
      */
-    //@JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "destination", orphanRemoval=true)
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "destination")
     private List<TripDestination> tripDestinations;
 
 
@@ -172,9 +172,12 @@ public class Destination extends BaseModel {
     }
 
 
-
     public boolean removeTripDestination(TripDestination tripDestination) {
         return tripDestinations.remove(tripDestination);
+    }
+
+    public void addTripDestinations(List<TripDestination> tripDestinations){
+        this.tripDestinations = tripDestinations;
     }
 
     public void clearTripDestinations() {

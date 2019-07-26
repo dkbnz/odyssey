@@ -124,17 +124,17 @@
 
                 <template slot="tripStartDate"
                           slot-scope="data">
-                    {{data.item.destinations}}
-                    <!--{{formatDate(calculateTripDates(data.item.destinations)[0])}}-->
+                    <!--{{data.item.destinations}}-->
+                    {{formatDate(calculateTripDates(data.item.destinations)[0])}}
                 </template>
 
                 <template slot="tripEndDate" slot-scope="data">
                     {{formatDate(calculateTripDates(data.item.destinations)[data.item.destinations.length -1])}}
                 </template>
 
-                <!--<template slot="tripEndDest" slot-scope="data" v-if="futureTrips.length > 0">-->
-                    <!--{{data.item.destinations[data.item.destinations.length -1].destination.name}}-->
-                <!--</template>-->
+                <template slot="tripEndDest" slot-scope="data" v-if="futureTrips.length > 0">
+                    {{data.item.destinations[data.item.destinations.length -1].destination.name}}
+                </template>
 
                 <template slot="duration" slot-scope="data" v-if="futureTrips.length > 0">
                     {{calculateDuration(data.item.destinations)}}

@@ -439,6 +439,14 @@ public class DestinationController extends Controller {
             return forbidden();
         }
 
+        List<TripDestination> tripDestinationsContainingDestination =
+                tripDestinationRepository.fetchTripsContainingDestination(destination);
+
+        for (TripDestination tripDestination: tripDestinationsContainingDestination) {
+            Trip temporaryTrip = tripDestination.getTrip();
+            tripRepository.deleteTripFromProfile(temporaryTrip.getProfile(), temporaryTrip);
+        }
+
         destinationRepository.delete(destination);
         return ok("Deleted");
     }
@@ -469,9 +477,13 @@ public class DestinationController extends Controller {
             return forbidden();
         }
 
+        List<TripDestination> tripDestinationsList = currentDestination.getTripDestinations();
+
         JsonNode json = request.body().asJson();
 
         currentDestination = Json.fromJson(json, Destination.class);
+
+        currentDestination.addTripDestinations(tripDestinationsList);
 
         if (currentDestination.getLongitude() > LONGITUDE_LIMIT || currentDestination.getLongitude() < -LONGITUDE_LIMIT) {
             return badRequest();
@@ -564,6 +576,7 @@ public class DestinationController extends Controller {
         // Takes all trip destinations from other into this destination
         List<TripDestination> tripDestinations = new ArrayList<>();
         List<TripDestination> tripDestinationsDelete = new ArrayList<>();
+
         for (TripDestination tripDestination : destinationToMerge.getTripDestinations()) {
 
             TripDestination tripDestinationTemporary = new TripDestination();
@@ -576,8 +589,6 @@ public class DestinationController extends Controller {
 
             destinationToUpdate.addTripDestination(tripDestinationTemporary);
 
-            tripDestination.setTrip(null);
-            tripDestination.setDestination(null);
 
             tripDestinationsDelete.add(tripDestination);
             tripDestinations.add(tripDestinationTemporary);
@@ -590,15 +601,23 @@ public class DestinationController extends Controller {
         for(TripDestination tripDestination: tripDestinations) {
             Trip trip = tripDestination.getTrip();
             Destination destination = tripDestination.getDestination();
+
+            // Set the Trip and Destination for the TripDestination to null.
+            tripDestination.setId(null);
             tripDestination.setTrip(null);
             tripDestination.setDestination(null);
             tripDestinationRepository.save(tripDestination);
+
+            // Add the TripDestination to the Trip.
             trip.addDestinations(tripDestination);
             tripRepository.update(trip);
 
+            // Set the Destination and Trip for the TripDestination.
             tripDestination.setDestination(destination);
             tripDestination.setTrip(trip);
             trip.addDestinations(tripDestination);
+
+            destination.addTripDestination(tripDestination);
 
             destinationRepository.update(destination);
             tripDestinationRepository.update(tripDestination);

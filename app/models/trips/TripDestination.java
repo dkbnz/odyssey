@@ -40,7 +40,7 @@ public class TripDestination extends BaseModel {
      * The trip that the trip destination is part of.
      */
     @JsonIgnore
-    @ManyToOne(cascade=CascadeType.ALL)
+    @ManyToOne
     private Trip trip;
 
     public void setTrip(Trip trip) {
@@ -50,7 +50,6 @@ public class TripDestination extends BaseModel {
     /**
      * The destination this trip destination is associated with.
      */
-    @JsonIgnore
     @ManyToOne(cascade=CascadeType.PERSIST)
     private Destination destination;
 
