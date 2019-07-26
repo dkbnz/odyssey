@@ -37,7 +37,9 @@
             this.createMarker();
         },
         data() {
-            return {}
+            return {
+                markerArray: []
+            }
         },
         watch: {
             destinations: function() {
@@ -57,7 +59,14 @@
                         position: {lat: this.destinations[i].latitude, lng: this.destinations[i].longitude},
                         map: this.$map,
                         title: this.destinations[i].name});
+                    this.markerArray.push(marker);
                 }
+            },
+            clearMarkers() {
+                for (let i = 0; i < this.markerArray.length-1; i++) {
+                    this.markerArray[i].setMap(null);
+                }
+                this.markerArray = [];
             }
         }
 

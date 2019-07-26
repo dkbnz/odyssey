@@ -89,6 +89,7 @@
                this.queryPage = 0;
                this.foundDestinations = [];
                this.destToSearch = destinationToSearch;
+               this.$emit('destination-reset');
                this.queryDestinations(this.destToSearch);
                this.loadingResults = false;
            },
@@ -125,6 +126,7 @@
                         for (var i = 0; i < data.length; i++) {
                             this.foundDestinations.push(data[i]);
                         }
+                        this.$emit('destination-search', this.foundDestinations);
                     })
             },
 

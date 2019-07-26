@@ -6,7 +6,9 @@
                         :search-public="false"
                         :profile="profile"
                         :destinationTypes="destinationTypes"
-                        @destination-click="destination => $emit('destination-click', destination)">
+                        @destination-click="destination => $emit('destination-click', destination)"
+                        @destination-search="destinations => $emit('destination-search', destinations)"
+                        @destination-reset="$emit('destination-reset')">
                 </destination-search-list>
             </b-tab>
             <b-tab title="Public Destinations">
@@ -14,7 +16,9 @@
                         :search-public="true"
                         :profile="profile"
                         :destinationTypes="destinationTypes"
-                        @destination-click="destination => $emit('destination-click', destination)">
+                        @destination-click="destination => $emit('destination-click', destination)"
+                        @destination-search="destinations => $emit('destination-search', destinations)"
+                        @destination-reset="$emit('destination-reset')">
                 </destination-search-list>
             </b-tab>
             <b-tab title="Add">

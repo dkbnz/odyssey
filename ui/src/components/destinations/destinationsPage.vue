@@ -10,8 +10,7 @@
             <b-row>
                 <b-col cols="8">
                     <b-card ref="maps">
-                        <google-map v-bind:destinations="destinations">
-
+                        <google-map v-bind:destinations="destinationsForMap" ref="map">
                         </google-map>
                     </b-card>
                     <b-alert
@@ -49,6 +48,8 @@
                         <destination-sidebar
                                 :profile="profile"
                                 @destination-click="destination => this.selectedDestination = destination"
+                                @destination-search="destinations => this.destinationsForMap = destinations"
+                                @destination-reset="clearMarkers"
                                 :key="refreshDestinationData"
                                 @data-changed="$emit('data-changed')"
                         ></destination-sidebar>
@@ -110,7 +111,8 @@
                 refreshDestinationData: 0,
                 refreshSingleDestination: 0,
                 dismissSecs: 3,
-                dismissCountDown: 0
+                dismissCountDown: 0,
+                destinationsForMap: []
             }
         },
         methods: {
@@ -162,6 +164,14 @@
              */
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
+            },
+
+
+            /**
+             * Calls method in the google maps component to clear all the markers when doing a fresh search
+             */
+            clearMarkers() {
+                this.$refs['map'].clearMarkers();
             }
         }
     }
