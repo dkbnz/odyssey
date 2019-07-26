@@ -119,6 +119,8 @@
                     .then((data) => {
                         if (data === undefined || data.length < 50) {
                             this.moreResults = false;
+                        } else {
+                            this.moreResults = true;
                         }
                         for (var i = 0; i < data.length; i++) {
                             this.foundDestinations.push(data[i]);
