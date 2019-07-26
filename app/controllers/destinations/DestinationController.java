@@ -439,13 +439,6 @@ public class DestinationController extends Controller {
             return forbidden();
         }
 
-        List<TripDestination> tripDestinationsContainingDestination =
-                tripDestinationRepository.fetchTripsContainingDestination(destination);
-
-        for (TripDestination tripDestination: tripDestinationsContainingDestination) {
-            Trip temporaryTrip = tripDestination.getTrip();
-            tripRepository.deleteTripFromProfile(temporaryTrip.getProfile(), temporaryTrip);
-        }
 
         destinationRepository.delete(destination);
         return ok("Deleted");
@@ -574,11 +567,12 @@ public class DestinationController extends Controller {
      */
     private void mergeTripDestinations(Destination destinationToUpdate, Destination destinationToMerge) {
         // Takes all trip destinations from other into this destination
-        List<TripDestination> tripDestinations = new ArrayList<>();
-        List<TripDestination> tripDestinationsDelete = new ArrayList<>();
+        List<TripDestination> tripDestinationsToAdd = new ArrayList<>();
+        List<TripDestination> tripDestinationsToDelete = new ArrayList<>();
 
         for (TripDestination tripDestination : destinationToMerge.getTripDestinations()) {
 
+            // Create a new TripDestination as a copy of the TripDestination.
             TripDestination tripDestinationTemporary = new TripDestination();
             tripDestinationTemporary.setId(tripDestination.getId());
             tripDestinationTemporary.setDestination(destinationToUpdate);
@@ -587,18 +581,24 @@ public class DestinationController extends Controller {
             tripDestinationTemporary.setListOrder(tripDestination.getListOrder());
             tripDestinationTemporary.setTrip(tripDestination.getTrip());
 
+            // Add the copied TripDestination to the list of TripDestination for the master destination in merge.
             destinationToUpdate.addTripDestination(tripDestinationTemporary);
 
-
-            tripDestinationsDelete.add(tripDestination);
-            tripDestinations.add(tripDestinationTemporary);
+            // Add both TripDestinations to the appropriate lists to be removed/deleted.
+            tripDestinationsToAdd.add(tripDestinationTemporary);
+            tripDestinationsToDelete.add(tripDestination);
         }
 
-        for(TripDestination tripDestination: tripDestinationsDelete) {
+        for(TripDestination tripDestination: tripDestinationsToDelete) {
+            // Set the Trip and Destination for the TripDestination to null, removing the foreign key links.
+            tripDestination.setDestination(null);
+            tripDestination.setTrip(null);
+            tripDestinationRepository.update(tripDestination);
             tripDestinationRepository.delete(tripDestination);
         }
 
-        for(TripDestination tripDestination: tripDestinations) {
+        for(TripDestination tripDestination: tripDestinationsToAdd) {
+            // Save the Trip and Destination for the TripDestination, so can be added later.
             Trip trip = tripDestination.getTrip();
             Destination destination = tripDestination.getDestination();
 
@@ -619,13 +619,11 @@ public class DestinationController extends Controller {
 
             destination.addTripDestination(tripDestination);
 
+            // Save all changes to the database.
             destinationRepository.update(destination);
             tripDestinationRepository.update(tripDestination);
             tripRepository.update(trip);
         }
-
-        destinationRepository.update(destinationToUpdate);
-        destinationRepository.update(destinationToMerge);
     }
 
 
