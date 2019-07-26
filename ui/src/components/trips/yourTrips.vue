@@ -124,6 +124,7 @@
 
                 <template slot="tripStartDate"
                           slot-scope="data">
+                    <!--{{data.item.destinations}}-->
                     {{formatDate(calculateTripDates(data.item.destinations)[0])}}
                 </template>
 
@@ -319,15 +320,6 @@
                 sortDescPast: true,
                 currentPageUpcoming: 1,
                 currentPagePast: 1,
-                fields: [
-                    'name',
-                    {key: 'tripStartDate', label: 'Start Date'},
-                    {key: 'destinations[0].destination.name', label: 'Start Destination'},
-                    {key: 'tripEndDate', label: 'End Date'},
-                    {key: 'tripEndDest', label: 'End Destination'},
-                    {key: 'duration', label: 'Duration'},
-                    'more_details'
-                ],
                 subFields: [
                     {key: 'destination.name', label: "Name"},
                     {key: 'destination.type.destinationType', label: "Type"},
@@ -378,6 +370,18 @@
             rowsPast() {
                 return this.pastTrips.length
             },
+
+            fields() {
+                return [
+                    'name',
+                    {key: 'tripStartDate', label: 'Start Date'},
+                    {key: 'destinations[0].destination.name', label: 'Start Destination'},
+                    {key: 'tripEndDate', label: 'End Date'},
+                    {key: 'tripEndDest', label: 'End Destination'},
+                    {key: 'duration', label: 'Duration'},
+                    'more_details'
+                ]
+            } ,
 
         },
         methods: {

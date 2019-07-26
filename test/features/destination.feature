@@ -231,17 +231,6 @@ Feature: Destination API Endpoint
       | 200       |
     Then the status code received is Bad Request
 
-  Scenario: Attempt to edit a destination using an incorrect field name
-    Given I am running the application
-    And I am logged in
-    And a destination already exists for user 2 with the following values
-      | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
-      | University| 4    | Christchurch | 24.5      | 34.6     | New Zealand | false     |
-    When I attempt to edit the destination using the following values
-      | Typ | Ditsrict     |
-      | 5   | Christchurch |
-    Then the status code received is Bad Request
-
   Scenario: Attempt to delete a private destination as the owner when it is not used
     Given I am running the application
     And I am logged in
@@ -397,7 +386,6 @@ Feature: Destination API Endpoint
     When I add a photo with id 6 to the destination
     Then the owner is user 1
 
-
   Scenario: Merging two destinations which have photos
     Given I am running the application
     And I am logged in
@@ -418,7 +406,6 @@ Feature: Destination API Endpoint
       | id    |
       | 2     |
       | 6     |
-
 
   Scenario: Merging three destinations which have photos
     Given I am running the application
@@ -448,27 +435,43 @@ Feature: Destination API Endpoint
       | 2     |
       | 6     |
 
+  Scenario: Merging two destinations are used in trips
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And the destination is used in trip "Trip 1"
+    And I am not logged in
+    And I am logged in as an admin user
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And the destination is used in trip "Trip 2"
+    When I attempt to edit the destination using the following values
+      | is_public |
+      | true      |
+    Then the destination will be used in the following trips
+      | Trip name   |
+      | Trip 1      |
+      | Trip 2      |
 
-#  Scenario: Merging two destinations are used in trips
-#    Given I am running the application
-#    And I am logged in
-#    And a destination already exists with the following values
-#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-#    And the destination is used in trip "Trip 1"
-#    And I am not logged in
-#    And I am logged in as an admin user
-#    And a destination already exists with the following values
-#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-#    And the destination is used in trip "Trip 2"
-#    When I attempt to edit the destination using the following values
-#      | is_public |
-#      | true      |
-#    Then the destination will be used in the following trips
-#      | Trip name   |
-#      | Trip 1      |
-#      | Trip 2      |
+  Scenario: Merging two public destinations upon editing one to be identical to the other
+    Given I am running the application
+    And I am logged in as an admin user
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | chch         | 24.5     | 34.6      | New Zealand | true      |
+    When I attempt to edit the destination using the following values
+      | District     |
+      | Christchurch |
+    Then the status code received is OK
+    And there is only one destination with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
 
   Scenario: Retrieving destination usage for 1 trip
     Given I am running the application

@@ -15,6 +15,10 @@ import java.time.LocalDate;
  */
 @Entity
 public class TripDestination extends BaseModel {
+    /**
+     * A finder used to search for a TripDestination.
+     */
+    public static final Finder<Integer, TripDestination> find = new Finder<>(TripDestination.class);
 
     /**
      * The starting date of the trip destination.
@@ -39,12 +43,8 @@ public class TripDestination extends BaseModel {
     @ManyToOne(cascade=CascadeType.ALL)
     private Trip trip;
 
-    public Trip getTrip() {
-        return trip;
-    }
-
-    public void clearTrip() {
-        trip = null;
+    public void setTrip(Trip trip) {
+        this.trip = trip;
     }
 
     /**
@@ -59,34 +59,61 @@ public class TripDestination extends BaseModel {
         return startDate;
     }
 
+
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
+
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     public LocalDate getEndDate() {
         return endDate;
     }
 
+
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
+
 
     public int getListOrder() {
         return listOrder;
     }
 
+
     public void setListOrder(int listOrder) {
         this.listOrder = listOrder;
     }
+
 
     public Destination getDestination() {
         return destination;
     }
 
+
     public void setDestination(Destination destination) {
         this.destination = destination;
     }
 
-    public static final Finder<Integer, TripDestination> find = new Finder<>(TripDestination.class);
+
+    public Trip getTrip() {
+        return trip;
+    }
+
+    /**
+     * Clears the trip for the TripDestination
+     */
+    public void clearTrip() {
+        trip = null;
+    }
+
+
+    public String toString() {
+        return "{ " +
+                "startDate: " + this.startDate + ", " +
+                "endDate: " + this.endDate + ", " +
+                "listOrder: " + this.listOrder + ", " +
+                "trip: " + this.trip + ", " +
+                "destination: " + this.destination + "}";
+    }
 }

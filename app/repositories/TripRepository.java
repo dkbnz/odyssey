@@ -2,10 +2,13 @@ package repositories;
 
 import io.ebean.ExpressionList;
 import models.Profile;
+import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class TripRepository {
@@ -31,7 +34,7 @@ public class TripRepository {
 
 
     /**
-     * Updates a trip with new attributes and destinations.
+     * Updates a trip with new attributes and destinations. Also updates the profile.
      *
      * @param profile           the profile which is having a trip be updated.
      * @param trip              the updated trip.
@@ -45,18 +48,11 @@ public class TripRepository {
 
 
     /**
-     * Updates an existing trip as well as the profile it belongs to within the database.
-     *
-     * @param profile       the profile having its trip updated with an edited trip.
-     * @param trip          the existing trip being updated after editing.
+     * Updates a trip.
+     * @param trip      The trip to update.
      */
-    public void updateOldTrip(Profile profile, Trip trip) {
-
-        // Update the trip on the database with its edited details.
+    public void update(Trip trip) {
         trip.update();
-
-        // Update the profile containing the trip.
-        profile.update();
     }
 
 
@@ -138,5 +134,23 @@ public class TripRepository {
      */
     public static Long fetchTripOwner(Long tripId) {
         return Trip.getFind().query().select("profile.id").where().eq(TRIP_ID, tripId).findSingleAttribute();
+    }
+
+
+    /**
+     * Finds the set of Trips a destination is used in.
+     *
+     * @param usedDestination   the destination to be checked if is used in any trips.
+     * @return                  the set of Trips a destination is used in.
+     */
+    public Set<Trip> fetch(Destination usedDestination) {
+        List<TripDestination> tripDestinations = TripDestination.find.query().where().eq("destination", usedDestination).findList();
+        Set<Trip> trips = new HashSet<>();
+
+        for (TripDestination tripDestination : tripDestinations) {
+            trips.add(tripDestination.getTrip());
+        }
+
+        return trips;
     }
 }
