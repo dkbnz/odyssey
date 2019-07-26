@@ -10,7 +10,9 @@
             <b-row>
                 <b-col cols="8">
                     <b-card ref="maps">
-                        <google-map></google-map>
+                        <google-map v-bind:destinations="destinations">
+
+                        </google-map>
                     </b-card>
                     <b-alert
                             :show="dismissCountDown"
