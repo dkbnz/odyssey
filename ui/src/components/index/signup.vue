@@ -207,13 +207,17 @@
 <script>
     export default {
         name: "Signup",
-        props: {nationalityOptions: Array,
+
+        props: {
+            nationalityOptions: Array,
             travTypeOptions: Array,
             createdByAdmin: {
                 default() {
                     return false;
                 }
-            }},
+            }
+        },
+
         data: function () {
             return {
                 showError: false,
@@ -241,6 +245,7 @@
                 successMessage: ""
             }
         },
+
         computed: {
             /**
              * Validates a firstname input from the user.
@@ -255,6 +260,7 @@
                 return nameRegex.test(this.firstName);
             },
 
+
             /**
              * Validates a middlename input from the user.
              *
@@ -264,6 +270,7 @@
                 let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.middleName) || this.middleName.length === 0;
             },
+
 
             /**
              * Validates a lastname input from the user.
@@ -277,6 +284,7 @@
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.lastName);
             },
+
 
             /**
              * Validates a email input from the user.
@@ -292,6 +300,7 @@
                 return (emailRegex.test(this.username) && this.validEmail);
             },
 
+
             /**
              * Validates a users password.
              *
@@ -305,6 +314,7 @@
                     new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
                 return passwordRegex.test(this.password)
             },
+
 
             /**
              * Ensures the retyped password is non empty and equal to the first typed password.
@@ -320,6 +330,7 @@
                 return this.password.length > 0 && this.rePassword === this.password && passwordRegex.test(this.rePassword);
             },
 
+
             /**
              * Validates a date of birth input from the user.
              *
@@ -332,6 +343,7 @@
                 return this.dateOfBirth.length > 0 && this.dateOfBirth < this.todaysDate;
             },
 
+
             /**
              * Validates a gender selection from the user.
              *
@@ -343,6 +355,7 @@
                 }
                 return this.gender.length > 0;
             },
+
 
             /**
              * Validates the nationality selection input from the user.
@@ -392,6 +405,7 @@
             }
 
         },
+
         methods: {
             /**
              * Runs validation for all fields on first page.
@@ -407,6 +421,7 @@
                     return false
                 }
             },
+
 
             /**
              * Runs second page validation and creates an object using all inputs.
@@ -432,6 +447,7 @@
                 }
             },
 
+
             /**
              * Checks that user does not already exist in database.
              */
@@ -448,6 +464,7 @@
 
             },
 
+
             /**
              * Transfers to second page of sign-up.
              */
@@ -455,6 +472,7 @@
                 this.showFirst = false;
                 this.showSecond = true;
             },
+
 
             /**
              * Transfers to first page of sign-up.
@@ -464,11 +482,12 @@
                 this.showSecond = false;
             },
 
+
             /**
              * Adds user to database. If the person creating the profile is an administrator, then the page is not
              * automatically redirected to the dash.
              *
-             * @param profile object created with all input values
+             * @param profile   object created with all input values.
              */
             saveProfile(profile) {
                 let self = this;

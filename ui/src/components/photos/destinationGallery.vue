@@ -39,6 +39,7 @@
 
     export default {
         name: "destinationGallery",
+
         data: function () {
             return {
                 publicPhotos: [],
@@ -51,6 +52,7 @@
             profile: Object,
             userProfile: Object
         },
+
         watch: {
             destination () {
                 this.calculatePhotoSplit();
@@ -62,7 +64,6 @@
         },
 
         methods: {
-
             /**
              * Calculates which list the destination photos must be put into depending on their privacy. If the photo
              * is public, then it is in the publicPhotos list. Otherwise it is in the personalPhotos list.
@@ -79,6 +80,7 @@
                     }
                 }
             },
+
 
             /**
              * Updates the photos list sent to the photoTable for a single privacy photo.
@@ -135,7 +137,7 @@
              * @param photo     the photo to be added or removed.
              */
             photoToggled(photo) {
-                let index = this.indexOfById(this.destination.photoGallery, photo)
+                let index = this.indexOfById(this.destination.photoGallery, photo);
 
                 if (index !== -1) {
                     this.removeDestinationPhoto(photo);
@@ -188,10 +190,11 @@
                 });
             },
 
+
             /**
              * Used to dismiss the Add a Photo to the Destination modal.
              *
-             * @param modal, the modal that is wanting to be dismissed.
+             * @param modal     the modal that is wanting to be dismissed.
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
