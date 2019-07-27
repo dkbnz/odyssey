@@ -44,6 +44,7 @@
 <script>
     export default {
         name: "photoTable",
+
         props: {
             photos: Array,
             profile: Object,
@@ -146,6 +147,13 @@
                 this.auth = (this.userProfile.id === this.profile.id || (this.userProfile.isAdmin && this.adminView));
             },
 
+
+            /**
+             * Determines if a photo is selected or not.
+             *
+             * @param photo         the photo to be checked if selected.
+             * @returns {boolean}   true if the photo is selected, false otherwise.
+             */
             selected(photo) {
                 for(var i = 0; i < this.selectedImages.length; i += 1) {
                     if(this.selectedImages[i].id === photo.id) {

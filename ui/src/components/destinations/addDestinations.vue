@@ -36,10 +36,10 @@
                         <b-list-group-item class="flex-column align-items-start"
                                            v-for="trip in destinationConflicts.matching_trips" :key="trip.id">
                             <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Name: {{trip.trip_name}}</h5>
+                                <h5 class="mb-1">Name: {{trip.name}}</h5>
                             </div>
                             <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Created by: {{trip.first_name}} {{trip.last_name}}</h5>
+                                <h5 class="mb-1">Created by: {{trip.profile.firstName}} {{trip.profile.lastName}}</h5>
                             </div>
                         </b-list-group-item>
                     </b-list-group>
@@ -164,6 +164,7 @@
 <script>
     export default {
         name: "addDestinations",
+
         props: {
             profile: Object,
             destinationTypes: Array,
@@ -186,6 +187,7 @@
                 }
             }
         },
+
         data() {
             return {
                 showError: false,
@@ -197,6 +199,7 @@
                 destinationConflicts: []
             }
         },
+
         computed: {
             /**
              * Validates the input fields based on regex.
@@ -257,6 +260,7 @@
                 let countryRegex = /\d/;
                 return !countryRegex.test(this.inputDestination.country);
             },
+
             isPublic() {
                 // Tells users editing a destination whether they've made the destination public or private.
                 if (this.inputDestination.public) {
@@ -265,6 +269,7 @@
                 return "Private";
             }
         },
+
         methods: {
             /**
              * Checks all of the input fields for valid input
@@ -380,15 +385,8 @@
              */
             editDestination() {
                 let self = this;
-                let jsonBody = JSON.stringify({
-                    "name": this.inputDestination.name,
-                    "type_id": this.inputDestination.type.id,
-                    "district": this.inputDestination.district,
-                    "latitude": parseFloat(this.inputDestination.latitude),
-                    "longitude": parseFloat(this.inputDestination.longitude),
-                    "country": this.inputDestination.country,
-                    "is_public": this.inputDestination.public
-                });
+                let jsonBody = JSON.stringify(this.inputDestination);
+
                 fetch(`/v1/destinations/` + this.inputDestination.id, {
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},

@@ -6,11 +6,13 @@ import models.destinations.Destination;
 import models.photos.PersonalPhoto;
 
 import java.util.List;
+import java.util.Set;
 
 public class DestinationRepository {
 
     private static final int DEFAULT_ADMIN_ID = 1;
     private static final String PHOTO_FIELD = "photoGallery.photo";
+    private static final String TRAVELLER_TYPE_PROPOSED = "proposedTravellerTypesAdd";
 
 
     /**
@@ -52,6 +54,23 @@ public class DestinationRepository {
      */
     public List<Destination> fetch(PersonalPhoto photo) {
         return Destination.find.query().where().eq(PHOTO_FIELD, photo).findList();
+    }
+
+
+    /**
+     * Finds all the destinations that have proposed traveller types.
+     *
+     * @return      list of destinations that have proposed traveller types.
+     */
+    public List<Destination> fetchProposed() {
+        return Ebean.find(Destination.class)
+            .select("destination")
+            .where()
+            .disjunction()
+            .isNotEmpty("proposedTravellerTypesAdd")
+            .isNotEmpty("proposedTravellerTypesRemove")
+            .endJunction()
+            .findList();
     }
 
 

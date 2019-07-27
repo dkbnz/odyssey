@@ -8,8 +8,7 @@
                 @dismiss-count-down="countDownChanged"
                 @dismissed="dismissCountDown=0"
                 dismissible
-                variant="success"
-        >
+                variant="success">
             <p>Photo Successfully Added</p>
             <b-progress
                     :max="dismissSecs"
@@ -85,6 +84,7 @@
 
     export default {
         name: "photoGallery",
+
         data: function () {
             return {
                 photos: [],
@@ -357,5 +357,4 @@
             }
         }
     }
-
 </script>

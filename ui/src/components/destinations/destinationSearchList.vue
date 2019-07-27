@@ -57,9 +57,12 @@
 <script>
     import SearchDestinations from "./searchDestinationForm";
     export default {
-       name: "foundDestinations",
-       components: {SearchDestinations},
-       props: ['profile', 'destinationTypes', 'searchPublic'],
+        name: "foundDestinations",
+
+        components: {SearchDestinations},
+
+        props: ['profile', 'destinationTypes', 'searchPublic'],
+
         data() {
            return {
                foundDestinations: [],
@@ -70,6 +73,7 @@
                queryPage: 0
            }
         },
+
         methods: {
            /**
             * Function to retrieve more destinations when a user reaches the bottom of the list.

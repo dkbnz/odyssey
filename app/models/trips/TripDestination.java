@@ -43,6 +43,10 @@ public class TripDestination extends BaseModel {
     @ManyToOne(cascade=CascadeType.ALL)
     private Trip trip;
 
+    public void setTrip(Trip trip) {
+        this.trip = trip;
+    }
+
     /**
      * The destination this trip destination is associated with.
      */
