@@ -34,7 +34,6 @@
             </b-tab>
         </b-tabs>
     </div>
-
 </template>
 
 <script>
@@ -42,16 +41,26 @@
     import AddDestinations from "./addDestinations";
     export default {
         name: "destinationSidebar",
+
         props: ['profile'],
+
         data() {
             return {
                 destinationTypes: []
             }
         },
+
         mounted() {
             this.getDestinationTypes(destinationTypesTemp => this.destinationTypes = destinationTypesTemp);
         },
+
         methods: {
+            /**
+             * Retrieves the different destination types from the backend.
+             *
+             * @param updateDestinationTypes    the list to be updated with the specified destination types.
+             * @returns {Promise<any | never>}  the returned promise.
+             */
             getDestinationTypes(updateDestinationTypes) {
                 return fetch(`/v1/destinationTypes`, {
                     accept: "application/json"
@@ -60,10 +69,10 @@
                     .then(updateDestinationTypes);
             },
         },
-        components: {DestinationSearchList, AddDestinations}
+
+        components: {
+            DestinationSearchList,
+            AddDestinations
+        }
     }
 </script>
-
-<style scoped>
-
-</style>

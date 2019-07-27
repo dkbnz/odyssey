@@ -12,8 +12,8 @@
                      placeholder="Choose file..."
                      v-model="files"
         ></b-form-file>
-        <b-button @click="files = null" class="btn btn-info buttonMargins">Clear Selected Files</b-button>
-        <b-button :disabled="files == null || files.length === 0" @click="save()" class="btn btn-info buttonMargins">
+        <b-button @click="files = null" class="btn btn-info buttonMarginsTop">Clear Selected Files</b-button>
+        <b-button :disabled="files == null || files.length === 0" @click="save()" class="btn btn-info buttonMarginsTop">
             Save
         </b-button>
     </div>
@@ -22,6 +22,7 @@
 <script>
     export default {
         name: "photoUploader",
+
         props: {
             acceptTypes: String,
             multipleFiles: {
@@ -30,19 +31,20 @@
                 }
             }
         },
+
         data() {
             return {
                 files: null
             }
         },
-        methods: {
 
+        methods: {
             /**
              * Return the number of files selected by the file uploader.
              * If there is exactly one file selected, return the name.
              *
-             * @param files
-             * @returns {*}
+             * @param files     the files that have been uploaded.
+             * @returns {*}     if there is only one file returns the name of the file, otherwise the number of files.
              */
             formatNames(files) {
                 if (files.length === 1) {
@@ -51,6 +53,7 @@
                     return `${files.length} images selected`
                 }
             },
+
 
             /**
              * Emit the saved files to the parent component.

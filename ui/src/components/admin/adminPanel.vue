@@ -44,7 +44,9 @@
 
     export default {
         name: "adminPanel",
+
         props: ['profile', 'nationalityOptions', 'travTypeOptions', 'destinations', 'destinationTypes'],
+
         data() {
             return {
                 showSingleProfile: false,
@@ -54,6 +56,7 @@
                 refreshSingleProfile: 0
             }
         },
+
         methods: {
             /**
              * Navigates to the single profile page where an admin can achieve all functionality of the selected
@@ -65,6 +68,7 @@
                 window.scrollTo(0, 0);
             }
         },
+
         components: {
             NavBarMain,
             SingleProfile,

@@ -258,6 +258,7 @@
 <script>
     export default {
         name: "editProfile",
+
         props: {
             profile: Object,
             nationalityOptions: Array,
@@ -273,6 +274,7 @@
                 }
             }
         },
+
         data: function () {
             return {
                 saveProfile: {
@@ -302,6 +304,7 @@
 
             }
         },
+
         computed: {
             /**
              * Validates input fields based on regular expression.
@@ -381,6 +384,7 @@
                 return this.saveProfileTravellerTypes.length > 0;
             },
 
+
             /**
              * Default value for the profile nationalities so already selected.
              *
@@ -427,6 +431,7 @@
                 }
             }
         },
+
         methods: {
             /**
              * Checks that username does not exist in database.
@@ -531,50 +536,6 @@
                         window.scrollTo(0, 0);
                         return response.json();
                     })
-                }
-            },
-
-
-            /**
-             * Check for duplicates of nationalities in order to remove them from "other" option fields.
-             *
-             * @param id of nationality to check.
-             * @returns {boolean} true if value is duplicate of user's current.
-             */
-            duplicateNationality(id) {
-                for (let i = 0; i < this.profile.nationalities.length; i++) {
-                    if (this.profile.nationalities[i].id === id) {
-                        return true;
-                    }
-                }
-            },
-
-            /**
-             * Check for duplicates of passports in order to remove them from "other" option fields.
-             *
-             * @param id of passport to check.
-             * @returns {boolean} true if value is duplicate of user's current.
-             */
-            duplicatePassport(id) {
-                for (let i = 0; i < this.profile.passports.length; i++) {
-                    if (this.profile.passports[i].id === id) {
-                        return true;
-                    }
-                }
-            },
-
-
-            /**
-             * Check for duplicates of traveller types in order to remove them from "other" option fields.
-             *
-             * @param id of traveller type to check.
-             * @returns {boolean} true if value is duplicate of user's current.
-             */
-            duplicateTravType(id) {
-                for (let i = 0; i < this.profile.travellerTypes.length; i++) {
-                    if (this.profile.travellerTypes[i].id === id) {
-                        return true;
-                    }
                 }
             }
         }
