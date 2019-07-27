@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Finder;
 import models.BaseModel;
 import models.Profile;
+import models.TravellerType;
 import models.photos.PersonalPhoto;
 import models.trips.TripDestination;
 import play.data.validation.Constraints;
@@ -15,6 +16,8 @@ import java.util.*;
  */
 @Entity
 public class Destination extends BaseModel {
+
+    public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
 
     /**
      * The name of the destination.
@@ -80,6 +83,17 @@ public class Destination extends BaseModel {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "destination")
     private List<TripDestination> tripDestinations;
 
+    @ManyToMany
+    @JoinTable(name = "destination_traveller_type")
+    private Set<TravellerType> travellerTypes;
+
+    @ManyToMany
+    @JoinTable(name = "destination_proposed_traveller_type_add")
+    private Set<TravellerType> proposedTravellerTypesAdd;
+
+    @ManyToMany
+    @JoinTable(name = "destination_proposed_traveller_type_remove")
+    private Set<TravellerType> proposedTravellerTypesRemove;
 
     public String getName() {
         return name;
@@ -204,8 +218,33 @@ public class Destination extends BaseModel {
         isPublic = privacy;
     }
 
+    public Set<TravellerType> getTravellerTypes() {
+        return travellerTypes;
+    }
 
-    public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
+    public void setTravellerTypes(Set<TravellerType> travellerTypes) {
+        // TravellerTypes have been decided, clear propositions
+        proposedTravellerTypesAdd.clear();
+        proposedTravellerTypesRemove.clear();
+
+        this.travellerTypes = travellerTypes;
+    }
+
+    public Set<TravellerType> getProposedTravellerTypesAdd() {
+        return proposedTravellerTypesAdd;
+    }
+
+    public void setProposedTravellerTypesAdd(Set<TravellerType> proposedTravellerTypesAdd) {
+        this.proposedTravellerTypesAdd = proposedTravellerTypesAdd;
+    }
+
+    public Set<TravellerType> getProposedTravellerTypesRemove() {
+        return proposedTravellerTypesRemove;
+    }
+
+    public void setProposedTravellerTypesRemove(Set<TravellerType> proposedTravellerTypesRemove) {
+        this.proposedTravellerTypesRemove = proposedTravellerTypesRemove;
+    }
 
 
     /**

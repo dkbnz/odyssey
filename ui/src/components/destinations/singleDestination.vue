@@ -8,16 +8,19 @@
                     :destination-types="destinationTypes"
                     @destination-saved="destinationSaved">
             </add-destinations>
-            <b-button @click="dismissModal('editDestModal')" class="mr-3 buttonMargins float-right">Close</b-button>
+            <b-button @click="dismissModal('editDestModal')" class="mr-3 buttonMarginsTop float-right">Close</b-button>
         </b-modal>
 
         <b-modal id="deleteDestModal" ref="deleteDestModal" size="xl" title="Delete Destination">
             <b-alert v-model="showError" variant="danger" dismissible>
                 Could not delete destination!
             </b-alert>
-            <p v-if="destinationUsage.photo_count === 1">This destination contains {{destinationUsage.photo_count}} photo.</p>
+            <p v-if="destinationUsage.photo_count === 1">
+                This destination contains {{destinationUsage.photo_count}} photo.
+            </p>
             <p v-else>This destination contains {{destinationUsage.photo_count}} photos.</p>
-            <p v-if="destinationUsage.trip_count === 1">This destination is used by {{destinationUsage.trip_count}} trip.<br>
+            <p v-if="destinationUsage.trip_count === 1">
+                This destination is used by {{destinationUsage.trip_count}} trip.<br>
                 Are you sure you want to delete it?
             </p>
             <p v-else>This destination is used by {{destinationUsage.trip_count}} trips. <br>
@@ -67,6 +70,37 @@
                 <p class="mb-1">
                     Longitude: {{destination.longitude}}
                 </p>
+                <p class="mb-1">
+                    Traveller Types:
+                </p>
+                <ul v-if="destination.travellerTypes.length > 0">
+                    <li v-for="travellerType in destination.travellerTypes">
+                        {{travellerType.travellerType}}
+                    </li>
+                </ul>
+                <p v-else class="descriptionText">
+                    No Traveller Types for this destination!
+                </p>
+                <b-button variant="link"
+                          @click="calculateCurrentTravellerTypes(); showEditTravellerTypes = !showEditTravellerTypes">
+                    {{travellerTypeLinkText}}
+                </b-button>
+                <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
+                <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
+                <div v-if="showEditTravellerTypes" class="travellerTypeDiv">
+                    <b-form-group label="Add Traveller Types:">
+                        <b-form-checkbox-group id="addTravellerTypes" v-model="calculatedTravellerTypes">
+                            <b-form-checkbox v-for="travellerType in travTypeOptions" :value="travellerType"
+                                             :key="travellerType.id">
+                                {{travellerType.travellerType}}
+                            </b-form-checkbox>
+                        </b-form-checkbox-group>
+                    </b-form-group>
+                    <b-button variant="primary" @click="requestTravellerTypeChange" block>
+                        {{travellerTypeButtonText}}
+                    </b-button>
+                </div>
+
                 <b-button @click="editDestination" variant="warning"
                           v-if="destination.owner.id === profile.id || profile.isAdmin" block>
                     Edit
@@ -94,14 +128,19 @@
     import YourTrips from "../trips/yourTrips";
 
     export default {
-
         name: "singleDestination",
+
         data: function () {
             return {
                 copiedDestination: "",
                 destinationUsage: "",
                 refreshDestination: null,
-                showError: false
+                showError: false,
+                showEditTravellerTypes: false,
+                calculatedTravellerTypes: [],
+                alertMessage: "",
+                showTravellerTypeUpdateSuccess: false,
+                showTravellerTypeUpdateFailure: false
             }
         },
 
@@ -114,6 +153,33 @@
                     return this.profile;
                 }
             },
+            travTypeOptions: Array
+        },
+
+        watch: {
+            /**
+             * When the destination prop changes, hide the show edit traveller types section, this is show the section
+             * can update.
+             */
+            destination () {
+                this.showEditTravellerTypes = false;
+            }
+        },
+
+        computed: {
+            travellerTypeButtonText() {
+                if (this.profile.id === this.destination.owner.id || this.profile.isAdmin) {
+                    return "Change Traveller Types"
+                }
+                return "Propose Traveller Types"
+            },
+
+            travellerTypeLinkText() {
+                if (this.profile.id === this.destination.owner.id || this.profile.isAdmin) {
+                    return "Change Traveller Types"
+                }
+                return "Propose Traveller Types"
+            }
         },
 
         components: {
@@ -199,11 +265,68 @@
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
+            },
+
+
+            /**
+             * Used to calculate the current traveller types for a destination so changes can be made/suggested.
+             *
+             * @returns {string[]} the list of traveller types for the current destination.
+             */
+            calculateCurrentTravellerTypes() {
+                this.calculatedTravellerTypes = this.destination.travellerTypes;
+            },
+
+
+            /**
+             * Sends a request to the back end, which contains all the traveller types.
+             */
+            requestTravellerTypeChange() {
+                let url = `/v1/destinations/` + this.destination.id + `/travellerTypes`;
+                let self = this;
+                if (this.destination.owner.id !== this.profile.id && !this.profile.isAdmin) {
+                    url += `/propose`;
+                }
+                fetch(url, {
+                    method: 'POST',
+                    headers: {'content-type': 'application/json'},
+                    body: JSON.stringify(this.calculatedTravellerTypes)
+                })
+                    .then(function(response) {
+                        if (response.ok) {
+                            if(self.destination.owner.id === self.profile.id || self.profile.isAdmin) {
+                                self.destination.travellerTypes = self.calculatedTravellerTypes;
+                                self.alertMessage = "Destination traveller types updated";
+                            } else {
+                                self.alertMessage = "Update request sent";
+                            }
+
+                            self.showTravellerTypeUpdateSuccess = true;
+                            setTimeout(function () {
+                                self.showTravellerTypeUpdateSuccess = false;
+                            }, 3000);
+                        } else {
+                            self.alertMessage = "Cannot update traveller types";
+                            self.showTravellerTypeUpdateFailure = true;
+                            setTimeout(function () {
+                                self.showTravellerTypeUpdateFailure = false;
+                            }, 3000);
+                        }
+                        self.$emit('data-changed');
+                        return JSON.parse(JSON.stringify(response));
+                    });
             }
         }
     }
 </script>
 
-<style scoped>
+<style>
+    .travellerTypeDiv {
+        margin-bottom: 7px;
+    }
 
+    p {
+        margin: 0;
+        padding: 0;
+    }
 </style>

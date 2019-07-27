@@ -35,6 +35,7 @@
                         <single-destination
                                 :key="refreshSingleDestination"
                                 :destination="selectedDestination"
+                                :travTypeOptions="travTypeOptions"
                                 :destination-types="destinationTypes"
                                 :profile="profile"
                                 @destination-saved="refreshDestinations"
@@ -72,6 +73,7 @@
 
     export default {
         name: "destinationsPage",
+
         props: {
             profile: Object,
             destinations: Array,
@@ -85,8 +87,10 @@
                 default: function() {
                     return false;
                 }
-            }
+            },
+            travTypeOptions: Array
         },
+
         components: {
             SingleDestination,
             DestinationSidebar,
@@ -96,8 +100,7 @@
             FooterMain,
             UnauthorisedPrompt,
         },
-        mounted() {
-        },
+
         data: function () {
             return {
                 searchDestinations: true,
@@ -109,6 +112,7 @@
                 dismissCountDown: 0
             }
         },
+
         methods: {
             /**
              * Switches between tabs.
@@ -121,6 +125,7 @@
                     this.addDestinations = !this.addDestinations;
                 }
             },
+
 
             /**
              * Re-renders the destination search side panel and displays the edited destination on the page.

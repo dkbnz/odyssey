@@ -86,6 +86,7 @@
 
     export default {
         name: "singleProfile",
+
         props: {
             adminView: Boolean,
             profile: Object,
@@ -96,6 +97,7 @@
             destinationTypes: Array
 
         },
+
         data() {
             return {
                 profileImage: {blank: true, width: 75, height: 75, class: 'm1'},
@@ -104,6 +106,7 @@
                 refreshDestinations: 0
             }
         },
+
         methods: {
             /**
              * Emits an event to the admin panel page, this will redirect the admin back to the admin dashboard when the
@@ -113,6 +116,7 @@
                 this.$emit('go-back', null);
             },
 
+
             /**
              * If the profile is successfully saved, then redirect to the view profile page.
              */
@@ -121,6 +125,7 @@
                 this.currentDisplay = 0;
                 this.showSaved = true;
             },
+
 
             /**
              * Retrieves the user's primary photo thumbnail.
@@ -132,6 +137,7 @@
                 return "../../../static/default_profile_picture.png";
             }
         },
+
         components: {
             ViewProfile,
             PlanATrip,

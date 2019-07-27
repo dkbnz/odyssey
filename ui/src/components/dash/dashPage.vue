@@ -45,7 +45,9 @@
 
     export default {
         name: "dashPage",
+
         props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'adminView', 'destinations'],
+
         data: function () {
             return {
                 viewProfile: true,
@@ -54,8 +56,8 @@
                 showSaved: false
             }
         },
-        methods: {
 
+        methods: {
             /**
              * Switches between tabs.
              *
@@ -68,6 +70,7 @@
                 }
             },
 
+
             /**
              * Shows the profile has been successfully saved alert.
              */
@@ -77,6 +80,7 @@
             }
 
         },
+
         components: {
             ViewProfile,
             EditProfile,
