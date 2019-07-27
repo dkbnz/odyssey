@@ -1,6 +1,5 @@
 Feature: Destination Traveller Type API Endpoint
 
-
   Scenario: Attempting to add traveller types to public destination as a regular user who owns it.
     Given Im logged in as a regular user
     And I own destination with id 567 and it is public
