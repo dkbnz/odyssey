@@ -128,8 +128,8 @@
     import YourTrips from "../trips/yourTrips";
 
     export default {
-
         name: "singleDestination",
+
         data: function () {
             return {
                 copiedDestination: "",

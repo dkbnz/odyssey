@@ -24,6 +24,7 @@
 <script>
     export default {
         name: "login",
+
         data: function () {
             return {
                 username: '',
@@ -31,6 +32,7 @@
                 showError: false
             }
         },
+
         methods: {
             /**
              * Used to log a user in based on the username and password that are entered. If the response is not ok()
