@@ -116,7 +116,7 @@ public class DestinationTravellerTypeTestSteps {
     /**
      * Repository to access the destinations in the running application.
      */
-    private TravellerTypeRepository travellerTypeRepo = new TravellerTypeRepository();
+    private TravellerTypeRepository travellerTypeRepository = new TravellerTypeRepository();
 
 
     /**
@@ -211,7 +211,7 @@ public class DestinationTravellerTypeTestSteps {
     @Given("There is a destination with one traveller type to add")
     public void thereIsADestinationWithOneTravellerTypeToAdd() {
         List<TravellerType> travellerTypeList = new ArrayList<>();
-        travellerTypeList.add(travellerTypeRepo.findAll().get(0));
+        travellerTypeList.add(travellerTypeRepository.findAll().get(0));
         JsonNode json = Json.toJson(travellerTypeList);
 
         Http.RequestBuilder request = fakeRequest()
@@ -230,7 +230,7 @@ public class DestinationTravellerTypeTestSteps {
     @Given("There is a destination with one traveller type assigned")
     public void thereIsADestinationWithOneTravellerTypeAssigned() {
         List<TravellerType> travellerTypeList = new ArrayList<>();
-        travellerTypeList.add(travellerTypeRepo.findAll().get(1));
+        travellerTypeList.add(travellerTypeRepository.findAll().get(1));
         JsonNode json = Json.toJson(travellerTypeList);
 
         Http.RequestBuilder request = fakeRequest()
@@ -282,18 +282,11 @@ public class DestinationTravellerTypeTestSteps {
     }
 
 
-    @Then("the status code received on the admin panel is OK")
-    public void theStatusCodeIsCreated() throws BeansException {
-        Assert.assertEquals(OK, statusCode);
-    }
-
-
-
-
     @Given("Im logged in as a regular user")
     public void imLoggedInAsARegularUser() {
         loggedInId = REG_ID;
     }
+
 
     @Given("Im logged in as an admin user")
     public void imLoggedInAsAnAdminUser() {
@@ -321,10 +314,12 @@ public class DestinationTravellerTypeTestSteps {
         );
     }
 
+
     @Then("^I receive status code of (\\d+)$")
     public void iReceiveAStatusCodeOf(int expectedStatusCode) throws Throwable {
         Assert.assertEquals(expectedStatusCode, statusCode);
     }
+
 
     @When("^I (.*) the following traveller types for destination id (.*)$")
     public void iTheFollowingTravellerTypesForDestinationId(String suggestOrSet, String destinationId, DataTable travellerTypeIds) throws Throwable {
@@ -333,7 +328,7 @@ public class DestinationTravellerTypeTestSteps {
 
         for (String travellerTypeId : travellerTypeIds.asList()) {
             travellerTypeList.add(
-                    travellerTypeRepo.findById(
+                    travellerTypeRepository.findById(
                             Long.valueOf(travellerTypeId)
                     )
             );

@@ -292,7 +292,11 @@
     import DestinationSidebar from "../destinations/destinationSidebar";
     export default {
         name: "PlanATrip",
-        components: {DestinationSidebar},
+
+        components: {
+            DestinationSidebar
+        },
+
         props: {
             profile: Object,
             inputTrip: {
@@ -312,6 +316,7 @@
                 }
             }
         },
+
         data() {
             return {
                 optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
@@ -352,6 +357,7 @@
                 selectedDestination: {}
             }
         },
+
         computed: {
             /**
              * Computed function used for the pagination of the table.
@@ -362,9 +368,11 @@
                 return this.inputTrip.destinations.length
             }
         },
+
         mounted() {
             this.getDestinations(destinationsList => this.destinationsList = destinationsList);
         },
+
         methods: {
             /**
              * Method used to check the destination to be added to the table is valid.
@@ -431,7 +439,7 @@
             /**
              * Method to delete a destination from the list of trip destinations.
              *
-             * @param rowIndex      the index of the row in the table
+             * @param rowIndex      the index of the row in the table.
              */
             deleteDestination(rowIndex) {
                 this.inputTrip.destinations.splice(rowIndex, 1);
@@ -583,7 +591,7 @@
             /**
              * Used to show an alert saying there are duplicate destinations next to one another in the trip.
              *
-             * @param error The error message to be displayed
+             * @param error The error message to be displayed.
              */
             showDuplicateDestError(error) {
                 this.showError = true;
@@ -662,7 +670,7 @@
              * the user.
              * If the trip is successfully saved, then an alert is shown to the user and the trip form is reset.
              *
-             * @param trip      the trip to be saved
+             * @param trip      the trip to be saved.
              * @param tripId    the id of the trip to be saved. This is required because the trip is being edited.
              */
             saveOldTrip(trip, tripId) {
@@ -736,9 +744,9 @@
             /**
              * Sorts the destinations based on the name of the destination.
              *
-             * @param first      for each destination, current destination
-             * @param next       for each destination, next destination
-             * @returns {number} depending on if destinations should be swapped or not -1, 1, 0
+             * @param first      for each destination, current destination.
+             * @param next       for each destination, next destination.
+             * @returns {number} depending on if destinations should be swapped or not -1, 1, 0.
              */
             compare(first, next) {
                 const nameFirst = first.name.toUpperCase(); // ignore upper and lowercase

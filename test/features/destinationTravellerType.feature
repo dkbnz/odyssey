@@ -1,4 +1,4 @@
-Feature: Suggesting traveller types for a destination.
+Feature: Destination Traveller Type API Endpoint
 
 
   Scenario: Attempting to add traveller types to public destination as a regular user who owns it.
@@ -83,8 +83,9 @@ Feature: Suggesting traveller types for a destination.
     And The user is logged in as an admin
     And There is a destination with one traveller type to add
     When A request for proposed destinations is sent
-    Then the status code received on the admin panel is OK
+    Then I receive status code of 200
     And There is a destination to update
+
 
   Scenario: Admin requesting proposed destinations in the admin panel for a proposed remove
     Given The application is operational
@@ -92,8 +93,9 @@ Feature: Suggesting traveller types for a destination.
     And There is a destination with one traveller type assigned
     And There is a destination with one traveller type to remove
     When A request for proposed destinations is sent
-    Then the status code received on the admin panel is OK
+    Then I receive status code of 200
     And There is a destination to update
+
 
   Scenario: Admin requesting proposed destinations in the admin panel for a proposed add and remove
     Given The application is operational
@@ -101,5 +103,5 @@ Feature: Suggesting traveller types for a destination.
     And There is a destination with one traveller type assigned
     And There is a destination with one traveller type to add
     When A request for proposed destinations is sent
-    Then the status code received on the admin panel is OK
+    Then I receive status code of 200
     And There is a destination to update

@@ -81,6 +81,7 @@
 
     export default {
         name: "searchDestinationForm.vue",
+
         props: {
             searchPublic: Boolean,
             destinationTypes: Array,
@@ -91,6 +92,7 @@
                 }
             },
         },
+
         data() {
             return {
                 sortBy: 'name',
@@ -126,6 +128,7 @@
                 latitudeErrorMessage: ""
             }
         },
+
         computed: {
             /**
              * @returns {number} number of rows to be displayed based on number of destinations present.
@@ -192,6 +195,7 @@
                 return !countryRegex.test(this.searchCountry);
             }
         },
+
         methods: {
             /**
              * Sets values for search.

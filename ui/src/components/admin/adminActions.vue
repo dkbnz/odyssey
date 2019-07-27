@@ -136,7 +136,9 @@
 
     export default {
         name: "adminActions",
+
         props: ['profile', 'nationalityOptions', 'travTypeOptions', 'destinations', 'destinationTypes'],
+
         data() {
             return {
                 refreshProfiles: 0,
@@ -156,6 +158,7 @@
             this.getTravellerTypeProposals(travellerTypeProposals =>
                 this.travellerTypeProposals = travellerTypeProposals);
         },
+
         methods: {
             /**
              * If a profile is successfully created, then re-render the profiles component (to ensure the new profile
@@ -182,7 +185,7 @@
              * Retrieves the list of traveller type proposals to display on the frontend. Admin can then accept/reject
              * proposals.
              *
-             *@param updateTravellerTypeProposals   the variable to update the list of traveller type propsals.
+             *@param updateTravellerTypeProposals   the variable to update the list of traveller type proposals.
              */
             getTravellerTypeProposals(updateTravellerTypeProposals) {
                 return fetch(`/v1/destinations/proposals`, {
@@ -196,6 +199,7 @@
             /**
              * Adds the traveller type to the list of traveller types for said destination.
              *
+             * @param destination       the destination to have the traveller type added to.
              * @param travellerType     the traveller type to be added.
              */
             addTravellerTypes(destination, travellerType) {
@@ -211,6 +215,7 @@
             /**
              * Removes the traveller type from the list of traveller types for said destination.
              *
+             * @param destination       the destination to have the traveller type removed from.
              * @param travellerType     the traveller type to be removed.
              */
             removeTravellerTypes(destination, travellerType) {
@@ -243,6 +248,7 @@
 
             /**
              * Sends a request to the back end, which contains all the traveller types.
+             * @param destination   the destination to have the traveller types added to.
              */
             sendTravellerTypes(destination) {
                 let self = this;

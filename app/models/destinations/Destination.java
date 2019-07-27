@@ -17,6 +17,8 @@ import java.util.*;
 @Entity
 public class Destination extends BaseModel {
 
+    public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
+
     /**
      * The name of the destination.
      */
@@ -243,8 +245,6 @@ public class Destination extends BaseModel {
     public void setProposedTravellerTypesRemove(Set<TravellerType> proposedTravellerTypesRemove) {
         this.proposedTravellerTypesRemove = proposedTravellerTypesRemove;
     }
-
-    public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
 
 
     /**

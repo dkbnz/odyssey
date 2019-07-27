@@ -164,6 +164,7 @@
 <script>
     export default {
         name: "addDestinations",
+
         props: {
             profile: Object,
             destinationTypes: Array,
@@ -186,6 +187,7 @@
                 }
             }
         },
+
         data() {
             return {
                 showError: false,
@@ -197,6 +199,7 @@
                 destinationConflicts: []
             }
         },
+
         computed: {
             /**
              * Validates the input fields based on regex.
@@ -257,6 +260,7 @@
                 let countryRegex = /\d/;
                 return !countryRegex.test(this.inputDestination.country);
             },
+
             isPublic() {
                 // Tells users editing a destination whether they've made the destination public or private.
                 if (this.inputDestination.public) {
@@ -265,6 +269,7 @@
                 return "Private";
             }
         },
+
         methods: {
             /**
              * Checks all of the input fields for valid input

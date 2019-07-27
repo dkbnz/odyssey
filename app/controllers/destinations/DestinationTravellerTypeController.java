@@ -23,20 +23,20 @@ import static play.mvc.Results.*;
 
 public class DestinationTravellerTypeController {
 
-    private DestinationRepository destinationRepo;
-    private TravellerTypeRepository travellerTypeRepo;
-    private ProfileRepository profileRepo;
+    private DestinationRepository destinationRepository;
+    private TravellerTypeRepository travellerTypeRepository;
+    private ProfileRepository profileRepository;
 
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
 
     @Inject
-    public DestinationTravellerTypeController(DestinationRepository destinationRepo,
-                                              TravellerTypeRepository travellerTypeRepo,
-                                              ProfileRepository profileRepo) {
-        this.destinationRepo = destinationRepo;
-        this.travellerTypeRepo = travellerTypeRepo;
-        this.profileRepo = profileRepo;
+    public DestinationTravellerTypeController(DestinationRepository destinationRepository,
+                                              TravellerTypeRepository travellerTypeRepository,
+                                              ProfileRepository profileRepository) {
+        this.destinationRepository = destinationRepository;
+        this.travellerTypeRepository = travellerTypeRepository;
+        this.profileRepository = profileRepository;
     }
 
 
@@ -44,8 +44,8 @@ public class DestinationTravellerTypeController {
      * Takes a JsonNode that is an array of traveller types. Will then iterate
      * over the array and produce a list of traveller types.
      *
-     * @param travellerTypesNode    a JsonNode containing a list of serialized traveller types
-     * @return                      a list of traveller types
+     * @param travellerTypesNode    a JsonNode containing a list of serialized traveller types.
+     * @return                      a list of traveller types.
      */
     private List<TravellerType> getTravellerTypeFromNode(JsonNode travellerTypesNode) {
         List<TravellerType> travellerTypes = new ArrayList<>();
@@ -68,9 +68,10 @@ public class DestinationTravellerTypeController {
      * recommended traveller types for a destination.
      * All proposed traveller types will be cleared.
      *
-     * @param request           Http request containing a Json body of traveller types
-     * @param destinationId     id of the destination for which the traveller types are set
-     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
+     * @param request           Http request containing a Json body of traveller types.
+     * @param destinationId     id of the destination for which the traveller types are set.
+     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully
+     *                          updated.
      */
     public Result create(Http.Request request, Long destinationId) {
 
@@ -79,13 +80,13 @@ public class DestinationTravellerTypeController {
             return unauthorized();
         }
 
-        Destination destinationToMutate = destinationRepo.fetch(destinationId);
+        Destination destinationToMutate = destinationRepository.fetch(destinationId);
 
         if (destinationToMutate == null) {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, destinationToMutate.getOwner())) {
             return forbidden();
@@ -99,14 +100,14 @@ public class DestinationTravellerTypeController {
 
         // Prevent the user from adding traveller types that do not already exist
         travellerTypesToSet.retainAll(
-                travellerTypeRepo.findAll()
+                travellerTypeRepository.findAll()
         );
 
         destinationToMutate.setTravellerTypes(
                 travellerTypesToSet
         );
 
-        destinationRepo.save(destinationToMutate);
+        destinationRepository.save(destinationToMutate);
         return ok(Json.toJson(destinationToMutate));
     }
 
@@ -117,9 +118,10 @@ public class DestinationTravellerTypeController {
      * If method executes successfully, given traveller types will be split between
      * proposed to add or proposed to remove depending on their presence in the current set.
      *
-     * @param request           Http request containing a Json body of traveller types
-     * @param destinationId     id of the destination for which the traveller types are proposed
-     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
+     * @param request           Http request containing a Json body of traveller types.
+     * @param destinationId     id of the destination for which the traveller types are proposed.
+     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully
+     *                          updated.
      */
     public Result propose(Http.Request request, Long destinationId) {
 
@@ -128,7 +130,7 @@ public class DestinationTravellerTypeController {
             return unauthorized();
         }
 
-        Destination destinationToMutate = destinationRepo.fetch(destinationId);
+        Destination destinationToMutate = destinationRepository.fetch(destinationId);
 
         if (destinationToMutate == null) {
             return notFound();
@@ -145,7 +147,7 @@ public class DestinationTravellerTypeController {
 
         // Prevent the user from proposing traveller types that do not already exist
         proposedTravellerTypes.retainAll(
-                travellerTypeRepo.findAll()
+                travellerTypeRepository.findAll()
         );
 
         // Proposed to add = proposed set - current set
@@ -160,7 +162,7 @@ public class DestinationTravellerTypeController {
         destinationToMutate.setProposedTravellerTypesAdd(proposedAddTravellerTypes);
         destinationToMutate.setProposedTravellerTypesRemove(proposedRemoveTravellerTypes);
 
-        destinationRepo.save(destinationToMutate);
+        destinationRepository.save(destinationToMutate);
         return ok(Json.toJson(destinationToMutate));
     }
 
@@ -168,8 +170,8 @@ public class DestinationTravellerTypeController {
     /**
      * Gets all the destinations that have traveller type proposals that are not currently accepted or rejected.
      *
-     * @param request the request from the front end that contains login info.
-     * @return a json result of all the destinations with proposals.
+     * @param request   the request from the front end that contains login info.
+     * @return          a json result of all the destinations with proposals.
      */
     public Result fetchProposedDestinations(Http.Request request) {
 
@@ -178,13 +180,13 @@ public class DestinationTravellerTypeController {
             return unauthorized();
         }
 
-        Profile loggedInUser = profileRepo.fetchSingleProfile(loggedInUserId);
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!loggedInUser.getIsAdmin()) {
             return forbidden();
         }
 
-        return ok(Json.toJson(destinationRepo.fetchProposed()));
+        return ok(Json.toJson(destinationRepository.fetchProposed()));
     }
 
 }
