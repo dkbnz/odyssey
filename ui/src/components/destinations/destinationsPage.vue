@@ -15,6 +15,7 @@
                                     :longitude="selectedDestination.longitude"
                                     :zoom="getZoom()"
                                     :key="selectedDestination"
+                                    v-if="showMap"
                                     @destination-click="destination => this.selectedDestination = destination">
                         </google-map>
                     </b-card>
@@ -125,6 +126,10 @@
             }
         },
 
+        mounted() {
+            this.delayMapLoad();
+        },
+
         methods: {
             /**
              * Switches between tabs.
@@ -157,6 +162,18 @@
                 this.selectedDestination = {};
                 this.refreshSingleDestination += 1;
                 this.showAlert();
+            },
+
+
+            /**
+             * Delays the map loading to let the page load before the map component
+             */
+            delayMapLoad() {
+                let self = this;
+                let delay = 100;
+                setTimeout(() => {
+                    self.showMap = true;
+                }, delay)
             },
 
 
