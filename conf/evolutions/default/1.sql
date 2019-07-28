@@ -71,6 +71,24 @@ create table destination_personal_photo (
   constraint pk_destination_personal_photo primary key (destination_id,personal_photo_id)
 );
 
+create table destination_traveller_type (
+  destination_id                bigint not null,
+  traveller_type_id             bigint not null,
+  constraint pk_destination_traveller_type primary key (destination_id,traveller_type_id)
+);
+
+create table destination_proposed_traveller_type_add (
+  destination_id                bigint not null,
+  traveller_type_id             bigint not null,
+  constraint pk_destination_proposed_traveller_type_add primary key (destination_id,traveller_type_id)
+);
+
+create table destination_proposed_traveller_type_remove (
+  destination_id                bigint not null,
+  traveller_type_id             bigint not null,
+  constraint pk_destination_proposed_traveller_type_remove primary key (destination_id,traveller_type_id)
+);
+
 create table destination_type (
   id                            bigint auto_increment not null,
   destination_type              varchar(255),
@@ -150,6 +168,18 @@ create table traveller_type (
   constraint pk_traveller_type primary key (id)
 );
 
+create table treasure_hunt (
+  id                            bigint auto_increment not null,
+  destination_id                bigint,
+  riddle                        varchar(255),
+  start_date                    datetime(6),
+  end_date                      datetime(6),
+  owner_id                      bigint,
+  constraint uq_treasure_hunt_destination_id unique (destination_id),
+  constraint uq_treasure_hunt_owner_id unique (owner_id),
+  constraint pk_treasure_hunt primary key (id)
+);
+
 create table trip (
   id                            bigint auto_increment not null,
   name                          varchar(255),
@@ -178,6 +208,24 @@ alter table destination_personal_photo add constraint fk_destination_personal_ph
 
 create index ix_destination_personal_photo_personal_photo on destination_personal_photo (personal_photo_id);
 alter table destination_personal_photo add constraint fk_destination_personal_photo_personal_photo foreign key (personal_photo_id) references personal_photo (id) on delete restrict on update restrict;
+
+create index ix_destination_traveller_type_destination on destination_traveller_type (destination_id);
+alter table destination_traveller_type add constraint fk_destination_traveller_type_destination foreign key (destination_id) references destination (id) on delete restrict on update restrict;
+
+create index ix_destination_traveller_type_traveller_type on destination_traveller_type (traveller_type_id);
+alter table destination_traveller_type add constraint fk_destination_traveller_type_traveller_type foreign key (traveller_type_id) references traveller_type (id) on delete restrict on update restrict;
+
+create index ix_destination_proposed_traveller_type_add_destination on destination_proposed_traveller_type_add (destination_id);
+alter table destination_proposed_traveller_type_add add constraint fk_destination_proposed_traveller_type_add_destination foreign key (destination_id) references destination (id) on delete restrict on update restrict;
+
+create index ix_destination_proposed_traveller_type_add_traveller_type on destination_proposed_traveller_type_add (traveller_type_id);
+alter table destination_proposed_traveller_type_add add constraint fk_destination_proposed_traveller_type_add_traveller_type foreign key (traveller_type_id) references traveller_type (id) on delete restrict on update restrict;
+
+create index ix_destination_proposed_traveller_type_remove_destination on destination_proposed_traveller_type_remove (destination_id);
+alter table destination_proposed_traveller_type_remove add constraint fk_destination_proposed_traveller_type_remove_destination foreign key (destination_id) references destination (id) on delete restrict on update restrict;
+
+create index ix_destination_proposed_traveller_type_remove_traveller_t_2 on destination_proposed_traveller_type_remove (traveller_type_id);
+alter table destination_proposed_traveller_type_remove add constraint fk_destination_proposed_traveller_type_remove_traveller_t_2 foreign key (traveller_type_id) references traveller_type (id) on delete restrict on update restrict;
 
 create index ix_personal_photo_photo_id on personal_photo (photo_id);
 alter table personal_photo add constraint fk_personal_photo_photo_id foreign key (photo_id) references photo (id) on delete restrict on update restrict;
@@ -208,6 +256,10 @@ alter table profile_passport add constraint fk_profile_passport_profile foreign 
 create index ix_profile_passport_passport on profile_passport (passport_id);
 alter table profile_passport add constraint fk_profile_passport_passport foreign key (passport_id) references passport (id) on delete restrict on update restrict;
 
+alter table treasure_hunt add constraint fk_treasure_hunt_destination_id foreign key (destination_id) references destination (id) on delete restrict on update restrict;
+
+alter table treasure_hunt add constraint fk_treasure_hunt_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
+
 create index ix_trip_profile_id on trip (profile_id);
 alter table trip add constraint fk_trip_profile_id foreign key (profile_id) references profile (id) on delete restrict on update restrict;
 
@@ -231,6 +283,24 @@ drop index ix_destination_personal_photo_destination on destination_personal_pho
 
 alter table destination_personal_photo drop foreign key fk_destination_personal_photo_personal_photo;
 drop index ix_destination_personal_photo_personal_photo on destination_personal_photo;
+
+alter table destination_traveller_type drop foreign key fk_destination_traveller_type_destination;
+drop index ix_destination_traveller_type_destination on destination_traveller_type;
+
+alter table destination_traveller_type drop foreign key fk_destination_traveller_type_traveller_type;
+drop index ix_destination_traveller_type_traveller_type on destination_traveller_type;
+
+alter table destination_proposed_traveller_type_add drop foreign key fk_destination_proposed_traveller_type_add_destination;
+drop index ix_destination_proposed_traveller_type_add_destination on destination_proposed_traveller_type_add;
+
+alter table destination_proposed_traveller_type_add drop foreign key fk_destination_proposed_traveller_type_add_traveller_type;
+drop index ix_destination_proposed_traveller_type_add_traveller_type on destination_proposed_traveller_type_add;
+
+alter table destination_proposed_traveller_type_remove drop foreign key fk_destination_proposed_traveller_type_remove_destination;
+drop index ix_destination_proposed_traveller_type_remove_destination on destination_proposed_traveller_type_remove;
+
+alter table destination_proposed_traveller_type_remove drop foreign key fk_destination_proposed_traveller_type_remove_traveller_t_2;
+drop index ix_destination_proposed_traveller_type_remove_traveller_t_2 on destination_proposed_traveller_type_remove;
 
 alter table personal_photo drop foreign key fk_personal_photo_photo_id;
 drop index ix_personal_photo_photo_id on personal_photo;
@@ -261,6 +331,10 @@ drop index ix_profile_passport_profile on profile_passport;
 alter table profile_passport drop foreign key fk_profile_passport_passport;
 drop index ix_profile_passport_passport on profile_passport;
 
+alter table treasure_hunt drop foreign key fk_treasure_hunt_destination_id;
+
+alter table treasure_hunt drop foreign key fk_treasure_hunt_owner_id;
+
 alter table trip drop foreign key fk_trip_profile_id;
 drop index ix_trip_profile_id on trip;
 
@@ -273,6 +347,12 @@ drop index ix_trip_destination_destination_id on trip_destination;
 drop table if exists destination;
 
 drop table if exists destination_personal_photo;
+
+drop table if exists destination_traveller_type;
+
+drop table if exists destination_proposed_traveller_type_add;
+
+drop table if exists destination_proposed_traveller_type_remove;
 
 drop table if exists destination_type;
 
@@ -293,6 +373,8 @@ drop table if exists profile_traveller_type;
 drop table if exists profile_passport;
 
 drop table if exists traveller_type;
+
+drop table if exists treasure_hunt;
 
 drop table if exists trip;
 
