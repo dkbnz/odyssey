@@ -10,7 +10,12 @@
             <b-row>
                 <b-col cols="8">
                     <b-card ref="maps">
-                        <google-map v-bind:destinations="destinationsForMap" ref="map">
+                        <google-map v-bind:destinations="destinationsForMap" ref="map"
+                                    :latitude="selectedDestination.latitude"
+                                    :longitude="selectedDestination.longitude"
+                                    :zoom="getZoom()"
+                                    :key="selectedDestination"
+                                    @destination-click="destination => this.selectedDestination = destination">
                         </google-map>
                     </b-card>
                     <b-alert
@@ -115,7 +120,8 @@
                 refreshSingleDestination: 0,
                 dismissSecs: 3,
                 dismissCountDown: 0,
-                destinationsForMap: []
+                destinationsForMap: [],
+                showMap: false
             }
         },
 
@@ -151,6 +157,18 @@
                 this.selectedDestination = {};
                 this.refreshSingleDestination += 1;
                 this.showAlert();
+            },
+
+
+            /**
+             * Returns a more zoomed-in map if a destination has been selected
+             */
+            getZoom() {
+              if (this.selectedDestination.name) {
+                  return 12;
+              } else {
+                  return 5;
+              }
             },
 
 
