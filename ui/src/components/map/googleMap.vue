@@ -2,6 +2,9 @@
     <div>
         <div id="map" class="mapDiv">
         </div>
+        <div id="legend">
+
+        </div>
     </div>
 
 </template>
@@ -60,12 +63,23 @@
                     center: {lat: this.latitude, lng: this.longitude},
                     zoom: this.zoom
                 });
+
+                let legend = document.getElementById('legend');
+                let div = document.createElement('div');
+                div.innerHTML = '<img src="' + this.publicMarker + '"> ' + '<strong>Public Destination</strong>';
+                legend.appendChild(div);
+                div = document.createElement('div');
+                div.innerHTML = '<img src="' + this.privateMarker + '"> ' + '<strong>Private Destination</strong>';
+                legend.appendChild(div);
+
+                this.$map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(legend);
             },
 
             /**
              * Creates all the markers for the map from the destinations array passed in props
              */
             createMarker() {
+                let self = this;
                 for (let i = 0; i < this.destinations.length; i++) {
 
                     let currentDestination = this.destinations[i];
@@ -78,8 +92,13 @@
                     let marker = new google.maps.Marker({
                         position: {lat: currentDestination.latitude, lng: currentDestination.longitude},
                         map: this.$map,
-                        title: currentDestination.name,
+                        title: (currentDestination.name + "\n" + currentDestination.district + "\n" + currentDestination.country),
                         icon: colour
+                    });
+                    marker.addListener("click", function(){
+                        self.$map.setZoom(12);
+                        self.$map.setCenter(marker.getPosition());
+                        self.$emit('destination-click', currentDestination);
                     });
                     this.markerArray.push(marker);
                 }
@@ -103,6 +122,14 @@
 
     .mapDiv {
         height: 50vh;
+    }
+
+    #legend {
+        font-family: Arial, sans-serif;
+        background: #fff;
+        padding: 10px;
+        margin: 10px;
+        border: 3px solid #000;
     }
 
 </style>
