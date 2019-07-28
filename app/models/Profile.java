@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Finder;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
+import models.treasureHunt.TreasureHunt;
 import models.trips.Trip;
 import play.data.format.Formats;
 
@@ -60,6 +61,16 @@ public class Profile extends BaseModel {
     @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
     private List<Destination> myDestinations = new ArrayList<>();
 
+    @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
+    private List<TreasureHunt> myTreasureHunts = new ArrayList<>();
+
+    public List<TreasureHunt> getMyTreasureHunts() {
+        return myTreasureHunts;
+    }
+
+    public void setMyTreasureHunts(List<TreasureHunt> myTreasureHunts) {
+        this.myTreasureHunts = myTreasureHunts;
+    }
 
     public PersonalPhoto getProfilePicture() {
         return profilePicture;
