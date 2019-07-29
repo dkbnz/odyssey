@@ -280,4 +280,14 @@ public class TreasureHuntTestSteps {
         int responseSize = new ObjectMapper().readTree(responseBody).size();
         Assert.assertTrue(responseSize > 0);
     }
+
+
+    @When("I attempt to create a treasure hunt with the following values")
+    public void iAttemptToCreateATreasureHuntWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            JsonNode json = convertDataTableToTreasureHuntJson(dataTable, i);
+            createTreasureHuntRequest(json);
+        }
+    }
+
 }
