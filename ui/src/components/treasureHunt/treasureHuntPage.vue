@@ -1,6 +1,6 @@
 <template>
     <div v-if="profile.length !== 0" :class="containerClass">
-        <!--Shows tabs for destination page-->
+        <!--Shows tabs for treasure hunt page-->
         <navbar-main v-bind:profile="profile" v-if="!adminView"></navbar-main>
         <div class="containerMain">
             <h1 class="page-title">Treasure Hunts</h1>
@@ -10,7 +10,22 @@
             <b-row>
                 <b-col cols="8">
                     <b-card>
-                        View Treasure hunts
+                        <b-tabs content-class="mt-3">
+                            <b-tab title="Available Treasure Hunts" active>
+                                <treasure-hunt-list
+                                        :profile="profile"
+                                        :adminView="adminView"
+                                        :yourTreasureHunts="false"
+                                ></treasure-hunt-list>
+                            </b-tab>
+                            <b-tab title="Your Treasure Hunts">
+                                <treasure-hunt-list
+                                        :profile="profile"
+                                        :adminView="adminView"
+                                        :yourTreasureHunts="true"
+                                ></treasure-hunt-list>
+                            </b-tab>
+                        </b-tabs>
                     </b-card>
                 </b-col>
                 <b-col>
@@ -36,6 +51,7 @@
     import NavbarMain from "../helperComponents/navbarMain";
     import UnauthorisedPromptPage from "../helperComponents/unauthorisedPromptPage";
     import FoundDestinations from "../destinations/destinationSearchList";
+    import TreasureHuntList from "./treasureHuntList";
     export default {
         name: "treasureHuntPage",
 
@@ -54,6 +70,7 @@
         },
 
         components: {
+            TreasureHuntList,
             FoundDestinations,
             UnauthorisedPromptPage,
             NavbarMain,
