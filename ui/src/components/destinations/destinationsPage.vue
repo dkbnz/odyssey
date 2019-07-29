@@ -24,7 +24,7 @@
                             variant="success">
                         <p>Destination Successfully Deleted</p>
                         <b-progress
-                                :max="dismissSecs"
+                                :max="dismissSeconds"
                                 :value="dismissCountDown"
                                 height="4px"
                                 variant="success"
@@ -86,12 +86,12 @@
             destinations: Array,
             destinationTypes: Array,
             containerClass: {
-                default: function() {
+                default: function () {
                     return null;
                 }
             },
             adminView: {
-                default: function() {
+                default: function () {
                     return false;
                 }
             },
@@ -116,7 +116,7 @@
                 selectedDestination: {},
                 refreshDestinationData: 0,
                 refreshSingleDestination: 0,
-                dismissSecs: 3,
+                dismissSeconds: 3,
                 dismissCountDown: 0,
                 destinationsForMap: [],
                 showMap: false
@@ -188,7 +188,7 @@
              * Displays the countdown alert on the successful saving of a destination.
              */
             showAlert() {
-                this.dismissCountDown = this.dismissSecs
+                this.dismissCountDown = this.dismissSeconds
             },
 
             /**
@@ -196,7 +196,7 @@
              * @param destinationToSelect
              */
             selectDestination(destinationToSelect) {
-                if(destinationToSelect.id === this.selectedDestination.id) {
+                if (destinationToSelect.id === this.selectedDestination.id) {
                     this.$refs['map'].focusOnSelectedDestination();
                 } else {
                     this.selectedDestination = destinationToSelect;

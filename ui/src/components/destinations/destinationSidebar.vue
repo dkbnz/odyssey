@@ -39,6 +39,7 @@
 <script>
     import DestinationSearchList from "./destinationSearchList";
     import AddDestinations from "./addDestinations";
+
     export default {
         name: "destinationSidebar",
 
@@ -72,7 +73,7 @@
             },
 
             foundDestinationUpdate(publicDestinations, destinations) {
-                if(publicDestinations) {
+                if (publicDestinations) {
                     this.foundPublicDestinations = destinations;
                     this.$emit('destination-search', this.foundPublicDestinations)
                 } else {

@@ -50,7 +50,8 @@
                         This will merge the following 1 private destination:
                     </p>
                     <p v-else>
-                        This will merge the following {{destinationConflicts.matching_destinations.length}} private destinations:
+                        This will merge the following {{destinationConflicts.matching_destinations.length}} private
+                        destinations:
                     </p>
                     <b-list-group
                             style="overflow-y: scroll; height: 30vh;">
@@ -61,7 +62,8 @@
                                 <h5 class="mb-1">Name: {{destination.name}}</h5>
                             </div>
                             <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">Created by: {{destination.owner.firstName}} {{destination.owner.firstName}}</h5>
+                                <h5 class="mb-1">Created by: {{destination.owner.firstName}}
+                                    {{destination.owner.firstName}}</h5>
                             </div>
                         </b-list-group-item>
                     </b-list-group>
@@ -155,7 +157,8 @@
                     {{isPublic}} Destination
                 </b-form-checkbox>
 
-                <b-button :disabled="!validateFields()" @click="checkDestinationFields" block variant="primary">Save</b-button>
+                <b-button :disabled="!validateFields()" @click="checkDestinationFields" block variant="primary">Save
+                </b-button>
             </b-form>
         </div>
     </div>
@@ -286,7 +289,7 @@
              * On fail shows errors.
              */
             checkDestinationFields() {
-                if(this.validateFields()) {
+                if (this.validateFields()) {
                     this.showError = false;
 
                     if (this.inputDestination.id === null) {
@@ -344,7 +347,7 @@
                     }))
                 })
                     .then(this.checkStatus)
-                    .then(function(response) {
+                    .then(function (response) {
                         self.resetDestForm();
                         self.showAlert();
                         self.$emit('data-changed');
@@ -366,7 +369,7 @@
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
-                    .then(function(response) {
+                    .then(function (response) {
                         self.displayConfirmation();
                     });
             },
@@ -391,20 +394,20 @@
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},
                     body: jsonBody
-                }).then(function(response) {
-                        if (response.ok) {
-                            self.showAlert();
-                            self.dismissModal('confirmEditModal');
-                            self.$emit('destination-saved', self.inputDestination);
-                            return JSON.parse(JSON.stringify(response));
-                        } else {
-                            self.errorMessage = "";
-                            self.showError = true;
-                            response.clone().text().then(text => {
-                                self.errorMessage = text;
-                            });
-                        }
-                    });
+                }).then(function (response) {
+                    if (response.ok) {
+                        self.showAlert();
+                        self.dismissModal('confirmEditModal');
+                        self.$emit('destination-saved', self.inputDestination);
+                        return JSON.parse(JSON.stringify(response));
+                    } else {
+                        self.errorMessage = "";
+                        self.showError = true;
+                        response.clone().text().then(text => {
+                            self.errorMessage = text;
+                        });
+                    }
+                });
             },
 
 
