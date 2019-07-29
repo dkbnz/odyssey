@@ -8,21 +8,29 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import models.Profile;
+import models.destinations.Destination;
+import models.treasureHunts.TreasureHunt;
 import org.junit.Assert;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repositories.treasureHunts.TreasureHuntRepository;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import static play.test.Helpers.*;
 
 public class TreasureHuntTestSteps {
@@ -49,6 +57,12 @@ public class TreasureHuntTestSteps {
      * The Json body of the response.
      */
     private String responseBody;
+
+
+    /**
+     * The ID of the treasure hunt to be updated.
+     */
+    private Long treasureHuntId;
 
     /**
      * Authorisation token for sessions
@@ -286,8 +300,8 @@ public class TreasureHuntTestSteps {
 
 
     /**
-     * Sends a request to create a destination with values from the given json node.
-     * @param json      a JsonNode containing the values for a new destination object.
+     * Sends a request to create a treasure hunt with values from the given Json node.
+     * @param json      a JsonNode containing the values for a new treasure hunt object.
      */
     private void createTreasureHuntRequest(JsonNode json) {
         Http.RequestBuilder request = fakeRequest()
@@ -297,6 +311,79 @@ public class TreasureHuntTestSteps {
                 .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
+
+        if (statusCode == 200 || statusCode == 201) {
+            responseBody = Helpers.contentAsString(result);
+            treasureHuntId = Long.valueOf(responseBody);
+        }
+    }
+
+
+    /**
+     * Sends a request to edit a treasure hunt with values from the given Json node.
+     * @param json      a JsonNode containing the values for a edited treasure hunt object.
+     */
+    private void editTreasureHuntRequest(JsonNode json) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(PUT)
+                .bodyJson(json)
+                .uri(TREASURE_HUNT_URI + "/" + treasureHuntId)
+                .session(AUTHORIZED, loggedInId);
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
+
+
+    /**
+     * Converts the values of a cucumber DataTable to a JSON node object, using only the information that was given.
+     *
+     * @param dataTable   the cucumber datatable holding the values to be converted to JSON.
+     * @return            the JSON representation of the DataTable.
+     */
+    private JsonNode convertDataTableToEditTreasureHunt(io.cucumber.datatable.DataTable dataTable){
+        int valueIndex = 0;
+        TreasureHunt editDestination = treasureHuntRepository.findById(treasureHuntId);
+        if (editDestination == null) {
+            editDestination = new TreasureHunt();
+        }
+        List<Map<String, String>> valueList = dataTable.asMaps(String.class, String.class);
+        Map<String, String> valueMap = valueList.get(valueIndex);
+
+        for (Map.Entry<String, String> entry : valueMap.entrySet()) {
+            String value = entry.getValue();
+
+            switch (entry.getKey()) {
+                case DESTINATION_STRING:
+                    editDestination.setDestination(Destination.find.byId(Integer.valueOf(value)));
+                    break;
+                case RIDDLE_STRING:
+                    editDestination.setRiddle(value);
+                    break;
+                case START_DATE_STRING:
+                    Date startDate = new Date();
+                    try {
+                        startDate = new SimpleDateFormat("yyyy-MM-dd hh-MM-ss").parse(value);
+                    } catch (ParseException e) {
+                        fail();
+                    }
+                    editDestination.setStartDate(startDate);
+                    break;
+                case END_DATE_STRING:
+                    Date endDate = new Date();
+                    try {
+                        endDate = new SimpleDateFormat("yyyy-MM-dd hh-MM-ss").parse(value);
+                    } catch (ParseException e) {
+                        fail();
+                    }
+                    editDestination.setEndDate(endDate);
+                    break;
+                case OWNER_STRING:
+                    editDestination.setOwner(Profile.find.byId(Integer.valueOf(value)));
+                    break;
+            }
+        }
+
+        return Json.toJson(editDestination);
     }
 
 
@@ -320,7 +407,7 @@ public class TreasureHuntTestSteps {
     }
 
 
-    @Given("The user is not logged in")
+    @Given("the user is not logged in")
     public void theUserIsNotLoggedIn() {
         assertNull(loggedInId);
     }
@@ -369,6 +456,13 @@ public class TreasureHuntTestSteps {
     }
 
 
+    @When("I attempt to edit the treasure hunt with the following values")
+    public void iAttemptToEditTheTreasureHuntWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        JsonNode editValues = convertDataTableToEditTreasureHunt(dataTable);
+        editTreasureHuntRequest(editValues);
+    }
+
+
     @Then("the status code I receive is (\\d+)$")
     public void theStatusCodeIReceiveIs(int expectedStatusCode) {
         assertEquals(expectedStatusCode, statusCode);
@@ -379,5 +473,11 @@ public class TreasureHuntTestSteps {
     public void theResponseContainsAtLeastOneTreasureHunt() throws IOException {
         int responseSize = new ObjectMapper().readTree(responseBody).size();
         Assert.assertTrue(responseSize > 0);
+    }
+
+    @Then("the response contains no treasure hunts")
+    public void theResponseContainsNoTreasureHunts() throws IOException {
+        int responseSize = new ObjectMapper().readTree(responseBody).size();
+        Assert.assertEquals(0, responseSize);
     }
 }

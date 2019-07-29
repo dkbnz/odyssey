@@ -87,7 +87,7 @@ public class TreasureHuntController {
         treasureHuntRepository.save(treasureHunt);
         profileRepository.update(treasureHuntOwner);
 
-        return created();
+        return created(Json.toJson(treasureHunt.getId()));
     }
 
 
