@@ -159,17 +159,5 @@
     }
 </script>
 <style scoped>
-
-    .mapDiv {
-        height: 50vh;
-    }
-
-    .legend {
-        font-family: Arial, sans-serif;
-        background: #fff;
-        padding: 10px;
-        margin: 10px;
-        border: 3px solid #000;
-    }
-
+    @import "../../css/googleMap.css";
 </style>
