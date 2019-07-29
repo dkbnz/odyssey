@@ -8,7 +8,6 @@ import models.destinations.Destination;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import java.sql.Timestamp;
 import java.util.Date;
 
 /**
