@@ -1,5 +1,6 @@
 package models.treasureHunts;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Finder;
 import models.BaseModel;
@@ -18,20 +19,21 @@ public class TreasureHunt extends BaseModel {
 
     public static final Finder<Integer, TreasureHunt> find = new Finder<>(TreasureHunt.class);
 
-    @JsonIgnore
+    //@JsonIgnore
     @ManyToOne
     private Destination destination;
 
     private String riddle;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endDate;
 
     @JsonIgnore
     @ManyToOne
     private Profile owner;
-
 
     public Destination getDestination() {
         return destination;

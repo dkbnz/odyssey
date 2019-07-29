@@ -199,8 +199,62 @@ public class TreasureHuntController {
                 treasureHunts.add(treasureHunt);
             }
         }
-
         return ok(Json.toJson(treasureHunts));
+    }
+
+
+    /**
+     * Edits the treasure hunt specified by the given id. Changed values are stored in the request body. Validates
+     * request body.
+     *
+     * @param request           the request from the front end of the application containing login information.
+     * @param treasureHuntId    the id of the treasure hunt the user is trying to edit.
+     * @return                  unauthorized() (Http 401) if the user is not logged in.
+     *                          notFound() (Http 404) if the treasure hunt id does not exist in the database.
+     *                          forbidden() (Http 403) if the user is not the owner of the treasure hunt or is not an
+     *                          admin.
+     *                          ok() (Http 200) if the user is successful in deleting the treasure hunt.
+     *                          badRequest() (Http 400) if there is an error with the request.
+     */
+    public Result edit(Http.Request request, Long treasureHuntId) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        TreasureHunt treasureHunt = treasureHuntRepository.findById(treasureHuntId);
+
+        if (treasureHunt == null) {
+            return notFound();
+        }
+
+        Profile treasureHuntOwner = treasureHunt.getOwner();
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, treasureHuntOwner)) {
+            return forbidden();
+        }
+
+        JsonNode json = request.body().asJson();
+
+//        if (!isValidJson(json)) {
+//            return badRequest();
+//        }
+
+        treasureHunt = Json.fromJson(json, TreasureHunt.class);
+
+        System.out.println(treasureHunt.getStartDate());
+        System.out.println(treasureHunt.getDestination().getId());
+
+        //treasureHunt.setId(treasureHuntId);
+
+        if (treasureHuntOwner != null) {
+            treasureHuntRepository.update(treasureHunt);
+            profileRepository.update(treasureHuntOwner);
+            return ok();
+        }
+
+        return badRequest();
     }
 
 
@@ -210,16 +264,16 @@ public class TreasureHuntController {
      * Otherwise the user will be forbidden.
      *
      * @param request           the request from the front end of the application containing login information.
-     * @param treasureHuntId    The id of the treasure hunt the user is trying to delete.
+     * @param treasureHuntId    the id of the treasure hunt the user is trying to delete.
      *
-     * @return                  unauthorized() if the user is not logged in.
-     *                          notFound() if the treasure hunt id does not exist in the database.
-     *                          forbidden() if the user is not the owner of the treasure hunt or is not an admin.
-     *                          ok() if the user is successful in deleting the treasure hunt.
-     *                          badRequest() if there is an error with the request.
+     * @return                  unauthorized() (Http 401) if the user is not logged in.
+     *                          notFound() (Http 404) if the treasure hunt id does not exist in the database.
+     *                          forbidden() (Http 403) if the user is not the owner of the treasure hunt or is not an
+     *                          admin.
+     *                          ok() (Http 200) if the user is successful in deleting the treasure hunt.
+     *                          badRequest() (Http 400) if there is an error with the request.
      */
     public Result delete(Http.Request request, Long treasureHuntId) {
-
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
 
         if (loggedInUserId == null) {
