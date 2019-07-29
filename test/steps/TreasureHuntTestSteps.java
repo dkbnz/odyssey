@@ -20,6 +20,7 @@ import repositories.treasureHunts.TreasureHuntRepository;
 import java.io.IOException;
 import java.util.*;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static play.test.Helpers.*;
 
@@ -29,6 +30,13 @@ public class TreasureHuntTestSteps {
      * Currently logged-in user
      */
     private String loggedInId;
+
+
+    /**
+     * User who owns the treasure hunt
+     */
+    private String targetUserId;
+
 
     /**
      * Variable to hold the status code of the result.
@@ -63,6 +71,36 @@ public class TreasureHuntTestSteps {
      * Valid login credentials for a regular user.
      */
     private static final String REG_ID = "2";
+
+
+    /**
+     * The login endpoint uri.
+     */
+    private static final String LOGIN_URI = "/v1/login";
+
+
+
+    /**
+     * Valid login credentials for an admin user.
+     */
+    private static final String ADMIN_USERNAME = "admin@travelea.com";
+    private static final String ADMIN_AUTHPASS = "admin1";
+
+
+    /**
+     * Valid login credentials for a regular user.
+     */
+    private static final String REG_USERNAME = "guestUser@travelea.com";
+    private static final String REG_AUTHPASS = "guest123";
+
+
+    /**
+     * Valid login credentials for an alternate user.
+     */
+    private static final String ALT_USERNAME = "testuser1@email.com";
+    private static final String ALT_AUTHPASS = "guest123";
+    private static final String ALT_ID = "3";
+
 
     /**
      * The fake application.
@@ -154,6 +192,29 @@ public class TreasureHuntTestSteps {
 
 
     /**
+     * Sends a fake request to the application to login.
+     * @param username      The string of the username to complete the login with.
+     * @param password      The string of the password to complete the login with.
+     */
+    private void loginRequest(String username, String password) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode json = mapper.createObjectNode();
+
+        json.put("username", username);
+        json.put("password", password);
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .bodyJson(json)
+                .uri(LOGIN_URI);
+        Result loginResult = route(application, request);
+
+        statusCode = loginResult.status();
+    }
+
+
+
+    /**
      * Converts a given data table of destination values to a json node object of this destination.
      * @param dataTable     the data table containing values of a destination.
      * @return              a JsonNode of a destination containing information from the data table.
@@ -228,7 +289,7 @@ public class TreasureHuntTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(TREASURE_HUNT_URI)
+                .uri(TREASURE_HUNT_URI + "/" + targetUserId)
                 .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
@@ -243,6 +304,8 @@ public class TreasureHuntTestSteps {
 
     @Given("I am logged in as a normal user")
     public void iAmLoggedInAsANormalUser() {
+        loginRequest(REG_USERNAME, REG_AUTHPASS);
+        assertEquals(OK, statusCode);
         loggedInId = REG_ID;
     }
 
@@ -284,7 +347,7 @@ public class TreasureHuntTestSteps {
 
     @Then("the status code I recieve is (\\d+)$")
     public void theStatusCodeIRecieveIs(int expectedStatusCode) throws Throwable {
-        Assert.assertEquals(expectedStatusCode, statusCode);
+        assertEquals(expectedStatusCode, statusCode);
     }
 
 
@@ -297,6 +360,7 @@ public class TreasureHuntTestSteps {
 
     @When("I attempt to create a treasure hunt with the following values")
     public void iAttemptToCreateATreasureHuntWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        targetUserId = loggedInId;
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToTreasureHuntJson(dataTable, i);
             createTreasureHuntRequest(json);
@@ -320,7 +384,7 @@ public class TreasureHuntTestSteps {
 
     @Then("the response status code is Unauthorized")
     public void theResponseStatusCodeIsUnauthorized() {
-        Assert.assertEquals("UNAUTHORIZED", statusCode);
+        assertEquals("UNAUTHORIZED", statusCode);
     }
 
 }
