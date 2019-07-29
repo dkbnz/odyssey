@@ -8,8 +8,6 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
 import models.Profile;
 import models.destinations.Destination;
 import models.treasureHunts.TreasureHunt;

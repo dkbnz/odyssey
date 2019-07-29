@@ -347,9 +347,6 @@ public class DestinationTestSteps {
                 .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
-        //System.out.println(json.get("public"));
-       // String id = json.get("id").toString();
-        //System.out.println(destinationRepository.fetch(Long.parseLong(id)).getPublic());
     }
 
 

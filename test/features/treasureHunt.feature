@@ -69,44 +69,44 @@ Feature: TreasureHunt API Endpoint
     Then the status code I receive is 400
 
 
-#  Scenario: Successfully editing a Treasure Hunt
-#    Given I have the application running
-#    And I am logged in as a normal user
-#    And a treasure hunt already exists with the following values
-#      | Destination | Riddle                                 | Start Date | End Date | Owner |
-#      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
-#    And the status code I receive is 201
-#    When I attempt to edit the treasure hunt with the following values
-#      | Riddle              |
-#      | How does this work? |
-#    Then the status code I receive is 200
-#
-#
-#  Scenario: Unsuccessfully editing a Treasure Hunt with no destination
-#    Given I have the application running
-#    And I am logged in as a normal user
-#    And a treasure hunt already exists with the following values
-#      | Destination | Riddle                                 | Start Date | End Date | Owner |
-#      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
-#    And the status code I receive is 201
-#    When I attempt to edit the treasure hunt with the following values
-#      | Destination |
-#      | null        |
-#    Then the status code I receive is 400
-#
-#
-#  Scenario: Unsuccessfully editing a Treasure Hunt for another user as non-admin
-#    Given I have the application running
-#    And I am logged in as an Admin user
-#    And a treasure hunt already exists with the following values
-#      | Destination | Riddle                                 | Start Date | End Date | Owner |
-#      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 1     |
-#    And the user is not logged in
-#    And I am logged in as a normal user
-#    When I attempt to edit the treasure hunt with the following values
-#      | Riddle |
-#      | COOL   |
-#    Then the status code I receive is 403
+  Scenario: Successfully editing a Treasure Hunt
+    Given I have the application running
+    And I am logged in as a normal user
+    And a treasure hunt already exists with the following values
+      | Destination | Riddle                                 | Start Date | End Date | Owner |
+      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
+    And the status code I receive is 201
+    When I attempt to edit the treasure hunt with the following values
+      | Riddle              |
+      | How does this work? |
+    Then the status code I receive is 200
+
+
+  Scenario: Unsuccessfully editing a Treasure Hunt with no destination
+    Given I have the application running
+    And I am logged in as a normal user
+    And a treasure hunt already exists with the following values
+      | Destination | Riddle                                 | Start Date | End Date | Owner |
+      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
+    And the status code I receive is 201
+    When I attempt to edit the treasure hunt with the following values
+      | Destination |
+      | null        |
+    Then the status code I receive is 400
+
+
+  Scenario: Unsuccessfully editing a Treasure Hunt for another user as non-admin
+    Given I have the application running
+    And I am logged in as an Admin user
+    And a treasure hunt already exists with the following values
+      | Destination | Riddle                                 | Start Date | End Date | Owner |
+      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 1     |
+    And the user is not logged in
+    And I am logged in as a normal user
+    When I attempt to edit the treasure hunt with the following values
+      | Riddle |
+      | COOL   |
+    Then the status code I receive is 403
 
 # TODO: Joel Ridden
 #  Scenario: Delete an already existing Treasure Hunt that I own
