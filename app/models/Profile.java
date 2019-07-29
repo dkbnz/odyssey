@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Finder;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
-import models.treasureHunt.TreasureHunt;
+import models.treasureHunts.TreasureHunt;
 import models.trips.Trip;
 import play.data.format.Formats;
 

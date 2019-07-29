@@ -175,8 +175,6 @@ create table treasure_hunt (
   start_date                    datetime(6),
   end_date                      datetime(6),
   owner_id                      bigint,
-  constraint uq_treasure_hunt_destination_id unique (destination_id),
-  constraint uq_treasure_hunt_owner_id unique (owner_id),
   constraint pk_treasure_hunt primary key (id)
 );
 
@@ -256,8 +254,10 @@ alter table profile_passport add constraint fk_profile_passport_profile foreign 
 create index ix_profile_passport_passport on profile_passport (passport_id);
 alter table profile_passport add constraint fk_profile_passport_passport foreign key (passport_id) references passport (id) on delete restrict on update restrict;
 
+create index ix_treasure_hunt_destination_id on treasure_hunt (destination_id);
 alter table treasure_hunt add constraint fk_treasure_hunt_destination_id foreign key (destination_id) references destination (id) on delete restrict on update restrict;
 
+create index ix_treasure_hunt_owner_id on treasure_hunt (owner_id);
 alter table treasure_hunt add constraint fk_treasure_hunt_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
 
 create index ix_trip_profile_id on trip (profile_id);
@@ -332,8 +332,10 @@ alter table profile_passport drop foreign key fk_profile_passport_passport;
 drop index ix_profile_passport_passport on profile_passport;
 
 alter table treasure_hunt drop foreign key fk_treasure_hunt_destination_id;
+drop index ix_treasure_hunt_destination_id on treasure_hunt;
 
 alter table treasure_hunt drop foreign key fk_treasure_hunt_owner_id;
+drop index ix_treasure_hunt_owner_id on treasure_hunt;
 
 alter table trip drop foreign key fk_trip_profile_id;
 drop index ix_trip_profile_id on trip;
