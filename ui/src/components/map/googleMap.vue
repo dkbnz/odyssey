@@ -47,6 +47,8 @@
         data() {
             return {
                 markerArray: [],
+                publicMarker: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
+                privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
             }
         },
         watch: {
@@ -103,7 +105,7 @@
 
 
             /**
-             * Clear's the markers currently displayed ont he map and clears the marker array
+             * Clear's the markers currently displayed on the map and clears the marker array
              */
             clearMarkers() {
                 for (let i = 0; i < this.markerArray.length-1; i++) {
