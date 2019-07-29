@@ -19,26 +19,12 @@
     export default {
         name: "googleMap.vue",
         props: {
+            selectedDestination: {
+                type: Object
+            },
             destinations: {
                 type: Array
             },
-            latitude: {
-                type: Number,
-                default: -41.272804
-            },
-            longitude: {
-                type: Number,
-                default: 173.299565
-            },
-            zoom: {
-                type: Number,
-                default: 5
-            },
-            dragMarkers: {
-                default: false
-            }
-        },
-        components: {
         },
         mounted() {
             this.initMap();
@@ -46,9 +32,18 @@
         },
         data() {
             return {
+                initial: {
+                    zoom: 5,
+                    view: {
+                        lat: -41.272804,
+                        lng: 173.299565
+                    }
+                },
+                dragMarkers: false,
                 markerArray: [],
                 publicMarker: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
-                privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                selectedMarker: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
             }
         },
         watch: {
@@ -56,7 +51,34 @@
              * Watches the destinations list for changes and when there are changes calls the create marker function
              */
             destinations: function() {
+                //If no destinations to show, centre map.
+                if(!this.destinations.length) {
+                    this.centreMap();
+                }
+                this.clearMarkers();
                 this.createMarker();
+            },
+
+            /**
+             * If selected destination changes, re-center map and calculate markers
+             */
+            selectedDestination: function(newDestination, oldDestination) {
+
+                if(newDestination.id === oldDestination.id) {
+                    // Destination has been edited
+                    let newMarker = this.markerArray[newDestination.id]
+                    newMarker.setIcon(newDestination.public ? this.publicMarker : this.privateMarker)
+                    newMarker.setPosition({lat: parseFloat(newDestination.latitude), lng: parseFloat(newDestination.longitude)});
+                    newMarker.setTitle(newDestination.name + "\n" + newDestination.district + "\n" + newDestination.country);
+                } else if(!newDestination.id) {
+                    // Destination has been deleted
+                    this.markerArray[oldDestination.id].setMap(null);
+                    this.centreMap();
+                } else if(oldDestination.id) {
+                    // Initial destination selection
+                    this.markerArray[oldDestination.id].setAnimation(null);
+                }
+                this.focusOnSelectedDestination()
             }
         },
         methods: {
@@ -65,8 +87,8 @@
              */
             initMap() {
                 this.$map = new google.maps.Map(this.$refs['map'], {
-                    center: {lat: this.latitude, lng: this.longitude},
-                    zoom: this.zoom
+                    center: this.initial.view,
+                    zoom: this.initial.zoom
                 });
 
                 this.$map
@@ -74,33 +96,40 @@
                     .push(this.$refs['legend']);
             },
 
+
             /**
              * Creates all the markers for the map from the destinations array passed in props
              */
             createMarker() {
                 let self = this;
                 for (let i = 0; i < this.destinations.length; i++) {
-
                     let currentDestination = this.destinations[i];
-                    let colour;
-                    if (currentDestination.public) {
-                        colour = this.publicMarker;
-                    } else {
-                        colour = this.privateMarker;
-                    }
+                    let markerIcon = currentDestination.public ? this.publicMarker : this.privateMarker;
+
                     let marker = new google.maps.Marker({
                         position: {lat: currentDestination.latitude, lng: currentDestination.longitude},
                         map: this.$map,
                         title: (currentDestination.name + "\n" + currentDestination.district + "\n" + currentDestination.country),
-                        icon: colour
+                        icon: markerIcon
                     });
+
                     marker.addListener("click", function(){
-                        self.$map.setZoom(12);
-                        self.$map.setCenter(marker.getPosition());
+                        // Emit destination to parent. This will set as selected destination and the transition will be
+                        // handled by the watch attribute.
                         self.$emit('destination-click', currentDestination);
                     });
-                    this.markerArray.push(marker);
+                    this.markerArray[currentDestination.id] = marker;
                 }
+            },
+
+
+            /**
+             * Focuses the map to the currently selected destination.
+             */
+            focusOnSelectedDestination() {
+                this.markerArray[this.selectedDestination.id].setAnimation(google.maps.Animation.BOUNCE);
+                this.$map.setZoom(10);
+                this.$map.panTo({lat: parseFloat(this.selectedDestination.latitude), lng: parseFloat(this.selectedDestination.longitude)});
             },
 
 
@@ -108,10 +137,15 @@
              * Clear's the markers currently displayed on the map and clears the marker array
              */
             clearMarkers() {
-                for (let i = 0; i < this.markerArray.length-1; i++) {
-                    this.markerArray[i].setMap(null);
+                for (var key in this.markerArray) {
+                    this.markerArray[key].setMap(null);
                 }
                 this.markerArray = [];
+            },
+
+            centreMap() {
+                this.$map.setZoom(this.initial.zoom);
+                this.$map.panTo(this.initial.view);
             }
         }
 
