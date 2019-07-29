@@ -24,7 +24,6 @@
                 <p> Date of Creation: {{ new Date(profile.dateOfCreation).toUTCString()}}</p>
                 <p> Date of Birth: {{new Date(profile.dateOfBirth).toLocaleDateString()}}</p>
                 <p> Gender: {{ profile.gender }}</p>
-
                 <h2> Nationalities </h2>
                 <ul>
                     <li v-for="nationality in profile.nationalities">{{ nationality.nationality }}</li>

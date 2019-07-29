@@ -38,7 +38,7 @@ public class TreasureHuntController {
             return unauthorized();
         }
 
-        return ok(Json.toJson(treasureHuntRepository.findAll()));
+        return ok(Json.toJson(treasureHuntRepository.findAllTreasureHunts()));
     }
 
 
