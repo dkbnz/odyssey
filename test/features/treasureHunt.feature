@@ -50,8 +50,8 @@ Feature: TreasureHunt API Endpoint
       | 119         | null   | null       | null     | 2     |
     Then the status code I receive is 400
 
-#TODO: Vinnie Jamieson - can you please add a more detailed description to the scenario.
-  Scenario: Unsuccessfully creating a new Treasure Hunt
+
+  Scenario: Unsuccessfully creating a new Treasure Hunt with a start date in the future
     Given I have a application running
     And I am logged in as a normal user
     When I attempt to create a treasure hunt with the following values
@@ -59,8 +59,8 @@ Feature: TreasureHunt API Endpoint
       | 119         | What rhymes with It's mean Kyle fleek? | 8096-12-12 | null     | 2     |
     Then the status code I receive is 400
 
-#TODO: Vinnie Jamieson - can you please add a more detailed description to the scenario.
-  Scenario: Unsuccessfully creating a new Treasure Hunt
+
+  Scenario: Unsuccessfully creating a new Treasure Hunt with an end date in the past
     Given I have a application running
     And I am logged in as a normal user
     When I attempt to create a treasure hunt with the following values
