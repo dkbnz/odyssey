@@ -5,11 +5,9 @@ import io.ebean.Finder;
 import models.BaseModel;
 import models.Profile;
 import models.destinations.Destination;
-import play.data.validation.Constraints;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -22,21 +20,16 @@ public class TreasureHunt extends BaseModel {
     public static final Finder<Integer, TreasureHunt> find = new Finder<>(TreasureHunt.class);
 
     @JsonIgnore
-    @Constraints.Required
     @ManyToOne
     private Destination destination;
 
-    @Constraints.Required
     private String riddle;
 
-    @Constraints.Required
     private Timestamp startDate;
 
-    @Constraints.Required
     private Timestamp endDate;
 
     @JsonIgnore
-    @Constraints.Required
     @ManyToOne
     private Profile owner;
 
