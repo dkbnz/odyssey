@@ -77,6 +77,12 @@ public class TreasureHuntTestSteps {
 
 
     /**
+     * The logout endpoint uri.
+     */
+    private static final String LOGOUT_URI = "/v1/logout";
+
+
+    /**
      * Valid login credentials for an admin user.
      */
     private static final String ADMIN_ID = "1";
@@ -354,7 +360,12 @@ public class TreasureHuntTestSteps {
 
             switch (entry.getKey()) {
                 case DESTINATION_STRING:
-                    editDestination.setDestination(Destination.find.byId(Integer.valueOf(value)));
+                    if(value.equals("null")) {
+                        editDestination.setDestination(null);
+                    } else {
+                        editDestination.setDestination(Destination.find.byId(Integer.valueOf(value)));
+                    }
+
                     break;
                 case RIDDLE_STRING:
                     editDestination.setRiddle(value);
@@ -378,12 +389,28 @@ public class TreasureHuntTestSteps {
                     editDestination.setEndDate(endDate);
                     break;
                 case OWNER_STRING:
-                    editDestination.setOwner(Profile.find.byId(Integer.valueOf(value)));
+                    if(value.equals("null")) {
+                        editDestination.setOwner(null);
+                    } else {
+                        editDestination.setOwner(Profile.find.byId(Integer.valueOf(value)));
+                    }
+
                     break;
             }
         }
 
         return Json.toJson(editDestination);
+    }
+
+    /**
+     * Sends a fake request to the application to logout.
+     */
+    private void logoutRequest() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(LOGOUT_URI);
+        route(application, request);
+        loggedInId = null;
     }
 
 
@@ -409,6 +436,7 @@ public class TreasureHuntTestSteps {
 
     @Given("the user is not logged in")
     public void theUserIsNotLoggedIn() {
+        logoutRequest();
         assertNull(loggedInId);
     }
 
