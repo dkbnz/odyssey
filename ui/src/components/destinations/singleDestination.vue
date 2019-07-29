@@ -324,12 +324,5 @@
 </script>
 
 <style>
-    .travellerTypeDiv {
-        margin-bottom: 7px;
-    }
-
-    p {
-        margin: 0;
-        padding: 0;
-    }
+    @import "../../css/singleDestination.css";
 </style>
