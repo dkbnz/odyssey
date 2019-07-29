@@ -18,6 +18,7 @@ import play.test.Helpers;
 import repositories.treasureHunts.TreasureHuntRepository;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -228,12 +229,14 @@ public class TreasureHuntTestSteps {
         String end_date            = list.get(index).get(END_DATE_STRING);
         String owner               = list.get(index).get(OWNER_STRING);
 
-        if (start_date == null) {
-            start_date = getTreasureHuntDateBuffer(true).toString();
+        targetUserId = owner;
+
+        if (start_date.equals("null")) {
+            start_date = getTreasureHuntDateBuffer(true);
         }
 
-        if (end_date == null) {
-            end_date = getTreasureHuntDateBuffer(false).toString();
+        if (end_date.equals("null")) {
+            end_date = getTreasureHuntDateBuffer(false);
         }
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
@@ -256,14 +259,15 @@ public class TreasureHuntTestSteps {
      * @param isStartDate   boolean value to determine if the date being changed the start or the end date.
      * @return              the start or end date, which is modified by the necessary date buffer.
      */
-    private Date getTreasureHuntDateBuffer(boolean isStartDate) {
+    private String getTreasureHuntDateBuffer(boolean isStartDate) {
         Calendar calendar = Calendar.getInstance();
 
         if (isStartDate) {
             calendar.add(Calendar.DATE, START_DATE_BUFFER);
         }
         calendar.add(Calendar.DATE, END_DATE_BUFFER);
-        return calendar.getTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:MM:ss");
+        return sdf.format(calendar.getTime());
     }
 
 
@@ -341,34 +345,7 @@ public class TreasureHuntTestSteps {
         statusCode = result.status();
 
         responseBody = Helpers.contentAsString(result);
-        System.out.println(responseBody);
     }
-
-
-    @Then("the status code I recieve is (\\d+)$")
-    public void theStatusCodeIRecieveIs(int expectedStatusCode) throws Throwable {
-        assertEquals(expectedStatusCode, statusCode);
-    }
-
-
-    @Then("the response contains at least one treasure hunt")
-    public void theResponseContainsAtLeastOneTreasureHunt() throws IOException {
-        int responseSize = new ObjectMapper().readTree(responseBody).size();
-        Assert.assertTrue(responseSize > 0);
-    }
-
-
-    @When("I attempt to create a treasure hunt with the following values")
-    public void iAttemptToCreateATreasureHuntWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        targetUserId = loggedInId;
-        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode json = convertDataTableToTreasureHuntJson(dataTable, i);
-            createTreasureHuntRequest(json);
-        }
-    }
-
-
-
 
 
     @When("I attempt to delete the treasure Hunt")
@@ -382,9 +359,25 @@ public class TreasureHuntTestSteps {
     }
 
 
-    @Then("the response status code is Unauthorized")
-    public void theResponseStatusCodeIsUnauthorized() {
-        assertEquals("UNAUTHORIZED", statusCode);
+    @When("I attempt to create a treasure hunt with the following values")
+    public void iAttemptToCreateATreasureHuntWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        targetUserId = loggedInId;
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            JsonNode json = convertDataTableToTreasureHuntJson(dataTable, i);
+            createTreasureHuntRequest(json);
+        }
     }
 
+
+    @Then("the status code I receive is (\\d+)$")
+    public void theStatusCodeIReceiveIs(int expectedStatusCode) {
+        assertEquals(expectedStatusCode, statusCode);
+    }
+
+
+    @Then("the response contains at least one treasure hunt")
+    public void theResponseContainsAtLeastOneTreasureHunt() throws IOException {
+        int responseSize = new ObjectMapper().readTree(responseBody).size();
+        Assert.assertTrue(responseSize > 0);
+    }
 }
