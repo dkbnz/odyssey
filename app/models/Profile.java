@@ -251,6 +251,10 @@ public class Profile extends BaseModel {
         return photoGallery.remove(photoToRemove);
     }
 
+    public boolean removeTreasureHunt(TreasureHunt treasureHunt) {
+        return myTreasureHunts.remove(treasureHunt);
+    }
+
 
     public void addDestination(Destination newDestination) {
         this.myDestinations.add(newDestination);

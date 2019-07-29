@@ -7,6 +7,7 @@
                 {{treasureHunt.riddle}}
                 {{treasureHunt.startDate}}
                 {{treasureHunt.endDate}}
+                <b-button variant="danger" @click="deleteTreasureHunt(treasureHunt.id)" block>Delete</b-button>
                 <!--Treasure Hunt component-->
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
@@ -66,6 +67,24 @@
                 } else {
                     this.queryTreasureHunts();
                 }
+            },
+
+
+            /**
+             * Send the Http request to delete the specified treasure hunt.
+             */
+            deleteTreasureHunt(id) {
+                let self = this;
+                fetch(`/v1/treasureHunts/` + id, {
+                    method: 'DELETE'
+                }).then(function(response) {
+                    if (response.ok) {
+                        console.log("yes");
+                    }
+                    else {
+                        console.log("No");
+                    }
+                });
             },
 
 
