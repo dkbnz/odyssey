@@ -50,7 +50,17 @@ public class TreasureHuntController {
     }
 
 
-
+    /**
+     * Creates and saves a new treasure hunt for a user, checking if the user is creating one for themselves or if
+     * the user is an admin. It also checks the request for validity.
+     *
+     * @param request   the Http request containing a Json body of the new treasure hunt details.
+     * @param userId    the id of the user who will own the created destination.
+     * @return          created() Http response if creation is successful.
+     *                  forbidden() Http response if the logged in user is not the target owner or an admin.
+     *                  badRequest() Http response if the request contains any errors.
+     *                  unauthorized() Http response if no one is logged in.
+     */
     public Result create(Http.Request request, Long userId) {
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
@@ -88,7 +98,13 @@ public class TreasureHuntController {
     }
 
 
-
+    /**
+     * Creates a new TreasureHunt object and assigns it an owner.
+     *
+     * @param json      the json body being processed to create the TreasureHunt object.
+     * @param owner     the profile that will own the TreasureHunt.
+     * @return          an owned TreasureHunt object, or null if any errors are present in the request.
+     */
     private TreasureHunt createNewTreasureHunt(JsonNode json, Profile owner) {
         TreasureHunt treasureHunt = new TreasureHunt();
 
@@ -111,8 +127,12 @@ public class TreasureHuntController {
     }
 
 
-
-
+    /**
+     * Converts a string into a Date object.
+     *
+     * @param dateString    the String being parsed into a Date object.
+     * @return              a Date object, or null if the dateString cannot be parsed.
+     */
     private Date parseDate(String dateString) {
         try {
             return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(dateString);
@@ -122,10 +142,13 @@ public class TreasureHuntController {
     }
 
 
-
-
-
-
+    /**
+     * Checks the items in a request's Json body to determine if the contents are present and will parse correctly.
+     *
+     * @param json          the JsonNode object being scrutinised for validity.
+     * @return              true if the JsonNode is valid.
+     *                      false otherwise.
+     */
     private boolean isValidJson(JsonNode json) {
         String destinationId =  json.get(DESTINATION).asText();
         String riddle =         json.get(RIDDLE).asText();
@@ -151,7 +174,6 @@ public class TreasureHuntController {
 
         return destination != null;
     }
-
 
 
     /**
