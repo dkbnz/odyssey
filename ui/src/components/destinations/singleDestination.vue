@@ -81,12 +81,14 @@
                 <p v-else class="descriptionText">
                     No Traveller Types for this destination!
                 </p>
-                <b-button variant="link"
-                          @click="calculateCurrentTravellerTypes(); showEditTravellerTypes = !showEditTravellerTypes">
+                <b-button variant="outline-primary"
+                          @click="calculateCurrentTravellerTypes(); showEditTravellerTypes = !showEditTravellerTypes" block>
                     {{travellerTypeLinkText}}
                 </b-button>
+
                 <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
                 <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
+
                 <div v-if="showEditTravellerTypes" class="travellerTypeDiv">
                     <b-form-group label="Add Traveller Types:">
                         <b-form-checkbox-group id="addTravellerTypes" v-model="calculatedTravellerTypes">

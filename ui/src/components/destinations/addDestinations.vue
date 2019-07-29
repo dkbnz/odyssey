@@ -155,7 +155,7 @@
                     {{isPublic}} Destination
                 </b-form-checkbox>
 
-                <b-button :disabled="!validateFields()" @click="checkDestinationFields" block variant="primary">{{heading}} Destination</b-button>
+                <b-button :disabled="!validateFields()" @click="checkDestinationFields" block variant="primary">Save</b-button>
             </b-form>
         </div>
     </div>
