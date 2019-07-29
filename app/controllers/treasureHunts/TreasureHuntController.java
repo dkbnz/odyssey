@@ -15,7 +15,10 @@ import util.AuthenticationUtil;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import static play.mvc.Results.*;
 
@@ -37,16 +40,6 @@ public class TreasureHuntController {
         this.treasureHuntRepository = treasureHuntRepository;
         this.destinationRepository = destinationRepository;
         this.profileRepository = profileRepository;
-    }
-
-
-    public Result fetchAll(Http.Request request) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-
-        return ok(Json.toJson(treasureHuntRepository.findAllTreasureHunts()));
     }
 
 
@@ -117,6 +110,10 @@ public class TreasureHuntController {
             return null;
         }
 
+        if (json.get(RIDDLE).asText().equals("null")) {
+            return null;
+        }
+
         treasureHunt.setDestination(destination);
         treasureHunt.setRiddle(json.get(RIDDLE).asText());
         treasureHunt.setStartDate(startDate);
@@ -177,18 +174,49 @@ public class TreasureHuntController {
 
 
     /**
+     * Retrieves all the treasure hunts stored in the database (if they have the correct dates).
+     *
+     * @param request   the request from the front end of the application containing login information.
+     * @return          ok() (Http 200) containing a Json body of the retrieved treasure hunts.
+     *                  unauthorized() (Http 401) if the user is not logged in.
+     */
+    public Result fetchAll(Http.Request request) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        List<TreasureHunt> treasureHuntsQuery = treasureHuntRepository.findAll();
+
+        Calendar now = Calendar.getInstance();
+        List<TreasureHunt> treasureHunts = new ArrayList<>();
+
+        for (TreasureHunt treasureHunt: treasureHuntsQuery) {
+            if ((treasureHunt.getStartDate().before(now.getTime())
+                    || treasureHunt.getStartDate().compareTo(now.getTime()) == 0)
+                    && (treasureHunt.getEndDate().after(now.getTime())
+                    || treasureHunt.getEndDate().compareTo(now.getTime()) == 0)) {
+                treasureHunts.add(treasureHunt);
+            }
+        }
+
+        return ok(Json.toJson(treasureHunts));
+    }
+
+
+    /**
      * Deletes a given treasure hunt from the database. If the user is the owner of the treasure hunt
      * or the user logged in is an admin then the delete will be successful.
      * Otherwise the user will be forbidden.
      *
-     * @param request           the request from the front end of the application containing login info
-     * @param treasureHuntId    The id of the treasure hunt the user is trying to delete
+     * @param request           the request from the front end of the application containing login information.
+     * @param treasureHuntId    The id of the treasure hunt the user is trying to delete.
      *
      * @return                  unauthorized() if the user is not logged in.
      *                          notFound() if the treasure hunt id does not exist in the database.
      *                          forbidden() if the user is not the owner of the treasure hunt or is not an admin.
      *                          ok() if the user is successful in deleting the treasure hunt.
-     *                          badRequest() if there is an error with the request
+     *                          badRequest() if there is an error with the request.
      */
     public Result delete(Http.Request request, Long treasureHuntId) {
 
