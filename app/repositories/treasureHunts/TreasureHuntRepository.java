@@ -1,8 +1,8 @@
-package repositories.treasureHunt;
+package repositories.treasureHunts;
 
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
-import models.treasureHunt.TreasureHunt;
+import models.treasureHunts.TreasureHunt;
 
 public class TreasureHuntRepository extends BeanRepository<Long, TreasureHunt> {
 

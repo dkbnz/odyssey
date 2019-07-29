@@ -1,4 +1,4 @@
-package models.treasureHunt;
+package models.treasureHunts;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Finder;
@@ -8,6 +8,7 @@ import models.destinations.Destination;
 import play.data.validation.Constraints;
 
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -20,8 +21,9 @@ public class TreasureHunt extends BaseModel {
 
     public static final Finder<Integer, TreasureHunt> find = new Finder<>(TreasureHunt.class);
 
+    @JsonIgnore
     @Constraints.Required
-    @OneToOne
+    @ManyToOne
     private Destination destination;
 
     @Constraints.Required
@@ -35,7 +37,7 @@ public class TreasureHunt extends BaseModel {
 
     @JsonIgnore
     @Constraints.Required
-    @OneToOne
+    @ManyToOne
     private Profile owner;
 
 
