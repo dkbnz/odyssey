@@ -1,9 +1,14 @@
 <template>
     <div>
-        <div id="map" class="mapDiv">
+        <div ref="map" class="mapDiv">
         </div>
-        <div id="legend">
-
+        <div ref="legend" class="legend">
+            <div>
+                <img src="http://maps.google.com/mapfiles/ms/icons/green-dot.png"><strong>Public Destination</strong>
+            </div>
+            <div>
+                <img src="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"><strong>Private Destination</strong>
+            </div>
         </div>
     </div>
 
@@ -42,8 +47,6 @@
         data() {
             return {
                 markerArray: [],
-                publicMarker: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
-                privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
             }
         },
         watch: {
@@ -59,20 +62,14 @@
              * Initializes the map with given latitude and longitude and zoom
              */
             initMap() {
-                this.$map = new google.maps.Map(document.getElementById('map'), {
+                this.$map = new google.maps.Map(this.$refs['map'], {
                     center: {lat: this.latitude, lng: this.longitude},
                     zoom: this.zoom
                 });
 
-                let legend = document.getElementById('legend');
-                let div = document.createElement('div');
-                div.innerHTML = '<img src="' + this.publicMarker + '"> ' + '<strong>Public Destination</strong>';
-                legend.appendChild(div);
-                div = document.createElement('div');
-                div.innerHTML = '<img src="' + this.privateMarker + '"> ' + '<strong>Private Destination</strong>';
-                legend.appendChild(div);
-
-                this.$map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(legend);
+                this.$map
+                    .controls[google.maps.ControlPosition.LEFT_BOTTOM]
+                    .push(this.$refs['legend']);
             },
 
             /**
@@ -124,7 +121,7 @@
         height: 50vh;
     }
 
-    #legend {
+    .legend {
         font-family: Arial, sans-serif;
         background: #fff;
         padding: 10px;
