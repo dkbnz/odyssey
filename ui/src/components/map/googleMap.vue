@@ -28,7 +28,7 @@
         },
         mounted() {
             this.initMap();
-            this.createMarker();
+            this.createMarkers();
         },
         data() {
             return {
@@ -42,39 +42,42 @@
                 dragMarkers: false,
                 markerArray: [],
                 publicMarker: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
-                privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                selectedMarker: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+                privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
             }
         },
         watch: {
             /**
              * Watches the destinations list for changes and when there are changes calls the create marker function
              */
-            destinations: function() {
+            destinations: function () {
                 //If no destinations to show, centre map.
-                if(!this.destinations.length) {
+                if (!this.destinations.length) {
                     this.centreMap();
                 }
                 this.clearMarkers();
-                this.createMarker();
+                this.createMarkers();
             },
 
             /**
              * If selected destination changes, re-center map and calculate markers
              */
-            selectedDestination: function(newDestination, oldDestination) {
+            selectedDestination: function (newDestination, oldDestination) {
 
-                if(newDestination.id === oldDestination.id) {
+                if (newDestination.id === oldDestination.id) {
                     // Destination has been edited
-                    let newMarker = this.markerArray[newDestination.id]
-                    newMarker.setIcon(newDestination.public ? this.publicMarker : this.privateMarker)
-                    newMarker.setPosition({lat: parseFloat(newDestination.latitude), lng: parseFloat(newDestination.longitude)});
-                    newMarker.setTitle(newDestination.name + "\n" + newDestination.district + "\n" + newDestination.country);
-                } else if(!newDestination.id) {
+                    let newMarker = this.markerArray[newDestination.id];
+                    newMarker.setIcon(newDestination.public ? this.publicMarker : this.privateMarker);
+                    newMarker.setPosition({
+                        lat: parseFloat(newDestination.latitude),
+                        lng: parseFloat(newDestination.longitude)
+                    });
+                    newMarker.setTitle(newDestination.name + "\n" + newDestination.district + "\n"
+                        + newDestination.country);
+                } else if (!newDestination.id) {
                     // Destination has been deleted
                     this.markerArray[oldDestination.id].setMap(null);
                     this.centreMap();
-                } else if(oldDestination.id) {
+                } else if (oldDestination.id) {
                     // Initial destination selection
                     this.markerArray[oldDestination.id].setAnimation(null);
                 }
@@ -100,7 +103,7 @@
             /**
              * Creates all the markers for the map from the destinations array passed in props
              */
-            createMarker() {
+            createMarkers() {
                 let self = this;
                 for (let i = 0; i < this.destinations.length; i++) {
                     let currentDestination = this.destinations[i];
@@ -109,11 +112,12 @@
                     let marker = new google.maps.Marker({
                         position: {lat: currentDestination.latitude, lng: currentDestination.longitude},
                         map: this.$map,
-                        title: (currentDestination.name + "\n" + currentDestination.district + "\n" + currentDestination.country),
+                        title: (currentDestination.name + "\n" + currentDestination.district + "\n"
+                            + currentDestination.country),
                         icon: markerIcon
                     });
 
-                    marker.addListener("click", function(){
+                    marker.addListener("click", function () {
                         // Emit destination to parent. This will set as selected destination and the transition will be
                         // handled by the watch attribute.
                         self.$emit('destination-click', currentDestination);
@@ -129,7 +133,10 @@
             focusOnSelectedDestination() {
                 this.markerArray[this.selectedDestination.id].setAnimation(google.maps.Animation.BOUNCE);
                 this.$map.setZoom(10);
-                this.$map.panTo({lat: parseFloat(this.selectedDestination.latitude), lng: parseFloat(this.selectedDestination.longitude)});
+                this.$map.panTo({
+                    lat: parseFloat(this.selectedDestination.latitude),
+                    lng: parseFloat(this.selectedDestination.longitude)
+                });
             },
 
 
