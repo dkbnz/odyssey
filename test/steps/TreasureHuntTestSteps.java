@@ -20,6 +20,7 @@ import repositories.treasureHunts.TreasureHuntRepository;
 import java.io.IOException;
 import java.util.*;
 
+import static org.junit.Assert.assertNull;
 import static play.test.Helpers.*;
 
 public class TreasureHuntTestSteps {
@@ -246,6 +247,18 @@ public class TreasureHuntTestSteps {
     }
 
 
+    @Given("I am logged in as an Admin user")
+    public void iAmLoggedInAsAnAdminUser() {
+        loggedInId = ADMIN_ID;
+    }
+
+
+    @Given("The user is not logged in")
+    public void theUserIsNotLoggedIn() {
+        assertNull(loggedInId);
+    }
+
+
     @Given("a treasure hunt already exists with the following values")
     public void aTreasureHuntAlreadyExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
@@ -288,6 +301,26 @@ public class TreasureHuntTestSteps {
             JsonNode json = convertDataTableToTreasureHuntJson(dataTable, i);
             createTreasureHuntRequest(json);
         }
+    }
+
+
+
+
+
+    @When("I attempt to delete the treasure Hunt")
+    public void iAttemptToDeleteTheTreasureHunt() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(DELETE)
+                .session(AUTHORIZED, loggedInId)
+                .uri(TREASURE_HUNT_URI + "/");
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
+
+
+    @Then("the response status code is Unauthorized")
+    public void theResponseStatusCodeIsUnauthorized() {
+        Assert.assertEquals("UNAUTHORIZED", statusCode);
     }
 
 }

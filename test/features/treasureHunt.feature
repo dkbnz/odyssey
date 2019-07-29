@@ -56,3 +56,43 @@ Feature: TreasureHunt API Endpoint
       | Destination | Riddle                                 | Start Date | End Date   | Owner |
       | 15040       | What rhymes with It's mean Kyle fleek? | null       | 1993-12-12 | 2     |
     Then the response status code is BadRequest
+
+
+  Scenario: Delete an already existing Treasure Hunt that I own
+    Given I have a application running
+    And I am logged in as a normal user
+    And a treasure hunt already exists with the following values
+      | Destination | Riddle                                 | Start Date | End Date   | Owner |
+      | 15040       | Delete me please                       | null       | 1993-12-12 | 2     |
+    When I attempt to delete the treasure Hunt
+    Then the response status code is OK
+
+
+  Scenario: Delete an already existing Treasure Hunt as an admin
+    Given I have a application running
+    And I am logged in as an admin user
+    And a treasure hunt already exists with the following values
+      | Destination | Riddle                                 | Start Date | End Date   | Owner |
+      | 15040       | Delete me please                       | null       | 1993-12-12 | 2     |
+    When I attempt to delete the treasure Hunt
+    Then the response status code is OK
+
+
+  Scenario: Delete an already existing Treasure Hunt that I don't own
+    Given I have a application running
+    And I am logged in as a normal user
+    And a treasure hunt already exists with the following values
+      | Destination | Riddle                                 | Start Date | End Date   | Owner |
+      | 15040       | Delete me please                       | null       | 1993-12-12 | 1     |
+    When I attempt to delete the treasure Hunt
+    Then the response status code is Forbidden
+
+
+  Scenario: Delete an already existing Treasure Hunt and I am not logged in
+    Given I have a application running
+    And The user is not logged in
+    And a treasure hunt already exists with the following values
+      | Destination | Riddle                                 | Start Date | End Date   | Owner |
+      | 15040       | Delete me please                       | null       | 1993-12-12 | 2     |
+    When I attempt to delete the treasure Hunt
+    Then the response status code is Unauthorized
