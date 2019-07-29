@@ -64,7 +64,7 @@ DELETE  /v1/destinationPhotos/:destinationId    controllers.photos.PhotoControll
 
 # Treasure Hunts
 GET     /v1/treasureHunts                       controllers.treasureHunts.TreasureHuntController.fetchAll(request: Request)
-POST    /v1/treasureHunts/:userId                       controllers.treasureHunts.TreasureHuntController.create(request: Request, userId: Long)
+POST    /v1/treasureHunts/:userId               controllers.treasureHunts.TreasureHuntController.create(request: Request, userId: Long)
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
 GET     /*file                                  controllers.Assets.at(path="/public", file)

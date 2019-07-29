@@ -21,7 +21,10 @@ import static play.mvc.Results.*;
 
 public class TreasureHuntController {
 
+    private static final String DESTINATION = "destination";
     private static final String RIDDLE = "riddle";
+    private static final String START_DATE = "start_date";
+    private static final String END_DATE = "end_date";
 
     private TreasureHuntRepository treasureHuntRepository;
     private DestinationRepository destinationRepository;
@@ -72,33 +75,11 @@ public class TreasureHuntController {
             return badRequest();
         }
 
+        TreasureHunt treasureHunt = createNewTreasureHunt(json, treasureHuntOwner);
 
-
-
-        TreasureHunt treasureHunt = new TreasureHunt();
-
-        Destination destination = destinationRepository.fetch(json.get("destination").asLong());
-
-        Date startDate;
-        Date endDate;
-
-        try {
-            startDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(json.get("start_date").asText());
-        } catch (ParseException e) {
+        if (treasureHunt == null) {
             return badRequest();
         }
-        try {
-            endDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(json.get("end_date").asText());
-        } catch (ParseException e) {
-            return badRequest();
-        }
-
-
-        treasureHunt.setDestination(destination);
-        treasureHunt.setRiddle(json.get(RIDDLE).asText());
-        treasureHunt.setStartDate(startDate);
-        treasureHunt.setEndDate(endDate);
-        treasureHunt.setOwner(treasureHuntOwner);
 
         treasureHuntRepository.save(treasureHunt);
         profileRepository.update(treasureHuntOwner);
@@ -108,15 +89,48 @@ public class TreasureHuntController {
 
 
 
+    private TreasureHunt createNewTreasureHunt(JsonNode json, Profile owner) {
+        TreasureHunt treasureHunt = new TreasureHunt();
+
+        Destination destination = destinationRepository.fetch(json.get(DESTINATION).asLong());
+
+        Date startDate = parseDate(json.get(START_DATE).asText());
+        Date endDate = parseDate(json.get(END_DATE).asText());
+
+        if (startDate == null || endDate == null) {
+            return null;
+        }
+
+        treasureHunt.setDestination(destination);
+        treasureHunt.setRiddle(json.get(RIDDLE).asText());
+        treasureHunt.setStartDate(startDate);
+        treasureHunt.setEndDate(endDate);
+        treasureHunt.setOwner(owner);
+
+        return treasureHunt;
+    }
+
+
+
+
+    private Date parseDate(String dateString) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(dateString);
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
+
 
 
 
 
     private boolean isValidJson(JsonNode json) {
-        String destinationId =  json.get("destination").asText();
+        String destinationId =  json.get(DESTINATION).asText();
         String riddle =         json.get(RIDDLE).asText();
-        String startDate =      json.get("start_date").asText();
-        String endDate =        json.get("end_date").asText();
+        String startDate =      json.get(START_DATE).asText();
+        String endDate =        json.get(END_DATE).asText();
 
         if (destinationId.length()    == 0
                 || riddle.length()    == 0
@@ -135,11 +149,7 @@ public class TreasureHuntController {
 
         Destination destination = destinationRepository.fetch(parsedDestinationId);
 
-        if (destination == null) {
-            return false;
-        }
-
-        return true;
+        return destination != null;
     }
 
 }
