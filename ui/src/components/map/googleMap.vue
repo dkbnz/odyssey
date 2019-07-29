@@ -4,10 +4,10 @@
         </div>
         <div ref="legend" class="legend">
             <div>
-                <img src="http://maps.google.com/mapfiles/ms/icons/green-dot.png"><strong>Public Destination</strong>
+                <img :src="publicMarker"><strong>Public Destination</strong>
             </div>
             <div>
-                <img src="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"><strong>Private Destination</strong>
+                <img :src="privateMarker"><strong>Private Destination</strong>
             </div>
         </div>
     </div>
