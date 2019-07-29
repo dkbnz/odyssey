@@ -25,9 +25,9 @@ public class TreasureHunt extends BaseModel {
 
     private String riddle;
 
-    private Timestamp startDate;
+    private Date startDate;
 
-    private Timestamp endDate;
+    private Date endDate;
 
     @JsonIgnore
     @ManyToOne
@@ -54,7 +54,7 @@ public class TreasureHunt extends BaseModel {
         return startDate;
     }
 
-    public void setStartDate(Timestamp startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
@@ -62,7 +62,7 @@ public class TreasureHunt extends BaseModel {
         return endDate;
     }
 
-    public void setEndDate(Timestamp endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 

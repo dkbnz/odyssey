@@ -21,16 +21,17 @@ public class TreasureHuntRepository extends BeanRepository<Long, TreasureHunt> {
      * @return treasureHunts    the list of treasure hunts that meet the conditions.
      */
     public List<TreasureHunt> findAllTreasureHunts() {
-        Calendar todaysDate = Calendar.getInstance();
+        Calendar now = Calendar.getInstance();
         List<TreasureHunt> treasureHunts = new ArrayList<>();
 
         List<TreasureHunt> treasureHuntsQuery = Ebean.find(TreasureHunt.class)
                 .findList();
 
-
         for (TreasureHunt treasureHunt: treasureHuntsQuery) {
-            if (treasureHunt.getStartDate().after(todaysDate.getTime())
-                    && treasureHunt.getEndDate().before(todaysDate.getTime())) {
+            if ((treasureHunt.getStartDate().before(now.getTime())
+                    || treasureHunt.getStartDate().compareTo(now.getTime()) == 0)
+                    && (treasureHunt.getEndDate().after(now.getTime())
+                    || treasureHunt.getEndDate().compareTo(now.getTime()) == 0)) {
                 treasureHunts.add(treasureHunt);
             }
         }
