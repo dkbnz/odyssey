@@ -1,6 +1,7 @@
 import Index from './components/index/indexPage'
 import Dash from './components/dash/dashPage'
 import Destinations from './components/destinations/destinationsPage'
+import TreasureHunts from './components/treasureHunt/treasureHuntPage'
 import Profiles from './components/profiles/profilesPage'
 import Trips from './components/trips/tripsPage'
 import AdminPanel from './components/admin/adminPanel'
@@ -23,6 +24,11 @@ const routes = [
         path:"/destinations",
         name: "destinations",
         component: Destinations
+    },
+    {
+        path:"/treasureHunts",
+        name: "treasureHunts",
+        component: TreasureHunts
     },
     {
         path:"/profiles",
