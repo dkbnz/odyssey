@@ -6,7 +6,6 @@ import Profiles from './components/profiles/profilesPage'
 import Trips from './components/trips/tripsPage'
 import AdminPanel from './components/admin/adminPanel'
 import SingleProfile from './components/admin/singleProfile'
-import TreasureHunts from './components/treasureHunt/addTreasureHunt' //change this to the full treasure hunts page when it exists
 
 import VueRouter from 'vue-router';
 
@@ -51,11 +50,6 @@ const routes = [
         name: "singleProfile",
         component: SingleProfile
     },
-    {
-        path:"/treasureHunts",
-        name: "treasureHunts",
-        component: TreasureHunts
-    }
 ];
 
 const router = new VueRouter({
