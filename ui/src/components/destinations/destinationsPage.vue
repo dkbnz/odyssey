@@ -11,11 +11,8 @@
                 <b-col cols="8">
                     <b-card ref="maps">
                         <google-map v-bind:destinations="destinationsForMap" ref="map"
-                                    :latitude="selectedDestination.latitude"
-                                    :longitude="selectedDestination.longitude"
-                                    :zoom="getZoom()"
-                                    :key="selectedDestination"
                                     v-if="showMap"
+                                    :selected-destination="selectedDestination"
                                     @destination-click="destination => this.selectedDestination = destination">
                         </google-map>
                     </b-card>
@@ -54,8 +51,8 @@
                     <b-card>
                         <destination-sidebar
                                 :profile="profile"
-                                @destination-click="destination => this.selectedDestination = destination"
-                                @destination-search="destinations => this.destinationsForMap = destinations"
+                                @destination-click="selectDestination"
+                                @destination-search="foundDestinations => this.destinationsForMap = foundDestinations"
                                 @destination-reset="clearMarkers"
                                 :key="refreshDestinationData"
                                 @data-changed="$emit('data-changed')"
@@ -178,18 +175,6 @@
 
 
             /**
-             * Returns a more zoomed-in map if a destination has been selected
-             */
-            getZoom() {
-              if (this.selectedDestination.name) {
-                  return 12;
-              } else {
-                  return 5;
-              }
-            },
-
-
-            /**
              * Used to allow an alert to countdown on the successful saving of a destination.
              *
              * @param dismissCountDown      the name of the alert.
@@ -206,12 +191,16 @@
                 this.dismissCountDown = this.dismissSecs
             },
 
-
             /**
-             * Calls method in the google maps component to clear all the markers when doing a fresh search
+             * Changes the selected destination or focuses on current destination.
+             * @param destinationToSelect
              */
-            clearMarkers() {
-                this.$refs['map'].clearMarkers();
+            selectDestination(destinationToSelect) {
+                if(destinationToSelect.id === this.selectedDestination.id) {
+                    this.$refs['map'].focusOnSelectedDestination();
+                } else {
+                    this.selectedDestination = destinationToSelect;
+                }
             }
         }
     }
