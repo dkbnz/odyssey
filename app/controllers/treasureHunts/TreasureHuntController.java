@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import models.Profile;
 import models.destinations.Destination;
+import models.treasureHunts.TreasureHunt;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -11,6 +12,10 @@ import repositories.ProfileRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.treasureHunts.TreasureHuntRepository;
 import util.AuthenticationUtil;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static play.mvc.Results.*;
 
@@ -63,7 +68,6 @@ public class TreasureHuntController {
             return forbidden();
         }
 
-
         if (!isValidJson(json)) {
             return badRequest();
         }
@@ -71,7 +75,40 @@ public class TreasureHuntController {
 
 
 
+        TreasureHunt treasureHunt = new TreasureHunt();
+
+        Destination destination = destinationRepository.fetch(json.get("destination").asLong());
+
+        Date startDate;
+        Date endDate;
+
+        try {
+            startDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(json.get("start_date").asText());
+        } catch (ParseException e) {
+            return badRequest();
+        }
+        try {
+            endDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(json.get("end_date").asText());
+        } catch (ParseException e) {
+            return badRequest();
+        }
+
+
+        treasureHunt.setDestination(destination);
+        treasureHunt.setRiddle(json.get(RIDDLE).asText());
+        treasureHunt.setStartDate(startDate);
+        treasureHunt.setEndDate(endDate);
+        treasureHunt.setOwner(treasureHuntOwner);
+
+        treasureHuntRepository.save(treasureHunt);
+        profileRepository.update(treasureHuntOwner);
+
+        return created();
     }
+
+
+
+
 
 
 
