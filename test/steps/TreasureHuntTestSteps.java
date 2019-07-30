@@ -94,14 +94,6 @@ public class TreasureHuntTestSteps {
     private static final String LOGIN_URI = "/v1/login";
 
 
-
-    /**
-     * Valid login credentials for an admin user.
-     */
-    private static final String ADMIN_USERNAME = "admin@travelea.com";
-    private static final String ADMIN_AUTHPASS = "admin1";
-
-
     /**
      * Valid login credentials for a regular user.
      */
@@ -401,15 +393,15 @@ public class TreasureHuntTestSteps {
     }
 
 
-    @Given("I am logged in as an Admin user")
-    public void iAmLoggedInAsAnAdminUser() {
+    @Given("I am logged in as an Admin2")
+    public void iAmLoggedInAsAnAdminUser2() {
         loggedInId = ADMIN_ID;
     }
 
 
     @Given("the user is not logged in")
     public void theUserIsNotLoggedIn() {
-        assertNull(loggedInId);
+        loggedInId = null;
     }
 
 
@@ -440,7 +432,7 @@ public class TreasureHuntTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(DELETE)
                 .session(AUTHORIZED, loggedInId)
-                .uri(TREASURE_HUNT_URI + "/");
+                .uri(TREASURE_HUNT_URI + "/" + treasureHuntId);
         Result result = route(application, request);
         statusCode = result.status();
     }
