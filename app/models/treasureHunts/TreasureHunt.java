@@ -72,4 +72,8 @@ public class TreasureHunt extends BaseModel {
     public void setOwner(Profile owner) {
         this.owner = owner;
     }
+
+    public static Finder<Integer, TreasureHunt> getFind() {
+        return find;
+    }
 }

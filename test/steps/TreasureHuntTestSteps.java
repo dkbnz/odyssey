@@ -393,7 +393,7 @@ public class TreasureHuntTestSteps {
     }
 
 
-    @Given("I am logged in as an Admin2")
+    @Given("I am logged in as a Admin")
     public void iAmLoggedInAsAnAdminUser2() {
         loggedInId = ADMIN_ID;
     }
