@@ -334,70 +334,6 @@ public class TreasureHuntTestSteps {
     }
 
 
-    /**
-     * Converts the values of a cucumber DataTable to a JSON node object, using only the information that was given.
-     *
-     * @param dataTable   the cucumber datatable holding the values to be converted to JSON.
-     * @return            the JSON representation of the DataTable.
-     */
-    private JsonNode convertDataTableToEditTreasureHunt(io.cucumber.datatable.DataTable dataTable){
-        int valueIndex = 0;
-        TreasureHunt editDestination = treasureHuntRepository.findById(treasureHuntId);
-        if (editDestination == null) {
-            editDestination = new TreasureHunt();
-        }
-        List<Map<String, String>> valueList = dataTable.asMaps(String.class, String.class);
-        Map<String, String> valueMap = valueList.get(valueIndex);
-
-        for (Map.Entry<String, String> entry : valueMap.entrySet()) {
-            String value = entry.getValue();
-
-            switch (entry.getKey()) {
-                case DESTINATION_STRING:
-                    if(value.equals("null")) {
-                        editDestination.setDestination(null);
-                    } else {
-                        editDestination.setDestination(Destination.find.byId(Integer.valueOf(value)));
-                    }
-
-                    break;
-                case RIDDLE_STRING:
-                    editDestination.setRiddle(value);
-                    break;
-                case START_DATE_STRING:
-                    Date startDate = new Date();
-                    try {
-                        startDate = new SimpleDateFormat("yyyy-MM-dd hh-MM-ss").parse(value);
-                    } catch (ParseException e) {
-                        fail();
-                    }
-                    editDestination.setStartDate(startDate);
-                    break;
-                case END_DATE_STRING:
-                    Date endDate = new Date();
-                    try {
-                        endDate = new SimpleDateFormat("yyyy-MM-dd hh-MM-ss").parse(value);
-                    } catch (ParseException e) {
-                        fail();
-                    }
-                    editDestination.setEndDate(endDate);
-                    break;
-                case OWNER_STRING:
-                    if(value.equals("null")) {
-                        editDestination.setOwner(null);
-                    } else {
-                        editDestination.setOwner(Profile.find.byId(Integer.valueOf(value)));
-                    }
-
-                    break;
-            }
-        }
-
-        return Json.toJson(editDestination);
-    }
-
-
-
     @Given("I have the application running")
     public void iHaveTheApplicationRunning() {
         Assert.assertTrue(application.isTest());
@@ -445,19 +381,6 @@ public class TreasureHuntTestSteps {
                 .method(GET)
                 .session(AUTHORIZED, loggedInId)
                 .uri(TREASURE_HUNT_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
-
-        responseBody = Helpers.contentAsString(result);
-    }
-
-
-    @When("I request to retrieve treasure hunts for user with id {int}")
-    public void iRequestToRetrieveMyTreasureHunts(int userId) {
-        Http.RequestBuilder request = fakeRequest()
-                .method(GET)
-                .session(AUTHORIZED, loggedInId)
-                .uri(TREASURE_HUNT_URI + "/" + userId);
         Result result = route(application, request);
         statusCode = result.status();
 
