@@ -1,5 +1,6 @@
 package repositories.destinations;
 
+import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import models.Profile;
 import models.destinations.Destination;
@@ -8,12 +9,15 @@ import models.photos.PersonalPhoto;
 import java.util.List;
 import java.util.Set;
 
-public class DestinationRepository {
+public class DestinationRepository extends BeanRepository<Long, Destination> {
 
     private static final int DEFAULT_ADMIN_ID = 1;
     private static final String PHOTO_FIELD = "photoGallery.photo";
     private static final String TRAVELLER_TYPE_PROPOSED = "proposedTravellerTypesAdd";
 
+    public DestinationRepository() {
+        super(Destination.class, Ebean.getServer("default"));
+    }
 
     /**
      * Update the destination object.
@@ -79,12 +83,12 @@ public class DestinationRepository {
      *
      * @param destination       the destination to delete from the database.
      */
-    public void delete(Destination destination) {
+    public boolean delete(Destination destination) {
         // Clear the destination photos
         destination.clearPhotoGallery();
         destination.update();
         // Delete destination
-        destination.delete();
+        return destination.delete();
     }
 
 

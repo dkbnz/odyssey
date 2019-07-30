@@ -75,18 +75,12 @@ public class TreasureHuntController {
             return forbidden();
         }
 
-        if (!isValidJson(json)) {
-            return badRequest();
-        }
-
         // Create list to hold treasure hunt errors
         List<ApiError> treasureHuntErrors = new ArrayList<>();
 
         ObjectMapper mapper = new ObjectMapper();
 
         TreasureHunt treasureHunt;
-
-
 
         try {
             // Attempt to turn json body into a treasure hunt object.
@@ -113,16 +107,6 @@ public class TreasureHuntController {
         profileRepository.update(treasureHuntOwner);
 
         return created(Json.toJson(treasureHunt.getId()));
-
-//        return ok();
-
-//        TreasureHunt treasureHunt = createNewTreasureHunt(json, treasureHuntOwner);
-//
-//        if (treasureHunt == null) {
-//            return badRequest();
-//        }
-
-
     }
 
 
@@ -291,6 +275,14 @@ public class TreasureHuntController {
             // Errors with deserialization.
             treasureHuntErrors.add(new ApiError("Invalid Json format"));
             return badRequest(Json.toJson(treasureHuntErrors));
+        }
+
+        treasureHunt.setOwner(treasureHuntOwner);
+
+        Destination treasureHuntDestination = treasureHunt.getDestination();
+
+        if(treasureHuntDestination != null && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
+            treasureHuntErrors.add(new ApiError("Provided Destination not found."));
         }
 
         // Validate treasure hunt and get any errors
