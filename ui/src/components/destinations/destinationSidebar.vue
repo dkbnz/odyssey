@@ -1,23 +1,27 @@
 <template>
     <div>
         <b-tabs content-class="mt-3">
-            <b-tab title="Your Destinations" active>
+            <b-tab title="Your Destinations" active @click="$emit('destination-search', yourFoundDestinations)">
                 <destination-search-list
                         :search-public="false"
                         :profile="profile"
                         :destinationTypes="destinationTypes"
-                        @destination-click="destination => $emit('destination-click', destination)">
+                        @destination-click="destination => $emit('destination-click', destination)"
+                        @destination-search="foundDestinations => foundDestinationUpdate(false, foundDestinations)"
+                        @destination-reset="$emit('destination-reset')">
                 </destination-search-list>
             </b-tab>
-            <b-tab title="Public Destinations">
+            <b-tab title="Public Destinations" @click="$emit('destination-search', foundPublicDestinations)">
                 <destination-search-list
                         :search-public="true"
                         :profile="profile"
                         :destinationTypes="destinationTypes"
-                        @destination-click="destination => $emit('destination-click', destination)">
+                        @destination-click="destination => $emit('destination-click', destination)"
+                        @destination-search="foundDestinations => foundDestinationUpdate(true, foundDestinations)"
+                        @destination-reset="$emit('destination-reset')">
                 </destination-search-list>
             </b-tab>
-            <b-tab title="Add">
+            <b-tab title="Add" @click="$emit('destination-search', [])">
                 <b-list-group>
                     <b-list-group-item class="flex-column align-items-start">
                         <add-destinations :profile="profile"
@@ -35,6 +39,7 @@
 <script>
     import DestinationSearchList from "./destinationSearchList";
     import AddDestinations from "./addDestinations";
+
     export default {
         name: "destinationSidebar",
 
@@ -42,7 +47,9 @@
 
         data() {
             return {
-                destinationTypes: []
+                destinationTypes: [],
+                foundPublicDestinations: [],
+                yourFoundDestinations: []
             }
         },
 
@@ -64,6 +71,16 @@
                     .then(response => response.json())
                     .then(updateDestinationTypes);
             },
+
+            foundDestinationUpdate(publicDestinations, destinations) {
+                if (publicDestinations) {
+                    this.foundPublicDestinations = destinations;
+                    this.$emit('destination-search', this.foundPublicDestinations)
+                } else {
+                    this.yourFoundDestinations = destinations;
+                    this.$emit('destination-search', this.yourFoundDestinations)
+                }
+            }
         },
 
         components: {
