@@ -98,14 +98,6 @@ public class TreasureHuntTestSteps {
     private static final String LOGIN_URI = "/v1/login";
 
 
-
-    /**
-     * Valid login credentials for an admin user.
-     */
-    private static final String ADMIN_USERNAME = "admin@travelea.com";
-    private static final String ADMIN_AUTHPASS = "admin1";
-
-
     /**
      * Valid login credentials for a regular user.
      */
@@ -400,16 +392,6 @@ public class TreasureHuntTestSteps {
         return Json.toJson(editDestination);
     }
 
-    /**
-     * Sends a fake request to the application to logout.
-     */
-    private void logoutRequest() {
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .uri(LOGOUT_URI);
-        route(application, request);
-        loggedInId = null;
-    }
 
 
     @Given("I have the application running")
@@ -426,16 +408,21 @@ public class TreasureHuntTestSteps {
     }
 
 
-    @Given("I am logged in as an Admin user")
-    public void iAmLoggedInAsAnAdminUser() {
+    @Given("I am logged in as a Admin")
+    public void iAmLoggedInAsAnAdminUser2() {
         loggedInId = ADMIN_ID;
+    }
+
+
+    @Given("I am logged in as an alt user")
+    public void iAmLoggedInAsAnAlternateUser() {
+        loggedInId = ALT_ID;
     }
 
 
     @Given("the user is not logged in")
     public void theUserIsNotLoggedIn() {
-        logoutRequest();
-        assertNull(loggedInId);
+        loggedInId = null;
     }
 
 
@@ -461,12 +448,25 @@ public class TreasureHuntTestSteps {
     }
 
 
+    @When("I request to retrieve treasure hunts for user with id {int}")
+    public void iRequestToRetrieveMyTreasureHunts(int userId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, loggedInId)
+                .uri(TREASURE_HUNT_URI + "/" + userId);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
+    }
+
+
     @When("I attempt to delete the treasure Hunt")
     public void iAttemptToDeleteTheTreasureHunt() {
         Http.RequestBuilder request = fakeRequest()
                 .method(DELETE)
                 .session(AUTHORIZED, loggedInId)
-                .uri(TREASURE_HUNT_URI + "/");
+                .uri(TREASURE_HUNT_URI + "/" + treasureHuntId);
         Result result = route(application, request);
         statusCode = result.status();
     }

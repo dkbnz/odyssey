@@ -10,6 +10,7 @@ import models.Profile;
 import models.destinations.Destination;
 import util.Views;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import java.util.ArrayList;
@@ -25,7 +26,6 @@ public class TreasureHunt extends BaseModel {
 
     public static final Finder<Integer, TreasureHunt> find = new Finder<>(TreasureHunt.class);
 
-    //@JsonIgnore
     @JsonView(Views.Owner.class)
     @ManyToOne
     private Destination destination;
@@ -42,7 +42,7 @@ public class TreasureHunt extends BaseModel {
     private Date endDate;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(cascade= CascadeType.PERSIST)
     private Profile owner;
 
     public Destination getDestination() {
@@ -83,6 +83,10 @@ public class TreasureHunt extends BaseModel {
 
     public void setOwner(Profile owner) {
         this.owner = owner;
+    }
+
+    public static Finder<Integer, TreasureHunt> getFind() {
+        return find;
     }
 
     public Collection<ApiError> getErrors() {

@@ -1,7 +1,7 @@
 <template>
     <div v-if="profile.length !== 0" :class="containerClass">
         <!--Shows tabs for destination page-->
-        <nav-bar-main v-bind:profile="profile" v-if="!adminView"></nav-bar-main>
+        <nav-bar-main :profile="profile" v-if="!adminView"></nav-bar-main>
         <div class="containerMain">
             <h1 class="page-title">Destinations</h1>
             <p class="page-title">
@@ -9,8 +9,12 @@
             </p>
             <b-row>
                 <b-col cols="8">
-                    <b-card>
-                        Destination Map
+                    <b-card ref="maps">
+                        <google-map :destinations="destinationsForMap" ref="map"
+                                    v-if="showMap"
+                                    :selected-destination="selectedDestination"
+                                    @destination-click="destination => this.selectedDestination = destination">
+                        </google-map>
                     </b-card>
                     <b-alert
                             :show="dismissCountDown"
@@ -20,7 +24,7 @@
                             variant="success">
                         <p>Destination Successfully Deleted</p>
                         <b-progress
-                                :max="dismissSecs"
+                                :max="dismissSeconds"
                                 :value="dismissCountDown"
                                 height="4px"
                                 variant="success"
@@ -47,7 +51,9 @@
                     <b-card>
                         <destination-sidebar
                                 :profile="profile"
-                                @destination-click="destination => this.selectedDestination = destination"
+                                @destination-click="selectDestination"
+                                @destination-search="foundDestinations => this.destinationsForMap = foundDestinations"
+                                @destination-reset="clearMarkers"
                                 :key="refreshDestinationData"
                                 @data-changed="$emit('data-changed')"
                         ></destination-sidebar>
@@ -70,6 +76,7 @@
     import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
     import DestinationSidebar from "./destinationSidebar";
     import SingleDestination from "./singleDestination";
+    import GoogleMap from "../map/googleMap";
 
     export default {
         name: "destinationsPage",
@@ -79,12 +86,12 @@
             destinations: Array,
             destinationTypes: Array,
             containerClass: {
-                default: function() {
+                default: function () {
                     return null;
                 }
             },
             adminView: {
-                default: function() {
+                default: function () {
                     return false;
                 }
             },
@@ -99,6 +106,7 @@
             NavBarMain,
             FooterMain,
             UnauthorisedPrompt,
+            GoogleMap
         },
 
         data: function () {
@@ -108,9 +116,15 @@
                 selectedDestination: {},
                 refreshDestinationData: 0,
                 refreshSingleDestination: 0,
-                dismissSecs: 3,
-                dismissCountDown: 0
+                dismissSeconds: 3,
+                dismissCountDown: 0,
+                destinationsForMap: [],
+                showMap: false
             }
+        },
+
+        mounted() {
+            this.delayMapLoad();
         },
 
         methods: {
@@ -149,6 +163,18 @@
 
 
             /**
+             * Delays the map loading to let the page load before the map component
+             */
+            delayMapLoad() {
+                let self = this;
+                let delay = 100;
+                setTimeout(() => {
+                    self.showMap = true;
+                }, delay)
+            },
+
+
+            /**
              * Used to allow an alert to countdown on the successful saving of a destination.
              *
              * @param dismissCountDown      the name of the alert.
@@ -162,7 +188,20 @@
              * Displays the countdown alert on the successful saving of a destination.
              */
             showAlert() {
-                this.dismissCountDown = this.dismissSecs
+                this.dismissCountDown = this.dismissSeconds
+            },
+
+
+            /**
+             * Changes the selected destination or focuses on current destination.
+             * @param destinationToSelect
+             */
+            selectDestination(destinationToSelect) {
+                if (destinationToSelect.id === this.selectedDestination.id) {
+                    this.$refs['map'].focusOnSelectedDestination();
+                } else {
+                    this.selectedDestination = destinationToSelect;
+                }
             }
         }
     }

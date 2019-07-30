@@ -93,6 +93,7 @@
                this.queryPage = 0;
                this.foundDestinations = [];
                this.destToSearch = destinationToSearch;
+               this.$emit('destination-reset');
                this.queryDestinations(this.destToSearch);
                this.loadingResults = false;
            },
@@ -123,10 +124,13 @@
                     .then((data) => {
                         if (data === undefined || data.length < 50) {
                             this.moreResults = false;
+                        } else {
+                            this.moreResults = true;
                         }
                         for (var i = 0; i < data.length; i++) {
                             this.foundDestinations.push(data[i]);
                         }
+                        this.$emit('destination-search', this.foundDestinations);
                     })
             },
 
