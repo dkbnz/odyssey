@@ -3,11 +3,28 @@
         <b-list-group class="scroll">
             <b-list-group-item v-for="treasureHunt in (foundTreasureHunts)" href="#"
                                class="flex-column align-items-start"
-            :key="treasureHunt.id">
-                {{treasureHunt.riddle}}
-                {{treasureHunt.startDate}}
-                {{treasureHunt.endDate}}
-                <b-button variant="danger" @click="deleteTreasureHunt(treasureHunt.id)" block>Delete</b-button>
+                               :key="treasureHunt.id">
+                <template v-if="!editingHunt" >
+                        {{treasureHunt.riddle}}
+                        {{treasureHunt.startDate}}
+                        {{treasureHunt.endDate}}
+
+                    <b-row>
+                        <b-col>
+                            <b-button variant="warning" @click="editingHunt=true" block>Edit</b-button>
+                        </b-col>
+                        <b-col>
+                            <b-button variant="danger" @click="deleteTreasureHunt(treasureHunt.id)" block>Delete</b-button>
+                        </b-col>
+                    </b-row>
+                </template>
+                <add-treasure-hunt v-else
+                                   :profile="profile"
+                                   :heading="'Edit'"
+                                   :input-treasure-hunt="treasureHunt"
+                                   @cancelCreate="editingHunt=false">
+
+                </add-treasure-hunt>
                 <!--Treasure Hunt component-->
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
@@ -21,7 +38,7 @@
                 </div>
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingHunt">
-                <add-treasure-hunt :profile="profile" :heading="'Create'" @cancelCreate="creatingHunt=false" block>
+                <add-treasure-hunt :profile="profile" :heading="'Create'" @cancelCreate="creatingHunt=false">
 
                 </add-treasure-hunt>
             </b-list-group-item>
@@ -56,7 +73,8 @@
                 loadingResults: true,
                 moreResults: true,
                 queryPage: 0,
-                creatingHunt: false
+                creatingHunt: false,
+                editingHunt: false
             }
         },
 

@@ -2,7 +2,7 @@
 
     <div>
 
-        <h1 class="page-title">{{ heading }} a New Treasure Hunt!</h1>
+        <h1 class="page-title">{{ heading }} a Treasure Hunt!</h1>
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
@@ -47,21 +47,22 @@
                                         <h6 class="mb-1">Selected Destination:</h6>
                                         <b-list-group>
                                             <b-list-group-item href="#" class="flex-column align-items-start"
+                                                               v-if="destination"
                                                                id="selectedDestination"
-                                                               :disabled="selectedDestination.length === '{}'">
+                                                               :disabled="destination.length === '{}'">
                                                 <div class="d-flex w-100 justify-content-between">
-                                                    <h5 class="mb-1" v-if="selectedDestination.name">
-                                                        {{selectedDestination.name}}
+                                                    <h5 class="mb-1" v-if="destination.name">
+                                                        {{destination.name}}
                                                     </h5>
                                                     <h5 class="mb-1" v-else>Select a Destination</h5>
 
                                                 </div>
 
                                                 <p>
-                                                    {{selectedDestination.district}}
+                                                    {{destination.district}}
                                                 </p>
                                                 <p>
-                                                    {{selectedDestination.country}}
+                                                    {{destination.country}}
                                                 </p>
                                             </b-list-group-item>
                                         </b-list-group>
@@ -75,12 +76,12 @@
                                             <b-row>
                                             <b-col cols="6">
                                                 <b-form-input :type="'date'"
-                                                                          id="startDate"
-                                                                          min='getCurrentDate()'
-                                                                          max='9999-12-31'
-                                                                          trim
-                                                                          v-model="startDate"
-                                                                          :state="validateStartDate">
+                                                              id="startDate"
+                                                              min='getCurrentDate()'
+                                                              max='9999-12-31'
+                                                              trim
+                                                              v-model="inputTreasureHunt.startDate"
+                                                              :state="validateStartDate">
 
                                                 </b-form-input>
                                             </b-col>
@@ -91,7 +92,7 @@
                                                               min='getCurrentTime()'
                                                               max=''
                                                               trim
-                                                              v-model="startTime"
+                                                              v-model="inputTreasureHunt.startTime"
                                                               :state="validateStartDate">
                                                 </b-form-input>
                                             </b-col>
@@ -112,8 +113,8 @@
                                                                   min='getCurrentDate()'
                                                                   max='9999-12-31'
                                                                   trim
-                                                                  v-model="endDate"
-                                                                  :state="validateStartDate">
+                                                                  v-model="inputTreasureHunt.endDate"
+                                                                  :state="validateEndDate">
 
                                                     </b-form-input>
                                                 </b-col>
@@ -124,8 +125,8 @@
                                                                   min='getCurrentTime()'
                                                                   max=''
                                                                   trim
-                                                                  v-model="endTime"
-                                                                  :state="validateStartDate">
+                                                                  v-model="inputTreasureHunt.endTime"
+                                                                  :state="validateEndDate">
                                                     </b-form-input>
                                                 </b-col>
                                             </b-row>
@@ -181,9 +182,8 @@
                     return {
                         id: null,
                         riddle: "",
-                        destination: Object,
                         startDate: "",
-                        endDate: ""
+                        endDate: "",
                     }
                 }
             },
@@ -197,6 +197,11 @@
 
         data() {
             return {
+                destination: {},
+                startDate: "",
+                startTime: "",
+                endDate: "",
+                endTime: "",
                 showError: false,
                 showDateError: false,
                 errorMessage: "",
@@ -209,6 +214,20 @@
             }
         },
 
+        mounted() {
+            this.getTreasureHuntDestination(destinationSolution => this.destination = destinationSolution);
+        },
+
+        computed: {
+            validateStartDate() {
+
+            },
+
+            validateEndDate() {
+
+            }
+        },
+
 
         methods: {
 
@@ -218,18 +237,11 @@
 
 
             validateTreasureHunt() {
+                this.getTreasureHuntDestination(destinationSolution => this.destination = destinationSolution);
                 this.saveHunt()
             },
 
             getCurrentTime() {
-
-            },
-
-            validateStartDate() {
-
-            },
-
-            validateEndDate() {
 
             },
 
@@ -238,9 +250,31 @@
 
             },
 
+
+            /**
+             * Cancels the creation or editing of a treasure hunt by emitting a value to the treasureHuntList
+             */
             cancelCreate() {
                 this.$emit('cancelCreate');
             },
+
+
+            /**
+             * If the treasure hunt is being edited, retrieves the destination solution to the hunt
+             */
+            getTreasureHuntDestination(updateHuntDestination) {
+                if (this.inputTreasureHunt.id != null) {
+                    let self = this;
+                    fetch(`/v1/treasureHuntDest/` + this.inputTreasureHunt.id, {
+                        method: 'GET'
+                    })
+                        .then(this.checkStatus)
+                        .then(this.parseJSON)
+                        .then(updateHuntDestination)
+                }
+            },
+
+
 
 
 
@@ -262,6 +296,23 @@
             },
 
 
+            /**
+             * Checks the Http response for errors.
+             *
+             * @param response the retrieved Http response.
+             * @returns {*} throws the Http response error.
+             */
+            checkStatus(response) {
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
+                }
+                const error = new Error(`HTTP Error ${response.statusText}`);
+                error.status = response.statusText;
+                error.response = response;
+                console.log(error);
+                throw error;
+            },
+
 
             /**
              * Converts the retrieved Http response to a Json format.
@@ -270,6 +321,7 @@
              * @returns the Http response body as Json.
              */
             parseJSON(response) {
+                console.log(response)
                 return response.json();
             }
 
