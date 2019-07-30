@@ -68,9 +68,6 @@ public class Profile extends BaseModel {
         return myTreasureHunts;
     }
 
-    public void setMyTreasureHunts(List<TreasureHunt> myTreasureHunts) {
-        this.myTreasureHunts = myTreasureHunts;
-    }
 
     public PersonalPhoto getProfilePicture() {
         return profilePicture;
@@ -250,6 +247,12 @@ public class Profile extends BaseModel {
     public boolean removePhotoFromGallery(PersonalPhoto photoToRemove) {
         return photoGallery.remove(photoToRemove);
     }
+
+
+    public void addTreasureHunt(TreasureHunt newTreasureHunt) {
+        this.myTreasureHunts.add(newTreasureHunt);
+    }
+
 
     public boolean removeTreasureHunt(TreasureHunt treasureHunt) {
         return myTreasureHunts.remove(treasureHunt);

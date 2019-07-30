@@ -61,8 +61,6 @@ public class TreasureHuntController {
             return unauthorized();
         }
 
-        JsonNode json = request.body().asJson();
-
         Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         Profile treasureHuntOwner = profileRepository.fetchSingleProfile(userId.intValue());
@@ -97,9 +95,12 @@ public class TreasureHuntController {
 
         Destination treasureHuntDestination = treasureHunt.getDestination();
 
-        if(treasureHuntDestination != null && treasureHuntDestination.getId() != null && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
+        if(treasureHuntDestination != null && treasureHuntDestination.getId() != null
+                && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
             treasureHuntErrors.add(new ApiError("Provided Destination not found."));
         }
+
+        treasureHunt.setDestination(treasureHuntDestination);
 
         // Validate treasure hunt and get any errors
         treasureHuntErrors.addAll(treasureHunt.getErrors());
@@ -112,124 +113,6 @@ public class TreasureHuntController {
         profileRepository.update(treasureHuntOwner);
 
         return created(Json.toJson(treasureHunt.getId()));
-    }
-
-
-    /**
-     * Creates a new TreasureHunt object and assigns it an owner.
-     *
-     * @param json      the json body being processed to create the TreasureHunt object.
-     * @param owner     the profile that will own the TreasureHunt.
-     * @return          an owned TreasureHunt object, or null if any errors are present in the request.
-     */
-    private TreasureHunt createNewTreasureHunt(JsonNode json, Profile owner) {
-        TreasureHunt treasureHunt = new TreasureHunt();
-
-        Destination destination = destinationRepository.fetch(json.get(DESTINATION).asLong());
-
-        Date startDate = parseDate(json.get(START_DATE).asText());
-        Date endDate = parseDate(json.get(END_DATE).asText());
-
-        if (startDate == null || endDate == null) {
-            return null;
-        }
-
-        if (json.get(RIDDLE).asText().equals("null")) {
-            return null;
-        }
-
-        treasureHunt.setDestination(destination);
-        treasureHunt.setRiddle(json.get(RIDDLE).asText());
-        treasureHunt.setStartDate(startDate);
-        treasureHunt.setEndDate(endDate);
-        treasureHunt.setOwner(owner);
-
-        return treasureHunt;
-    }
-
-
-    /**
-     * Converts a string into a Date object.
-     *
-     * @param dateString    the String being parsed into a Date object.
-     * @return              a Date object, or null if the dateString cannot be parsed.
-     */
-    private Date parseDate(String dateString) {
-        try {
-            return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(dateString);
-        } catch (ParseException e) {
-            return null;
-        }
-    }
-
-
-    /**
-     * Checks the items in a request's Json body to determine if the contents are present and will parse correctly.
-     *
-     * @param json          the JsonNode object being scrutinised for validity.
-     * @return              true if the JsonNode is valid.
-     *                      false otherwise.
-     */
-    private boolean isValidJson(JsonNode json) {
-        String destinationId =  json.get(DESTINATION).asText();
-        String riddle =         json.get(RIDDLE).asText();
-        String startDate =      json.get(START_DATE).asText();
-        String endDate =        json.get(END_DATE).asText();
-
-        if (destinationId.length()    == 0
-                || riddle.length()    == 0
-                || startDate.length() == 0
-                || endDate.length()   == 0) {
-            return false;
-        }
-
-        Long parsedDestinationId;
-
-        try {
-            parsedDestinationId = Long.parseLong(destinationId);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-
-        Destination destination = destinationRepository.fetch(parsedDestinationId);
-
-        return destination != null;
-    }
-
-
-    /**
-     * Retrieves all the treasure hunts stored in the database (if they have the correct dates).
-     *
-     * @param request   the request from the front end of the application containing login information.
-     * @return          ok() (Http 200) containing a Json body of the retrieved treasure hunts.
-     *                  unauthorized() (Http 401) if the user is not logged in.
-     */
-    public Result fetchAll(Http.Request request) throws IOException {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-
-        List<TreasureHunt> treasureHuntsQuery = treasureHuntRepository.findAll();
-
-        Calendar now = Calendar.getInstance();
-        List<TreasureHunt> treasureHunts = new ArrayList<>();
-
-        for (TreasureHunt treasureHunt: treasureHuntsQuery) {
-            if ((treasureHunt.getStartDate().before(now.getTime())
-                    || treasureHunt.getStartDate().compareTo(now.getTime()) == 0)
-                    && (treasureHunt.getEndDate().after(now.getTime())
-                    || treasureHunt.getEndDate().compareTo(now.getTime()) == 0)) {
-                treasureHunts.add(treasureHunt);
-            }
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        String result = mapper
-                .writerWithView(Views.Public.class)
-                .writeValueAsString(treasureHunts);
-
-        return ok(result);
     }
 
 
@@ -285,7 +168,8 @@ public class TreasureHuntController {
 
         Destination treasureHuntDestination = treasureHunt.getDestination();
 
-        if(treasureHuntDestination != null && treasureHuntDestination.getId() != null && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
+        if(treasureHuntDestination != null && treasureHuntDestination.getId() != null
+                && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
             treasureHuntErrors.add(new ApiError("Provided Destination not found."));
         }
 
@@ -301,25 +185,6 @@ public class TreasureHuntController {
 
         treasureHuntRepository.update(treasureHunt);
         return ok();
-    }
-
-
-    /**
-     * Retrieves all the treasure hunts stored in the database (if they have the correct dates).
-     *
-     * @param request   the request from the front end of the application containing login information.
-     * @return          ok() (Http 200) containing a Json body of the retrieved treasure hunts.
-     *                  unauthorized() (Http 401) if the user is not logged in.
-     */
-    public Result fetchByOwner(Http.Request request, Long ownerId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-
-        List<TreasureHunt> treasureHunts = treasureHuntRepository.findByOwner(ownerId);
-
-        return ok(Json.toJson(treasureHunts));
     }
 
 
@@ -365,5 +230,67 @@ public class TreasureHuntController {
             return ok();
         }
         return badRequest();
+    }
+
+
+    /**
+     * Retrieves all the treasure hunts stored in the database (if they have the correct dates).
+     *
+     * @param request   the request from the front end of the application containing login information.
+     * @return          ok() (Http 200) containing a Json body of the retrieved treasure hunts.
+     *                  unauthorized() (Http 401) if the user is not logged in.
+     */
+    public Result fetchAll(Http.Request request) throws IOException {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        List<TreasureHunt> treasureHuntsQuery = treasureHuntRepository.findAll();
+
+        Calendar now = Calendar.getInstance();
+        List<TreasureHunt> treasureHunts = new ArrayList<>();
+
+        for (TreasureHunt treasureHunt: treasureHuntsQuery) {
+            if ((treasureHunt.getStartDate().before(now.getTime())
+                    || treasureHunt.getStartDate().compareTo(now.getTime()) == 0)
+                    && (treasureHunt.getEndDate().after(now.getTime())
+                    || treasureHunt.getEndDate().compareTo(now.getTime()) == 0)) {
+                treasureHunts.add(treasureHunt);
+            }
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        String result = mapper
+                .writerWithView(Views.Public.class)
+                .writeValueAsString(treasureHunts);
+
+        return ok(result);
+    }
+
+
+
+    /**
+     * Retrieves all the treasure hunts stored in the database (if they have the correct dates).
+     *
+     * @param request   the request from the front end of the application containing login information.
+     * @return          ok() (Http 200) containing a Json body of the retrieved treasure hunts.
+     *                  unauthorized() (Http 401) if the user is not logged in.
+     *                  forbidden() (Http 403) if hte user is not allowed to access the specified user's treasure hunts.
+     */
+    public Result fetchByOwner(Http.Request request, Long ownerId) throws IOException {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        Profile requestedUser = profileRepository.fetchSingleProfile(ownerId.intValue());
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, requestedUser)) {
+            return forbidden();
+        }
+
+        return ok(Json.toJson(requestedUser.getMyTreasureHunts()));
     }
 }
