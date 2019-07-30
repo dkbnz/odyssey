@@ -117,6 +117,34 @@ public class TreasureHuntController {
 
 
     /**
+     * Retrieves the destination solution to the treasure hunt.
+     * @param request           the request from the front end of the application containing login information.
+     * @param treasureHuntId    the id of the treasure hunt for which the destination is needed.
+     * @return                  the destination solution for the treasure hunt.
+     */
+    public Result fetchDestination(Http.Request request, Long treasureHuntId) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        TreasureHunt treasureHunt = treasureHuntRepository.findById(treasureHuntId);
+
+        if (treasureHunt == null) {
+            return notFound();
+        }
+
+        Destination destinationResult = treasureHunt.getDestination();
+        if (destinationResult == null) {
+            return notFound();
+        }
+
+        System.out.println(destinationResult);
+        return ok(Json.toJson(destinationResult));
+    }
+
+
+    /**
      * Edits the treasure hunt specified by the given id. Changed values are stored in the request body. Validates
      * request body.
      *
