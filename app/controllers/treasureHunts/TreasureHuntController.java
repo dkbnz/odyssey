@@ -1,7 +1,9 @@
 package controllers.treasureHunts;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import models.ApiError;
 import models.Profile;
 import models.destinations.Destination;
 import models.treasureHunts.TreasureHunt;
@@ -12,13 +14,12 @@ import repositories.ProfileRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.treasureHunts.TreasureHuntRepository;
 import util.AuthenticationUtil;
+import util.Views;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static play.mvc.Results.*;
 
@@ -78,16 +79,50 @@ public class TreasureHuntController {
             return badRequest();
         }
 
-        TreasureHunt treasureHunt = createNewTreasureHunt(json, treasureHuntOwner);
+        // Create list to hold treasure hunt errors
+        List<ApiError> treasureHuntErrors = new ArrayList<>();
 
-        if (treasureHunt == null) {
-            return badRequest();
+        ObjectMapper mapper = new ObjectMapper();
+
+        TreasureHunt treasureHunt;
+
+
+
+        try {
+            // Attempt to turn json body into a treasure hunt object.
+            treasureHunt = mapper.readerWithView(Views.Owner.class)
+                    .forType(TreasureHunt.class)
+                    .readValue(request.body().asJson());
+        } catch (Exception e) {
+            // Errors with deserialization.
+            treasureHuntErrors.add(new ApiError("Invalid Json format"));
+            return badRequest(Json.toJson(treasureHuntErrors));
         }
+
+        treasureHunt.setOwner(treasureHuntOwner);
+
+        // Validate treasure hunt and get any errors
+        treasureHuntErrors.addAll(treasureHunt.getErrors());
+
+        if (!treasureHuntErrors.isEmpty()) {
+            return badRequest(Json.toJson(treasureHuntErrors));
+        }
+
 
         treasureHuntRepository.save(treasureHunt);
         profileRepository.update(treasureHuntOwner);
 
         return created(Json.toJson(treasureHunt.getId()));
+
+//        return ok();
+
+//        TreasureHunt treasureHunt = createNewTreasureHunt(json, treasureHuntOwner);
+//
+//        if (treasureHunt == null) {
+//            return badRequest();
+//        }
+
+
     }
 
 
@@ -180,7 +215,7 @@ public class TreasureHuntController {
      * @return          ok() (Http 200) containing a Json body of the retrieved treasure hunts.
      *                  unauthorized() (Http 401) if the user is not logged in.
      */
-    public Result fetchAll(Http.Request request) {
+    public Result fetchAll(Http.Request request) throws IOException {
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
@@ -199,7 +234,13 @@ public class TreasureHuntController {
                 treasureHunts.add(treasureHunt);
             }
         }
-        return ok(Json.toJson(treasureHunts));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String result = mapper
+                .writerWithView(Views.Public.class)
+                .writeValueAsString(treasureHunts);
+
+        return ok(result);
     }
 
 
@@ -217,6 +258,7 @@ public class TreasureHuntController {
      *                          badRequest() (Http 400) if there is an error with the request.
      */
     public Result edit(Http.Request request, Long treasureHuntId) {
+
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
@@ -235,26 +277,31 @@ public class TreasureHuntController {
             return forbidden();
         }
 
-        JsonNode json = request.body().asJson();
+        // Create list to hold treasure hunt errors
+        List<ApiError> treasureHuntErrors = new ArrayList<>();
 
-//        if (!isValidJson(json)) {
-//            return badRequest();
-//        }
+        ObjectMapper mapper = new ObjectMapper();
 
-        treasureHunt = Json.fromJson(json, TreasureHunt.class);
-
-        System.out.println(treasureHunt.getStartDate());
-        System.out.println(treasureHunt.getDestination().getId());
-
-        //treasureHunt.setId(treasureHuntId);
-
-        if (treasureHuntOwner != null) {
-            treasureHuntRepository.update(treasureHunt);
-            profileRepository.update(treasureHuntOwner);
-            return ok();
+        try {
+            // Attempt to turn json body into a treasure hunt object.
+            treasureHunt = mapper.readerWithView(Views.Owner.class)
+                    .forType(TreasureHunt.class)
+                    .readValue(request.body().asJson());
+        } catch (Exception e) {
+            // Errors with deserialization.
+            treasureHuntErrors.add(new ApiError("Invalid Json format"));
+            return badRequest(Json.toJson(treasureHuntErrors));
         }
 
-        return badRequest();
+        // Validate treasure hunt and get any errors
+        treasureHuntErrors.addAll(treasureHunt.getErrors());
+
+        if (!treasureHuntErrors.isEmpty()) {
+            return badRequest(Json.toJson(treasureHuntErrors));
+        }
+
+        treasureHuntRepository.update(treasureHunt);
+        return ok();
     }
 
 
