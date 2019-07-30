@@ -11,6 +11,43 @@ Feature: TreasureHunt API Endpoint
     Then the status code I receive is 200
     And the response contains at least one treasure hunt
 
+# TODO: Isaac, Joel - waiting on fix for create.
+#  Scenario: Successfully get all my Treasure Hunts
+#    Given I have the application running
+#    And I am logged in as a normal user
+#    And a treasure hunt already exists with the following values
+#      | Destination | Riddle                                 | Start Date | End Date | Owner |
+#      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
+#    And the status code I receive is 201
+#    When I request to retrieve treasure hunts for user with id 2
+#    Then the status code I receive is 200
+#    And the response contains at least one treasure hunt
+#
+#
+#  Scenario: Unsuccessfully get all another user's Treasure Hunts as a regular user
+#    Given I have the application running
+#    And I am logged in as a normal user
+#    And a treasure hunt already exists with the following values
+#      | Destination | Riddle                                 | Start Date | End Date | Owner |
+#      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
+#    And the status code I receive is 201
+#    And I am logged in as an alt user
+#    When I request to retrieve treasure hunts for user with id 2
+#    Then the status code I receive is 403
+#
+#
+#  Scenario: Successfully get all another user's Treasure Hunts as an admin
+#    Given I have the application running
+#    And I am logged in as a normal user
+#    And a treasure hunt already exists with the following values
+#      | Destination | Riddle                                 | Start Date | End Date | Owner |
+#      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
+#    And the status code I receive is 201
+#    And I am logged in as a Admin
+#    When I request to retrieve treasure hunts for user with id 2
+#    Then the status code I receive is 200
+#    And the response contains at least one treasure hunt
+
 
   Scenario: Successfully getting no Treasure Hunts because of dates out of range
     Given I have the application running

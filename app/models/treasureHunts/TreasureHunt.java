@@ -6,6 +6,7 @@ import models.BaseModel;
 import models.Profile;
 import models.destinations.Destination;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import java.util.Date;
@@ -29,7 +30,7 @@ public class TreasureHunt extends BaseModel {
     private Date endDate;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(cascade= CascadeType.PERSIST)
     private Profile owner;
 
 
