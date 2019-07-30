@@ -1,7 +1,7 @@
 <template>
     <div v-if="profile.length !== 0" :class="containerClass">
         <!--Shows tabs for destination page-->
-        <nav-bar-main v-bind:profile="profile" v-if="!adminView"></nav-bar-main>
+        <nav-bar-main :profile="profile" v-if="!adminView"></nav-bar-main>
         <div class="containerMain">
             <h1 class="page-title">Destinations</h1>
             <p class="page-title">
@@ -10,7 +10,7 @@
             <b-row>
                 <b-col cols="8">
                     <b-card ref="maps">
-                        <google-map v-bind:destinations="destinationsForMap" ref="map"
+                        <google-map :destinations="destinationsForMap" ref="map"
                                     v-if="showMap"
                                     :selected-destination="selectedDestination"
                                     @destination-click="destination => this.selectedDestination = destination">
@@ -190,6 +190,7 @@
             showAlert() {
                 this.dismissCountDown = this.dismissSeconds
             },
+
 
             /**
              * Changes the selected destination or focuses on current destination.

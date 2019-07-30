@@ -18,18 +18,17 @@
 
     export default {
         name: "googleMap.vue",
+
         props: {
-            selectedDestination: {
-                type: Object
-            },
-            destinations: {
-                type: Array
-            },
+            selectedDestination: Object,
+            destinations: Array,
         },
+
         mounted() {
             this.initMap();
             this.createMarkers();
         },
+
         data() {
             return {
                 initial: {
@@ -45,6 +44,7 @@
                 privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
             }
         },
+
         watch: {
             /**
              * Watches the destinations list for changes and when there are changes calls the create marker function
@@ -58,11 +58,11 @@
                 this.createMarkers();
             },
 
+
             /**
              * If selected destination changes, re-center map and calculate markers
              */
             selectedDestination: function (newDestination, oldDestination) {
-
                 if (newDestination.id === oldDestination.id) {
                     // Destination has been edited
                     let newMarker = this.markerArray[newDestination.id];
@@ -84,6 +84,7 @@
                 this.focusOnSelectedDestination()
             }
         },
+
         methods: {
             /**
              * Initializes the map with given latitude and longitude and zoom
@@ -150,6 +151,10 @@
                 this.markerArray = [];
             },
 
+
+            /**
+             * Center's the map based on the initial zoom and view values.
+             */
             centreMap() {
                 this.$map.setZoom(this.initial.zoom);
                 this.$map.panTo(this.initial.view);
@@ -158,6 +163,7 @@
 
     }
 </script>
+
 <style scoped>
     @import "../../css/googleMap.css";
 </style>
