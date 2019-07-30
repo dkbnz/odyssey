@@ -11,6 +11,43 @@ Feature: TreasureHunt API Endpoint
     Then the status code I receive is 200
     And the response contains at least one treasure hunt
 
+# TODO: Isaac, Joel - waiting on fix for create.
+#  Scenario: Successfully get all my Treasure Hunts
+#    Given I have the application running
+#    And I am logged in as a normal user
+#    And a treasure hunt already exists with the following values
+#      | Destination | Riddle                                 | Start Date | End Date | Owner |
+#      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
+#    And the status code I receive is 201
+#    When I request to retrieve treasure hunts for user with id 2
+#    Then the status code I receive is 200
+#    And the response contains at least one treasure hunt
+#
+#
+#  Scenario: Unsuccessfully get all another user's Treasure Hunts as a regular user
+#    Given I have the application running
+#    And I am logged in as a normal user
+#    And a treasure hunt already exists with the following values
+#      | Destination | Riddle                                 | Start Date | End Date | Owner |
+#      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
+#    And the status code I receive is 201
+#    And I am logged in as an alt user
+#    When I request to retrieve treasure hunts for user with id 2
+#    Then the status code I receive is 403
+#
+#
+#  Scenario: Successfully get all another user's Treasure Hunts as an admin
+#    Given I have the application running
+#    And I am logged in as a normal user
+#    And a treasure hunt already exists with the following values
+#      | Destination | Riddle                                 | Start Date | End Date | Owner |
+#      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
+#    And the status code I receive is 201
+#    And I am logged in as a Admin
+#    When I request to retrieve treasure hunts for user with id 2
+#    Then the status code I receive is 200
+#    And the response contains at least one treasure hunt
+
 
   Scenario: Successfully getting no Treasure Hunts because of dates out of range
     Given I have the application running
@@ -27,6 +64,15 @@ Feature: TreasureHunt API Endpoint
   Scenario: Successfully creating a new Treasure Hunt
     Given I have a application running
     And I am logged in as a normal user
+    When I attempt to create a treasure hunt with the following values
+      | Destination | Riddle                                 | Start Date | End Date | Owner |
+      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
+    Then the status code I receive is 201
+
+
+  Scenario: Successfully creating a new Treasure Hunt as an admin for another user
+    Given I have a application running
+    And I am logged in as a Admin
     When I attempt to create a treasure hunt with the following values
       | Destination | Riddle                                 | Start Date | End Date | Owner |
       | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
@@ -50,8 +96,8 @@ Feature: TreasureHunt API Endpoint
       | 119         | null   | null       | null     | 2     |
     Then the status code I receive is 400
 
-#TODO: Vinnie Jamieson - can you please add a more detailed description to the scenario.
-  Scenario: Unsuccessfully creating a new Treasure Hunt
+
+  Scenario: Unsuccessfully creating a new Treasure Hunt with a start date in the future
     Given I have a application running
     And I am logged in as a normal user
     When I attempt to create a treasure hunt with the following values
@@ -59,13 +105,13 @@ Feature: TreasureHunt API Endpoint
       | 119         | What rhymes with It's mean Kyle fleek? | 8096-12-12 | null     | 2     |
     Then the status code I receive is 400
 
-#TODO: Vinnie Jamieson - can you please add a more detailed description to the scenario.
-  Scenario: Unsuccessfully creating a new Treasure Hunt
+
+  Scenario: Unsuccessfully creating a new Treasure Hunt with an end date in the past
     Given I have a application running
     And I am logged in as a normal user
     When I attempt to create a treasure hunt with the following values
       | Destination | Riddle                                 | Start Date | End Date   | Owner |
-      | 119         | What rhymes with It's mean Kyle fleek? | null       | 1993-12-12 | 2     |
+      | 119         | What rhymes with It's mean Kyle fleek? | null       | 2000-12-12 | 2     |
     Then the status code I receive is 400
 
 
@@ -95,6 +141,7 @@ Feature: TreasureHunt API Endpoint
     Then the status code I receive is 400
 
 
+
   Scenario: Unsuccessfully editing a Treasure Hunt for another user as non-admin
     Given I have the application running
     And I am logged in as an Admin user
@@ -108,42 +155,45 @@ Feature: TreasureHunt API Endpoint
       | COOL   |
     Then the status code I receive is 403
 
-# TODO: Joel Ridden
-#  Scenario: Delete an already existing Treasure Hunt that I own
-#    Given I have a application running
-#    And I am logged in as a normal user
-#    And a treasure hunt already exists with the following values
-#      | Destination | Riddle                                 | Start Date | End Date   | Owner |
-#      | 15040       | Delete me please                       | null       | 1993-12-12 | 2     |
-#    When I attempt to delete the treasure Hunt
-#    Then the status code I receive is 200
-#
-#
-#  Scenario: Delete an already existing Treasure Hunt as an admin
-#    Given I have a application running
-#    And I am logged in as an admin user
-#    And a treasure hunt already exists with the following values
-#      | Destination | Riddle                                 | Start Date | End Date   | Owner |
-#      | 15040       | Delete me please                       | null       | 1993-12-12 | 2     |
-#    When I attempt to delete the treasure Hunt
-#    Then the status code I receive is 200
-#
-#
-#  Scenario: Delete an already existing Treasure Hunt that I don't own
-#    Given I have a application running
-#    And I am logged in as a normal user
-#    And a treasure hunt already exists with the following values
-#      | Destination | Riddle                                 | Start Date | End Date   | Owner |
-#      | 15040       | Delete me please                       | null       | 1993-12-12 | 1     |
-#    When I attempt to delete the treasure Hunt
-#    Then the status code I receive is 403
-#
-#
-#  Scenario: Delete an already existing Treasure Hunt and I am not logged in
-#    Given I have a application running
-#    And The user is not logged in
-#    And a treasure hunt already exists with the following values
-#      | Destination | Riddle                                 | Start Date | End Date   | Owner |
-#      | 15040       | Delete me please                       | null       | 1993-12-12 | 2     |
-#    When I attempt to delete the treasure Hunt
-#    Then the status code I receive is 401
+
+  Scenario: Delete an already existing Treasure Hunt that I own
+    Given I have a application running
+    And I am logged in as a normal user
+    And a treasure hunt already exists with the following values
+      | Destination | Riddle                                 | Start Date | End Date | Owner |
+      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
+    When I attempt to delete the treasure Hunt
+    Then the status code I receive is 200
+
+
+  Scenario: Delete an already existing Treasure Hunt as an admin
+    Given I have a application running
+    And I am logged in as a Admin
+    And a treasure hunt already exists with the following values
+      | Destination | Riddle                                 | Start Date | End Date | Owner |
+      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
+    When I attempt to delete the treasure Hunt
+    Then the status code I receive is 200
+
+
+  Scenario: Delete an already existing Treasure Hunt that I don't own
+    Given I have a application running
+    And I am logged in as a Admin
+    And a treasure hunt already exists with the following values
+      | Destination | Riddle                                 | Start Date | End Date | Owner |
+      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 1     |
+    And I am logged in as a normal user
+    When I attempt to delete the treasure Hunt
+    Then the status code I receive is 403
+
+
+  Scenario: Delete an already existing Treasure Hunt and I am not logged in
+    Given I have a application running
+    And I am logged in as a normal user
+    And a treasure hunt already exists with the following values
+      | Destination | Riddle                                 | Start Date | End Date | Owner |
+      | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
+    And the user is not logged in
+    When I attempt to delete the treasure Hunt
+    Then the status code I receive is 401
+

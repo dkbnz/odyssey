@@ -18,6 +18,7 @@
                             <b-nav-item @click="currentDisplay = 2">View Trips</b-nav-item>
                             <b-nav-item @click="currentDisplay = 3">Add Trips</b-nav-item>
                             <b-nav-item @click="currentDisplay = 4">Destinations</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 5">Treasure Hunts</b-nav-item>
                         </b-nav>
                     </b-collapse>
                     <b-navbar-toggle target="nav-collapse-admin"></b-navbar-toggle>
@@ -71,6 +72,12 @@
                         :profile="editProfile"
                         v-if="currentDisplay === 4">
                 </destinations-page>
+                <treasure-hunt-page
+                        :containerClass="'noBordersContainer'"
+                        :adminView="adminView"
+                        :profile="editProfile"
+                        v-if="currentDisplay === 5">
+                </treasure-hunt-page>
             </b-col>
         </b-row>
     </div>
@@ -83,6 +90,7 @@
     import YourTrips from './../trips/yourTrips.vue'
     import EditProfile from "./../dash/editProfile.vue"
     import DestinationsPage from "./../destinations/destinationsPage.vue"
+    import TreasureHuntPage from "../treasureHunt/treasureHuntPage";
 
     export default {
         name: "singleProfile",
@@ -139,6 +147,7 @@
         },
 
         components: {
+            TreasureHuntPage,
             ViewProfile,
             PlanATrip,
             YourTrips,
