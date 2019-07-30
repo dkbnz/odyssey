@@ -2,14 +2,20 @@ package models.treasureHunts;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.ebean.Finder;
+import models.ApiError;
 import models.BaseModel;
 import models.Profile;
 import models.destinations.Destination;
+import util.Views;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Class for treasure hunt, is used to initialise a treasure hunt.
@@ -20,14 +26,18 @@ public class TreasureHunt extends BaseModel {
     public static final Finder<Integer, TreasureHunt> find = new Finder<>(TreasureHunt.class);
 
     //@JsonIgnore
+    @JsonView(Views.Owner.class)
     @ManyToOne
     private Destination destination;
 
+    @JsonView(Views.Public.class)
     private String riddle;
 
+    @JsonView(Views.Public.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startDate;
 
+    @JsonView(Views.Public.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endDate;
 
@@ -73,5 +83,37 @@ public class TreasureHunt extends BaseModel {
 
     public void setOwner(Profile owner) {
         this.owner = owner;
+    }
+
+    public Collection<ApiError> getErrors() {
+        List<ApiError> errors = new ArrayList<>();
+
+        if (riddle == null || riddle.isEmpty()) {
+            errors.add(new ApiError("A riddle must be provided."));
+        } else if (riddle.length() > 255) {
+            errors.add(new ApiError("Riddles must not exceed 255 characters in length."));
+        }
+
+        if(startDate == null) {
+            errors.add(new ApiError("You must provide a start date."));
+        }
+
+        if(endDate == null) {
+            errors.add(new ApiError("You must provide an end date."));
+        }
+
+        if (startDate != null && endDate != null && endDate.before(startDate)) {
+            errors.add(new ApiError("Start date must be before end date."));
+        }
+
+        if (owner == null) {
+            errors.add(new ApiError("This treasure hunt does not have an owner."));
+        }
+
+        if (destination == null) {
+            errors.add(new ApiError("Treasure hunts must have a destination."));
+        }
+
+        return errors;
     }
 }
