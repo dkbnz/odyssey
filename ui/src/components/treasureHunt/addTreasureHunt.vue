@@ -1,9 +1,8 @@
 <template>
 
-    <div :class="containerClass">
+    <div>
 
-        <h1 class="page-title">{{ heading }}</h1>
-        <p class="page-title"><i>{{ subHeading }}</i></p>
+        <h1 class="page-title">{{ heading }} a New Treasure Hunt!</h1>
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
@@ -26,7 +25,6 @@
 
         <b-row>
             <b-col>
-                <b-card>
                     <b-form>
 
                         <b-container fluid>
@@ -107,13 +105,30 @@
                                             <b-col cols="6"></b-col>
                                             <b-col cols="6"></b-col>
 
-                                            <b-form-input :type="'datetime-local'"
-                                                          id="endDate"
-                                                          min='getCurrentTime()'
-                                                          max='9999-12-31T00:00'
-                                                          trim
-                                                          v-model="endDate"
-                                                          :state="validateEndDate"></b-form-input>
+                                            <b-row>
+                                                <b-col cols="6">
+                                                    <b-form-input :type="'date'"
+                                                                  id="endDate"
+                                                                  min='getCurrentDate()'
+                                                                  max='9999-12-31'
+                                                                  trim
+                                                                  v-model="endDate"
+                                                                  :state="validateStartDate">
+
+                                                    </b-form-input>
+                                                </b-col>
+
+                                                <b-col cols="6">
+                                                    <b-form-input :type="'time'"
+                                                                  id="endTime"
+                                                                  min='getCurrentTime()'
+                                                                  max=''
+                                                                  trim
+                                                                  v-model="endTime"
+                                                                  :state="validateStartDate">
+                                                    </b-form-input>
+                                                </b-col>
+                                            </b-row>
                                         </b-form-group>
                                     </b-col>
 
@@ -130,11 +145,18 @@
                         </b-form>
                     </b-form>
 
-
-                </b-card>
-                <b-button @click="validateTreasureHunt" block variant="primary">Save
-
-                </b-button>
+                <b-row>
+                    <b-col cols="8">
+                        <b-button @click="validateTreasureHunt" block variant="primary">
+                            Save
+                        </b-button>
+                    </b-col>
+                    <b-col>
+                        <b-button @click="cancelCreate" block>
+                            Cancel
+                        </b-button>
+                    </b-col>
+                </b-row>
             </b-col>
         </b-row>
 
@@ -166,7 +188,6 @@
                 }
             },
             heading: String,
-            subHeading: String,
             containerClass: {
                 default: function() {
                     return 'containerWithNav';
@@ -215,6 +236,10 @@
 
             saveHunt() {
 
+            },
+
+            cancelCreate() {
+                this.$emit('cancelCreate');
             },
 
 
