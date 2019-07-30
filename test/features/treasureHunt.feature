@@ -35,7 +35,7 @@ Feature: TreasureHunt API Endpoint
 
   Scenario: Successfully creating a new Treasure Hunt as an admin for another user
     Given I have a application running
-    And I am logged in as an Admin2
+    And I am logged in as a Admin
     When I attempt to create a treasure hunt with the following values
       | Destination | Riddle                                 | Start Date | End Date | Owner |
       | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
@@ -90,7 +90,7 @@ Feature: TreasureHunt API Endpoint
 
   Scenario: Delete an already existing Treasure Hunt as an admin
     Given I have a application running
-    And I am logged in as an Admin2
+    And I am logged in as a Admin
     And a treasure hunt already exists with the following values
       | Destination | Riddle                                 | Start Date | End Date | Owner |
       | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 2     |
@@ -100,7 +100,7 @@ Feature: TreasureHunt API Endpoint
 
   Scenario: Delete an already existing Treasure Hunt that I don't own
     Given I have a application running
-    And I am logged in as an Admin2
+    And I am logged in as a Admin
     And a treasure hunt already exists with the following values
       | Destination | Riddle                                 | Start Date | End Date | Owner |
       | 119         | What rhymes with It's mean Kyle fleek? | null       | null     | 1     |

@@ -126,6 +126,7 @@
                         for (let i = 0; i < data.length; i++) {
                             this.foundTreasureHunts.push(data[i]);
                         }
+                        this.loadingResults = false;
                     })
             },
 

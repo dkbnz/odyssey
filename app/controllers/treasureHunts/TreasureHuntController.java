@@ -205,6 +205,25 @@ public class TreasureHuntController {
 
 
     /**
+     * Retrieves all the treasure hunts stored in the database (if they have the correct dates).
+     *
+     * @param request   the request from the front end of the application containing login information.
+     * @return          ok() (Http 200) containing a Json body of the retrieved treasure hunts.
+     *                  unauthorized() (Http 401) if the user is not logged in.
+     */
+    public Result fetchByOwner(Http.Request request, Long ownerId) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        List<TreasureHunt> treasureHunts = treasureHuntRepository.findByOwner(ownerId);
+
+        return ok(Json.toJson(treasureHunts));
+    }
+
+
+    /**
      * Deletes a given treasure hunt from the database. If the user is the owner of the treasure hunt
      * or the user logged in is an admin then the delete will be successful.
      * Otherwise the user will be forbidden.
