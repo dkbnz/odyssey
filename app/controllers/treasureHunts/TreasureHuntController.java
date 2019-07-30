@@ -1,7 +1,9 @@
 package controllers.treasureHunts;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import models.ApiError;
 import models.Profile;
 import models.destinations.Destination;
 import models.treasureHunts.TreasureHunt;
@@ -12,13 +14,12 @@ import repositories.ProfileRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.treasureHunts.TreasureHuntRepository;
 import util.AuthenticationUtil;
+import util.Views;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static play.mvc.Results.*;
 
@@ -74,14 +75,37 @@ public class TreasureHuntController {
             return forbidden();
         }
 
-        if (!isValidJson(json)) {
-            return badRequest();
+        // Create list to hold treasure hunt errors
+        List<ApiError> treasureHuntErrors = new ArrayList<>();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        TreasureHunt treasureHunt;
+
+        try {
+            // Attempt to turn json body into a treasure hunt object.
+            treasureHunt = mapper.readerWithView(Views.Owner.class)
+                    .forType(TreasureHunt.class)
+                    .readValue(request.body().asJson());
+        } catch (Exception e) {
+            // Errors with deserialization.
+            treasureHuntErrors.add(new ApiError("Invalid Json format"));
+            return badRequest(Json.toJson(treasureHuntErrors));
         }
 
-        TreasureHunt treasureHunt = createNewTreasureHunt(json, treasureHuntOwner);
+        treasureHunt.setOwner(treasureHuntOwner);
 
-        if (treasureHunt == null) {
-            return badRequest();
+        Destination treasureHuntDestination = treasureHunt.getDestination();
+
+        if(treasureHuntDestination != null && treasureHuntDestination.getId() != null && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
+            treasureHuntErrors.add(new ApiError("Provided Destination not found."));
+        }
+
+        // Validate treasure hunt and get any errors
+        treasureHuntErrors.addAll(treasureHunt.getErrors());
+
+        if (!treasureHuntErrors.isEmpty()) {
+            return badRequest(Json.toJson(treasureHuntErrors));
         }
 
         treasureHuntRepository.save(treasureHunt);
@@ -180,7 +204,7 @@ public class TreasureHuntController {
      * @return          ok() (Http 200) containing a Json body of the retrieved treasure hunts.
      *                  unauthorized() (Http 401) if the user is not logged in.
      */
-    public Result fetchAll(Http.Request request) {
+    public Result fetchAll(Http.Request request) throws IOException {
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
@@ -200,7 +224,83 @@ public class TreasureHuntController {
             }
         }
 
-        return ok(Json.toJson(treasureHunts));
+        ObjectMapper mapper = new ObjectMapper();
+        String result = mapper
+                .writerWithView(Views.Public.class)
+                .writeValueAsString(treasureHunts);
+
+        return ok(result);
+    }
+
+
+    /**
+     * Edits the treasure hunt specified by the given id. Changed values are stored in the request body. Validates
+     * request body.
+     *
+     * @param request           the request from the front end of the application containing login information.
+     * @param treasureHuntId    the id of the treasure hunt the user is trying to edit.
+     * @return                  unauthorized() (Http 401) if the user is not logged in.
+     *                          notFound() (Http 404) if the treasure hunt id does not exist in the database.
+     *                          forbidden() (Http 403) if the user is not the owner of the treasure hunt or is not an
+     *                          admin.
+     *                          ok() (Http 200) if the user is successful in deleting the treasure hunt.
+     *                          badRequest() (Http 400) if there is an error with the request.
+     */
+    public Result edit(Http.Request request, Long treasureHuntId) {
+        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+
+        TreasureHunt treasureHunt = treasureHuntRepository.findById(treasureHuntId);
+
+        if (treasureHunt == null) {
+            return notFound();
+        }
+
+        Profile treasureHuntOwner = treasureHunt.getOwner();
+        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, treasureHuntOwner)) {
+            return forbidden();
+        }
+
+        // Create list to hold treasure hunt errors
+        List<ApiError> treasureHuntErrors = new ArrayList<>();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            // Attempt to turn json body into a treasure hunt object.
+            treasureHunt = mapper.readerWithView(Views.Owner.class)
+                    .forType(TreasureHunt.class)
+                    .readValue(request.body().asJson());
+        } catch (Exception e) {
+            // Errors with deserialization.
+            treasureHuntErrors.add(new ApiError("Invalid Json format"));
+            return badRequest(Json.toJson(treasureHuntErrors));
+        }
+
+        treasureHunt.setOwner(treasureHuntOwner);
+
+        Destination treasureHuntDestination = treasureHunt.getDestination();
+
+        if(treasureHuntDestination != null && treasureHuntDestination.getId() != null && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
+            treasureHuntErrors.add(new ApiError("Provided Destination not found."));
+        }
+
+        // Validate treasure hunt and get any errors
+        treasureHuntErrors.addAll(treasureHunt.getErrors());
+
+        if (!treasureHuntErrors.isEmpty()) {
+            return badRequest(Json.toJson(treasureHuntErrors));
+        }
+
+        treasureHunt.setId(treasureHuntId);
+
+
+        treasureHuntRepository.update(treasureHunt);
+        return ok();
     }
 
 
@@ -229,16 +329,16 @@ public class TreasureHuntController {
      * Otherwise the user will be forbidden.
      *
      * @param request           the request from the front end of the application containing login information.
-     * @param treasureHuntId    The id of the treasure hunt the user is trying to delete.
+     * @param treasureHuntId    the id of the treasure hunt the user is trying to delete.
      *
-     * @return                  unauthorized() if the user is not logged in.
-     *                          notFound() if the treasure hunt id does not exist in the database.
-     *                          forbidden() if the user is not the owner of the treasure hunt or is not an admin.
-     *                          ok() if the user is successful in deleting the treasure hunt.
-     *                          badRequest() if there is an error with the request.
+     * @return                  unauthorized() (Http 401) if the user is not logged in.
+     *                          notFound() (Http 404) if the treasure hunt id does not exist in the database.
+     *                          forbidden() (Http 403) if the user is not the owner of the treasure hunt or is not an
+     *                          admin.
+     *                          ok() (Http 200) if the user is successful in deleting the treasure hunt.
+     *                          badRequest() (Http 400) if there is an error with the request.
      */
     public Result delete(Http.Request request, Long treasureHuntId) {
-
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
 
         if (loggedInUserId == null) {
