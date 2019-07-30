@@ -47,22 +47,22 @@
                                         <h6 class="mb-1">Selected Destination:</h6>
                                         <b-list-group>
                                             <b-list-group-item href="#" class="flex-column align-items-start"
-                                                               v-if="destination"
+                                                               v-if="selectedDestination"
                                                                id="selectedDestination"
-                                                               :disabled="destination.length === '{}'">
+                                                               :disabled="selectedDestination.length === '{}'">
                                                 <div class="d-flex w-100 justify-content-between">
-                                                    <h5 class="mb-1" v-if="destination.name">
-                                                        {{destination.name}}
+                                                    <h5 class="mb-1" v-if="selectedDestination.name">
+                                                        {{selectedDestination.name}}
                                                     </h5>
                                                     <h5 class="mb-1" v-else>Select a Destination</h5>
 
                                                 </div>
 
                                                 <p>
-                                                    {{destination.district}}
+                                                    {{selectedDestination.district}}
                                                 </p>
                                                 <p>
-                                                    {{destination.country}}
+                                                    {{selectedDestination.country}}
                                                 </p>
                                             </b-list-group-item>
                                         </b-list-group>
@@ -188,6 +188,7 @@
                 }
             },
             newDestination: Object,
+            selectedDestination: {},
             heading: String,
             containerClass: {
                 default: function() {
@@ -195,6 +196,7 @@
                 }
             }
         },
+
 
         data() {
             return {
@@ -335,6 +337,13 @@
                     today.getMinutes();
             },
 
+
+            /**
+             * Used after the destination is added, resets the form for adding a destination.
+             */
+            resetDestForm() {
+                this.selectedDestination = {};
+            },
 
 
             /**

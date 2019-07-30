@@ -8,6 +8,7 @@
                         {{treasureHunt.riddle}}
                         {{treasureHunt.startDate}}
                         {{treasureHunt.endDate}}
+
                     <b-row>
                         <b-col>
                             <b-button variant="warning" @click="setActiveId(treasureHunt.id)" block>Edit</b-button>
@@ -21,7 +22,8 @@
                                    :profile="profile"
                                    :heading="'Edit'"
                                    :input-treasure-hunt="treasureHunt"
-                                   @cancelCreate="cancelEdit">
+                                   @cancelCreate="cancelEdit"
+                                   :selectedDestination="selectedDestination">
 
                 </add-treasure-hunt>
                 <!--Treasure Hunt component-->
@@ -37,7 +39,7 @@
                 </div>
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingHunt">
-                <add-treasure-hunt :profile="profile" :heading="'Create'" @cancelCreate="creatingHunt=false">
+                <add-treasure-hunt :profile="profile" :heading="'Create'" @cancelCreate="creatingHunt=false" :selectedDestination="selectedDestination">
 
                 </add-treasure-hunt>
             </b-list-group-item>
@@ -63,8 +65,10 @@
                     return false;
                 }
             },
-            yourTreasureHunts: Boolean
+            yourTreasureHunts: Boolean,
+            selectedDestination: {}
         },
+
 
         data() {
             return {

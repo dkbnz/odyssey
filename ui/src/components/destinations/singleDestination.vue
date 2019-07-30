@@ -161,7 +161,7 @@
 
         watch: {
             /**
-             * When the destination prop changes, hide the show edit traveller types section, this is show the section
+             * When the destination prop changes, hide the show edit traveller types section, this is so the section
              * can update.
              */
             destination() {
