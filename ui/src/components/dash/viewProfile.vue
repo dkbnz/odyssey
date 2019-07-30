@@ -71,7 +71,8 @@
                             <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
                             <photoUploader @save-photos="uploadProfilePhoto"
                                            :acceptTypes="'image/jpeg, image/jpg, image/png'"
-                                           :multipleFiles="false"></photoUploader>
+                                           :multipleFiles="false">
+                            </photoUploader>
                         </b-modal>
                     </b-col>
                     <b-col>

@@ -139,7 +139,6 @@ public class TreasureHuntController {
             return notFound();
         }
 
-        System.out.println(destinationResult);
         return ok(Json.toJson(destinationResult));
     }
 

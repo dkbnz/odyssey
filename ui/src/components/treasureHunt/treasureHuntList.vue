@@ -4,14 +4,13 @@
             <b-list-group-item v-for="treasureHunt in (foundTreasureHunts)" href="#"
                                class="flex-column align-items-start"
                                :key="treasureHunt.id">
-                <template v-if="!editingHunt" >
+                <template v-if="!editingHunt && !(activeId === treasureHunt.id)" >
                         {{treasureHunt.riddle}}
                         {{treasureHunt.startDate}}
                         {{treasureHunt.endDate}}
-
                     <b-row>
                         <b-col>
-                            <b-button variant="warning" @click="editingHunt=true" block>Edit</b-button>
+                            <b-button variant="warning" @click="setActiveId(treasureHunt.id)" block>Edit</b-button>
                         </b-col>
                         <b-col>
                             <b-button variant="danger" @click="deleteTreasureHunt(treasureHunt.id)" block>Delete</b-button>
@@ -22,7 +21,7 @@
                                    :profile="profile"
                                    :heading="'Edit'"
                                    :input-treasure-hunt="treasureHunt"
-                                   @cancelCreate="editingHunt=false">
+                                   @cancelCreate="cancelEdit">
 
                 </add-treasure-hunt>
                 <!--Treasure Hunt component-->
@@ -74,7 +73,8 @@
                 moreResults: true,
                 queryPage: 0,
                 creatingHunt: false,
-                editingHunt: false
+                editingHunt: false,
+                activeId: 0
             }
         },
 
@@ -157,8 +157,32 @@
             },
 
 
+            /**
+             * Changes creatingHunt to true to show the create treasure hunt window, and calls function to close edit windows
+             *
+             */
             addTreasureHunt() {
               this.creatingHunt = true;
+              this.cancelEdit()
+            },
+
+
+            /**
+             * Changes the active treasure hunt ID to the inputted one, and sets creatingHunt to false to hide creation box
+             * @param id the id of the treasure hunt to be changed to
+             */
+            setActiveId(id) {
+                this.activeId = id;
+                this.creatingHunt = false
+            },
+
+
+            /**
+             * Sets editingHunt to false and the active hunt ID to 0 to close any open hunt editing box
+             */
+            cancelEdit() {
+              this.editingHunt = false;
+              this.activeId = 0;
             },
 
 

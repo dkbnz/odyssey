@@ -93,7 +93,7 @@
                                                               max=''
                                                               trim
                                                               v-model="startTime"
-                                                              :state="validateStartDate">
+                                                              :state="validateStartTime">
                                                 </b-form-input>
                                             </b-col>
                                             </b-row>
@@ -126,7 +126,7 @@
                                                                   max=''
                                                                   trim
                                                                   v-model="endTime"
-                                                                  :state="validateEndDate">
+                                                                  :state="validateEndTime">
                                                     </b-form-input>
                                                 </b-col>
                                             </b-row>
@@ -187,6 +187,7 @@
                     }
                 }
             },
+            newDestination: Object,
             heading: String,
             containerClass: {
                 default: function() {
@@ -198,10 +199,10 @@
         data() {
             return {
                 destination: {},
-                startDate: "",
-                startTime: "",
-                endDate: "",
-                endTime: "",
+                startDate: this.getDateString(),
+                startTime: this.getTimeString(),
+                endDate: this.getDateString(),
+                endTime: "23:59",
                 showError: false,
                 showDateError: false,
                 errorMessage: "",
@@ -220,34 +221,167 @@
         },
 
         computed: {
+            /**
+             * Checks that the start date is not after the end date, and is not before the current date for new hunts
+             * @returns true if start date is valid
+             */
             validateStartDate() {
-
+                if ((this.startDate < this.getDateString() && !this.inputTreasureHunt.id)) {
+                    return false;
+                }
+                if (this.startDate > this.endDate) {
+                    return false;
+                }
+                return true;
             },
 
-            validateEndDate() {
+            /**
+             * Checks that the start time is not after or the same as the end time if the dates are the same,
+             * and that the start time is not before the current time if the current date is today
+             * @returns true if start time is valid
+             */
+            validateStartTime() {
+                if (this.startDate === this.endDate) {
+                    if (this.startTime >= this.endTime) {
+                        return false;
+                    }
+                }
+                if (this.startDate === this.getDateString() && !this.inputTreasureHunt.id) {
+                    if (this.startTime < this.getTimeString()) {
+                        return false;
+                    }
+                }
+                return true;
+            },
 
+            /**
+             * Checks that the end date is not before the start date, and is not before the current date for new hunts
+             * @returns true if end date is valid
+             */
+            validateEndDate() {
+                if (this.endDate < this.getDateString() && !this.inputTreasureHunt.id) {
+                    return false;
+                }
+                if (this.endDate < this.startDate) {
+                    return false;
+                }
+                return true;
+            },
+
+            /**
+             * Checks that the end time is not before or the same as the start time if the dates are the same
+             * @returns true if end time is valid
+             */
+            validateEndTime() {
+                if (this.startDate === this.endDate) {
+                    if (this.endTime <= this.startTime) {
+                        return false;
+                    }
+                }
+                return true;
             }
         },
 
 
         methods: {
 
-            resetDestForm() {
 
-            },
-
-
+            /**
+             * If all field validations pass on the active treasure hunt, saves the treasure hunt using either
+             * updateHunt if there is an active editing ID or saveHunt otherwise (adding a new one).
+             */
             validateTreasureHunt() {
-                this.saveHunt()
+                if (this.validateStartDate && this.validateStartTime && this.validateEndDate && this.validateEndTime) {
+                    if (this.inputTreasureHunt.id != null) {
+                        this.updateHunt();
+                    } else {
+                        this.saveHunt();
+                    }
+                }
+                //TODO show error
             },
 
-            getCurrentTime() {
 
+            /**
+             * Gets the current date+time as a Date object
+             * @returns Current Datetime
+             */
+            getCurrentDate() {
+                return new Date();
+            },
+
+            /**
+             * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day
+             * @returns Current Date in YYYY-MM-DD String Format
+             */
+            getDateString() {
+                let today = this.getCurrentDate();
+                return  today.getFullYear()+'-'+
+                        ((today.getMonth()+1) < 10 ? "0" : "")
+                        + (today.getMonth()+1)+'-'+
+                        (today.getDate() < 10 ? "0" : "") +
+                        today.getDate();
+            },
+
+            /**
+             * Gets the current time as a string in HH:MM format, including padding O's
+             * @returns Current Time in HH:MM String Format
+             */
+            getTimeString() {
+                let today = this.getCurrentDate();
+                return ((today.getHours) < 10 ? "0" : "") +
+                    today.getHours() + ":"
+                    + ((today.getMinutes) < 10 ? "0" : "") +
+                    today.getMinutes();
             },
 
 
+
+            /**
+             * Creates formatted JSON of the currently active treasure hunt
+             * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'
+             */
+            assembleTreasureHunt() {
+                return '{'
+                    + '"riddle" : "' + this.inputTreasureHunt.riddle + '",'
+                    + '"destination_id" : ' + this.destination.id + ','
+                    + '"start_date" : "' + this.startDate + ' ' + this.startTime + '",'
+                    + '"end_date" : "' + this.endDate + ' ' + this.endTime + '"' +
+                        '}'
+            },
+
+
+            /**
+             * POST's the currently active destination to the treasureHunts endpoint in JSON format, for newly creating destinations
+             */
             saveHunt() {
+                let self = this;
+                fetch('/v1/treasureHunts/' + this.profile.id, {
+                    method: 'POST',
+                    headers: {'content-type': 'application/json'},
+                    body: this.assembleTreasureHunt()
+                })
+                    .then(this.checkStatus) //TODO Add Error Banner upon failure
+                    .then(function() {
+                        self.$emit('cancelCreate')
+                    })
+            },
 
+
+            /**
+             * PUT's the currently active destination to the treasureHunts endpoint in JSON format, for edited destinations
+             */
+            updateHunt() {
+                let self = this;
+                fetch('/v1/treasureHunts/' + this.inputTreasureHunt.id, {
+                    method: 'PUT',
+                    headers: {'content-type': 'application/json'},
+                    body: this.assembleTreasureHunt()
+                })
+                    .then(this.checkStatus) //TODO Add Error Banner upon failure
+                    .then(function() {
+                        self.$emit('cancelCreate')
+                    })
             },
 
 
