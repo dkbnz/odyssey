@@ -399,6 +399,12 @@ public class TreasureHuntTestSteps {
     }
 
 
+    @Given("I am logged in as an alt user")
+    public void iAmLoggedInAsAnAlternateUser() {
+        loggedInId = ALT_ID;
+    }
+
+
     @Given("the user is not logged in")
     public void theUserIsNotLoggedIn() {
         loggedInId = null;
@@ -420,6 +426,19 @@ public class TreasureHuntTestSteps {
                 .method(GET)
                 .session(AUTHORIZED, loggedInId)
                 .uri(TREASURE_HUNT_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        responseBody = Helpers.contentAsString(result);
+    }
+
+
+    @When("I request to retrieve treasure hunts for user with id {int}")
+    public void iRequestToRetrieveMyTreasureHunts(int userId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, loggedInId)
+                .uri(TREASURE_HUNT_URI + "/" + userId);
         Result result = route(application, request);
         statusCode = result.status();
 
