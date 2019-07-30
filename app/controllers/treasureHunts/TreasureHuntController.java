@@ -95,13 +95,18 @@ public class TreasureHuntController {
 
         treasureHunt.setOwner(treasureHuntOwner);
 
+        Destination treasureHuntDestination = treasureHunt.getDestination();
+
+        if(treasureHuntDestination != null && treasureHuntDestination.getId() != null && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
+            treasureHuntErrors.add(new ApiError("Provided Destination not found."));
+        }
+
         // Validate treasure hunt and get any errors
         treasureHuntErrors.addAll(treasureHunt.getErrors());
 
         if (!treasureHuntErrors.isEmpty()) {
             return badRequest(Json.toJson(treasureHuntErrors));
         }
-
 
         treasureHuntRepository.save(treasureHunt);
         profileRepository.update(treasureHuntOwner);
@@ -242,7 +247,6 @@ public class TreasureHuntController {
      *                          badRequest() (Http 400) if there is an error with the request.
      */
     public Result edit(Http.Request request, Long treasureHuntId) {
-
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
@@ -281,7 +285,7 @@ public class TreasureHuntController {
 
         Destination treasureHuntDestination = treasureHunt.getDestination();
 
-        if(treasureHuntDestination != null && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
+        if(treasureHuntDestination != null && treasureHuntDestination.getId() != null && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
             treasureHuntErrors.add(new ApiError("Provided Destination not found."));
         }
 
@@ -291,6 +295,9 @@ public class TreasureHuntController {
         if (!treasureHuntErrors.isEmpty()) {
             return badRequest(Json.toJson(treasureHuntErrors));
         }
+
+        treasureHunt.setId(treasureHuntId);
+
 
         treasureHuntRepository.update(treasureHunt);
         return ok();

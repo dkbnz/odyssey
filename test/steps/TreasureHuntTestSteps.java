@@ -3,6 +3,7 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.inject.Inject;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
@@ -27,7 +28,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static play.test.Helpers.*;
 
@@ -131,6 +131,7 @@ public class TreasureHuntTestSteps {
     private TreasureHuntRepository treasureHuntRepository = new TreasureHuntRepository();
 
 
+
     private static final String DESTINATION_STRING = "Destination";
     private static final String RIDDLE_STRING = "Riddle";
     private static final String START_DATE_STRING = "Start Date";
@@ -139,9 +140,9 @@ public class TreasureHuntTestSteps {
 
     private static final String DESTINATION = "destination";
     private static final String RIDDLE = "riddle";
-    private static final String START_DATE = "start_date";
-    private static final String END_DATE = "end_date";
-    private static final String OWNER = "owner";
+    private static final String START_DATE = "startDate";
+    private static final String END_DATE = "endDate";
+    private static final String ID = "id";
 
     private static final int START_DATE_BUFFER = -10;
     private static final int END_DATE_BUFFER = 10;
@@ -233,30 +234,33 @@ public class TreasureHuntTestSteps {
     private JsonNode convertDataTableToTreasureHuntJson(io.cucumber.datatable.DataTable dataTable, int index) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String destination         = list.get(index).get(DESTINATION_STRING);
-        String riddle              = list.get(index).get(RIDDLE_STRING);
-        String start_date          = list.get(index).get(START_DATE_STRING);
-        String end_date            = list.get(index).get(END_DATE_STRING);
-        String owner               = list.get(index).get(OWNER_STRING);
+        String destinationId           = list.get(index).get(DESTINATION_STRING);
+        String riddle                  = list.get(index).get(RIDDLE_STRING);
+        String startDate               = list.get(index).get(START_DATE_STRING);
+        String endDate                 = list.get(index).get(END_DATE_STRING);
 
-        targetUserId = owner;
+        targetUserId = list.get(index).get(OWNER_STRING);
 
-        if (start_date.equals("null")) {
-            start_date = getTreasureHuntDateBuffer(true);
+        if (startDate.equals("null")) {
+            startDate = getTreasureHuntDateBuffer(true);
         }
 
-        if (end_date.equals("null")) {
-            end_date = getTreasureHuntDateBuffer(false);
+        if (endDate.equals("null")) {
+            endDate = getTreasureHuntDateBuffer(false);
         }
+
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode json = mapper.createObjectNode();
+        ObjectNode jsonDestination = json.putObject(DESTINATION);
 
-        json.put(DESTINATION, destination);
+        if(!destinationId.equals("null")) {
+            jsonDestination.put(ID,  Integer.parseInt(destinationId));
+        }
+
         json.put(RIDDLE, riddle);
-        json.put(START_DATE, start_date);
-        json.put(END_DATE, end_date);
-        json.put(OWNER, owner);
+        json.put(START_DATE, startDate);
+        json.put(END_DATE, endDate);
 
         return json;
     }
@@ -484,8 +488,10 @@ public class TreasureHuntTestSteps {
 
     @When("I attempt to edit the treasure hunt with the following values")
     public void iAttemptToEditTheTreasureHuntWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        JsonNode editValues = convertDataTableToEditTreasureHunt(dataTable);
-        editTreasureHuntRequest(editValues);
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            JsonNode editValues = convertDataTableToTreasureHuntJson(dataTable, i);
+            editTreasureHuntRequest(editValues);
+        }
     }
 
 
@@ -500,6 +506,7 @@ public class TreasureHuntTestSteps {
         int responseSize = new ObjectMapper().readTree(responseBody).size();
         Assert.assertTrue(responseSize > 0);
     }
+
 
     @Then("the response contains no treasure hunts")
     public void theResponseContainsNoTreasureHunts() throws IOException {

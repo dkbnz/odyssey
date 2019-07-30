@@ -89,6 +89,7 @@ public class TreasureHunt extends BaseModel {
         return find;
     }
 
+    @JsonIgnore
     public Collection<ApiError> getErrors() {
         List<ApiError> errors = new ArrayList<>();
 
@@ -114,7 +115,7 @@ public class TreasureHunt extends BaseModel {
             errors.add(new ApiError("This treasure hunt does not have an owner."));
         }
 
-        if (destination == null) {
+        if (destination == null || destination.getId() == null) {
             errors.add(new ApiError("Treasure hunts must have a destination."));
         }
 
