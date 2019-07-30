@@ -80,7 +80,7 @@
                                                               min='getCurrentDate()'
                                                               max='9999-12-31'
                                                               trim
-                                                              v-model="inputTreasureHunt.startDate"
+                                                              v-model="startDate"
                                                               :state="validateStartDate">
 
                                                 </b-form-input>
@@ -92,7 +92,7 @@
                                                               min='getCurrentTime()'
                                                               max=''
                                                               trim
-                                                              v-model="inputTreasureHunt.startTime"
+                                                              v-model="startTime"
                                                               :state="validateStartDate">
                                                 </b-form-input>
                                             </b-col>
@@ -113,7 +113,7 @@
                                                                   min='getCurrentDate()'
                                                                   max='9999-12-31'
                                                                   trim
-                                                                  v-model="inputTreasureHunt.endDate"
+                                                                  v-model="endDate"
                                                                   :state="validateEndDate">
 
                                                     </b-form-input>
@@ -125,7 +125,7 @@
                                                                   min='getCurrentTime()'
                                                                   max=''
                                                                   trim
-                                                                  v-model="inputTreasureHunt.endTime"
+                                                                  v-model="endTime"
                                                                   :state="validateEndDate">
                                                     </b-form-input>
                                                 </b-col>
@@ -216,6 +216,7 @@
 
         mounted() {
             this.getTreasureHuntDestination(destinationSolution => this.destination = destinationSolution);
+            this.splitDates();
         },
 
         computed: {
@@ -237,7 +238,6 @@
 
 
             validateTreasureHunt() {
-                this.getTreasureHuntDestination(destinationSolution => this.destination = destinationSolution);
                 this.saveHunt()
             },
 
@@ -264,7 +264,6 @@
              */
             getTreasureHuntDestination(updateHuntDestination) {
                 if (this.inputTreasureHunt.id != null) {
-                    let self = this;
                     fetch(`/v1/treasureHuntDest/` + this.inputTreasureHunt.id, {
                         method: 'GET'
                     })
@@ -275,7 +274,18 @@
             },
 
 
+            /**
+             * Splits the dates of the inputTreasureHunt to put in the edit fields
+             */
+            splitDates() {
+                if (this.inputTreasureHunt.id != null) {
+                    this.startDate = this.inputTreasureHunt.startDate.split(" ")[0];
+                    this.startTime = this.inputTreasureHunt.startDate.split(" ")[1];
 
+                    this.endDate = this.inputTreasureHunt.endDate.split(" ")[0];
+                    this.endTime = this.inputTreasureHunt.endDate.split(" ")[1];
+                }
+            },
 
 
             /**
@@ -321,7 +331,6 @@
              * @returns the Http response body as Json.
              */
             parseJSON(response) {
-                console.log(response)
                 return response.json();
             }
 
