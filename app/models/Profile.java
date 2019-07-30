@@ -61,6 +61,7 @@ public class Profile extends BaseModel {
     @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
     private List<Destination> myDestinations = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
     private List<TreasureHunt> myTreasureHunts = new ArrayList<>();
 
