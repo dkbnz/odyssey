@@ -20,6 +20,11 @@
                     <strong>No Treasure Hunts</strong>
                 </div>
             </b-list-group-item>
+            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingHunt">
+                <add-treasure-hunt :profile="profile" :heading="'Create'" @cancelCreate="creatingHunt=false" block>
+
+                </add-treasure-hunt>
+            </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center">
                 <div class="d-flex justify-content-center" >
                     <b-button variant="success" @click="addTreasureHunt" block>Add</b-button>
@@ -30,6 +35,8 @@
 </template>
 
 <script>
+    import AddTreasureHunt from "./addTreasureHunt";
+
     export default {
         name: "treasureHuntList",
 
@@ -48,7 +55,8 @@
                 foundTreasureHunts: [],
                 loadingResults: true,
                 moreResults: true,
-                queryPage: 0
+                queryPage: 0,
+                creatingHunt: false
             }
         },
 
@@ -131,6 +139,11 @@
             },
 
 
+            addTreasureHunt() {
+              this.creatingHunt = true;
+            },
+
+
             /**
              * Checks the Http response for errors.
              *
@@ -157,8 +170,12 @@
             parseJSON(response) {
                 return response.json();
             }
+        },
+
+        components: {
+            AddTreasureHunt
         }
-        }
+    }
 </script>
 
 <style scoped>
