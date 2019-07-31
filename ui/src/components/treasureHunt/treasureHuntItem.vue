@@ -475,12 +475,17 @@
             splitDates() {
                 if (this.inputTreasureHunt.id !== null) {
                     let startDate = this.inputTreasureHunt.startDate;
+                    console.log(this.inputTreasureHunt.startDate);
                     this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split(" ")[0];
                     this.inputTreasureHunt.startTime = startDate.split(" ")[1];
+                    this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("+")[0];
+                    this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("-")[0];
 
                     let endDate = this.inputTreasureHunt.endDate;
                     this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split(" ")[0];
                     this.inputTreasureHunt.endTime = endDate.split(" ")[1];
+                    this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("+")[0];
+                    this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("-")[0];
                 }
             },
 
@@ -491,11 +496,19 @@
             joinDates() {
                 let timeOffset = this.formatOffset();
 
+                if(this.inputTreasureHunt.startTime.length === 5) {
+                    this.inputTreasureHunt.startTime += ":00";
+                }
+
+                if(this.inputTreasureHunt.endTime.length === 5) {
+                    this.inputTreasureHunt.endTime += ":00";
+                }
+
                 this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate + " "
-                    + this.inputTreasureHunt.startTime + ":00" + timeOffset;
+                    + this.inputTreasureHunt.startTime + timeOffset;
 
                 this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate + " "
-                    + this.inputTreasureHunt.endTime + ":00" + timeOffset;
+                    + this.inputTreasureHunt.endTime + timeOffset;
 
             },
 

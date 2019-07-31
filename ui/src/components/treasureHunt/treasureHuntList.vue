@@ -282,6 +282,7 @@
              * Sets creatingHunt to false and emits signal to hide destination search box. clears selected destination.
              */
             cancelCreate() {
+                this.getMore();
                 this.creatingHunt = false;
                 this.$emit('hide-destinations');
                 this.selectedDestination = {};
@@ -294,6 +295,7 @@
              * @param message to be set as the alert message.
              */
             showSuccess(message) {
+                this.getMore();
                 this.queryYourTreasureHunts();
                 this.alertText = message;
                 this.showAlert();
