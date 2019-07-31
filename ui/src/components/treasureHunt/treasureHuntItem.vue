@@ -40,7 +40,7 @@
                         </b-container>
 
 
-                        <b-form @reset="resetDestForm">
+                        <b-form>
                             <b-container fluid>
                                 <b-row>
                                     <b-col>

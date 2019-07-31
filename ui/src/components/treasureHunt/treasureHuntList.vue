@@ -4,17 +4,17 @@
             <b-list-group-item v-for="treasureHunt in (foundTreasureHunts)" href="#"
                                class="flex-column align-items-start"
                                :key="treasureHunt.id">
-                <template v-if="!editingHunt && !(activeId === treasureHunt.id)" >
-                        {{treasureHunt.riddle}}
-                        {{treasureHunt.startDate}}
-                        {{treasureHunt.endDate}}
-
-                    <b-row>
+                <template v-if="!editingHunt && !(activeId === treasureHunt.id)">
+                    {{treasureHunt.riddle}}
+                    {{treasureHunt.startDate}}
+                    {{treasureHunt.endDate}}
+                    <b-row v-if="yourTreasureHunts">
                         <b-col>
                             <b-button variant="warning" @click="setActiveId(treasureHunt.id)" block>Edit</b-button>
                         </b-col>
                         <b-col>
-                            <b-button variant="danger" @click="deleteTreasureHunt(treasureHunt.id)" block>Delete</b-button>
+                            <b-button variant="danger" @click="setTreasureHunt(treasureHunt)" block>Delete
+                            </b-button>
                         </b-col>
                     </b-row>
                 </template>
@@ -29,11 +29,12 @@
                 <!--Treasure Hunt component-->
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
-                <div class="d-flex justify-content-center" >
+                <div class="d-flex justify-content-center">
                     <b-spinner label="Loading..."></b-spinner>
                 </div>
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="!loadingResults && foundTreasureHunts.length === 0">
+            <b-list-group-item href="#" class="flex-column justify-content-center"
+                               v-if="!loadingResults && foundTreasureHunts.length === 0">
                 <div class="d-flex justify-content-center">
                     <strong>No Treasure Hunts</strong>
                 </div>
@@ -44,7 +45,7 @@
                 </add-treasure-hunt>
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center">
-                <div class="d-flex justify-content-center" >
+                <div class="d-flex justify-content-center">
                     <b-button variant="success" @click="addTreasureHunt" block>Add</b-button>
                 </div>
             </b-list-group-item>
@@ -53,7 +54,7 @@
 </template>
 
 <script>
-    import AddTreasureHunt from "./addTreasureHunt";
+    import AddTreasureHunt from "./treasureHuntItem";
 
     export default {
         name: "treasureHuntList",
@@ -61,14 +62,13 @@
         props: {
             profile: Object,
             adminView: {
-                default: function() {
+                default: function () {
                     return false;
                 }
             },
             yourTreasureHunts: Boolean,
             selectedDestination: {}
         },
-
 
         data() {
             return {
@@ -78,7 +78,8 @@
                 queryPage: 0,
                 creatingHunt: false,
                 editingHunt: false,
-                activeId: 0
+                activeId: 0,
+                treasureHuntId: null
             }
         },
 
@@ -103,16 +104,17 @@
             /**
              * Send the Http request to delete the specified treasure hunt.
              */
-            deleteTreasureHunt(id) {
+            deleteTreasureHunt() {
                 let self = this;
-                fetch(`/v1/treasureHunts/` + id, {
+                fetch(`/v1/treasureHunts/` + this.treasureHuntId, {
                     method: 'DELETE'
-                }).then(function(response) {
+                }).then(function (response) {
                     if (response.ok) {
-                        console.log("yes");
+                        self.$refs['deleteTreasureHuntModal'].hide();
+                        self.getMore();
                     }
                     else {
-                        console.log("No");
+                        console.log(response);
                     }
                 });
             },
@@ -125,8 +127,7 @@
              */
             queryTreasureHunts() {
 
-                return fetch(`/v1/treasureHunts`, {
-                })
+                return fetch(`/v1/treasureHunts`, {})
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
@@ -148,8 +149,7 @@
              */
             queryYourTreasureHunts(profile) {
 
-                return fetch(`/v1/treasureHunts/` + profile.id, {
-                })
+                return fetch(`/v1/treasureHunts/` + profile.id, {})
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
@@ -166,8 +166,8 @@
              *
              */
             addTreasureHunt() {
-              this.creatingHunt = true;
-              this.cancelEdit()
+                this.creatingHunt = true;
+                this.cancelEdit()
             },
 
 
@@ -182,11 +182,22 @@
 
 
             /**
+             * Changes the treasure hunt ID to the currently selected treasure hunt id.
+             * Dismisses the delete treasure hunt modal.
+             *
+             */
+            setTreasureHunt(treasureHunt) {
+                this.treasureHuntId = treasureHunt.id;
+                this.$refs['deleteTreasureHuntModal'].show();
+            },
+
+
+            /**
              * Sets editingHunt to false and the active hunt ID to 0 to close any open hunt editing box
              */
             cancelEdit() {
-              this.editingHunt = false;
-              this.activeId = 0;
+                this.editingHunt = false;
+                this.activeId = 0;
             },
 
 
@@ -215,6 +226,16 @@
              */
             parseJSON(response) {
                 return response.json();
+            },
+
+
+            /**
+             * Used to dismiss the delete a treasure hunt confirmation modal.
+             *
+             * @param modal, the modal that is wanting to be dismissed.
+             */
+            dismissModal(modal) {
+                this.$refs[modal].hide();
             }
         },
 
