@@ -80,7 +80,7 @@
                                                               min='getCurrentDate()'
                                                               max='9999-12-31'
                                                               trim
-                                                              v-model="startDate"
+                                                              v-model="inputTreasureHunt.startDate"
                                                               :state="validateStartDate">
 
                                                 </b-form-input>
@@ -92,7 +92,7 @@
                                                               min='getCurrentTime()'
                                                               max=''
                                                               trim
-                                                              v-model="startTime"
+                                                              v-model="inputTreasureHunt.startTime"
                                                               :state="validateStartTime">
                                                 </b-form-input>
                                             </b-col>
@@ -113,7 +113,7 @@
                                                                   min='getCurrentDate()'
                                                                   max='9999-12-31'
                                                                   trim
-                                                                  v-model="endDate"
+                                                                  v-model="inputTreasureHunt.endDate"
                                                                   :state="validateEndDate">
 
                                                     </b-form-input>
@@ -125,7 +125,7 @@
                                                                   min='getCurrentTime()'
                                                                   max=''
                                                                   trim
-                                                                  v-model="endTime"
+                                                                  v-model="inputTreasureHunt.endTime"
                                                                   :state="validateEndTime">
                                                     </b-form-input>
                                                 </b-col>
@@ -224,6 +224,15 @@
 
         computed: {
             /**
+             * Gets the current date+time as a Date object
+             * @returns Current Datetime
+             */
+            getCurrentDate() {
+                return new Date();
+            },
+
+
+            /**
              * Checks that the start date is not after the end date, and is not before the current date for new hunts
              * @returns true if start date is valid
              */
@@ -305,14 +314,6 @@
 
 
             /**
-             * Gets the current date+time as a Date object
-             * @returns Current Datetime
-             */
-            getCurrentDate() {
-                return new Date();
-            },
-
-            /**
              * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day
              * @returns Current Date in YYYY-MM-DD String Format
              */
@@ -351,12 +352,15 @@
              * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'
              */
             assembleTreasureHunt() {
-                return '{'
-                    + '"riddle" : "' + this.inputTreasureHunt.riddle + '",'
-                    + '"destination_id" : ' + this.destination.id + ','
-                    + '"start_date" : "' + this.startDate + ' ' + this.startTime + '",'
-                    + '"end_date" : "' + this.endDate + ' ' + this.endTime + '"' +
-                        '}'
+                let json = JSON.parse("riddle: " + this.riddle
+                    + "," + "destination: " + this.selectedDestination + "startDate: " + this.startDate + this.startTime
+                    + ":00" + "," + "endDate: " + this.endDate + this.endTime + ":00");
+                // return JSON.parse(JSON.stringify('{"riddle" : "' + this.inputTreasureHunt.riddle + '",'
+                //     + '"destination" : {' + JSON.parse("id:" + this.selectedDestination.id) + '},'
+                //     + '"start_date" : "' + this.startDate + ' ' + this.startTime + ':00",'
+                //     + '"end_date" : "' + this.endDate + ' ' + this.endTime + ':00"}'));
+                console.log(json);
+                return json;
             },
 
 
