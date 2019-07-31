@@ -17,6 +17,7 @@
                                         :adminView="adminView"
                                         :yourTreasureHunts="false"
                                         :selectedDestination="selectedDestination"
+                                        @destination-select="showDestinationsSidebar"
                                 ></treasure-hunt-list>
                             </b-tab>
                             <b-tab title="Your Treasure Hunts">
@@ -25,6 +26,7 @@
                                         :adminView="adminView"
                                         :yourTreasureHunts="true"
                                         :selectedDestination="selectedDestination"
+                                        @destination-select="showDestinationsSidebar"
                                 ></treasure-hunt-list>
                             </b-tab>
                         </b-tabs>
@@ -33,6 +35,7 @@
                 <b-col>
                     <b-card>
                         <found-destinations
+                                v-if="showDestinations"
                                 :search-public="true"
                                 :profile="profile"
                                 @destination-click="destination => this.selectedDestination = destination">
@@ -73,7 +76,15 @@
 
         data() {
             return {
-                selectedDestination: {}
+                selectedDestination: {},
+                showDestinations: false
+            }
+        },
+
+
+        methods: {
+            showDestinationsSidebar() {
+                this.showDestinations = true;
             }
         },
 
