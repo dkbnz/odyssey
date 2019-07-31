@@ -95,7 +95,7 @@
                     ref="deleteAlertError"
                     dismissible
                     variant="danger">
-                <p>Can not delete this Treasure Hunt</p>
+                <p>Cannot delete this Treasure Hunt</p>
             </b-alert>
             <b-button
                     class="mr-2 float-right"
