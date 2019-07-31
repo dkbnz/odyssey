@@ -2,6 +2,7 @@
 
     <div>
 
+
         <h1 class="page-title">{{ heading }} a Treasure Hunt!</h1>
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
@@ -33,9 +34,10 @@
                                     label="Treasure Hunt Riddle:"
                                     label-for="treasure_hunt_riddle">
                                 <b-form-textarea :type="'expandable-text'"
-                                              id="treasure_hunt_riddle"
-                                              trim
-                                              v-model="inputTreasureHunt.riddle"></b-form-textarea>
+                                                 id="treasure_hunt_riddle"
+                                                 trim
+                                                 v-model="inputTreasureHunt.riddle"
+                                                 :state="validateRiddle"></b-form-textarea>
                             </b-form-group>
                         </b-container>
 
@@ -49,7 +51,8 @@
                                             <b-list-group-item href="#" class="flex-column align-items-start"
                                                                v-if="selectedDestination"
                                                                id="selectedDestination"
-                                                               :disabled="selectedDestination.length === '{}'">
+                                                               :disabled="selectedDestination.length === '{}'"
+                                                               :variant="checkDestinationState">
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <h5 class="mb-1" v-if="selectedDestination.name">
                                                         {{selectedDestination.name}}
@@ -287,11 +290,28 @@
                 return true;
             },
 
-            validateDestination() {
-                if (this.inputTreasureHunt.destination) {
+            validateRiddle() {
+              if(this.inputTreasureHunt.riddle.length > 0){
+                  return true;
+              }
+              return null;
+            },
+            //
 
+            validateDestination() {
+                if (this.inputTreasureHunt.destination !== null
+                    && this.inputTreasureHunt.destination === this.selectedDestination
+                    && this.inputTreasureHunt.destination.name !== undefined
+                    && this.inputTreasureHunt.destination.name.length > 0) {
+
+                    return true;
                 }
-            }
+                return false;
+            },
+
+            checkDestinationState(){
+                return this.validateDestination ? "success" : "secondary"
+            },
         },
 
 
@@ -334,9 +354,9 @@
              */
             getTimeString() {
                 let today = this.getCurrentDate();
-                return ((today.getHours) < 10 ? "0" : "") +
+                return ((today.getHours()) < 10 ? "0" : "") +
                     today.getHours() + ":"
-                    + ((today.getMinutes) < 10 ? "0" : "") +
+                    + ((today.getMinutes()) < 10 ? "0" : "") +
                     today.getMinutes();
             },
 
@@ -353,14 +373,17 @@
              * updateHunt if there is an active editing ID or saveHunt otherwise (adding a new one).
              */
             validateTreasureHunt() {
-                if (this.validateStartDate && this.validateStartTime && this.validateEndDate && this.validateEndTime) {
+                if (this.validateStartDate && this.validateStartTime && this.validateEndDate && this.validateEndTime && this.validateDestination && this.validateRiddle) {
                     if (this.inputTreasureHunt.id !== null) {
                         this.updateHunt();
                     } else {
                         this.saveHunt();
                     }
+                } else {
+                    this.errorMessage = "Not all fields have valid information!";
+                    this.showError = true;
                 }
-                //TODO show error
+
             },
 
 
@@ -397,8 +420,9 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputTreasureHunt)
                 })
-                    .then(this.checkStatus) //TODO Add Error Banner upon failure
+                    .then(this.checkStatus)
                     .then(function() {
+                        self.$emit('successCreate', "Treasure Hunt Successfully Created")
                         self.$emit('cancelCreate')
                     })
             },
@@ -415,7 +439,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputTreasureHunt)
                 })
-                    .then(this.checkStatus) //TODO Add Error Banner upon failure
+                    .then(this.checkStatus)
                     .then(function() {
                         self.$emit('cancelCreate')
                     })
@@ -487,6 +511,12 @@
                 error.status = response.statusText;
                 error.response = response;
                 console.log(error);
+
+                this.errorMessage = "";
+                response.clone().text().then(text => {
+                    this.errorMessage = text;
+                    this.showError = true;
+                });
                 throw error;
             },
 

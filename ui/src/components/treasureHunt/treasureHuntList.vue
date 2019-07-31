@@ -8,7 +8,7 @@
                     @dismissed="dismissCountDown=0"
                     dismissible
                     variant="success">
-                <p>Treasure Hunt Successfully Deleted</p>
+                <p>{{alertText}}</p>
                 <b-progress
                         :max="dismissSeconds"
                         :value="dismissCountDown"
@@ -16,6 +16,20 @@
                         variant="success"
                 ></b-progress>
             </b-alert>
+            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingHunt">
+                <add-treasure-hunt :profile="profile" :heading="'Create'"
+                                   @cancelCreate="cancelCreate"
+                                   :selectedDestination="selectedDestination"
+                                   @destination-select="$emit('destination-select')"
+                                   @successCreate="message => showSuccess(message)">
+
+                </add-treasure-hunt>
+            </b-list-group-item>
+            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="!creatingHunt">
+                <div class="d-flex justify-content-center">
+                    <b-button variant="success"  @click="addTreasureHunt" block>Add a New Treasure Hunt</b-button>
+                </div>
+            </b-list-group-item>
             <b-list-group-item v-for="treasureHunt in (foundTreasureHunts)" href="#"
                                class="flex-column align-items-start"
                                :key="treasureHunt.id">
@@ -25,7 +39,7 @@
                     {{treasureHunt.endDate}}
                     <b-row v-if="yourTreasureHunts">
                         <b-col>
-                            <b-button variant="warning" @click="setActiveId(treasureHunt.id)" block>Edit</b-button>
+                            <b-button variant="warning" @click="setActiveId(treasureHunt)" block>Edit</b-button>
                         </b-col>
                         <b-col>
                             <b-button variant="danger" @click="setTreasureHunt(treasureHunt)" block>Delete
@@ -36,7 +50,7 @@
                 <add-treasure-hunt v-else
                                    :profile="profile"
                                    :heading="'Edit'"
-                                   :input-treasure-hunt="treasureHunt"
+                                   :input-treasure-hunt="copiedTreasureHunt"
                                    @cancelCreate="cancelEdit"
                                    @destination-select="$emit('destination-select')"
                                    :selectedDestination="selectedDestination">
@@ -55,19 +69,7 @@
                     <strong>No Treasure Hunts</strong>
                 </div>
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingHunt">
-                <add-treasure-hunt :profile="profile" :heading="'Create'"
-                                   @cancelCreate="creatingHunt=false"
-                                   :selectedDestination="selectedDestination"
-                                   @destination-select="$emit('destination-select')">
 
-                </add-treasure-hunt>
-            </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center">
-                <div class="d-flex justify-content-center">
-                    <b-button variant="success" @click="addTreasureHunt" block>Add</b-button>
-                </div>
-            </b-list-group-item>
         </b-list-group>
         <!-- Confirmation modal for deleting a treasure hunt. -->
         <b-modal hide-footer id="deleteTreasureHuntModal" ref="deleteTreasureHuntModal" title="Delete Treasure Hunt">
@@ -122,6 +124,8 @@
                 treasureHuntId: null,
                 dismissSeconds: 3,
                 dismissCountDown: 0,
+                alertText: "",
+                copiedTreasureHunt: null
             }
         },
 
@@ -130,6 +134,15 @@
         },
 
         methods: {
+
+            /**
+             * Used to convert the treasureHunt object into a Json object.
+             */
+            copyTreasureHunt(treasureHunt) {
+                this.copiedTreasureHunt = JSON.parse(JSON.stringify(treasureHunt))
+            },
+
+
             /**
              * Function to retrieve more treasure hunts when a user reaches the bottom of the list.
              */
@@ -154,6 +167,7 @@
                     if (response.ok) {
                         self.$refs['deleteTreasureHuntModal'].hide();
                         self.getMore();
+                        self.alertText = "Treasure Hunt Successfully Deleted";
                         self.showAlert();
                     }
                     else {
@@ -218,8 +232,9 @@
              * Changes the active treasure hunt ID to the inputted one, and sets creatingHunt to false to hide creation box
              * @param id the id of the treasure hunt to be changed to
              */
-            setActiveId(id) {
-                this.activeId = id;
+            setActiveId(treasureHunt) {
+                this.copyTreasureHunt(treasureHunt);
+                this.activeId = treasureHunt.id;
                 this.creatingHunt = false
             },
 
@@ -241,6 +256,21 @@
             cancelEdit() {
                 this.editingHunt = false;
                 this.activeId = 0;
+                this.$emit('hide-destinations')
+                this.selectedDestination = {};
+            },
+
+            cancelCreate() {
+                this.creatingHunt = false;
+                this.$emit('hide-destinations')
+                this.selectedDestination = {};
+            },
+
+
+
+            showSuccess(message) {
+                this.alertText = message;
+                this.showAlert();
             },
 
 

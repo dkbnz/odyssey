@@ -18,6 +18,7 @@
                                         :yourTreasureHunts="false"
                                         :selectedDestination="selectedDestination"
                                         @destination-select="showDestinationsSidebar"
+                                        @hide-destinations="hideDestinationsSidebar"
                                 ></treasure-hunt-list>
                             </b-tab>
                             <b-tab title="Your Treasure Hunts">
@@ -27,6 +28,7 @@
                                         :yourTreasureHunts="true"
                                         :selectedDestination="selectedDestination"
                                         @destination-select="showDestinationsSidebar"
+                                        @hide-destinations="hideDestinationsSidebar"
                                 ></treasure-hunt-list>
                             </b-tab>
                         </b-tabs>
@@ -85,6 +87,10 @@
         methods: {
             showDestinationsSidebar() {
                 this.showDestinations = true;
+            },
+
+            hideDestinationsSidebar() {
+                this.showDestinations = false;
             }
         },
 
