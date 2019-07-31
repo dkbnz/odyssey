@@ -124,7 +124,8 @@
                 }
             },
             yourTreasureHunts: Boolean,
-            selectedDestination: {}
+            selectedDestination: {},
+            refreshTreasureHunts: Boolean
         },
 
         data() {
@@ -147,6 +148,12 @@
             this.getMore();
         },
 
+        watch: {
+            refreshTreasureHunts() {
+                this.getMore();
+            }
+        },
+
         methods: {
 
             /**
@@ -163,7 +170,7 @@
             getMore() {
                 this.foundTreasureHunts = [];
                 if (this.yourTreasureHunts) {
-                    this.queryYourTreasureHunts(this.profile);
+                    this.queryYourTreasureHunts();
                 } else {
                     this.queryTreasureHunts();
                 }
@@ -179,8 +186,8 @@
                     method: 'DELETE'
                 }).then(function (response) {
                     if (response.ok) {
-                        self.$refs['deleteTreasureHuntModal'].hide();
                         self.getMore();
+                        self.$refs['deleteTreasureHuntModal'].hide();
                         self.alertText = "Treasure Hunt Successfully Deleted";
                         self.showAlert();
                     }
@@ -197,14 +204,13 @@
              * @returns {Promise<Response | never>}
              */
             queryTreasureHunts() {
-
-                return fetch(`/v1/treasureHunts`, {})
+                return fetch(`/v1/treasureHunts`, {
+                    accept: "application/json"
+                })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
-                        for (let i = 0; i < data.length; i++) {
-                            this.foundTreasureHunts.push(data[i]);
-                        }
+                        this.foundTreasureHunts = data;
                         this.loadingResults = false;
                     });
             },
@@ -214,19 +220,15 @@
              * Runs a query which searches through the treasure hunts in the database and returns only
              * treasure hunts created by the profile.
              *
-             * @param profile       the profile that owns the treasure hunts.
-             *
              * @returns {Promise<Response | never>}
              */
-            queryYourTreasureHunts(profile) {
+            queryYourTreasureHunts() {
 
-                return fetch(`/v1/treasureHunts/` + profile.id, {})
+                return fetch(`/v1/treasureHunts/` + this.profile.id, {})
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
-                        for (let i = 0; i < data.length; i++) {
-                            this.foundTreasureHunts.push(data[i]);
-                        }
+                        this.foundTreasureHunts = data;
                         this.loadingResults = false;
                     })
             },
@@ -270,19 +272,20 @@
             cancelEdit() {
                 this.editingHunt = false;
                 this.activeId = 0;
-                this.$emit('hide-destinations')
+                this.$emit('hide-destinations');
                 this.selectedDestination = {};
             },
 
             cancelCreate() {
                 this.creatingHunt = false;
-                this.$emit('hide-destinations')
+                this.$emit('hide-destinations');
                 this.selectedDestination = {};
             },
 
 
 
             showSuccess(message) {
+                this.queryYourTreasureHunts();
                 this.alertText = message;
                 this.showAlert();
             },
