@@ -27,7 +27,7 @@
                 Are you sure you want to delete it?
             </p>
             <b-list-group
-            style="overflow-y: scroll; height: 30vh;" v-if="destinationUsage.trip_count > 0">
+                    style="overflow-y: scroll; height: 30vh;" v-if="destinationUsage.trip_count > 0">
                 <b-list-group-item class="flex-column align-items-start"
                                    v-for="trip in destinationUsage.matching_trips" :key="trip.id">
                     <div class="d-flex w-100 justify-content-between">
@@ -81,12 +81,15 @@
                 <p v-else class="descriptionText">
                     No Traveller Types for this destination!
                 </p>
-                <b-button variant="link"
-                          @click="calculateCurrentTravellerTypes(); showEditTravellerTypes = !showEditTravellerTypes">
+                <b-button variant="outline-primary"
+                          @click="calculateCurrentTravellerTypes(); showEditTravellerTypes = !showEditTravellerTypes"
+                          block>
                     {{travellerTypeLinkText}}
                 </b-button>
+
                 <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
                 <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
+
                 <div v-if="showEditTravellerTypes" class="travellerTypeDiv">
                     <b-form-group label="Add Traveller Types:">
                         <b-form-checkbox-group id="addTravellerTypes" v-model="calculatedTravellerTypes">
@@ -149,7 +152,7 @@
             profile: Object,
             destinationTypes: Array,
             userProfile: {
-                default: function() {
+                default: function () {
                     return this.profile;
                 }
             },
@@ -158,10 +161,10 @@
 
         watch: {
             /**
-             * When the destination prop changes, hide the show edit traveller types section, this is show the section
+             * When the destination prop changes, hide the show edit traveller types section, this is so the section
              * can update.
              */
-            destination () {
+            destination() {
                 this.showEditTravellerTypes = false;
             }
         },
@@ -234,15 +237,15 @@
                 let self = this;
                 fetch(`/v1/destinations/` + this.copiedDestination.id, {
                     method: 'DELETE'
-                }).then(function(response) {
-                        if (response.ok) {
-                            self.dismissModal('deleteDestModal');
-                            self.$emit('destination-deleted');
-                        }
-                        else {
-                            self.showError = true;
-                        }
-                    });
+                }).then(function (response) {
+                    if (response.ok) {
+                        self.dismissModal('deleteDestModal');
+                        self.$emit('destination-deleted');
+                    }
+                    else {
+                        self.showError = true;
+                    }
+                });
             },
 
 
@@ -292,9 +295,9 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.calculatedTravellerTypes)
                 })
-                    .then(function(response) {
+                    .then(function (response) {
                         if (response.ok) {
-                            if(self.destination.owner.id === self.profile.id || self.profile.isAdmin) {
+                            if (self.destination.owner.id === self.profile.id || self.profile.isAdmin) {
                                 self.destination.travellerTypes = self.calculatedTravellerTypes;
                                 self.alertMessage = "Destination traveller types updated";
                             } else {
@@ -321,12 +324,5 @@
 </script>
 
 <style>
-    .travellerTypeDiv {
-        margin-bottom: 7px;
-    }
-
-    p {
-        margin: 0;
-        padding: 0;
-    }
+    @import "../../css/singleDestination.css";
 </style>

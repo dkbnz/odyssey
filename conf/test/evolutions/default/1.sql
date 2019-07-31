@@ -281,6 +281,12 @@ drop index if exists ix_profile_passport_profile;
 alter table profile_passport drop constraint if exists fk_profile_passport_passport;
 drop index if exists ix_profile_passport_passport;
 
+alter table treasure_hunt drop constraint if exists fk_treasure_hunt_destination_id;
+drop index if exists ix_treasure_hunt_destination_id;
+
+alter table treasure_hunt drop constraint if exists fk_treasure_hunt_owner_id;
+drop index if exists ix_treasure_hunt_owner_id;
+
 alter table trip drop constraint if exists fk_trip_profile_id;
 drop index if exists ix_trip_profile_id;
 
