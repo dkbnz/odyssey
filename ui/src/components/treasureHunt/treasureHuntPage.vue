@@ -16,6 +16,7 @@
                                         :profile="profile"
                                         :adminView="adminView"
                                         :yourTreasureHunts="false"
+                                        :selected-destination="selectedDestination"
                                 ></treasure-hunt-list>
                             </b-tab>
                             <b-tab title="Your Treasure Hunts">
@@ -34,7 +35,7 @@
                                 :search-public="true"
                                 :profile="profile"
                                 :destinationTypes="destinationTypes"
-                                @destination-click="destination => $emit('destination-click', destination)">
+                                @destination-click="destination => this.selectedDestination = destination">
                         </found-destinations>
                     </b-card>
                 </b-col>
@@ -68,6 +69,13 @@
                 }
             },
         },
+
+        data() {
+            return {
+                selectedDestination: {}
+            }
+        },
+
 
         components: {
             TreasureHuntList,
