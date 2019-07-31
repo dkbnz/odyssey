@@ -1,6 +1,21 @@
 <template>
     <div>
         <b-list-group class="scroll">
+            <!--Successful treasure hunt delete alert -->
+            <b-alert
+                    :show="dismissCountDown"
+                    @dismiss-count-down="countDownChanged"
+                    @dismissed="dismissCountDown=0"
+                    dismissible
+                    variant="success">
+                <p>Treasure Hunt Successfully Deleted</p>
+                <b-progress
+                        :max="dismissSeconds"
+                        :value="dismissCountDown"
+                        height="4px"
+                        variant="success"
+                ></b-progress>
+            </b-alert>
             <b-list-group-item v-for="treasureHunt in (foundTreasureHunts)" href="#"
                                class="flex-column align-items-start"
                                :key="treasureHunt.id">
@@ -55,6 +70,13 @@
             <div class="d-block">
                 Are you sure that you want to delete this Treasure Hunt?
             </div>
+            <!--Error when deleting treasure hunt alert-->
+            <b-alert
+                    ref="deleteAlertError"
+                    dismissible
+                    variant="danger">
+                <p>Can not delete this Treasure Hunt</p>
+            </b-alert>
             <b-button
                     class="mr-2 float-right"
                     variant="danger"
@@ -90,11 +112,12 @@
                 foundTreasureHunts: [],
                 loadingResults: true,
                 moreResults: true,
-                queryPage: 0,
                 creatingHunt: false,
                 editingHunt: false,
                 activeId: 0,
-                treasureHuntId: null
+                treasureHuntId: null,
+                dismissSeconds: 3,
+                dismissCountDown: 0,
             }
         },
 
@@ -107,7 +130,7 @@
              * Function to retrieve more treasure hunts when a user reaches the bottom of the list.
              */
             getMore() {
-                this.queryPage += 1;
+                this.foundTreasureHunts = [];
                 if (this.yourTreasureHunts) {
                     this.queryYourTreasureHunts(this.profile);
                 } else {
@@ -127,9 +150,10 @@
                     if (response.ok) {
                         self.$refs['deleteTreasureHuntModal'].hide();
                         self.getMore();
+                        self.showAlert();
                     }
                     else {
-                        console.log(response);
+                        self.showError();
                     }
                 });
             },
@@ -251,6 +275,33 @@
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
+                this.$refs['deleteAlertError'].hide();
+            },
+
+
+            /**
+             * Displays the countdown alert on the successful deletion of a treasure hunt.
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSeconds;
+            },
+
+
+            /**
+             * Used to countdown the progress bar on an alert to countdown.
+             *
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown;
+            },
+
+
+            /**
+             * Displays an error alert on the delete modal if deleting a destination is not successful.
+             */
+            showError() {
+                this.$refs['deleteAlertError'].show();
             }
         },
 
