@@ -22,7 +22,8 @@
                                    :profile="profile"
                                    :heading="'Edit'"
                                    :input-treasure-hunt="treasureHunt"
-                                   @cancelCreate="cancelEdit">
+                                   @cancelCreate="cancelEdit"
+                                   :selectedDestination="selectedDestination">
 
                 </add-treasure-hunt>
                 <!--Treasure Hunt component-->
@@ -39,7 +40,7 @@
                 </div>
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingHunt">
-                <add-treasure-hunt :profile="profile" :heading="'Create'" @cancelCreate="creatingHunt=false">
+                <add-treasure-hunt :profile="profile" :heading="'Create'" @cancelCreate="creatingHunt=false" :selectedDestination="selectedDestination">
 
                 </add-treasure-hunt>
             </b-list-group-item>
@@ -49,25 +50,6 @@
                 </div>
             </b-list-group-item>
         </b-list-group>
-
-        <b-modal id="testModal" ref="testModal" title="Hello">
-
-        </b-modal>
-        <!-- Confirmation modal for deleting a treasure hunt. -->
-        <b-modal hide-footer id="deleteTreasureHuntModal" ref="deleteTreasureHuntModal" title="Delete Treasure Hunt">
-            <div class="d-block">
-                Are you sure that you want to delete this Treasure Hunt?
-            </div>
-            <b-button
-                    class="mr-2 float-right"
-                    variant="danger"
-                    @click="deleteTreasureHunt">Delete
-            </b-button>
-            <b-button
-                    @click="dismissModal('deleteTreasureHuntModal')"
-                    class="mr-2 float-right">Cancel
-            </b-button>
-        </b-modal>
     </div>
 </template>
 
@@ -84,7 +66,8 @@
                     return false;
                 }
             },
-            yourTreasureHunts: Boolean
+            yourTreasureHunts: Boolean,
+            selectedDestination: {}
         },
 
         data() {
