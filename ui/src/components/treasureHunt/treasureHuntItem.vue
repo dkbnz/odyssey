@@ -422,7 +422,7 @@
                 })
                     .then(this.checkStatus)
                     .then(function() {
-                        self.$emit('successCreate', "Treasure Hunt Successfully Created")
+                        self.$emit('successCreate', "Treasure Hunt Successfully Created");
                         self.$emit('cancelCreate')
                     })
             },
@@ -514,7 +514,19 @@
 
                 this.errorMessage = "";
                 response.clone().text().then(text => {
-                    this.errorMessage = text;
+                    text = JSON.parse(text);
+                    let result = [];
+                    for (let i = 0; i < text.length; i++) {
+                        if (!response.ok) {
+                            console.log(text);
+                            result.push(text[i].message);
+                        }
+                        else {
+                            result.push(text[i]);
+                        }
+                    }
+                    this.errorMessage = result;
+
                     this.showError = true;
                 });
                 throw error;
