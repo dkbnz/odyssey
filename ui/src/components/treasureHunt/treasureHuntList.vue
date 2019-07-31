@@ -271,6 +271,7 @@
              * to hide destination search box. clears selected destination.
              */
             cancelEdit() {
+                this.getMore();
                 this.editingHunt = false;
                 this.activeId = 0;
                 this.$emit('hide-destinations');

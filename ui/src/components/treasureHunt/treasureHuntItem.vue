@@ -474,15 +474,18 @@
              */
             splitDates() {
                 if (this.inputTreasureHunt.id !== null) {
+                    this.inputTreasureHunt.startDate = new Date(this.inputTreasureHunt.startDate).toLocaleString();
                     let startDate = this.inputTreasureHunt.startDate;
-                    console.log(this.inputTreasureHunt.startDate);
-                    this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split(" ")[0];
+                    this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split(", ")[0];
+                    this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split("/").reverse().join("-");
                     this.inputTreasureHunt.startTime = startDate.split(" ")[1];
                     this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("+")[0];
                     this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("-")[0];
 
+                    this.inputTreasureHunt.endDate = new Date(this.inputTreasureHunt.endDate).toLocaleString();
                     let endDate = this.inputTreasureHunt.endDate;
-                    this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split(" ")[0];
+                    this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split(", ")[0];
+                    this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split("/").reverse().join("-");
                     this.inputTreasureHunt.endTime = endDate.split(" ")[1];
                     this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("+")[0];
                     this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("-")[0];
