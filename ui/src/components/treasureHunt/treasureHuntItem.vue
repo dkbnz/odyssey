@@ -2,6 +2,7 @@
 
     <div>
 
+
         <h1 class="page-title">{{ heading }} a Treasure Hunt!</h1>
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
@@ -33,9 +34,10 @@
                                     label="Treasure Hunt Riddle:"
                                     label-for="treasure_hunt_riddle">
                                 <b-form-textarea :type="'expandable-text'"
-                                              id="treasure_hunt_riddle"
-                                              trim
-                                              v-model="inputTreasureHunt.riddle"></b-form-textarea>
+                                                 id="treasure_hunt_riddle"
+                                                 trim
+                                                 v-model="inputTreasureHunt.riddle"
+                                                 :state="validateRiddle"></b-form-textarea>
                             </b-form-group>
                         </b-container>
 
@@ -49,7 +51,8 @@
                                             <b-list-group-item href="#" class="flex-column align-items-start"
                                                                v-if="selectedDestination"
                                                                id="selectedDestination"
-                                                               :disabled="selectedDestination.length === '{}'">
+                                                               :disabled="selectedDestination.length === '{}'"
+                                                               :variant="checkDestinationState">
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <h5 class="mb-1" v-if="selectedDestination.name">
                                                         {{selectedDestination.name}}
@@ -132,15 +135,8 @@
                                             </b-row>
                                         </b-form-group>
                                     </b-col>
-
-
                                 </b-row>
 
-                                <!--<b-button @click="checkDestination"-->
-                                <!--class="mr-2 float-right"-->
-                                <!--variant="primary">-->
-                                <!--Add Destination-->
-                                <!--</b-button>-->
 
                             </b-container>
                         </b-form>
@@ -227,8 +223,8 @@
 
         computed: {
             /**
-             * Checks that the start date is not after the end date, and is not before the current date for new hunts
-             * @returns true if start date is valid
+             * Checks that the start date is not after the end date, and is not before the current date for new hunts.
+             * @returns true if start date is valid.
              */
             validateStartDate() {
                 if ((this.inputTreasureHunt.startDate < this.getDateString() && !this.inputTreasureHunt.id)) {
@@ -243,8 +239,8 @@
 
             /**
              * Checks that the start time is not after or the same as the end time if the dates are the same,
-             * and that the start time is not before the current time if the current date is today
-             * @returns true if start time is valid
+             * and that the start time is not before the current time if the current date is today.
+             * @returns true if start time is valid.
              */
             validateStartTime() {
                 if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
@@ -261,8 +257,8 @@
             },
 
             /**
-             * Checks that the end date is not before the start date, and is not before the current date for new hunts
-             * @returns true if end date is valid
+             * Checks that the end date is not before the start date, and is not before the current date for new hunts.
+             * @returns true if end date is valid.
              */
             validateEndDate() {
                 if (this.inputTreasureHunt.endDate < this.getDateString() && !this.inputTreasureHunt.id) {
@@ -275,8 +271,8 @@
             },
 
             /**
-             * Checks that the end time is not before or the same as the start time if the dates are the same
-             * @returns true if end time is valid
+             * Checks that the end time is not before or the same as the start time if the dates are the same.
+             * @returns true if end time is valid.
              */
             validateEndTime() {
                 if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
@@ -287,24 +283,57 @@
                 return true;
             },
 
-            validateDestination() {
-                if (this.inputTreasureHunt.destination) {
+            /**
+             * Returns true if the inputted riddle has length greater than 0.
+             * @returns true if validated.
+             */
+            validateRiddle() {
+              if(this.inputTreasureHunt.riddle.length > 0){
+                  return true;
+              }
+              return null;
+            },
 
+
+            /**
+             * Returns true if the input destination exists and matches the one selected in the sidebar and isn't empty.
+             * @returns true if valid.
+             */
+            validateDestination() {
+                if (this.inputTreasureHunt.destination !== null
+                    && this.inputTreasureHunt.destination === this.selectedDestination
+                    && this.inputTreasureHunt.destination.name !== undefined
+                    && this.inputTreasureHunt.destination.name.length > 0) {
+
+                    return true;
                 }
-            }
+                return false;
+            },
+
+            /**
+             * Checks the validity of the destination using validateDestination and returns the appropriate state for
+             * display.
+             * @returns 'success' if destination is valid, 'secondary' otherwise.
+             */
+            checkDestinationState(){
+                return this.validateDestination ? "success" : "secondary"
+            },
         },
 
 
         methods: {
             /**
-             * Gets the current date+time as a Date object
-             * @returns Current Datetime
+             * Gets the current date+time as a Date object.
+             * @returns Current Datetime.
              */
             getCurrentDate() {
                 return new Date();
             },
 
 
+            /**
+             * sets the input values to be their proper string versions of current date/time.
+             */
             setDateTimeString() {
                 if (this.inputTreasureHunt.id === null) {
                     this.inputTreasureHunt.startDate = this.getDateString();
@@ -315,8 +344,8 @@
 
 
             /**
-             * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day
-             * @returns Current Date in YYYY-MM-DD String Format
+             * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day.
+             * @returns Current Date in YYYY-MM-DD String Format.
              */
             getDateString() {
                 let today = this.getCurrentDate();
@@ -329,18 +358,21 @@
             },
 
             /**
-             * Gets the current time as a string in HH:MM format, including padding O's
-             * @returns Current Time in HH:MM String Format
+             * Gets the current time as a string in HH:MM format, including padding O's.
+             * @returns Current Time in HH:MM String Format.
              */
             getTimeString() {
                 let today = this.getCurrentDate();
-                return ((today.getHours) < 10 ? "0" : "") +
+                return ((today.getHours()) < 10 ? "0" : "") +
                     today.getHours() + ":"
-                    + ((today.getMinutes) < 10 ? "0" : "") +
+                    + ((today.getMinutes()) < 10 ? "0" : "") +
                     today.getMinutes();
             },
 
 
+            /**
+             * Fills the destination with the existing destination of a hunt when editing it.
+             */
             editingTreasureHunt() {
                 if (this.inputTreasureHunt.id !== null) {
                     this.selectedDestination = this.inputTreasureHunt.destination;
@@ -353,14 +385,18 @@
              * updateHunt if there is an active editing ID or saveHunt otherwise (adding a new one).
              */
             validateTreasureHunt() {
-                if (this.validateStartDate && this.validateStartTime && this.validateEndDate && this.validateEndTime) {
+                if (this.validateStartDate && this.validateStartTime && this.validateEndDate && this.validateEndTime
+                    && this.validateDestination && this.validateRiddle) {
                     if (this.inputTreasureHunt.id !== null) {
                         this.updateHunt();
                     } else {
                         this.saveHunt();
                     }
+                } else {
+                    this.errorMessage = "Not all fields have valid information!";
+                    this.showError = true;
                 }
-                //TODO show error
+
             },
 
 
@@ -373,8 +409,8 @@
 
 
             /**
-             * Creates formatted JSON of the currently active treasure hunt
-             * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'
+             * Creates formatted JSON of the currently active treasure hunt.
+             * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
              */
             assembleTreasureHunt() {
                 this.joinDates();
@@ -387,7 +423,8 @@
 
 
             /**
-             * POST's the currently active destination to the treasureHunts endpoint in JSON format, for newly creating destinations
+             * POST's the currently active destination to the treasureHunts endpoint in JSON format, for newly creating
+             * destinations.
              */
             saveHunt() {
                 this.assembleTreasureHunt();
@@ -397,15 +434,17 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputTreasureHunt)
                 })
-                    .then(this.checkStatus) //TODO Add Error Banner upon failure
+                    .then(this.checkStatus)
                     .then(function() {
+                        self.$emit('successCreate', "Treasure Hunt Successfully Created");
                         self.$emit('cancelCreate')
                     })
             },
 
 
             /**
-             * PUT's the currently active destination to the treasureHunts endpoint in JSON format, for edited destinations
+             * PUT's the currently active destination to the treasureHunts endpoint in JSON format, for edited
+             * destinations.
              */
             updateHunt() {
                 this.assembleTreasureHunt();
@@ -415,7 +454,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputTreasureHunt)
                 })
-                    .then(this.checkStatus) //TODO Add Error Banner upon failure
+                    .then(this.checkStatus)
                     .then(function() {
                         self.$emit('cancelCreate')
                     })
@@ -423,7 +462,7 @@
 
 
             /**
-             * Cancels the creation or editing of a treasure hunt by emitting a value to the treasureHuntList
+             * Cancels the creation or editing of a treasure hunt by emitting a value to the treasureHuntList.
              */
             cancelCreate() {
                 this.$emit('cancelCreate');
@@ -431,7 +470,7 @@
 
 
             /**
-             * Splits the dates of the inputTreasureHunt to put in the edit fields
+             * Splits the dates of the inputTreasureHunt to put in the edit fields.
              */
             splitDates() {
                 if (this.inputTreasureHunt.id !== null) {
@@ -445,6 +484,10 @@
                 }
             },
 
+
+            /**
+             * Combines dates and times together from input fields and adds :00 on the end for seconds.
+             */
             joinDates() {
                 let timeOffset = this.formatOffset();
 
@@ -506,6 +549,24 @@
                 error.status = response.statusText;
                 error.response = response;
                 console.log(error);
+
+                this.errorMessage = "";
+                response.clone().text().then(text => {
+                    text = JSON.parse(text);
+                    let result = [];
+                    for (let i = 0; i < text.length; i++) {
+                        if (!response.ok) {
+                            console.log(text);
+                            result.push(text[i].message);
+                        }
+                        else {
+                            result.push(text[i]);
+                        }
+                    }
+                    this.errorMessage = result;
+
+                    this.showError = true;
+                });
                 throw error;
             },
 
@@ -523,9 +584,4 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>
-
 
