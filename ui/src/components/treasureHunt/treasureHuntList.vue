@@ -8,7 +8,7 @@
                     @dismissed="dismissCountDown=0"
                     dismissible
                     variant="success">
-                <p>Treasure Hunt Successfully Deleted</p>
+                <p>{{alertText}}</p>
                 <b-progress
                         :max="dismissSeconds"
                         :value="dismissCountDown"
@@ -16,16 +16,44 @@
                         variant="success"
                 ></b-progress>
             </b-alert>
+            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingHunt">
+                <add-treasure-hunt :profile="profile" :heading="'Create'"
+                                   @cancelCreate="cancelCreate"
+                                   :selectedDestination="selectedDestination"
+                                   @destination-select="$emit('destination-select')"
+                                   @successCreate="message => showSuccess(message)">
+
+                </add-treasure-hunt>
+            </b-list-group-item>
+            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="!creatingHunt">
+                <div class="d-flex justify-content-center">
+                    <b-button variant="success"  @click="addTreasureHunt" block>Add a New Treasure Hunt</b-button>
+                </div>
+            </b-list-group-item>
             <b-list-group-item v-for="treasureHunt in (foundTreasureHunts)" href="#"
                                class="flex-column align-items-start"
                                :key="treasureHunt.id">
                 <template v-if="!editingHunt && !(activeId === treasureHunt.id)">
-                    {{treasureHunt.riddle}}
-                    {{treasureHunt.startDate}}
-                    {{treasureHunt.endDate}}
+                        <h4>Riddle</h4>
+                        {{treasureHunt.riddle}}
+                    <b-row class="buttonMarginsTop">
+                        <b-col>
+                            <h4>Start Date</h4>
+                            {{new Date(treasureHunt.startDate)}}
+                        </b-col>
+                        <b-col>
+                            <h4>End Date</h4>
+                            {{new Date(treasureHunt.endDate)}}
+                        </b-col>
+                    </b-row>
+                    <div v-if="yourTreasureHunts" class="buttonMarginsTop">
+                        <h4>Answer</h4>
+                        <p>{{treasureHunt.destination.name}}</p>
+                    </div>
+
                     <b-row v-if="yourTreasureHunts">
                         <b-col>
-                            <b-button variant="warning" @click="setActiveId(treasureHunt.id)" block>Edit</b-button>
+                            <b-button variant="warning" @click="setActiveId(treasureHunt)" block>Edit</b-button>
                         </b-col>
                         <b-col>
                             <b-button variant="danger" @click="setTreasureHunt(treasureHunt)" block>Delete
@@ -36,7 +64,7 @@
                 <add-treasure-hunt v-else
                                    :profile="profile"
                                    :heading="'Edit'"
-                                   :input-treasure-hunt="treasureHunt"
+                                   :input-treasure-hunt="copiedTreasureHunt"
                                    @cancelCreate="cancelEdit"
                                    @destination-select="$emit('destination-select')"
                                    :selectedDestination="selectedDestination">
@@ -55,19 +83,7 @@
                     <strong>No Treasure Hunts</strong>
                 </div>
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingHunt">
-                <add-treasure-hunt :profile="profile" :heading="'Create'"
-                                   @cancelCreate="creatingHunt=false"
-                                   :selectedDestination="selectedDestination"
-                                   @destination-select="$emit('destination-select')">
 
-                </add-treasure-hunt>
-            </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center">
-                <div class="d-flex justify-content-center">
-                    <b-button variant="success" @click="addTreasureHunt" block>Add</b-button>
-                </div>
-            </b-list-group-item>
         </b-list-group>
         <!-- Confirmation modal for deleting a treasure hunt. -->
         <b-modal hide-footer id="deleteTreasureHuntModal" ref="deleteTreasureHuntModal" title="Delete Treasure Hunt">
@@ -108,7 +124,8 @@
                 }
             },
             yourTreasureHunts: Boolean,
-            selectedDestination: {}
+            selectedDestination: {},
+            refreshTreasureHunts: Boolean
         },
 
         data() {
@@ -122,6 +139,8 @@
                 treasureHuntId: null,
                 dismissSeconds: 3,
                 dismissCountDown: 0,
+                alertText: "",
+                copiedTreasureHunt: null
             }
         },
 
@@ -129,14 +148,28 @@
             this.getMore();
         },
 
+        watch: {
+            refreshTreasureHunts() {
+                this.getMore();
+            }
+        },
+
         methods: {
+            /**
+             * Used to convert the treasureHunt object into a Json object.
+             */
+            copyTreasureHunt(treasureHunt) {
+                this.copiedTreasureHunt = JSON.parse(JSON.stringify(treasureHunt))
+            },
+
+
             /**
              * Function to retrieve more treasure hunts when a user reaches the bottom of the list.
              */
             getMore() {
                 this.foundTreasureHunts = [];
                 if (this.yourTreasureHunts) {
-                    this.queryYourTreasureHunts(this.profile);
+                    this.queryYourTreasureHunts();
                 } else {
                     this.queryTreasureHunts();
                 }
@@ -152,8 +185,9 @@
                     method: 'DELETE'
                 }).then(function (response) {
                     if (response.ok) {
-                        self.$refs['deleteTreasureHuntModal'].hide();
                         self.getMore();
+                        self.$refs['deleteTreasureHuntModal'].hide();
+                        self.alertText = "Treasure Hunt Successfully Deleted";
                         self.showAlert();
                     }
                     else {
@@ -169,14 +203,13 @@
              * @returns {Promise<Response | never>}
              */
             queryTreasureHunts() {
-
-                return fetch(`/v1/treasureHunts`, {})
+                return fetch(`/v1/treasureHunts`, {
+                    accept: "application/json"
+                })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
-                        for (let i = 0; i < data.length; i++) {
-                            this.foundTreasureHunts.push(data[i]);
-                        }
+                        this.foundTreasureHunts = data;
                         this.loadingResults = false;
                     });
             },
@@ -186,27 +219,23 @@
              * Runs a query which searches through the treasure hunts in the database and returns only
              * treasure hunts created by the profile.
              *
-             * @param profile       the profile that owns the treasure hunts.
-             *
              * @returns {Promise<Response | never>}
              */
-            queryYourTreasureHunts(profile) {
+            queryYourTreasureHunts() {
 
-                return fetch(`/v1/treasureHunts/` + profile.id, {})
+                return fetch(`/v1/treasureHunts/` + this.profile.id, {})
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
-                        for (let i = 0; i < data.length; i++) {
-                            this.foundTreasureHunts.push(data[i]);
-                        }
+                        this.foundTreasureHunts = data;
                         this.loadingResults = false;
                     })
             },
 
 
             /**
-             * Changes creatingHunt to true to show the create treasure hunt window, and calls function to close edit windows
-             *
+             * Changes creatingHunt to true to show the create treasure hunt window, and calls function to close edit
+             * windows,             *
              */
             addTreasureHunt() {
                 this.creatingHunt = true;
@@ -215,11 +244,13 @@
 
 
             /**
-             * Changes the active treasure hunt ID to the inputted one, and sets creatingHunt to false to hide creation box
-             * @param id the id of the treasure hunt to be changed to
+             * Changes the active treasure hunt ID to the inputted one, and sets creatingHunt to false to hide creation
+             * box.
+             * @param treasureHunt the treasure hunt to be changed to.
              */
-            setActiveId(id) {
-                this.activeId = id;
+            setActiveId(treasureHunt) {
+                this.copyTreasureHunt(treasureHunt);
+                this.activeId = treasureHunt.id;
                 this.creatingHunt = false
             },
 
@@ -236,11 +267,36 @@
 
 
             /**
-             * Sets editingHunt to false and the active hunt ID to 0 to close any open hunt editing box
+             * Sets editingHunt to false and the active hunt ID to 0 to close any open hunt editing box. Emits signal
+             * to hide destination search box. clears selected destination.
              */
             cancelEdit() {
                 this.editingHunt = false;
                 this.activeId = 0;
+                this.$emit('hide-destinations');
+                this.selectedDestination = {};
+            },
+
+
+            /**
+             * Sets creatingHunt to false and emits signal to hide destination search box. clears selected destination.
+             */
+            cancelCreate() {
+                this.creatingHunt = false;
+                this.$emit('hide-destinations');
+                this.selectedDestination = {};
+            },
+
+
+            /**
+             * Sets the message for the success alert to the inputted message and runs showAlert to show the success
+             * message.
+             * @param message to be set as the alert message.
+             */
+            showSuccess(message) {
+                this.queryYourTreasureHunts();
+                this.alertText = message;
+                this.showAlert();
             },
 
 
@@ -314,7 +370,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>
