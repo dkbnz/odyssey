@@ -16,7 +16,8 @@
                                         :profile="profile"
                                         :adminView="adminView"
                                         :yourTreasureHunts="false"
-                                        :selected-destination="selectedDestination"
+                                        :selectedDestination="selectedDestination"
+                                        @destination-select="showDestinationsSidebar"
                                 ></treasure-hunt-list>
                             </b-tab>
                             <b-tab title="Your Treasure Hunts">
@@ -24,6 +25,8 @@
                                         :profile="profile"
                                         :adminView="adminView"
                                         :yourTreasureHunts="true"
+                                        :selectedDestination="selectedDestination"
+                                        @destination-select="showDestinationsSidebar"
                                 ></treasure-hunt-list>
                             </b-tab>
                         </b-tabs>
@@ -32,9 +35,9 @@
                 <b-col>
                     <b-card>
                         <found-destinations
+                                v-if="showDestinations"
                                 :search-public="true"
                                 :profile="profile"
-                                :destinationTypes="destinationTypes"
                                 @destination-click="destination => this.selectedDestination = destination">
                         </found-destinations>
                     </b-card>
@@ -53,6 +56,7 @@
     import UnauthorisedPromptPage from "../helperComponents/unauthorisedPromptPage";
     import FoundDestinations from "../destinations/destinationSearchList";
     import TreasureHuntList from "./treasureHuntList";
+    import FooterMain from "../helperComponents/footerMain";
     export default {
         name: "treasureHuntPage",
 
@@ -72,12 +76,21 @@
 
         data() {
             return {
-                selectedDestination: {}
+                selectedDestination: {},
+                showDestinations: false
+            }
+        },
+
+
+        methods: {
+            showDestinationsSidebar() {
+                this.showDestinations = true;
             }
         },
 
 
         components: {
+            FooterMain,
             TreasureHuntList,
             FoundDestinations,
             UnauthorisedPromptPage,

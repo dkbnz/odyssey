@@ -38,6 +38,7 @@
                                    :heading="'Edit'"
                                    :input-treasure-hunt="treasureHunt"
                                    @cancelCreate="cancelEdit"
+                                   @destination-select="$emit('destination-select')"
                                    :selectedDestination="selectedDestination">
 
                 </add-treasure-hunt>
@@ -55,7 +56,10 @@
                 </div>
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingHunt">
-                <add-treasure-hunt :profile="profile" :heading="'Create'" @cancelCreate="creatingHunt=false" :selectedDestination="selectedDestination">
+                <add-treasure-hunt :profile="profile" :heading="'Create'"
+                                   @cancelCreate="creatingHunt=false"
+                                   :selectedDestination="selectedDestination"
+                                   @destination-select="$emit('destination-select')">
 
                 </add-treasure-hunt>
             </b-list-group-item>
