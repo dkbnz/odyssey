@@ -117,6 +117,17 @@ create table traveller_type (
   constraint pk_traveller_type primary key (id)
 );
 
+create table treasure_hunt (
+  id                            bigint auto_increment not null,
+  destination_id                bigint,
+  riddle                        varchar(255),
+  start_date                    timestamp,
+  end_date                      timestamp,
+  owner_id                      bigint,
+  constraint pk_treasure_hunt primary key (id)
+);
+
+
 create table trip (
   id                            bigint auto_increment not null,
   name                          varchar(255),
@@ -193,6 +204,12 @@ alter table profile_passport add constraint fk_profile_passport_profile foreign 
 create index ix_profile_passport_passport on profile_passport (passport_id);
 alter table profile_passport add constraint fk_profile_passport_passport foreign key (passport_id) references passport (id) on delete restrict on update restrict;
 
+create index ix_treasure_hunt_destination_id on treasure_hunt (destination_id);
+alter table treasure_hunt add constraint fk_treasure_hunt_destination_id foreign key (destination_id) references destination (id) on delete restrict on update restrict;
+
+create index ix_treasure_hunt_owner_id on treasure_hunt (owner_id);
+alter table treasure_hunt add constraint fk_treasure_hunt_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
+
 create index ix_trip_profile_id on trip (profile_id);
 alter table trip add constraint fk_trip_profile_id foreign key (profile_id) references profile (id) on delete restrict on update restrict;
 
@@ -263,6 +280,12 @@ drop index if exists ix_profile_passport_profile;
 
 alter table profile_passport drop constraint if exists fk_profile_passport_passport;
 drop index if exists ix_profile_passport_passport;
+
+alter table treasure_hunt drop constraint if exists fk_treasure_hunt_destination_id;
+drop index if exists ix_treasure_hunt_destination_id;
+
+alter table treasure_hunt drop constraint if exists fk_treasure_hunt_owner_id;
+drop index if exists ix_treasure_hunt_owner_id;
 
 alter table trip drop constraint if exists fk_trip_profile_id;
 drop index if exists ix_trip_profile_id;
