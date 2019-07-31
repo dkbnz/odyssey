@@ -348,8 +348,8 @@ public class ProfileTestSteps {
         Assert.assertFalse(foundProfile);
     }
 
-    @Then("the status code received is Created")
-    public void theStatusCodeReceivedIsCreated() throws BeansException{
+    @Then("the status code is Created")
+    public void theStatusCodeIsCreated() throws BeansException{
         Assert.assertEquals(CREATED, statusCode);
     }
 

@@ -66,8 +66,7 @@
                      outlined
                      ref="myFutureTrips"
                      striped
-                     responsive
-            >
+                     responsive>
                 <div class="text-center my-2" slot="table-busy">
                     <b-spinner class="align-middle" v-if="retrievingTrips"></b-spinner>
                     <strong>Can't find any trips!</strong>
@@ -124,6 +123,7 @@
 
                 <template slot="tripStartDate"
                           slot-scope="data">
+                    <!--{{data.item.destinations}}-->
                     {{formatDate(calculateTripDates(data.item.destinations)[0])}}
                 </template>
 
@@ -288,6 +288,7 @@
 
     export default {
         name: "YourTrips",
+
         props: {
             profile: Object,
             userProfile: {
@@ -303,9 +304,11 @@
                 }
             }
         },
+
         components: {
             PlanATrip
         },
+
         data: function () {
             return {
                 optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
@@ -319,15 +322,6 @@
                 sortDescPast: true,
                 currentPageUpcoming: 1,
                 currentPagePast: 1,
-                fields: [
-                    'name',
-                    {key: 'tripStartDate', label: 'Start Date'},
-                    {key: 'destinations[0].destination.name', label: 'Start Destination'},
-                    {key: 'tripEndDate', label: 'End Date'},
-                    {key: 'tripEndDest', label: 'End Destination'},
-                    {key: 'duration', label: 'Duration'},
-                    'more_details'
-                ],
                 subFields: [
                     {key: 'destination.name', label: "Name"},
                     {key: 'destination.type.destinationType', label: "Type"},
@@ -350,12 +344,19 @@
                 dismissCountDown: 0,
             }
         },
+
         mounted() {
             /**
              *  Mounted function that uses the getAllTrips method to populate all a users trips on the page.
              */
             this.getAllTrips();
+
+
+            /**
+             * Determines what permissions the current logged in user has.
+             */
             this.getPermissions();
+
 
             /**
              * When a modal is hidden, refreshes the trips. This is so the list of trips table is up to date.
@@ -364,6 +365,7 @@
                 this.getAllTrips();
             });
         },
+
         computed: {
             /**
              *  Computed function to calculate the length of the future trips, this is used for the pagination.
@@ -372,12 +374,29 @@
                 return this.futureTrips.length
             },
 
+
             /**
              *  Computed function to calculate the length of the past trips, this is used for the pagination.
              */
             rowsPast() {
                 return this.pastTrips.length
             },
+
+
+            /**
+             * The fields that will displayed in the trips tables.
+             */
+            fields() {
+                return [
+                    'name',
+                    {key: 'tripStartDate', label: 'Start Date'},
+                    {key: 'destinations[0].destination.name', label: 'Start Destination'},
+                    {key: 'tripEndDate', label: 'End Date'},
+                    {key: 'tripEndDest', label: 'End Destination'},
+                    {key: 'duration', label: 'Duration'},
+                    'more_details'
+                ]
+            } ,
 
         },
         methods: {
@@ -415,6 +434,7 @@
                 return tripDates;
             },
 
+
             /**
              * Gets all the trips for a specific profile id. Uses the checkStatus and parseJSON functions to handle the
              * response. This function also splits up the trips into past and future trips based on their date compared
@@ -437,6 +457,16 @@
                         self.futureTrips = [];
                         self.pastTrips = [];
                         for (let i = 0; i < trips.length; i++) {
+
+                            // Sort the list of destinations of each trip using the list order
+                            trips[i].destinations.sort((a, b) => {
+                                // This is a comparison function that .sort needs to determine how to order the list
+
+                                if (a.listOrder > b.listOrder) return 1;
+                                if (a.listOrder < b.listOrder) return -1;
+                                return 0;
+                            });
+
                             let destinationDates = [];
                             for (let j = 0; j < trips[i].destinations.length; j++) {
                                 if (trips[i].destinations[j].startDate !== null) {
@@ -459,6 +489,7 @@
                         self.retrievingTrips = false;
                     });
             },
+
 
             /**
              * Orders the future trips by the dates. If there are no dates then they will be at the top. If there are
@@ -487,6 +518,7 @@
                 return 0;
             },
 
+
             /**
              * Used to check the response of a fetch method. If there is an error code, the code is printed to the
              * console.
@@ -505,6 +537,7 @@
                 throw error;
             },
 
+
             /**
              * Used to turn the response of the fetch method into a usable Json.
              *
@@ -515,6 +548,7 @@
                 return response.json();
             },
 
+
             /**
              * Used to send a selected trip to a modal that contains the plan a trip page, this is so the trip can be
              * edited.
@@ -524,6 +558,7 @@
             sendTripToModal(trip) {
                 this.selectedTrip = trip;
             },
+
 
             /**
              * Uses a fetch method to delete a users trip. Shows errors if something went wrong, or the user trying to
@@ -555,6 +590,7 @@
                 });
             },
 
+
             /**
              * Used to check the current user is either admin or the owner of the trip.
              */
@@ -562,6 +598,7 @@
                 this.hasPermission = (this.userProfile.id === this.profile.id ||
                     (this.userProfile.isAdmin && this.adminView));
             },
+
 
             /**
              * Used to dismiss either the delete a trip confirmation modal or the edit a trip modal.
@@ -571,6 +608,7 @@
             dismissModal(modal) {
                 this.$refs[modal].hide();
             },
+
 
             /**
              * Formats given date to a local date string. Handles null dates.
@@ -582,12 +620,14 @@
                 return date == null ? null : new Date(date).toLocaleDateString();
             },
 
+
             /**
              * Displays the countdown alert on the successful saving of a trip.
              */
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
             },
+
 
             /**
              * Used to allow an alert to countdown on the successful deletion of a trip.

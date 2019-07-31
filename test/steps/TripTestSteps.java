@@ -8,6 +8,8 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import models.Profile;
+import models.destinations.Destination;
 import models.trips.Trip;
 import org.junit.Assert;
 import play.Application;
@@ -421,6 +423,12 @@ public class TripTestSteps {
     @Then("the response status code is Created")
     public void theResponseStatusCodeIsCreated() {
         assertEquals(CREATED, statusCode);
+    }
+
+    @Then("the destination with id {int} ownership changes to the user with id {int}")
+    public void theDestinationOwnershipChangesToTheGlobalAdminWithId(Integer destinationId, Integer profileId) {
+        Destination destination = Destination.find.byId(destinationId);
+        assertEquals(profileId.longValue(), destination.getOwner().getId().longValue());
     }
 
 }

@@ -67,10 +67,8 @@
                                   trim
                                   type="password" v-model="password"></b-form-input>
                     <b-form-invalid-feedback :state="passwordValidation">
-                        Your password must be between 5 and 15 characters.
-                    </b-form-invalid-feedback>
-                    <b-form-invalid-feedback :state="passwordValidation">
-                        Your password must contain 2/3 of: Uppercase, Lowercase, Number.
+                        Your password must be between 5 and 15 characters and password must contain two of: Uppercase,
+                        Lowercase, Number.
                     </b-form-invalid-feedback>
                 </b-form-group>
 
@@ -85,7 +83,8 @@
                                   trim
                                   type="password" v-model="rePassword"></b-form-input>
                     <b-form-invalid-feedback :state="rePasswordValidation">
-                        This isn't the same as the password!
+                        This must be the same as the password and your must be between 5 and 15 characters and
+                        password must contain two of: Uppercase, Lowercase, Number.
                     </b-form-invalid-feedback>
                 </b-form-group>
 
@@ -117,7 +116,7 @@
                     </b-form-invalid-feedback>
                 </b-form-group>
 
-                <b-alert dismissible v-model="showError" variant="danger">The form contains errors!</b-alert>
+                <b-alert dismissible v-model="showError" variant="danger">The form contains errors! Please ensure that all fields are green</b-alert>
                 <b-button @click="checkPersonalForm" block variant="primary">Next</b-button>
 
             </b-form>
@@ -154,7 +153,7 @@
                                 id="passports-field"
                                 label="Passport Country:"
                                 label-for="passports">
-                            <b-form-select :state="passportValidation"
+                            <b-form-select
                                            id="passports"
                                            multiple
                                            trim v-model="passports">
@@ -163,9 +162,6 @@
                                     {{nationality.country}}
                                 </option>
                             </b-form-select>
-                            <b-form-invalid-feedback :state="passportValidation">
-                                Please select at least one passport country.
-                            </b-form-invalid-feedback>
                         </b-form-group>
                     </b-col>
                 </b-row>
@@ -211,13 +207,17 @@
 <script>
     export default {
         name: "Signup",
-        props: {nationalityOptions: Array,
+
+        props: {
+            nationalityOptions: Array,
             travTypeOptions: Array,
             createdByAdmin: {
                 default() {
                     return false;
                 }
-            }},
+            }
+        },
+
         data: function () {
             return {
                 showError: false,
@@ -245,6 +245,7 @@
                 successMessage: ""
             }
         },
+
         computed: {
             /**
              * Validates a firstname input from the user.
@@ -259,6 +260,7 @@
                 return nameRegex.test(this.firstName);
             },
 
+
             /**
              * Validates a middlename input from the user.
              *
@@ -268,6 +270,7 @@
                 let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.middleName) || this.middleName.length === 0;
             },
+
 
             /**
              * Validates a lastname input from the user.
@@ -282,6 +285,7 @@
                 return nameRegex.test(this.lastName);
             },
 
+
             /**
              * Validates a email input from the user.
              *
@@ -291,10 +295,11 @@
                 if (this.username.length === 0) {
                     return null;
                 }
-                let emailRegex = new RegExp("^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})");
+                let emailRegex = new RegExp("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$");
                 this.checkUsername();
                 return (emailRegex.test(this.username) && this.validEmail);
             },
+
 
             /**
              * Validates a users password.
@@ -310,6 +315,7 @@
                 return passwordRegex.test(this.password)
             },
 
+
             /**
              * Ensures the retyped password is non empty and equal to the first typed password.
              *
@@ -319,8 +325,11 @@
                 if (this.rePassword.length === 0) {
                     return null;
                 }
-                return this.password.length > 0 && this.rePassword === this.password;
+                let passwordRegex =
+                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
+                return this.password.length > 0 && this.rePassword === this.password && passwordRegex.test(this.rePassword);
             },
+
 
             /**
              * Validates a date of birth input from the user.
@@ -334,6 +343,7 @@
                 return this.dateOfBirth.length > 0 && this.dateOfBirth < this.todaysDate;
             },
 
+
             /**
              * Validates a gender selection from the user.
              *
@@ -345,6 +355,7 @@
                 }
                 return this.gender.length > 0;
             },
+
 
             /**
              * Validates the nationality selection input from the user.
@@ -358,17 +369,6 @@
                 return this.nationalities.length > 0;
             },
 
-            /**
-             * Validates the passport selection input from the user.
-             *
-             * @returns {*} true if input is valid.
-             */
-            passportValidation() {
-                if (this.passports.length === 0) {
-                    return null;
-                }
-                return this.passports.length > 0;
-            },
 
             /**
              * Validates the traveller type input from the user.
@@ -381,6 +381,7 @@
                 }
                 return this.travellerTypes.length > 0;
             },
+
 
             /**
              * Get the current date and return it in the format.
@@ -404,6 +405,7 @@
             }
 
         },
+
         methods: {
             /**
              * Runs validation for all fields on first page.
@@ -415,15 +417,17 @@
                     this.showError = false;
                     this.nextPage();
                 } else {
-                    this.showError = true;
+                        this.showError = true;
+                    return false
                 }
             },
+
 
             /**
              * Runs second page validation and creates an object using all inputs.
              */
             checkAssociateForm() {
-                if (this.nationalityValidation && this.passportValidation && this.travTypeValidation) {
+                if (this.nationalityValidation && this.travTypeValidation) {
                     let profile = {
                         firstName: this.firstName,
                         middleName: this.middleName,
@@ -437,8 +441,12 @@
                         travellerTypes: this.travellerTypes
                     };
                     this.saveProfile(profile);
+                } else {
+                    this.showError = true;
+                    this.alertMessage = "You must select a Nationality and a Traveller Type";
                 }
             },
+
 
             /**
              * Checks that user does not already exist in database.
@@ -456,6 +464,7 @@
 
             },
 
+
             /**
              * Transfers to second page of sign-up.
              */
@@ -463,6 +472,7 @@
                 this.showFirst = false;
                 this.showSecond = true;
             },
+
 
             /**
              * Transfers to first page of sign-up.
@@ -472,11 +482,12 @@
                 this.showSecond = false;
             },
 
+
             /**
              * Adds user to database. If the person creating the profile is an administrator, then the page is not
              * automatically redirected to the dash.
              *
-             * @param profile object created with all input values
+             * @param profile   object created with all input values.
              */
             saveProfile(profile) {
                 let self = this;

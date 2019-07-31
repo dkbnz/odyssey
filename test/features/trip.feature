@@ -254,6 +254,7 @@ Feature: Trip API Endpoint
       """
     Then the response status code is OK
 
+
   Scenario: Edit a trip as the trip's owner with valid destinations
     Given I have an application running
     And I am logged as the following user
@@ -301,6 +302,7 @@ Feature: Trip API Endpoint
         }
       """
     Then the response status code is OK
+
 
   Scenario: Edit a trip as the trip's owner with invalid name
     Given I have an application running
@@ -483,3 +485,82 @@ Feature: Trip API Endpoint
     Then the response status code is Forbidden
 
 
+  Scenario: Changing ownership of public destination not owned by me when used in a trip
+    Given I have an application running
+    And I am logged as the following user
+      | Username                |
+      | guestUser@travelea.com  |
+    And the destination with id 119 exists
+    When the following json containing a trip is sent:
+      """
+        {
+          "trip_name": "A Holiday Away",
+          "trip_destinations" : [
+            {
+              "destination_id" : "119",
+              "start_date" : "1990-12-12",
+              "end_date" : "1991-12-12"
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    Then the destination with id 119 ownership changes to the user with id 1
+
+
+  Scenario: Changing ownership of private destination owned by me when used in a trip
+    Given I have an application running
+    And I am logged as the following user
+      | Username                |
+      | guestUser@travelea.com  |
+    And the destination with id 325 exists
+    When the following json containing a trip is sent:
+      """
+        {
+          "trip_name": "A Holiday Away",
+          "trip_destinations" : [
+            {
+              "destination_id" : "325",
+              "start_date" : "1990-12-12",
+              "end_date" : "1991-12-12"
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    Then the destination with id 325 ownership changes to the user with id 2
+
+
+  Scenario: Changing ownership of public destination owned by me when used in a trip
+    Given I have an application running
+    And I am logged as the following user
+      | Username                |
+      | guestUser@travelea.com  |
+    And the destination with id 567 exists
+    When the following json containing a trip is sent:
+      """
+        {
+          "trip_name": "A Holiday Away",
+          "trip_destinations" : [
+            {
+              "destination_id" : "567",
+              "start_date" : "1990-12-12",
+              "end_date" : "1991-12-12"
+            },
+            {
+              "destination_id" : "567",
+              "start_date" : null,
+              "end_date" : null
+            }
+          ]
+        }
+      """
+    Then the destination with id 567 ownership changes to the user with id 2

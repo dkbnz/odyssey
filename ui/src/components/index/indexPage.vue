@@ -1,7 +1,6 @@
 <template>
     <div>
         <div class="bg">
-
             <div style="padding-top: 10%">
                 <div>
 
@@ -33,7 +32,6 @@
 
                 </div>
             </div>
-
         </div>
     </div>
 </template>
@@ -44,22 +42,27 @@
 
     export default {
         name: "Index.vue",
+
         props: ['assets', 'nationalityOptions', 'travTypeOptions', 'profile'],
+
         created() {
             document.title = "Welcome to TravelEA";
         },
+
         data: function () {
             return {
                 username: '',
                 password: ''
             }
         },
+
         mounted() {
             /**
              * Mounted function that uses the getProfile function to fetch a profile.
              */
             this.getProfile();
         },
+
         methods: {
             /**
              * Redirects the user to the dash page.
@@ -72,6 +75,7 @@
                 }
 
             },
+
 
             /**
              * Used to retrieve a user's profile, determines if they should be redirected to the dash page or not.
@@ -89,6 +93,7 @@
                     })
             }
         },
+
         components: {
             Signup,
             Login

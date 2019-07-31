@@ -14,9 +14,9 @@ import java.util.List;
 public class NationalityController extends Controller {
 
     /**
-     * Pulls a list of Nationalities from the database and returns it as a Json list
+     * Pulls a list of Nationalities from the database and returns it as a Json list.
      *
-     * @return ok() (Http 200) with the result as a Json body
+     * @return ok() (Http 200) with the result as a Json body.
      */
     public Result list() {
 

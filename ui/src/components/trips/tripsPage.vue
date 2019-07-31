@@ -37,19 +37,21 @@
 
     export default {
         name: "Trips",
+
         props: {
             profile: Object,
             destinations: Array,
             adminView: Boolean,
         },
+
         data: function () {
             return {
                 planATrip: true,
                 yourTrips: false
             }
         },
-        methods: {
 
+        methods: {
             /**
              * Used to toggle what page is currently being shown.
              *
@@ -62,6 +64,7 @@
                 }
             },
         },
+
         components: {
             PlanATrip,
             YourTrips,
