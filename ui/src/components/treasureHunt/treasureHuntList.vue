@@ -34,9 +34,23 @@
                                class="flex-column align-items-start"
                                :key="treasureHunt.id">
                 <template v-if="!editingHunt && !(activeId === treasureHunt.id)">
-                    {{treasureHunt.riddle}}
-                    {{treasureHunt.startDate}}
-                    {{treasureHunt.endDate}}
+                        <h4>Riddle</h4>
+                        {{treasureHunt.riddle}}
+                    <b-row class="buttonMarginsTop">
+                        <b-col>
+                            <h4>Start Date</h4>
+                            {{new Date(treasureHunt.startDate)}}
+                        </b-col>
+                        <b-col>
+                            <h4>End Date</h4>
+                            {{new Date(treasureHunt.endDate)}}
+                        </b-col>
+                    </b-row>
+                    <div v-if="yourTreasureHunts" class="buttonMarginsTop">
+                        <h4>Answer</h4>
+                        <p>{{treasureHunt.destination.name}}</p>
+                    </div>
+
                     <b-row v-if="yourTreasureHunts">
                         <b-col>
                             <b-button variant="warning" @click="setActiveId(treasureHunt)" block>Edit</b-button>
