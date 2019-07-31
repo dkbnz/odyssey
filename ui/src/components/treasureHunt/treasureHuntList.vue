@@ -155,7 +155,6 @@
         },
 
         methods: {
-
             /**
              * Used to convert the treasureHunt object into a Json object.
              */
@@ -235,8 +234,8 @@
 
 
             /**
-             * Changes creatingHunt to true to show the create treasure hunt window, and calls function to close edit windows
-             *
+             * Changes creatingHunt to true to show the create treasure hunt window, and calls function to close edit
+             * windows,             *
              */
             addTreasureHunt() {
                 this.creatingHunt = true;
@@ -245,8 +244,9 @@
 
 
             /**
-             * Changes the active treasure hunt ID to the inputted one, and sets creatingHunt to false to hide creation box
-             * @param id the id of the treasure hunt to be changed to
+             * Changes the active treasure hunt ID to the inputted one, and sets creatingHunt to false to hide creation
+             * box.
+             * @param treasureHunt the treasure hunt to be changed to.
              */
             setActiveId(treasureHunt) {
                 this.copyTreasureHunt(treasureHunt);
@@ -267,7 +267,8 @@
 
 
             /**
-             * Sets editingHunt to false and the active hunt ID to 0 to close any open hunt editing box. emits signal to hide destination search box. clears selected destination.
+             * Sets editingHunt to false and the active hunt ID to 0 to close any open hunt editing box. Emits signal
+             * to hide destination search box. clears selected destination.
              */
             cancelEdit() {
                 this.editingHunt = false;
@@ -275,6 +276,7 @@
                 this.$emit('hide-destinations');
                 this.selectedDestination = {};
             },
+
 
             /**
              * Sets creatingHunt to false and emits signal to hide destination search box. clears selected destination.
@@ -287,8 +289,9 @@
 
 
             /**
-             * Sets the message for the success alert to the inputted message and runs showAlert to show the success message.
-             * @param message to be set as the alret message.
+             * Sets the message for the success alert to the inputted message and runs showAlert to show the success
+             * message.
+             * @param message to be set as the alert message.
              */
             showSuccess(message) {
                 this.queryYourTreasureHunts();
@@ -367,7 +370,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>
