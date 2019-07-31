@@ -446,13 +446,32 @@
             },
 
             joinDates() {
+                let timeOffset = this.formatOffset();
+
                 this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate + " "
-                    + this.inputTreasureHunt.startTime + ":00";
+                    + this.inputTreasureHunt.startTime + ":00" + timeOffset;
 
                 this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate + " "
-                    + this.inputTreasureHunt.endTime + ":00";
+                    + this.inputTreasureHunt.endTime + ":00" + timeOffset;
 
             },
+
+
+            /**
+             * Gets the local time offset and pads it to be 4 numbers long.
+             */
+            formatOffset() {
+                let timeOffset = (Math.abs(new Date().getTimezoneOffset()/60)).toString();
+
+                let fullNumber = timeOffset.padStart(2, '0');
+                fullNumber = fullNumber.padEnd(4, '0');
+
+                let sign = (new Date().getTimezoneOffset() >= 0) ? "-": "+";
+
+                return sign + fullNumber;
+            }
+
+            ,
 
 
             /**
