@@ -11,21 +11,23 @@
                 <b-col cols="8">
                     <b-card>
                         <b-tabs content-class="mt-3">
-                            <b-tab title="Available Treasure Hunts" active>
+                            <b-tab title="Available Treasure Hunts" @click="refreshTreasureHunts = !refreshTreasureHunts" active>
                                 <treasure-hunt-list
                                         :profile="profile"
                                         :adminView="adminView"
                                         :yourTreasureHunts="false"
+                                        :refreshTreasureHunts="refreshTreasureHunts"
                                         :selectedDestination="selectedDestination"
                                         @destination-select="showDestinationsSidebar"
                                         @hide-destinations="hideDestinationsSidebar"
                                 ></treasure-hunt-list>
                             </b-tab>
-                            <b-tab title="Your Treasure Hunts">
+                            <b-tab title="Your Treasure Hunts" @click="refreshTreasureHunts = !refreshTreasureHunts">
                                 <treasure-hunt-list
                                         :profile="profile"
                                         :adminView="adminView"
                                         :yourTreasureHunts="true"
+                                        :refreshTreasureHunts="refreshTreasureHunts"
                                         :selectedDestination="selectedDestination"
                                         @destination-select="showDestinationsSidebar"
                                         @hide-destinations="hideDestinationsSidebar"
@@ -79,7 +81,8 @@
         data() {
             return {
                 selectedDestination: {},
-                showDestinations: false
+                showDestinations: false,
+                refreshTreasureHunts: false
             }
         },
 
@@ -91,7 +94,7 @@
 
             hideDestinationsSidebar() {
                 this.showDestinations = false;
-            }
+            },
         },
 
 
