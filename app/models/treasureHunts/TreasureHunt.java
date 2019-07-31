@@ -35,15 +35,15 @@ public class TreasureHunt extends BaseModel {
     private String riddle;
 
     @JsonView(Views.Public.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ssZ")
     private Date startDate;
 
     @JsonView(Views.Public.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ssZ")
     private Date endDate;
 
     @JsonIgnore
-    @ManyToOne(cascade= CascadeType.PERSIST)
+    @ManyToOne(cascade=CascadeType.PERSIST)
     private Profile owner;
 
     public Destination getDestination() {

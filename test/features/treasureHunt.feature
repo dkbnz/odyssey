@@ -16,8 +16,8 @@ Feature: TreasureHunt API Endpoint
     Given I have the application running
     And I am logged in as a normal user
     And a treasure hunt already exists with the following values
-      | Destination | Riddle                                 | Start Date            | End Date              | Owner |
-      | 119         | What rhymes with It's mean Kyle fleek? | 1998-07-29 12:12:12   | 1998-07-30 12:12:12   | 2     |
+      | Destination | Riddle                                 | Start Date               | End Date                 | Owner |
+      | 119         | What rhymes with It's mean Kyle fleek? | 1998-07-29 12:12:12-0720 | 1998-07-30 12:12:12-0720 | 2     |
     And the status code I receive is 201
     When I request to retrieve all treasure hunts
     Then the status code I receive is 200

@@ -280,7 +280,7 @@ public class TreasureHuntTestSteps {
             calendar.add(Calendar.DATE, START_DATE_BUFFER);
         }
         calendar.add(Calendar.DATE, END_DATE_BUFFER);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:MM:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:MM:ssZ");
         return sdf.format(calendar.getTime());
     }
 
