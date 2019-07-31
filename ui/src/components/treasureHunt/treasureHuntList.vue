@@ -50,6 +50,21 @@
                 </div>
             </b-list-group-item>
         </b-list-group>
+        <!-- Confirmation modal for deleting a treasure hunt. -->
+        <b-modal hide-footer id="deleteTreasureHuntModal" ref="deleteTreasureHuntModal" title="Delete Treasure Hunt">
+            <div class="d-block">
+                Are you sure that you want to delete this Treasure Hunt?
+            </div>
+            <b-button
+                    class="mr-2 float-right"
+                    variant="danger"
+                    @click="deleteTreasureHunt">Delete
+            </b-button>
+            <b-button
+                    @click="dismissModal('deleteTreasureHuntModal')"
+                    class="mr-2 float-right">Cancel
+            </b-button>
+        </b-modal>
     </div>
 </template>
 
