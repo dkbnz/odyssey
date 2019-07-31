@@ -267,7 +267,7 @@
 
 
             /**
-             * Sets editingHunt to false and the active hunt ID to 0 to close any open hunt editing box
+             * Sets editingHunt to false and the active hunt ID to 0 to close any open hunt editing box. emits signal to hide destination search box. clears selected destination.
              */
             cancelEdit() {
                 this.editingHunt = false;
@@ -276,6 +276,9 @@
                 this.selectedDestination = {};
             },
 
+            /**
+             * Sets creatingHunt to false and emits signal to hide destination search box. clears selected destination.
+             */
             cancelCreate() {
                 this.creatingHunt = false;
                 this.$emit('hide-destinations');
@@ -283,7 +286,10 @@
             },
 
 
-
+            /**
+             * Sets the message for the success alert to the inputted message and runs showAlert to show the success message.
+             * @param message to be set as the alret message.
+             */
             showSuccess(message) {
                 this.queryYourTreasureHunts();
                 this.alertText = message;
