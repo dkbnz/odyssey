@@ -33,7 +33,6 @@
                         <found-destinations
                                 :search-public="true"
                                 :profile="profile"
-                                :destinationTypes="destinationTypes"
                                 @destination-click="destination => $emit('destination-click', destination)">
                         </found-destinations>
                     </b-card>
@@ -52,6 +51,7 @@
     import UnauthorisedPromptPage from "../helperComponents/unauthorisedPromptPage";
     import FoundDestinations from "../destinations/destinationSearchList";
     import TreasureHuntList from "./treasureHuntList";
+    import FooterMain from "../helperComponents/footerMain";
     export default {
         name: "treasureHuntPage",
 
@@ -70,6 +70,7 @@
         },
 
         components: {
+            FooterMain,
             TreasureHuntList,
             FoundDestinations,
             UnauthorisedPromptPage,
