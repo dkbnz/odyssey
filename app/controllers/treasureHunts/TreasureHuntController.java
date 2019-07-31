@@ -17,18 +17,11 @@ import util.AuthenticationUtil;
 import util.Views;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static play.mvc.Results.*;
 
 public class TreasureHuntController {
-
-    private static final String DESTINATION = "destination";
-    private static final String RIDDLE = "riddle";
-    private static final String START_DATE = "start_date";
-    private static final String END_DATE = "end_date";
 
     private TreasureHuntRepository treasureHuntRepository;
     private DestinationRepository destinationRepository;
