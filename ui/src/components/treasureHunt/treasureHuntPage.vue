@@ -86,17 +86,16 @@
             }
         },
 
-
         methods: {
             /**
-             * Shows the destination searching sidebar
+             * Shows the destination searching sidebar.
              */
             showDestinationsSidebar() {
                 this.showDestinations = true;
             },
 
             /**
-             * Hides the destination searching sidebar
+             * Hides the destination searching sidebar.
              */
             hideDestinationsSidebar() {
                 this.showDestinations = false;
@@ -113,7 +112,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>
