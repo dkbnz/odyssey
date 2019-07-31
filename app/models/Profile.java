@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Finder;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
+import models.treasureHunts.TreasureHunt;
 import models.trips.Trip;
 import play.data.format.Formats;
 
@@ -59,6 +60,14 @@ public class Profile extends BaseModel {
     @JsonIgnore
     @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
     private List<Destination> myDestinations = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
+    private List<TreasureHunt> myTreasureHunts = new ArrayList<>();
+
+    public List<TreasureHunt> getMyTreasureHunts() {
+        return myTreasureHunts;
+    }
 
 
     public PersonalPhoto getProfilePicture() {
@@ -238,6 +247,16 @@ public class Profile extends BaseModel {
 
     public boolean removePhotoFromGallery(PersonalPhoto photoToRemove) {
         return photoGallery.remove(photoToRemove);
+    }
+
+
+    public void addTreasureHunt(TreasureHunt newTreasureHunt) {
+        this.myTreasureHunts.add(newTreasureHunt);
+    }
+
+
+    public boolean removeTreasureHunt(TreasureHunt treasureHunt) {
+        return myTreasureHunts.remove(treasureHunt);
     }
 
 

@@ -13,6 +13,7 @@
                     <b-nav-item :class="{active: currentPage==='/destinations'}" @click="goToDestinations()">
                         Destinations
                     </b-nav-item>
+                    <b-nav-item :class="{active: currentPage==='/treasureHunts'}" @click="goToTreasureHunts()">Treasure Hunts</b-nav-item>
                     <b-nav-item :class="{active: currentPage==='/admin'}" @click="goToAdminPanel()"
                                 v-if="profile.isAdmin">
                         Admin
@@ -106,6 +107,9 @@
             },
             goToAdminPanel() {
                 this.$router.push("/admin");
+            },
+            goToTreasureHunts() {
+                this.$router.push("/treasureHunts");
             }
         }
     }
