@@ -290,14 +290,22 @@
                 return true;
             },
 
+            /**
+             * Returns true if the inputted riddle has length greater than 0
+             * @returns true if validated
+             */
             validateRiddle() {
               if(this.inputTreasureHunt.riddle.length > 0){
                   return true;
               }
               return null;
             },
-            //
 
+
+            /**
+             * Returns true if the input destination exists and matches the one selected in the sidebar and isn't empty
+             * @returns true if valid
+             */
             validateDestination() {
                 if (this.inputTreasureHunt.destination !== null
                     && this.inputTreasureHunt.destination === this.selectedDestination
@@ -309,6 +317,10 @@
                 return false;
             },
 
+            /**
+             * Checks the validity of the destination using validateDestination and returns the appropriate state for display
+             * @returns 'success' if destination is valid, 'secondary' otherwise
+             */
             checkDestinationState(){
                 return this.validateDestination ? "success" : "secondary"
             },
@@ -325,6 +337,9 @@
             },
 
 
+            /**
+             * sets the input values to be their proper string versions of current date/time
+             */
             setDateTimeString() {
                 if (this.inputTreasureHunt.id === null) {
                     this.inputTreasureHunt.startDate = this.getDateString();
@@ -361,6 +376,9 @@
             },
 
 
+            /**
+             * Fills the destination with the existing destination of a hunt when editing it
+             */
             editingTreasureHunt() {
                 if (this.inputTreasureHunt.id !== null) {
                     this.selectedDestination = this.inputTreasureHunt.destination;
@@ -469,6 +487,9 @@
                 }
             },
 
+            /**
+             * Combines dates and times together from input fields and adds :00 on the end for seconds
+             */
             joinDates() {
                 this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate + " "
                     + this.inputTreasureHunt.startTime + ":00";

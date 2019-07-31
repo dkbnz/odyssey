@@ -85,10 +85,16 @@
 
 
         methods: {
+            /**
+             * Shows the destination searching sidebar
+             */
             showDestinationsSidebar() {
                 this.showDestinations = true;
             },
 
+            /**
+             * Hides the destination searching sidebar
+             */
             hideDestinationsSidebar() {
                 this.showDestinations = false;
             }
