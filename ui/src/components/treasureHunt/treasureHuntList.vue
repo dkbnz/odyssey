@@ -1,15 +1,17 @@
 <template>
     <div>
         <b-list-group class="scroll">
-            <b-list-group-item v-for="treasureHunt in (foundTreasureHunts)" href="#"
-                               class="flex-column align-items-start"
-            :key="treasureHunt.id">
-                {{treasureHunt.riddle}}
-                {{treasureHunt.startDate}}
-                {{treasureHunt.endDate}}
-                <b-button variant="danger" @click="deleteTreasureHunt(treasureHunt.id)" block>Delete</b-button>
-                <!--Treasure Hunt component-->
-            </b-list-group-item>
+            <treasure-hunt-list-item v-for="treasureHunt in (foundTreasureHunts)" :treasure-hunt="treasureHunt" :selected-destination="selectedDestination">
+            </treasure-hunt-list-item>
+            <!--<b-list-group-item v-for="treasureHunt in (foundTreasureHunts)" href="#"-->
+                               <!--class="flex-column align-items-start"-->
+            <!--:key="treasureHunt.id">-->
+                <!--{{treasureHunt.riddle}}-->
+                <!--{{treasureHunt.startDate}}-->
+                <!--{{treasureHunt.endDate}}-->
+                <!--<b-button variant="danger" @click="deleteTreasureHunt(treasureHunt.id)" block>Delete</b-button>-->
+                <!--&lt;!&ndash;Treasure Hunt component&ndash;&gt;-->
+            <!--</b-list-group-item>-->
             <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
                 <div class="d-flex justify-content-center" >
                     <b-spinner label="Loading..."></b-spinner>
@@ -22,7 +24,7 @@
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center">
                 <div class="d-flex justify-content-center" >
-                    <b-button variant="success" @click="addTreasureHunt" block>Add</b-button>
+                    <b-button variant="success" block>Add</b-button>
                 </div>
             </b-list-group-item>
         </b-list-group>
@@ -30,10 +32,12 @@
 </template>
 
 <script>
+    import TreasureHuntListItem from "./treasureHuntListItem";
     export default {
         name: "treasureHuntList",
-
+        components: {TreasureHuntListItem},
         props: {
+            selectedDestination: Object,
             profile: Object,
             adminView: {
                 default: function() {
