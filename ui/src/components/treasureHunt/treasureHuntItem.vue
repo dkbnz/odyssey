@@ -256,6 +256,7 @@
                 return true;
             },
 
+
             /**
              * Checks that the end date is not before the start date, and is not before the current date for new hunts.
              * @returns true if end date is valid.
@@ -270,6 +271,7 @@
                 return true;
             },
 
+
             /**
              * Checks that the end time is not before or the same as the start time if the dates are the same.
              * @returns true if end time is valid.
@@ -282,6 +284,7 @@
                 }
                 return true;
             },
+
 
             /**
              * Returns true if the inputted riddle has length greater than 0.
@@ -310,6 +313,7 @@
                 return false;
             },
 
+
             /**
              * Checks the validity of the destination using validateDestination and returns the appropriate state for
              * display.
@@ -319,7 +323,6 @@
                 return this.validateDestination ? "success" : "secondary"
             },
         },
-
 
         methods: {
             /**
@@ -356,6 +359,7 @@
                     today.getDate();
                 return date;
             },
+
 
             /**
              * Gets the current time as a string in HH:MM format, including padding O's.
@@ -528,9 +532,7 @@
                 let sign = (new Date().getTimezoneOffset() >= 0) ? "-": "+";
 
                 return sign + fullNumber;
-            }
-
-            ,
+            },
 
 
             /**
