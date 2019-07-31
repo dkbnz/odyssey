@@ -4,7 +4,7 @@
             <div :class="containerClass">
                 <!-- The profile picture of the current profile being viewed. -->
                 <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
-                       @click="showImage" @error="imageAlt">
+                       @click="showImage" onerror="this.src = '../../../static/default_profile_picture.png'">
                 </b-img>
                 <b-alert
                         class="m-1"
@@ -57,7 +57,8 @@
                 </your-trips>
             </div>
             <b-modal hide-footer centered ref="profilePictureModal" title="Profile Picture" size="xl">
-                <b-img-lazy :src="profileImageFull" center fluid></b-img-lazy>
+                <b-img-lazy :src="profileImageFull" onerror="this.src = '../../../static/default_profile_picture.png'"
+                            center fluid></b-img-lazy>
                 <b-row>
                     <b-col>
                         <b-button
@@ -98,6 +99,7 @@
 
     export default {
         name: "viewProfile",
+
         props: {
             profile: Object,
             nationalityOptions: Array,
@@ -126,6 +128,7 @@
                 }
             }
         },
+
         data() {
             return {
                 auth: false,
@@ -141,11 +144,13 @@
                 dismissCountDown: 0
             }
         },
+
         mounted() {
             this.checkAuth();
             this.getProfilePictureThumbnail();
             this.getProfilePictureFull();
         },
+
         methods: {
             /**
              * Displays the default profile picture.
@@ -153,6 +158,8 @@
             showImage() {
                 this.$refs['profilePictureModal'].show();
             },
+
+
             /**
              * Emits change up to view profile be able to auto update front end when changing profile picture
              */
@@ -176,6 +183,7 @@
                 });
             },
 
+
             /**
              * Creates the POST request for directly uploading a new profile photo.
              *
@@ -197,6 +205,7 @@
                 })
             },
 
+
             /**
              * Creates the form data to send as the body of the POST request to the backend.
              *
@@ -208,6 +217,7 @@
                 personalPhotos.append('photo0', files);
                 return personalPhotos;
             },
+
 
             /**
              * Retrieves a Json body from a response.
@@ -226,6 +236,7 @@
                 return response.json();
             },
 
+
             /**
              * Display the modal for uploading a single profile photo.
              */
@@ -234,6 +245,7 @@
                 this.$refs.profilePhotoUploader.show();
             },
 
+
             /**
              * Checks the authorization of the user profile that is logged in to see if they can
              * view the users private photos and can add or delete images from the media.
@@ -241,6 +253,7 @@
             checkAuth() {
                 this.auth = (this.userProfile.id === this.profile.id) || (this.userProfile.isAdmin && this.adminView);
             },
+
 
             /**
              * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
@@ -253,6 +266,7 @@
                 }
             },
 
+
             /**
              * Retrieves the user's primary photo, if none is found set to the default image.
              */
@@ -264,6 +278,7 @@
                 }
             },
 
+
             /**
              * Changes the profile picture on front end instead of needing the refresh page when adding a new
              * image from your photo gallery
@@ -273,6 +288,7 @@
                 this.profileImageFull = `/v1/photos/` + photoId;
                 this.profile.profilePicture = {"id": photoId, "public": true}
             },
+
 
             /**
              * Deletes the user's profile photo and sets it back to the default image.
@@ -295,6 +311,7 @@
                     }
                 })
             },
+
 
             /**
              * Handles refreshing of a profile picture upon deleting of a photo from the photo gallery. Pops the photo
@@ -320,6 +337,7 @@
                 }
             },
 
+
             /**
              * Starts the countdown for the profile successfully saved alert.
              *
@@ -329,12 +347,14 @@
                 this.dismissCountDown = dismissCountDown
             },
 
+
             /**
              * Displays the alert for a profile successfully saved.
              */
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
             },
+
 
             /**
              * Displays default image when no image is found
@@ -344,6 +364,7 @@
                 event.target.src = "../../../static/default_profile_picture.png"
             }
         },
+
         components: {
             YourTrips,
             PhotoGallery,

@@ -1,5 +1,4 @@
-Feature: Having a profile system
-
+Feature: Profile API Endpoint
 
   Scenario: Get all profiles
     Given I have a running application
@@ -7,15 +6,18 @@ Feature: Having a profile system
     When I send a GET request to the profiles endpoint
     Then the status code is OK
 
+
   Scenario: Get all nationalities
     Given the application is running
     When I send a GET request to the /nationalities endpoint
     Then the status code is OK
 
+
   Scenario: Get all traveller types
     Given the application is running
     When I send a GET request to the /travtypes endpoint
     Then the status code is OK
+
 
   Scenario: Attempting to sign up with an existing username
     Given I have a running application
@@ -26,13 +28,24 @@ Feature: Having a profile system
       | guestUser@travelea.com | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  | 1           | 1              | 1                |
     Then the status code is BadRequest
 
+
   Scenario: Attempting to sign up with a new username
     Given I have a running application
     And The following profile does not exist with the username "TestUser123@travelea.com" within the TravelEA database
     When A user attempts to create a profile with the following fields:
       | username                 | password    | first_name | middle_name | last_name | date_of_birth | gender | nationality | traveller_type | passport_country |
       | TestUser123@travelea.com | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  | 1           | 1              | 1                |
-    Then the status code received is Created
+    Then the status code is Created
+
+
+  Scenario: Attempting to sign up with a formatted email
+    Given I have a running application
+    And The following profile does not exist with the username "Test.User.123@travelea.com" within the TravelEA database
+    When A user attempts to create a profile with the following fields:
+      | username                    | password    | first_name | middle_name | last_name | date_of_birth | gender | nationality | traveller_type | passport_country |
+      | Test.User.123@travelea.com  | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  | 1           | 1              | 1                |
+    Then the status code is Created
+
 
   Scenario: Attempting to update an existing user
     Given I have a running application

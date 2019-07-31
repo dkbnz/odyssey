@@ -131,6 +131,14 @@
                         <b-spinner class="align-middle" v-if="retrievingProfiles"></b-spinner>
                         <strong>Can't find any profiles!</strong>
                     </div>
+                    <template slot="profilePhoto" slot-scope="row">
+                        <b-img :src="getProfilePictureThumbnail(row.item.profilePicture)"
+                               fluid
+                               rounded="circle"
+                               thumbnail
+                               @error="imageAlt">
+                        </b-img>
+                    </template>
                     <template slot="nationalities" slot-scope="row">
                         {{calculateNationalities(row.item.nationalities)}}
                     </template>
@@ -158,20 +166,19 @@
                             <b-button @click="emitAdminEdit(row.item)" block class="mr-2" size="sm" variant="warning">
                                 Show More Details
                             </b-button>
-
                             <b-button :disabled="row.item.id===1" @click="sendProfileToModal(row.item)"
                                       block class="mr-2" size="sm"
                                       v-b-modal.deleteProfileModal v-if="profile.isAdmin && row.item.id !== 1"
                                       variant="danger">
                                 Delete
                             </b-button>
-
                         </b-row>
                         <!-- If user is not admin, can only see other profiles -->
                         <b-row class="text-center" v-else>
                             <b-button @click="row.toggleDetails" block class="mr-2" size="sm" variant="warning">
                                 {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
                             </b-button>
+
                         </b-row>
                     </template>
                     <template slot="row-details" slot-scope="row">
@@ -233,6 +240,7 @@
 
     export default {
         name: "profilesPage",
+
         props: {
             profile: Object,
             nationalityOptions: Array,
@@ -251,6 +259,7 @@
             },
             destinationTypes: Array
         },
+
         components: {
             ViewProfile,
             NavBarMain,
@@ -258,6 +267,7 @@
             Dash,
             UnauthorisedPrompt
         },
+
         data: function () {
             return {
                 sortBy: 'firstName',
@@ -278,22 +288,50 @@
                     {value: 'Female', text: 'Female'},
                     {value: 'Other', text: 'Other'}
                 ],
-                fields: [{key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
-                    {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
-                    {key: 'nationalities', label: "Nationalities", sortable: true, class: 'tableWidthMedium'},
-                    {key: 'gender', value: 'gender', sortable: true, class: 'tableWidthSmall'},
-                    {key: 'age', value: 'age', sortable: true, class: 'tableWidthSmall'},
-                    {key: 'travellerType', label: "Traveller Types", sortable: true, class: 'tableWidthMedium'},
-                    {key: 'actions', class: 'tableWidthMedium'}],
                 profiles: [],
                 retrievingProfiles: false,
                 selectedProfile: "",
                 alertMessage: ""
             }
         },
+
         mounted() {
             this.queryProfiles();
         },
+
+        computed: {
+            /**
+             * @returns the number of rows required in the table based on number of profiles to be displayed.
+             */
+            rows() {
+                return this.profiles.length;
+            },
+
+
+            /**
+             * Returns the fields that will be displayed on the table of profiles, depending on if the admin is looking
+             * at the page or not.
+             */
+            fields() {
+                if (!this.adminView) {
+                    return [
+                        {key: 'profilePhoto', label: "Photo", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'nationalities', label: "Nationalities", sortable: true, class: 'tableWidthMedium'},
+                        {key: 'gender', value: 'gender', sortable: true, class: 'tableWidthSmall'},
+                        {key: 'age', value: 'age', sortable: true, class: 'tableWidthSmall'},
+                        {key: 'travellerType', label: "Traveller Types", sortable: true, class: 'tableWidthMedium'},
+                        {key: 'actions', class: 'tableWidthMedium'}]
+                }
+                return [
+                    {key: 'profilePhoto', label: "Photo", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'actions', class: 'tableWidthMedium'}]
+            }
+        },
+
         methods: {
             /**
              * Used to calculate a specific rows nationalities from their list of nationalities. Shows all the
@@ -314,6 +352,7 @@
                 return nationalityList;
             },
 
+
             /**
              * Used to calculate a specific rows traveller types from their list of traveller types. Shows all the
              * traveller types in the row.
@@ -332,6 +371,8 @@
                 }
                 return travTypeList;
             },
+
+
             /**
              * Method to make a user an admin. This method is only available if the currently logged in user is an
              * admin. Backend validation ensures a user cannot bypass this.
@@ -347,6 +388,7 @@
                 })
             },
 
+
             /**
              * Method to remove admin attribute from a user. This method is only available if the currently logged in
              * user is an admin. Backend validation ensures a user cannot bypass this.
@@ -359,8 +401,14 @@
                     method: 'POST',
                 }).then(function () {
                     self.searchProfiles();
+                }).then(function() {
+                    if (self.profile.id === makeAdminProfile.id) {
+                        self.$router.push("/dash");
+                        self.$router.go();
+                    }
                 })
             },
+
 
             /**
              * Method to delete a user's profile. This method is only available if the currently logged in
@@ -376,6 +424,7 @@
                     self.searchProfiles();
                 })
             },
+
 
             /**
              * Changes fields so that they can be used in searching.
@@ -405,6 +454,7 @@
                 }
             },
 
+
             /**
              * Queries database for profiles which fit search criteria.
              */
@@ -424,6 +474,30 @@
                         this.profiles = data;
                     })
             },
+
+
+            /**
+             * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
+             * @param photo         returns a url of which photo should be displayed as the profile picture for the user.
+             */
+            getProfilePictureThumbnail(photo) {
+                if (photo !== null) {
+                    let photoId = photo.id;
+                    return `/v1/photos/thumb/` + photoId;
+                } else {
+                    return "../../../static/default_profile_picture.png";
+                }
+            },
+
+
+            /**
+             * Displays default image when no image is found.
+             * @param event     image error event.
+             */
+            imageAlt(event) {
+                event.target.src = "../../../static/default_profile_picture.png"
+            },
+
 
             /**
              * Used to check the response of a fetch method. If there is an error code, the code is printed to the
@@ -447,6 +521,7 @@
                 throw error;
             },
 
+
             /**
              * Used to turn the response of the fetch method into a usable Json.
              *
@@ -456,6 +531,7 @@
             parseJSON(response) {
                 return response.json();
             },
+
 
             /**
              * Used to send a selected profile to a modal so the admin can confirm they want to delete the selected
@@ -467,12 +543,14 @@
                 this.selectedProfile = profile;
             },
 
+
             /**
              * Used to dismiss the delete a profile modal.
              */
             dismissModal() {
                 this.$refs['deleteProfileModal'].hide();
             },
+
 
             /**
              * Emits the event that the admin is viewing a profile to edit, this will navigate to the edit page.
@@ -481,14 +559,6 @@
                 this.$emit('admin-edit', profile);
             }
 
-        },
-        computed: {
-            /**
-             * @returns the number of rows required in the table based on number of profiles to be displayed.
-             */
-            rows() {
-                return this.profiles.length;
-            }
         }
     }
 </script>

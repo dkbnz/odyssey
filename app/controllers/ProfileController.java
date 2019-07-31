@@ -58,6 +58,7 @@ public class ProfileController {
      * Creates a user based on given Json body. All new users are not an admin by default. This is used on the Sign Up
      * page when a user is making a new profile. All parameters are compulsory, except for passport country. When a user
      * creates a new profile, a session is made and they are automatically logged in.
+     *
      * @param request   Http Request containing Json Body.
      * @return          If username exists, returns badRequest() (Http 400), if user is created, sets session and
      *                  returns created() (Http 201).

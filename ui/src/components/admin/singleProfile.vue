@@ -8,14 +8,16 @@
                         <b-nav class="singleProfileNav" vertical>
                             <b-nav-item @click="goBack">Go Back</b-nav-item>
                             <b-navbar-brand @click="currentDisplay = 0" class="nav-bar-brand">
-                                <b-img :src="getProfilePictureThumbnail()" fluid rounded="circle" width="50%">
+                                <b-img :src="getProfilePictureThumbnail()"
+                                       onerror="this.src = '../../../static/default_profile_picture.png'"
+                                       fluid rounded="circle" width="50%">
                                 </b-img>
                                 {{editProfile.firstName}}
                             </b-navbar-brand>
                             <b-nav-item @click="currentDisplay = 1">Edit Profile</b-nav-item>
                             <b-nav-item @click="currentDisplay = 2">View Trips</b-nav-item>
                             <b-nav-item @click="currentDisplay = 3">Add Trips</b-nav-item>
-                            <b-nav-item @click="currentDisplay = 4">Add Destination Photos</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 4">Destinations</b-nav-item>
                         </b-nav>
                     </b-collapse>
                     <b-navbar-toggle target="nav-collapse-admin"></b-navbar-toggle>
@@ -25,6 +27,7 @@
 
             <b-col cols="10">
                 <view-profile
+                        :containerClass="'adminContainer'"
                         :adminView="adminView"
                         :destinations="destinations"
                         :nationalityOptions="nationalityOptions"
@@ -60,14 +63,14 @@
                         :subHeading="'Book your next trip!'"
                         v-if="currentDisplay === 3">
                 </plan-a-trip>
-                <search-destinations
-                        :containerClass="'adminContainer'"
+                <destinations-page
+                        :containerClass="'noBordersContainer'"
                         :destinationTypes="destinationTypes"
                         :adminView="adminView"
                         :destinations="destinations"
                         :profile="editProfile"
                         v-if="currentDisplay === 4">
-                </search-destinations>
+                </destinations-page>
             </b-col>
         </b-row>
     </div>
@@ -79,10 +82,11 @@
     import PlanATrip from './../trips/planATrip.vue'
     import YourTrips from './../trips/yourTrips.vue'
     import EditProfile from "./../dash/editProfile.vue"
-    import SearchDestinations from "./../destinations/searchDestinations.vue"
+    import DestinationsPage from "./../destinations/destinationsPage.vue"
 
     export default {
         name: "singleProfile",
+
         props: {
             adminView: Boolean,
             profile: Object,
@@ -93,6 +97,7 @@
             destinationTypes: Array
 
         },
+
         data() {
             return {
                 profileImage: {blank: true, width: 75, height: 75, class: 'm1'},
@@ -101,6 +106,7 @@
                 refreshDestinations: 0
             }
         },
+
         methods: {
             /**
              * Emits an event to the admin panel page, this will redirect the admin back to the admin dashboard when the
@@ -110,6 +116,7 @@
                 this.$emit('go-back', null);
             },
 
+
             /**
              * If the profile is successfully saved, then redirect to the view profile page.
              */
@@ -118,6 +125,7 @@
                 this.currentDisplay = 0;
                 this.showSaved = true;
             },
+
 
             /**
              * Retrieves the user's primary photo thumbnail.
@@ -129,13 +137,14 @@
                 return "../../../static/default_profile_picture.png";
             }
         },
+
         components: {
             ViewProfile,
             PlanATrip,
             YourTrips,
             EditProfile,
             NavBarMain,
-            SearchDestinations
+            DestinationsPage
         }
     }
 </script>
