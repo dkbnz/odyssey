@@ -41,7 +41,8 @@
                 dragMarkers: false,
                 markerArray: [],
                 publicMarker: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
-                privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                clickedMarker: {}
             }
         },
 
@@ -90,6 +91,9 @@
              * Initializes the map with given latitude and longitude and zoom
              */
             initMap() {
+                let self = this;
+                let marker = false;
+
                 this.$map = new google.maps.Map(this.$refs['map'], {
                     center: this.initial.view,
                     zoom: this.initial.zoom
@@ -98,8 +102,32 @@
                 this.$map
                     .controls[google.maps.ControlPosition.LEFT_BOTTOM]
                     .push(this.$refs['legend']);
-            },
 
+                google.maps.event.addListener(this.$map, 'click', function(event) {
+                    //Get the location that the user clicked.
+                    let clickedLocation = event.latLng;
+
+                    //If the marker hasn't been added.
+                    if(marker === false){
+                        //Create the marker.
+                        marker = new google.maps.Marker({
+                            position: clickedLocation,
+                            map: self.$map,
+                            draggable: true, //make it draggable
+                            icon: self.privateMarker
+                        });
+                        //Listen for drag events!
+                        google.maps.event.addListener(marker, 'dragend', function(event){
+                            self.clickedMarker = marker.getPosition();
+                        });
+                    } else{
+                        //Marker has already been added, so just change its location.
+                        marker.setPosition(clickedLocation);
+                    }
+                    //Get the marker's location.
+                    self.clickedMarker = marker.getPosition();
+                });
+            },
 
             /**
              * Creates all the markers for the map from the destinations array passed in props
