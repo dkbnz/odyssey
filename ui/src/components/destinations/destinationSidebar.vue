@@ -21,7 +21,7 @@
                         @destination-reset="$emit('destination-reset')">
                 </destination-search-list>
             </b-tab>
-            <b-tab title="Add" @click="$emit('destination-search', [])">
+            <b-tab title="Add" @click="$emit('destination-search', null)">
                 <b-list-group>
                     <b-list-group-item class="flex-column align-items-start">
                         <add-destinations :profile="profile"

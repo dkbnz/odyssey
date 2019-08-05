@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="destination.owner !== undefined">
         <b-modal hide-footer id="editDestModal" ref="editDestModal" size="l" title="Edit Destination">
             <add-destinations
                     :inputDestination="copiedDestination"
@@ -55,7 +55,8 @@
 
         <b-row>
             <b-col>
-                <p class="mb-1">
+                <!--v-if statement prevents error during component load-->
+                <p class="mb-1" v-if="destination.type">
                     Type: {{destination.type.destinationType}}
                 </p>
                 <p class="mb-1">
@@ -73,7 +74,7 @@
                 <p class="mb-1">
                     Traveller Types:
                 </p>
-                <ul v-if="destination.travellerTypes.length > 0">
+                <ul v-if="destination.travellerTypes && destination.travellerTypes.length > 0">
                     <li v-for="travellerType in destination.travellerTypes">
                         {{travellerType.travellerType}}
                     </li>
@@ -171,14 +172,19 @@
 
         computed: {
             travellerTypeButtonText() {
-                if (this.profile.id === this.destination.owner.id || this.profile.isAdmin) {
+                if (this.destination.owner !== null &&
+                    this.profile.id === this.destination.owner.id ||
+                    this.profile.isAdmin) {
                     return "Change Traveller Types"
                 }
                 return "Propose Traveller Types"
             },
 
             travellerTypeLinkText() {
-                if (this.profile.id === this.destination.owner.id || this.profile.isAdmin) {
+                if (this.destination.owner !== undefined &&
+                    this.profile !== undefined &&
+                    this.profile.id === this.destination.owner.id ||
+                    this.profile.isAdmin) {
                     return "Change Traveller Types"
                 }
                 return "Propose Traveller Types"

@@ -61,7 +61,11 @@
 
         <b-row>
             <b-col cols="8">
-                <b-card>
+                <b-card ref="maps" v-if="displayMap">
+                    <google-map ref="map" :destinations="[]">
+                    </google-map>
+                </b-card>
+                <b-card v-else>
                     <b-form>
 
                         <b-container fluid>
@@ -279,6 +283,7 @@
                             :profile="profile"
                             @destination-click="destination => this.selectedDestination = destination"
                             @data-changed="$emit('data-changed')"
+                            @destination-search="result => showMap(result)"
                     ></destination-sidebar>
                 </b-card>
             </b-col>
@@ -290,11 +295,14 @@
 
 <script>
     import DestinationSidebar from "../destinations/destinationSidebar";
+    import GoogleMap from "../map/googleMap";
+
     export default {
         name: "PlanATrip",
 
         components: {
-            DestinationSidebar
+            DestinationSidebar,
+            GoogleMap
         },
 
         props: {
@@ -354,7 +362,8 @@
                 savingTrip: false,
                 letTripSaved: false,
                 destinationsList: [],
-                selectedDestination: {}
+                selectedDestination: {},
+                displayMap: false
             }
         },
 
@@ -422,6 +431,15 @@
                     endDate: this.outDate
                 });
                 this.resetDestForm();
+            },
+
+            /**
+             * Shows the map if the selected tab on the destination sidebar is "add"
+             *
+             * @param result    value emitted from destination sidebar when a tab is clicked
+             */
+            showMap(result) {
+                this.displayMap = (result === null);
             },
 
 

@@ -53,7 +53,6 @@
                                 :profile="profile"
                                 @destination-click="selectDestination"
                                 @destination-search="foundDestinations => this.destinationsForMap = foundDestinations"
-                                @destination-reset="clearMarkers"
                                 :key="refreshDestinationData"
                                 @data-changed="$emit('data-changed')"
                         ></destination-sidebar>
