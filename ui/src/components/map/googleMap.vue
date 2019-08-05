@@ -20,6 +20,7 @@
         name: "googleMap.vue",
 
         props: {
+            destinationToAdd: Object,
             selectedDestination: Object,
             destinations: Array,
         },
@@ -42,7 +43,7 @@
                 markerArray: [],
                 publicMarker: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
                 privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                clickedMarker: {}
+                markerToAdd: false
             }
         },
 
@@ -51,9 +52,14 @@
              * Watches the destinations list for changes and when there are changes calls the create marker function
              */
             destinations: function () {
-                //If no destinations to show, centre map.
-                if (!this.destinations.length) {
-                    this.centreMap();
+
+
+                if(this.markerToAdd !== false) {            // If marker has been instantiated
+                    if (this.destinations !== null) {       // If we click out of the 'add' sideBar tab
+                        this.markerToAdd.setMap(null);
+                    } else {                                // If we click into the 'add' sideBar tab
+                        this.markerToAdd.setMap(this.$map);
+                    }
                 }
                 this.clearMarkers();
                 this.createMarkers();
@@ -83,7 +89,30 @@
                     this.markerArray[oldDestination.id].setAnimation(null);
                 }
                 this.focusOnSelectedDestination()
+            },
+
+
+            destinationToAdd: {
+                handler () {
+                    let self = this;
+                    if (this.destinationToAdd.latitude !== null && this.destinationToAdd.longitude !== null) {
+
+                        let destinationToAddLocation = {lat: parseFloat(this.destinationToAdd.latitude), lng: parseFloat(this.destinationToAdd.longitude)};
+
+                        if(this.markerToAdd === false){
+                            //Create the marker.
+                            this.markerToAdd = this.placeDestinationMarker(this.destinationToAdd);
+                        } else{
+                            //Marker has already been added, so just change its location.
+                            // TODO: Instead of setting postion, possibly use a method to update whole marker (Name, etc.)
+                            this.markerToAdd.setPosition(destinationToAddLocation);
+                        }
+                    }
+                },
+                deep: true  // Signals that the watcher needs to check all children for changes.
             }
+
+
         },
 
         methods: {
@@ -91,8 +120,7 @@
              * Initializes the map with given latitude and longitude and zoom
              */
             initMap() {
-                let self = this;
-                let marker = false;
+                let self = this;    // Used for event listeners as the definition of 'this' changes.
 
                 this.$map = new google.maps.Map(this.$refs['map'], {
                     center: this.initial.view,
@@ -104,28 +132,12 @@
                     .push(this.$refs['legend']);
 
                 google.maps.event.addListener(this.$map, 'click', function(event) {
-                    //Get the location that the user clicked.
-                    let clickedLocation = event.latLng;
-
-                    //If the marker hasn't been added.
-                    if(marker === false){
-                        //Create the marker.
-                        marker = new google.maps.Marker({
-                            position: clickedLocation,
-                            map: self.$map,
-                            draggable: true, //make it draggable
-                            icon: self.privateMarker
-                        });
-                        //Listen for drag events!
-                        google.maps.event.addListener(marker, 'dragend', function(event){
-                            self.clickedMarker = marker.getPosition();
-                        });
-                    } else{
-                        //Marker has already been added, so just change its location.
-                        marker.setPosition(clickedLocation);
+                    if (self.destinations === null) {
+                        //Get the location that the user clicked.
+                        let clickedLocation = event.latLng;
+                        self.destinationToAdd.latitude = clickedLocation.lat();
+                        self.destinationToAdd.longitude = clickedLocation.lng();
                     }
-                    //Get the marker's location.
-                    self.clickedMarker = marker.getPosition();
                 });
             },
 
@@ -137,15 +149,8 @@
 
                 for (let i = 0; i < this.destinations.length; i++) {
                     let currentDestination = this.destinations[i];
-                    let markerIcon = currentDestination.public ? this.publicMarker : this.privateMarker;
 
-                    let marker = new google.maps.Marker({
-                        position: {lat: currentDestination.latitude, lng: currentDestination.longitude},
-                        map: this.$map,
-                        title: (currentDestination.name + "\n" + currentDestination.district + "\n"
-                            + currentDestination.country),
-                        icon: markerIcon
-                    });
+                    let marker = this.placeDestinationMarker(currentDestination);
 
                     marker.addListener("click", function () {
                         // Emit destination to parent. This will set as selected destination and the transition will be
@@ -154,6 +159,21 @@
                     });
                     this.markerArray[currentDestination.id] = marker;
                 }
+            },
+
+
+            /**
+             * Given a destination, places a destination marker on the map.
+             */
+            placeDestinationMarker(destination) {
+                let marker = new google.maps.Marker({
+                    position: {lat: parseFloat(destination.latitude), lng: parseFloat(destination.longitude)},
+                    map: this.$map,
+                    title: (destination.name + "\n" + destination.district + "\n"
+                        + destination.country),
+                    icon: destination.public ? this.publicMarker : this.privateMarker
+                });
+                return marker;
             },
 
 
