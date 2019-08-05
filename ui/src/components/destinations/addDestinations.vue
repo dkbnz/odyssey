@@ -63,7 +63,7 @@
                             </div>
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">Created by: {{destination.owner.firstName}}
-                                    {{destination.owner.firstName}}</h5>
+                                    {{destination.owner.lastName}}</h5>
                             </div>
                         </b-list-group-item>
                     </b-list-group>
