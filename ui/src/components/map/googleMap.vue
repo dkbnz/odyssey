@@ -22,7 +22,9 @@
         props: {
             destinationToAdd: Object,
             selectedDestination: Object,
-            destinations: Array,
+            destinations: {
+                default: null
+            },
         },
 
         mounted() {
@@ -52,8 +54,6 @@
              * Watches the destinations list for changes and when there are changes calls the create marker function
              */
             destinations: function () {
-
-
                 if(this.markerToAdd !== false) {            // If marker has been instantiated
                     if (this.destinations !== null) {       // If we click out of the 'add' sideBar tab
                         this.markerToAdd.setMap(null);
@@ -61,8 +61,11 @@
                         this.markerToAdd.setMap(this.$map);
                     }
                 }
-                this.clearMarkers();
-                this.createMarkers();
+
+                if (this.destinations !== null) {
+                    this.clearMarkers();
+                    this.createMarkers();
+                }
             },
 
 
@@ -94,20 +97,7 @@
 
             destinationToAdd: {
                 handler () {
-                    let self = this;
-                    if (this.destinationToAdd.latitude !== null && this.destinationToAdd.longitude !== null) {
-
-                        let destinationToAddLocation = {lat: parseFloat(this.destinationToAdd.latitude), lng: parseFloat(this.destinationToAdd.longitude)};
-
-                        if(this.markerToAdd === false){
-                            //Create the marker.
-                            this.markerToAdd = this.placeDestinationMarker(this.destinationToAdd);
-                        } else{
-                            //Marker has already been added, so just change its location.
-                            // TODO: Instead of setting postion, possibly use a method to update whole marker (Name, etc.)
-                            this.markerToAdd.setPosition(destinationToAddLocation);
-                        }
-                    }
+                    this.addDestinationToAdd()
                 },
                 deep: true  // Signals that the watcher needs to check all children for changes.
             }
@@ -131,6 +121,9 @@
                     .controls[google.maps.ControlPosition.LEFT_BOTTOM]
                     .push(this.$refs['legend']);
 
+                // Place destination on the map if we are adding it.
+                this.addDestinationToAdd();
+
                 google.maps.event.addListener(this.$map, 'click', function(event) {
                     if (self.destinations === null) {
                         //Get the location that the user clicked.
@@ -140,6 +133,26 @@
                     }
                 });
             },
+
+
+            /**
+             * Will place a destination on the map if it is not null.
+             * If the marker exists, it will update the position.
+             */
+            addDestinationToAdd() {
+                if (this.destinationToAdd.latitude !== null && this.destinationToAdd.longitude !== null) {
+                    let destinationToAddLocation = {lat: parseFloat(this.destinationToAdd.latitude), lng: parseFloat(this.destinationToAdd.longitude)};
+                    if(this.markerToAdd === false){
+                        //Create the marker.
+                        this.markerToAdd = this.placeDestinationMarker(this.destinationToAdd);
+                    } else{
+                        //Marker has already been added, so just change its location.
+                        // TODO: Instead of setting postion, possibly use a method to update whole marker (Name, etc.)
+                        this.markerToAdd.setPosition(destinationToAddLocation);
+                    }
+                }
+            },
+
 
             /**
              * Creates all the markers for the map from the destinations array passed in props

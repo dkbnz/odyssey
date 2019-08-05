@@ -62,7 +62,9 @@
         <b-row>
             <b-col cols="8">
                 <b-card ref="maps" v-if="displayMap">
-                    <google-map ref="map" :destinations="[]">
+                    <google-map ref="map"
+                                :destination-to-add="destinationToAdd"
+                    >
                     </google-map>
                 </b-card>
                 <b-card v-else>
@@ -141,12 +143,6 @@
 
 
                                 </b-row>
-
-                                <!--<b-button @click="checkDestination"-->
-                                          <!--class="mr-2 float-right"-->
-                                          <!--variant="primary">-->
-                                    <!--Add Destination-->
-                                <!--</b-button>-->
 
                             </b-container>
                         </b-form>
@@ -283,6 +279,7 @@
                             :profile="profile"
                             @destination-click="destination => this.selectedDestination = destination"
                             @data-changed="$emit('data-changed')"
+                            :input-destination="destinationToAdd"
                             @destination-search="result => showMap(result)"
                     ></destination-sidebar>
                 </b-card>
@@ -363,7 +360,20 @@
                 letTripSaved: false,
                 destinationsList: [],
                 selectedDestination: {},
-                displayMap: false
+                displayMap: false,
+                destinationToAdd: {
+                    id: null,
+                    name: "",
+                    type: {
+                        id: null,
+                        destinationType: ""
+                    },
+                    district: "",
+                    latitude: null,
+                    longitude: null,
+                    country: "",
+                    public: false
+                }
             }
         },
 
