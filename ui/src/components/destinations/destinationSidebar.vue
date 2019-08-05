@@ -27,6 +27,7 @@
                         <add-destinations :profile="profile"
                                           :destinationTypes="destinationTypes"
                                           :heading="'Add'"
+                                          :input-destination="inputDestination"
                                           @data-changed="$emit('data-changed')">
                         </add-destinations>
                     </b-list-group-item>
@@ -43,7 +44,7 @@
     export default {
         name: "destinationSidebar",
 
-        props: ['profile'],
+        props: ['profile', 'inputDestination'],
 
         data() {
             return {

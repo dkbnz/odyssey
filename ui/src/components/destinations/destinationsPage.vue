@@ -13,6 +13,7 @@
                         <google-map :destinations="destinationsForMap" ref="map"
                                     v-if="showMap"
                                     :selected-destination="selectedDestination"
+                                    :destination-to-add="destinationToAdd"
                                     @destination-click="destination => this.selectedDestination = destination">
                         </google-map>
                     </b-card>
@@ -54,6 +55,7 @@
                                 @destination-click="selectDestination"
                                 @destination-search="foundDestinations => this.destinationsForMap = foundDestinations"
                                 :key="refreshDestinationData"
+                                :input-destination="destinationToAdd"
                                 @data-changed="$emit('data-changed')"
                         ></destination-sidebar>
                     </b-card>
@@ -118,7 +120,20 @@
                 dismissSeconds: 3,
                 dismissCountDown: 0,
                 destinationsForMap: [],
-                showMap: false
+                showMap: false,
+                destinationToAdd: {
+                    id: null,
+                    name: "",
+                    type: {
+                        id: null,
+                        destinationType: ""
+                    },
+                    district: "",
+                    latitude: null,
+                    longitude: null,
+                    country: "",
+                    public: false
+                }
             }
         },
 
