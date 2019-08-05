@@ -7,14 +7,14 @@
 
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
-                    <b-nav-item :class="{active: currentPage==='/profiles'}" @click="goToPeople()">People
+                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/profiles'}" @click="goToPeople()">People
                     </b-nav-item>
-                    <b-nav-item :class="{active: currentPage==='/trips'}" @click="goToTrips()">Trips</b-nav-item>
-                    <b-nav-item :class="{active: currentPage==='/destinations'}" @click="goToDestinations()">
+                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/trips'}" @click="goToTrips()">Trips</b-nav-item>
+                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/destinations'}" @click="goToDestinations()">
                         Destinations
                     </b-nav-item>
                     <b-nav-item :class="{active: currentPage==='/treasureHunts'}" @click="goToTreasureHunts()">Treasure Hunts</b-nav-item>
-                    <b-nav-item :class="{active: currentPage==='/admin'}" @click="goToAdminPanel()"
+                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/admin'}" @click="goToAdminPanel()"
                                 v-if="profile.isAdmin">
                         Admin
                     </b-nav-item>
