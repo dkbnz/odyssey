@@ -106,6 +106,7 @@
              */
             createMarkers() {
                 let self = this;
+
                 for (let i = 0; i < this.destinations.length; i++) {
                     let currentDestination = this.destinations[i];
                     let markerIcon = currentDestination.public ? this.publicMarker : this.privateMarker;
@@ -145,7 +146,7 @@
              * Clear's the markers currently displayed on the map and clears the marker array
              */
             clearMarkers() {
-                for (var key in this.markerArray) {
+                for (let key in this.markerArray) {
                     this.markerArray[key].setMap(null);
                 }
                 this.markerArray = [];

@@ -29,7 +29,7 @@
         },
         data() {
             return {
-                profile: "",
+                profile: {},
                 nationalityOptions: [],
                 travTypeOptions: [],
                 destinations: [],
