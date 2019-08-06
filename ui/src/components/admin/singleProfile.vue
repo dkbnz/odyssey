@@ -69,6 +69,7 @@
                         :destinationTypes="destinationTypes"
                         :adminView="adminView"
                         :destinations="destinations"
+                        :travTypeOptions="travTypeOptions"
                         :profile="editProfile"
                         v-if="currentDisplay === 4">
                 </destinations-page>

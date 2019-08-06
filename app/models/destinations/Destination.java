@@ -246,6 +246,24 @@ public class Destination extends BaseModel {
         this.proposedTravellerTypesRemove = proposedTravellerTypesRemove;
     }
 
+    public boolean addTravellerTypes(Collection<TravellerType> travellerTypesToAdd) {
+        return this.travellerTypes.addAll(travellerTypesToAdd);
+    }
+
+    public boolean addProposeTravellerTypesAdd(Collection<TravellerType> travellerTypesToAdd) {
+        return this.proposedTravellerTypesAdd.addAll(travellerTypesToAdd);
+    }
+
+    public boolean addProposeTravellerTypesRemove(Collection<TravellerType> travellerTypesToAdd) {
+        return this.proposedTravellerTypesRemove.addAll(travellerTypesToAdd);
+    }
+
+    public void clearAllTravellerTypeSets() {
+        this.proposedTravellerTypesAdd.clear();
+        this.proposedTravellerTypesRemove.clear();
+        this.travellerTypes.clear();
+    }
+
 
     /**
      * Checks if an Object is equal to this instance of Destination.

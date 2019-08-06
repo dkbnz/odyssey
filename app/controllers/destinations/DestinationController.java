@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.ExpressionList;
+import models.TravellerType;
 import models.photos.PersonalPhoto;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -548,6 +549,7 @@ public class DestinationController extends Controller {
 
         mergeTripDestinations(destinationToUpdate, destinationToMerge);
         mergePersonalPhotos(destinationToUpdate, destinationToMerge);
+        mergeTravellerTypes(destinationToUpdate, destinationToMerge);
 
 
         // Save destination that has had attributes taken to prevent deletion of attributes via cascading
@@ -641,5 +643,38 @@ public class DestinationController extends Controller {
             // Save to destination to update
             destinationToUpdate.addPhotoToGallery(photo);
         }
+    }
+
+
+    /**
+     * Merges all the traveller types for the destinations including proposed traveller types
+     *
+     * @param destinationToUpdate   destination that gains all of the traveller types
+     * @param destinationToMerge    destination that is being consumed
+     */
+    private void mergeTravellerTypes(Destination destinationToUpdate, Destination destinationToMerge) {
+
+        // Gets the traveller types for both destinations
+        Set<TravellerType> mergeTravelTypesProposeAdd = destinationToMerge.getProposedTravellerTypesAdd();
+        Set<TravellerType> mergeTravelTypesProposeRemove = destinationToMerge.getProposedTravellerTypesRemove();
+
+        // Adds the two sets together into a combined traveller type set
+        destinationToUpdate.addTravellerTypes(destinationToMerge.getTravellerTypes());
+
+        // Adds all the remove proposed traveller types to destination to merge
+        destinationToUpdate.addProposeTravellerTypesRemove(mergeTravelTypesProposeRemove);
+
+        // Adds all the proposed traveller types that are not already in the main set
+        destinationToUpdate.addProposeTravellerTypesAdd(mergeTravelTypesProposeAdd);
+        Set<TravellerType> combinedProposedAdd = destinationToUpdate.getProposedTravellerTypesAdd();
+
+        for (TravellerType travelType : destinationToUpdate.getTravellerTypes()) {
+            combinedProposedAdd.remove(travelType);
+        }
+
+        destinationToUpdate.setProposedTravellerTypesAdd(combinedProposedAdd);
+
+        // Removes all traveller type references for the destination to merge
+        destinationToMerge.clearAllTravellerTypeSets();
     }
 }
