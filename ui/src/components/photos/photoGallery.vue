@@ -242,18 +242,20 @@
              */
             getPhotosList() {
                 let self = this;
-                fetch(`/v1/photos/user/` + this.profile.id, {
-                    accept: "application/json",
-                })
-                    .then(response => response.json())
-                    .then(photos => {
-                        self.checkAuth();
-                        for(let i in photos) {
-                            if(photos[i].public || this.auth) {
-                                self.photos.push(photos[i]);
-                            }
-                        }
+                if (this.profile.id !== undefined) {
+                    fetch(`/v1/photos/user/` + this.profile.id, {
+                        accept: "application/json",
                     })
+                        .then(response => response.json())
+                        .then(photos => {
+                            self.checkAuth();
+                            for (let i in photos) {
+                                if (photos[i].public || this.auth) {
+                                    self.photos.push(photos[i]);
+                                }
+                            }
+                        })
+                }
             },
 
 

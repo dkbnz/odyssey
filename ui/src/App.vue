@@ -8,7 +8,6 @@
     </div>
 </template>
 <script>
-    import Index from './components/index/indexPage.vue'
     import assets from './assets'
 
     export default {
@@ -24,7 +23,9 @@
             this.getProfile(profile => this.profile = profile);
             this.getNationalities(nationalities => this.nationalityOptions = nationalities);
             this.getTravTypes(travTypes => this.travTypeOptions = travTypes);
-            this.getDestinations();
+            if (this.profile.id !== undefined) {
+                this.getDestinations();
+            }
             this.getDestinationTypes(destinationT => this.destinationTypes = destinationT);
         },
         data() {
@@ -85,9 +86,6 @@
             refreshData() {
                 this.getDestinations();
             }
-        },
-        components: {
-            Index
         }
     }
 </script>

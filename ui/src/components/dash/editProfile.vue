@@ -438,14 +438,17 @@
              */
             checkUsername() {
                 let self = this;
-                fetch(`/v1/checkUsername`, {
-                    method: 'POST',
-                    headers: {'content-type': 'application/json'},
-                    body: JSON.stringify({'username': this.saveProfile.username})
+                console.log(this.saveProfile.username)
+                if (this.saveProfile.username !== undefined) {
+                    fetch(`/v1/checkUsername`, {
+                        method: 'POST',
+                        headers: {'content-type': 'application/json'},
+                        body: JSON.stringify({'username': this.saveProfile.username})
 
-                }).then(function (response) {
-                    self.validEmail = response.ok || (self.saveProfile.username === self.profile.username)
-                })
+                    }).then(function (response) {
+                        self.validEmail = response.ok || (self.saveProfile.username === self.profile.username)
+                    })
+                }
 
             },
 
