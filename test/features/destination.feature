@@ -496,6 +496,28 @@ Feature: Destination API Endpoint
       | Trip 2      |
 
 
+  Scenario: Merging two destinations that have traveller types
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And the destination has a traveller type with id 1
+    And I am not logged in
+    And I am logged in as an admin user
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And the destination has a traveller type with id 2
+    When I attempt to edit the destination using the following values
+      | is_public |
+      | true      |
+    Then the destination will have the following traveller types
+      |Traveller Type |
+      | 1             |
+      | 2             |
+
+
   Scenario: Merging two public destinations upon editing one to be identical to the other
     Given I am running the application
     And I am logged in as an admin user
