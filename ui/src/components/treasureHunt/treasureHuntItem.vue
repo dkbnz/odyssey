@@ -223,50 +223,41 @@
 
         computed: {
             /**
-             * Checks that the start date is not after the end date, and is not before the current date for new hunts.
-             * @returns true if start date is valid.
+             * For new hunts, checks the start date is after the current date.
+             * For all other hunts, checks the start date is either the same as or before the end date.
+             *
+             * @returns {boolean} true if start date is valid.
              */
             validateStartDate() {
+                console.log("Start date");
+                // For a new hunt, the start date must be after today.
                 if ((this.inputTreasureHunt.startDate < this.getDateString() && !this.inputTreasureHunt.id)) {
                     return false;
                 }
-                if (this.inputTreasureHunt.startDate > this.inputTreasureHunt.endDate) {
-                    return false;
-                }
-                return true;
+                // Otherwise, checks the start date is equal to or before the end date.
+                return this.inputTreasureHunt.startDate <= this.inputTreasureHunt.endDate;
             },
 
 
             /**
              * Checks that the start time is not after or the same as the end time if the dates are the same,
              * and that the start time is not before the current time if the current date is today.
-             * @returns true if start time is valid.
+             *
+             * @returns {boolean} true if start time is valid.
              */
             validateStartTime() {
-                if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
-                    if (this.inputTreasureHunt.startTime >= this.inputTreasureHunt.endTime) {
-                        return false;
-                    }
-                }
+                console.log("Start time");
+                // For new hunts, check the start time is after the current time.
                 if (this.inputTreasureHunt.startDate === this.getDateString() && !this.inputTreasureHunt.id) {
                     if (this.inputTreasureHunt.startTime < this.getTimeString()) {
                         return false;
                     }
                 }
-                return true;
-            },
-
-
-            /**
-             * Checks that the end date is not before the start date, and is not before the current date for new hunts.
-             * @returns true if end date is valid.
-             */
-            validateEndDate() {
-                if (this.inputTreasureHunt.endDate < this.getDateString() && !this.inputTreasureHunt.id) {
-                    return false;
-                }
-                if (this.inputTreasureHunt.endDate < this.inputTreasureHunt.startDate) {
-                    return false;
+                // If the dates are the same, check the start time is before the end time.
+                if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
+                    if (this.inputTreasureHunt.startTime >= this.inputTreasureHunt.endTime) {
+                        return false;
+                    }
                 }
                 return true;
             },
@@ -274,9 +265,11 @@
 
             /**
              * Checks that the end time is not before or the same as the start time if the dates are the same.
-             * @returns true if end time is valid.
+             *
+             * @returns {boolean} true if end time is valid.
              */
             validateEndTime() {
+                console.log("End time");
                 if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
                     if (this.inputTreasureHunt.endTime <= this.inputTreasureHunt.startTime) {
                         return false;
@@ -287,8 +280,25 @@
 
 
             /**
+             * For new hunts, checks the end date is after the current date.
+             * For all other hunts, checks the end date is either the same as or after the start date.
+             *
+             * @returns {boolean} true if end date is valid.
+             */
+            validateEndDate() {
+                // For a new hunt, the end date must be after today.
+                if (this.inputTreasureHunt.endDate < this.getDateString() && !this.inputTreasureHunt.id) {
+                    return false;
+                }
+                // Otherwise, checks the end date is equal to or after the start date.
+                return this.inputTreasureHunt.endDate >= this.inputTreasureHunt.startDate;
+            },
+
+
+            /**
              * Returns true if the inputted riddle has length greater than 0.
-             * @returns true if validated.
+             *
+             * @returns {Boolean} true if validated.
              */
             validateRiddle() {
               if(this.inputTreasureHunt.riddle.length > 0){
@@ -300,23 +310,21 @@
 
             /**
              * Returns true if the input destination exists and matches the one selected in the sidebar and isn't empty.
-             * @returns true if valid.
+             *
+             * @returns {boolean} true if valid.
              */
             validateDestination() {
-                if (this.inputTreasureHunt.destination !== null
+                return (this.inputTreasureHunt.destination !== null
                     && this.inputTreasureHunt.destination === this.selectedDestination
                     && this.inputTreasureHunt.destination.name !== undefined
-                    && this.inputTreasureHunt.destination.name.length > 0) {
-
-                    return true;
-                }
-                return false;
+                    && this.inputTreasureHunt.destination.name.length > 0);
             },
 
 
             /**
              * Checks the validity of the destination using validateDestination and returns the appropriate state for
              * display.
+             *
              * @returns 'success' if destination is valid, 'secondary' otherwise.
              */
             checkDestinationState(){
@@ -327,6 +335,7 @@
         methods: {
             /**
              * Gets the current date+time as a Date object.
+             *
              * @returns Current Datetime.
              */
             getCurrentDate() {
@@ -348,21 +357,22 @@
 
             /**
              * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day.
+             *
              * @returns Current Date in YYYY-MM-DD String Format.
              */
             getDateString() {
                 let today = this.getCurrentDate();
-                let date =  today.getFullYear()+'-'+
+                return today.getFullYear()+'-'+
                     ((today.getMonth()+1) < 10 ? "0" : "")
                     + (today.getMonth()+1)+'-'+
                     (today.getDate() < 10 ? "0" : "") +
                     today.getDate();
-                return date;
             },
 
 
             /**
              * Gets the current time as a string in HH:MM format, including padding O's.
+             *
              * @returns Current Time in HH:MM String Format.
              */
             getTimeString() {
@@ -414,13 +424,15 @@
 
             /**
              * Creates formatted JSON of the currently active treasure hunt.
+             *
              * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
              */
             assembleTreasureHunt() {
                 this.joinDates();
                 this.inputTreasureHunt.destination = {"id": this.inputTreasureHunt.destination.id};
-                console.log(this.inputTreasureHunt);
 
+                // Deletes the start time and end time fields as these are already joined onto the dates and are not
+                // sent in the json body of the request separately.
                 delete this.inputTreasureHunt.startTime;
                 delete this.inputTreasureHunt.endTime;
             },
@@ -563,6 +575,8 @@
                 if (response.status >= 200 && response.status < 300) {
                     return response;
                 }
+                // Ensures the start and end date fields are not wiped after an error occurs.
+                this.splitDates();
                 const error = new Error(`HTTP Error ${response.statusText}`);
                 error.status = response.statusText;
                 error.response = response;
