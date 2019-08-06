@@ -66,6 +66,7 @@ public class DestinationTravellerTypeTestSteps {
      */
     private static final String TRAVELLER_TYPE_PROPOSE_URI = "/travellerTypes/propose";
 
+
     /**
      * The destinations propose endpoint uri.
      */

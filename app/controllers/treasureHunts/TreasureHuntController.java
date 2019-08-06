@@ -1,6 +1,5 @@
 package controllers.treasureHunts;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import models.ApiError;
@@ -298,7 +297,7 @@ public class TreasureHuntController {
      *                  unauthorized() (Http 401) if the user is not logged in.
      *                  forbidden() (Http 403) if hte user is not allowed to access the specified user's treasure hunts.
      */
-    public Result fetchByOwner(Http.Request request, Long ownerId) throws IOException {
+    public Result fetchByOwner(Http.Request request, Long ownerId) {
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
