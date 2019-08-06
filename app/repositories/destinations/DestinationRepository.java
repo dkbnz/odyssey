@@ -7,23 +7,23 @@ import models.destinations.Destination;
 import models.photos.PersonalPhoto;
 
 import java.util.List;
-import java.util.Set;
 
 public class DestinationRepository extends BeanRepository<Long, Destination> {
 
     private static final int DEFAULT_ADMIN_ID = 1;
     private static final String PHOTO_FIELD = "photoGallery.photo";
-    private static final String TRAVELLER_TYPE_PROPOSED = "proposedTravellerTypesAdd";
 
     public DestinationRepository() {
         super(Destination.class, Ebean.getServer("default"));
     }
+
 
     /**
      * Update the destination object.
      *
      * @param destination       the destination being updated.
      */
+    @Override
     public void update(Destination destination) {
         destination.update();
     }
@@ -34,6 +34,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      *
      * @param destination       the destination being saved.
      */
+    @Override
     public void save(Destination destination) {
         destination.save();
     }
@@ -83,6 +84,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      *
      * @param destination       the destination to delete from the database.
      */
+    @Override
     public boolean delete(Destination destination) {
         // Clear the destination photos
         destination.clearAllTravellerTypeSets();

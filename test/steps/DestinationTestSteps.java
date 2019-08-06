@@ -85,6 +85,12 @@ public class DestinationTestSteps {
 
 
     /**
+     * The traveller types propose endpoint uri.
+     */
+    private static final String TRAVELLER_TYPE_PROPOSE_URI = "/travellerTypes/propose";
+
+
+    /**
      * The trips endpoint uri.
      */
     private static final String TRIPS_URI = "/v1/trips/";
@@ -536,20 +542,18 @@ public class DestinationTestSteps {
     }
 
 
-    @Given("the destination has a traveller type with id {int}")
-    public void theDestinationHasTheTravellerTypeWithId(int travellerTypeId) {
+    @Given("^the destination has a (.*) traveller type with id (.*)$")
+    public void theDestinationHasTheTravellerTypeWithId(String proposedOrNot, String travellerTypeId) {
         List<TravellerType> travellerTypeList = new ArrayList<>();
-        travellerTypeList.add(travellerTypeRepository.findById(Long.valueOf(travellerTypeId)));
+        travellerTypeList.add(travellerTypeRepository.findById(Long.parseLong(travellerTypeId)));
 
-//        System.out.println(destinationRepository.findById(destinationId));
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .session(AUTHORIZED, loggedInId)
                 .bodyJson(Json.toJson(travellerTypeList))
-                .uri(DESTINATION_URI + "/" + destinationId + TRAVELLER_TYPES);
+                .uri(DESTINATION_URI + "/" + destinationId + TRAVELLER_TYPES + (proposedOrNot.equals("proposed") ? "/propose" : ""));
         Result result = route(application, request);
         statusCode = result.status();
-//        System.out.println(statusCode);
     }
 
 
@@ -1152,6 +1156,20 @@ public class DestinationTestSteps {
             foundTravellerTypes.add(travellerType.getId().toString());
         }
         assertTrue(expectedTravellerTypes.containsAll(foundTravellerTypes));
+    }
+
+
+    @Then("the destination will have the following proposed traveller types to add")
+    public void theDestinationWillHaveTheFollowingProposedTravellerTypesToAdd(io.cucumber.datatable.DataTable dataTable) {
+        List<String> expectedTravellerTypesToAdd = new ArrayList<>(dataTable.asList());
+        expectedTravellerTypesToAdd = expectedTravellerTypesToAdd.subList(1, expectedTravellerTypesToAdd.size());
+
+        List<String> foundTravellerTypesToAdd = new ArrayList<>();
+        for (TravellerType travellerType : Destination.find.byId(destinationId.intValue()).getProposedTravellerTypesAdd()) {
+            foundTravellerTypesToAdd.add(travellerType.getId().toString());
+        }
+
+        assertTrue(foundTravellerTypesToAdd.containsAll(expectedTravellerTypesToAdd));
     }
 
 

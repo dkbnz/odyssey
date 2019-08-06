@@ -22,7 +22,6 @@ import models.trips.TripDestination;
 import repositories.TripRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.ProfileRepository;
-import repositories.destinations.DestinationTypeRepository;
 import repositories.TripDestinationRepository;
 import util.AuthenticationUtil;
 import static util.QueryUtil.queryComparator;
@@ -55,7 +54,6 @@ public class DestinationController extends Controller {
 
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
-    private DestinationTypeRepository destinationTypeRepository;
     private TripDestinationRepository tripDestinationRepository;
     private TripRepository tripRepository;
 
@@ -64,12 +62,10 @@ public class DestinationController extends Controller {
     public DestinationController(
             ProfileRepository profileRepository,
             DestinationRepository destinationRepository,
-            DestinationTypeRepository destinationTypeRepository,
             TripDestinationRepository tripDestinationRepository,
             TripRepository tripRepository) {
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
-        this.destinationTypeRepository = destinationTypeRepository;
         this.tripDestinationRepository = tripDestinationRepository;
         this.tripRepository = tripRepository;
     }
@@ -121,31 +117,6 @@ public class DestinationController extends Controller {
         returnJson.putArray(MATCHING_DESTINATIONS).addAll(matchDestinations);
 
         return ok(returnJson);
-    }
-
-
-    /**
-     * Gets a list of all the trips that uses a particular destination.
-     *
-     * @param destination destination you want to search for.
-     * @return a list of all the associated trips.
-     */
-    private List<Map> getTripsUsedByDestination(Destination destination) {
-        List<TripDestination> tripDestinationList = tripDestinationRepository.fetchTripsContainingDestination(destination);
-
-        List<Map> matchingTrips = new ArrayList<>();
-        for (TripDestination tripDestination: tripDestinationList) {
-
-            Trip temporaryTrip = tripDestination.getTrip();
-            Map<Object, Object> tripDetails = new HashMap<>();
-            tripDetails.put(TRIP_ID, temporaryTrip.getId());
-            tripDetails.put(TRIP_NAME, temporaryTrip.getName());
-            tripDetails.put(USER_ID, temporaryTrip.getProfile().getId());
-            tripDetails.put(FIRST_NAME, temporaryTrip.getProfile().getFirstName());
-            tripDetails.put(LAST_NAME, temporaryTrip.getProfile().getLastName());
-            matchingTrips.add(tripDetails);
-        }
-        return matchingTrips;
     }
 
 

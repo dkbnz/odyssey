@@ -27,9 +27,6 @@ public class DestinationTravellerTypeController {
     private TravellerTypeRepository travellerTypeRepository;
     private ProfileRepository profileRepository;
 
-    private static final String AUTHORIZED = "authorized";
-    private static final String NOT_SIGNED_IN = "You are not logged in.";
-
     @Inject
     public DestinationTravellerTypeController(DestinationRepository destinationRepository,
                                               TravellerTypeRepository travellerTypeRepository,

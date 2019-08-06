@@ -42,6 +42,7 @@ public class PhotoController extends Controller {
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String PHOTO_ID = "id";
     private static final String IS_PUBLIC = "public";
+    private static final String IMAGE_NOT_FOUND = "Image could not be found.";
     private static final int IMAGE_DIMENSION = 200;
 
     private ProfileRepository profileRepository;
@@ -535,7 +536,7 @@ public class PhotoController extends Controller {
                     PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
 
                     if (personalPhoto == null)
-                        return notFound("Image could not be found.");
+                        return notFound(IMAGE_NOT_FOUND);
 
                     if (personalPhoto.getPublic())
                         return getImageResult(personalPhoto.getPhoto(), getThumbnail);
@@ -579,7 +580,7 @@ public class PhotoController extends Controller {
                     PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
 
                     if (personalPhoto == null) {
-                        return notFound("Image could not be found.");
+                        return notFound(IMAGE_NOT_FOUND);
                     }
 
                     Profile photoOwner = personalPhoto.getProfile();
@@ -645,7 +646,7 @@ public class PhotoController extends Controller {
                     PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
 
                     if (personalPhoto == null) {
-                        return notFound("Image could not be found.");
+                        return notFound(IMAGE_NOT_FOUND);
                     }
 
                     Profile photoOwner = personalPhoto.getProfile();
