@@ -85,6 +85,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      */
     public boolean delete(Destination destination) {
         // Clear the destination photos
+        destination.clearAllTravellerTypeSets();
         destination.clearPhotoGallery();
         destination.update();
         // Delete destination
