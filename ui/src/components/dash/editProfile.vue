@@ -438,7 +438,13 @@
              */
             checkUsername() {
                 let self = this;
-                console.log(this.saveProfile.username)
+                if (this.saveProfile.username === undefined) {
+                    this.validEmail = false;
+                    return
+                } else if (this.saveProfile.username === this.profile.username) {
+                    this.validEmail = true;
+                    return
+                }
                 if (this.saveProfile.username !== undefined) {
                     fetch(`/v1/checkUsername`, {
                         method: 'POST',
