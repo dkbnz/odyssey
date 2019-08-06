@@ -99,6 +99,7 @@
              */
             hideDestinationsSidebar() {
                 this.showDestinations = false;
+                this.selectedDestination = {};
             },
         },
 

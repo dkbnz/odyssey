@@ -159,6 +159,10 @@
              */
             createMarkers() {
                 let self = this;
+                if (this.destinations === null) {
+                    return;
+                }
+
 
                 for (let i = 0; i < this.destinations.length; i++) {
                     let currentDestination = this.destinations[i];

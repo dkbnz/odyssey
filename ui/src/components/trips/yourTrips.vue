@@ -445,49 +445,51 @@
             getAllTrips() {
                 let userId = this.profile.id;
                 this.retrievingTrips = true;
-                return fetch(`/v1/trips/` + userId, {
-                    accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(trips => {
-                        let today = new Date();
-                        let self = this;
+                if (userId !== undefined) {
+                    return fetch(`/v1/trips/` + userId, {
+                        accept: "application/json"
+                    })
+                        .then(this.checkStatus)
+                        .then(this.parseJSON)
+                        .then(trips => {
+                            let today = new Date();
+                            let self = this;
 
-                        self.futureTrips = [];
-                        self.pastTrips = [];
-                        for (let i = 0; i < trips.length; i++) {
+                            self.futureTrips = [];
+                            self.pastTrips = [];
+                            for (let i = 0; i < trips.length; i++) {
 
-                            // Sort the list of destinations of each trip using the list order
-                            trips[i].destinations.sort((a, b) => {
-                                // This is a comparison function that .sort needs to determine how to order the list
+                                // Sort the list of destinations of each trip using the list order
+                                trips[i].destinations.sort((a, b) => {
+                                    // This is a comparison function that .sort needs to determine how to order the list
 
-                                if (a.listOrder > b.listOrder) return 1;
-                                if (a.listOrder < b.listOrder) return -1;
-                                return 0;
-                            });
+                                    if (a.listOrder > b.listOrder) return 1;
+                                    if (a.listOrder < b.listOrder) return -1;
+                                    return 0;
+                                });
 
-                            let destinationDates = [];
-                            for (let j = 0; j < trips[i].destinations.length; j++) {
-                                if (trips[i].destinations[j].startDate !== null) {
-                                    destinationDates.push(trips[i].destinations[j].startDate)
+                                let destinationDates = [];
+                                for (let j = 0; j < trips[i].destinations.length; j++) {
+                                    if (trips[i].destinations[j].startDate !== null) {
+                                        destinationDates.push(trips[i].destinations[j].startDate)
+                                    }
+                                    if (trips[i].destinations[j].endDate !== null) {
+                                        destinationDates.push(trips[i].destinations[j].endDate)
+                                    }
                                 }
-                                if (trips[i].destinations[j].endDate !== null) {
-                                    destinationDates.push(trips[i].destinations[j].endDate)
+                                if (destinationDates.length === 0) {
+                                    self.futureTrips.push(trips[i]);
                                 }
+                                else if (new Date(destinationDates[destinationDates.length - 1]) < today) {
+                                    self.pastTrips.push(trips[i]);
+                                } else {
+                                    self.futureTrips.push(trips[i]);
+                                }
+                                self.futureTrips.sort(self.sortFutureTrips);
                             }
-                            if (destinationDates.length === 0) {
-                                self.futureTrips.push(trips[i]);
-                            }
-                            else if (new Date(destinationDates[destinationDates.length - 1]) < today) {
-                                self.pastTrips.push(trips[i]);
-                            } else {
-                                self.futureTrips.push(trips[i]);
-                            }
-                            self.futureTrips.sort(self.sortFutureTrips);
-                        }
-                        self.retrievingTrips = false;
-                    });
+                            self.retrievingTrips = false;
+                        });
+                }
             },
 
 

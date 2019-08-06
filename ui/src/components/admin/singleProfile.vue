@@ -35,7 +35,6 @@
                         :profile="editProfile"
                         :showSaved="showSaved"
                         :travTypeOptions="travTypeOptions"
-                        :trips="trips"
                         v-if="currentDisplay === 0">
                 </view-profile>
                 <edit-profile
