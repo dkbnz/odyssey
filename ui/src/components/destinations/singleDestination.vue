@@ -311,12 +311,14 @@
                             setTimeout(function () {
                                 self.showTravellerTypeUpdateSuccess = false;
                             }, 3000);
+                            self.showEditTravellerTypes = false;
                         } else {
                             self.alertMessage = "Cannot update traveller types";
                             self.showTravellerTypeUpdateFailure = true;
                             setTimeout(function () {
                                 self.showTravellerTypeUpdateFailure = false;
                             }, 3000);
+                            self.showEditTravellerTypes = false;
                         }
                         self.$emit('data-changed');
                         return JSON.parse(JSON.stringify(response));
