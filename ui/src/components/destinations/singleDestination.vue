@@ -178,6 +178,9 @@
             },
 
             travellerTypeLinkText() {
+                if (this.showEditTravellerTypes) {
+                    return "Close Traveller Types"
+                }
                 if (this.profile.id === this.destination.owner.id || this.profile.isAdmin) {
                     return "Change Traveller Types"
                 }
