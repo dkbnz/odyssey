@@ -11,6 +11,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import cucumber.api.java.Before;
 import io.ebean.ExpressionList;
+import models.TravellerType;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
 import models.photos.PersonalPhoto;
@@ -25,6 +26,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repositories.destinations.DestinationRepository;
+import repositories.destinations.TravellerTypeRepository;
 
 import java.io.IOException;
 import java.util.*;
@@ -74,6 +76,12 @@ public class DestinationTestSteps {
      * The destination photos endpoint uri.
      */
     private static final String DESTINATION_PHOTO_URI = "/v1/destinationPhotos/";
+
+
+    /**
+     * The traveller types endpoint uri.
+     */
+    private static final String TRAVELLER_TYPES = "/travellerTypes";
 
 
     /**
@@ -199,6 +207,7 @@ public class DestinationTestSteps {
      * Repository to access the destinations in the running application.
      */
     private DestinationRepository destinationRepository = new DestinationRepository();
+    private TravellerTypeRepository travellerTypeRepository = new TravellerTypeRepository();
 
 
     /**
@@ -524,6 +533,23 @@ public class DestinationTestSteps {
     @Given("the destination has a photo with id {int}")
     public void theDestinationHasAPhotoWithId(Integer photoId) {
         addDestinationPhoto(photoId, destinationId);
+    }
+
+
+    @Given("the destination has a traveller type with id {int}")
+    public void theDestinationHasTheTravellerTypeWithId(int travellerTypeId) {
+        List<TravellerType> travellerTypeList = new ArrayList<>();
+        travellerTypeList.add(travellerTypeRepository.findById(Long.valueOf(travellerTypeId)));
+
+//        System.out.println(destinationRepository.findById(destinationId));
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED, loggedInId)
+                .bodyJson(Json.toJson(travellerTypeList))
+                .uri(DESTINATION_URI + "/" + destinationId + TRAVELLER_TYPES);
+        Result result = route(application, request);
+        statusCode = result.status();
+//        System.out.println(statusCode);
     }
 
 
@@ -1113,6 +1139,19 @@ public class DestinationTestSteps {
         }
 
         return names;
+    }
+
+
+    @Then("the destination will have the following traveller types")
+    public void theDestinationWillHaveTheFollowingTravellerTypes(io.cucumber.datatable.DataTable dataTable) {
+        List<String> expectedTravellerTypes = new ArrayList<>(dataTable.asList());
+        expectedTravellerTypes = expectedTravellerTypes.subList(1, expectedTravellerTypes.size());
+
+        List<String> foundTravellerTypes = new ArrayList<>();
+        for (TravellerType travellerType : Destination.find.byId(destinationId.intValue()).getTravellerTypes()) {
+            foundTravellerTypes.add(travellerType.getId().toString());
+        }
+        assertTrue(expectedTravellerTypes.containsAll(foundTravellerTypes));
     }
 
 

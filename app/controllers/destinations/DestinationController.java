@@ -555,7 +555,6 @@ public class DestinationController extends Controller {
         // Save destination that has had attributes taken to prevent deletion of attributes via cascading
         destinationRepository.update(destinationToUpdate);
         destinationRepository.update(destinationToMerge);
-
         destinationRepository.delete(destinationToMerge);
     }
 
@@ -647,13 +646,12 @@ public class DestinationController extends Controller {
 
 
     /**
-     * Merges all the traveller types for the destinations including proposed traveller types
+     * Merges all the traveller types for the destinations including proposed traveller types.
      *
-     * @param destinationToUpdate   destination that gains all of the traveller types
-     * @param destinationToMerge    destination that is being consumed
+     * @param destinationToUpdate   destination that gains all of the traveller types.
+     * @param destinationToMerge    destination that is being consumed.
      */
     private void mergeTravellerTypes(Destination destinationToUpdate, Destination destinationToMerge) {
-
         // Gets the traveller types for both destinations
         Set<TravellerType> mergeTravelTypesProposeAdd = destinationToMerge.getProposedTravellerTypesAdd();
         Set<TravellerType> mergeTravelTypesProposeRemove = destinationToMerge.getProposedTravellerTypesRemove();
