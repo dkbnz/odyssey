@@ -95,7 +95,7 @@
                                                               min='getCurrentTime()'
                                                               max=''
                                                               trim
-                                                              v-model="inputTreasureHunt.startTime"
+                                                              v-model="startTime"
                                                               :state="validateStartTime">
                                                 </b-form-input>
                                             </b-col>
@@ -128,7 +128,7 @@
                                                                   min='getCurrentTime()'
                                                                   max=''
                                                                   trim
-                                                                  v-model="inputTreasureHunt.endTime"
+                                                                  v-model="endTime"
                                                                   :state="validateEndTime">
                                                     </b-form-input>
                                                 </b-col>
@@ -182,7 +182,7 @@
                         startDate: "",
                         startTime: "",
                         endDate: "",
-                        endTime: "23:59"
+                        endTime: ""
                     }
                 }
             },
@@ -205,7 +205,9 @@
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 savingTreasureHunt: false,
-                letTreasureHuntSaved: false
+                letTreasureHuntSaved: false,
+                startTime: "",
+                endTime: "23:59"
             }
         },
 
@@ -229,7 +231,6 @@
              * @returns {boolean} true if start date is valid.
              */
             validateStartDate() {
-                console.log("Start date");
                 // For a new hunt, the start date must be after today.
                 if ((this.inputTreasureHunt.startDate < this.getDateString() && !this.inputTreasureHunt.id)) {
                     return false;
@@ -246,16 +247,15 @@
              * @returns {boolean} true if start time is valid.
              */
             validateStartTime() {
-                console.log("Start time");
                 // For new hunts, check the start time is after the current time.
                 if (this.inputTreasureHunt.startDate === this.getDateString() && !this.inputTreasureHunt.id) {
-                    if (this.inputTreasureHunt.startTime < this.getTimeString()) {
+                    if (this.startTime < this.getTimeString()) {
                         return false;
                     }
                 }
                 // If the dates are the same, check the start time is before the end time.
                 if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
-                    if (this.inputTreasureHunt.startTime >= this.inputTreasureHunt.endTime) {
+                    if (this.startTime >= this.endTime) {
                         return false;
                     }
                 }
@@ -269,9 +269,8 @@
              * @returns {boolean} true if end time is valid.
              */
             validateEndTime() {
-                console.log("End time");
                 if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
-                    if (this.inputTreasureHunt.endTime <= this.inputTreasureHunt.startTime) {
+                    if (this.endTime <= this.startTime) {
                         return false;
                     }
                 }
@@ -350,7 +349,7 @@
                 if (this.inputTreasureHunt.id === null) {
                     this.inputTreasureHunt.startDate = this.getDateString();
                     this.inputTreasureHunt.endDate = this.getDateString();
-                    this.inputTreasureHunt.startTime = this.getTimeString();
+                    this.startTime = this.getTimeString();
                 }
             },
 
@@ -430,11 +429,6 @@
             assembleTreasureHunt() {
                 this.joinDates();
                 this.inputTreasureHunt.destination = {"id": this.inputTreasureHunt.destination.id};
-
-                // Deletes the start time and end time fields as these are already joined onto the dates and are not
-                // sent in the json body of the request separately.
-                delete this.inputTreasureHunt.startTime;
-                delete this.inputTreasureHunt.endTime;
             },
 
 
@@ -494,17 +488,17 @@
                     let startDate = this.inputTreasureHunt.startDate;
                     this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split(", ")[0];
                     this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split("/").reverse().join("-");
-                    this.inputTreasureHunt.startTime = startDate.split(" ")[1];
-                    this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("+")[0];
-                    this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("-")[0];
+                    this.startTime = startDate.split(" ")[1];
+                    this.startTime = this.startTime.split("+")[0];
+                    this.startTime = this.startTime.split("-")[0];
 
                     this.inputTreasureHunt.endDate = new Date(this.inputTreasureHunt.endDate).toLocaleString();
                     let endDate = this.inputTreasureHunt.endDate;
                     this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split(", ")[0];
                     this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split("/").reverse().join("-");
-                    this.inputTreasureHunt.endTime = endDate.split(" ")[1];
-                    this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("+")[0];
-                    this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("-")[0];
+                    this.endTime = endDate.split(" ")[1];
+                    this.endTime = this.endTime.split("+")[0];
+                    this.endTime = this.endTime.split("-")[0];
                 }
             },
 
@@ -515,19 +509,19 @@
             joinDates() {
                 let timeOffset = this.formatOffset();
 
-                if(this.inputTreasureHunt.startTime.length === 5) {
-                    this.inputTreasureHunt.startTime += ":00";
+                if(this.startTime.length === 5) {
+                    this.startTime += ":00";
                 }
 
-                if(this.inputTreasureHunt.endTime.length === 5) {
-                    this.inputTreasureHunt.endTime += ":00";
+                if(this.endTime.length === 5) {
+                    this.endTime += ":00";
                 }
 
                 this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate + " "
-                    + this.inputTreasureHunt.startTime + timeOffset;
+                    + this.startTime + timeOffset;
 
                 this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate + " "
-                    + this.inputTreasureHunt.endTime + timeOffset;
+                    + this.endTime + timeOffset;
 
             },
 
@@ -577,6 +571,7 @@
                 }
                 // Ensures the start and end date fields are not wiped after an error occurs.
                 this.splitDates();
+
                 const error = new Error(`HTTP Error ${response.statusText}`);
                 error.status = response.statusText;
                 error.response = response;
