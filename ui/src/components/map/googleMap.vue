@@ -9,6 +9,9 @@
             <div>
                 <img :src="privateMarker"><strong>Private Destination</strong>
             </div>
+            <div>
+                <img :src="addingMarker"><strong>New Destination</strong>
+            </div>
         </div>
     </div>
 
@@ -45,6 +48,7 @@
                 markerArray: [],
                 publicMarker: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
                 privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                addingMarker: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
                 markerToAdd: false,
                 error: ''
             }
@@ -151,6 +155,13 @@
                         // TODO: Instead of setting postion, possibly use a method to update whole marker (Name, etc.)
                         this.markerToAdd.setPosition(destinationToAddLocation);
                     }
+
+                    this.markerToAdd.setIcon(this.addingMarker)
+                    this.$map.panTo({
+                        lat: parseFloat(destinationToAddLocation.lat),
+                        lng: parseFloat(destinationToAddLocation.lng)
+
+                    });
                 }
             },
 
