@@ -9,7 +9,7 @@
             <div>
                 <img :src="privateMarker"><strong>Private Destination</strong>
             </div>
-            <div>
+            <div v-if="destinations === null">
                 <img :src="addingMarker"><strong>New Destination</strong>
             </div>
         </div>
