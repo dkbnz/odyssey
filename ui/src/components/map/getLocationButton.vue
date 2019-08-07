@@ -1,21 +1,12 @@
 <template>
     <div>
-        <p>Lat = {{lat}} Lon ={{lon}}</p>
-        <p>{{error}}</p>
-        <v-button @click="getCurrentLocation()">Get Current Location</v-button>
+        <b-button @click="getCurrentLocation()" variant="info">Get Current Location</b-button>
     </div>
 </template>
 
 <script>
     export default {
-        name: "getLocationButton.vue",
-
-        data: {
-            error: '',
-            lat:'',
-            lon:''
-        },
-
+        name: "getLocationButton",
         methods:{
             /**
              * Gets the current location using geolocation
@@ -24,8 +15,12 @@
                 if(navigator.geolocation){
                     navigator.geolocation.getCurrentPosition(this.showPosition);
                 }else{
-                    this.error = "Geolocation is not supported.";
-
+                    this.$bvToast.toast('Unable to Get Current Location', {
+                        title: `Geolocation Error`,
+                        variant: "danger",
+                        autoHideDelay: "3000",
+                        solid: true
+                    });
                 }
             },
 
@@ -34,8 +29,10 @@
              * @param position
              */
             showPosition:function (position) {
-                this.lat = position.coords.latitude;
-                this.lon = position.coords.longitude;
+                this.$emit('get-current-location', {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                });
             }
         }
 
