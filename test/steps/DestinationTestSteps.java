@@ -250,6 +250,8 @@ public class DestinationTestSteps {
      */
     @Before
     public void setUp() {
+        destinationRepository = new DestinationRepository();
+        travellerTypeRepository = new TravellerTypeRepository();
         Map<String, String> configuration = new HashMap<>();
         configuration.put("play.db.config", "db");
         configuration.put("play.db.default", "default");
@@ -599,7 +601,7 @@ public class DestinationTestSteps {
                 .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
-        assertEquals(OK, statusCode);
+        assertEquals(CREATED, statusCode);
     }
 
 
@@ -810,6 +812,12 @@ public class DestinationTestSteps {
      */
     private Long getDestinationId(io.cucumber.datatable.DataTable dataTable) {
         List<Destination> destinations = getDestinationList(dataTable);
+//        for (Destination destination : destinations) {
+//            System.out.println(Json.toJson(destination));
+//        }
+        destinationRepository = new DestinationRepository();
+//        System.out.println(destinationRepository.findById((long) 10002));
+
         Destination destination = destinations.size() > 0 ? destinations.get(destinations.size() - 1) : null;
 
         return destination == null ? null : destination.getId();
