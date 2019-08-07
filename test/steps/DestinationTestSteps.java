@@ -15,6 +15,7 @@ import models.TravellerType;
 import models.destinations.Destination;
 import models.destinations.DestinationType;
 import models.photos.PersonalPhoto;
+import models.treasureHunts.TreasureHunt;
 import models.trips.Trip;
 import org.junit.*;
 import play.Application;
@@ -29,6 +30,7 @@ import repositories.destinations.DestinationRepository;
 import repositories.destinations.TravellerTypeRepository;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static controllers.destinations.DestinationController.*;
@@ -67,6 +69,12 @@ public class DestinationTestSteps {
 
 
     /**
+     * User who owns the treasure hunt
+     */
+    private String targetUserId;
+
+
+    /**
      * The destination endpoint uri.
      */
     private static final String DESTINATION_URI = "/v1/destinations";
@@ -100,6 +108,12 @@ public class DestinationTestSteps {
      * The endpoint uri for checking which trips a destination is used in.
      */
     private static final String DESTINATION_CHECK_URI = "/v1/destinationCheck/";
+
+
+    /**
+     * The treasure hunt uri.
+     */
+    private static final String TREASURE_HUNT_URI = "/v1/treasureHunts";
 
 
     /**
@@ -183,7 +197,6 @@ public class DestinationTestSteps {
     private static final String TRIP_COUNT = "trip_count";
     private static final String PHOTO_COUNT = "photo_count";
     private static final String MATCHING_TRIPS = "matching_trips";
-    private static final String TRIP_NAME = "trip_name";
     private static final String TRIP_NAME_FIELD = "name";
 
 
@@ -195,6 +208,18 @@ public class DestinationTestSteps {
     private static final String NAME = "name";
     private static final String IS_PUBLIC = "is_public";
 
+    private static final String RIDDLE_STRING = "Riddle";
+    private static final String START_DATE_STRING = "Start Date";
+    private static final String END_DATE_STRING = "End Date";
+    private static final String OWNER_STRING = "Owner";
+    private static final String DESTINATION = "destination";
+    private static final String RIDDLE = "riddle";
+    private static final String START_DATE = "startDate";
+    private static final String END_DATE = "endDate";
+    private static final String ID = "id";
+
+    private static final int START_DATE_BUFFER = -10;
+    private static final int END_DATE_BUFFER = 10;
 
     /**
      * The fake application.
@@ -475,6 +500,11 @@ public class DestinationTestSteps {
     }
 
 
+    /**
+     *
+     * @param tripName
+     * @return
+     */
     private JsonNode createNewTripJson(String tripName) {
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
@@ -554,6 +584,31 @@ public class DestinationTestSteps {
                 .uri(DESTINATION_URI + "/" + destinationId + TRAVELLER_TYPES + (proposedOrNot.equals("proposed") ? "/propose" : ""));
         Result result = route(application, request);
         statusCode = result.status();
+    }
+
+
+    /**
+     * Sends a request to create a treasure hunt with values from the given Json node.
+     * @param json      a JsonNode containing the values for a new treasure hunt object.
+     */
+    private void createTreasureHuntRequest(JsonNode json) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .bodyJson(json)
+                .uri(TREASURE_HUNT_URI + "/" + targetUserId)
+                .session(AUTHORIZED, loggedInId);
+        Result result = route(application, request);
+        statusCode = result.status();
+        assertEquals(OK, statusCode);
+    }
+
+
+    @Given("the destination exists in a treasure hunt with the following values")
+    public void theDestinationExistsInATreasureHuntWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            JsonNode json = convertDataTableToTreasureHuntJson(dataTable, i);
+            createTreasureHuntRequest(json);
+        }
     }
 
 
@@ -914,6 +969,64 @@ public class DestinationTestSteps {
         return Json.toJson(editDestination);
     }
 
+    /**
+     * Converts a given data table of destination values to a json node object of this destination.
+     * @param dataTable     the data table containing values of a destination.
+     * @return              a JsonNode of a destination containing information from the data table.
+     */
+    private JsonNode convertDataTableToTreasureHuntJson(io.cucumber.datatable.DataTable dataTable, int index) {
+        //Get all input from the data table
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        String riddle                  = list.get(index).get(RIDDLE_STRING);
+        String startDate               = list.get(index).get(START_DATE_STRING);
+        String endDate                 = list.get(index).get(END_DATE_STRING);
+
+
+        targetUserId = list.get(index).get(OWNER_STRING);
+
+        if (startDate.equals("")) {
+            startDate = getTreasureHuntDateBuffer(true);
+        }
+
+        if (endDate.equals("")) {
+            endDate = getTreasureHuntDateBuffer(false);
+        }
+
+        //Add values to a JsonNode
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode json = mapper.createObjectNode();
+        ObjectNode jsonDestination = json.putObject(DESTINATION);
+
+        if(!destinationId.equals("null")) {
+            jsonDestination.put(ID,  destinationId.intValue());
+        }
+
+        json.put(RIDDLE, riddle);
+        json.put(START_DATE, startDate);
+        json.put(END_DATE, endDate);
+
+        return json;
+    }
+
+
+    /**
+     * Creates a new datetime object from today's date. This is then used to ensure our tests will always pass, as a
+     * buffer is used to make the start date before today and the end date after today.
+     *
+     * @param isStartDate   boolean value to determine if the date being changed the start or the end date.
+     * @return              the start or end date, which is modified by the necessary date buffer.
+     */
+    private String getTreasureHuntDateBuffer(boolean isStartDate) {
+        Calendar calendar = Calendar.getInstance();
+
+        if (isStartDate) {
+            calendar.add(Calendar.DATE, START_DATE_BUFFER);
+        }
+        calendar.add(Calendar.DATE, END_DATE_BUFFER);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:MM:ssZ");
+        return sdf.format(calendar.getTime());
+    }
+
 
     /**
      * Takes the information provided in the feature, and sends a put request to edit the destination.
@@ -1087,6 +1200,16 @@ public class DestinationTestSteps {
         Collections.sort(photoIds);
 
         assertEquals(expectedIds, photoIds);
+    }
+
+
+    @Then("the destination will have the following number of treasure hunts {int}")
+    public void theDestinationWillHaveTheFollowingNumberOfTreasureHunts(Integer expectedSize) {
+        Destination destination = destinationRepository.findById(destinationId);
+
+        List<TreasureHunt> treasureHunts = destinationRepository.getTreasureHuntsWithDestination(destination);
+
+        assertEquals(expectedSize.longValue(), treasureHunts.size());
     }
 
 
