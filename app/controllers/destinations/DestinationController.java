@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.ExpressionList;
 import models.TravellerType;
 import models.photos.PersonalPhoto;
+import models.treasureHunts.TreasureHunt;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -23,6 +24,7 @@ import repositories.TripRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.ProfileRepository;
 import repositories.TripDestinationRepository;
+import repositories.treasureHunts.TreasureHuntRepository;
 import util.AuthenticationUtil;
 import static util.QueryUtil.queryComparator;
 
@@ -44,11 +46,6 @@ public class DestinationController extends Controller {
     private static final String PHOTO_COUNT = "photo_count";
     private static final String MATCHING_TRIPS = "matching_trips";
     private static final String MATCHING_DESTINATIONS = "matching_destinations";
-    private static final String TRIP_ID = "trip_id";
-    private static final String TRIP_NAME = "trip_name";
-    private static final String USER_ID = "user_id";
-    private static final String FIRST_NAME = "first_name";
-    private static final String LAST_NAME = "last_name";
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
 
@@ -56,6 +53,7 @@ public class DestinationController extends Controller {
     private DestinationRepository destinationRepository;
     private TripDestinationRepository tripDestinationRepository;
     private TripRepository tripRepository;
+    private TreasureHuntRepository treasureHuntRepository;
 
 
     @Inject
@@ -63,11 +61,13 @@ public class DestinationController extends Controller {
             ProfileRepository profileRepository,
             DestinationRepository destinationRepository,
             TripDestinationRepository tripDestinationRepository,
-            TripRepository tripRepository) {
+            TripRepository tripRepository,
+            TreasureHuntRepository treasureHuntRepository) {
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
         this.tripDestinationRepository = tripDestinationRepository;
         this.tripRepository = tripRepository;
+        this.treasureHuntRepository = treasureHuntRepository;
     }
 
 
@@ -472,14 +472,12 @@ public class DestinationController extends Controller {
     private void mergeDestinations(Destination destinationToUpdate) {
         List<Destination> similarDestinations = destinationRepository.findEqual(destinationToUpdate);
 
-        if (shouldMerge(destinationToUpdate, similarDestinations)) {
-            if (!similarDestinations.isEmpty()) {
+        if (shouldMerge(destinationToUpdate, similarDestinations) && !similarDestinations.isEmpty()) {
                 for (Destination destinationToMerge: similarDestinations) {
                     consume(destinationToUpdate, destinationToMerge);
                 }
                 // Destination has been merged from other sources, change owner to admin.
                 destinationRepository.transferDestinationOwnership(destinationToUpdate);
-            }
         }
     }
 
@@ -487,10 +485,10 @@ public class DestinationController extends Controller {
     /**
      * Determines if the given destination and similar destinations should be merged into a single destination.
      *
-     * @param destinationToUpdate   the destination that consumes similar destinations
-     * @param similarDestinations   the list of similar destinations to destinationToUpdate
+     * @param destinationToUpdate   the destination that consumes similar destinations.
+     * @param similarDestinations   the list of similar destinations to destinationToUpdate.
      * @return                      true if destinationToUpdate is public or any destinations in similarDestinations is
-     *                              public. False otherwise.
+     *                              public, and false otherwise.
      */
     private boolean shouldMerge(Destination destinationToUpdate, List<Destination> similarDestinations) {
         if (destinationToUpdate.getPublic()) {
@@ -521,6 +519,8 @@ public class DestinationController extends Controller {
         mergeTripDestinations(destinationToUpdate, destinationToMerge);
         mergePersonalPhotos(destinationToUpdate, destinationToMerge);
         mergeTravellerTypes(destinationToUpdate, destinationToMerge);
+        mergeTreasureHunts(destinationToUpdate, destinationToMerge);
+        destinationToUpdate.setPublic(true);
 
 
         // Save destination that has had attributes taken to prevent deletion of attributes via cascading
@@ -608,11 +608,10 @@ public class DestinationController extends Controller {
     private void mergePersonalPhotos(Destination destinationToUpdate, Destination destinationToMerge) {
         // Take all PersonalPhotos
         for (PersonalPhoto photo : destinationToMerge.getPhotoGallery()) {
-            // Remove photo from destination being merged
-            destinationToMerge.removePhotoFromGallery(photo);
             // Save to destination to update
             destinationToUpdate.addPhotoToGallery(photo);
         }
+        destinationToMerge.clearPhotoGallery();
     }
 
 
@@ -645,5 +644,26 @@ public class DestinationController extends Controller {
 
         // Removes all traveller type references for the destination to merge
         destinationToMerge.clearAllTravellerTypeSets();
+    }
+
+
+    /**
+     * Merges all the treasure hunts for the destinations.
+     *
+     * @param destinationToUpdate   the destination that gains all the treasure hunts.
+     * @param destinationToMerge    the destination that is being consumed.
+     */
+    private void mergeTreasureHunts(Destination destinationToUpdate, Destination destinationToMerge) {
+        List<TreasureHunt> mergeTreasureHuntsList = destinationRepository.getTreasureHuntsWithDestination(destinationToMerge);
+        for (TreasureHunt treasureHunt : mergeTreasureHuntsList) {
+            // Initially set the destination for the treasure hunt to null.
+            treasureHunt.setDestination(null);
+            treasureHuntRepository.update(treasureHunt);
+
+            // Set the destination for the treasure hunt to the appropriate destination and update both.
+            treasureHunt.setDestination(destinationToUpdate);
+            treasureHuntRepository.update(treasureHunt);
+            destinationRepository.update(destinationToUpdate);
+        }
     }
 }

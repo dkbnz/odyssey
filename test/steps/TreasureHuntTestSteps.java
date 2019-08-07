@@ -75,12 +75,6 @@ public class TreasureHuntTestSteps {
 
 
     /**
-     * The logout endpoint uri.
-     */
-    private static final String LOGOUT_URI = "/v1/logout";
-
-
-    /**
      * Valid login credentials for an admin user.
      */
     private static final String ADMIN_ID = "1";
@@ -108,8 +102,6 @@ public class TreasureHuntTestSteps {
     /**
      * Valid login credentials for an alternate user.
      */
-    private static final String ALT_USERNAME = "testuser1@email.com";
-    private static final String ALT_AUTHPASS = "guest123";
     private static final String ALT_ID = "3";
 
 
@@ -124,12 +116,6 @@ public class TreasureHuntTestSteps {
      * Database instance for the fake application.
      */
     private Database database;
-
-    /**
-     * Repository to access the destinations in the running application.
-     */
-    private TreasureHuntRepository treasureHuntRepository = new TreasureHuntRepository();
-
 
 
     private static final String DESTINATION_STRING = "Destination";

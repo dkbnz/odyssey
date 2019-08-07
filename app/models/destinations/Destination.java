@@ -265,6 +265,8 @@ public class Destination extends BaseModel {
     }
 
 
+
+
     /**
      * Checks if an Object is equal to this instance of Destination.
      * A Destination is considered equal if:

@@ -5,6 +5,7 @@ import io.ebean.Ebean;
 import models.Profile;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
+import models.treasureHunts.TreasureHunt;
 
 import java.util.List;
 
@@ -99,7 +100,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      * Transfers the ownership of a destination to the default admin. Will be used when a public destination is used by
      * another user.
      *
-     * @param destination the destination to be changed ownership of.
+     * @param destination   the destination to be changed ownership of.
      */
     public void transferDestinationOwnership(Destination destination) {
         Profile defaultAdmin = Profile.find.byId(DEFAULT_ADMIN_ID);
@@ -111,10 +112,24 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
 
 
     /**
-     * Returns a list of Destinations that are equal, excluding the given Destination
+     * Retrieve all treasure hunts that use the destination.
      *
-     * @param destination   Destination to search with.
-     * @return              List of destinations that are equal.
+     * @param destination   the destination being checked for usage within treasure hunts.
+     * @return              a potentially empty list of treasure hunts that contain contain the destination parameter.
+     */
+    public List<TreasureHunt> getTreasureHuntsWithDestination(Destination destination) {
+        return Ebean.find(TreasureHunt.class)
+                .where()
+                .eq("destination_id", destination.getId())
+                .findList();
+    }
+
+
+    /**
+     * Returns a list of Destinations that are equal, excluding the given Destination.
+     *
+     * @param destination   destination to search with.
+     * @return              list of destinations that are equal.
      */
     public List<Destination> findEqual(Destination destination) {
         return Ebean.find(Destination.class)
