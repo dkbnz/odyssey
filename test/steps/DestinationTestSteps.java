@@ -237,8 +237,8 @@ public class DestinationTestSteps {
     /**
      * Repository to access the destinations in the running application.
      */
-    private DestinationRepository destinationRepository = new DestinationRepository();
-    private TravellerTypeRepository travellerTypeRepository = new TravellerTypeRepository();
+    private DestinationRepository destinationRepository;
+    private TravellerTypeRepository travellerTypeRepository;
 
 
     /**
@@ -250,8 +250,6 @@ public class DestinationTestSteps {
      */
     @Before
     public void setUp() {
-        destinationRepository = new DestinationRepository();
-        travellerTypeRepository = new TravellerTypeRepository();
         Map<String, String> configuration = new HashMap<>();
         configuration.put("play.db.config", "db");
         configuration.put("play.db.default", "default");
@@ -268,6 +266,8 @@ public class DestinationTestSteps {
         applyEvolutions();
 
         Helpers.start(application);
+        destinationRepository = new DestinationRepository();
+        travellerTypeRepository = new TravellerTypeRepository();
     }
 
 
@@ -423,6 +423,8 @@ public class DestinationTestSteps {
      */
     @Given("I am logged in")
     public void iAmLoggedIn() {
+        destinationRepository = new DestinationRepository();
+
         loginRequest(REG_USERNAME, REG_AUTHPASS);
         assertEquals(OK, statusCode);
         loggedInId = REG_ID;
@@ -458,7 +460,7 @@ public class DestinationTestSteps {
 
 
     /**
-     * Sends a logout request to the system
+     * Sends a logout request to the system.
      *
      * Asserts the value of loggedInId is null.
      */
@@ -472,6 +474,7 @@ public class DestinationTestSteps {
     /**
      * Sends a request to create a new destination with valid values given in the data table to
      * ensure a destination already exists in the database.
+     *
      * @param dataTable     The data table containing values to create the new destination.
      */
     @And("a destination already exists with the following values")
@@ -815,7 +818,7 @@ public class DestinationTestSteps {
 //        for (Destination destination : destinations) {
 //            System.out.println(Json.toJson(destination));
 //        }
-        destinationRepository = new DestinationRepository();
+////        destinationRepository = new DestinationRepository();
 //        System.out.println(destinationRepository.findById((long) 10002));
 
         Destination destination = destinations.size() > 0 ? destinations.get(destinations.size() - 1) : null;
