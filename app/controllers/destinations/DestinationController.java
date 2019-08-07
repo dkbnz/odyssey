@@ -328,6 +328,8 @@ public class DestinationController extends Controller {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
+                    profileRepository = new ProfileRepository();
+
                     Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
 
                     Profile profileToChange = profileRepository.fetchSingleProfile(userId.intValue());
