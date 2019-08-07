@@ -26,58 +26,57 @@
 
         <b-row>
             <b-col>
+                <b-form>
+
+                    <b-container fluid>
+                        <b-form-group
+                                id="treasure_hunt_riddle-field"
+                                label="Treasure Hunt Riddle:"
+                                label-for="treasure_hunt_riddle">
+                            <b-form-textarea :type="'expandable-text'"
+                                             id="treasure_hunt_riddle"
+                                             trim
+                                             v-model="inputTreasureHunt.riddle"
+                                             :state="validateRiddle"></b-form-textarea>
+                        </b-form-group>
+                    </b-container>
+
+
                     <b-form>
-
                         <b-container fluid>
-                            <b-form-group
-                                    id="treasure_hunt_riddle-field"
-                                    label="Treasure Hunt Riddle:"
-                                    label-for="treasure_hunt_riddle">
-                                <b-form-textarea :type="'expandable-text'"
-                                                 id="treasure_hunt_riddle"
-                                                 trim
-                                                 v-model="inputTreasureHunt.riddle"
-                                                 :state="validateRiddle"></b-form-textarea>
-                            </b-form-group>
-                        </b-container>
+                            <b-row>
+                                <b-col>
+                                    <h6 class="mb-1">Selected Destination:</h6>
+                                    <b-list-group @click="$emit('destination-select')">
+                                        <b-list-group-item href="#" class="flex-column align-items-start"
+                                                           v-if="selectedDestination"
+                                                           id="selectedDestination"
+                                                           :disabled="selectedDestination.length === '{}'"
+                                                           :variant="checkDestinationState">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h5 class="mb-1" v-if="selectedDestination.name">
+                                                    {{selectedDestination.name}}
+                                                </h5>
+                                                <h5 class="mb-1" v-else>Select a Destination</h5>
 
+                                            </div>
 
-                        <b-form>
-                            <b-container fluid>
-                                <b-row>
-                                    <b-col>
-                                        <h6 class="mb-1">Selected Destination:</h6>
-                                        <b-list-group @click="$emit('destination-select')">
-                                            <b-list-group-item href="#" class="flex-column align-items-start"
-                                                               v-if="selectedDestination"
-                                                               id="selectedDestination"
-                                                               :disabled="selectedDestination.length === '{}'"
-                                                               :variant="checkDestinationState">
-                                                <div class="d-flex w-100 justify-content-between">
-                                                    <h5 class="mb-1" v-if="selectedDestination.name">
-                                                        {{selectedDestination.name}}
-                                                    </h5>
-                                                    <h5 class="mb-1" v-else>Select a Destination</h5>
+                                            <p>
+                                                {{selectedDestination.district}}
+                                            </p>
+                                            <p>
+                                                {{selectedDestination.country}}
+                                            </p>
+                                        </b-list-group-item>
+                                    </b-list-group>
+                                </b-col>
 
-                                                </div>
-
-                                                <p>
-                                                    {{selectedDestination.district}}
-                                                </p>
-                                                <p>
-                                                    {{selectedDestination.country}}
-                                                </p>
-                                            </b-list-group-item>
-                                        </b-list-group>
-                                    </b-col>
-
-                                    <b-col>
-                                        <b-form-group
-                                                id="startDate-field"
-                                                label="Start Date:"
-                                                label-for="startDate">
-                                            <b-row>
+                                <b-col>
+                                    <b-form-group
+                                            id="startDate-field">
+                                        <b-row>
                                             <b-col cols="6">
+                                                <label>Start Date:</label>
                                                 <b-form-input :type="'date'"
                                                               id="startDate"
                                                               min='getCurrentDate()'
@@ -88,8 +87,8 @@
 
                                                 </b-form-input>
                                             </b-col>
-
                                             <b-col cols="6">
+                                                <label>Start Time:</label>
                                                 <b-form-input :type="'time'"
                                                               id="startTime"
                                                               min='getCurrentTime()'
@@ -99,48 +98,48 @@
                                                               :state="validateStartTime">
                                                 </b-form-input>
                                             </b-col>
-                                            </b-row>
+                                        </b-row>
 
-                                        </b-form-group>
-                                        <b-form-group
-                                                id="endDate-field"
-                                                label="Expiration Date:"
-                                                label-for="endDate">
-                                            <b-col cols="6"></b-col>
-                                            <b-col cols="6"></b-col>
+                                    </b-form-group>
+                                    <b-form-group
+                                            id="endDate-field">
+                                        <b-col cols="6"></b-col>
+                                        <b-col cols="6"></b-col>
 
-                                            <b-row>
-                                                <b-col cols="6">
-                                                    <b-form-input :type="'date'"
-                                                                  id="endDate"
-                                                                  min='getCurrentDate()'
-                                                                  max='9999-12-31'
-                                                                  trim
-                                                                  v-model="inputTreasureHunt.endDate"
-                                                                  :state="validateEndDate">
+                                        <b-row>
+                                            <b-col cols="6">
+                                                <label>Expiration Date:</label>
+                                                <b-form-input :type="'date'"
+                                                              id="endDate"
+                                                              min='getCurrentDate()'
+                                                              max='9999-12-31'
+                                                              trim
+                                                              v-model="inputTreasureHunt.endDate"
+                                                              :state="validateEndDate">
 
-                                                    </b-form-input>
-                                                </b-col>
+                                                </b-form-input>
+                                            </b-col>
 
-                                                <b-col cols="6">
-                                                    <b-form-input :type="'time'"
-                                                                  id="endTime"
-                                                                  min='getCurrentTime()'
-                                                                  max=''
-                                                                  trim
-                                                                  v-model="endTime"
-                                                                  :state="validateEndTime">
-                                                    </b-form-input>
-                                                </b-col>
-                                            </b-row>
-                                        </b-form-group>
-                                    </b-col>
-                                </b-row>
+                                            <b-col cols="6">
+                                                <label>Expiration Time:</label>
+                                                <b-form-input :type="'time'"
+                                                              id="endTime"
+                                                              min='getCurrentTime()'
+                                                              max=''
+                                                              trim
+                                                              v-model="endTime"
+                                                              :state="validateEndTime">
+                                                </b-form-input>
+                                            </b-col>
+                                        </b-row>
+                                    </b-form-group>
+                                </b-col>
+                            </b-row>
 
 
-                            </b-container>
-                        </b-form>
+                        </b-container>
                     </b-form>
+                </b-form>
 
                 <b-row>
                     <b-col cols="8">
@@ -163,6 +162,7 @@
 <script>
     import DestinationSidebar from "../destinations/destinationSidebar";
     import BCol from "bootstrap-vue/es/components/layout/col";
+
     export default {
         name: "addTreasureHunt",
 
@@ -190,7 +190,7 @@
             selectedDestination: {},
             heading: String,
             containerClass: {
-                default: function() {
+                default: function () {
                     return 'containerWithNav';
                 }
             }
@@ -300,10 +300,10 @@
              * @returns {Boolean} true if validated.
              */
             validateRiddle() {
-              if(this.inputTreasureHunt.riddle.length > 0){
-                  return true;
-              }
-              return null;
+                if (this.inputTreasureHunt.riddle.length > 0) {
+                    return true;
+                }
+                return null;
             },
 
 
@@ -326,7 +326,7 @@
              *
              * @returns 'success' if destination is valid, 'secondary' otherwise.
              */
-            checkDestinationState(){
+            checkDestinationState() {
                 return this.validateDestination ? "success" : "secondary"
             },
         },
@@ -361,9 +361,9 @@
              */
             getDateString() {
                 let today = this.getCurrentDate();
-                return today.getFullYear()+'-'+
-                    ((today.getMonth()+1) < 10 ? "0" : "")
-                    + (today.getMonth()+1)+'-'+
+                return today.getFullYear() + '-' +
+                    ((today.getMonth() + 1) < 10 ? "0" : "")
+                    + (today.getMonth() + 1) + '-' +
                     (today.getDate() < 10 ? "0" : "") +
                     today.getDate();
             },
@@ -445,7 +445,7 @@
                     body: JSON.stringify(this.inputTreasureHunt)
                 })
                     .then(this.checkStatus)
-                    .then(function() {
+                    .then(function () {
                         self.$emit('successCreate', "Treasure Hunt Successfully Created");
                         self.$emit('cancelCreate')
                     })
@@ -465,7 +465,7 @@
                     body: JSON.stringify(this.inputTreasureHunt)
                 })
                     .then(this.checkStatus)
-                    .then(function() {
+                    .then(function () {
                         self.$emit('cancelCreate')
                     })
             },
@@ -509,11 +509,11 @@
             joinDates() {
                 let timeOffset = this.formatOffset();
 
-                if(this.startTime.length === 5) {
+                if (this.startTime.length === 5) {
                     this.startTime += ":00";
                 }
 
-                if(this.endTime.length === 5) {
+                if (this.endTime.length === 5) {
                     this.endTime += ":00";
                 }
 
@@ -530,12 +530,12 @@
              * Gets the local time offset and pads it to be 4 numbers long.
              */
             formatOffset() {
-                let timeOffset = (Math.abs(new Date().getTimezoneOffset()/60)).toString();
+                let timeOffset = (Math.abs(new Date().getTimezoneOffset() / 60)).toString();
 
                 let fullNumber = timeOffset.padStart(2, '0');
                 fullNumber = fullNumber.padEnd(4, '0');
 
-                let sign = (new Date().getTimezoneOffset() >= 0) ? "-": "+";
+                let sign = (new Date().getTimezoneOffset() >= 0) ? "-" : "+";
 
                 return sign + fullNumber;
             },
