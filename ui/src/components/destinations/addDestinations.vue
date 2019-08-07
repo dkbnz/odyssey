@@ -139,6 +139,10 @@
                     </b-form-invalid-feedback>
                 </b-form-group>
 
+                <get-location-button
+                    @get-current-location="currentCoords => setCurrentLocation(currentCoords)">
+                </get-location-button>
+
                 <b-form-group
                         id="country-field"
                         label="Country:"
@@ -159,14 +163,20 @@
 
                 <b-button :disabled="!validateFields()" @click="checkDestinationFields" block variant="primary">Save
                 </b-button>
+
+
+
             </b-form>
         </div>
     </div>
 </template>
 
 <script>
+    import GetLocationButton from "../map/getLocationButton";
     export default {
         name: "addDestinations",
+        components: {GetLocationButton},
+
 
         props: {
             profile: Object,
@@ -412,6 +422,15 @@
 
 
             /**
+             * Updates the latitude & longitude when emitted from the button that gets current location
+             */
+            setCurrentLocation(currentCoords) {
+                this.inputDestination.latitude = currentCoords.lat;
+                this.inputDestination.longitude = currentCoords.lng;
+            },
+
+
+            /**
              * Used to allow an alert to countdown on the successful saving of a destination.
              *
              * @param dismissCountDown      the name of the alert.
@@ -472,6 +491,8 @@
             parseJSON(response) {
                 return response.json();
             },
+
+
         }
     }
 </script>
