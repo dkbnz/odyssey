@@ -26,6 +26,9 @@ public class TreasureHuntController {
     private DestinationRepository destinationRepository;
     private ProfileRepository profileRepository;
 
+    private static final int GLOBAL_ADMIN_ID = 1;
+    private static final String DESTINATION_ERROR = "Provided Destination not found.";
+
     @Inject
     public TreasureHuntController(TreasureHuntRepository treasureHuntRepository,
                                               DestinationRepository destinationRepository,
@@ -89,10 +92,22 @@ public class TreasureHuntController {
 
         if(treasureHuntDestination != null && treasureHuntDestination.getId() != null
                 && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
-            treasureHuntErrors.add(new ApiError("Provided Destination not found."));
+            treasureHuntErrors.add(new ApiError(DESTINATION_ERROR));
         }
 
         treasureHunt.setDestination(treasureHuntDestination);
+
+        Profile globalAdmin = profileRepository.fetchSingleProfile(GLOBAL_ADMIN_ID);
+
+        if (globalAdmin == null) {
+            return notFound();
+        }
+
+        if (treasureHuntDestination != null) {
+            treasureHuntDestination.changeOwner(globalAdmin);
+        } else {
+            treasureHuntErrors.add(new ApiError(DESTINATION_ERROR));
+        }
 
         // Validate treasure hunt and get any errors
         treasureHuntErrors.addAll(treasureHunt.getErrors());
@@ -103,6 +118,8 @@ public class TreasureHuntController {
 
         treasureHuntRepository.save(treasureHunt);
         profileRepository.update(treasureHuntOwner);
+        destinationRepository.update(treasureHuntDestination);
+        profileRepository.update(globalAdmin);
 
         return created(Json.toJson(treasureHunt.getId()));
     }
@@ -189,7 +206,7 @@ public class TreasureHuntController {
 
         if(treasureHuntDestination != null && treasureHuntDestination.getId() != null
                 && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
-            treasureHuntErrors.add(new ApiError("Provided Destination not found."));
+            treasureHuntErrors.add(new ApiError(DESTINATION_ERROR));
         }
 
         // Validate treasure hunt and get any errors

@@ -523,6 +523,8 @@
                 this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate + " "
                     + this.endTime + timeOffset;
 
+                delete this.inputTreasureHunt.startTime;
+                delete this.inputTreasureHunt.endTime;
             },
 
 
@@ -575,7 +577,6 @@
                 const error = new Error(`HTTP Error ${response.statusText}`);
                 error.status = response.statusText;
                 error.response = response;
-                console.log(error);
 
                 this.errorMessage = "";
                 response.clone().text().then(text => {
