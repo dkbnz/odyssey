@@ -17,6 +17,9 @@
                                     @destination-click="destination => this.selectedDestination = destination">
                         </google-map>
                     </b-card>
+                    <b-card ref="locationButton">
+
+                    </b-card>
                     <b-alert
                             :show="dismissCountDown"
                             @dismiss-count-down="countDownChanged"
@@ -78,6 +81,7 @@
     import DestinationSidebar from "./destinationSidebar";
     import SingleDestination from "./singleDestination";
     import GoogleMap from "../map/googleMap";
+    import LocationButton from "../map/getLocationButton"
 
     export default {
         name: "destinationsPage",
