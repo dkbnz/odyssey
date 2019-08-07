@@ -10,6 +10,10 @@
                 <img :src="privateMarker"><strong>Private Destination</strong>
             </div>
         </div>
+        <div>
+            <button @click="getCurrentLocation()">Get Current Location</button>
+            {{error}}
+        </div>
     </div>
 
 </template>
@@ -45,7 +49,8 @@
                 markerArray: [],
                 publicMarker: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
                 privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                markerToAdd: false
+                markerToAdd: false,
+                error: ''
             }
         },
 
@@ -224,6 +229,27 @@
             centreMap() {
                 this.$map.setZoom(this.initial.zoom);
                 this.$map.panTo(this.initial.view);
+            },
+
+            /**
+             * Gets the current location using geolocation
+             */
+            getCurrentLocation: function () {
+                if(navigator.geolocation){
+                    navigator.geolocation.getCurrentPosition(this.showPosition);
+                }else{
+                    this.error = "Geolocation is not supported.";
+
+                }
+            },
+
+            /**
+             * helper function of getCurrentLocation that saves lat/long to appropriate variables
+             * @param position
+             */
+            showPosition:function (position) {
+                this.destinationToAdd.latitude = position.coords.latitude;
+                this.destinationToAdd.longitude = position.coords.longitude;
             }
         }
 
