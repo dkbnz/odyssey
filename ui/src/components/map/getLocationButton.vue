@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-button @click="getCurrentLocation()" variant="info">Get Current Location</b-button>
+        <b-button @click="getCurrentLocation()" variant="outline-primary" block size="sm" class="buttonMarginsBottom">Use Current Location</b-button>
     </div>
 </template>
 
