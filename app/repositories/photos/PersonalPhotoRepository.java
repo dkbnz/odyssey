@@ -9,7 +9,7 @@ public class PersonalPhotoRepository extends BeanRepository<Long, PersonalPhoto>
 
 
     public PersonalPhotoRepository() {
-        super(PersonalPhoto.class, Ebean.getServer("default"));
+        super(PersonalPhoto.class, Ebean.getDefaultServer());
     }
 
     /**

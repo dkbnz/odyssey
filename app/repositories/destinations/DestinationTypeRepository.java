@@ -7,7 +7,7 @@ import models.destinations.DestinationType;
 public class DestinationTypeRepository extends BeanRepository<Long, DestinationType> {
 
     public DestinationTypeRepository() {
-        super(DestinationType.class, Ebean.getServer("default"));
+        super(DestinationType.class, Ebean.getDefaultServer());
     }
 
     /**

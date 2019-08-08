@@ -7,7 +7,7 @@ import models.photos.Photo;
 public class PhotoRepository extends BeanRepository<Long, Photo> {
 
     public PhotoRepository() {
-        super(Photo.class, Ebean.getServer("default"));
+        super(Photo.class, Ebean.getDefaultServer());
     }
 
     /**

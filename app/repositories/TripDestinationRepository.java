@@ -11,7 +11,7 @@ public class TripDestinationRepository extends BeanRepository<Long, TripDestinat
 
 
     public TripDestinationRepository() {
-        super(TripDestination.class, Ebean.getServer("default"));
+        super(TripDestination.class, Ebean.getDefaultServer());
     }
 
     /**
