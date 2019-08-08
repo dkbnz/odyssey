@@ -1,9 +1,16 @@
 package repositories.photos;
 
+import io.ebean.BeanRepository;
+import io.ebean.Ebean;
 import models.Profile;
 import models.photos.PersonalPhoto;
 
-public class PersonalPhotoRepository {
+public class PersonalPhotoRepository extends BeanRepository<Long, PersonalPhoto> {
+
+
+    public PersonalPhotoRepository() {
+        super(PersonalPhoto.class, Ebean.getServer("default"));
+    }
 
     /**
      * Fetches a single personal photo by the photo id number.
@@ -21,8 +28,8 @@ public class PersonalPhotoRepository {
      *
      * @param photo      the PersonalPhoto object of the photo.
      */
-    public void delete(PersonalPhoto photo) {
-        photo.delete();
+    public boolean delete(PersonalPhoto photo) {
+        return photo.delete();
     }
 
     /**

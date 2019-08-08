@@ -9,6 +9,7 @@ import models.treasureHunts.TreasureHunt;
 
 import java.util.List;
 
+
 public class DestinationRepository extends BeanRepository<Long, Destination> {
 
     private static final int DEFAULT_ADMIN_ID = 1;

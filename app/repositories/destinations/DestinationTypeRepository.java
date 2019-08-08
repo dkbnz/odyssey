@@ -1,8 +1,14 @@
 package repositories.destinations;
 
+import io.ebean.BeanRepository;
+import io.ebean.Ebean;
 import models.destinations.DestinationType;
 
-public class DestinationTypeRepository {
+public class DestinationTypeRepository extends BeanRepository<Long, DestinationType> {
+
+    public DestinationTypeRepository() {
+        super(DestinationType.class, Ebean.getServer("default"));
+    }
 
     /**
      * Retrieves a destination type by its ID.
