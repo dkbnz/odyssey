@@ -27,6 +27,8 @@ import repositories.TripDestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.treasureHunts.TreasureHuntRepository;
 import util.AuthenticationUtil;
+import util.DebugHelp;
+
 import static util.QueryUtil.queryComparator;
 
 
@@ -457,8 +459,6 @@ public class DestinationController extends Controller {
             return badRequest();
         }
 
-        destinationRepository.update(currentDestination);
-
         mergeDestinations(currentDestination);
         destinationRepository.update(currentDestination);
 
@@ -475,11 +475,10 @@ public class DestinationController extends Controller {
         List<Destination> similarDestinations = destinationRepository.findEqual(destinationToUpdate);
 
         if (!similarDestinations.isEmpty() && shouldMerge(destinationToUpdate, similarDestinations)) {
+                destinationRepository.transferDestinationOwnership(destinationToUpdate);
                 for (Destination destinationToMerge: similarDestinations) {
                     consume(destinationToUpdate, destinationToMerge);
                 }
-                // Destination has been merged from other sources, change owner to admin.
-                destinationRepository.transferDestinationOwnership(destinationToUpdate);
         }
     }
 
@@ -524,8 +523,6 @@ public class DestinationController extends Controller {
         mergeTreasureHunts(destinationToUpdate, destinationToMerge);
         destinationToUpdate.setPublic(true);
 
-
-        // Save destination that has had attributes taken to prevent deletion of attributes via cascading
         destinationRepository.update(destinationToUpdate);
         destinationRepository.update(destinationToMerge);
         destinationRepository.delete(destinationToMerge);
@@ -609,6 +606,8 @@ public class DestinationController extends Controller {
     }
 
 
+
+
     /**
      * Takes the personal photos from the destinationToMerge and adds them to the destinationToMerge.
      *
@@ -616,11 +615,15 @@ public class DestinationController extends Controller {
      * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
      */
     private void mergePersonalPhotos(Destination destinationToUpdate, Destination destinationToMerge) {
+
+//        DebugHelp.ppjs(destinationToMerge);
+
         // Take all PersonalPhotos
         for (PersonalPhoto photo : destinationToMerge.getPhotoGallery()) {
             // Save to destination to update
             destinationToUpdate.addPhotoToGallery(photo);
         }
+//        System.out.println(destinationToUpdate.getPhotoGallery());
         destinationToMerge.clearPhotoGallery();
     }
 

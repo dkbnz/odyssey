@@ -31,6 +31,7 @@ import repositories.destinations.DestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.destinations.TravellerTypeRepository;
 import repositories.treasureHunts.TreasureHuntRepository;
+import util.DebugHelp;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -640,6 +641,8 @@ public class DestinationTestSteps {
 
         Result addDestinationPhotoResult = route(application, request);
         statusCode = addDestinationPhotoResult.status();
+        System.out.println(statusCode);
+//        DebugHelp.ppjs(destinationRepository.findById(destinationId));
     }
 
 
@@ -822,10 +825,6 @@ public class DestinationTestSteps {
      */
     private Long getDestinationId(io.cucumber.datatable.DataTable dataTable) {
         List<Destination> destinations = getDestinationList(dataTable);
-//        for (Destination destination : destinations) {
-//            System.out.println(Json.toJson(destination));
-//        }
-//        System.out.println(destinationRepository.findById((long) 10002));
 
         Destination destination = destinations.size() > 0 ? destinations.get(destinations.size() - 1) : null;
 
@@ -1207,7 +1206,7 @@ public class DestinationTestSteps {
      */
     @Then("the destination will have photos with the following ids")
     public void theDestinationWillHavePhotosWithTheFollowingIds(io.cucumber.datatable.DataTable dataTable) {
-        Destination destination = destinationRepository.fetch(destinationId);
+        Destination destination = destinationRepository.findById(destinationId);
 
         List<String> photoIds = getPhotoIds(destination);
         List<String> expectedIds = new ArrayList<>(dataTable.asList());
@@ -1285,15 +1284,6 @@ public class DestinationTestSteps {
         return names;
     }
 
-    public String prettyPrintJsonString(JsonNode jsonNode) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            Object json = mapper.readValue(jsonNode.toString(), Object.class);
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
-        } catch (Exception e) {
-            return "Sorry, pretty print didn't work";
-        }
-    }
 
     @Then("the destination will have the following traveller types")
     public void theDestinationWillHaveTheFollowingTravellerTypes(io.cucumber.datatable.DataTable dataTable) {
@@ -1301,9 +1291,6 @@ public class DestinationTestSteps {
         expectedTravellerTypes = expectedTravellerTypes.subList(1, expectedTravellerTypes.size());
 
         List<String> foundTravellerTypes = new ArrayList<>();
-        System.out.println(destinationId);
-        System.out.println(prettyPrintJsonString(Json.toJson(destinationRepository.findById(destinationId))));
-        System.out.println(prettyPrintJsonString(Json.toJson(destinationRepository.findAll())));
         for (TravellerType travellerType : destinationRepository.findById(destinationId).getTravellerTypes()) {
             foundTravellerTypes.add(travellerType.getId().toString());
         }

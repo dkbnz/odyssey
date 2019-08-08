@@ -25,6 +25,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import com.google.inject.Inject;
+import util.DebugHelp;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -575,28 +577,35 @@ public class PhotoController extends Controller {
                         return badRequest();
                     }
 
-                    Long personalPhotoId = json.get(PHOTO_ID).asLong();
+                    PersonalPhoto personalPhoto = personalPhotoRepository.findById(
+                            json.get(PHOTO_ID).asLong()
+                    );
 
-                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
+                    Destination destination = destinationRepository.findById(destinationId);
 
                     if (personalPhoto == null) {
                         return notFound(IMAGE_NOT_FOUND);
                     }
 
+                    if (destination == null) {
+                        return notFound();
+                    }
+
                     Profile photoOwner = personalPhoto.getProfile();
+                    Profile destinationOwner = destination.getOwner();
 
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(userId));
+                    Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
 
-                    if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
-                        Destination destination = destinationRepository.fetch(destinationId);
-                        if (destination != null) {
-                            destination.addPhotoToGallery(personalPhoto);
-                            destinationRepository.update(destination);
-                            changeOwnership(photoOwner, destination);
-                            return created(Json.toJson(destination.getPhotoGallery()));
-                        } else {
-                            return notFound();
-                        }
+                    if(AuthenticationUtil.validUser(loggedInUser, photoOwner) &&
+                            AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
+
+                        destination.addPhotoToGallery(personalPhoto);
+                        DebugHelp.ppjs(destination);
+                        changeOwnership(photoOwner, destination);
+                        DebugHelp.ppjs(destination);
+                        destinationRepository.update(destination);
+                        DebugHelp.ppjs(destinationRepository.findById(destinationId));
+                        return created(Json.toJson(destination.getPhotoGallery()));
                     }
 
                     return forbidden();
