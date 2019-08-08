@@ -1,5 +1,6 @@
 package repositories;
 
+import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
@@ -18,10 +19,10 @@ public class TripRepository extends BeanRepository<Long, Trip> {
     private static final String PROFILE_ID = "profile_id";
     private static final String TRIP_ID = "id";
 
+    @Inject
     public TripRepository() {
         super(Trip.class, Ebean.getDefaultServer());
     }
-
 
     /**
      * Saves a new trip to a profile's list of trips, which is persisted to our database.

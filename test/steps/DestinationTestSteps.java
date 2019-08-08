@@ -27,6 +27,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repositories.destinations.DestinationRepository;
+import repositories.destinations.DestinationTypeRepository;
 import repositories.destinations.TravellerTypeRepository;
 
 import java.io.IOException;
@@ -239,6 +240,7 @@ public class DestinationTestSteps {
      */
     private DestinationRepository destinationRepository;
     private TravellerTypeRepository travellerTypeRepository;
+    private DestinationTypeRepository destinationTypeRepository;
 
 
     /**
@@ -266,8 +268,9 @@ public class DestinationTestSteps {
         applyEvolutions();
 
         Helpers.start(application);
-        destinationRepository = new DestinationRepository();
-        travellerTypeRepository = new TravellerTypeRepository();
+        destinationRepository = application.injector().instanceOf(DestinationRepository.class);
+        travellerTypeRepository = application.injector().instanceOf(TravellerTypeRepository.class);
+        destinationTypeRepository = application.injector().instanceOf(DestinationTypeRepository.class);
     }
 
 
@@ -423,8 +426,6 @@ public class DestinationTestSteps {
      */
     @Given("I am logged in")
     public void iAmLoggedIn() {
-        destinationRepository = new DestinationRepository();
-
         loginRequest(REG_USERNAME, REG_AUTHPASS);
         assertEquals(OK, statusCode);
         loggedInId = REG_ID;
@@ -818,7 +819,6 @@ public class DestinationTestSteps {
 //        for (Destination destination : destinations) {
 //            System.out.println(Json.toJson(destination));
 //        }
-////        destinationRepository = new DestinationRepository();
 //        System.out.println(destinationRepository.findById((long) 10002));
 
         Destination destination = destinations.size() > 0 ? destinations.get(destinations.size() - 1) : null;
@@ -957,7 +957,7 @@ public class DestinationTestSteps {
 
             switch (entry.getKey()) {
                 case TYPE_STRING:
-                    editDestination.setType(DestinationType.find.byId(Integer.valueOf(value)));
+                    editDestination.setType(destinationTypeRepository.findById(Long.valueOf(value)));
                     break;
                 case DISTRICT_STRING:
                     editDestination.setDistrict(value);
@@ -1279,6 +1279,15 @@ public class DestinationTestSteps {
         return names;
     }
 
+    public String prettyPrintJsonString(JsonNode jsonNode) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Object json = mapper.readValue(jsonNode.toString(), Object.class);
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+        } catch (Exception e) {
+            return "Sorry, pretty print didn't work";
+        }
+    }
 
     @Then("the destination will have the following traveller types")
     public void theDestinationWillHaveTheFollowingTravellerTypes(io.cucumber.datatable.DataTable dataTable) {
@@ -1286,7 +1295,10 @@ public class DestinationTestSteps {
         expectedTravellerTypes = expectedTravellerTypes.subList(1, expectedTravellerTypes.size());
 
         List<String> foundTravellerTypes = new ArrayList<>();
-        for (TravellerType travellerType : Destination.find.byId(destinationId.intValue()).getTravellerTypes()) {
+        System.out.println(destinationId);
+        System.out.println(prettyPrintJsonString(Json.toJson(destinationRepository.findById(destinationId))));
+        System.out.println(prettyPrintJsonString(Json.toJson(destinationRepository.findAll())));
+        for (TravellerType travellerType : destinationRepository.findById(destinationId).getTravellerTypes()) {
             foundTravellerTypes.add(travellerType.getId().toString());
         }
         assertTrue(expectedTravellerTypes.containsAll(foundTravellerTypes));
@@ -1299,7 +1311,7 @@ public class DestinationTestSteps {
         expectedTravellerTypesToAdd = expectedTravellerTypesToAdd.subList(1, expectedTravellerTypesToAdd.size());
 
         List<String> foundTravellerTypesToAdd = new ArrayList<>();
-        for (TravellerType travellerType : Destination.find.byId(destinationId.intValue()).getProposedTravellerTypesAdd()) {
+        for (TravellerType travellerType : destinationRepository.findById(destinationId).getProposedTravellerTypesAdd()) {
             foundTravellerTypesToAdd.add(travellerType.getId().toString());
         }
 

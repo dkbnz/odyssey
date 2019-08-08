@@ -29,14 +29,14 @@ public class TreasureHuntController {
     private static final int GLOBAL_ADMIN_ID = 1;
     private static final String DESTINATION_ERROR = "Provided Destination not found.";
 
-//    @Inject
-//    public TreasureHuntController(TreasureHuntRepository treasureHuntRepository,
-////                                  DestinationRepository destinationRepository,
-//                                  ProfileRepository profileRepository) {
-////        this.treasureHuntRepository = treasureHuntRepository;
-////        this.destinationRepository = destinationRepository;
-//        this.profileRepository = profileRepository;
-//    }
+    @Inject
+    public TreasureHuntController(TreasureHuntRepository treasureHuntRepository,
+                                  DestinationRepository destinationRepository,
+                                  ProfileRepository profileRepository) {
+        this.treasureHuntRepository = treasureHuntRepository;
+        this.destinationRepository = destinationRepository;
+        this.profileRepository = profileRepository;
+    }
 
 
     /**
@@ -55,10 +55,6 @@ public class TreasureHuntController {
         if (loggedInUserId == null) {
             return unauthorized();
         }
-
-        treasureHuntRepository = new TreasureHuntRepository();
-        destinationRepository = new DestinationRepository();
-        profileRepository = new ProfileRepository();
 
         Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 

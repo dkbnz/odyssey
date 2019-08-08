@@ -1,5 +1,6 @@
 package repositories.photos;
 
+import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import models.Profile;
@@ -8,6 +9,7 @@ import models.photos.PersonalPhoto;
 public class PersonalPhotoRepository extends BeanRepository<Long, PersonalPhoto> {
 
 
+    @Inject
     public PersonalPhotoRepository() {
         super(PersonalPhoto.class, Ebean.getDefaultServer());
     }
@@ -19,7 +21,7 @@ public class PersonalPhotoRepository extends BeanRepository<Long, PersonalPhoto>
      * @return          the PersonalPhoto object given by the personal photo.
      */
     public PersonalPhoto fetch(Long photoId) {
-        return PersonalPhoto.getFind().byId(photoId.intValue());
+        return super.findById(photoId);
     }
 
 
@@ -29,7 +31,7 @@ public class PersonalPhotoRepository extends BeanRepository<Long, PersonalPhoto>
      * @param photo      the PersonalPhoto object of the photo.
      */
     public boolean delete(PersonalPhoto photo) {
-        return photo.delete();
+        return super.delete(photo);
     }
 
     /**
@@ -38,7 +40,7 @@ public class PersonalPhotoRepository extends BeanRepository<Long, PersonalPhoto>
      * @param photo      the PersonalPhoto object of the photo.
      */
     public void update(PersonalPhoto photo) {
-        photo.update();
+        super.update(photo);
     }
 
 

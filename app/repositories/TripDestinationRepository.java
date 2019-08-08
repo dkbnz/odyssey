@@ -1,5 +1,6 @@
 package repositories;
 
+import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import models.destinations.Destination;
@@ -10,6 +11,7 @@ import java.util.List;
 public class TripDestinationRepository extends BeanRepository<Long, TripDestination> {
 
 
+    @Inject
     public TripDestinationRepository() {
         super(TripDestination.class, Ebean.getDefaultServer());
     }
@@ -38,7 +40,7 @@ public class TripDestinationRepository extends BeanRepository<Long, TripDestinat
      * @return                      the TripDestination object of the matching TripDestination.
      */
     public TripDestination fetch(Long tripDestinationId) {
-        return TripDestination.find.byId(tripDestinationId.intValue());
+        return super.findById(tripDestinationId);
     }
 
 

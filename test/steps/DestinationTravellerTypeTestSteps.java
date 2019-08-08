@@ -111,13 +111,13 @@ public class DestinationTravellerTypeTestSteps {
     /**
      * Repository to access the destinations in the running application.
      */
-    private DestinationRepository destinationRepo = new DestinationRepository();
+    private DestinationRepository destinationRepo;
 
 
     /**
      * Repository to access the destinations in the running application.
      */
-    private TravellerTypeRepository travellerTypeRepository = new TravellerTypeRepository();
+    private TravellerTypeRepository travellerTypeRepository;
 
 
     /**
@@ -142,6 +142,9 @@ public class DestinationTravellerTypeTestSteps {
         application = fakeApplication(configuration);
 
         database = application.injector().instanceOf(Database.class);
+        destinationRepo = application.injector().instanceOf(DestinationRepository.class);
+        travellerTypeRepository = application.injector().instanceOf(TravellerTypeRepository.class);
+
         applyEvolutions();
 
         Helpers.start(application);

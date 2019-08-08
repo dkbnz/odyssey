@@ -6,19 +6,24 @@ import models.Profile;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
 import models.treasureHunts.TreasureHunt;
+import repositories.ProfileRepository;
 
+import javax.inject.Inject;
 import java.util.List;
 
 
 public class DestinationRepository extends BeanRepository<Long, Destination> {
 
-    private static final int DEFAULT_ADMIN_ID = 1;
+    private static final Long DEFAULT_ADMIN_ID = 1L;
     private static final String PHOTO_FIELD = "photoGallery.photo";
 
-    public DestinationRepository() {
-        super(Destination.class, Ebean.getDefaultServer());
-    }
+    private ProfileRepository profileRepository;
 
+    @Inject
+    public DestinationRepository(ProfileRepository profileRepository) {
+        super(Destination.class, Ebean.getDefaultServer());
+        this.profileRepository = profileRepository;
+    }
 
     /**
      * Update the destination object.
@@ -27,20 +32,8 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      */
     @Override
     public void update(Destination destination) {
-        destination.update();
+        super.save(destination);
     }
-
-
-    /**
-     * Save the destination object.
-     *
-     * @param destination       the destination being saved.
-     */
-    @Override
-    public void save(Destination destination) {
-        destination.save();
-    }
-
 
     /**
      * Retrieve a Destination by its Id.
@@ -49,7 +42,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      * @return                  the destination object corresponding with the destinationId.
      */
     public Destination fetch(Long destinationId) {
-        return Destination.find.byId(destinationId.intValue());
+        return super.findById(destinationId);
     }
 
 
@@ -60,7 +53,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      * @return            list of destinations containing the photo.
      */
     public List<Destination> fetch(PersonalPhoto photo) {
-        return Destination.find.query().where().eq(PHOTO_FIELD, photo).findList();
+        return query().where().eq(PHOTO_FIELD, photo).findList();
     }
 
 
@@ -70,7 +63,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      * @return      list of destinations that have proposed traveller types.
      */
     public List<Destination> fetchProposed() {
-        return Ebean.find(Destination.class)
+        return query()
             .select("destination")
             .where()
             .disjunction()
@@ -91,9 +84,9 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
         // Clear the destination photos
         destination.clearAllTravellerTypeSets();
         destination.clearPhotoGallery();
-        destination.update();
+        super.save(destination);
         // Delete destination
-        return destination.delete();
+        return super.delete(destination);
     }
 
 
@@ -104,7 +97,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      * @param destination   the destination to be changed ownership of.
      */
     public void transferDestinationOwnership(Destination destination) {
-        Profile defaultAdmin = Profile.find.byId(DEFAULT_ADMIN_ID);
+        Profile defaultAdmin = profileRepository.findById(DEFAULT_ADMIN_ID);
 
         destination.changeOwner(defaultAdmin);
 
@@ -133,7 +126,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      * @return              list of destinations that are equal.
      */
     public List<Destination> findEqual(Destination destination) {
-        return Ebean.find(Destination.class)
+        return query()
                 .where()
                 .eq("name", destination.getName())
                 .eq("type", destination.getType())

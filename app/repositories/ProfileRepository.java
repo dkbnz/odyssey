@@ -1,5 +1,6 @@
 package repositories;
 
+import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import models.Profile;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 
 public class ProfileRepository extends BeanRepository<Long, Profile> {
 
+    @Inject
     public ProfileRepository() {
         super(Profile.class, Ebean.getDefaultServer());
     }
@@ -18,7 +20,7 @@ public class ProfileRepository extends BeanRepository<Long, Profile> {
      * @return              the profile object associated with the id. Returns null if no profile was found.
      */
     public Profile fetchSingleProfile(Integer userId) {
-        return Profile.find.byId(userId);
+        return super.findById(userId.longValue());
     }
 
 
@@ -29,14 +31,15 @@ public class ProfileRepository extends BeanRepository<Long, Profile> {
      */
 
     public void setProfilePhoto(PersonalPhoto photo, Profile profile) {
-        profile.setProfilePicture(photo); profile.update();
+        profile.setProfilePicture(photo);
+        super.update(profile);
     }
 
 
     /**
     * Saves the specified profile object.
     */
-    public void save(Profile profile) {profile.save();}
+    public void save(Profile profile) {super.save(profile);}
 
     /**
      * Updates the specified profile object.

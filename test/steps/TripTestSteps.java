@@ -25,6 +25,8 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 import play.db.evolutions.Evolutions;
+import repositories.ProfileRepository;
+import repositories.destinations.DestinationRepository;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -115,6 +117,8 @@ public class TripTestSteps {
      */
     private static final String TRIP_NAME_FIELD = "name";
 
+    private DestinationRepository destinationRepository;
+
 
     @Before
     public void setUp() {
@@ -132,6 +136,8 @@ public class TripTestSteps {
         application = fakeApplication(configuration);
 
         database = application.injector().instanceOf(Database.class);
+        destinationRepository = application.injector().instanceOf(DestinationRepository.class);
+
         applyEvolutions();
 
         Helpers.start(application);
@@ -427,7 +433,7 @@ public class TripTestSteps {
 
     @Then("the destination with id {int} ownership changes to the user with id {int}")
     public void theDestinationOwnershipChangesToTheGlobalAdminWithId(Integer destinationId, Integer profileId) {
-        Destination destination = Destination.find.byId(destinationId);
+        Destination destination = destinationRepository.findById(destinationId.longValue());
         assertEquals(profileId.longValue(), destination.getOwner().getId().longValue());
     }
 
