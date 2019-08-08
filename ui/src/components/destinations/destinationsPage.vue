@@ -200,6 +200,7 @@
             destinationDeleted() {
                 this.selectedDestination = {};
                 this.refreshSingleDestination += 1;
+                this.refreshDestinationData += 1;
                 this.closeEditDestination();
                 this.showAlert();
             },
@@ -266,7 +267,11 @@
              */
             closeEditDestination() {
                 this.destinationEdit = false;
+                this.destinationsForMap = [];
+                let destination = this.destinationToAdd;
+                this.destinationsForMap.push(destination);
                 this.destinationToAdd = this.destinationTemplate;
+
             },
 
 
