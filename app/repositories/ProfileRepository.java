@@ -1,9 +1,16 @@
 package repositories;
 
+import io.ebean.BeanRepository;
+import io.ebean.Ebean;
 import models.Profile;
 import models.photos.PersonalPhoto;
+import org.springframework.context.annotation.Bean;
 
-public class ProfileRepository {
+public class ProfileRepository extends BeanRepository<Long, Profile> {
+
+    public ProfileRepository() {
+        super(Profile.class, Ebean.getServer("default"));
+    }
 
     /**
      * Finds a single profile with the given id. Return null if no such profile exists.

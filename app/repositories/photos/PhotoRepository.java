@@ -1,8 +1,14 @@
 package repositories.photos;
 
+import io.ebean.BeanRepository;
+import io.ebean.Ebean;
 import models.photos.Photo;
 
-public class PhotoRepository {
+public class PhotoRepository extends BeanRepository<Long, Photo> {
+
+    public PhotoRepository() {
+        super(Photo.class, Ebean.getServer("default"));
+    }
 
     /**
      * Saves a photo to the database.

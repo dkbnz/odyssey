@@ -1,12 +1,18 @@
 package repositories;
 
+import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import models.destinations.Destination;
 import models.trips.TripDestination;
 
 import java.util.List;
 
-public class TripDestinationRepository {
+public class TripDestinationRepository extends BeanRepository<Long, TripDestination> {
+
+
+    public TripDestinationRepository() {
+        super(TripDestination.class, Ebean.getServer("default"));
+    }
 
     /**
      * Fetches one tripDestination thats contain the given destination for each unique trip id.
@@ -51,8 +57,8 @@ public class TripDestinationRepository {
      *
      * @param tripDestination       the TripDestination to be deleted.
      */
-    public void delete(TripDestination tripDestination) {
-        tripDestination.delete();
+    public boolean delete(TripDestination tripDestination) {
+        return tripDestination.delete();
     }
 
 
