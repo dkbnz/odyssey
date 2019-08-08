@@ -64,12 +64,15 @@ POST    /v1/destinationPhotos/:destinationId    controllers.photos.PhotoControll
 DELETE  /v1/destinationPhotos/:destinationId    controllers.photos.PhotoController.removeDestinationPhoto(request: Request, destinationId: Long)
 
 # Treasure Hunts
-GET     /v1/treasureHunts                       controllers.treasureHunts.TreasureHuntController.fetchAll(request: Request)
-GET     /v1/treasureHunts/:userId               controllers.treasureHunts.TreasureHuntController.fetchByOwner(request: Request, userId: Long)
-GET     /v1/treasureHuntDest/:treasureHuntId    controllers.treasureHunts.TreasureHuntController.fetchDestination(request: Request, treasureHuntId: Long)
-POST    /v1/treasureHunts/:userId               controllers.treasureHunts.TreasureHuntController.create(request: Request, userId: Long)
-PUT     /v1/treasureHunts/:treasureHuntId       controllers.treasureHunts.TreasureHuntController.edit(request: Request, treasureHuntId: Long)
-DELETE  /v1/treasureHunts/:treasureHuntId       controllers.treasureHunts.TreasureHuntController.delete(request: Request, treasureHuntId: Long)
+GET     /v1/treasureHunts                                       controllers.treasureHunts.TreasureHuntController.fetchAll(request: Request)
+GET     /v1/treasureHunts/:userId                               controllers.treasureHunts.TreasureHuntController.fetchByOwner(request: Request, userId: Long)
+GET     /v1/treasureHuntDest/:treasureHuntId                    controllers.treasureHunts.TreasureHuntController.fetchDestination(request: Request, treasureHuntId: Long)
+POST    /v1/treasureHunts/:userId                               controllers.treasureHunts.TreasureHuntController.create(request: Request, userId: Long)
+PUT     /v1/treasureHunts/:treasureHuntId                       controllers.treasureHunts.TreasureHuntController.edit(request: Request, treasureHuntId: Long)
+DELETE  /v1/treasureHunts/:treasureHuntId                       controllers.treasureHunts.TreasureHuntController.delete(request: Request, treasureHuntId: Long)
+GET     /v1/treasureHunts/:treasureHuntId/checkGuess            controllers.treasureHunts.TreasureHuntController.checkGuess(request: Request, treasureHuntId: Long)
+GET     /v1/treasureHunts/:treasureHuntId/checkIn               controllers.treasureHunts.TreasureHuntController.checkIn(request: Request, treasureHuntId: Long)
+GET     /v1/treasureHunts/:treasureHuntId/hasSolved/:userId     controllers.treasureHunts.TreasureHuntController.hasSolved(request: Request, treasureHuntId: Long, userId: Long)
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
 GET     /*file                                  controllers.Assets.at(path="/public", file)
