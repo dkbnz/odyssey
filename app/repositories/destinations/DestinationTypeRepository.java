@@ -1,11 +1,13 @@
 package repositories.destinations;
 
+import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import models.destinations.DestinationType;
 
 public class DestinationTypeRepository extends BeanRepository<Long, DestinationType> {
 
+    @Inject
     public DestinationTypeRepository() {
         super(DestinationType.class, Ebean.getDefaultServer());
     }
@@ -17,6 +19,6 @@ public class DestinationTypeRepository extends BeanRepository<Long, DestinationT
      * @return          the destination type matching the ID.
      */
     public DestinationType fetch(Long typeId) {
-        return DestinationType.find.byId(typeId.intValue());
+        return super.findById(typeId);
     }
 }

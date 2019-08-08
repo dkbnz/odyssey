@@ -16,12 +16,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import javax.inject.Inject;
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import repositories.NationalityRepository;
+import repositories.PassportRepository;
+import repositories.ProfileRepository;
+import repositories.destinations.TravellerTypeRepository;
 import util.AuthenticationUtil;
 
 import static play.mvc.Results.*;
@@ -54,6 +59,22 @@ public class ProfileController {
     private static final String UPDATED = "UPDATED";
     private static final String ID = "id";
 
+    private ProfileRepository profileRepository;
+    private NationalityRepository nationalityRepository;
+    private PassportRepository passportRepository;
+    private TravellerTypeRepository travellerTypeRepository;
+
+    @Inject
+    public ProfileController(ProfileRepository profileRepository,
+                             NationalityRepository nationalityRepository,
+                             PassportRepository passportRepository,
+                             TravellerTypeRepository travellerTypeRepository) {
+        this.profileRepository = profileRepository;
+        this.passportRepository = passportRepository;
+        this.nationalityRepository = nationalityRepository;
+        this.travellerTypeRepository = travellerTypeRepository;
+    }
+
     /**
      * Creates a user based on given Json body. All new users are not an admin by default. This is used on the Sign Up
      * page when a user is making a new profile. All parameters are compulsory, except for passport country. When a user
@@ -67,7 +88,7 @@ public class ProfileController {
 
         Profile userProfile = request.session()
                 .getOptional(AUTHORIZED)
-                .map(userId -> Profile.find.byId(Integer.valueOf(userId)))
+                .map(userId -> profileRepository.findById(Long.valueOf(userId)))
                 .orElse(null); // returns created as no user is logged in
 
         if (userProfile != null && !userProfile.getIsAdmin())
@@ -106,21 +127,21 @@ public class ProfileController {
         newUser.save();
 
         Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
-            Nationality newNat = Nationality.find.byId(node.get(ID).asInt());
+            Nationality newNat = nationalityRepository.findById(node.get(ID).asLong());
             newUser.addNationality(newNat);
         };
 
         json.get(NATIONALITY).forEach(nationalityAction);
 
         Consumer<JsonNode> passportAction = (JsonNode node) -> {
-            Passport newPass = Passport.find.byId(node.get(ID).asInt());
+            Passport newPass = passportRepository.findById(node.get(ID).asLong());
             newUser.addPassport(newPass);
         };
 
         json.get(PASSPORT).forEach(passportAction);
 
         Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
-            TravellerType travType = TravellerType.find.byId(node.get(ID).asInt());
+            TravellerType travType = travellerTypeRepository.findById(node.get(ID).asLong());
             newUser.addTravType(travType);
         };
 
@@ -307,7 +328,7 @@ public class ProfileController {
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in, used for editing
-                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    Profile userProfile = profileRepository.findById(Long.valueOf(userId));
 
                     if (!profileExists(username) || userProfile.getUsername().equals(username)) {
                         return ok(); // If they are checking their own username, return ok()
@@ -340,7 +361,7 @@ public class ProfileController {
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in
-                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    Profile userProfile = profileRepository.findById(Long.valueOf(userId));
                     return ok(Json.toJson(userProfile));
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
@@ -365,8 +386,8 @@ public class ProfileController {
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in
-                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
-                    Profile profileToDelete =  Profile.find.byId(id.intValue());
+                    Profile userProfile = profileRepository.findById(Long.valueOf(userId));
+                    Profile profileToDelete = profileRepository.findById(id);
 
                     if (userProfile == null || profileToDelete == null) {
                         return badRequest("Profile could not be found.");
@@ -441,8 +462,8 @@ public class ProfileController {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
-                    Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
-                    Profile profileToUpdate = Profile.find.byId(editUserId.intValue());
+                    Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
+                    Profile profileToUpdate = profileRepository.findById(editUserId);
 
                     if (profileToUpdate == null) {
                         return badRequest("No profile found"); // User does not exist in the system.
@@ -490,21 +511,21 @@ public class ProfileController {
                     profileToUpdate.update();
 
                     Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
-                        Nationality newNationality = Nationality.find.byId(node.get(ID).asInt());
+                        Nationality newNationality = nationalityRepository.findById(node.get(ID).asLong());
                         profileToUpdate.addNationality(newNationality);
                     };
 
                     json.get(NATIONALITY).forEach(nationalityAction);
 
                     Consumer<JsonNode> passportAction = (JsonNode node) -> {
-                        Passport newPassport = Passport.find.byId(node.get(ID).asInt());
+                        Passport newPassport = passportRepository.findById(node.get(ID).asLong());
                         profileToUpdate.addPassport(newPassport);
                     };
 
                     json.get(PASSPORT).forEach(passportAction);
 
                     Consumer<JsonNode> travTypeAction = (JsonNode node) -> {
-                        TravellerType newTravellerType = TravellerType.find.byId(node.get(ID).asInt());
+                        TravellerType newTravellerType = travellerTypeRepository.findById(node.get(ID).asLong());
                         profileToUpdate.addTravType(newTravellerType);
                     };
 
@@ -639,10 +660,10 @@ public class ProfileController {
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in
-                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    Profile userProfile = profileRepository.findById(Long.valueOf(userId));
                     // If profile logged in is admin, can make another user admin.
                     if (userProfile.getIsAdmin()) {
-                        Profile updateProfile = Profile.find.byId(id.intValue());
+                        Profile updateProfile = profileRepository.findById(id);
                         updateProfile.setIsAdmin(true);
                         updateProfile.update();
                     } else {
@@ -669,10 +690,10 @@ public class ProfileController {
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in
-                    Profile userProfile = Profile.find.byId(Integer.valueOf(userId));
+                    Profile userProfile = profileRepository.findById(Long.valueOf(userId));
                     // If the logged in user is admin
                     if (userProfile.getIsAdmin()) {
-                        Profile updateProfile = Profile.find.byId(id.intValue());
+                        Profile updateProfile = profileRepository.findById(id);
                         // If the profile trying to be changed is not the global admin (id number one).
                         if (!updateProfile.getId().equals(DEFAULT_ADMIN_ID)) {
                             if (updateProfile.getIsAdmin()) {

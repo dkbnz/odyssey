@@ -25,6 +25,13 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.NationalityRepository;
+import repositories.PassportRepository;
+import repositories.ProfileRepository;
+import repositories.destinations.DestinationRepository;
+import repositories.destinations.DestinationTypeRepository;
+import repositories.destinations.TravellerTypeRepository;
+import repositories.photos.PersonalPhotoRepository;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -79,6 +86,10 @@ public class PhotoTestSteps {
     private int statusCode;
     private String LOGGED_IN_ID;
 
+    private PersonalPhotoRepository personalPhotoRepository;
+    private DestinationRepository destinationRepository;
+    private ProfileRepository profileRepository;
+
     @Before
     public void setUp() {
         Map<String, String> configuration = new HashMap<>();
@@ -94,6 +105,11 @@ public class PhotoTestSteps {
         application = fakeApplication(configuration);
 
         database = application.injector().instanceOf(Database.class);
+
+        personalPhotoRepository = application.injector().instanceOf(PersonalPhotoRepository.class);
+        destinationRepository = application.injector().instanceOf(DestinationRepository.class);
+        profileRepository = application.injector().instanceOf(ProfileRepository.class);
+
         applyEvolutions();
 
         Helpers.start(application);
@@ -218,21 +234,21 @@ public class PhotoTestSteps {
 
     @Given("a user exists in the database with the username {string} and id number {int}")
     public void aUserExistsInTheDatabaseWithTheUsernameAndId(String username, Integer id) {
-        Profile profile = Profile.find.byId(id);
+        Profile profile = profileRepository.findById(id.longValue());
         Assert.assertNotNull(profile);
         Assert.assertEquals(profile.getUsername(), username);
     }
 
     @Given("a photo exists with id {int}")
     public void photoExistsInDatabase(Integer id) {
-        PersonalPhoto photo = PersonalPhoto.find.byId(id);
+        PersonalPhoto photo = personalPhotoRepository.findById(id.longValue());
         Assert.assertNotNull(photo);
     }
 
 
     @Given("the destination with id {int} exists")
     public void theDestinationWithIdExists(Integer destinationId) {
-        Destination destination = Destination.find.byId(destinationId);
+        Destination destination = destinationRepository.findById(destinationId.longValue());
         Assert.assertNotNull(destination);
         Assert.assertEquals(destination.getId().toString(), destinationId.toString());
     }
@@ -240,8 +256,8 @@ public class PhotoTestSteps {
 
     @Given("the destination with id {int} has a photo with id {int}")
     public void theDestinationWithIdHasAPhotoWithId(Integer destinationId, Integer photoId) {
-        Destination destination = Destination.find.byId(destinationId);
-        PersonalPhoto photo = PersonalPhoto.find.byId(photoId);
+        Destination destination = destinationRepository.findById(destinationId.longValue());
+        PersonalPhoto photo = personalPhotoRepository.findById(photoId.longValue());
         Assert.assertNotNull(destination);
         Assert.assertNotNull(photo);
         Assert.assertTrue(destination.getPhotoGallery().contains(photo));

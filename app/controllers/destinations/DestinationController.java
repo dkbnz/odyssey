@@ -24,6 +24,7 @@ import repositories.TripRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.ProfileRepository;
 import repositories.TripDestinationRepository;
+import repositories.destinations.DestinationTypeRepository;
 import repositories.treasureHunts.TreasureHuntRepository;
 import util.AuthenticationUtil;
 import static util.QueryUtil.queryComparator;
@@ -54,12 +55,14 @@ public class DestinationController extends Controller {
     private TripDestinationRepository tripDestinationRepository;
     private TripRepository tripRepository;
     private TreasureHuntRepository treasureHuntRepository;
+    private DestinationTypeRepository destinationTypeRepository;
 
 
     @Inject
     public DestinationController(
             ProfileRepository profileRepository,
             DestinationRepository destinationRepository,
+            DestinationTypeRepository destinationTypeRepository,
             TripDestinationRepository tripDestinationRepository,
             TripRepository tripRepository,
             TreasureHuntRepository treasureHuntRepository) {
@@ -68,6 +71,7 @@ public class DestinationController extends Controller {
         this.tripDestinationRepository = tripDestinationRepository;
         this.tripRepository = tripRepository;
         this.treasureHuntRepository = treasureHuntRepository;
+        this.destinationTypeRepository = destinationTypeRepository;
     }
 
 
@@ -328,10 +332,7 @@ public class DestinationController extends Controller {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
-                    profileRepository = new ProfileRepository();
-
                     Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
-
                     Profile profileToChange = profileRepository.fetchSingleProfile(userId.intValue());
 
                     if (profileToChange == null) {
@@ -350,12 +351,12 @@ public class DestinationController extends Controller {
                     }
                     if (destinationDoesNotExist(json, profileToChange)) {
                         Destination destination = createNewDestination(json, profileToChange);
-                        destination.save();
+                        destinationRepository.save(destination);
 
                         profileToChange.addDestination(destination);
                         profileRepository.save(profileToChange);
 
-                        return created("Created");
+                        return created(Json.toJson(destination.getId()));
                     } else {
                         return badRequest("A destination with these details already exists either in your " +
                                 "destinations or public destinations lists.");
@@ -381,7 +382,7 @@ public class DestinationController extends Controller {
         destination.setPublic(json.has(IS_PUBLIC) && json.get(IS_PUBLIC).asBoolean());
         destination.changeOwner(owner);
 
-        DestinationType destType = DestinationType.find.byId(json.get(TYPE).asInt());
+        DestinationType destType = destinationTypeRepository.findById(json.get(TYPE).asLong());
 
         destination.setType(destType);
 
@@ -402,7 +403,7 @@ public class DestinationController extends Controller {
             return unauthorized();
         }
 
-        Destination destination = Destination.find.byId(destinationId.intValue());
+        Destination destination = destinationRepository.findById(destinationId);
 
         if (destination == null) {
             return notFound();

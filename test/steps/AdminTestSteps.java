@@ -16,6 +16,7 @@ import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.ProfileRepository;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -69,6 +70,7 @@ public class AdminTestSteps {
     private static final String REG_ID = "2";
 
     private String userId;
+    private ProfileRepository profileRepository;
 
     @Before
     public void setUp() {
@@ -86,6 +88,8 @@ public class AdminTestSteps {
 
         database = application.injector().instanceOf(Database.class);
         applyEvolutions();
+
+        profileRepository = application.injector().instanceOf(ProfileRepository.class);
 
         Helpers.start(application);
     }
@@ -267,7 +271,7 @@ public class AdminTestSteps {
 
     @Given("a user exists in the database with the id {int} and username {string}")
     public void aUserExistsInTheDatabaseWithTheIdAndUsername(Integer id, String username) {
-        Profile profile = Profile.find.byId(id);
+        Profile profile = profileRepository.findById(id.longValue());
         Assert.assertNotNull(profile);
         Assert.assertEquals(profile.getUsername(), username);
     }

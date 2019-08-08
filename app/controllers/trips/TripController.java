@@ -59,8 +59,8 @@ public class TripController extends Controller {
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
 
-                    Profile loggedInUser = Profile.find.byId(Integer.valueOf(userId));
-                    Profile affectedProfile = profileRepository.fetchSingleProfile(affectedUserId.intValue());
+                    Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
+                    Profile affectedProfile = profileRepository.findById(affectedUserId);
 
                     if (loggedInUser == null) {
                         return unauthorized();
@@ -218,19 +218,20 @@ public class TripController extends Controller {
         while (iterator.hasNext()) {
             // Set the current node having its contents extracted.
             JsonNode destinationJson = iterator.next();
-            int id = destinationJson.get(DESTINATION_ID).asInt();
+            Long id = destinationJson.get(DESTINATION_ID).asLong();
 
             // Check if current node has a destination ID, and it corresponds with a destination in our database.
             if (destinationJson.get(DESTINATION_ID) != null
                     && destinationJson.get(DESTINATION_ID).asLong() != previousDestination
-                    && Destination.find.byId(id) != null
+                    && destinationRepository.findById(id) != null
             ) {
                 // Checks the dates are done correctly
                 if (!isValidDates(destinationJson.get(START_DATE).asText(), destinationJson.get(END_DATE).asText())) {
                     return badResult;
                 }
                 // Parse the values contained in the current node of the array
-                Integer parsedDestinationId = Integer.parseInt(destinationJson.get(DESTINATION_ID).asText());
+                Long parsedDestinationId = destinationJson.get(DESTINATION_ID).asLong();
+
                 LocalDate parsedStartDate = null;
                 if (!(destinationJson.get(START_DATE).asText().equals("null")
                         || destinationJson.get(START_DATE).asText().equals(""))) {
@@ -241,7 +242,7 @@ public class TripController extends Controller {
                         || destinationJson.get(END_DATE).asText().equals(""))) {
                     parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
                 }
-                Destination parsedDestination = Destination.find.byId(parsedDestinationId);
+                Destination parsedDestination = destinationRepository.findById(parsedDestinationId);
 
                 // Create a new TripDestination object and set the values to be those parsed.
                 TripDestination newTripDestination = new TripDestination();
