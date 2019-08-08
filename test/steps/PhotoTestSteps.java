@@ -34,7 +34,7 @@ import repositories.destinations.TravellerTypeRepository;
 import repositories.photos.PersonalPhotoRepository;
 
 import javax.imageio.ImageIO;
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;

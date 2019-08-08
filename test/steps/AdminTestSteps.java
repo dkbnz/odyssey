@@ -18,7 +18,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 import repositories.ProfileRepository;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;

@@ -10,7 +10,7 @@ import models.photos.PersonalPhoto;
 import models.treasureHunts.TreasureHunt;
 import repositories.ProfileRepository;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import java.util.List;
 
 
@@ -100,10 +100,17 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      */
     public void transferDestinationOwnership(Destination destination) {
         Profile defaultAdmin = profileRepository.findById(DEFAULT_ADMIN_ID);
+        Profile oldOwner = destination.getOwner();
+
+        oldOwner.removeDestination(destination);
+        defaultAdmin.addDestination(destination);
 
         destination.changeOwner(defaultAdmin);
 
         super.update(destination);
+        profileRepository.update(oldOwner);
+        profileRepository.update(defaultAdmin);
+
     }
 
 
