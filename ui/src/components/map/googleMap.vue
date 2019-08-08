@@ -158,8 +158,7 @@
                         this.markerToAdd = this.placeDestinationMarker(this.destinationToAdd);
                     } else {
                         //Marker has already been added, so just change its location.
-                        // TODO: Instead of setting postion, possibly use a method to update whole marker (Name, etc.)
-                        this.markerToAdd.setPosition(destinationToAddLocation);
+                        this.changeDestinationMarker(destinationToAddLocation, this.destinationToAdd);
                     }
 
                     this.markerToAdd.setIcon(this.addingMarker);
@@ -207,6 +206,16 @@
                         + destination.country),
                     icon: destination.public ? this.publicMarker : this.privateMarker
                 });
+            },
+
+
+            /**
+             * Given a destination, places a destination marker on the map.
+             */
+            changeDestinationMarker(location, destination) {
+                this.markerToAdd.setPosition(location);
+                this.markerToAdd.setTitle(destination.name + "\n" + destination.district + "\n"
+                    + destination.country);
             },
 
 
