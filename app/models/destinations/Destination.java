@@ -59,7 +59,7 @@ public class Destination extends BaseModel {
     /**
      * The destinations photo gallery.
      */
-    @ManyToMany
+    @ManyToMany(cascade=CascadeType.PERSIST)
     private Set<PersonalPhoto> photoGallery = new TreeSet<>();
 
     /**

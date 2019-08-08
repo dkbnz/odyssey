@@ -99,18 +99,8 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      * @param destination   the destination to be changed ownership of.
      */
     public void transferDestinationOwnership(Destination destination) {
-        Profile defaultAdmin = profileRepository.findById(DEFAULT_ADMIN_ID);
-        Profile oldOwner = destination.getOwner();
-
-        oldOwner.removeDestination(destination);
-        defaultAdmin.addDestination(destination);
-
-        destination.changeOwner(defaultAdmin);
-
+        destination.changeOwner(profileRepository.findById(DEFAULT_ADMIN_ID));
         super.update(destination);
-        profileRepository.update(oldOwner);
-        profileRepository.update(defaultAdmin);
-
     }
 
 
