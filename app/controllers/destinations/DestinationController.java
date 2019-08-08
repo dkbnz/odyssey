@@ -343,10 +343,16 @@ public class DestinationController extends Controller {
     private boolean destinationDoesNotExist(JsonNode json, Profile profileToChange) {
         String name = json.get(NAME).asText();
         String district = json.get(DISTRICT).asText();
+        String country = json.get(COUNTRY).asText();
+        Long latitude = json.get(LATITUDE).asLong();
+        Long longitude = json.get(DISTRICT).asLong();
 
         List<Destination> destinations = destinationRepository.getExpressionList()
                 .ilike(NAME, name)
                 .ilike(DISTRICT, district)
+                .ilike(COUNTRY, country)
+                .eq(LATITUDE, latitude)
+                .eq(LONGITUDE, longitude)
                 .disjunction()
                     .eq(IS_PUBLIC, true)
                     .conjunction()
