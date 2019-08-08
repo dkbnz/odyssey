@@ -22,13 +22,11 @@ public class Destination extends BaseModel {
     /**
      * The name of the destination.
      */
-    @Constraints.Required
     private String name;
 
     /**
      * The type of destination (monument, natural landmark, building, event, etc...).
      */
-    @Constraints.Required
     @ManyToOne
     private DestinationType type;
 
@@ -36,31 +34,26 @@ public class Destination extends BaseModel {
      * The district(s) the destination belongs to.
      *
      */
-    @Constraints.Required
     private String district;
 
     /**
      * The latitude of the destination.
      */
-    @Constraints.Required
     private double latitude;
 
     /**
      * The longitude of the destination.
      */
-    @Constraints.Required
     private double longitude;
 
     /**
      * The country the destination belongs to.
      */
-    @Constraints.Required
     private String country;
 
     /**
      * The owner of the destination.
      */
-    @Constraints.Required
     @ManyToOne
     private Profile owner;
 
@@ -73,14 +66,13 @@ public class Destination extends BaseModel {
     /**
      * Stating the privacy of the destination if it is public or not.
      */
-    @Constraints.Required
     private Boolean isPublic;
 
     /**
      * List of trip destinations that the destination is associated with.
      */
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "destination")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "destination")
     private List<TripDestination> tripDestinations;
 
     @ManyToMany

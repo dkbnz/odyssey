@@ -414,7 +414,6 @@ public class DestinationController extends Controller {
             return forbidden();
         }
 
-
         destinationRepository.delete(destination);
         return ok("Deleted");
     }
@@ -427,13 +426,14 @@ public class DestinationController extends Controller {
      * @param request   Http request containing a Json body of fields to update in the destination.
      * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
      */
-    public Result edit(Http.Request request, Long id) {
+    public Result edit(Http.Request request, Long id) throws IllegalAccessException {
+
         Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
         }
 
-        Destination currentDestination = destinationRepository.fetch(id);
+        Destination currentDestination = destinationRepository.findById(id);
 
         if (currentDestination == null) {
             return notFound();
@@ -449,7 +449,7 @@ public class DestinationController extends Controller {
 
         JsonNode json = request.body().asJson();
 
-        currentDestination = Json.fromJson(json, Destination.class);
+        currentDestination.updateFromObject(Json.fromJson(json, Destination.class));
 
         currentDestination.addTripDestinations(tripDestinationsList);
 
@@ -460,6 +460,8 @@ public class DestinationController extends Controller {
         if (currentDestination.getLatitude() > LATITUDE_LIMIT || currentDestination.getLatitude() < -LATITUDE_LIMIT) {
             return badRequest();
         }
+
+        destinationRepository.update(currentDestination);
 
         mergeDestinations(currentDestination);
         destinationRepository.update(currentDestination);
@@ -475,7 +477,7 @@ public class DestinationController extends Controller {
     private void mergeDestinations(Destination destinationToUpdate) {
         List<Destination> similarDestinations = destinationRepository.findEqual(destinationToUpdate);
 
-        if (shouldMerge(destinationToUpdate, similarDestinations) && !similarDestinations.isEmpty()) {
+        if (!similarDestinations.isEmpty() && shouldMerge(destinationToUpdate, similarDestinations)) {
                 for (Destination destinationToMerge: similarDestinations) {
                     consume(destinationToUpdate, destinationToMerge);
                 }
@@ -541,64 +543,72 @@ public class DestinationController extends Controller {
      * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
      */
     private void mergeTripDestinations(Destination destinationToUpdate, Destination destinationToMerge) {
+
+        for(TripDestination tripDestination : destinationToMerge.getTripDestinations()) {
+            destinationToUpdate.addTripDestination(tripDestination);
+        }
+        destinationToMerge.clearTripDestinations();
+
+
+
         // Takes all trip destinations from other into this destination
-        List<TripDestination> tripDestinationsToAdd = new ArrayList<>();
-        List<TripDestination> tripDestinationsToDelete = new ArrayList<>();
-
-        for (TripDestination tripDestination : destinationToMerge.getTripDestinations()) {
-
-            // Create a new TripDestination as a copy of the TripDestination.
-            TripDestination tripDestinationTemporary = new TripDestination();
-            tripDestinationTemporary.setId(tripDestination.getId());
-            tripDestinationTemporary.setDestination(destinationToUpdate);
-            tripDestinationTemporary.setStartDate(tripDestination.getStartDate());
-            tripDestinationTemporary.setEndDate(tripDestination.getEndDate());
-            tripDestinationTemporary.setListOrder(tripDestination.getListOrder());
-            tripDestinationTemporary.setTrip(tripDestination.getTrip());
-
-            // Add the copied TripDestination to the list of TripDestination for the master destination in merge.
-            destinationToUpdate.addTripDestination(tripDestinationTemporary);
-
-            // Add both TripDestinations to the appropriate lists to be removed/deleted.
-            tripDestinationsToAdd.add(tripDestinationTemporary);
-            tripDestinationsToDelete.add(tripDestination);
-        }
-
-        for(TripDestination tripDestination: tripDestinationsToDelete) {
-            // Set the Trip and Destination for the TripDestination to null, removing the foreign key links.
-            tripDestination.setDestination(null);
-            tripDestination.setTrip(null);
-            tripDestinationRepository.update(tripDestination);
-            tripDestinationRepository.delete(tripDestination);
-        }
-
-        for(TripDestination tripDestination: tripDestinationsToAdd) {
-            // Save the Trip and Destination for the TripDestination, so can be added later.
-            Trip trip = tripDestination.getTrip();
-            Destination destination = tripDestination.getDestination();
-
-            // Set the Trip and Destination for the TripDestination to null.
-            tripDestination.setId(null);
-            tripDestination.setTrip(null);
-            tripDestination.setDestination(null);
-            tripDestinationRepository.save(tripDestination);
-
-            // Add the TripDestination to the Trip.
-            trip.addDestinations(tripDestination);
-            tripRepository.update(trip);
-
-            // Set the Destination and Trip for the TripDestination.
-            tripDestination.setDestination(destination);
-            tripDestination.setTrip(trip);
-            trip.addDestinations(tripDestination);
-
-            destination.addTripDestination(tripDestination);
-
-            // Save all changes to the database.
-            destinationRepository.update(destination);
-            tripDestinationRepository.update(tripDestination);
-            tripRepository.update(trip);
-        }
+//        List<TripDestination> tripDestinationsToAdd = new ArrayList<>();
+//        List<TripDestination> tripDestinationsToDelete = new ArrayList<>();
+//
+//        for (TripDestination tripDestination : destinationToMerge.getTripDestinations()) {
+//
+//            // Create a new TripDestination as a copy of the TripDestination.
+//            TripDestination tripDestinationTemporary = new TripDestination();
+//            tripDestinationTemporary.setId(tripDestination.getId());
+//            tripDestinationTemporary.setDestination(destinationToUpdate);
+//            tripDestinationTemporary.setStartDate(tripDestination.getStartDate());
+//            tripDestinationTemporary.setEndDate(tripDestination.getEndDate());
+//            tripDestinationTemporary.setListOrder(tripDestination.getListOrder());
+//            tripDestinationTemporary.setTrip(tripDestination.getTrip());
+//
+//            // Add the copied TripDestination to the list of TripDestination for the master destination in merge.
+//            destinationToUpdate.addTripDestination(tripDestinationTemporary);
+//
+//            // Add both TripDestinations to the appropriate lists to be removed/deleted.
+//            tripDestinationsToAdd.add(tripDestinationTemporary);
+//            tripDestinationsToDelete.add(tripDestination);
+//        }
+//
+//        for(TripDestination tripDestination: tripDestinationsToDelete) {
+//            // Set the Trip and Destination for the TripDestination to null, removing the foreign key links.
+//            tripDestination.setDestination(null);
+//            tripDestination.setTrip(null);
+//            tripDestinationRepository.update(tripDestination);
+//            tripDestinationRepository.delete(tripDestination);
+//        }
+//
+//        for(TripDestination tripDestination: tripDestinationsToAdd) {
+//            // Save the Trip and Destination for the TripDestination, so can be added later.
+//            Trip trip = tripDestination.getTrip();
+//            Destination destination = tripDestination.getDestination();
+//
+//            // Set the Trip and Destination for the TripDestination to null.
+//            tripDestination.setId(null);
+//            tripDestination.setTrip(null);
+//            tripDestination.setDestination(null);
+//            tripDestinationRepository.save(tripDestination);
+//
+//            // Add the TripDestination to the Trip.
+//            trip.addDestinations(tripDestination);
+//            tripRepository.update(trip);
+//
+//            // Set the Destination and Trip for the TripDestination.
+//            tripDestination.setDestination(destination);
+//            tripDestination.setTrip(trip);
+//            trip.addDestinations(tripDestination);
+//
+//            destination.addTripDestination(tripDestination);
+//
+//            // Save all changes to the database.
+//            destinationRepository.update(destination);
+//            tripDestinationRepository.update(tripDestination);
+//            tripRepository.update(trip);
+//        }
     }
 
 
@@ -657,16 +667,12 @@ public class DestinationController extends Controller {
      * @param destinationToMerge    the destination that is being consumed.
      */
     private void mergeTreasureHunts(Destination destinationToUpdate, Destination destinationToMerge) {
-        List<TreasureHunt> mergeTreasureHuntsList = treasureHuntRepository.getTreasureHuntsWithDestination(destinationToMerge);
-        for (TreasureHunt treasureHunt : mergeTreasureHuntsList) {
-            // Initially set the destination for the treasure hunt to null.
-            treasureHunt.setDestination(null);
-            treasureHuntRepository.update(treasureHunt);
+        List<TreasureHunt> mergeTreasureHuntsList = treasureHuntRepository
+                .getTreasureHuntsWithDestination(destinationToMerge);
 
-            // Set the destination for the treasure hunt to the appropriate destination and update both.
+        for (TreasureHunt treasureHunt : mergeTreasureHuntsList) {
             treasureHunt.setDestination(destinationToUpdate);
             treasureHuntRepository.update(treasureHunt);
-            destinationRepository.update(destinationToUpdate);
         }
     }
 }
