@@ -44,7 +44,10 @@
     export default {
         name: "destinationSidebar",
 
-        props: ['profile', 'inputDestination'],
+        props: {
+            profile: Object,
+            inputDestination: Object
+        },
 
         data() {
             return {

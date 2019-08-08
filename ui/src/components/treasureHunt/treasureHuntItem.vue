@@ -415,15 +415,6 @@
             },
 
 
-            // /**
-            //  * Used after the destination is added, resets the form for adding a destination.
-            //  */
-            // resetDestForm() {
-            //     this.$emit()
-            //     this.selectedDestination = {};
-            // },
-
-
             /**
              * Creates formatted JSON of the currently active treasure hunt.
              * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.

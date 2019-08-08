@@ -259,7 +259,7 @@
             /**
              * Used to dismiss the edit a destination modal.
              *
-             * @param modal the modal that is wanting to be dismissed.
+             * @param modal     the modal that is wanting to be dismissed.
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();

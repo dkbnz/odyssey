@@ -17,9 +17,6 @@
                                     @destination-click="destination => this.selectedDestination = destination">
                         </google-map>
                     </b-card>
-                    <b-card ref="locationButton">
-
-                    </b-card>
                     <b-alert
                             :show="dismissCountDown"
                             @dismiss-count-down="countDownChanged"
