@@ -19,7 +19,7 @@ public class TripRepository extends BeanRepository<Long, Trip> {
     private static final String TRIP_ID = "id";
 
     public TripRepository() {
-        super(Trip.class, Ebean.getServer("default"));
+        super(Trip.class, Ebean.getDefaultServer());
     }
 
 

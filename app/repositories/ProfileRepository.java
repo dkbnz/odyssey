@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 public class ProfileRepository extends BeanRepository<Long, Profile> {
 
     public ProfileRepository() {
-        super(Profile.class, Ebean.getServer("default"));
+        super(Profile.class, Ebean.getDefaultServer());
     }
 
     /**

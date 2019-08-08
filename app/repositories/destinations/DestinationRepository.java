@@ -16,7 +16,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
     private static final String PHOTO_FIELD = "photoGallery.photo";
 
     public DestinationRepository() {
-        super(Destination.class, Ebean.getServer("default"));
+        super(Destination.class, Ebean.getDefaultServer());
     }
 
 

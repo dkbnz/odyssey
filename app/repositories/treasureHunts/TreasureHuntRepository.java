@@ -8,6 +8,6 @@ import models.treasureHunts.TreasureHunt;
 public class TreasureHuntRepository extends BeanRepository<Long, TreasureHunt> {
 
     public TreasureHuntRepository() {
-        super(TreasureHunt.class, Ebean.getServer("default"));
+        super(TreasureHunt.class, Ebean.getDefaultServer());
     }
 }
