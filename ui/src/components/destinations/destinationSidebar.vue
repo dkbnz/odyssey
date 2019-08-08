@@ -73,6 +73,15 @@
                     .then(updateDestinationTypes);
             },
 
+
+            /**
+             * Updates the destinations to be displayed on the destinations page. These are destinations to be displayed
+             * on the map.
+             *
+             * @param publicDestinations   boolean value that is true if public destinations are to be displayed, false
+             *                             otherwise.
+             * @param destinations         the destinations found in the search.
+             */
             foundDestinationUpdate(publicDestinations, destinations) {
                 if (publicDestinations) {
                     this.foundPublicDestinations = destinations;

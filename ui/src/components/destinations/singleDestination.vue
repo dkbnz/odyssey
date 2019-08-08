@@ -1,16 +1,5 @@
 <template>
     <div v-if="destination.owner !== undefined">
-        <b-modal hide-footer id="editDestModal" ref="editDestModal" size="l" title="Edit Destination">
-            <add-destinations
-                    :inputDestination="copiedDestination"
-                    :profile="profile"
-                    :heading="'Edit'"
-                    :destination-types="destinationTypes"
-                    @destination-saved="destinationSaved">
-            </add-destinations>
-            <b-button @click="dismissModal('editDestModal')" class="mr-3 buttonMarginsTop float-right">Close</b-button>
-        </b-modal>
-
         <b-modal id="deleteDestModal" ref="deleteDestModal" size="xl" title="Delete Destination">
             <b-alert v-model="showError" variant="danger" dismissible>
                 Could not delete destination!
@@ -216,11 +205,11 @@
 
 
             /**
-             * Copies the selected destination and displays the edit destination modal.
+             * Copies the selected destination and emits an event to parent component containing the destination.
              */
             editDestination() {
                 this.copiedDestination = this.copyDestination();
-                this.$refs["editDestModal"].show();
+                this.$emit('destination-edit', this.copiedDestination);
             },
 
 
@@ -270,7 +259,7 @@
             /**
              * Used to dismiss the edit a destination modal.
              *
-             * @param modal, the modal that is wanting to be dismissed.
+             * @param modal the modal that is wanting to be dismissed.
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();

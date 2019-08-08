@@ -47,12 +47,13 @@
                                 :destination-types="destinationTypes"
                                 :profile="profile"
                                 @destination-saved="refreshDestinations"
-                                @destination-deleted="destinationDeleted">
+                                @destination-deleted="destinationDeleted"
+                                @destination-edit="destinationEdited">
                         </single-destination>
                     </b-card>
                 </b-col>
                 <b-col>
-                    <b-card>
+                    <b-card v-if="!destinationEdit">
                         <destination-sidebar
                                 :profile="profile"
                                 @destination-click="selectDestination"
@@ -61,6 +62,16 @@
                                 :input-destination="destinationToAdd"
                                 @data-changed="$emit('data-changed')"
                         ></destination-sidebar>
+                    </b-card>
+                    <b-card v-else>
+                        <add-destinations
+                                :inputDestination="copiedDestination"
+                                :profile="profile"
+                                :heading="'Edit'"
+                                :destination-types="destinationTypes"
+                                @destination-saved="destinationSaved">
+                        </add-destinations>
+                        <b-button @click="closeEditDestination" class="mr-3 buttonMarginsTop" block>Close</b-button>
                     </b-card>
                 </b-col>
             </b-row>
@@ -81,7 +92,6 @@
     import DestinationSidebar from "./destinationSidebar";
     import SingleDestination from "./singleDestination";
     import GoogleMap from "../map/googleMap";
-    import LocationButton from "../map/getLocationButton"
 
     export default {
         name: "destinationsPage",
@@ -137,7 +147,9 @@
                     longitude: null,
                     country: "",
                     public: false
-                }
+                },
+                destinationEdit: false,
+                copiedDestination: null
             }
         },
 
@@ -212,7 +224,8 @@
 
             /**
              * Changes the selected destination or focuses on current destination.
-             * @param destinationToSelect
+             *
+             * @param destinationToSelect   the destination that has been selected on the map.
              */
             selectDestination(destinationToSelect) {
                 if (destinationToSelect.id === this.selectedDestination.id) {
@@ -220,6 +233,25 @@
                 } else {
                     this.selectedDestination = destinationToSelect;
                 }
+            },
+
+
+            /**
+             * Displays the edit destination form for the given destination.
+             *
+             * @param destination   the destination that is being edited.
+             */
+            destinationEdited(destination) {
+                this.copiedDestination = destination;
+                this.destinationEdit = !this.destinationEdit;
+            },
+
+
+            /**
+             * Replaces the edit destination form with the destination side bar if the close button is clicked.
+             */
+            closeEditDestination() {
+                this.destinationEdit = false;
             }
         }
     }
