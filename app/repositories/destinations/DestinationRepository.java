@@ -34,7 +34,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      */
     @Override
     public void update(Destination destination) {
-        super.save(destination);
+        super.update(destination);
     }
 
     /**
