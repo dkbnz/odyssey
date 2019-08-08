@@ -15,7 +15,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import util.AuthenticationUtil;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;

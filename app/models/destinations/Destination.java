@@ -7,7 +7,6 @@ import models.Profile;
 import models.TravellerType;
 import models.photos.PersonalPhoto;
 import models.trips.TripDestination;
-import play.data.validation.Constraints;
 import javax.persistence.*;
 import java.util.*;
 
@@ -54,7 +53,7 @@ public class Destination extends BaseModel {
     /**
      * The owner of the destination.
      */
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.PERSIST)
     private Profile owner;
 
     /**

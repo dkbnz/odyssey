@@ -12,7 +12,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import java.util.*;
 
 import models.Profile;
@@ -445,13 +445,9 @@ public class DestinationController extends Controller {
             return forbidden();
         }
 
-        List<TripDestination> tripDestinationsList = currentDestination.getTripDestinations();
-
         JsonNode json = request.body().asJson();
 
         currentDestination.updateFromObject(Json.fromJson(json, Destination.class));
-
-        currentDestination.addTripDestinations(tripDestinationsList);
 
         if (currentDestination.getLongitude() > LONGITUDE_LIMIT || currentDestination.getLongitude() < -LONGITUDE_LIMIT) {
             return badRequest();
@@ -465,6 +461,7 @@ public class DestinationController extends Controller {
 
         mergeDestinations(currentDestination);
         destinationRepository.update(currentDestination);
+
         return ok("Destination updated");
     }
 

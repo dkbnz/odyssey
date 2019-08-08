@@ -6,7 +6,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import repositories.NationalityRepository;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import java.util.List;
 
 /**
