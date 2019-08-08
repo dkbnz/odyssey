@@ -86,7 +86,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
         // Clear the destination photos
         destination.clearAllTravellerTypeSets();
         destination.clearPhotoGallery();
-        super.save(destination);
+        super.update(destination);
         // Delete destination
         return super.delete(destination);
     }
@@ -103,7 +103,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
 
         destination.changeOwner(defaultAdmin);
 
-        update(destination);
+        super.update(destination);
     }
 
 
@@ -125,7 +125,6 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
                 .ne("id", destination.getId())
                 .findList();
     }
-
 
     public ExpressionList<Destination> getExpressionList() {
         return query().where();
