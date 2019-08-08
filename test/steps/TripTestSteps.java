@@ -26,6 +26,7 @@ import static play.test.Helpers.*;
 
 import play.db.evolutions.Evolutions;
 import repositories.ProfileRepository;
+import repositories.TripRepository;
 import repositories.destinations.DestinationRepository;
 
 import java.io.IOException;
@@ -118,6 +119,7 @@ public class TripTestSteps {
     private static final String TRIP_NAME_FIELD = "name";
 
     private DestinationRepository destinationRepository;
+    private TripRepository tripRepository;
 
 
     @Before
@@ -137,6 +139,7 @@ public class TripTestSteps {
 
         database = application.injector().instanceOf(Database.class);
         destinationRepository = application.injector().instanceOf(DestinationRepository.class);
+        tripRepository = application.injector().instanceOf(TripRepository.class);
 
         applyEvolutions();
 
@@ -360,8 +363,8 @@ public class TripTestSteps {
      * @return          The id of the trip.
      */
     private Long getTripIdFromTripName(String tripName) {
-        return Trip
-                .find.query()
+        return tripRepository
+                .getExpressionList()
                 .select(TRIP_ID_FIELD)
                 .where().eq(TRIP_NAME_FIELD, tripName)
                 .findSingleAttribute();

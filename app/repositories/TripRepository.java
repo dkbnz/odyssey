@@ -120,7 +120,7 @@ public class TripRepository extends BeanRepository<Long, Trip> {
         List<Trip> trips;
 
         // Creates a list of trips from a query based on profile id
-        ExpressionList<Trip> expressionList = Trip.getFind().query().where();
+        ExpressionList<Trip> expressionList = query().where();
         expressionList.eq(PROFILE_ID, profileId);
         trips = expressionList.findList();
 
@@ -166,5 +166,9 @@ public class TripRepository extends BeanRepository<Long, Trip> {
         }
 
         return trips;
+    }
+
+    public ExpressionList<Trip> getExpressionList() {
+        return query().where();
     }
 }

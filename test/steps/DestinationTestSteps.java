@@ -26,6 +26,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.TripRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.destinations.TravellerTypeRepository;
@@ -243,6 +244,7 @@ public class DestinationTestSteps {
     private TravellerTypeRepository travellerTypeRepository;
     private DestinationTypeRepository destinationTypeRepository;
     private TreasureHuntRepository treasureHuntRepository;
+    private TripRepository tripRepository;
 
 
     /**
@@ -274,6 +276,7 @@ public class DestinationTestSteps {
         travellerTypeRepository = application.injector().instanceOf(TravellerTypeRepository.class);
         destinationTypeRepository = application.injector().instanceOf(DestinationTypeRepository.class);
         treasureHuntRepository = application.injector().instanceOf(TreasureHuntRepository.class);
+        tripRepository = application.injector().instanceOf(TripRepository.class);
     }
 
 
@@ -1324,7 +1327,7 @@ public class DestinationTestSteps {
 
     @Then("the trip with name {string} is deleted")
     public void theTripWithNameIsDeleted(String tripName) {
-        List<Trip> trips = Trip.find.query().where().ilike(TRIP_NAME_FIELD, queryComparator(tripName)).findList();
+        List<Trip> trips = tripRepository.getExpressionList().ilike(TRIP_NAME_FIELD, queryComparator(tripName)).findList();
         Assert.assertEquals(0, trips.size());
     }
 
