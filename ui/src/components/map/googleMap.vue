@@ -156,7 +156,7 @@
                         this.markerToAdd.setPosition(destinationToAddLocation);
                     }
 
-                    this.markerToAdd.setIcon(this.addingMarker)
+                    this.markerToAdd.setIcon(this.addingMarker);
                     this.$map.panTo({
                         lat: parseFloat(destinationToAddLocation.lat),
                         lng: parseFloat(destinationToAddLocation.lng)
@@ -174,7 +174,6 @@
                 if (this.destinations === null) {
                     return;
                 }
-
 
                 for (let i = 0; i < this.destinations.length; i++) {
                     let currentDestination = this.destinations[i];
@@ -195,14 +194,13 @@
              * Given a destination, places a destination marker on the map.
              */
             placeDestinationMarker(destination) {
-                let marker = new google.maps.Marker({
+                return new google.maps.Marker({
                     position: {lat: parseFloat(destination.latitude), lng: parseFloat(destination.longitude)},
                     map: this.$map,
                     title: (destination.name + "\n" + destination.district + "\n"
                         + destination.country),
                     icon: destination.public ? this.publicMarker : this.privateMarker
                 });
-                return marker;
             },
 
 

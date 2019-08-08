@@ -1,20 +1,27 @@
 <template>
     <div>
-        <b-button @click="getCurrentLocation()" variant="outline-primary" block size="sm" class="buttonMarginsBottom">Use Current Location</b-button>
+        <b-button @click="getCurrentLocation()"
+                  variant="outline-primary"
+                  block
+                  size="sm"
+                  class="buttonMarginsBottom">
+            Use Current Location
+        </b-button>
     </div>
 </template>
 
 <script>
     export default {
         name: "getLocationButton",
-        methods:{
+
+        methods: {
             /**
-             * Gets the current location using geolocation
+             * Gets the current location using geolocation.
              */
             getCurrentLocation: function () {
-                if(navigator.geolocation){
+                if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(this.showPosition);
-                }else{
+                } else {
                     this.$bvToast.toast('Unable to Get Current Location', {
                         title: `Geolocation Error`,
                         variant: "danger",
@@ -24,21 +31,18 @@
                 }
             },
 
+
             /**
-             * helper function of getCurrentLocation that saves lat/long to appropriate variables
-             * @param position
+             * Helper function of getCurrentLocation that saves lat/long to appropriate variables.
+             *
+             * @param position  the current position on the map.
              */
-            showPosition:function (position) {
+            showPosition: function (position) {
                 this.$emit('get-current-location', {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude
                 });
             }
         }
-
-    };
+    }
 </script>
-
-<style scoped>
-
-</style>
