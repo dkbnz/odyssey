@@ -85,10 +85,10 @@
             foundDestinationUpdate(publicDestinations, destinations) {
                 if (publicDestinations) {
                     this.foundPublicDestinations = destinations;
-                    this.$emit('destination-search', this.foundPublicDestinations)
+                    this.$emit('destination-search', this.foundPublicDestinations);
                 } else {
                     this.yourFoundDestinations = destinations;
-                    this.$emit('destination-search', this.yourFoundDestinations)
+                    this.$emit('destination-search', this.yourFoundDestinations);
                 }
             }
         },
