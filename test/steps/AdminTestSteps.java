@@ -278,9 +278,7 @@ public class AdminTestSteps {
 
     @Given("a user does not exist with the username {string}")
     public void aUserDoesNotExistWithTheUsername(String username) {
-        Assert.assertNull(Profile.find
-                .query()
-                .where()
+        Assert.assertNull(profileRepository.getExpressionList()
                 .like(USERNAME, username)
                 .findOne());
     }

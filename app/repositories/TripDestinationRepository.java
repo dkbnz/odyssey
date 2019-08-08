@@ -24,7 +24,7 @@ public class TripDestinationRepository extends BeanRepository<Long, TripDestinat
      */
     public List<TripDestination> fetchTripsContainingDestination(Destination destination) {
 
-        return Ebean.find(TripDestination.class)
+        return query()
                 .select("trip")
                 .where()
                 .eq("destination", destination)
@@ -50,7 +50,7 @@ public class TripDestinationRepository extends BeanRepository<Long, TripDestinat
      * @param tripDestination       the TripDestination being saved.
      */
     public void save(TripDestination tripDestination) {
-        tripDestination.save();
+        super.save(tripDestination);
     }
 
 
@@ -60,7 +60,7 @@ public class TripDestinationRepository extends BeanRepository<Long, TripDestinat
      * @param tripDestination       the TripDestination to be deleted.
      */
     public boolean delete(TripDestination tripDestination) {
-        return tripDestination.delete();
+        return super.delete(tripDestination);
     }
 
 
@@ -70,6 +70,15 @@ public class TripDestinationRepository extends BeanRepository<Long, TripDestinat
      * @param tripDestination       the TripDestination being updated.
      */
     public void update(TripDestination tripDestination) {
-        tripDestination.update();
+        super.update(tripDestination);
+    }
+
+    /**
+     *
+     * @param usedDestination
+     * @return
+     */
+    public List<TripDestination> findAllUsing(Destination usedDestination) {
+        return query().where().eq("destination", usedDestination).findList();
     }
 }

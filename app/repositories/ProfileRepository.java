@@ -3,6 +3,7 @@ package repositories;
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import models.Profile;
 import models.photos.PersonalPhoto;
 import org.springframework.context.annotation.Bean;
@@ -44,7 +45,7 @@ public class ProfileRepository extends BeanRepository<Long, Profile> {
     /**
      * Updates the specified profile object.
      */
-    public void update(Profile profile) {profile.update();}
+    public void update(Profile profile) {super.update(profile);}
 
 
     /**
@@ -52,6 +53,10 @@ public class ProfileRepository extends BeanRepository<Long, Profile> {
     */
     public void deleteProfilePhoto(Profile profile) {
         profile.setProfilePicture(null);
-        profile.save();
+        super.save(profile);
+    }
+
+    public ExpressionList<Profile> getExpressionList() {
+        return query().where();
     }
 }

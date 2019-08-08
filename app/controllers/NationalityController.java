@@ -4,6 +4,9 @@ import models.Nationality;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import repositories.NationalityRepository;
+
+import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -13,15 +16,20 @@ import java.util.List;
  */
 public class NationalityController extends Controller {
 
+    private NationalityRepository nationalityRepository;
+
+    @Inject
+    public NationalityController(NationalityRepository nationalityRepository) {
+        this.nationalityRepository = nationalityRepository;
+    }
+
     /**
      * Pulls a list of Nationalities from the database and returns it as a Json list.
      *
      * @return ok() (Http 200) with the result as a Json body.
      */
     public Result list() {
-
-        List<Nationality> nationalities = Nationality.find.all();
-
+        List<Nationality> nationalities = nationalityRepository.findAll();
         return ok(Json.toJson(nationalities));
     }
 }

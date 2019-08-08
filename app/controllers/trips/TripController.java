@@ -32,15 +32,17 @@ public class TripController extends Controller {
     private static final String TRIP_ID = "trip_id";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private static final int DEFAULT_ADMIN_ID = 1;
-    private TripRepository repository;
+
+    private TripRepository tripRepository;
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
 
 
     @Inject
     public TripController(TripRepository tripRepository,
-                          ProfileRepository profileRepository, DestinationRepository destinationRepository) {
-        this.repository = tripRepository;
+                          ProfileRepository profileRepository,
+                          DestinationRepository destinationRepository) {
+        this.tripRepository = tripRepository;
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
     }
@@ -94,7 +96,7 @@ public class TripController extends Controller {
                     // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return 201.
                     if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
                         trip.setDestinations(destinationList);
-                        repository.saveNewTrip(affectedProfile, trip);
+                        tripRepository.saveNewTrip(affectedProfile, trip);
                         for (TripDestination tripDestination: destinationList) {
                             determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
                         }
@@ -151,14 +153,14 @@ public class TripController extends Controller {
             return unauthorized();
         }
         // Retrieve the individual trip being deleted by its id.
-        Trip trip = repository.fetchSingleTrip(tripId);
+        Trip trip = tripRepository.fetchSingleTrip(tripId);
 
         if (trip == null) {
             return notFound();
         }
 
         // Retrieve the profile having its trip removed from the trip id.
-        Long ownerId = TripRepository.fetchTripOwner(tripId);
+        Long ownerId = tripRepository.fetchTripOwner(tripId);
         if (ownerId == null) {
             return badRequest();
         }
@@ -180,7 +182,7 @@ public class TripController extends Controller {
         String name = json.get(NAME).asText();
         trip.setName(name);
 
-        repository.removeTripDestinations(trip);
+        tripRepository.removeTripDestinations(trip);
 
         // Create a json node for the destinations contained in the trip to use for iteration.
         ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
@@ -189,7 +191,7 @@ public class TripController extends Controller {
         List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
 
         if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
-            repository.updateTrip(tripOwner, trip, destinationList);
+            tripRepository.updateTrip(tripOwner, trip, destinationList);
             return ok();
         } else {
             return badRequest();
@@ -340,7 +342,7 @@ public class TripController extends Controller {
         }
 
         // Retrieving the trip which corresponds to the id parsed.
-        Trip returnedTrip = repository.fetchSingleTrip(parsedTripId);
+        Trip returnedTrip = tripRepository.fetchSingleTrip(parsedTripId);
 
         // Verifying the existence of the trip being retrieved.
         if (returnedTrip == null) {
@@ -380,7 +382,7 @@ public class TripController extends Controller {
      * @return      the list of trips as a Json.
      */
     public Result fetchAll(Long id) {
-        List<Trip> trips = repository.fetchAllTrips(id);
+        List<Trip> trips = tripRepository.fetchAllTrips(id);
         return ok(Json.toJson(trips));
     }
 
@@ -402,14 +404,14 @@ public class TripController extends Controller {
             return unauthorized();
         }
         // Retrieve the individual trip being deleted by its id.
-        Trip trip = repository.fetchSingleTrip(tripId);
+        Trip trip = tripRepository.fetchSingleTrip(tripId);
 
         if (trip == null) {
             return notFound();
         }
 
         // Retrieve the profile having its trip removed from the trip id.
-        Long ownerId = TripRepository.fetchTripOwner(tripId);
+        Long ownerId = tripRepository.fetchTripOwner(tripId);
         if (ownerId == null) {
             return badRequest();
         }
@@ -421,7 +423,7 @@ public class TripController extends Controller {
         }
 
         // Repository method handling the database and object manipulation.
-        repository.deleteTripFromProfile(tripOwner, trip);
+        tripRepository.deleteTripFromProfile(tripOwner, trip);
         // Deletion successful.
         return ok();
     }
