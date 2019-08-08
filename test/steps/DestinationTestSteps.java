@@ -29,6 +29,7 @@ import play.test.Helpers;
 import repositories.destinations.DestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.destinations.TravellerTypeRepository;
+import repositories.treasureHunts.TreasureHuntRepository;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -241,6 +242,7 @@ public class DestinationTestSteps {
     private DestinationRepository destinationRepository;
     private TravellerTypeRepository travellerTypeRepository;
     private DestinationTypeRepository destinationTypeRepository;
+    private TreasureHuntRepository treasureHuntRepository;
 
 
     /**
@@ -271,6 +273,7 @@ public class DestinationTestSteps {
         destinationRepository = application.injector().instanceOf(DestinationRepository.class);
         travellerTypeRepository = application.injector().instanceOf(TravellerTypeRepository.class);
         destinationTypeRepository = application.injector().instanceOf(DestinationTypeRepository.class);
+        treasureHuntRepository = application.injector().instanceOf(TreasureHuntRepository.class);
     }
 
 
@@ -840,7 +843,7 @@ public class DestinationTestSteps {
 
         // Build search query to find destination
         ExpressionList<Destination> expressionList =
-                Destination.find.query().where()
+                destinationRepository.getExpressionList()
                         .ilike(NAME, queryComparator(name))
                         .eq(TYPE, type)
                         .eq(LATITUDE, latitude)
@@ -1218,7 +1221,7 @@ public class DestinationTestSteps {
     public void theDestinationWillHaveTheFollowingNumberOfTreasureHunts(Integer expectedSize) {
         Destination destination = destinationRepository.findById(destinationId);
 
-        List<TreasureHunt> treasureHunts = destinationRepository.getTreasureHuntsWithDestination(destination);
+        List<TreasureHunt> treasureHunts = treasureHuntRepository.getTreasureHuntsWithDestination(destination);
 
         assertEquals(expectedSize.longValue(), treasureHunts.size());
     }

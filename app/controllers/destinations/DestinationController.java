@@ -130,7 +130,7 @@ public class DestinationController extends Controller {
      * @return ok() (Http 200) response containing all the different types of destinations.
      */
     public Result getTypes() {
-        List<DestinationType> destinationTypes = DestinationType.find.all();
+        List<DestinationType> destinationTypes = destinationTypeRepository.findAll();
         return ok(Json.toJson(destinationTypes));
     }
 
@@ -156,7 +156,7 @@ public class DestinationController extends Controller {
         int pageSize = 50;
         List<Destination> destinations;
 
-        ExpressionList<Destination> expressionList = Destination.find.query().where();
+        ExpressionList<Destination> expressionList = destinationRepository.getExpressionList();
 
         // Checks if the owner is specified in the query string and user is valid.
         if (request.getQueryString(OWNER) != null && !request.getQueryString(OWNER).isEmpty()) {
@@ -240,7 +240,7 @@ public class DestinationController extends Controller {
         }
 
         List<Destination> destinations;
-        ExpressionList<Destination> expressionList = Destination.find.query().where();
+        ExpressionList<Destination> expressionList = destinationRepository.getExpressionList();
         expressionList.eq(OWNER,profileToChange);
 
         destinations = expressionList.findList();
@@ -306,7 +306,7 @@ public class DestinationController extends Controller {
         String name = json.get(NAME).asText();
         String district = json.get(DISTRICT).asText();
 
-        List<Destination> destinations = Destination.find.query().where()
+        List<Destination> destinations = destinationRepository.getExpressionList()
                 .ilike(NAME, name)
                 .ilike(DISTRICT, district)
                 .disjunction()
@@ -657,7 +657,7 @@ public class DestinationController extends Controller {
      * @param destinationToMerge    the destination that is being consumed.
      */
     private void mergeTreasureHunts(Destination destinationToUpdate, Destination destinationToMerge) {
-        List<TreasureHunt> mergeTreasureHuntsList = destinationRepository.getTreasureHuntsWithDestination(destinationToMerge);
+        List<TreasureHunt> mergeTreasureHuntsList = treasureHuntRepository.getTreasureHuntsWithDestination(destinationToMerge);
         for (TreasureHunt treasureHunt : mergeTreasureHuntsList) {
             // Initially set the destination for the treasure hunt to null.
             treasureHunt.setDestination(null);

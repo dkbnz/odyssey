@@ -2,6 +2,8 @@ package repositories.destinations;
 
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
+import io.ebean.Expression;
+import io.ebean.ExpressionList;
 import models.Profile;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
@@ -106,20 +108,6 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
 
 
     /**
-     * Retrieve all treasure hunts that use the destination.
-     *
-     * @param destination   the destination being checked for usage within treasure hunts.
-     * @return              a potentially empty list of treasure hunts that contain contain the destination parameter.
-     */
-    public List<TreasureHunt> getTreasureHuntsWithDestination(Destination destination) {
-        return Ebean.find(TreasureHunt.class)
-                .where()
-                .eq("destination_id", destination.getId())
-                .findList();
-    }
-
-
-    /**
      * Returns a list of Destinations that are equal, excluding the given Destination.
      *
      * @param destination   destination to search with.
@@ -136,5 +124,10 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
                 .eq("country", destination.getCountry())
                 .ne("id", destination.getId())
                 .findList();
+    }
+
+
+    public ExpressionList<Destination> getExpressionList() {
+        return query().where();
     }
 }

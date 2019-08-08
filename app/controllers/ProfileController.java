@@ -298,9 +298,7 @@ public class ProfileController {
      *                  (unacceptable).
      */
     private boolean profileExists(String username) {
-        return Profile.find
-                .query()
-                .where()
+        return profileRepository.getExpressionList()
                 .like(USERNAME, username)
                 .findOne() != null;
     }
@@ -557,7 +555,7 @@ public class ProfileController {
 
                     if (request.queryString().isEmpty()) {
                         // No query string given. retrieve all profiles
-                        profiles = Profile.find.all();
+                        profiles = profileRepository.findAll();
                     } else {
                         String getError = validQueryString(request.queryString());
                         if (getError == null) {

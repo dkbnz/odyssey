@@ -1,10 +1,13 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.inject.Inject;
 import models.Profile;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import repositories.ProfileRepository;
+
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -22,6 +25,13 @@ public class AuthenticationController extends Controller {
     private static final String USERNAME = "username";
     private static final String PASS_FIELD = "password";
     private static final String AUTHORIZED = "authorized";
+
+    private ProfileRepository profileRepository;
+
+    @Inject
+    public AuthenticationController(ProfileRepository profileRepository) {
+        this.profileRepository = profileRepository;
+    }
 
     /**
      * Checks if client is authorized, if authorized, return ok() (Http 200) .If not, checks if user exists in the
@@ -58,7 +68,7 @@ public class AuthenticationController extends Controller {
                         LOGGER.log(Level.SEVERE, "Invalid JSON: JSON Object contains no user or password key", e);
                     }
 
-                    Profile profile = Profile.find.query().where()
+                    Profile profile = profileRepository.getExpressionList()
                             .like(USERNAME, username).findOne();
 
                     if ((profile != null) && (profile.getPassword().equals(password))) {
