@@ -54,19 +54,19 @@
 
             <!-- Table to show all a profile's future trips -->
             <b-table
-                     :items="futureTrips"
-                     :fields="fields"
-                     :per-page="perPageUpcoming"
-                     :current-page="currentPageUpcoming"
-                     :busy="futureTrips.length === 0"
-                     :sort-by.sync="sortBy"
-                     :sort-desc.sync="sortDesc"
-                     hover
-                     id="myFutureTrips"
-                     outlined
-                     ref="myFutureTrips"
-                     striped
-                     responsive>
+                    :items="futureTrips"
+                    :fields="fields"
+                    :per-page="perPageUpcoming"
+                    :current-page="currentPageUpcoming"
+                    :busy="futureTrips.length === 0"
+                    :sort-by.sync="sortBy"
+                    :sort-desc.sync="sortDesc"
+                    hover
+                    id="myFutureTrips"
+                    outlined
+                    ref="myFutureTrips"
+                    striped
+                    responsive>
                 <div class="text-center my-2" slot="table-busy">
                     <b-spinner class="align-middle" v-if="retrievingTrips"></b-spinner>
                     <strong>Can't find any trips!</strong>
@@ -185,38 +185,38 @@
                          striped
                          responsive>
 
-                <div slot="table-busy" class="text-center my-2">
-                    <strong>Can't find any trips!</strong>
-                </div>
-                <template slot="more_details" slot-scope="row">
-                    <b-button size="sm"
-                              @click="row.toggleDetails"
-                              variant="warning"
-                              class="mr-2"
-                              block>
-                        {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
-                    </b-button>
-                    <b-button size="sm"
-                              v-model="editButton"
-                              v-b-modal.editTripModal
-                              @click="sendTripToModal(row.item)"
-                              variant="primary"
-                              class="mr-2"
-                              v-if="hasPermission"
-                              block>
-                        Edit
-                    </b-button>
-                    <b-button size="sm"
-                              v-model="deleteButton"
-                              v-b-modal.deleteModal
-                              @click="sendTripToModal(row.item)"
-                              variant="danger"
-                              class="mr-2"
-                              v-if="hasPermission"
-                              block>
-                        Delete
-                    </b-button>
-                </template>
+                    <div slot="table-busy" class="text-center my-2">
+                        <strong>Can't find any trips!</strong>
+                    </div>
+                    <template slot="more_details" slot-scope="row">
+                        <b-button size="sm"
+                                  @click="row.toggleDetails"
+                                  variant="warning"
+                                  class="mr-2"
+                                  block>
+                            {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+                        </b-button>
+                        <b-button size="sm"
+                                  v-model="editButton"
+                                  v-b-modal.editTripModal
+                                  @click="sendTripToModal(row.item)"
+                                  variant="primary"
+                                  class="mr-2"
+                                  v-if="hasPermission"
+                                  block>
+                            Edit
+                        </b-button>
+                        <b-button size="sm"
+                                  v-model="deleteButton"
+                                  v-b-modal.deleteModal
+                                  @click="sendTripToModal(row.item)"
+                                  variant="danger"
+                                  class="mr-2"
+                                  v-if="hasPermission"
+                                  block>
+                            Delete
+                        </b-button>
+                    </template>
 
                     <!-- Shows all the trip destinations in a separate nested table -->
                     <template slot="row-details" slot-scope="row">
@@ -299,7 +299,7 @@
             destinations: Array,
             adminView: Boolean,
             containerClass: {
-                default: function() {
+                default: function () {
                     return 'containerWithNav';
                 }
             }
@@ -396,7 +396,7 @@
                     {key: 'duration', label: 'Duration'},
                     'more_details'
                 ]
-            } ,
+            },
 
         },
         methods: {
@@ -404,14 +404,14 @@
              * Used to calculate the duration of the trip. Returns a blank string if the last destination in the trip
              * has no dates. Otherwise calculates the difference between the first and last destinations in the trip.
              *
-             * @param destinations in the trip.
-             * @returns string of the trip duration.
+             * @param destinations      the destinations in the trip.
+             * @returns                 string of the trip duration.
              */
             calculateDuration(destinations) {
                 let tripDates = this.calculateTripDates(destinations);
                 if (tripDates.length > 0) {
-                    let calculateDur = Math.ceil((Math.abs(new Date(tripDates[tripDates.length -1 ]).getTime()
-                        - new Date(tripDates[0]).getTime())))/ (1000 * 3600 * 24) + 1;
+                    let calculateDur = Math.ceil((Math.abs(new Date(tripDates[tripDates.length - 1]).getTime()
+                        - new Date(tripDates[0]).getTime()))) / (1000 * 3600 * 24) + 1;
                     return calculateDur + " days";
 
                 }
@@ -419,11 +419,11 @@
 
 
             /**
-             * Gathers trip dates into an array, regardless of whether they are start/end date
+             * Gathers trip dates into an array, regardless of whether they are start/end date.
              */
             calculateTripDates(destinations) {
                 let tripDates = [];
-                for (let i = 0; i < destinations.length; i++ ) {
+                for (let i = 0; i < destinations.length; i++) {
                     if (destinations[i].startDate !== null) {
                         tripDates.push(destinations[i].startDate);
                     }
@@ -440,7 +440,7 @@
              * response. This function also splits up the trips into past and future trips based on their date compared
              * to today's date.
              *
-             * @returns {Promise<Response | never>} Json body of the trips belonging to the user.
+             * @returns {Promise<Response | never>}     Json body of the trips belonging to the user.
              */
             getAllTrips() {
                 let userId = this.profile.id;
@@ -501,20 +501,20 @@
                 let firstDestinationsStart = [];
                 let nextDestinationsStart = [];
                 for (let i = 0; i < first.destinations.length; i++) {
-                    if(first.destinations[i].startDate !== null) {
+                    if (first.destinations[i].startDate !== null) {
                         firstDestinationsStart.push(first.destinations[i].startDate)
                     }
                 }
                 for (let i = 0; i < next.destinations.length; i++) {
-                    if(next.destinations[i].startDate !== null) {
+                    if (next.destinations[i].startDate !== null) {
                         nextDestinationsStart.push(next.destinations[i].startDate)
                     }
                 }
-                if(firstDestinationsStart[0] < nextDestinationsStart[0] || firstDestinationsStart[0] === undefined) {
+                if (firstDestinationsStart[0] < nextDestinationsStart[0] || firstDestinationsStart[0] === undefined) {
                     return -1;
                 }
 
-                if(firstDestinationsStart[0] > nextDestinationsStart[0]) {
+                if (firstDestinationsStart[0] > nextDestinationsStart[0]) {
                     return 1;
                 }
                 return 0;
@@ -525,8 +525,8 @@
              * Used to check the response of a fetch method. If there is an error code, the code is printed to the
              * console.
              *
-             * @param response, passed back to the getAllTrips function to be parsed into a Json.
-             * @returns throws the error.
+             * @param response      the response passed back to the getAllTrips function to be parsed into a Json.
+             * @returns             the response if the status is between 200 - 300. Otherwise, throws the error.
              */
             checkStatus(response) {
                 if (response.status >= 200 && response.status < 300) {
@@ -543,8 +543,8 @@
             /**
              * Used to turn the response of the fetch method into a usable Json.
              *
-             * @param response of the fetch method.
-             * @returns the json body of the response.
+             * @param response          the response of the fetch method.
+             * @returns                 the json body of the response.
              */
             parseJSON(response) {
                 return response.json();
@@ -555,7 +555,7 @@
              * Used to send a selected trip to a modal that contains the plan a trip page, this is so the trip can be
              * edited.
              *
-             * @param trip, the trip that is selected to be edited in the modal.
+             * @param trip          the trip that is selected to be edited in the modal.
              */
             sendTripToModal(trip) {
                 this.selectedTrip = trip;
@@ -566,7 +566,7 @@
              * Uses a fetch method to delete a users trip. Shows errors if something went wrong, or the user trying to
              * delete the trip is not the logged in user.
              *
-             * @param trip, the trip to be deleted.
+             * @param trip          the trip to be deleted.
              */
             deleteTrip: function (trip) {
                 this.errorMessage = "";
@@ -574,7 +574,7 @@
                 this.validDelete = false;
                 let self = this;
                 fetch('/v1/trips/' + trip.id, {
-                        method: 'DELETE',
+                    method: 'DELETE',
                 }).then(function (response) {
                     if (response.ok) {
                         self.validDelete = true;
@@ -605,7 +605,7 @@
             /**
              * Used to dismiss either the delete a trip confirmation modal or the edit a trip modal.
              *
-             * @param modal, the modal that is wanting to be dismissed.
+             * @param modal         the modal that is wanting to be dismissed.
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();

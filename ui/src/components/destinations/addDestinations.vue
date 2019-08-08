@@ -140,7 +140,7 @@
                 </b-form-group>
 
                 <get-location-button
-                    @get-current-location="currentCoords => setCurrentLocation(currentCoords)">
+                        @get-current-location="currentCoords => setCurrentLocation(currentCoords)">
                 </get-location-button>
 
                 <b-form-group
@@ -163,9 +163,6 @@
 
                 <b-button :disabled="!validateFields()" @click="checkDestinationFields" block variant="primary">Save
                 </b-button>
-
-
-
             </b-form>
         </div>
     </div>
@@ -173,10 +170,13 @@
 
 <script>
     import GetLocationButton from "../map/getLocationButton";
+
     export default {
         name: "addDestinations",
-        components: {GetLocationButton},
 
+        components: {
+            GetLocationButton
+        },
 
         props: {
             profile: Object,
@@ -491,8 +491,6 @@
             parseJSON(response) {
                 return response.json();
             },
-
-
         }
     }
 </script>

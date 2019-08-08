@@ -49,8 +49,7 @@
                 publicMarker: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
                 privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
                 addingMarker: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                markerToAdd: false,
-                error: ''
+                markerToAdd: false
             }
         },
 
@@ -59,10 +58,13 @@
              * Watches the destinations list for changes and when there are changes calls the create marker function
              */
             destinations: function () {
-                if(this.markerToAdd !== false) {            // If marker has been instantiated
-                    if (this.destinations !== null) {       // If we click out of the 'add' sideBar tab
+                // If marker has been instantiated
+                if (this.markerToAdd !== false) {
+                    if (this.destinations !== null) {
+                        // If we click out of the 'add' sideBar tab
                         this.markerToAdd.setMap(null);
-                    } else {                                // If we click into the 'add' sideBar tab
+                    } else {
+                        // If we click into the 'add' sideBar tab
                         this.markerToAdd.setMap(this.$map);
                     }
                 }
@@ -101,10 +103,11 @@
 
 
             destinationToAdd: {
-                handler () {
+                handler() {
                     this.addDestinationToAdd()
                 },
-                deep: true  // Signals that the watcher needs to check all children for changes.
+                // Signals that the watcher needs to check all children for changes.
+                deep: true
             }
 
 
@@ -115,7 +118,7 @@
              * Initializes the map with given latitude and longitude and zoom
              */
             initMap() {
-                let self = this;    // Used for event listeners as the definition of 'this' changes.
+                let self = this;
 
                 this.$map = new google.maps.Map(this.$refs['map'], {
                     center: this.initial.view,
@@ -129,7 +132,7 @@
                 // Place destination on the map if we are adding it.
                 this.addDestinationToAdd();
 
-                google.maps.event.addListener(this.$map, 'click', function(event) {
+                google.maps.event.addListener(this.$map, 'click', function (event) {
                     if (self.destinations === null) {
                         //Get the location that the user clicked.
                         let clickedLocation = event.latLng;
@@ -146,11 +149,14 @@
              */
             addDestinationToAdd() {
                 if (this.destinationToAdd.latitude !== null && this.destinationToAdd.longitude !== null) {
-                    let destinationToAddLocation = {lat: parseFloat(this.destinationToAdd.latitude), lng: parseFloat(this.destinationToAdd.longitude)};
-                    if(this.markerToAdd === false){
+                    let destinationToAddLocation = {
+                        lat: parseFloat(this.destinationToAdd.latitude),
+                        lng: parseFloat(this.destinationToAdd.longitude)
+                    };
+                    if (this.markerToAdd === false) {
                         //Create the marker.
                         this.markerToAdd = this.placeDestinationMarker(this.destinationToAdd);
-                    } else{
+                    } else {
                         //Marker has already been added, so just change its location.
                         // TODO: Instead of setting postion, possibly use a method to update whole marker (Name, etc.)
                         this.markerToAdd.setPosition(destinationToAddLocation);
@@ -234,7 +240,7 @@
             centreMap() {
                 this.$map.setZoom(this.initial.zoom);
                 this.$map.panTo(this.initial.view);
-            },
+            }
 
         }
 
