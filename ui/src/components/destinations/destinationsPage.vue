@@ -57,7 +57,7 @@
                         <destination-sidebar
                                 :profile="profile"
                                 @destination-click="selectDestination"
-                                @destination-search="foundDestinations => this.destinationsForMap = foundDestinations"
+                                @destination-search="destinationSearch"
                                 :key="refreshDestinationData"
                                 :input-destination="destinationToAdd"
                                 @data-changed="$emit('data-changed')"
@@ -65,7 +65,7 @@
                     </b-card>
                     <b-card v-else>
                         <add-destinations
-                                :inputDestination="copiedDestination"
+                                :inputDestination="destinationToAdd"
                                 :profile="profile"
                                 :heading="'Edit'"
                                 :destination-types="destinationTypes"
@@ -149,7 +149,19 @@
                     public: false
                 },
                 destinationEdit: false,
-                copiedDestination: null
+                destinationTemplate: {
+                    id: null,
+                    name: "",
+                    type: {
+                        id: null,
+                        destinationType: ""
+                    },
+                    district: "",
+                    latitude: null,
+                    longitude: null,
+                    country: "",
+                    public: false
+                }
             }
         },
 
@@ -188,6 +200,7 @@
             destinationDeleted() {
                 this.selectedDestination = {};
                 this.refreshSingleDestination += 1;
+                this.closeEditDestination();
                 this.showAlert();
             },
 
@@ -242,7 +255,8 @@
              * @param destination   the destination that is being edited.
              */
             destinationEdited(destination) {
-                this.copiedDestination = destination;
+                this.destinationsForMap = null;
+                this.destinationToAdd = destination;
                 this.destinationEdit = !this.destinationEdit;
             },
 
@@ -252,6 +266,29 @@
              */
             closeEditDestination() {
                 this.destinationEdit = false;
+                this.destinationToAdd = this.destinationTemplate;
+            },
+
+
+            /**
+             * Changes the selected destination on the page to be the newly saved destination, so changes can be seen
+             * straight away.
+             *
+             * @param destination   the recently saved destination.
+             */
+            destinationSaved(destination) {
+                this.selectedDestination = destination;
+            },
+
+
+            /**
+             * Resets the destinations to be displayed on the map when destinations are being searched.
+             *
+             * @param foundDestinations     the list of destinations to display on the map.
+             */
+            destinationSearch(foundDestinations) {
+                this.destinationsForMap = foundDestinations;
+                this.selectedDestination = {};
             }
         }
     }
