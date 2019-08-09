@@ -23,7 +23,7 @@
                             @dismissed="dismissCountDown=0"
                             dismissible
                             variant="success">
-                        <p>Destination Successfully Deleted</p>
+                        <p>Destination Successfully {{action}}!</p>
                         <b-progress
                                 :max="dismissSeconds"
                                 :value="dismissCountDown"
@@ -158,7 +158,8 @@
                     longitude: null,
                     country: "",
                     public: false
-                }
+                },
+                action: ""
             }
         },
 
@@ -199,6 +200,7 @@
                 this.refreshSingleDestination += 1;
                 this.refreshDestinationData += 1;
                 this.closeEditDestination();
+                this.action = "Deleted";
                 this.showAlert();
             },
 
@@ -274,13 +276,17 @@
 
 
             /**
-             * Changes the selected destination on the page to be the newly saved destination, so changes can be seen
+             * Changes the selected destination on the page to be the newly edited destination, so changes can be seen
              * straight away.
+             * Displays an alert to the user to indicate successful edit.
              *
              * @param destination   the recently saved destination.
              */
             destinationSaved(destination) {
                 this.selectedDestination = destination;
+                this.action = "Edited";
+                this.showAlert();
+                this.closeEditDestination();
             },
 
 
