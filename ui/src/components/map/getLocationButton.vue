@@ -39,8 +39,8 @@
              */
             showPosition: function (position) {
                 this.$emit('get-current-location', {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
                 });
             }
         }
