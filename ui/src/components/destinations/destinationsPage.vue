@@ -290,7 +290,9 @@
              */
             destinationSearch(foundDestinations) {
                 this.destinationsForMap = foundDestinations;
-                this.selectedDestination = {};
+                if (foundDestinations == null) {
+                    this.selectedDestination = {};
+                }
             }
         }
     }
