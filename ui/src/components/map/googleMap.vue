@@ -99,6 +99,9 @@
             },
 
 
+            /**
+             * If the destination to add changes, add/move a marker for this destination on the map.
+             */
             destinationToAdd: {
                 handler() {
                     this.addDestinationToAdd()
@@ -226,7 +229,7 @@
 
 
             /**
-             * Given a destination, places a destination marker on the map.
+             * Given a destination, updates a destination marker on the map.
              */
             updateDestinationMarker(destination) {
                 this.markerToAdd.setPosition(this.parseCoordinates(destination));

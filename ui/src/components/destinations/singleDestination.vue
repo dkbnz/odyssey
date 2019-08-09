@@ -1,6 +1,6 @@
 <template>
     <div v-if="destination.owner !== undefined">
-        <b-modal id="deleteDestModal" ref="deleteDestModal" size="xl" title="Delete Destination">
+        <b-modal id="deleteDestinationModal" ref="deleteDestinationModal" size="xl" title="Delete Destination">
             <b-alert v-model="showError" variant="danger" dismissible>
                 Could not delete destination!
             </b-alert>
@@ -29,7 +29,8 @@
             </b-list-group>
             <template slot="modal-footer">
                 <b-col>
-                    <b-button @click="dismissModal('deleteDestModal')" class="mr-2 float-right" variant="primary" block>
+                    <b-button @click="dismissModal('deleteDestinationModal')" class="mr-2 float-right" variant="primary"
+                              block>
                         No
                     </b-button>
                 </b-col>
@@ -189,7 +190,7 @@
         methods: {
             /**
              * Emits destination saved event to the destinations page, this is so data can be re-rendered.
-             * @param savedDestination      the that is saved and emitted to the parent component.
+             * @param savedDestination      the destination that is saved and emitted to the parent component.
              */
             destinationSaved(savedDestination) {
                 this.$emit('destination-saved', savedDestination);
@@ -219,7 +220,7 @@
              */
             confirmDeleteDestination() {
                 this.copiedDestination = this.copyDestination();
-                this.$refs["deleteDestModal"].show();
+                this.$refs["deleteDestinationModal"].show();
                 this.getTripsUsedBy();
             },
 
@@ -234,7 +235,7 @@
                     method: 'DELETE'
                 }).then(function (response) {
                     if (response.ok) {
-                        self.dismissModal('deleteDestModal');
+                        self.dismissModal('deleteDestinationModal');
                         self.$emit('destination-deleted');
                     }
                     else {
@@ -269,7 +270,7 @@
             /**
              * Used to calculate the current traveller types for a destination so changes can be made/suggested.
              *
-             * @returns {string[]} the list of traveller types for the current destination.
+             * @returns {string[]}      the list of traveller types for the current destination.
              */
             calculateCurrentTravellerTypes() {
                 this.calculatedTravellerTypes = this.destination.travellerTypes;

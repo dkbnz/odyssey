@@ -170,7 +170,7 @@
             /**
              * Switches between tabs.
              *
-             * @param viewPage page to be displayed.
+             * @param viewPage      page to be displayed.
              */
             togglePage(viewPage) {
                 if (!viewPage) {
@@ -183,7 +183,7 @@
             /**
              * Re-renders the destination search side panel and displays the edited destination on the page.
              *
-             * @param refreshedDestination  the recently edited destination.
+             * @param refreshedDestination      the recently edited destination.
              */
             refreshDestinations(refreshedDestination) {
                 this.refreshDestinationData += 1;
