@@ -24,5 +24,5 @@ public class Nationality extends BaseModel {
     }
 
 
-    public static final Finder<Integer, Nationality> find = new Finder<>(Nationality.class);
+
 }

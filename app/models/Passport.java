@@ -13,5 +13,5 @@ public class Passport extends BaseModel {
     }
 
 
-    public static final Finder<Integer, Passport> find = new Finder<>(Passport.class);
+
 }

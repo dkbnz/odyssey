@@ -39,31 +39,31 @@ public class Profile extends BaseModel {
     private Date dateOfCreation;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<Nationality> nationalities = new ArrayList<>();
+    private List<Nationality> nationalities;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<TravellerType> travellerTypes = new ArrayList<>();
+    private List<TravellerType> travellerTypes;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<Passport> passports = new ArrayList<>();
+    private List<Passport> passports;
 
     @JsonIgnore
     @OneToMany(cascade=CascadeType.ALL, mappedBy = "profile")
-    private List<Trip> trips = new ArrayList<>();
+    private List<Trip> trips;
 
     @OneToMany(cascade=CascadeType.ALL)
-    private List<PersonalPhoto> photoGallery = new ArrayList<>();
+    private List<PersonalPhoto> photoGallery;
 
     @OneToOne(cascade = CascadeType.REMOVE)
     private PersonalPhoto profilePicture;
 
     @JsonIgnore
     @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
-    private List<Destination> myDestinations = new ArrayList<>();
+    private List<Destination> myDestinations;
 
     @JsonIgnore
     @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
-    private List<TreasureHunt> myTreasureHunts = new ArrayList<>();
+    private List<TreasureHunt> myTreasureHunts;
 
     public List<TreasureHunt> getMyTreasureHunts() {
         return myTreasureHunts;
@@ -275,5 +275,38 @@ public class Profile extends BaseModel {
     }
 
 
-    public static final Finder<Integer, Profile> find = new Finder<>(Profile.class);
+    public Boolean getAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(Boolean admin) {
+        isAdmin = admin;
+    }
+
+    public void setNationalities(List<Nationality> nationalities) {
+        this.nationalities = nationalities;
+    }
+
+    public void setTravellerTypes(List<TravellerType> travellerTypes) {
+        this.travellerTypes = travellerTypes;
+    }
+
+    public void setPassports(List<Passport> passports) {
+        this.passports = passports;
+    }
+
+    public void setTrips(List<Trip> trips) {
+        this.trips = trips;
+    }
+
+    public void setMyDestinations(List<Destination> myDestinations) {
+        this.myDestinations = myDestinations;
+    }
+
+    public void setMyTreasureHunts(List<TreasureHunt> myTreasureHunts) {
+        this.myTreasureHunts = myTreasureHunts;
+    }
+
+
+
 }

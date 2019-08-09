@@ -18,7 +18,7 @@ public class TripDestination extends BaseModel {
     /**
      * A finder used to search for a TripDestination.
      */
-    public static final Finder<Integer, TripDestination> find = new Finder<>(TripDestination.class);
+
 
     /**
      * The starting date of the trip destination.
@@ -50,6 +50,7 @@ public class TripDestination extends BaseModel {
     /**
      * The destination this trip destination is associated with.
      */
+    @JsonIgnore
     @ManyToOne(cascade=CascadeType.PERSIST)
     private Destination destination;
 
@@ -116,4 +117,6 @@ public class TripDestination extends BaseModel {
                 "trip: " + this.trip + ", " +
                 "destination: " + this.destination + "}";
     }
+
+
 }

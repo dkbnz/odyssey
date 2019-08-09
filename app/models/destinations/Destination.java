@@ -16,8 +16,6 @@ import java.util.*;
 @Entity
 public class Destination extends BaseModel {
 
-    public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
-
     /**
      * The name of the destination.
      */
@@ -56,11 +54,15 @@ public class Destination extends BaseModel {
     @ManyToOne(cascade=CascadeType.PERSIST)
     private Profile owner;
 
+    public void setPhotoGallery(Set<PersonalPhoto> photoGallery) {
+        this.photoGallery = photoGallery;
+    }
+
     /**
      * The destinations photo gallery.
      */
-    @ManyToMany(cascade=CascadeType.PERSIST)
-    private Set<PersonalPhoto> photoGallery = new TreeSet<>();
+    @ManyToMany
+    private Set<PersonalPhoto> photoGallery;
 
     /**
      * Stating the privacy of the destination if it is public or not.
@@ -71,7 +73,7 @@ public class Destination extends BaseModel {
      * List of trip destinations that the destination is associated with.
      */
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "destination")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "destination")
     private List<TripDestination> tripDestinations;
 
     @ManyToMany
@@ -255,8 +257,13 @@ public class Destination extends BaseModel {
         this.travellerTypes.clear();
     }
 
+    public void setOwner(Profile owner) {
+        this.owner = owner;
+    }
 
-
+    public void setTripDestinations(List<TripDestination> tripDestinations) {
+        this.tripDestinations = tripDestinations;
+    }
 
     /**
      * Checks if an Object is equal to this instance of Destination.
@@ -298,4 +305,6 @@ public class Destination extends BaseModel {
                 this.latitude,
                 this.longitude);
     }
+
+
 }
