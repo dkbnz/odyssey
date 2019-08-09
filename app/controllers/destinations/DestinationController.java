@@ -89,19 +89,21 @@ public class DestinationController extends Controller {
      *                          (Http 403) if the user is not allowed to access this number.
      */
     public Result getDestinationUsage(Http.Request request, Long destinationId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
         }
+        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        if (loggedInUser == null) {
+            return unauthorized();
+        }
 
-        Destination destination = destinationRepository.fetch(destinationId);
+        Destination destination = destinationRepository.findById(destinationId);
         if (destination == null) {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
-        Integer destinationOwnerId = destination.getOwner().getId().intValue();
-        Profile destinationOwner = profileRepository.fetchSingleProfile(destinationOwnerId);
+        Profile destinationOwner = destination.getOwner();
 
         if (!AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
             return forbidden();
@@ -147,12 +149,14 @@ public class DestinationController extends Controller {
      */
     public Result fetch(Http.Request request) {
 
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
         }
-
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
+        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        if (loggedInUser == null) {
+            return unauthorized();
+        }
 
         int pageNumber = 0;
         int pageSize = 50;
@@ -162,7 +166,7 @@ public class DestinationController extends Controller {
 
         // Checks if the owner is specified in the query string and user is valid.
         if (request.getQueryString(OWNER) != null && !request.getQueryString(OWNER).isEmpty()) {
-            Profile destinationOwner = profileRepository.fetchSingleProfile(Integer.valueOf(request.getQueryString(OWNER)));
+            Profile destinationOwner = profileRepository.findById(Long.valueOf(request.getQueryString(OWNER)));
 
             if (AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
                 expressionList.eq(OWNER, destinationOwner);
@@ -224,14 +228,13 @@ public class DestinationController extends Controller {
      * @return ok() (Http 200) response containing the destinations found in the response body.
      */
     public Result fetchByUser(Http.Request request, Long userId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
-
-        Profile profileToChange = profileRepository.fetchSingleProfile(userId.intValue());
+        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile profileToChange = profileRepository.findById(userId);
 
         if (profileToChange == null) {
             return badRequest();
@@ -334,8 +337,8 @@ public class DestinationController extends Controller {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
-                    Profile profileToChange = profileRepository.fetchSingleProfile(userId.intValue());
+                    Profile loggedInUser = profileRepository.findById(Long.valueOf(loggedInUserId));
+                    Profile profileToChange = profileRepository.findById(userId);
 
                     if (profileToChange == null) {
                         return badRequest();
@@ -400,8 +403,12 @@ public class DestinationController extends Controller {
      *                          successfully deleted.
      */
     public Result destroy(Http.Request request, Long destinationId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
+            return unauthorized();
+        }
+        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
@@ -411,7 +418,6 @@ public class DestinationController extends Controller {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
         if (!AuthenticationUtil.validUser(loggedInUser, destination.getOwner())) {
             return forbidden();
         }
@@ -430,8 +436,12 @@ public class DestinationController extends Controller {
      */
     public Result edit(Http.Request request, Long id) throws IllegalAccessException {
 
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
+            return unauthorized();
+        }
+        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
@@ -441,7 +451,6 @@ public class DestinationController extends Controller {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, currentDestination.getOwner())) {
             return forbidden();
@@ -544,15 +553,18 @@ public class DestinationController extends Controller {
      */
     private void mergeTripDestinations(Destination destinationToUpdate, Destination destinationToMerge) {
 
-        for(TripDestination tripDestination : destinationToMerge.getTripDestinations()) {
+        List<TripDestination> tripDestinationsToTransfer = destinationToMerge.getTripDestinations();
+
+        for(TripDestination tripDestination : tripDestinationsToTransfer) {
+            destinationToMerge.removeTripDestination(tripDestination);
             destinationToUpdate.addTripDestination(tripDestination);
 
             tripDestination.setDestination(destinationToUpdate);
             tripDestinationRepository.update(tripDestination);
+            DebugHelp.ppjs(tripDestination.getDestination().getId());
+            DebugHelp.ppjs(tripDestinationRepository.findById(tripDestination.getId()).getDestination().getId());
         }
         destinationToMerge.clearTripDestinations();
-
-
 
 
 
