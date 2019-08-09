@@ -490,7 +490,7 @@
              */
             parseJSON(response) {
                 return response.json();
-            },
+            }
         }
     }
 </script>
