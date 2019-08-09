@@ -34,9 +34,6 @@ public class DestinationType extends BaseModel {
     }
 
 
-    public static final Finder<Integer, DestinationType> find = new Finder<>(DestinationType.class);
-
-
     /**
      * Checks if an Object is equal to this instance of DestinationType.
      * A DestinationType is considered equal if destinationType are equal.

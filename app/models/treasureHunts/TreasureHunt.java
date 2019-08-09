@@ -24,7 +24,7 @@ import java.util.List;
 @Entity
 public class TreasureHunt extends BaseModel {
 
-    public static final Finder<Integer, TreasureHunt> find = new Finder<>(TreasureHunt.class);
+
 
     @JsonView(Views.Owner.class)
     @ManyToOne
@@ -83,10 +83,6 @@ public class TreasureHunt extends BaseModel {
 
     public void setOwner(Profile owner) {
         this.owner = owner;
-    }
-
-    public static Finder<Integer, TreasureHunt> getFind() {
-        return find;
     }
 
     @JsonIgnore

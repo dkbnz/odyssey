@@ -523,9 +523,15 @@ public class DestinationController extends Controller {
         mergeTreasureHunts(destinationToUpdate, destinationToMerge);
         destinationToUpdate.setPublic(true);
 
+        DebugHelp.ppjs(destinationToUpdate.getTripDestinations());
+        DebugHelp.ppjs(destinationToMerge.getTripDestinations());
+
+        tripDestinationRepository.saveAll(destinationToUpdate.getTripDestinations());
         destinationRepository.update(destinationToUpdate);
         destinationRepository.update(destinationToMerge);
         destinationRepository.delete(destinationToMerge);
+
+        DebugHelp.ppjs(destinationRepository.findById(destinationToUpdate.getId()).getTripDestinations());
     }
 
 
@@ -540,8 +546,13 @@ public class DestinationController extends Controller {
 
         for(TripDestination tripDestination : destinationToMerge.getTripDestinations()) {
             destinationToUpdate.addTripDestination(tripDestination);
+
+            tripDestination.setDestination(destinationToUpdate);
+            tripDestinationRepository.update(tripDestination);
         }
         destinationToMerge.clearTripDestinations();
+
+
 
 
 

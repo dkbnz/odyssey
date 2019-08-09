@@ -19,7 +19,7 @@ public class Trip extends BaseModel {
     /**
      * A finder used to search for a trip.
      */
-    public static final Finder<Integer, Trip> find = new Finder<>(Trip.class);
+
 
     /**
      * The name of the trip.
@@ -30,7 +30,7 @@ public class Trip extends BaseModel {
     /**
      * The owner of the trip
      */
-    @ManyToOne()
+    @ManyToOne
     @JsonIgnore
     private Profile profile;
 
@@ -88,8 +88,4 @@ public class Trip extends BaseModel {
         return destinations.remove(destination);
     }
 
-
-    public static Finder<Integer, Trip> getFind() {
-        return find;
-    }
 }
