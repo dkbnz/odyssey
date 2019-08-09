@@ -84,10 +84,7 @@
                     // Destination has been edited
                     let newMarker = this.markerArray[newDestination.id];
                     newMarker.setIcon(newDestination.public ? this.publicMarker : this.privateMarker);
-                    newMarker.setPosition({
-                        lat: parseFloat(newDestination.latitude),
-                        lng: parseFloat(newDestination.longitude)
-                    });
+                    newMarker.setPosition(this.parseCoordinates(newDestination));
                     newMarker.setTitle(newDestination.name + "\n" + newDestination.district + "\n"
                         + newDestination.country);
                 } else if (!newDestination.id) {
@@ -149,29 +146,29 @@
              */
             addDestinationToAdd() {
                 if (this.destinationToAdd.latitude !== null && this.destinationToAdd.longitude !== null) {
-                    let destinationToAddLocation = {
-                        lat: parseFloat(this.destinationToAdd.latitude),
-                        lng: parseFloat(this.destinationToAdd.longitude)
-                    };
                     if (this.markerToAdd === false) {
                         //Create the marker.
                         this.markerToAdd = this.placeDestinationMarker(this.destinationToAdd);
-
                     } else {
                         //Marker has already been added, so just change its location.
-                        this.changeDestinationMarker(destinationToAddLocation, this.destinationToAdd);
+                        this.updateDestinationMarker(this.destinationToAdd);
                     }
 
                     this.markerToAdd.setIcon(this.addingMarker);
-                    this.$map.panTo({
-                        lat: parseFloat(destinationToAddLocation.lat),
-                        lng: parseFloat(destinationToAddLocation.lng)});
-                    this.markerToAdd.setAnimation(google.maps.Animation.BOUNCE);
+                    this.$map.panTo(this.parseCoordinates(this.destinationToAdd));
+                }
+            },
 
-                    if(this.$map.zoom < 9){
-                        this.$map.setZoom(9)
-                    }
 
+
+            /**
+             * Take a destination and return the latitude and longitude of said destination
+             * in the format that google requires.
+             */
+            parseCoordinates(destination) {
+                return {
+                    lat: parseFloat(destination.latitude),
+                    lng: parseFloat(destination.longitude)
                 }
             },
 
@@ -205,7 +202,7 @@
              */
             placeDestinationMarker(destination) {
                 return new google.maps.Marker({
-                    position: {lat: parseFloat(destination.latitude), lng: parseFloat(destination.longitude)},
+                    position: this.parseCoordinates(destination),
                     map: this.$map,
                     title: (destination.name + "\n" + destination.district + "\n"
                         + destination.country),
@@ -217,8 +214,8 @@
             /**
              * Given a destination, places a destination marker on the map.
              */
-            changeDestinationMarker(location, destination) {
-                this.markerToAdd.setPosition(location);
+            updateDestinationMarker(destination) {
+                this.markerToAdd.setPosition(this.parseCoordinates(destination));
                 this.markerToAdd.setTitle(destination.name + "\n" + destination.district + "\n"
                     + destination.country);
             },
@@ -229,13 +226,8 @@
              */
             focusOnSelectedDestination() {
                 this.markerArray[this.selectedDestination.id].setAnimation(google.maps.Animation.BOUNCE);
-                if(this.$map.zoom < 9){
-                    this.$map.setZoom(9)
-                }
-                this.$map.panTo({
-                    lat: parseFloat(this.selectedDestination.latitude),
-                    lng: parseFloat(this.selectedDestination.longitude)
-                });
+                this.$map.setZoom(10);
+                this.$map.panTo(this.parseCoordinates(this.selectedDestination));
             },
 
 
