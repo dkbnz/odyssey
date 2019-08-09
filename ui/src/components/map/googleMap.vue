@@ -160,7 +160,7 @@
             },
 
 
-            
+
             /**
              * Take a destination and return the latitude and longitude of said destination
              * in the format that google requires.
