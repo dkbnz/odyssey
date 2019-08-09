@@ -44,6 +44,20 @@ public class TreasureHunt extends BaseModel {
     @ManyToOne(cascade=CascadeType.PERSIST)
     private Profile owner;
 
+//    @JsonIgnore
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(name = "treasure_hunt_profiles_solved")
+//    private Set<Profile> solvedProfiles;
+
+    //TODO Joel will add margin of error stuff later
+//    @JsonIgnore
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(name = "treasure_hunt_profiles_checked_in")
+//    private Set<Profile> checkedInProfiles;
+//
+//    @JsonView(Views.Owner.class)
+//    private Double marginOfError;
+
     public Destination getDestination() {
         return destination;
     }
@@ -113,6 +127,11 @@ public class TreasureHunt extends BaseModel {
         if (destination == null || destination.getId() == null) {
             errors.add(new ApiError("Treasure hunts must have a destination."));
         }
+
+        //TODO Joel will add margin of error stuff later
+//        if (marginOfError == null || marginOfError <= 0) {
+//            errors.add(new ApiError("You must select a range for the destination's check in"));
+//        }
 
         return errors;
     }
