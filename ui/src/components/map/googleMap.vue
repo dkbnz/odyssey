@@ -156,6 +156,7 @@
                     if (this.markerToAdd === false) {
                         //Create the marker.
                         this.markerToAdd = this.placeDestinationMarker(this.destinationToAdd);
+
                     } else {
                         //Marker has already been added, so just change its location.
                         this.changeDestinationMarker(destinationToAddLocation, this.destinationToAdd);
@@ -164,9 +165,13 @@
                     this.markerToAdd.setIcon(this.addingMarker);
                     this.$map.panTo({
                         lat: parseFloat(destinationToAddLocation.lat),
-                        lng: parseFloat(destinationToAddLocation.lng)
+                        lng: parseFloat(destinationToAddLocation.lng)});
+                    this.markerToAdd.setAnimation(google.maps.Animation.BOUNCE);
 
-                    });
+                    if(this.$map.zoom < 9){
+                        this.$map.setZoom(9)
+                    }
+
                 }
             },
 
@@ -224,7 +229,9 @@
              */
             focusOnSelectedDestination() {
                 this.markerArray[this.selectedDestination.id].setAnimation(google.maps.Animation.BOUNCE);
-                this.$map.setZoom(10);
+                if(this.$map.zoom < 9){
+                    this.$map.setZoom(9)
+                }
                 this.$map.panTo({
                     lat: parseFloat(this.selectedDestination.latitude),
                     lng: parseFloat(this.selectedDestination.longitude)
