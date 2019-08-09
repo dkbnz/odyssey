@@ -630,7 +630,6 @@ Feature: Destination API Endpoint
     And the number of trips received is 1
     And the photo count is 0
 
-
   Scenario: Retrieving destination usage for 1 photo
     Given I am running the application
     And I am logged in as an admin user
@@ -680,7 +679,6 @@ Feature: Destination API Endpoint
     And the trip count is 1
     And the number of trips received is 1
     And the photo count is 1
-
 
   Scenario: Transferring the ownership of a public destination to default admin when photo is added by another user
     Given I am running the application

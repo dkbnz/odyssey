@@ -96,11 +96,12 @@ public class AuthenticationUtilTest {
                 .session(AUTHORIZED, LOGGED_IN_ID)
                 .uri(PROFILES_URI);
         //Act
-        Integer userId = AuthenticationUtil.getLoggedInUserId(request.build());
+        Long userId = AuthenticationUtil.getLoggedInUserId(request.build());
+        Long parsedId = Long.parseLong(LOGGED_IN_ID);
 
         //Assert
         Assert.assertNotNull(userId);
-        Assert.assertEquals(userId.longValue(), Long.parseLong(LOGGED_IN_ID));
+        Assert.assertEquals(userId, parsedId);
     }
 
 
@@ -111,7 +112,7 @@ public class AuthenticationUtilTest {
                 .method(GET)
                 .uri(PROFILES_URI);
         //Act
-        Integer userId = AuthenticationUtil.getLoggedInUserId(request.build());
+        Long userId = AuthenticationUtil.getLoggedInUserId(request.build());
 
         //Assert
         Assert.assertNull(userId);

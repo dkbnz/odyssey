@@ -15,15 +15,6 @@ public class ProfileRepository extends BeanRepository<Long, Profile> {
         super(Profile.class, Ebean.getDefaultServer());
     }
 
-    /**
-     * Finds a single profile with the given id. Return null if no such profile exists.
-     * @param userId        the id of the user to be retrieved.
-     * @return              the profile object associated with the id. Returns null if no profile was found.
-     */
-    public Profile fetchSingleProfile(Integer userId) {
-        return super.findById(userId.longValue());
-    }
-
 
     /**
      * Updates a certain users profile photo and updates the database.

@@ -33,16 +33,16 @@ public final class AuthenticationUtil {
      * Gets the logged in user id from a given request.
      *
      * @param request       The Http request that was received.
-     * @return              An integer value of the logged in user id, null if there is no logged in user.
+     * @return              A long value of the logged in user id, null if there is no logged in user.
      */
-    public static Integer getLoggedInUserId(Http.Request request) {
+    public static Long getLoggedInUserId(Http.Request request) {
         Optional<String> optional = request.session().getOptional(AUTHORIZED);
         String userId = null;
         if (optional.isPresent()) {
             userId = optional.get();
         }
         try {
-            return Integer.valueOf(userId);
+            return Long.valueOf(userId);
         } catch (NumberFormatException e) {
             return null;
         }

@@ -170,9 +170,12 @@ public class PhotoController extends Controller {
      */
     public Result destroy(Http.Request request, Long photoId) {
 
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
+            return unauthorized();
+        }
+        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
@@ -183,7 +186,6 @@ public class PhotoController extends Controller {
         }
 
         Profile photoOwner = photo.getProfile();
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
             return forbidden();
@@ -213,14 +215,16 @@ public class PhotoController extends Controller {
      *                profile picture.
      */
     public Result destroyProfilePhoto(Http.Request request, Long userId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
         }
+        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        if (loggedInUser == null) {
+            return unauthorized();
+        }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
-
-        Profile profileToChange = profileRepository.fetchSingleProfile(userId.intValue());
+        Profile profileToChange = profileRepository.findById(userId);
 
         if (profileToChange == null) {
             return badRequest();
@@ -246,37 +250,39 @@ public class PhotoController extends Controller {
      *                      owners profile photo, ok() (Http 200) if successful change of profile photo.
      */
     public Result updateProfilePhoto(Http.Request request, Long photoId) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(loggedInUserId -> {
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return unauthorized();
+        }
+        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        if (loggedInUser == null) {
+            return unauthorized();
+        }
 
-                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(photoId);
+        PersonalPhoto personalPhoto = personalPhotoRepository.fetch(photoId);
 
-                    if (personalPhoto == null) {
-                        return badRequest();
-                    }
+        if (personalPhoto == null) {
+            return badRequest();
+        }
 
-                    Profile owner = personalPhoto.getProfile();
+        Profile owner = personalPhoto.getProfile();
 
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
+        if (owner == null) {
+            return notFound();
+        }
 
-                    if (owner == null) {
-                        return notFound();
-                    }
+        if(!AuthenticationUtil.validUser(loggedInUser, owner)) {
+            return forbidden();
+        }
 
-                    if(!AuthenticationUtil.validUser(loggedInUser, owner)) {
-                        return forbidden();
-                    }
+        if (personalPhoto.getPublic()) {
+            profileRepository.setProfilePhoto(personalPhoto, owner);
+            return ok();
+        }
 
-                    if (personalPhoto.getPublic()) {
-                        profileRepository.setProfilePhoto(personalPhoto, owner);
-                        return ok();
-                    } else {
-                        personalPhotoRepository.updatePrivacy(owner, personalPhoto, "true");
-                        profileRepository.setProfilePhoto(personalPhoto, owner);
-                        return ok();
-                    }
-                }).orElseGet(() -> unauthorized());
+        personalPhotoRepository.updatePrivacy(owner, personalPhoto, "true");
+        profileRepository.setProfilePhoto(personalPhoto, owner);
+        return ok();
     }
 
 
@@ -293,50 +299,47 @@ public class PhotoController extends Controller {
      *                  internalServerError() (Http 500) if for some reason the photo couldn't be changed.
      */
     public Result changePrivacy(Http.Request request) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(loggedInUserId -> {
-                    JsonNode json = request.body().asJson();
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        if (loggedInUserId == null || loggedInUser == null) {
+            return unauthorized(NOT_SIGNED_IN);
+        }
 
-                    if (!(json.has(PHOTO_ID) && json.has(IS_PUBLIC))) {
-                        return badRequest();
-                    }
+        JsonNode json = request.body().asJson();
 
-                    Long personalPhotoId = json.get(PHOTO_ID).asLong();
-                    String isPublic = json.get(IS_PUBLIC).asText();
+        if (!(json.has(PHOTO_ID) && json.has(IS_PUBLIC))) {
+            return badRequest();
+        }
 
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
-                    Profile profileToChange;
+        Long personalPhotoId = json.get(PHOTO_ID).asLong();
+        String isPublic = json.get(IS_PUBLIC).asText();
 
-                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
+        Profile profileToChange;
 
-                    if (personalPhoto == null) {
-                        return notFound();
-                    }
+        PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
 
-                    Profile owner = personalPhoto.getProfile();
+        if (personalPhoto == null) {
+            return notFound();
+        }
 
-                    if (owner == null) {
-                        return notFound();
-                    }
+        Profile owner = personalPhoto.getProfile();
 
-                    if(owner.getProfilePicture() != null && owner.getProfilePicture().getId().equals(personalPhotoId)) {
-                        return badRequest();
-                    }
+        if (owner == null) {
+            return notFound();
+        }
 
-                    if(AuthenticationUtil.validUser(loggedInUser, owner)) {
-                        profileToChange = profileRepository.fetchSingleProfile(owner.getId().intValue());
-                    } else {
-                        return forbidden();
-                    }
+        if(owner.getProfilePicture() != null && owner.getProfilePicture().getId().equals(personalPhotoId)) {
+            return badRequest();
+        }
 
-                    if (profileToChange != null) {
-                        personalPhotoRepository.updatePrivacy(profileToChange, personalPhoto, isPublic);
-                        return ok(Json.toJson(profileToChange.getPhotoGallery()));
-                    }
-                    return internalServerError("Can't change privacy of photo");
-                })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+        if(AuthenticationUtil.validUser(loggedInUser, owner)) {
+            profileToChange = owner;
+        } else {
+            return forbidden();
+        }
+
+        personalPhotoRepository.updatePrivacy(profileToChange, personalPhoto, isPublic);
+        return ok(Json.toJson(profileToChange.getPhotoGallery()));
     }
 
 
@@ -378,16 +381,13 @@ public class PhotoController extends Controller {
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
 
-                    Profile user = profileRepository.fetchSingleProfile(userId.intValue());
+                    Profile user = profileRepository.findById(userId);
 
-                    JsonNode userJson = (Json.toJson(user));
-
-                    if (userJson.has("photoGallery")) {
-                        return ok(userJson.get("photoGallery"));
+                    if (user != null && user.getPhotoGallery() != null) {
+                        return ok(Json.toJson(user.getPhotoGallery()));
                     }
 
                     return badRequest();
-
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
@@ -408,8 +408,8 @@ public class PhotoController extends Controller {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
-                    Profile profileToAdd = profileRepository.fetchSingleProfile(userId.intValue());
+                    Profile loggedInUser = profileRepository.findById(Long.valueOf(loggedInUserId));
+                    Profile profileToAdd = profileRepository.findById(userId);
 
                     if (profileToAdd == null) {
                         return badRequest(); // User does not exist in the system.
@@ -543,7 +543,7 @@ public class PhotoController extends Controller {
                     if (personalPhoto.getPublic())
                         return getImageResult(personalPhoto.getPhoto(), getThumbnail);
 
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(userId));
+                    Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
                     Profile owner = personalPhoto.getProfile();
 
                     if(AuthenticationUtil.validUser(loggedInUser, owner))
@@ -657,7 +657,7 @@ public class PhotoController extends Controller {
 
                     Profile photoOwner = personalPhoto.getProfile();
 
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(userId));
+                    Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
                         Destination destination = destinationRepository.fetch(destinationId);

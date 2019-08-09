@@ -72,8 +72,12 @@ public class DestinationTravellerTypeController {
      */
     public Result create(Http.Request request, Long destinationId) {
 
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
+            return unauthorized();
+        }
+        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
@@ -83,7 +87,6 @@ public class DestinationTravellerTypeController {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, destinationToMutate.getOwner())) {
             return forbidden();
@@ -122,8 +125,12 @@ public class DestinationTravellerTypeController {
      */
     public Result propose(Http.Request request, Long destinationId) {
 
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
+            return unauthorized();
+        }
+        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
@@ -172,12 +179,14 @@ public class DestinationTravellerTypeController {
      */
     public Result fetchProposedDestinations(Http.Request request) {
 
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
         }
-
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
+        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        if (loggedInUser == null) {
+            return unauthorized();
+        }
 
         if (!loggedInUser.getIsAdmin()) {
             return forbidden();
