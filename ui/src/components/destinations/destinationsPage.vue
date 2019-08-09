@@ -264,11 +264,20 @@
              */
             closeEditDestination() {
                 this.destinationEdit = false;
-                this.destinationsForMap = [];
-                let destination = this.destinationToAdd;
-                this.destinationsForMap.push(destination);
-                this.destinationToAdd = this.destinationTemplate;
 
+                // Remove red marker from the map.
+                let destination = this.destinationToAdd;
+                this.destinationsForMap = [];
+                this.destinationsForMap.push(destination);
+                this.selectedDestination = destination;
+
+
+                // TODO: Add animation. Fix this @Matilda and @Isaac
+                this.$refs['map'].focusOnSelectedDestination();
+
+
+                // Clears the form for the add tab.
+                this.destinationToAdd = this.destinationTemplate;
             },
 
 
@@ -290,6 +299,8 @@
              */
             destinationSearch(foundDestinations) {
                 this.destinationsForMap = foundDestinations;
+
+                //Clears the single destination information when moving to the add tab.
                 if (foundDestinations == null) {
                     this.selectedDestination = {};
                 }
