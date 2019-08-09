@@ -62,10 +62,10 @@
                 if (this.markerToAdd !== false) {
                     if (this.destinations !== null) {
                         // If we click out of the 'add' sideBar tab
-                        this.markerToAdd.setMap(null);
+                        this.removeMarkerToAdd();
                     } else {
                         // If we click into the 'add' sideBar tab
-                        this.markerToAdd.setMap(this.$map);
+                        this.placeMarkerToAdd();
                     }
                 }
 
@@ -153,12 +153,26 @@
                         //Marker has already been added, so just change its location.
                         this.updateDestinationMarker(this.destinationToAdd);
                     }
-
                     this.markerToAdd.setIcon(this.addingMarker);
                     this.$map.panTo(this.parseCoordinates(this.destinationToAdd));
                 }
             },
 
+
+            /**
+             * Removes the red marker from the map.
+             */
+            removeMarkerToAdd() {
+                this.markerToAdd.setMap(null);
+            },
+
+
+            /**
+             * Adds the red marker to the map.
+             */
+            placeMarkerToAdd() {
+                this.markerToAdd.setMap(this.$map);
+            },
 
 
             /**

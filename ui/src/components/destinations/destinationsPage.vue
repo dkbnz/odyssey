@@ -249,32 +249,24 @@
 
             /**
              * Displays the edit destination form for the given destination.
+             * Places the active marker on the map.
              *
              * @param destination   the destination that is being edited.
              */
             destinationEdited(destination) {
-                this.destinationsForMap = null;
                 this.destinationToAdd = destination;
-                this.destinationEdit = !this.destinationEdit;
+                this.destinationEdit = true;
+                this.$refs['map'].placeMarkerToAdd();
             },
 
 
             /**
              * Replaces the edit destination form with the destination side bar if the close button is clicked.
+             * Removes the active marker from the map and resets the destination to add values.
              */
             closeEditDestination() {
                 this.destinationEdit = false;
-
-                // Remove red marker from the map.
-                let destination = this.destinationToAdd;
-                this.destinationsForMap = [];
-                this.destinationsForMap.push(destination);
-                this.selectedDestination = destination;
-
-
-                // TODO: Add animation. Fix this @Matilda and @Isaac
-                this.$refs['map'].focusOnSelectedDestination();
-
+                this.$refs['map'].removeMarkerToAdd();
 
                 // Clears the form for the add tab.
                 this.destinationToAdd = this.destinationTemplate;
@@ -300,7 +292,7 @@
             destinationSearch(foundDestinations) {
                 this.destinationsForMap = foundDestinations;
 
-                //Clears the single destination information when moving to the add tab.
+                // Clears the single destination information when moving to the add tab.
                 if (foundDestinations == null) {
                     this.selectedDestination = {};
                 }
