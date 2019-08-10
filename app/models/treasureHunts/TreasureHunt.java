@@ -98,6 +98,20 @@ public class TreasureHunt extends BaseModel {
         this.owner = owner;
     }
 
+//    public Set<Profile> getSolvedProfiles(){return solvedProfiles;};
+//
+//    public void addSolvedProfile(Profile newProfile){solvedProfiles.add(newProfile);}
+//
+//    public void changeToCheckedIn(Profile profile) {
+//        solvedProfiles.remove(profile);
+//        //TODO Joel will add margin of error stuff later
+//        //checkedInProfiles.add(profile);
+//    }
+//
+//    public static Finder<Integer, TreasureHunt> getFind() {
+//        return find;
+//    }
+
     @JsonIgnore
     public Collection<ApiError> getErrors() {
         List<ApiError> errors = new ArrayList<>();

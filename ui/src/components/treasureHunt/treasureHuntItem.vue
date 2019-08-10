@@ -79,7 +79,7 @@
                                                 </template>
                                                 <option :value="radius" v-for="radius in radiusList"
                                                         :state="validateCheckIn">
-                                                    {{radius}}
+                                                    {{radius.text}}
                                                 </option>
                                             </b-form-select>
                                         </b-form-group>
@@ -102,7 +102,6 @@
 
                                                 </b-form-input>
                                             </b-col>
-
                                             <b-col cols="6">
                                                 <b-form-input :type="'time'"
                                                               id="startTime"
@@ -150,8 +149,13 @@
                                         </b-form-group>
                                     </b-col>
                                 </b-row>
-
-
+                                <div ref="map" v-if="radiusSelected !== null && selectedDestination.name">
+                                    <google-map ref="map"
+                                                :showRadius="true"
+                                                :radius="radiusSelected.value"
+                                                :selectedRadiusDestination="selectedDestination">
+                                    </google-map>
+                                </div>
                             </b-container>
                         </b-form>
                     </b-form>
@@ -177,12 +181,15 @@
 <script>
     import DestinationSidebar from "../destinations/destinationSidebar";
     import BCol from "bootstrap-vue/es/components/layout/col";
+    import GoogleMap from "../map/googleMap";
+
     export default {
         name: "addTreasureHunt",
 
         components: {
             BCol,
-            DestinationSidebar
+            DestinationSidebar,
+            GoogleMap
         },
 
         props: {
@@ -220,8 +227,25 @@
                 dismissCountDown: 0,
                 savingTreasureHunt: false,
                 letTreasureHuntSaved: false,
-                radiusList: [1, 3, 5, 10, 20, 30, 50, 100],
-                radiusSelected: 5
+                radiusList: [
+                    {value: 0.005, text: "5 Meters"},
+                    {value: 0.01, text: "10 Meters"},
+                    {value: 0.02, text: "20 Meters"},
+                    {value: 0.05, text: "50 Meters"},
+                    {value: 0.1, text: "100 Meters"},
+                    {value: 0.5, text: "500 Meters"},
+                    {value: 1, text: "1 Km"},
+                    {value: 5, text: "5 Km"},
+                    {value: 10, text: "10 Km"},
+                ],
+                radiusSelected: null,
+                initial: {
+                    zoom: 5,
+                    view: {
+                        lat: -41.272804,
+                        lng: 173.299565
+                    }
+                },
             }
         },
 
@@ -235,6 +259,7 @@
             this.splitDates();
             this.editingTreasureHunt();
             this.setDateTimeString();
+            this.initMap();
         },
 
         computed: {
@@ -352,6 +377,7 @@
         },
 
         methods: {
+
             /**
              * Gets the current date+time as a Date object.
              * @returns Current Datetime.
@@ -629,4 +655,3 @@
         }
     }
 </script>
-
