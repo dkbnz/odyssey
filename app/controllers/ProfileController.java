@@ -124,7 +124,7 @@ public class ProfileController {
         newUser.setDateOfCreation(new Date());
         newUser.setIsAdmin(false);
 
-        newUser.save();
+        profileRepository.save(newUser);
 
         Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
             Nationality newNat = nationalityRepository.findById(node.get(ID).asLong());
@@ -147,7 +147,7 @@ public class ProfileController {
 
         json.get(TRAVELLER_TYPE).forEach(travTypeAction);
 
-        newUser.save();
+        profileRepository.save(newUser);
 
         return (userProfile != null && userProfile.getIsAdmin())
                 ? created("")
@@ -506,7 +506,7 @@ public class ProfileController {
                     profileToUpdate.clearTravellerTypes();
 
                     // Save user profile to clear nationalities, travellerTypes and passports
-                    profileToUpdate.update();
+                    profileRepository.update(profileToUpdate);
 
                     Consumer<JsonNode> nationalityAction = (JsonNode node) -> {
                         Nationality newNationality = nationalityRepository.findById(node.get(ID).asLong());
@@ -529,7 +529,7 @@ public class ProfileController {
 
                     json.get(TRAVELLER_TYPE).forEach(travTypeAction);
 
-                    profileToUpdate.update();
+                    profileRepository.update(profileToUpdate);
 
                     return ok(UPDATED);
                 })
@@ -663,7 +663,7 @@ public class ProfileController {
                     if (userProfile.getIsAdmin()) {
                         Profile updateProfile = profileRepository.findById(id);
                         updateProfile.setIsAdmin(true);
-                        updateProfile.update();
+                        profileRepository.update(updateProfile);
                     } else {
                         return forbidden();
                     }
@@ -696,7 +696,7 @@ public class ProfileController {
                         if (!updateProfile.getId().equals(DEFAULT_ADMIN_ID)) {
                             if (updateProfile.getIsAdmin()) {
                                 updateProfile.setIsAdmin(false);
-                                updateProfile.update();
+                                profileRepository.update(updateProfile);
                             } else {
                                 return badRequest();
                             }
