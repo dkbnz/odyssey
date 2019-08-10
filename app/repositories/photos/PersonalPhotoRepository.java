@@ -26,25 +26,6 @@ public class PersonalPhotoRepository extends BeanRepository<Long, PersonalPhoto>
 
 
     /**
-     * Deletes a personal photo.
-     *
-     * @param photo      the PersonalPhoto object of the photo.
-     */
-    public boolean delete(PersonalPhoto photo) {
-        return super.delete(photo);
-    }
-
-    /**
-     * Updates a personal photo.
-     *
-     * @param photo      the PersonalPhoto object of the photo.
-     */
-    public void update(PersonalPhoto photo) {
-        super.update(photo);
-    }
-
-
-    /**
      * Updates the privacy of the of the specified photo to either public or private.
      *
      * @param photoOwner the Profile object of the owner of the photo.

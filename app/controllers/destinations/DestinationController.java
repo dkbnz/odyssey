@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.java.hu.De;
 import io.ebean.ExpressionList;
 import models.TravellerType;
 import models.photos.PersonalPhoto;
@@ -28,7 +27,6 @@ import repositories.TripDestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.treasureHunts.TreasureHuntRepository;
 import util.AuthenticationUtil;
-import util.DebugHelp;
 
 import static util.QueryUtil.queryComparator;
 
@@ -236,6 +234,11 @@ public class DestinationController extends Controller {
         }
 
         Profile loggedInUser = profileRepository.findById(loggedInUserId);
+
+        if (loggedInUser == null) {
+            return unauthorized();
+        }
+
         Profile profileToChange = profileRepository.findById(userId);
 
         if (profileToChange == null) {
@@ -344,6 +347,10 @@ public class DestinationController extends Controller {
 
                     if (profileToChange == null) {
                         return badRequest();
+                    }
+
+                    if (loggedInUser == null) {
+                        return unauthorized();
                     }
 
                     if(!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
@@ -610,8 +617,6 @@ public class DestinationController extends Controller {
     }
 
 
-
-
     /**
      * Takes the personal photos from the destinationToMerge and adds them to the destinationToMerge.
      *
@@ -620,14 +625,12 @@ public class DestinationController extends Controller {
      */
     private void mergePersonalPhotos(Destination destinationToUpdate, Destination destinationToMerge) {
 
-//        DebugHelp.ppjs(destinationToMerge);
 
         // Take all PersonalPhotos
         for (PersonalPhoto photo : destinationToMerge.getPhotoGallery()) {
             // Save to destination to update
             destinationToUpdate.addPhotoToGallery(photo);
         }
-//        System.out.println(destinationToUpdate.getPhotoGallery());
         destinationToMerge.clearPhotoGallery();
     }
 

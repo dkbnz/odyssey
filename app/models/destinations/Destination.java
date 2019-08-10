@@ -1,7 +1,6 @@
 package models.destinations;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.ebean.Finder;
 import models.BaseModel;
 import models.Profile;
 import models.TravellerType;

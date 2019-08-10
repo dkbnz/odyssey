@@ -6,7 +6,6 @@ import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Profile;
 import models.photos.PersonalPhoto;
-import org.springframework.context.annotation.Bean;
 
 public class ProfileRepository extends BeanRepository<Long, Profile> {
 
@@ -26,17 +25,6 @@ public class ProfileRepository extends BeanRepository<Long, Profile> {
         profile.setProfilePicture(photo);
         super.update(profile);
     }
-
-
-    /**
-    * Saves the specified profile object.
-    */
-    public void save(Profile profile) {super.save(profile);}
-
-    /**
-     * Updates the specified profile object.
-     */
-    public void update(Profile profile) {super.update(profile);}
 
 
     /**

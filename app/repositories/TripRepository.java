@@ -8,7 +8,6 @@ import models.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
-import util.DebugHelp;
 
 import java.util.HashSet;
 import java.util.List;
@@ -58,15 +57,6 @@ public class TripRepository extends BeanRepository<Long, Trip> {
         trip.setDestinations(destinationList);
         super.update(trip);
         profileRepository.update(profile);
-    }
-
-
-    /**
-     * Updates a trip.
-     * @param trip      The trip to update.
-     */
-    public void update(Trip trip) {
-        super.update(trip);
     }
 
 
@@ -158,8 +148,6 @@ public class TripRepository extends BeanRepository<Long, Trip> {
      * @return                  the set of Trips a destination is used in.
      */
     public Set<Trip> fetch(Destination usedDestination) {
-
-        DebugHelp.ppjs(tripDestinationRepository.findAll());
 
         List<TripDestination> tripDestinations = tripDestinationRepository.findAllUsing(usedDestination);
         Set<Trip> trips = new HashSet<>();

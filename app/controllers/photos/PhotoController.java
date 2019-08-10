@@ -25,7 +25,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import com.google.inject.Inject;
-import util.DebugHelp;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

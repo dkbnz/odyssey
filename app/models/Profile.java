@@ -2,7 +2,6 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.ebean.Finder;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
 import models.treasureHunts.TreasureHunt;
@@ -12,7 +11,6 @@ import play.data.format.Formats;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -272,11 +270,6 @@ public class Profile extends BaseModel {
 
     public List<Destination> getMyDestinations() {
         return this.myDestinations;
-    }
-
-
-    public Boolean getAdmin() {
-        return isAdmin;
     }
 
     public void setAdmin(Boolean admin) {

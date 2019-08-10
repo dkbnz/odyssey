@@ -1,10 +1,8 @@
 package models.trips;
 
-import io.ebean.Finder;
 import io.ebean.annotation.JsonIgnore;
 import models.BaseModel;
 import models.Profile;
-import play.data.validation.Constraints;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;

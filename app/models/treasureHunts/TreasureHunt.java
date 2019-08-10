@@ -3,7 +3,6 @@ package models.treasureHunts;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.ebean.Finder;
 import models.ApiError;
 import models.BaseModel;
 import models.Profile;

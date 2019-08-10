@@ -16,7 +16,6 @@ import play.mvc.Result;
 import util.AuthenticationUtil;
 
 import com.google.inject.Inject;
-import util.DebugHelp;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -103,9 +102,8 @@ public class TripController extends Controller {
                         for (TripDestination tripDestination: destinationList) {
                             determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
                         }
-
-                        DebugHelp.ppjs(tripRepository.findAll());
-                        return created();
+                        tripRepository.save(trip);
+                        return created(Json.toJson(trip.getId()));
                     } else {
                         return badRequest();
                     }

@@ -16,22 +16,6 @@ public class TripDestinationRepository extends BeanRepository<Long, TripDestinat
         super(TripDestination.class, Ebean.getDefaultServer());
     }
 
-    /**
-     * Fetches one tripDestination thats contain the given destination for each unique trip id.
-     *
-     * @param destination   the destination being searched for.
-     * @return              the set of tripDestinations found.
-     */
-    public List<TripDestination> fetchTripsContainingDestination(Destination destination) {
-
-        return query()
-                .select("trip")
-                .where()
-                .eq("destination", destination)
-                .setDistinct(true)
-                .findList();
-    }
-
 
     /**
      * Fetches a single TripDestination by the id given.
@@ -45,38 +29,10 @@ public class TripDestinationRepository extends BeanRepository<Long, TripDestinat
 
 
     /**
-     * Save the TripDestination object.
+     * Fetches all the trip destinations that a selected destination is associated with.
      *
-     * @param tripDestination       the TripDestination being saved.
-     */
-    public void save(TripDestination tripDestination) {
-        super.save(tripDestination);
-    }
-
-
-    /**
-     * Deletes the trip destination.
-     *
-     * @param tripDestination       the TripDestination to be deleted.
-     */
-    public boolean delete(TripDestination tripDestination) {
-        return super.delete(tripDestination);
-    }
-
-
-    /**
-     * Updates the TripDestination object.
-     *
-     * @param tripDestination       the TripDestination being updated.
-     */
-    public void update(TripDestination tripDestination) {
-        super.update(tripDestination);
-    }
-
-    /**
-     *
-     * @param usedDestination
-     * @return
+     * @param usedDestination   the destination selected to be queried for associated trip destinations.
+     * @return                  a list of all the trip destinations found.
      */
     public List<TripDestination> findAllUsing(Destination usedDestination) {
         return query().where().eq("destination", usedDestination).findList();
