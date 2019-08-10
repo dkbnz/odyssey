@@ -34,7 +34,9 @@ public class TreasureHuntController {
 
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
-    // Radius of earth in Km's
+
+
+    /** Radius of earth in Km's */
     private static final Double RADIUS_OF_EARTH = 6378.1370;
 
     @Inject
