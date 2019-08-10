@@ -178,7 +178,7 @@ public class PhotoController extends Controller {
             return unauthorized();
         }
 
-        PersonalPhoto photo = personalPhotoRepository.fetch(photoId);
+        PersonalPhoto photo = personalPhotoRepository.findById(photoId);
 
         if (photo == null) {
             return notFound();
@@ -233,7 +233,8 @@ public class PhotoController extends Controller {
             return forbidden();
         }
 
-        profileRepository.deleteProfilePhoto(profileToChange);
+        profileToChange.setProfilePicture(null);
+        profileRepository.update(profileToChange);
         return ok();
     }
 
@@ -258,7 +259,7 @@ public class PhotoController extends Controller {
             return unauthorized();
         }
 
-        PersonalPhoto personalPhoto = personalPhotoRepository.fetch(photoId);
+        PersonalPhoto personalPhoto = personalPhotoRepository.findById(photoId);
 
         if (personalPhoto == null) {
             return badRequest();
@@ -314,7 +315,7 @@ public class PhotoController extends Controller {
 
         Profile profileToChange;
 
-        PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
+        PersonalPhoto personalPhoto = personalPhotoRepository.findById(personalPhotoId);
 
         if (personalPhoto == null) {
             return notFound();
@@ -618,7 +619,7 @@ public class PhotoController extends Controller {
      */
     private void changeOwnership(Profile profileAddingPhoto, Destination destination) {
         if (destination.getPublic() && !profileAddingPhoto.equals(destination.getOwner())) {
-            destinationRepository.transferDestinationOwnership(destination);
+            destinationRepository.transferToAdmin(destination);
         }
     }
 
@@ -648,7 +649,7 @@ public class PhotoController extends Controller {
 
                     Long personalPhotoId = json.get(PHOTO_ID).asLong();
 
-                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
+                    PersonalPhoto personalPhoto = personalPhotoRepository.findById(personalPhotoId);
 
                     if (personalPhoto == null) {
                         return notFound(IMAGE_NOT_FOUND);
@@ -659,7 +660,7 @@ public class PhotoController extends Controller {
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
-                        Destination destination = destinationRepository.fetch(destinationId);
+                        Destination destination = destinationRepository.findById(destinationId);
                         if (destination != null) {
                             destination.removePhotoFromGallery(personalPhoto);
                             destinationRepository.update(destination);

@@ -8,19 +8,8 @@ import models.photos.PersonalPhoto;
 
 public class PersonalPhotoRepository extends BeanRepository<Long, PersonalPhoto> {
 
-
     @Inject
     public PersonalPhotoRepository() {
         super(PersonalPhoto.class, Ebean.getDefaultServer());
-    }
-
-    /**
-     * Fetches a single personal photo by the photo id number.
-     *
-     * @param photoId   the id number of the photo.
-     * @return          the PersonalPhoto object given by the personal photo.
-     */
-    public PersonalPhoto fetch(Long photoId) {
-        return super.findById(photoId);
     }
 }

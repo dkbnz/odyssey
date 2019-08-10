@@ -976,7 +976,7 @@ public class DestinationTestSteps {
      */
     private JsonNode convertDataTableToEditDestination(io.cucumber.datatable.DataTable dataTable) {
         int valueIndex = 0;
-        Destination editDestination = destinationRepository.fetch(destinationId);
+        Destination editDestination = destinationRepository.findById(destinationId);
         if (editDestination == null) {
             editDestination = new Destination();
         }
@@ -1205,7 +1205,7 @@ public class DestinationTestSteps {
         JsonNode arrNode = new ObjectMapper().readTree(responseBody);
         Long ownerId;
         for (int i = 0 ; i < arrNode.size() ; i++) {
-            ownerId = destinationRepository.fetch(arrNode.get(i).get("id").asLong()).getOwner().getId();  //Gets owner id of destination
+            ownerId = destinationRepository.findById(arrNode.get(i).get("id").asLong()).getOwner().getId();  //Gets owner id of destination
             assertEquals(userId, ownerId);
         }
     }
@@ -1218,7 +1218,7 @@ public class DestinationTestSteps {
      */
     @Then("the owner is user {int}")
     public void theOwnerIsUser(Integer userId) {
-        Destination destination = destinationRepository.fetch(destinationId);
+        Destination destination = destinationRepository.findById(destinationId);
         Long expectedId = userId.longValue();
         assertEquals(expectedId, destination.getOwner().getId());
     }

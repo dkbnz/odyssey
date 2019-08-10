@@ -11,5 +11,4 @@ public class TravellerTypeRepository extends BeanRepository<Long, TravellerType>
     public TravellerTypeRepository() {
         super(TravellerType.class, Ebean.getDefaultServer());
     }
-
 }

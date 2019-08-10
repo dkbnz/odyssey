@@ -160,7 +160,7 @@ public class TripController extends Controller {
             return unauthorized();
         }
         // Retrieve the individual trip being deleted by its id.
-        Trip trip = tripRepository.fetchSingleTrip(tripId);
+        Trip trip = tripRepository.findById(tripId);
 
         if (trip == null) {
             return notFound();
@@ -348,7 +348,7 @@ public class TripController extends Controller {
         }
 
         // Retrieving the trip which corresponds to the id parsed.
-        Trip returnedTrip = tripRepository.fetchSingleTrip(parsedTripId);
+        Trip returnedTrip = tripRepository.findById(parsedTripId);
 
         // Verifying the existence of the trip being retrieved.
         if (returnedTrip == null) {
@@ -373,7 +373,7 @@ public class TripController extends Controller {
         // Destination is not owned by global admin, it is public, and the user is not the owner of the destination.
         if (owner == null || owner.getId() != DEFAULT_ADMIN_ID && destination.getPublic()
                 && !affectedProfile.getId().equals(owner.getId())) {
-            destinationRepository.transferDestinationOwnership(destination);
+            destinationRepository.transferToAdmin(destination);
             return ok("Destination ownership changed");
         }
 
@@ -416,7 +416,7 @@ public class TripController extends Controller {
         }
 
         // Retrieve the individual trip being deleted by its id.
-        Trip trip = tripRepository.fetchSingleTrip(tripId);
+        Trip trip = tripRepository.findById(tripId);
 
         if (trip == null) {
             return notFound();

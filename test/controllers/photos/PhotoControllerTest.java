@@ -45,7 +45,7 @@ public class PhotoControllerTest {
     @Test
     public void fetchNonExistentPhoto() {
         // Mock
-        when(mockPersonalPhotoRepo.fetch(any(Long.class))).thenReturn(null);
+        when(mockPersonalPhotoRepo.findById(any(Long.class))).thenReturn(null);
 
         // Arrange
         Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID);
@@ -64,7 +64,7 @@ public class PhotoControllerTest {
     @Test
     public void fetchNonExistentThumb() {
         // Mock
-        when(mockPersonalPhotoRepo.fetch(any(Long.class))).thenReturn(null);
+        when(mockPersonalPhotoRepo.findById(any(Long.class))).thenReturn(null);
 
         // Arrange
         Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID);

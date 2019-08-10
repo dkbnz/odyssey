@@ -3,9 +3,6 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.PendingException;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
@@ -16,7 +13,6 @@ import io.cucumber.datatable.DataTable;
 import models.TravellerType;
 import models.destinations.Destination;
 import org.junit.Assert;
-import org.springframework.beans.BeansException;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
@@ -34,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 public class DestinationTravellerTypeTestSteps {
@@ -300,7 +295,7 @@ public class DestinationTravellerTypeTestSteps {
 
     @And("^I (.*)own destination with id (\\d+) and it is (.*)$")
     public void iOwnDestinationWithIdAndItIs(String ownOrNot, int destinationId, String publicOrPrivate) throws Throwable {
-        Destination destinationOfInterest = destinationRepo.fetch(Long.valueOf(destinationId));
+        Destination destinationOfInterest = destinationRepo.findById(Long.valueOf(destinationId));
 
         // Ensure we can find a destination
         Assert.assertNotNull(destinationOfInterest);

@@ -18,17 +18,6 @@ public class TripDestinationRepository extends BeanRepository<Long, TripDestinat
 
 
     /**
-     * Fetches a single TripDestination by the id given.
-     *
-     * @param tripDestinationId     the id of the TripDestination to be found.
-     * @return                      the TripDestination object of the matching TripDestination.
-     */
-    public TripDestination fetch(Long tripDestinationId) {
-        return super.findById(tripDestinationId);
-    }
-
-
-    /**
      * Fetches all the trip destinations that a selected destination is associated with.
      *
      * @param usedDestination   the destination selected to be queried for associated trip destinations.
