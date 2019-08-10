@@ -274,13 +274,12 @@ public class PhotoController extends Controller {
             return forbidden();
         }
 
-        if (personalPhoto.getPublic()) {
-            profileRepository.setProfilePhoto(personalPhoto, owner);
-            return ok();
-        }
+        // Now used as a profile photo so must be public
+        personalPhoto.setPublic(true);
 
-        personalPhotoRepository.updatePrivacy(owner, personalPhoto, "true");
-        profileRepository.setProfilePhoto(personalPhoto, owner);
+        owner.setProfilePicture(personalPhoto);
+        personalPhotoRepository.update(personalPhoto);
+        profileRepository.update(owner);
         return ok();
     }
 
@@ -311,7 +310,7 @@ public class PhotoController extends Controller {
         }
 
         Long personalPhotoId = json.get(PHOTO_ID).asLong();
-        String isPublic = json.get(IS_PUBLIC).asText();
+        Boolean isPublic = json.get(IS_PUBLIC).asBoolean();
 
         Profile profileToChange;
 
@@ -337,7 +336,8 @@ public class PhotoController extends Controller {
             return forbidden();
         }
 
-        personalPhotoRepository.updatePrivacy(profileToChange, personalPhoto, isPublic);
+        personalPhoto.setPublic(isPublic);
+        personalPhotoRepository.update(personalPhoto);
         return ok(Json.toJson(profileToChange.getPhotoGallery()));
     }
 
