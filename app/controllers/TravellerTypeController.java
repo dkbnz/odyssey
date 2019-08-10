@@ -31,21 +31,7 @@ public class TravellerTypeController extends Controller {
      * @return ok() (Http 200) with the result with a Json body.
      */
     public Result list() {
-
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayNode results = mapper.createArrayNode();
-        ObjectNode travTypeobj;
-
-        List<TravellerType> travTypes = travellerTypeRepository.findAll();
-
-
-        for (TravellerType travtype : travTypes) {
-            travTypeobj = (ObjectNode) Json.toJson(travtype);
-            travTypeobj.remove("profiles");
-            results.add(travTypeobj);
-        }
-
-        return ok(results);
+        return ok(Json.toJson(travellerTypeRepository.findAll()));
     }
 
 }
