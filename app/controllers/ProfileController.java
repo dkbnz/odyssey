@@ -394,14 +394,14 @@ public class ProfileController {
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
                         // If user is admin, they can delete other profiles
                         if (userProfile.getIsAdmin()) {
-                            profileToDelete.delete();
+                            profileRepository.delete(profileToDelete);
                             return ok("Delete successful");
                         }
                         return forbidden("You do not have admin rights to delete other users.");
                     }
 
                     // User is deleting their own profile
-                    profileToDelete.delete();
+                    profileRepository.delete(profileToDelete);
                     return ok("Delete successful").withNewSession();
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
