@@ -21,12 +21,13 @@
                         @destination-reset="$emit('destination-reset')">
                 </destination-search-list>
             </b-tab>
-            <b-tab title="Add" @click="$emit('destination-search', [])">
+            <b-tab title="Add" @click="$emit('destination-search', null)">
                 <b-list-group>
                     <b-list-group-item class="flex-column align-items-start">
                         <add-destinations :profile="profile"
                                           :destinationTypes="destinationTypes"
                                           :heading="'Add'"
+                                          :input-destination="inputDestination"
                                           @data-changed="$emit('data-changed')">
                         </add-destinations>
                     </b-list-group-item>
@@ -43,7 +44,10 @@
     export default {
         name: "destinationSidebar",
 
-        props: ['profile'],
+        props: {
+            profile: Object,
+            inputDestination: Object
+        },
 
         data() {
             return {
@@ -72,13 +76,22 @@
                     .then(updateDestinationTypes);
             },
 
+
+            /**
+             * Updates the destinations to be displayed on the destinations page. These are destinations to be displayed
+             * on the map.
+             *
+             * @param publicDestinations   boolean value that is true if public destinations are to be displayed, false
+             *                             otherwise.
+             * @param destinations         the destinations found in the search.
+             */
             foundDestinationUpdate(publicDestinations, destinations) {
                 if (publicDestinations) {
                     this.foundPublicDestinations = destinations;
-                    this.$emit('destination-search', this.foundPublicDestinations)
+                    this.$emit('destination-search', this.foundPublicDestinations);
                 } else {
                     this.yourFoundDestinations = destinations;
-                    this.$emit('destination-search', this.yourFoundDestinations)
+                    this.$emit('destination-search', this.yourFoundDestinations);
                 }
             }
         },

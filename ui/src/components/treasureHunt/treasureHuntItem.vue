@@ -49,28 +49,27 @@
                                     <h6 class="mb-1">Selected Destination:</h6>
                                     <b-list-group @click="$emit('destination-select')">
                                         <b-list-group-item href="#" class="flex-column align-items-start"
-                                                           v-if="selectedDestination"
+                                                           v-if="displayedDestination"
                                                            id="selectedDestination"
-                                                           :disabled="selectedDestination.length === '{}'"
+                                                           :disabled="displayedDestination.length === '{}'"
                                                            :variant="checkDestinationState">
                                             <div class="d-flex w-100 justify-content-between">
-                                                <h5 class="mb-1" v-if="selectedDestination.name">
-                                                    {{selectedDestination.name}}
+                                                <h5 class="mb-1" v-if="displayedDestination.name">
+                                                    {{displayedDestination.name}}
                                                 </h5>
                                                 <h5 class="mb-1" v-else>Select a Destination</h5>
 
-                                            </div>
+                                        </div>
 
                                             <p>
-                                                {{selectedDestination.district}}
+                                                {{displayedDestination.district}}
                                             </p>
                                             <p>
-                                                {{selectedDestination.country}}
+                                                {{displayedDestination.country}}
                                             </p>
                                         </b-list-group-item>
                                     </b-list-group>
                                 </b-col>
-
                                 <b-col>
                                     <b-form-group
                                             id="startDate-field">
@@ -135,8 +134,6 @@
                                     </b-form-group>
                                 </b-col>
                             </b-row>
-
-
                         </b-container>
                     </b-form>
                 </b-form>
@@ -180,14 +177,16 @@
                         destination: null,
                         riddle: "",
                         startDate: "",
-                        startTime: "",
                         endDate: "",
-                        endTime: ""
                     }
                 }
             },
             newDestination: Object,
-            selectedDestination: {},
+            selectedDestination: {
+                default: function () {
+                    return this.inputTreasureHunt.destination
+                }
+            },
             heading: String,
             containerClass: {
                 default: function () {
@@ -207,13 +206,15 @@
                 savingTreasureHunt: false,
                 letTreasureHuntSaved: false,
                 startTime: "",
-                endTime: "23:59"
+                endTime: "23:59",
+                displayedDestination: null
             }
         },
 
         watch: {
             selectedDestination() {
                 this.inputTreasureHunt.destination = this.selectedDestination;
+                this.displayedDestination = this.selectedDestination;
             }
         },
 
@@ -248,8 +249,11 @@
              */
             validateStartTime() {
                 // For new hunts, check the start time is after the current time.
-                if (this.inputTreasureHunt.startDate === this.getDateString() && !this.inputTreasureHunt.id) {
-                    if (this.startTime < this.getTimeString()) {
+                if (this.startTime === "" || this.startTime === undefined) {
+                    return false
+                }
+                if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
+                    if (this.startTime >= this.endTime) {
                         return false;
                     }
                 }
@@ -314,7 +318,7 @@
              */
             validateDestination() {
                 return (this.inputTreasureHunt.destination !== null
-                    && this.inputTreasureHunt.destination === this.selectedDestination
+                    && this.inputTreasureHunt.destination === this.displayedDestination
                     && this.inputTreasureHunt.destination.name !== undefined
                     && this.inputTreasureHunt.destination.name.length > 0);
             },
@@ -388,7 +392,9 @@
              */
             editingTreasureHunt() {
                 if (this.inputTreasureHunt.id !== null) {
-                    this.selectedDestination = this.inputTreasureHunt.destination;
+                    this.displayedDestination = this.inputTreasureHunt.destination;
+                } else {
+                    this.displayedDestination = this.selectedDestination;
                 }
             },
 
@@ -410,14 +416,6 @@
                     this.showError = true;
                 }
 
-            },
-
-
-            /**
-             * Used after the destination is added, resets the form for adding a destination.
-             */
-            resetDestForm() {
-                this.selectedDestination = {};
             },
 
 
@@ -509,11 +507,11 @@
             joinDates() {
                 let timeOffset = this.formatOffset();
 
-                if (this.startTime.length === 5) {
+                if(this.startTime.length === 5) {
                     this.startTime += ":00";
                 }
 
-                if (this.endTime.length === 5) {
+                if(this.endTime.length === 5) {
                     this.endTime += ":00";
                 }
 
