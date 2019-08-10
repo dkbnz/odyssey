@@ -24,7 +24,6 @@ public class Trip extends BaseModel {
     /**
      * The name of the trip.
      */
-    @Constraints.Required
     private String name;
 
     /**

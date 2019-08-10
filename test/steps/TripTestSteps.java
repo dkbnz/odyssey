@@ -28,6 +28,7 @@ import play.db.evolutions.Evolutions;
 import repositories.ProfileRepository;
 import repositories.TripRepository;
 import repositories.destinations.DestinationRepository;
+import util.DebugHelp;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -280,6 +281,7 @@ public class TripTestSteps {
                 .uri(TRIPS_URI + 1);
         Result result = route(application, request);
         statusCode = result.status();
+        DebugHelp.ppjs(statusCode);
     }
 
 

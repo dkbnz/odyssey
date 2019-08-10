@@ -73,7 +73,7 @@ public class Destination extends BaseModel {
      * List of trip destinations that the destination is associated with.
      */
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "destination")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "destination")
     private List<TripDestination> tripDestinations;
 
     @ManyToMany
@@ -184,7 +184,7 @@ public class Destination extends BaseModel {
     }
 
     public void addTripDestinations(List<TripDestination> tripDestinations){
-        this.tripDestinations = tripDestinations;
+        this.tripDestinations.addAll(tripDestinations);
     }
 
     public void clearTripDestinations() {

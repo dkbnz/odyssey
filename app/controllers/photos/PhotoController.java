@@ -535,7 +535,7 @@ public class PhotoController extends Controller {
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
 
-                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
+                    PersonalPhoto personalPhoto = personalPhotoRepository.findById(personalPhotoId);
 
                     if (personalPhoto == null)
                         return notFound(IMAGE_NOT_FOUND);

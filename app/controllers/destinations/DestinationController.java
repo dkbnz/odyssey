@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import cucumber.api.java.hu.De;
 import io.ebean.ExpressionList;
 import models.TravellerType;
 import models.photos.PersonalPhoto;
@@ -89,6 +90,7 @@ public class DestinationController extends Controller {
      *                          (Http 403) if the user is not allowed to access this number.
      */
     public Result getDestinationUsage(Http.Request request, Long destinationId) {
+
         Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
         if (loggedInUserId == null) {
             return unauthorized();
@@ -532,15 +534,9 @@ public class DestinationController extends Controller {
         mergeTreasureHunts(destinationToUpdate, destinationToMerge);
         destinationToUpdate.setPublic(true);
 
-        DebugHelp.ppjs(destinationToUpdate.getTripDestinations());
-        DebugHelp.ppjs(destinationToMerge.getTripDestinations());
-
-        tripDestinationRepository.saveAll(destinationToUpdate.getTripDestinations());
-        destinationRepository.update(destinationToUpdate);
-        destinationRepository.update(destinationToMerge);
+        destinationRepository.save(destinationToUpdate);
+        destinationRepository.save(destinationToMerge);
         destinationRepository.delete(destinationToMerge);
-
-        DebugHelp.ppjs(destinationRepository.findById(destinationToUpdate.getId()).getTripDestinations());
     }
 
 
@@ -553,79 +549,64 @@ public class DestinationController extends Controller {
      */
     private void mergeTripDestinations(Destination destinationToUpdate, Destination destinationToMerge) {
 
-        List<TripDestination> tripDestinationsToTransfer = destinationToMerge.getTripDestinations();
+        //Takes all trip destinations from other into this destination
+        List<TripDestination> tripDestinationsToAdd = new ArrayList<>();
+        List<TripDestination> tripDestinationsToDelete = new ArrayList<>();
 
-        for(TripDestination tripDestination : tripDestinationsToTransfer) {
-            destinationToMerge.removeTripDestination(tripDestination);
-            destinationToUpdate.addTripDestination(tripDestination);
+        for (TripDestination tripDestination : destinationToMerge.getTripDestinations()) {
 
-            tripDestination.setDestination(destinationToUpdate);
-            tripDestinationRepository.update(tripDestination);
-            DebugHelp.ppjs(tripDestination.getDestination().getId());
-            DebugHelp.ppjs(tripDestinationRepository.findById(tripDestination.getId()).getDestination().getId());
+            // Create a new TripDestination as a copy of the TripDestination.
+            TripDestination tripDestinationTemporary = new TripDestination();
+            tripDestinationTemporary.setId(tripDestination.getId());
+            tripDestinationTemporary.setDestination(destinationToUpdate);
+            tripDestinationTemporary.setStartDate(tripDestination.getStartDate());
+            tripDestinationTemporary.setEndDate(tripDestination.getEndDate());
+            tripDestinationTemporary.setListOrder(tripDestination.getListOrder());
+            tripDestinationTemporary.setTrip(tripDestination.getTrip());
+
+            // Add the copied TripDestination to the list of TripDestination for the master destination in merge.
+            destinationToUpdate.addTripDestination(tripDestinationTemporary);
+
+            // Add both TripDestinations to the appropriate lists to be removed/deleted.
+            tripDestinationsToAdd.add(tripDestinationTemporary);
+            tripDestinationsToDelete.add(tripDestination);
         }
-        destinationToMerge.clearTripDestinations();
 
+        for(TripDestination tripDestination: tripDestinationsToDelete) {
+            // Set the Trip and Destination for the TripDestination to null, removing the foreign key links.
+            tripDestination.setDestination(null);
+            tripDestination.setTrip(null);
+            tripDestinationRepository.update(tripDestination);
+            tripDestinationRepository.delete(tripDestination);
+        }
 
+        for(TripDestination tripDestination: tripDestinationsToAdd) {
+            // Save the Trip and Destination for the TripDestination, so can be added later.
+            Trip trip = tripDestination.getTrip();
+            Destination destination = tripDestination.getDestination();
 
-        // Takes all trip destinations from other into this destination
-//        List<TripDestination> tripDestinationsToAdd = new ArrayList<>();
-//        List<TripDestination> tripDestinationsToDelete = new ArrayList<>();
-//
-//        for (TripDestination tripDestination : destinationToMerge.getTripDestinations()) {
-//
-//            // Create a new TripDestination as a copy of the TripDestination.
-//            TripDestination tripDestinationTemporary = new TripDestination();
-//            tripDestinationTemporary.setId(tripDestination.getId());
-//            tripDestinationTemporary.setDestination(destinationToUpdate);
-//            tripDestinationTemporary.setStartDate(tripDestination.getStartDate());
-//            tripDestinationTemporary.setEndDate(tripDestination.getEndDate());
-//            tripDestinationTemporary.setListOrder(tripDestination.getListOrder());
-//            tripDestinationTemporary.setTrip(tripDestination.getTrip());
-//
-//            // Add the copied TripDestination to the list of TripDestination for the master destination in merge.
-//            destinationToUpdate.addTripDestination(tripDestinationTemporary);
-//
-//            // Add both TripDestinations to the appropriate lists to be removed/deleted.
-//            tripDestinationsToAdd.add(tripDestinationTemporary);
-//            tripDestinationsToDelete.add(tripDestination);
-//        }
-//
-//        for(TripDestination tripDestination: tripDestinationsToDelete) {
-//            // Set the Trip and Destination for the TripDestination to null, removing the foreign key links.
-//            tripDestination.setDestination(null);
-//            tripDestination.setTrip(null);
-//            tripDestinationRepository.update(tripDestination);
-//            tripDestinationRepository.delete(tripDestination);
-//        }
-//
-//        for(TripDestination tripDestination: tripDestinationsToAdd) {
-//            // Save the Trip and Destination for the TripDestination, so can be added later.
-//            Trip trip = tripDestination.getTrip();
-//            Destination destination = tripDestination.getDestination();
-//
-//            // Set the Trip and Destination for the TripDestination to null.
-//            tripDestination.setId(null);
-//            tripDestination.setTrip(null);
-//            tripDestination.setDestination(null);
-//            tripDestinationRepository.save(tripDestination);
-//
-//            // Add the TripDestination to the Trip.
-//            trip.addDestinations(tripDestination);
-//            tripRepository.update(trip);
-//
-//            // Set the Destination and Trip for the TripDestination.
-//            tripDestination.setDestination(destination);
-//            tripDestination.setTrip(trip);
-//            trip.addDestinations(tripDestination);
-//
-//            destination.addTripDestination(tripDestination);
-//
-//            // Save all changes to the database.
-//            destinationRepository.update(destination);
-//            tripDestinationRepository.update(tripDestination);
-//            tripRepository.update(trip);
-//        }
+            // Set the Trip and Destination for the TripDestination to null.
+            tripDestination.setId(null);
+            tripDestination.setTrip(null);
+            tripDestination.setDestination(null);
+            tripDestinationRepository.save(tripDestination);
+
+            // Add the TripDestination to the Trip.
+            trip.addDestinations(tripDestination);
+            tripRepository.update(trip);
+
+            // Set the Destination and Trip for the TripDestination.
+            tripDestination.setDestination(destination);
+            tripDestination.setTrip(trip);
+            trip.addDestinations(tripDestination);
+
+            destination.addTripDestination(tripDestination);
+
+            // Save all changes to the database.
+            destinationRepository.update(destination);
+            tripDestinationRepository.update(tripDestination);
+            tripRepository.update(trip);
+        }
     }
 
 

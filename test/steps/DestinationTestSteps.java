@@ -31,6 +31,7 @@ import repositories.destinations.DestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.destinations.TravellerTypeRepository;
 import repositories.treasureHunts.TreasureHuntRepository;
+import util.DebugHelp;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -1074,8 +1075,8 @@ public class DestinationTestSteps {
                 .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
-
         responseBody = Helpers.contentAsString(result);
+        DebugHelp.ppjs(responseBody);
     }
 
 

@@ -16,6 +16,8 @@ import play.mvc.Result;
 import util.AuthenticationUtil;
 
 import com.google.inject.Inject;
+import util.DebugHelp;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -96,10 +98,13 @@ public class TripController extends Controller {
                     // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return 201.
                     if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
                         trip.setDestinations(destinationList);
-                        tripRepository.saveNewTrip(affectedProfile, trip);
+                        affectedProfile.addTrip(trip);
+                        profileRepository.save(affectedProfile);
                         for (TripDestination tripDestination: destinationList) {
                             determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
                         }
+
+                        DebugHelp.ppjs(tripRepository.findAll());
                         return created();
                     } else {
                         return badRequest();
@@ -374,7 +379,7 @@ public class TripController extends Controller {
             return ok("Destination ownership changed");
         }
 
-        return ok("Destination ownership deosn't need to be changed");
+        return ok("Destination ownership doesn't need to be changed");
     }
 
 
