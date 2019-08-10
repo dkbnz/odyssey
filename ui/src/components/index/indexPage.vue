@@ -56,41 +56,18 @@
             }
         },
 
-        mounted() {
+        watch: {
             /**
-             * Mounted function that uses the getProfile function to fetch a profile.
+             * Redirects the user to their home page when they log in.
              */
-            this.getProfile();
-        },
-
-        methods: {
-            /**
-             * Redirects the user to the dash page.
-             */
-            redirectToDash() {
-                if (this.profile.isAdmin) {
-                    this.$router.replace("/admin");
-                } else {
-                    this.$router.replace("/dash");
+            profile: function() {
+                if (this.profile.id !== undefined) {
+                    if (this.profile.isAdmin) {
+                        this.$router.replace("/admin");
+                    } else {
+                        this.$router.replace("/dash");
+                    }
                 }
-
-            },
-
-
-            /**
-             * Used to retrieve a user's profile, determines if they should be redirected to the dash page or not.
-             * @returns {Promise<Response | never>}
-             */
-            getProfile() {
-                let self = this;
-                return fetch(`/v1/profile`, {
-                    accept: "application/json"
-                })
-                    .then(function (response) {
-                        if (response.status === 200) {
-                            self.redirectToDash();
-                        }
-                    })
             }
         },
 

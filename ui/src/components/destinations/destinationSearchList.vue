@@ -93,7 +93,6 @@
                this.queryPage = 0;
                this.foundDestinations = [];
                this.destToSearch = destinationToSearch;
-               this.$emit('destination-reset');
                this.queryDestinations(this.destToSearch);
                this.loadingResults = false;
            },

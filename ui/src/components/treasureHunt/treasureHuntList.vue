@@ -222,14 +222,16 @@
              * @returns {Promise<Response | never>}
              */
             queryYourTreasureHunts() {
+                if (this.profile.id !== undefined) {
+                    return fetch(`/v1/treasureHunts/` + this.profile.id, {})
+                        .then(this.checkStatus)
+                        .then(this.parseJSON)
+                        .then((data) => {
+                            this.foundTreasureHunts = data;
+                            this.loadingResults = false;
+                        })
+                }
 
-                return fetch(`/v1/treasureHunts/` + this.profile.id, {})
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.foundTreasureHunts = data;
-                        this.loadingResults = false;
-                    })
             },
 
 
@@ -275,7 +277,6 @@
                 this.editingHunt = false;
                 this.activeId = 0;
                 this.$emit('hide-destinations');
-                this.selectedDestination = {};
             },
 
 
@@ -286,7 +287,6 @@
                 this.getMore();
                 this.creatingHunt = false;
                 this.$emit('hide-destinations');
-                this.selectedDestination = {};
             },
 
 

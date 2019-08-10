@@ -49,23 +49,23 @@
                                         <h6 class="mb-1">Selected Destination:</h6>
                                         <b-list-group @click="$emit('destination-select')">
                                             <b-list-group-item href="#" class="flex-column align-items-start"
-                                                               v-if="selectedDestination"
+                                                               v-if="displayedDestination"
                                                                id="selectedDestination"
-                                                               :disabled="selectedDestination.length === '{}'"
+                                                               :disabled="displayedDestination.length === '{}'"
                                                                :variant="checkDestinationState">
                                                 <div class="d-flex w-100 justify-content-between">
-                                                    <h5 class="mb-1" v-if="selectedDestination.name">
-                                                        {{selectedDestination.name}}
+                                                    <h5 class="mb-1" v-if="displayedDestination.name">
+                                                        {{displayedDestination.name}}
                                                     </h5>
                                                     <h5 class="mb-1" v-else>Select a Destination</h5>
 
                                                 </div>
 
                                                 <p>
-                                                    {{selectedDestination.district}}
+                                                    {{displayedDestination.district}}
                                                 </p>
                                                 <p>
-                                                    {{selectedDestination.country}}
+                                                    {{displayedDestination.country}}
                                                 </p>
                                             </b-list-group-item>
                                         </b-list-group>
@@ -95,7 +95,7 @@
                                                               min='getCurrentTime()'
                                                               max=''
                                                               trim
-                                                              v-model="inputTreasureHunt.startTime"
+                                                              v-model="startTime"
                                                               :state="validateStartTime">
                                                 </b-form-input>
                                             </b-col>
@@ -128,7 +128,7 @@
                                                                   min='getCurrentTime()'
                                                                   max=''
                                                                   trim
-                                                                  v-model="inputTreasureHunt.endTime"
+                                                                  v-model="endTime"
                                                                   :state="validateEndTime">
                                                     </b-form-input>
                                                 </b-col>
@@ -180,14 +180,16 @@
                         destination: null,
                         riddle: "",
                         startDate: "",
-                        startTime: "",
                         endDate: "",
-                        endTime: "23:59"
                     }
                 }
             },
             newDestination: Object,
-            selectedDestination: {},
+            selectedDestination: {
+                default: function () {
+                    return this.inputTreasureHunt.destination
+                }
+            },
             heading: String,
             containerClass: {
                 default: function() {
@@ -205,13 +207,17 @@
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 savingTreasureHunt: false,
-                letTreasureHuntSaved: false
+                letTreasureHuntSaved: false,
+                startTime: "",
+                endTime: "23:59",
+                displayedDestination: null
             }
         },
 
         watch: {
             selectedDestination() {
                 this.inputTreasureHunt.destination = this.selectedDestination;
+                this.displayedDestination = this.selectedDestination;
             }
         },
 
@@ -243,13 +249,16 @@
              * @returns true if start time is valid.
              */
             validateStartTime() {
+                if (this.startTime === "" || this.startTime === undefined) {
+                    return false
+                }
                 if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
-                    if (this.inputTreasureHunt.startTime >= this.inputTreasureHunt.endTime) {
+                    if (this.startTime >= this.endTime) {
                         return false;
                     }
                 }
                 if (this.inputTreasureHunt.startDate === this.getDateString() && !this.inputTreasureHunt.id) {
-                    if (this.inputTreasureHunt.startTime < this.getTimeString()) {
+                    if (this.startTime < this.getTimeString()) {
                         return false;
                     }
                 }
@@ -278,7 +287,7 @@
              */
             validateEndTime() {
                 if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
-                    if (this.inputTreasureHunt.endTime <= this.inputTreasureHunt.startTime) {
+                    if (this.endTime <= this.startTime) {
                         return false;
                     }
                 }
@@ -304,7 +313,7 @@
              */
             validateDestination() {
                 if (this.inputTreasureHunt.destination !== null
-                    && this.inputTreasureHunt.destination === this.selectedDestination
+                    && this.inputTreasureHunt.destination === this.displayedDestination
                     && this.inputTreasureHunt.destination.name !== undefined
                     && this.inputTreasureHunt.destination.name.length > 0) {
 
@@ -341,7 +350,7 @@
                 if (this.inputTreasureHunt.id === null) {
                     this.inputTreasureHunt.startDate = this.getDateString();
                     this.inputTreasureHunt.endDate = this.getDateString();
-                    this.inputTreasureHunt.startTime = this.getTimeString();
+                    this.startTime = this.getTimeString();
                 }
             },
 
@@ -379,7 +388,9 @@
              */
             editingTreasureHunt() {
                 if (this.inputTreasureHunt.id !== null) {
-                    this.selectedDestination = this.inputTreasureHunt.destination;
+                    this.displayedDestination = this.inputTreasureHunt.destination;
+                } else {
+                    this.displayedDestination = this.selectedDestination;
                 }
             },
 
@@ -405,24 +416,12 @@
 
 
             /**
-             * Used after the destination is added, resets the form for adding a destination.
-             */
-            resetDestForm() {
-                this.selectedDestination = {};
-            },
-
-
-            /**
              * Creates formatted JSON of the currently active treasure hunt.
              * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
              */
             assembleTreasureHunt() {
                 this.joinDates();
                 this.inputTreasureHunt.destination = {"id": this.inputTreasureHunt.destination.id};
-                console.log(this.inputTreasureHunt);
-
-                delete this.inputTreasureHunt.startTime;
-                delete this.inputTreasureHunt.endTime;
             },
 
 
@@ -482,17 +481,17 @@
                     let startDate = this.inputTreasureHunt.startDate;
                     this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split(", ")[0];
                     this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split("/").reverse().join("-");
-                    this.inputTreasureHunt.startTime = startDate.split(" ")[1];
-                    this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("+")[0];
-                    this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("-")[0];
+                    this.startTime = startDate.split(" ")[1];
+                    this.startTime = this.startTime.split("+")[0];
+                    this.startTime = this.startTime.split("-")[0];
 
                     this.inputTreasureHunt.endDate = new Date(this.inputTreasureHunt.endDate).toLocaleString();
                     let endDate = this.inputTreasureHunt.endDate;
                     this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split(", ")[0];
                     this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split("/").reverse().join("-");
-                    this.inputTreasureHunt.endTime = endDate.split(" ")[1];
-                    this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("+")[0];
-                    this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("-")[0];
+                    this.endTime = endDate.split(" ")[1];
+                    this.endTime = this.endTime.split("+")[0];
+                    this.endTime = this.endTime.split("-")[0];
                 }
             },
 
@@ -503,19 +502,19 @@
             joinDates() {
                 let timeOffset = this.formatOffset();
 
-                if(this.inputTreasureHunt.startTime.length === 5) {
-                    this.inputTreasureHunt.startTime += ":00";
+                if(this.startTime.length === 5) {
+                    this.startTime += ":00";
                 }
 
-                if(this.inputTreasureHunt.endTime.length === 5) {
-                    this.inputTreasureHunt.endTime += ":00";
+                if(this.endTime.length === 5) {
+                    this.endTime += ":00";
                 }
 
                 this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate + " "
-                    + this.inputTreasureHunt.startTime + timeOffset;
+                    + this.startTime + timeOffset;
 
                 this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate + " "
-                    + this.inputTreasureHunt.endTime + timeOffset;
+                    + this.endTime + timeOffset;
 
             },
 

@@ -139,6 +139,10 @@
                     </b-form-invalid-feedback>
                 </b-form-group>
 
+                <get-location-button
+                        @get-current-location="currentCoordinates => setCurrentLocation(currentCoordinates)">
+                </get-location-button>
+
                 <b-form-group
                         id="country-field"
                         label="Country:"
@@ -165,8 +169,14 @@
 </template>
 
 <script>
+    import GetLocationButton from "../map/getLocationButton";
+
     export default {
         name: "addDestinations",
+
+        components: {
+            GetLocationButton
+        },
 
         props: {
             profile: Object,
@@ -205,9 +215,9 @@
 
         computed: {
             /**
-             * Validates the input fields based on regex.
+             * Validates the name input field. Name is valid when it contains more than one character.
              *
-             * @returns {*} true if input is valid.
+             * @returns {*}     true if input is valid.
              */
             destinationNameValidation() {
                 if (this.inputDestination.name.length === 0) {
@@ -215,18 +225,40 @@
                 }
                 return this.inputDestination.name.length > 0;
             },
+
+
+            /**
+             * Validates the type input field. Type is valid when the type has been selected.
+             *
+             * @returns {*}     true if input is valid.
+             */
             destinationTypeValidation() {
                 if (this.inputDestination.type.id == null) {
                     return null;
                 }
                 return this.inputDestination.type.length > 0 || this.inputDestination.type !== null;
             },
+
+
+            /**
+             * Validates the district input field. District is valid when the district has been selected.
+             *
+             * @returns {*}     true if input is valid.
+             */
             destinationDistrictValidation() {
                 if (this.inputDestination.district.length === 0) {
                     return null;
                 }
                 return this.inputDestination.district.length > 0;
             },
+
+
+            /**
+             * Validates the latitude input field. Latitude is valid when it contains only numeric characters, is not
+             * empty, and is within the range -90 to 90.
+             *
+             * @returns {*}     true if input is valid.
+             */
             destinationLatitudeValidation() {
                 if (this.inputDestination.latitude === null || this.inputDestination.latitude.length === 0) {
                     return null;
@@ -242,6 +274,14 @@
                 }
 
             },
+
+
+            /**
+             * Validates the longitude input field. Longitude is valid when it contains only numeric characters, is not
+             * empty, and is within the range -180 to 180.
+             *
+             * @returns {*}     true if input is valid.
+             */
             destinationLongitudeValidation() {
                 if (this.inputDestination.longitude === null || this.inputDestination.longitude.length === 0) {
                     return null;
@@ -256,6 +296,14 @@
                     return true;
                 }
             },
+
+
+            /**
+             * Validates the country input field. Country is valid when it contains more than one character, and is not
+             * a number.
+             *
+             * @returns {*}     true if input is valid.
+             */
             destinationCountryValidation() {
                 if (this.inputDestination.country.length === 0) {
                     return null;
@@ -264,8 +312,13 @@
                 return !countryRegex.test(this.inputDestination.country);
             },
 
+
+            /**
+             * Tells users editing a destination whether they've made the destination public or private.
+             *
+             * @returns {string}    public or private depending on the input destination privacy.
+             */
             isPublic() {
-                // Tells users editing a destination whether they've made the destination public or private.
                 if (this.inputDestination.public) {
                     return "Public";
                 }
@@ -412,6 +465,15 @@
 
 
             /**
+             * Updates the latitude & longitude when emitted from the button that gets current location
+             */
+            setCurrentLocation(currentCoordinates) {
+                this.inputDestination.latitude = currentCoordinates.latitude;
+                this.inputDestination.longitude = currentCoordinates.longitude;
+            },
+
+
+            /**
              * Used to allow an alert to countdown on the successful saving of a destination.
              *
              * @param dismissCountDown      the name of the alert.
@@ -471,7 +533,7 @@
              */
             parseJSON(response) {
                 return response.json();
-            },
+            }
         }
     }
 </script>

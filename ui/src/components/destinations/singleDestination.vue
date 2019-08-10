@@ -1,17 +1,6 @@
 <template>
-    <div>
-        <b-modal hide-footer id="editDestModal" ref="editDestModal" size="l" title="Edit Destination">
-            <add-destinations
-                    :inputDestination="copiedDestination"
-                    :profile="profile"
-                    :heading="'Edit'"
-                    :destination-types="destinationTypes"
-                    @destination-saved="destinationSaved">
-            </add-destinations>
-            <b-button @click="dismissModal('editDestModal')" class="mr-3 buttonMarginsTop float-right">Close</b-button>
-        </b-modal>
-
-        <b-modal id="deleteDestModal" ref="deleteDestModal" size="xl" title="Delete Destination">
+    <div v-if="destination.owner !== undefined">
+        <b-modal id="deleteDestinationModal" ref="deleteDestinationModal" size="xl" title="Delete Destination">
             <b-alert v-model="showError" variant="danger" dismissible>
                 Could not delete destination!
             </b-alert>
@@ -40,7 +29,8 @@
             </b-list-group>
             <template slot="modal-footer">
                 <b-col>
-                    <b-button @click="dismissModal('deleteDestModal')" class="mr-2 float-right" variant="primary" block>
+                    <b-button @click="dismissModal('deleteDestinationModal')" class="mr-2 float-right" variant="primary"
+                              block>
                         No
                     </b-button>
                 </b-col>
@@ -55,7 +45,8 @@
 
         <b-row>
             <b-col>
-                <p class="mb-1">
+                <!--v-if statement prevents error during component load-->
+                <p class="mb-1" v-if="destination.type">
                     Type: {{destination.type.destinationType}}
                 </p>
                 <p class="mb-1">
@@ -73,7 +64,7 @@
                 <p class="mb-1">
                     Traveller Types:
                 </p>
-                <ul v-if="destination.travellerTypes.length > 0">
+                <ul v-if="destination.travellerTypes && destination.travellerTypes.length > 0">
                     <li v-for="travellerType in destination.travellerTypes">
                         {{travellerType.travellerType}}
                     </li>
@@ -171,14 +162,19 @@
 
         computed: {
             travellerTypeButtonText() {
-                if (this.profile.id === this.destination.owner.id || this.profile.isAdmin) {
+                if (this.destination.owner !== null &&
+                    this.profile.id === this.destination.owner.id ||
+                    this.profile.isAdmin) {
                     return "Change Traveller Types"
                 }
                 return "Propose Traveller Types"
             },
 
             travellerTypeLinkText() {
-                if (this.profile.id === this.destination.owner.id || this.profile.isAdmin) {
+                if (this.destination.owner !== undefined &&
+                    this.profile !== undefined &&
+                    this.profile.id === this.destination.owner.id ||
+                    this.profile.isAdmin) {
                     return "Change Traveller Types"
                 }
                 return "Propose Traveller Types"
@@ -194,7 +190,7 @@
         methods: {
             /**
              * Emits destination saved event to the destinations page, this is so data can be re-rendered.
-             * @param savedDestination      the that is saved and emitted to the parent component.
+             * @param savedDestination      the destination that is saved and emitted to the parent component.
              */
             destinationSaved(savedDestination) {
                 this.$emit('destination-saved', savedDestination);
@@ -210,11 +206,11 @@
 
 
             /**
-             * Copies the selected destination and displays the edit destination modal.
+             * Copies the selected destination and emits an event to parent component containing the destination.
              */
             editDestination() {
                 this.copiedDestination = this.copyDestination();
-                this.$refs["editDestModal"].show();
+                this.$emit('destination-edit', this.copiedDestination);
             },
 
 
@@ -224,7 +220,7 @@
              */
             confirmDeleteDestination() {
                 this.copiedDestination = this.copyDestination();
-                this.$refs["deleteDestModal"].show();
+                this.$refs["deleteDestinationModal"].show();
                 this.getTripsUsedBy();
             },
 
@@ -239,7 +235,7 @@
                     method: 'DELETE'
                 }).then(function (response) {
                     if (response.ok) {
-                        self.dismissModal('deleteDestModal');
+                        self.dismissModal('deleteDestinationModal');
                         self.$emit('destination-deleted');
                     }
                     else {
@@ -264,7 +260,7 @@
             /**
              * Used to dismiss the edit a destination modal.
              *
-             * @param modal, the modal that is wanting to be dismissed.
+             * @param modal     the modal that is wanting to be dismissed.
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
@@ -274,7 +270,7 @@
             /**
              * Used to calculate the current traveller types for a destination so changes can be made/suggested.
              *
-             * @returns {string[]} the list of traveller types for the current destination.
+             * @returns {string[]}      the list of traveller types for the current destination.
              */
             calculateCurrentTravellerTypes() {
                 this.calculatedTravellerTypes = this.destination.travellerTypes;
