@@ -15,10 +15,6 @@ import java.time.LocalDate;
  */
 @Entity
 public class TripDestination extends BaseModel {
-    /**
-     * A finder used to search for a TripDestination.
-     */
-
 
     /**
      * The starting date of the trip destination.
@@ -54,12 +50,10 @@ public class TripDestination extends BaseModel {
     @ManyToOne(cascade=CascadeType.PERSIST)
     private Destination destination;
 
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     public LocalDate getStartDate() {
         return startDate;
     }
-
 
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
@@ -91,11 +85,9 @@ public class TripDestination extends BaseModel {
         return destination;
     }
 
-
     public void setDestination(Destination destination) {
         this.destination = destination;
     }
-
 
     public Trip getTrip() {
         return trip;
