@@ -22,25 +22,35 @@ BaseModel extends Model {
         this.id = id;
     }
 
-    public void updateFromObject(BaseModel objToUse)
+    /**
+     * Updates the values of this instance from a given object.
+     * Will attempt to access all attributes of said object and
+     * update this instance's attribute if the attribute is not null.
+     *
+     * Useful when de-serialising an incoming object using fromJson.
+     *
+     * @param objectToUpdateFrom      the incoming object used to update this instance.
+     * @throws IllegalAccessException if an unreachable field is attempted to be accessed.
+     */
+    public void updateFromObject(BaseModel objectToUpdateFrom)
             throws IllegalAccessException {
-        Class<?> clazz = this.getClass();
+        Class<?> classToUpdate = this.getClass();
 
-        while (clazz != null) {
-            Field[] fields = clazz.getDeclaredFields();
+        while (classToUpdate != null) {
+            Field[] fields = classToUpdate.getDeclaredFields();
 
             for (Field field : fields) {
                 if (!Modifier.isStatic(field.getModifiers())) {
                     boolean accessible = field.isAccessible();
                     field.setAccessible(true);
-                    if (field.get(objToUse) != null) {
-                        field.set(this, field.get(objToUse));
+                    if (field.get(objectToUpdateFrom) != null) {
+                        field.set(this, field.get(objectToUpdateFrom));
                     }
                     field.setAccessible(accessible);
                 }
             }
 
-            clazz = clazz.getSuperclass();
+            classToUpdate = classToUpdate.getSuperclass();
         }
     }
 
