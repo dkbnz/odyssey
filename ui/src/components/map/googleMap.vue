@@ -141,7 +141,6 @@
              * Creates the circle for the map to show radius of the margin of error
              */
             createCircle() {
-                console.log("HELLO")
                 if (this.radiusMarker !== null) {
                     this.radiusMarker.setPosition({lat: this.selectedRadiusDestination.latitude, lng: this.selectedRadiusDestination.longitude})
                 } else {
@@ -210,16 +209,18 @@
              * If the marker exists, it will update the position.
              */
             addDestinationToAdd() {
-                if (this.destinationToAdd.latitude !== null && this.destinationToAdd.longitude !== null) {
-                    if (this.markerToAdd === false) {
-                        //Create the marker.
-                        this.markerToAdd = this.placeDestinationMarker(this.destinationToAdd);
-                    } else {
-                        //Marker has already been added, so just change its location.
-                        this.updateDestinationMarker(this.destinationToAdd);
+                if (this.destinationToAdd !== undefined) {
+                    if (this.destinationToAdd.latitude !== null && this.destinationToAdd.longitude !== null) {
+                        if (this.markerToAdd === false) {
+                            //Create the marker.
+                            this.markerToAdd = this.placeDestinationMarker(this.destinationToAdd);
+                        } else {
+                            //Marker has already been added, so just change its location.
+                            this.updateDestinationMarker(this.destinationToAdd);
+                        }
+                        this.markerToAdd.setIcon(this.addingMarker);
+                        this.$map.panTo(this.parseCoordinates(this.destinationToAdd));
                     }
-                    this.markerToAdd.setIcon(this.addingMarker);
-                    this.$map.panTo(this.parseCoordinates(this.destinationToAdd));
                 }
             },
 
