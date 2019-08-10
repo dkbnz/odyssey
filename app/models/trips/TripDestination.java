@@ -2,7 +2,6 @@ package models.trips;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.ebean.Finder;
 import models.BaseModel;
 import models.destinations.Destination;
 import javax.persistence.Entity;
@@ -46,7 +45,6 @@ public class TripDestination extends BaseModel {
     /**
      * The destination this trip destination is associated with.
      */
-    @JsonIgnore
     @ManyToOne(cascade=CascadeType.PERSIST)
     private Destination destination;
 

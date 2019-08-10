@@ -2,12 +2,9 @@ package repositories.destinations;
 
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
-import io.ebean.Expression;
 import io.ebean.ExpressionList;
-import models.Profile;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
-import models.treasureHunts.TreasureHunt;
 import repositories.ProfileRepository;
 
 import com.google.inject.Inject;
@@ -27,15 +24,6 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
         this.profileRepository = profileRepository;
     }
 
-    /**
-     * Update the destination object.
-     *
-     * @param destination       the destination being updated.
-     */
-    @Override
-    public void update(Destination destination) {
-        super.update(destination);
-    }
 
     /**
      * Retrieve a Destination by its Id.

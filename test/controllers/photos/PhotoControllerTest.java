@@ -58,7 +58,7 @@ public class PhotoControllerTest {
         Assert.assertEquals(NOT_FOUND, result.status());
 
         // Verify Mocks
-        verify(mockPersonalPhotoRepo, times(1)).fetch(any(Long.class));
+        verify(mockPersonalPhotoRepo, times(1)).findById(any(Long.class));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class PhotoControllerTest {
         Assert.assertEquals(NOT_FOUND, result.status());
 
         // Verify Mocks
-        verify(mockPersonalPhotoRepo, times(1)).fetch(any(Long.class));
+        verify(mockPersonalPhotoRepo, times(1)).findById(any(Long.class));
     }
 
     @Test

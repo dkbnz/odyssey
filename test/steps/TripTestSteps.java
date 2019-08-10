@@ -8,9 +8,7 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import models.Profile;
 import models.destinations.Destination;
-import models.trips.Trip;
 import org.junit.Assert;
 import play.Application;
 import play.db.Database;
@@ -25,10 +23,8 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 import play.db.evolutions.Evolutions;
-import repositories.ProfileRepository;
 import repositories.TripRepository;
 import repositories.destinations.DestinationRepository;
-import util.DebugHelp;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -281,7 +277,6 @@ public class TripTestSteps {
                 .uri(TRIPS_URI + 1);
         Result result = route(application, request);
         statusCode = result.status();
-        DebugHelp.ppjs(statusCode);
     }
 
 

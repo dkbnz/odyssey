@@ -1,7 +1,6 @@
 package models.photos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.ebean.Finder;
 import models.BaseModel;
 import models.Profile;
 import models.destinations.Destination;
@@ -12,7 +11,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 public class PersonalPhoto extends BaseModel {

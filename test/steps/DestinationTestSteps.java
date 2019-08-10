@@ -13,7 +13,6 @@ import cucumber.api.java.Before;
 import io.ebean.ExpressionList;
 import models.TravellerType;
 import models.destinations.Destination;
-import models.destinations.DestinationType;
 import models.photos.PersonalPhoto;
 import models.treasureHunts.TreasureHunt;
 import models.trips.Trip;
@@ -31,7 +30,6 @@ import repositories.destinations.DestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.destinations.TravellerTypeRepository;
 import repositories.treasureHunts.TreasureHuntRepository;
-import util.DebugHelp;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -616,6 +614,36 @@ public class DestinationTestSteps {
     }
 
 
+    /**
+     * Sends a request to create a trip with the given trip data.
+     * @param docString     The string containing the trip data.
+     * @throws IOException  If the docString is formatted incorrectly.
+     */
+    @When("the following json body containing a trip is sent:")
+    public void createTripRequest(String docString) throws IOException {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED,loggedInId)
+                .bodyJson(convertTripStringToJson(docString))
+                .uri(TRIPS_URI + loggedInId);
+        Result result = route(application, request);
+        statusCode = result.status();
+    }
+
+
+    /**
+     * Converts a trip Json body from the data table to a Json.
+     * @param docString     the string body of a Json from the data table.
+     * @return              the string body as a Json object.
+     * @throws IOException  error if parsing to Json fails.
+     */
+    private JsonNode convertTripStringToJson(String docString) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readTree(docString);
+    }
+
+
+
     @Given("the destination exists in a treasure hunt with the following values")
     public void theDestinationExistsInATreasureHuntWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
@@ -1076,7 +1104,6 @@ public class DestinationTestSteps {
         Result result = route(application, request);
         statusCode = result.status();
         responseBody = Helpers.contentAsString(result);
-        DebugHelp.ppjs(responseBody);
     }
 
 
