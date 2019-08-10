@@ -165,6 +165,7 @@
              */
             makeProfileImage() {
                 let self = this;
+
                 fetch('/v1/profilePhoto/' + this.newProfilePhoto.id, {
                     method: 'PUT'
                 }).then(response => {
@@ -251,7 +252,7 @@
              * view the users private photos and can add or delete images from the media.
              */
             checkAuth() {
-                this.auth = (this.userProfile.id === this.profile.id) || (this.userProfile.isAdmin && this.adminView);
+                this.auth = (this.userProfile.id !== undefined) && (this.userProfile.id === this.profile.id) || (this.userProfile.isAdmin && this.adminView);
             },
 
 
@@ -259,7 +260,7 @@
              * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
              */
             getProfilePictureThumbnail() {
-                if (this.profile.profilePicture !== null) {
+                if (this.profile.profilePicture !== null && this.profile.profilePicture !== undefined) {
                     this.profileImageThumb = `/v1/photos/thumb/` + this.profile.profilePicture.id;
                 } else {
                     this.profileImageThumb = "../../../static/default_profile_picture.png";
@@ -271,7 +272,7 @@
              * Retrieves the user's primary photo, if none is found set to the default image.
              */
             getProfilePictureFull() {
-                if (this.profile.profilePicture !== null) {
+                if (this.profile.profilePicture !== null && this.profile.profilePicture !== undefined) {
                     this.profileImageFull = `/v1/photos/` + this.profile.profilePicture.id;
                 } else {
                     this.profileImageFull = "../../../static/default_profile_picture.png";

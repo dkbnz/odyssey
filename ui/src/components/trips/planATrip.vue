@@ -61,7 +61,12 @@
 
         <b-row>
             <b-col cols="8">
-                <b-card>
+                <b-card ref="maps" v-if="displayMap">
+                    <google-map ref="map"
+                                :destination-to-add="destinationToAdd">
+                    </google-map>
+                </b-card>
+                <b-card v-else>
                     <b-form>
 
                         <b-container fluid>
@@ -137,12 +142,6 @@
 
 
                                 </b-row>
-
-                                <!--<b-button @click="checkDestination"-->
-                                          <!--class="mr-2 float-right"-->
-                                          <!--variant="primary">-->
-                                    <!--Add Destination-->
-                                <!--</b-button>-->
 
                             </b-container>
                         </b-form>
@@ -279,6 +278,8 @@
                             :profile="profile"
                             @destination-click="destination => this.selectedDestination = destination"
                             @data-changed="$emit('data-changed')"
+                            :input-destination="destinationToAdd"
+                            @destination-search="result => showMap(result)"
                     ></destination-sidebar>
                 </b-card>
             </b-col>
@@ -290,11 +291,14 @@
 
 <script>
     import DestinationSidebar from "../destinations/destinationSidebar";
+    import GoogleMap from "../map/googleMap";
+
     export default {
         name: "PlanATrip",
 
         components: {
-            DestinationSidebar
+            DestinationSidebar,
+            GoogleMap
         },
 
         props: {
@@ -311,7 +315,7 @@
             heading: String,
             subHeading: String,
             containerClass: {
-                default: function() {
+                default: function () {
                     return 'containerWithNav';
                 }
             }
@@ -354,15 +358,30 @@
                 savingTrip: false,
                 letTripSaved: false,
                 destinationsList: [],
-                selectedDestination: {}
+                selectedDestination: {},
+                displayMap: false,
+                destinationToAdd: {
+                    id: null,
+                    name: "",
+                    type: {
+                        id: null,
+                        destinationType: ""
+                    },
+                    district: "",
+                    latitude: null,
+                    longitude: null,
+                    country: "",
+                    public: false
+                }
             }
         },
 
         computed: {
             /**
              * Computed function used for the pagination of the table.
-             * @returns {number} the number of rows required in the table based on number of destinations to be
-             * displayed.
+             *
+             * @returns {number}    the number of rows required in the table based on number of destinations to be
+             *                      displayed.
              */
             rows() {
                 return this.inputTrip.destinations.length
@@ -422,6 +441,16 @@
                     endDate: this.outDate
                 });
                 this.resetDestForm();
+            },
+
+
+            /**
+             * Shows the map if the selected tab on the destination sidebar is "add".
+             *
+             * @param result    value emitted from destination sidebar when a tab is clicked.
+             */
+            showMap(result) {
+                this.displayMap = (result === null);
             },
 
 
@@ -570,7 +599,7 @@
             /**
              * Used to check if there are duplicate destinations next to one another in a trip upon the trip save.
              *
-             * @returns {boolean}, true if there is duplicates, false otherwise.
+             * @returns {boolean}   true if there is duplicates, false otherwise.
              */
             checkDuplicateDestinations() {
                 let result = [];
@@ -591,7 +620,7 @@
             /**
              * Used to show an alert saying there are duplicate destinations next to one another in the trip.
              *
-             * @param error The error message to be displayed.
+             * @param error     the error message to be displayed.
              */
             showDuplicateDestError(error) {
                 this.showError = true;
@@ -604,7 +633,7 @@
              * Checks all the destination dates in a trip to ensure that the end date of a destination is before its
              * following destination start date, or if the dates are null.
              *
-             * @returns {boolean} true if the dates are valid, false otherwise.
+             * @returns {boolean}   true if the dates are valid, false otherwise.
              */
             checkValidDestinationDates() {
                 let destinationList = this.inputTrip.destinations;
@@ -733,8 +762,8 @@
             /**
              * Converts the retrieved Http response to a Json format.
              *
-             * @param response the Http response.
-             * @returns the Http response body as Json.
+             * @param response      the Http response.
+             * @returns             the Http response body as Json.
              */
             parseJSON(response) {
                 return response.json();
@@ -752,9 +781,9 @@
                 const nameFirst = first.name.toUpperCase(); // ignore upper and lowercase
                 const nameSecond = next.name.toUpperCase(); // ignore upper and lowercase
 
-                if (nameFirst < nameSecond ) {
+                if (nameFirst < nameSecond) {
                     return -1;
-                } else if (nameFirst > nameSecond ) {
+                } else if (nameFirst > nameSecond) {
                     return 1;
                 } else {
                     return 0;

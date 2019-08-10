@@ -1,7 +1,7 @@
 <template>
     <div class="containerWithNav">
         <h1 class="page-title">Personal Media</h1>
-        <p v-if="auth" class="page-title"><i>Here are your photos</i></p>
+        <p v-if="authentication" class="page-title"><i>Here are your photos</i></p>
 
         <b-alert
                 :show="dismissCountDown"
@@ -17,7 +17,7 @@
                     variant="success"
             ></b-progress>
         </b-alert>
-        <b-button v-if="auth" class="btn btn-info" block v-b-modal.modalAddPhoto>Add Photo</b-button>
+        <b-button v-if="authentication" class="btn btn-info" block v-b-modal.modalAddPhoto>Add Photo</b-button>
         <b-modal ref="uploaderModal" id="modalAddPhoto" hide-footer centered title="Add Photo">
             <template slot="modal-title"><h2>Add Photo</h2></template>
             <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
@@ -35,7 +35,8 @@
         >
         </photo-table>
         <b-modal centered hide-footer ref="modalImage" size="xl">
-            <b-img-lazy v-if="photoToView !== null" :src="getFullPhoto()" alt="Image couldn't be retrieved" @error="imageAlt" center fluid>
+            <b-img-lazy v-if="photoToView !== null" :src="getFullPhoto()" alt="Image couldn't be retrieved"
+                        @error="imageAlt" center fluid>
             </b-img-lazy>
             <b-row>
                 <b-col>
@@ -43,7 +44,7 @@
                             block class="mr-2"
                             size="sm" style="margin-top: 10px"
                             @click="setProfilePhoto"
-                            v-if="auth" variant="info">Make this my profile picture
+                            v-if="authentication" variant="info">Make this my profile picture
                     </b-button>
                 </b-col>
                 <b-col>
@@ -51,7 +52,7 @@
                             block class="mr-2"
                             size="sm" style="margin-top: 10px"
                             v-b-modal.deletePhotoModal
-                            v-if="auth" variant="danger">Delete
+                            v-if="authentication" variant="danger">Delete
                     </b-button>
                 </b-col>
             </b-row>
@@ -89,7 +90,7 @@
             return {
                 photos: [],
                 displayImage: false,
-                auth: false,
+                authentication: false,
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 showError: false,
@@ -124,7 +125,7 @@
              *
              * @param files     the photo(s) uploaded from the personal photos component.
              */
-            sendPhotosToBackend: function(files) {
+            sendPhotosToBackend: function (files) {
                 this.showError = false;
                 this.errorMessage = "";
                 let self = this;
@@ -132,7 +133,7 @@
                     method: 'POST',
                     body: this.getFormData(files)
 
-                })  .then(response => self.checkResponse(response))
+                }).then(response => self.checkResponse(response))
                     .then(data => {
                         this.addPhotos(data);
                         this.showAlert();
@@ -146,7 +147,7 @@
              *
              * @param photo     photo object being clicked on.
              */
-            photoClicked: function(photo) {
+            photoClicked: function (photo) {
                 this.photoToView = photo;
                 this.$refs['modalImage'].show();
             },
@@ -168,15 +169,15 @@
                 this.$refs['deletePhotoModal'].hide();
                 this.$refs['modalImage'].hide();
 
-                this.checkAuth();
+                this.checkAuthentication();
                 let change = false;
-                for(let i=0; i < this.photos.length; i++) {
-                    if(this.photos[i].id === this.photoToView.id || change) {
+                for (let i = 0; i < this.photos.length; i++) {
+                    if (this.photos[i].id === this.photoToView.id || change) {
                         change = true;
-                        if (i+1 === this.photos.length) {
+                        if (i + 1 === this.photos.length) {
                             this.photos.pop();
                         } else {
-                            this.photos[i] = this.photos[i+1];
+                            this.photos[i] = this.photos[i + 1];
                         }
                     }
                 }
@@ -192,7 +193,7 @@
              */
             getFormData(files) {
                 let personalPhotos = new FormData();
-                for (let i=0; i < files.length; i++) {
+                for (let i = 0; i < files.length; i++) {
                     personalPhotos.append('photo' + i, files[i]);
                 }
                 return personalPhotos;
@@ -203,8 +204,9 @@
              * Checks the authorization of the user profile that is logged in to see if they can
              * view the users private photos and can add or delete images from the media.
              */
-            checkAuth() {
-                this.auth = (this.userProfile.id === this.profile.id || (this.userProfile.isAdmin && this.adminView));
+            checkAuthentication() {
+                this.authentication = (this.userProfile.id === this.profile.id
+                    || (this.userProfile.isAdmin && this.adminView));
             },
 
 
@@ -242,18 +244,20 @@
              */
             getPhotosList() {
                 let self = this;
-                fetch(`/v1/photos/user/` + this.profile.id, {
-                    accept: "application/json",
-                })
-                    .then(response => response.json())
-                    .then(photos => {
-                        self.checkAuth();
-                        for(let i in photos) {
-                            if(photos[i].public || this.auth) {
-                                self.photos.push(photos[i]);
-                            }
-                        }
+                if (this.profile.id !== undefined) {
+                    fetch(`/v1/photos/user/` + this.profile.id, {
+                        accept: "application/json",
                     })
+                        .then(response => response.json())
+                        .then(photos => {
+                            self.checkAuthentication();
+                            for (let i in photos) {
+                                if (photos[i].public || this.authentication) {
+                                    self.photos.push(photos[i]);
+                                }
+                            }
+                        })
+                }
             },
 
 
@@ -286,7 +290,7 @@
              *
              * @param photo           the photo that's changing status.
              */
-            updatePhotoPrivacy: function(photo) {
+            updatePhotoPrivacy: function (photo) {
                 let self = this;
 
                 fetch('/v1/photos', {
@@ -310,10 +314,10 @@
              */
             addPhotos(data) {
                 this.profile.photoGallery = data;
-                this.checkAuth();
+                this.checkAuthentication();
                 this.photos = [];
-                for(let i=0; i < data.length; i++) {
-                    if(data[i].public || this.auth) {
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].public || this.authentication) {
                         this.photos.push(data[i]);
                     }
                 }
