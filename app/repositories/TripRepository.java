@@ -30,21 +30,6 @@ public class TripRepository extends BeanRepository<Long, Trip> {
         this.tripDestinationRepository = tripDestinationRepository;
     }
 
-    /**
-     * Saves a new trip to a profile's list of trips, which is persisted to our database.
-     *
-     * @param profile       the profile having a new trip created.
-     * @param trip          the new trip being created for profile.
-     */
-    public void saveNewTrip(Profile profile, Trip trip) {
-
-        // Add the new trip to the profile.
-        profile.addTrip(trip);
-
-        // Update the profile which cascades to save the trip and its contained destinations.
-        profileRepository.save(profile);
-    }
-
 
     /**
      * Updates a trip with new attributes and destinations. Also updates the profile.
@@ -116,17 +101,6 @@ public class TripRepository extends BeanRepository<Long, Trip> {
         trips = expressionList.findList();
 
         return trips;
-    }
-
-
-    /**
-     * Finds a single trip with a given id. Returns null if no such trip was found.
-     *
-     * @param tripId        the id of the trip.
-     * @return              the Trip object associated with the id. Null if no trip was found.
-     */
-    public Trip fetchSingleTrip(Long tripId) {
-        return super.findById(tripId);
     }
 
 

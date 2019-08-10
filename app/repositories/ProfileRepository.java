@@ -14,27 +14,6 @@ public class ProfileRepository extends BeanRepository<Long, Profile> {
         super(Profile.class, Ebean.getDefaultServer());
     }
 
-
-    /**
-     * Updates a certain users profile photo and updates the database.
-     * @param photo     the photo to set the profile photo to.
-     * @param profile   the profile to change the photo for.
-     */
-
-    public void setProfilePhoto(PersonalPhoto photo, Profile profile) {
-        profile.setProfilePicture(photo);
-        super.update(profile);
-    }
-
-
-    /**
-    * Deletes a profile photo from a specified user profile by setting the profile photo to null.
-    */
-    public void deleteProfilePhoto(Profile profile) {
-        profile.setProfilePicture(null);
-        super.save(profile);
-    }
-
     public ExpressionList<Profile> getExpressionList() {
         return query().where();
     }

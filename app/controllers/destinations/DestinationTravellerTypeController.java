@@ -81,7 +81,7 @@ public class DestinationTravellerTypeController {
             return unauthorized();
         }
 
-        Destination destinationToMutate = destinationRepository.fetch(destinationId);
+        Destination destinationToMutate = destinationRepository.findById(destinationId);
 
         if (destinationToMutate == null) {
             return notFound();
@@ -134,7 +134,7 @@ public class DestinationTravellerTypeController {
             return unauthorized();
         }
 
-        Destination destinationToMutate = destinationRepository.fetch(destinationId);
+        Destination destinationToMutate = destinationRepository.findById(destinationId);
 
         if (destinationToMutate == null) {
             return notFound();

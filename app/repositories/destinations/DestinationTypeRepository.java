@@ -11,14 +11,4 @@ public class DestinationTypeRepository extends BeanRepository<Long, DestinationT
     public DestinationTypeRepository() {
         super(DestinationType.class, Ebean.getDefaultServer());
     }
-
-    /**
-     * Retrieves a destination type by its ID.
-     *
-     * @param typeId    the ID of the desired destination type.
-     * @return          the destination type matching the ID.
-     */
-    public DestinationType fetch(Long typeId) {
-        return super.findById(typeId);
-    }
 }

@@ -14,10 +14,6 @@ import java.util.List;
  */
 @Entity
 public class Trip extends BaseModel {
-    /**
-     * A finder used to search for a trip.
-     */
-
 
     /**
      * The name of the trip.
@@ -35,7 +31,6 @@ public class Trip extends BaseModel {
     public Profile getProfile() {
         return profile;
     }
-
 
     /**
      * The trips destinations for the trip.

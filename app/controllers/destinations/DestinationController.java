@@ -493,7 +493,7 @@ public class DestinationController extends Controller {
         List<Destination> similarDestinations = destinationRepository.findEqual(destinationToUpdate);
 
         if (!similarDestinations.isEmpty() && shouldMerge(destinationToUpdate, similarDestinations)) {
-                destinationRepository.transferDestinationOwnership(destinationToUpdate);
+                destinationRepository.transferToAdmin(destinationToUpdate);
                 for (Destination destinationToMerge: similarDestinations) {
                     consume(destinationToUpdate, destinationToMerge);
                 }

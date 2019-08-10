@@ -26,17 +26,6 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
 
 
     /**
-     * Retrieve a Destination by its Id.
-     *
-     * @param destinationId     the Id of the destination being retrieved.
-     * @return                  the destination object corresponding with the destinationId.
-     */
-    public Destination fetch(Long destinationId) {
-        return super.findById(destinationId);
-    }
-
-
-    /**
      * Finds all the destinations that contain a given photo.
      *
      * @param photo       the photo.
@@ -86,7 +75,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      *
      * @param destination   the destination to be changed ownership of.
      */
-    public void transferDestinationOwnership(Destination destination) {
+    public void transferToAdmin(Destination destination) {
         destination.changeOwner(profileRepository.findById(DEFAULT_ADMIN_ID));
         super.update(destination);
     }
