@@ -153,7 +153,7 @@
                                     <google-map ref="map"
                                                 :showRadius="true"
                                                 :radius="radiusSelected.value"
-                                                :selectedRadiusDestination="selectedDestination">
+                                                :selectedRadiusDestination="displayedDestination">
                                     </google-map>
                                 </div>
                             </b-container>
