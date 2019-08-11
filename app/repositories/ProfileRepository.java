@@ -5,7 +5,6 @@ import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Profile;
-import models.photos.PersonalPhoto;
 
 public class ProfileRepository extends BeanRepository<Long, Profile> {
 
