@@ -65,9 +65,9 @@ public class DestinationTestSteps {
 
 
     /**
-     * The size of the list of trips recieved.
+     * The size of the list of trips received.
      */
-    private int tripCountRecieved;
+    private int tripCountReceived;
 
 
     /**
@@ -92,12 +92,6 @@ public class DestinationTestSteps {
      * The traveller types endpoint uri.
      */
     private static final String TRAVELLER_TYPES = "/travellerTypes";
-
-
-    /**
-     * The traveller types propose endpoint uri.
-     */
-    private static final String TRAVELLER_TYPE_PROPOSE_URI = "/travellerTypes/propose";
 
 
     /**
@@ -1132,14 +1126,14 @@ public class DestinationTestSteps {
     @Then("the trip count is {int}")
     public void theTripCountIs(int tripCountExpected) throws IOException {
         int tripCount = new ObjectMapper().readTree(responseBody).get(TRIP_COUNT).asInt();
-        tripCountRecieved = new ObjectMapper().readTree(responseBody).get(MATCHING_TRIPS).size();
+        tripCountReceived = new ObjectMapper().readTree(responseBody).get(MATCHING_TRIPS).size();
         Assert.assertEquals(tripCountExpected, tripCount);
     }
 
 
     @Then("the number of trips received is {int}")
     public void theNumberOfTripsReceivedIs(int tripListSize) throws IOException {
-        Assert.assertEquals(tripCountRecieved, tripListSize);
+        Assert.assertEquals(tripCountReceived, tripListSize);
     }
 
 
