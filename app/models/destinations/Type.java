@@ -3,18 +3,12 @@ package models.destinations;
 import models.BaseModel;
 import play.data.validation.Constraints;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity
-public class DestinationType extends BaseModel {
-
-    public DestinationType() {}
-
-
-    public DestinationType(String destinationType) {
-        this.destinationType = destinationType;
-    }
-
+@Table(name="destination_type")
+public class Type extends BaseModel {
 
     /**
      * The name of a destination type.
@@ -22,16 +16,13 @@ public class DestinationType extends BaseModel {
     @Constraints.Required
     private String destinationType;
 
-
     public String getDestinationType() {
         return destinationType;
     }
 
-
     public void setDestinationType(String destinationType) {
         this.destinationType = destinationType;
     }
-
 
     /**
      * Checks if an Object is equal to this instance of DestinationType.
@@ -44,13 +35,12 @@ public class DestinationType extends BaseModel {
     public boolean equals(Object obj) {
 
         if (obj == this) return true;
-        if (!(obj instanceof DestinationType)) return false;
+        if (!(obj instanceof Type)) return false;
 
-        DestinationType other = (DestinationType) obj;
+        Type other = (Type) obj;
 
         return other.getDestinationType().equals(this.destinationType);
     }
-
 
     /**
      * Calculates the hashcode of this DestinationType using destinationType.
