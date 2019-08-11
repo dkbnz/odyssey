@@ -8,6 +8,10 @@ import models.trips.TripDestination;
 
 import java.util.List;
 
+/**
+ * Handles database interaction for trip destinations.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
 public class TripDestinationRepository extends BeanRepository<Long, TripDestination> {
 
 

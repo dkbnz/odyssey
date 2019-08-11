@@ -11,6 +11,10 @@ import com.google.inject.Inject;
 import java.util.List;
 
 
+/**
+ * Handles database interaction for destinations.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
 public class DestinationRepository extends BeanRepository<Long, Destination> {
 
     private static final Long DEFAULT_ADMIN_ID = 1L;
