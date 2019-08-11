@@ -441,12 +441,18 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputTreasureHunt)
-                })
-                    .then(this.checkStatus)
-                    .then(function () {
+                }).then(function (response) {
+                    if (response.status >= 400) {
+                        // Converts response to text, this is then displayed on the frontend.
+                        response.text().then(data => {
+                            self.errorMessage = data;
+                            self.showError = true;
+                        });
+                    } else {
                         self.$emit('successCreate', "Treasure Hunt Successfully Created");
                         self.$emit('cancelCreate')
-                    })
+                    }
+                });
             },
 
 
@@ -461,11 +467,17 @@
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputTreasureHunt)
-                })
-                    .then(this.checkStatus)
-                    .then(function () {
+                }).then(function (response) {
+                    if (response.status >= 400) {
+                        // Converts response to text, this is then displayed on the frontend.
+                        response.text().then(data => {
+                            self.errorMessage = data;
+                            self.showError = true;
+                        });
+                    } else {
                         self.$emit('cancelCreate')
-                    })
+                    }
+                });
             },
 
 
@@ -571,29 +583,6 @@
                 }
                 // Ensures the start and end date fields are not wiped after an error occurs.
                 this.splitDates();
-
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-
-                this.errorMessage = "";
-                response.clone().text().then(text => {
-                    text = JSON.parse(text);
-                    let result = [];
-                    for (let i = 0; i < text.length; i++) {
-                        if (!response.ok) {
-                            console.log(text);
-                            result.push(text[i].message);
-                        }
-                        else {
-                            result.push(text[i]);
-                        }
-                    }
-                    this.errorMessage = result;
-
-                    this.showError = true;
-                });
-                throw error;
             },
 
 

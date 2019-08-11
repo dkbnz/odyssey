@@ -54,6 +54,7 @@ public class ProfileController {
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
+    private static final String NO_PROFILE_FOUND = "No profile found.";
     private static final long AGE_SEARCH_OFFSET = 1;
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String UPDATED = "UPDATED";
@@ -278,6 +279,7 @@ public class ProfileController {
 
     /**
      * Hashes a password string using the SHA 256 method from the MessageDigest library.
+     *
      * @param password                  the string you want to hash.
      * @return                          a string of the hashed binary array as a hexadecimal string.
      * @throws NoSuchAlgorithmException if the algorithm specified does not exist for the MessageDigest library.
@@ -328,6 +330,10 @@ public class ProfileController {
                     // User is logged in, used for editing
                     Profile userProfile = profileRepository.findById(Long.valueOf(userId));
 
+                    if (AuthenticationUtil.checkObjectIsNull(userProfile)) {
+                        return notFound(NO_PROFILE_FOUND);
+                    }
+
                     if (!profileExists(username) || userProfile.getUsername().equals(username)) {
                         return ok(); // If they are checking their own username, return ok()
                     } else {
@@ -335,7 +341,7 @@ public class ProfileController {
                     }
                 })
                 .orElseGet(() -> {
-                    //User is not logged in, used for signup"You are not logged in."
+                    //User is not logged in, used for sign-up.
                     if (!profileExists(username)) {
                         return ok();
                     } else {
@@ -387,8 +393,9 @@ public class ProfileController {
                     Profile userProfile = profileRepository.findById(Long.valueOf(userId));
                     Profile profileToDelete = profileRepository.findById(id);
 
-                    if (userProfile == null || profileToDelete == null) {
-                        return badRequest("Profile could not be found.");
+                    if (AuthenticationUtil.checkObjectIsNull(userProfile)
+                            || AuthenticationUtil.checkObjectIsNull(profileToDelete)) {
+                        return notFound(NO_PROFILE_FOUND);
                     }
 
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
@@ -463,8 +470,9 @@ public class ProfileController {
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
                     Profile profileToUpdate = profileRepository.findById(editUserId);
 
-                    if (profileToUpdate == null) {
-                        return badRequest("No profile found"); // User does not exist in the system.
+                    if (AuthenticationUtil.checkObjectIsNull(loggedInUser)
+                            || AuthenticationUtil.checkObjectIsNull(profileToUpdate)) {
+                        return notFound(NO_PROFILE_FOUND); // User does not exist in the system.
                     }
 
                     if (!AuthenticationUtil.validUser(loggedInUser, profileToUpdate)) {
@@ -659,9 +667,15 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = profileRepository.findById(Long.valueOf(userId));
+                    if (AuthenticationUtil.checkObjectIsNull(userProfile)) {
+                        return notFound(NO_PROFILE_FOUND);
+                    }
                     // If profile logged in is admin, can make another user admin.
                     if (userProfile.getIsAdmin()) {
                         Profile updateProfile = profileRepository.findById(id);
+                        if (AuthenticationUtil.checkObjectIsNull(updateProfile)) {
+                            return notFound(NO_PROFILE_FOUND);
+                        }
                         updateProfile.setIsAdmin(true);
                         profileRepository.update(updateProfile);
                     } else {
@@ -689,16 +703,20 @@ public class ProfileController {
                 .map(userId -> {
                     // User is logged in
                     Profile userProfile = profileRepository.findById(Long.valueOf(userId));
+                    if (AuthenticationUtil.checkObjectIsNull(userProfile)) {
+                        return notFound(NO_PROFILE_FOUND);
+                    }
                     // If the logged in user is admin
                     if (userProfile.getIsAdmin()) {
                         Profile updateProfile = profileRepository.findById(id);
+                        if (AuthenticationUtil.checkObjectIsNull(updateProfile)) {
+                            return notFound(NO_PROFILE_FOUND);
+                        }
                         // If the profile trying to be changed is not the global admin (id number one).
                         if (!updateProfile.getId().equals(DEFAULT_ADMIN_ID)) {
                             if (updateProfile.getIsAdmin()) {
                                 updateProfile.setIsAdmin(false);
                                 profileRepository.update(updateProfile);
-                            } else {
-                                return badRequest();
                             }
                         } else {
                             return forbidden();

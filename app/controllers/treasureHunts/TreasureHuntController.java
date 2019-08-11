@@ -28,6 +28,7 @@ public class TreasureHuntController {
 
     private static final Long GLOBAL_ADMIN_ID = 1L;
     private static final String DESTINATION_ERROR = "Provided Destination not found.";
+    private static final String TREASURE_HUNT_NOT_FOUND = "Treasure Hunt not found.";
 
     @Inject
     public TreasureHuntController(TreasureHuntRepository treasureHuntRepository,
@@ -145,8 +146,8 @@ public class TreasureHuntController {
 
         TreasureHunt treasureHunt = treasureHuntRepository.findById(treasureHuntId);
 
-        if (treasureHunt == null) {
-            return notFound();
+        if (AuthenticationUtil.checkObjectIsNull(treasureHunt)) {
+            return notFound(TREASURE_HUNT_NOT_FOUND);
         }
 
         Destination destinationResult = treasureHunt.getDestination();
@@ -183,8 +184,8 @@ public class TreasureHuntController {
 
         TreasureHunt treasureHunt = treasureHuntRepository.findById(treasureHuntId);
 
-        if (treasureHunt == null) {
-            return notFound();
+        if (AuthenticationUtil.checkObjectIsNull(treasureHunt)) {
+            return notFound(TREASURE_HUNT_NOT_FOUND);
         }
 
         Profile treasureHuntOwner = treasureHunt.getOwner();
@@ -254,14 +255,14 @@ public class TreasureHuntController {
             return unauthorized();
         }
         Profile loggedInUser = profileRepository.findById(loggedInUserId);
-        if (loggedInUser == null) {
+        if (AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
             return unauthorized();
         }
 
         TreasureHunt treasureHunt = treasureHuntRepository.findById(treasureHuntId);
 
-        if (treasureHunt == null) {
-            return notFound();
+        if (AuthenticationUtil.checkObjectIsNull(treasureHunt)) {
+            return notFound(TREASURE_HUNT_NOT_FOUND);
         }
 
         Profile treasureHuntOwner = treasureHunt.getOwner();
