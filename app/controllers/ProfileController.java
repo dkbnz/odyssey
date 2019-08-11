@@ -87,12 +87,14 @@ public class ProfileController {
      */
     public Result create(Http.Request request) {
 
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        Profile userProfile = request.session()
+                .getOptional(AUTHORIZED)
+                .map(userId -> profileRepository.findById(Long.valueOf(userId)))
+                .orElse(null); // returns created as no user is logged in
 
-        Profile userProfile = profileRepository.findById(loggedInUserId);
-
-        if (userProfile != null && !userProfile.getIsAdmin())
+        if (userProfile != null && !userProfile.getIsAdmin()) {
             return badRequest();
+        }
 
         JsonNode json = request.body().asJson();
 
