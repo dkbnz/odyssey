@@ -589,19 +589,7 @@
                 }
                 // Ensures the start and end date fields are not wiped after an error occurs.
                 this.splitDates();
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response the Http response.
-             * @returns the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
             }
-
         }
     }
 </script>
