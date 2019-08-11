@@ -25,9 +25,9 @@ public final class AuthenticationUtil {
     /**
      * Returns true if the logged in user is either an admin, or is attempting to perform an action on their own
      * data.
-     * @param loggedInUser      The profile of the currently logged in user.
-     * @param owner             The profile of the owner of the data that is being manipulated.
-     * @return                  True if the logged in user is allowed to manipulate the owners data.
+     * @param loggedInUser      the profile of the currently logged in user.
+     * @param owner             the profile of the owner of the data that is being manipulated.
+     * @return                  true if the logged in user is allowed to manipulate the owners data.
      */
     public static boolean validUser(Profile loggedInUser, Profile owner) {
         return loggedInUser.getIsAdmin()|| owner.getId().equals(loggedInUser.getId());
@@ -37,8 +37,8 @@ public final class AuthenticationUtil {
     /**
      * Gets the logged in user id from a given request.
      *
-     * @param request       The Http request that was received.
-     * @return              A long value of the logged in user id, null if there is no logged in user.
+     * @param request       the Http request that was received.
+     * @return              a long value of the logged in user id, null if there is no logged in user.
      */
     public static Long getLoggedInUserId(Http.Request request) {
         Optional<String> optional = request.session().getOptional(AUTHORIZED);
@@ -46,11 +46,11 @@ public final class AuthenticationUtil {
         if (optional.isPresent()) {
             userId = optional.get();
         }
-        try {
-            return Long.valueOf(userId);
-        } catch (NumberFormatException e) {
+        if (userId == null) {
             return null;
         }
+        return Long.valueOf(userId);
+
     }
 
 
