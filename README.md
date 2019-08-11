@@ -9,7 +9,6 @@ Everyware's TravelEA requires the following dependencies to run
 TravelEA may be run on Windows or Linux/OSX. The build instructions for each operating system are explained below.
 
 #### Programs
-
 * [sbt 1.2.8](https://www.scala-sbt.org/download.html)
 * [JRE/JDK 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
 

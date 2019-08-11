@@ -146,7 +146,7 @@ public class TreasureHuntController {
 
         TreasureHunt treasureHunt = treasureHuntRepository.findById(treasureHuntId);
 
-        if (AuthenticationUtil.checkObjectIsNull(treasureHunt)) {
+        if (treasureHunt == null) {
             return notFound(TREASURE_HUNT_NOT_FOUND);
         }
 
@@ -184,7 +184,7 @@ public class TreasureHuntController {
 
         TreasureHunt treasureHunt = treasureHuntRepository.findById(treasureHuntId);
 
-        if (AuthenticationUtil.checkObjectIsNull(treasureHunt)) {
+        if (treasureHunt == null) {
             return notFound(TREASURE_HUNT_NOT_FOUND);
         }
 
@@ -261,7 +261,7 @@ public class TreasureHuntController {
 
         TreasureHunt treasureHunt = treasureHuntRepository.findById(treasureHuntId);
 
-        if (AuthenticationUtil.checkObjectIsNull(treasureHunt)) {
+        if (treasureHunt == null) {
             return notFound(TREASURE_HUNT_NOT_FOUND);
         }
 

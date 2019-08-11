@@ -624,8 +624,6 @@ public class DestinationController extends Controller {
      * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
      */
     private void mergePersonalPhotos(Destination destinationToUpdate, Destination destinationToMerge) {
-
-
         // Take all PersonalPhotos
         for (PersonalPhoto photo : destinationToMerge.getPhotoGallery()) {
             // Save to destination to update

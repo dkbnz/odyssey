@@ -87,10 +87,9 @@ public class ProfileController {
      */
     public Result create(Http.Request request) {
 
-        Profile userProfile = request.session()
-                .getOptional(AUTHORIZED)
-                .map(userId -> profileRepository.findById(Long.valueOf(userId)))
-                .orElse(null); // returns created as no user is logged in
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+
+        Profile userProfile = profileRepository.findById(loggedInUserId);
 
         if (userProfile != null && !userProfile.getIsAdmin())
             return badRequest();
