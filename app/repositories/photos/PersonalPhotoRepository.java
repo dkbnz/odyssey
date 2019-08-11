@@ -5,6 +5,11 @@ import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import models.photos.PersonalPhoto;
 
+
+/**
+ * Handles database interaction for personal photos.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
 public class PersonalPhotoRepository extends BeanRepository<Long, PersonalPhoto> {
 
     @Inject

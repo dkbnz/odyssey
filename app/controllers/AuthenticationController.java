@@ -49,21 +49,21 @@ public class AuthenticationController extends Controller {
                 .orElseGet(() -> { // orElseGet tries to get the `getOptional` value, otherwise executes the following function
 
                     // User is not logged in, attempt to search database
-                    JsonNode json = request.body().asJson();
+                    JsonNode loginJson = request.body().asJson();
 
                     // Check if a body was given and has required fields
-                    if (json == null || (!(json.has(USERNAME) && json.has(PASS_FIELD)))) {
+                    if (loginJson == null || (!(loginJson.has(USERNAME) && loginJson.has(PASS_FIELD)))) {
                         // If JSON Object contains no user or pass key, return bad request
                         // Prevents null pointer exceptions when trying to get the values below.
                         return badRequest("Bad User Credentials");
                     }
 
-                    String username = json.get(USERNAME).asText();
+                    String username = loginJson.get(USERNAME).asText();
 
                     // Uses the hashProfilePassword() method to hash the given password.
                     String password = null;
                     try {
-                        password = hashProfilePassword(json.get(PASS_FIELD).asText());
+                        password = hashProfilePassword(loginJson.get(PASS_FIELD).asText());
                     } catch (NoSuchAlgorithmException e) {
                         LOGGER.log(Level.SEVERE, "Invalid JSON: JSON Object contains no user or password key", e);
                     }

@@ -6,6 +6,11 @@ import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Profile;
 
+
+/**
+ * Handles database interaction for profiles.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
 public class ProfileRepository extends BeanRepository<Long, Profile> {
 
     @Inject
