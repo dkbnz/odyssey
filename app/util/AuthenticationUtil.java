@@ -3,6 +3,10 @@ package util;
 import models.Profile;
 import play.mvc.Http;
 
+import javax.xml.bind.DatatypeConverter;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 public final class AuthenticationUtil {
@@ -46,6 +50,19 @@ public final class AuthenticationUtil {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+
+    /**
+     * Hashes a password string using the SHA 256 method from the MessageDigest library.
+     *
+     * @param password                  the string you want to hash.
+     * @return                          a string of the hashed binary array as a hexadecimal string.
+     * @throws NoSuchAlgorithmException if the algorithm specified does not exist for the MessageDigest library.
+     */
+    public static String hashProfilePassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        return DatatypeConverter.printHexBinary(digest.digest(password.getBytes(StandardCharsets.UTF_8)));
     }
 
 
