@@ -9,6 +9,10 @@ import models.treasureHunts.TreasureHunt;
 import java.util.List;
 
 
+/**
+ * Handles database interaction for treasure hunts.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
 public class TreasureHuntRepository extends BeanRepository<Long, TreasureHunt> {
 
     @Inject
