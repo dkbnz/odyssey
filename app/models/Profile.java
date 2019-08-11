@@ -31,7 +31,7 @@ public class Profile extends BaseModel {
     private String lastName;
     private String gender;
     private LocalDate dateOfBirth;
-    private Boolean isAdmin;
+    private boolean isAdmin;
 
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date dateOfCreation;
@@ -218,12 +218,12 @@ public class Profile extends BaseModel {
     }
 
 
-    public Boolean getIsAdmin() {
+    public boolean getIsAdmin() {
         return isAdmin;
     }
 
 
-    public void setIsAdmin(Boolean isAdmin) {
+    public void setIsAdmin(boolean isAdmin) {
         this.isAdmin = isAdmin;
     }
 

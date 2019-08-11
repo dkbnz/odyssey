@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.ExpressionList;
 import models.TravellerType;
+import models.destinations.Type;
 import models.photos.PersonalPhoto;
 import models.treasureHunts.TreasureHunt;
 import play.libs.Json;
@@ -17,7 +18,6 @@ import java.util.*;
 
 import models.Profile;
 import models.destinations.Destination;
-import models.destinations.DestinationType;
 import models.trips.Trip;
 import models.trips.TripDestination;
 import repositories.TripRepository;
@@ -134,7 +134,7 @@ public class DestinationController extends Controller {
      * @return ok() (Http 200) response containing all the different types of destinations.
      */
     public Result getTypes() {
-        List<DestinationType> destinationTypes = destinationTypeRepository.findAll();
+        List<Type> destinationTypes = destinationTypeRepository.findAll();
         return ok(Json.toJson(destinationTypes));
     }
 
@@ -396,7 +396,7 @@ public class DestinationController extends Controller {
         destination.setPublic(json.has(IS_PUBLIC) && json.get(IS_PUBLIC).asBoolean());
         destination.changeOwner(owner);
 
-        DestinationType destType = destinationTypeRepository.findById(json.get(TYPE).asLong());
+        Type destType = destinationTypeRepository.findById(json.get(TYPE).asLong());
 
         destination.setType(destType);
 
