@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.Set;
 
 
+/**
+ * Handles database interaction for trips.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
 public class TripRepository extends BeanRepository<Long, Trip> {
 
     private static final String PROFILE_ID = "profile_id";
