@@ -92,10 +92,10 @@
             </div>
             <!--Error when deleting treasure hunt alert-->
             <b-alert
-                    ref="deleteAlertError"
+                    v-model="deleteAlertError"
                     dismissible
                     variant="danger">
-                <p>Cannot delete this Treasure Hunt</p>
+                <p>{{deleteAlertMessage}}</p>
             </b-alert>
             <b-button
                     class="mr-2 float-right"
@@ -140,7 +140,9 @@
                 dismissSeconds: 3,
                 dismissCountDown: 0,
                 alertText: "",
-                copiedTreasureHunt: null
+                copiedTreasureHunt: null,
+                deleteAlertError: false,
+                deleteAlertMessage: ""
             }
         },
 
@@ -191,7 +193,11 @@
                         self.showAlert();
                     }
                     else {
-                        self.showError();
+                        // Converts response to text, this is then displayed on the frontend.
+                        response.text().then(data => {
+                            self.deleteAlertMessage = data;
+                            self.deleteAlertError = true;
+                        });
                     }
                 });
             },
@@ -224,7 +230,6 @@
             queryYourTreasureHunts() {
                 if (this.profile.id !== undefined) {
                     return fetch(`/v1/treasureHunts/` + this.profile.id, {})
-                        .then(this.checkStatus)
                         .then(this.parseJSON)
                         .then((data) => {
                             this.foundTreasureHunts = data;
@@ -304,24 +309,6 @@
 
 
             /**
-             * Checks the Http response for errors.
-             *
-             * @param response the retrieved Http response.
-             * @returns {*} throws the Http response error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                console.log(error);
-                throw error;
-            },
-
-
-            /**
              * Converts the Http response body to a Json.
              * @param response  the received Http response.
              * @returns {*}     the response body as a Json object.
@@ -338,7 +325,7 @@
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
-                this.$refs['deleteAlertError'].hide();
+                this.deleteAlertError = false;
             },
 
 
@@ -358,14 +345,6 @@
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-
-
-            /**
-             * Displays an error alert on the delete modal if deleting a destination is not successful.
-             */
-            showError() {
-                this.$refs['deleteAlertError'].show();
-            }
         },
 
         components: {

@@ -47,4 +47,15 @@ public final class AuthenticationUtil {
             return null;
         }
     }
+
+
+    /**
+     * Checks if the specified object is null or not, this is used several times throughout the application.
+     *
+     * @param object    the object to be checked if it is null.
+     * @return          boolean true if object is null, otherwise returns false.
+     */
+    public static boolean checkObjectIsNull(Object object) {
+        return (object == null);
+    }
 }
