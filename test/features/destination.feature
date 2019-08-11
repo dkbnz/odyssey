@@ -580,6 +580,7 @@ Feature: Destination API Endpoint
       | true      |
     Then the destination will have the following number of treasure hunts 1
 
+
   Scenario: Merging two destinations that both have treasure hunts
     Given I am running the application
     And I am logged in
@@ -601,7 +602,7 @@ Feature: Destination API Endpoint
       | is_public |
       | true      |
     Then the destination will have the following number of treasure hunts 2
-#
+
 
   Scenario: Retrieving destination usage for 1 trip
     Given I am running the application
@@ -680,6 +681,7 @@ Feature: Destination API Endpoint
     And the trip count is 1
     And the number of trips received is 1
     And the photo count is 1
+
 
   Scenario: Transferring the ownership of a public destination to default admin when photo is added by another user
     Given I am running the application

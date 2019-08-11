@@ -92,7 +92,7 @@ public class TripDestination extends BaseModel {
     }
 
     /**
-     * Clears the trip for the TripDestination
+     * Clears the trip for the TripDestination.
      */
     public void clearTrip() {
         trip = null;
