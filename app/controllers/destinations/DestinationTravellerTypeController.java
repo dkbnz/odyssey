@@ -71,12 +71,7 @@ public class DestinationTravellerTypeController {
      *                          updated.
      */
     public Result create(Http.Request request, Long destinationId) {
-
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -124,12 +119,7 @@ public class DestinationTravellerTypeController {
      *                          updated.
      */
     public Result propose(Http.Request request, Long destinationId) {
-
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -178,12 +168,7 @@ public class DestinationTravellerTypeController {
      * @return          a json result of all the destinations with proposals.
      */
     public Result fetchProposedDestinations(Http.Request request) {
-
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }

@@ -24,7 +24,7 @@ public class Destination extends BaseModel {
      * The type of destination (monument, natural landmark, building, event, etc...).
      */
     @ManyToOne
-    private DestinationType type;
+    private Type type;
 
     /**
      * The district(s) the destination belongs to.
@@ -93,12 +93,12 @@ public class Destination extends BaseModel {
     }
 
 
-    public DestinationType getType() {
+    public Type getType() {
         return type;
     }
 
 
-    public void setType(DestinationType type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
