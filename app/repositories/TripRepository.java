@@ -92,7 +92,7 @@ public class TripRepository extends BeanRepository<Long, Trip> {
     /**
      * Finds all the trips with a specified user id.
      *
-     * @param profileId            the profile id.
+     * @param profileId     the profile id.
      * @return              the list of trips.
      */
     public List<Trip> fetchAllTrips(Long profileId) {

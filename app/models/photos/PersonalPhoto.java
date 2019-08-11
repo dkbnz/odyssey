@@ -88,7 +88,7 @@ public class PersonalPhoto extends BaseModel {
 
         PersonalPhoto other = (PersonalPhoto) obj;
 
-        return other.getId() == this.getId();
+        return other.getId().equals(this.getId());
     }
 
 
