@@ -496,17 +496,23 @@
                 if (this.inputTreasureHunt.id !== null) {
                     this.inputTreasureHunt.startDate = new Date(this.inputTreasureHunt.startDate).toLocaleString();
                     let startDate = this.inputTreasureHunt.startDate;
+                    // The date is the values before the comma
                     this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split(", ")[0];
+                    // Change format of dates from the backslash symbol, reverse the order, and join with hyphens.
                     this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split("/").reverse().join("-");
                     this.startTime = startDate.split(" ")[1];
+                    // Splits by either the + or the - symbol. Removing the timezone.
                     this.startTime = this.startTime.split("+")[0];
                     this.startTime = this.startTime.split("-")[0];
 
                     this.inputTreasureHunt.endDate = new Date(this.inputTreasureHunt.endDate).toLocaleString();
                     let endDate = this.inputTreasureHunt.endDate;
+                    // The date is the values before the comma
                     this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split(", ")[0];
+                    // Change format of dates from the backslash symbol, reverse the order, and join with hyphens.
                     this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split("/").reverse().join("-");
                     this.endTime = endDate.split(" ")[1];
+                    // Splits by either the + or the - symbol. Removing the timezone.
                     this.endTime = this.endTime.split("+")[0];
                     this.endTime = this.endTime.split("-")[0];
                 }

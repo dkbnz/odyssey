@@ -354,10 +354,10 @@ public class PhotoController extends Controller {
      */
     private Result savePhotos(Profile profileToAdd, Collection<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
         for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
-            TemporaryFile tempFile = photo.getRef();
+            TemporaryFile temporaryFile = photo.getRef();
             String filename = generateFilename();
             try {
-                tempFile.copyTo(Paths.get(getPhotoFilePath(false), filename),true);
+                temporaryFile.copyTo(Paths.get(getPhotoFilePath(false), filename),true);
                 saveThumbnail(filename);
                 addImageToProfile(profileToAdd, filename, photo.getContentType(), false);
             } catch (IOException e) {
@@ -415,6 +415,10 @@ public class PhotoController extends Controller {
                         return badRequest(); // User does not exist in the system.
                     }
 
+                    if(AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+                        return notFound();
+                    }
+
                     // If user is admin, or if they are editing their own profile then allow them to edit.
                     if (!AuthenticationUtil.validUser(loggedInUser, profileToAdd)) {
                         return forbidden();
@@ -459,7 +463,7 @@ public class PhotoController extends Controller {
     /**
      * Gets a middle section of the image and makes it into a square.
      *
-     * @param photo the BufferedImage object of the uploaded image
+     * @param photo the BufferedImage object of the uploaded image.
      * @return      a new BufferedImage subImage object of the square section of the image.
      */
     private BufferedImage makeSquare(BufferedImage photo) {
@@ -546,6 +550,9 @@ public class PhotoController extends Controller {
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
                     Profile owner = personalPhoto.getProfile();
 
+                    if (AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+                        return notFound();
+                    }
                     if(AuthenticationUtil.validUser(loggedInUser, owner))
                         return getImageResult(personalPhoto.getPhoto(), getThumbnail);
 
@@ -594,6 +601,10 @@ public class PhotoController extends Controller {
                     Profile photoOwner = personalPhoto.getProfile();
                     Profile destinationOwner = destination.getOwner();
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
+
+                    if (AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+                        return notFound();
+                    }
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner) &&
                             (AuthenticationUtil.validUser(loggedInUser, destinationOwner)
@@ -658,6 +669,10 @@ public class PhotoController extends Controller {
                     Profile photoOwner = personalPhoto.getProfile();
 
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
+
+                    if (AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+                        return notFound();
+                    }
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
                         Destination destination = destinationRepository.findById(destinationId);
