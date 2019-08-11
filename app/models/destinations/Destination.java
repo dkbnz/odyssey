@@ -53,10 +53,6 @@ public class Destination extends BaseModel {
     @ManyToOne(cascade=CascadeType.PERSIST)
     private Profile owner;
 
-    public void setPhotoGallery(Set<PersonalPhoto> photoGallery) {
-        this.photoGallery = photoGallery;
-    }
-
     /**
      * The destinations photo gallery.
      */
@@ -155,6 +151,11 @@ public class Destination extends BaseModel {
 
     public boolean removePhotoFromGallery(PersonalPhoto photoToRemove) {
         return photoGallery.remove(photoToRemove);
+    }
+
+
+    public void setPhotoGallery(Set<PersonalPhoto> photoGallery) {
+        this.photoGallery = photoGallery;
     }
 
 
@@ -304,6 +305,4 @@ public class Destination extends BaseModel {
                 this.latitude,
                 this.longitude);
     }
-
-
 }
