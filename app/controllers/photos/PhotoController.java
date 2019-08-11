@@ -401,7 +401,7 @@ public class PhotoController extends Controller {
                         return badRequest(); // User does not exist in the system.
                     }
 
-                    if(AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+                    if(loggedInUser == null) {
                         return notFound();
                     }
 
@@ -536,7 +536,7 @@ public class PhotoController extends Controller {
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
                     Profile owner = personalPhoto.getProfile();
 
-                    if (AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+                    if (loggedInUser == null) {
                         return notFound();
                     }
                     if(AuthenticationUtil.validUser(loggedInUser, owner))
@@ -588,7 +588,7 @@ public class PhotoController extends Controller {
                     Profile destinationOwner = destination.getOwner();
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
 
-                    if (AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+                    if (loggedInUser == null) {
                         return notFound();
                     }
 
@@ -656,7 +656,7 @@ public class PhotoController extends Controller {
 
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
 
-                    if (AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+                    if (loggedInUser == null) {
                         return notFound();
                     }
 
