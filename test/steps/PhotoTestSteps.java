@@ -21,16 +21,11 @@ import org.springframework.beans.BeansException;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.NationalityRepository;
-import repositories.PassportRepository;
 import repositories.ProfileRepository;
 import repositories.destinations.DestinationRepository;
-import repositories.destinations.DestinationTypeRepository;
-import repositories.destinations.TravellerTypeRepository;
 import repositories.photos.PersonalPhotoRepository;
 
 import javax.imageio.ImageIO;
@@ -84,7 +79,7 @@ public class PhotoTestSteps {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private int statusCode;
-    private String LOGGED_IN_ID;
+    private String loggedInUserId;
 
     private PersonalPhotoRepository personalPhotoRepository;
     private DestinationRepository destinationRepository;
@@ -216,14 +211,14 @@ public class PhotoTestSteps {
     public void anAdminIsLoggedIn(int loggedInId) {
         loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         Assert.assertEquals(OK, statusCode);
-        LOGGED_IN_ID = ADMIN_ID;
+        loggedInUserId = ADMIN_ID;
     }
 
     @Given("I am logged in as a non-admin with id {int}")
     public void iAmLoggedInAsARegularUser(int loggedInId) {
         loginRequest(REG_USER, REG_PASS);
         Assert.assertEquals(OK, statusCode);
-        LOGGED_IN_ID = REG_ID;
+        loggedInUserId = REG_ID;
     }
 
     @Given("I have a application running")
@@ -310,7 +305,7 @@ public class PhotoTestSteps {
                         .uri(CHANGE_PHOTO_PRIVACY_URI)
                         .method(PATCH)
                         .bodyJson(json)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInUserId);
         Result changePhotoPrivacyResult = route(application, request);
 
         statusCode = changePhotoPrivacyResult.status();
@@ -323,7 +318,7 @@ public class PhotoTestSteps {
                 Helpers.fakeRequest()
                         .uri(UPLOAD_PHOTOS_URI + photoId)
                         .method(DELETE)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInUserId);
         Result changePhotoPrivacyResult = route(application, request);
 
         statusCode = changePhotoPrivacyResult.status();
@@ -336,7 +331,7 @@ public class PhotoTestSteps {
                 Helpers.fakeRequest()
                         .uri(PROFILE_PHOTO_URI + userId)
                         .method(DELETE)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInUserId);
         Result changePhotoPrivacyResult = route(application, request);
 
         statusCode = changePhotoPrivacyResult.status();
@@ -349,7 +344,7 @@ public class PhotoTestSteps {
                 Helpers.fakeRequest()
                         .uri(PROFILE_PHOTO_URI + photoId)
                         .method(PUT)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInUserId);
 
         Result changeProfilePhotoResult = route(application, request);
         statusCode = changeProfilePhotoResult.status();
@@ -363,7 +358,7 @@ public class PhotoTestSteps {
                         .uri(DESTINATION_PHOTO_URI + destinationId)
                         .method(POST)
                         .bodyJson(json)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInUserId);
 
         Result addDestinationPhotoResult = route(application, request);
         statusCode = addDestinationPhotoResult.status();
@@ -378,7 +373,7 @@ public class PhotoTestSteps {
                         .uri(DESTINATION_PHOTO_URI + destinationId)
                         .method(DELETE)
                         .bodyJson(json)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInUserId);
 
         Result addDestinationPhotoResult = route(application, request);
         statusCode = addDestinationPhotoResult.status();
@@ -407,7 +402,4 @@ public class PhotoTestSteps {
     public void theStatusCodeIGetIsNotFound() {
         Assert.assertEquals(NOT_FOUND, statusCode);
     }
-
-
-
 }
