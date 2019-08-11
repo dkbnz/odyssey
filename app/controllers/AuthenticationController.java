@@ -7,6 +7,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.ProfileRepository;
+import util.AuthenticationUtil;
 
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
@@ -63,7 +64,7 @@ public class AuthenticationController extends Controller {
                     // Uses the hashProfilePassword() method to hash the given password.
                     String password = null;
                     try {
-                        password = hashProfilePassword(loginJson.get(PASS_FIELD).asText());
+                        password = AuthenticationUtil.hashProfilePassword(loginJson.get(PASS_FIELD).asText());
                     } catch (NoSuchAlgorithmException e) {
                         LOGGER.log(Level.SEVERE, "Invalid JSON: JSON Object contains no user or password key", e);
                     }
@@ -81,17 +82,6 @@ public class AuthenticationController extends Controller {
                 });
     }
 
-    /**
-     * Hashes a password string using the SHA 256 method from the MessageDigest library.
-     *
-     * @param password                  the string that is requested to be hashed.
-     * @return                          a string of the hashed binary array as a hexadecimal string.
-     * @throws NoSuchAlgorithmException if the algorithm specified does not exist for the MessageDigest library.
-     */
-    private String hashProfilePassword(String password) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        return DatatypeConverter.printHexBinary(digest.digest(password.getBytes(StandardCharsets.UTF_8)));
-    }
 
     /**
      * Clears session resulting in authorized tag being cleared, therefore de-authorizing client.

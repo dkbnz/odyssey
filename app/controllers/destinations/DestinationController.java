@@ -77,6 +77,22 @@ public class DestinationController extends Controller {
 
 
     /**
+     * Validates the authentication of the request sent. Checks the logged in user id from the request is a valid user.
+     *
+     * @param request       the request sent.
+     * @return              the profile of the logged in user, null if there is no user authenticated.
+     */
+    private Profile validateAuthentication(Http.Request request) {
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return null;
+        }
+
+        return profileRepository.findById(loggedInUserId);
+    }
+
+
+    /**
      * Returns a Json object containing a count of trips that a specified destination is used in and how many photos
      * that destination contains. As well as a list of each trips name and owner.
      *
@@ -88,12 +104,7 @@ public class DestinationController extends Controller {
      *                          (Http 403) if the user is not allowed to access this number.
      */
     public Result getDestinationUsage(Http.Request request, Long destinationId) {
-
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = validateAuthentication(request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -148,12 +159,7 @@ public class DestinationController extends Controller {
      *                  (Http 403) if the user has tried to access destinations they are not authorised for.
      */
     public Result fetch(Http.Request request) {
-
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = validateAuthentication(request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -184,6 +190,32 @@ public class DestinationController extends Controller {
                     .endJunction();
         }
 
+        updateExpressionList(expressionList, request);
+
+        // If page query is set, load said page. Otherwise, return the first page.
+        if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
+            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
+        }
+
+        destinations = expressionList
+                .order(NAME)
+                .setFirstRow(pageNumber*pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
+
+        return ok(Json.toJson(destinations));
+    }
+
+
+    /**
+     * Adds expressions to the expression list to search for destinations depending on values present in the query
+     * string of the given request.
+     *
+     * @param expressionList    the expression list used to search for destinations.
+     * @param request           the request containing the query string used to formulate the expression list.
+     */
+    private void updateExpressionList(ExpressionList<Destination> expressionList, Http.Request request) {
         if (request.getQueryString(NAME) != null && !request.getQueryString(NAME).isEmpty()) {
             expressionList.ilike(NAME, queryComparator(request.getQueryString(NAME)));
         }
@@ -205,20 +237,6 @@ public class DestinationController extends Controller {
         if (request.getQueryString(IS_PUBLIC) != null && !request.getQueryString(IS_PUBLIC).isEmpty()) {
             expressionList.eq(IS_PUBLIC, request.getQueryString(IS_PUBLIC));
         }
-
-        // If page query is set, load said page. Otherwise, return the first page.
-        if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
-            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
-        }
-
-        destinations = expressionList
-                .order(NAME)
-                .setFirstRow(pageNumber*pageSize)
-                .setMaxRows(pageSize)
-                .findPagedList()
-                .getList();
-
-        return ok(Json.toJson(destinations));
     }
 
 
@@ -228,13 +246,7 @@ public class DestinationController extends Controller {
      * @return ok() (Http 200) response containing the destinations found in the response body.
      */
     public Result fetchByUser(Http.Request request, Long userId) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
-
+        Profile loggedInUser = validateAuthentication(request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -412,11 +424,7 @@ public class DestinationController extends Controller {
      *                          successfully deleted.
      */
     public Result destroy(Http.Request request, Long destinationId) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = validateAuthentication(request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -444,12 +452,7 @@ public class DestinationController extends Controller {
      * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
      */
     public Result edit(Http.Request request, Long id) throws IllegalAccessException {
-
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = validateAuthentication(request);
         if (loggedInUser == null) {
             return unauthorized();
         }
