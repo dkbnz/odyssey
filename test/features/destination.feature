@@ -4,7 +4,7 @@ Feature: Destination API Endpoint
     Given I have a running application
     And I am logged in
     When I send a GET request to the destinations endpoint
-    Then the status code received is OK
+    Then the status code received is 200
 
 
   Scenario: Create a new destination with valid input
@@ -13,7 +13,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-    Then the status code received is Created
+    Then the status code received is 201
 
 
   Scenario: Create a new destination with invalid name input
@@ -22,7 +22,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
       |      | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-    Then the status code received is Bad Request
+    Then the status code received is 400
 
 
   Scenario: Create a new destination with invalid country input
@@ -31,7 +31,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country |
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New 1?! |
-    Then the status code received is Bad Request
+    Then the status code received is 400
 
 
   Scenario: Create a destination that already exists in my private destinations
@@ -43,7 +43,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values
       | Name      | Type | District | Latitude | Longitude | Country     | is_public |
       | Duplicate | 3    | Nelson   | 24.5     | 34.6      | New Zealand | false     |
-    Then the status code received is Bad Request
+    Then the status code received is 400
 
 
   Scenario: Create a destination that already exists as a public destination
@@ -55,7 +55,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values
       | Name       | Type | District | Latitude | Longitude | Country     |
       | DuplicateP | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-    Then the status code received is Bad Request
+    Then the status code received is 400
 
 
   Scenario: Create a destination that already exists as a private destination for another user
@@ -67,7 +67,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values
       | Name          | Type | District | Latitude | Longitude | Country     | is_public |
       | DuplicatePriv | 3    | Nelson   | 24.5     | 34.6      | New Zealand | false     |
-    Then the status code received is Created
+    Then the status code received is 201
 
 
   Scenario: Create a new destination with valid input for another user
@@ -76,7 +76,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values for another user
       | Name | Type | District | Latitude | Longitude | Country     |
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-    Then the status code received is Created
+    Then the status code received is 201
 
 
   Scenario: Create a destination for another user that already exists as a public destination
@@ -88,7 +88,7 @@ Feature: Destination API Endpoint
     When I create a new destination with the following values for another user
       | Name       | Type | District | Latitude | Longitude | Country     |
       | DuplicateP | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-    Then the status code received is Bad Request
+    Then the status code received is 400
 
 
   Scenario: Search for a destination by name that exists
@@ -100,7 +100,7 @@ Feature: Destination API Endpoint
     When I search for a destination with name
       | Name |
       | ASB  |
-    Then the status code received is OK
+    Then the status code received is 200
     And the response contains at least one destination with name
       | Name |
       | ASB  |
@@ -115,7 +115,7 @@ Feature: Destination API Endpoint
     When I search for a destination with district
       | District |
       | Nelson   |
-    Then the status code received is OK
+    Then the status code received is 200
     And the response contains at least one destination with district
       | District |
       | Nelson   |
@@ -130,7 +130,7 @@ Feature: Destination API Endpoint
     When I search for a destination with latitude
       | Latitude |
       | 24.5     |
-    Then the status code received is OK
+    Then the status code received is 200
     And the response contains at least one destination with latitude
       | Latitude |
       | 24.5     |
@@ -147,7 +147,7 @@ Feature: Destination API Endpoint
     When I search for a destination with name
       | Name |
       | ASB  |
-    Then the status code received is OK
+    Then the status code received is 200
     And the response is empty
 
 
@@ -161,7 +161,7 @@ Feature: Destination API Endpoint
       | Phloomis | 5    | Nelson   | 24.5     | 34.6      | New Zealand | false     |
       | Styles   | 3    | Bally    | 24.5     | 34.6      | New Zealand | true      |
     When I search for all destinations
-    Then the status code received is OK
+    Then the status code received is 200
     And the response contains only own or public destinations
 
 
@@ -177,7 +177,7 @@ Feature: Destination API Endpoint
       | Name      | Type | District | Latitude | Longitude | Country     | is_public |
       | Big       | 4    | Gore     | 24.5     | 34.6      | New Zealand | true      |
     When I search for all destinations by user 2
-    Then the status code received is OK
+    Then the status code received is 200
     And the response contains only destinations owned by the user with id 2
 
 
@@ -187,7 +187,7 @@ Feature: Destination API Endpoint
     When I attempt to edit destination 10000 using the following values
       | Type | District | Latitude  | Longitude  | Country      |
       | 4    | Sydney   | 33.838306 | 151.002007 | Australia    |
-    Then the status code received is Unauthorised
+    Then the status code received is 401
 
 
   Scenario: Attempt to edit a private destination as the owner
@@ -199,7 +199,7 @@ Feature: Destination API Endpoint
     When I attempt to edit the destination using the following values
       | Type | District | Latitude  | Longitude  | Country   |
       | 3    | Sydney   | 33.838306 | 151.002007 | Australia |
-    Then the status code received is OK
+    Then the status code received is 200
 
 
   Scenario: Attempt to edit another user's private destination as Admin
@@ -208,7 +208,7 @@ Feature: Destination API Endpoint
     When I attempt to edit destination 10000 using the following values
       | District | Country   |
       | Sydney   | Australia |
-    Then the status code received is OK
+    Then the status code received is 200
 
 
   Scenario: Attempt to edit a private destination as another user
@@ -217,7 +217,7 @@ Feature: Destination API Endpoint
     When I attempt to edit destination 10000 using the following values
       | District | Country   |
       | Sydney   | Australia |
-    Then the status code received is Forbidden
+    Then the status code received is 403
 
 
   Scenario: Attempt to edit a destination that does not exist
@@ -226,7 +226,7 @@ Feature: Destination API Endpoint
     When I attempt to edit destination -4 using the following values
       | District | Country |
       | Sydney | Australia |
-    Then the status code received is Not Found
+    Then the status code received is 404
 
 
   Scenario: Attempt to edit a destination using an incorrect latitude value
@@ -238,7 +238,7 @@ Feature: Destination API Endpoint
     When I attempt to edit the destination using the following values
       | Latitude  |
       | 100       |
-    Then the status code received is Bad Request
+    Then the status code received is 400
 
 
   Scenario: Attempt to edit a destination using an incorrect longitude value
@@ -250,7 +250,7 @@ Feature: Destination API Endpoint
     When I attempt to edit the destination using the following values
       | Longitude |
       | 200       |
-    Then the status code received is Bad Request
+    Then the status code received is 400
 
 
   Scenario: Attempt to delete a private destination as the owner when it is not used
@@ -260,7 +260,7 @@ Feature: Destination API Endpoint
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
     When I attempt to delete the destination
-    Then the status code received is OK
+    Then the status code received is 200
 
 
   Scenario: Attempt to delete a private destination as the owner when it is only used by the owner
@@ -271,7 +271,7 @@ Feature: Destination API Endpoint
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
     And the destination has a photo with id 2
     When I attempt to delete the destination
-    Then the status code received is OK
+    Then the status code received is 200
 
 
   Scenario: Attempt to delete a public destination as the owner when it is not used
@@ -281,7 +281,7 @@ Feature: Destination API Endpoint
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
     When I attempt to delete the destination
-    Then the status code received is OK
+    Then the status code received is 200
 
 
   Scenario: Attempt to delete a public destination as the owner when it is only used by the owner
@@ -292,7 +292,7 @@ Feature: Destination API Endpoint
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
     And the destination has a photo with id 2
     When I attempt to delete the destination
-    Then the status code received is OK
+    Then the status code received is 200
 
 
   Scenario: Attempt to delete a public destination as the owner when it is used by another user
@@ -307,14 +307,14 @@ Feature: Destination API Endpoint
     And I am not logged in
     And I am logged in
     When I attempt to delete the destination
-    Then the status code received is Forbidden
+    Then the status code received is 403
 
 
   Scenario: Attempt to delete a destination that does not exist
     Given I am running the application
     And I am logged in
     When I attempt to delete the destination with id 100
-    Then the status code received is Not Found
+    Then the status code received is 404
 
 
   Scenario: Attempt to delete a private destination as another user
@@ -326,7 +326,7 @@ Feature: Destination API Endpoint
     And I am not logged in
     And I am logged in
     When I attempt to delete the destination
-    Then the status code received is Forbidden
+    Then the status code received is 403
 
 
   Scenario: Attempt to delete a public destination as another user
@@ -338,7 +338,7 @@ Feature: Destination API Endpoint
     And I am not logged in
     And I am logged in
     When I attempt to delete the destination
-    Then the status code received is Forbidden
+    Then the status code received is 403
 
 
   Scenario: Attempt to delete a private destination as an admin
@@ -348,7 +348,7 @@ Feature: Destination API Endpoint
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
     When I attempt to delete the destination
-    Then the status code received is OK
+    Then the status code received is 200
 
 
   Scenario: Attempt to delete a used public destination as an admin
@@ -358,7 +358,7 @@ Feature: Destination API Endpoint
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
     When I attempt to delete the destination
-    Then the status code received is OK
+    Then the status code received is 200
 
 
   Scenario: Attempt to delete a public destination as an admin when it is used by another user
@@ -369,14 +369,14 @@ Feature: Destination API Endpoint
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
     And the destination has a photo with id 2
     When I attempt to delete the destination
-    Then the status code received is OK
+    Then the status code received is 200
 
 
   Scenario: Attempt to delete a destination when not logged in
     Given I am running the application
     And I am not logged in
     When I attempt to delete the destination with id 119
-    Then the status code received is Unauthorised
+    Then the status code received is 401
 
 
   Scenario: Deleting a destination as the owner deletes the trip
@@ -387,7 +387,7 @@ Feature: Destination API Endpoint
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
     And the destination is used in trip "Trip 1"
     When I attempt to delete the destination
-    Then the status code received is OK
+    Then the status code received is 200
     And the trip with name "Trip 1" is deleted
 
 
@@ -555,7 +555,7 @@ Feature: Destination API Endpoint
     When I attempt to edit the destination using the following values
       | District     |
       | Christchurch |
-    Then the status code received is OK
+    Then the status code received is 200
     And there is only one destination with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
@@ -626,7 +626,7 @@ Feature: Destination API Endpoint
         }
       """
     When I request the destination usage for destination with id 1155
-    Then the status code received is OK
+    Then the status code received is 200
     And the trip count is 1
     And the number of trips received is 1
     And the photo count is 0
@@ -638,7 +638,7 @@ Feature: Destination API Endpoint
     And a photo exists with id 1
     When I add a photo with id 1 to an existing destination with id 1155
     And I request the destination usage for destination with id 1155
-    Then the status code received is OK
+    Then the status code received is 200
     And the trip count is 0
     And the number of trips received is 0
     And the photo count is 1
@@ -648,7 +648,7 @@ Feature: Destination API Endpoint
     Given I am running the application
     And I am logged in as an admin user
     When I request the destination usage for destination with id 1155
-    Then the status code received is OK
+    Then the status code received is 200
     And the trip count is 0
     And the number of trips received is 0
     And the photo count is 0
@@ -677,7 +677,7 @@ Feature: Destination API Endpoint
       """
     When I add a photo with id 1 to an existing destination with id 1155
     And I request the destination usage for destination with id 1155
-    Then the status code received is OK
+    Then the status code received is 200
     And the trip count is 1
     And the number of trips received is 1
     And the photo count is 1
@@ -712,14 +712,14 @@ Feature: Destination API Endpoint
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
       | Angus Flat | 31   | Canterbury   | -43.65598| 170.48378 | New Zealand | true      |
     When I request the destination usage for destination with id 119
-    Then the status code received is Unauthorised
+    Then the status code received is 401
 
 
   Scenario: Retrieving destination usage for a destination that doesn't exist
     Given I am running the application
     And I am logged in
     When I request the destination usage for destination with id 1
-    Then the status code received is Not Found
+    Then the status code received is 404
 
 
   Scenario: Retrieving destination usage for my own private destination
@@ -729,7 +729,7 @@ Feature: Destination API Endpoint
       | Name                      | Type  | District         | Latitude   | Longitude     | Country     |
       | Baylys Beach Post Office  | 10    | North Auckland   | -35.953527 | 173.74573     | New Zealand |
     And I request the destination usage for destination with id 325
-    Then the status code received is OK
+    Then the status code received is 200
 
 
   Scenario: Retrieving destination usage for a private destination as another user
@@ -739,7 +739,7 @@ Feature: Destination API Endpoint
       | Name           | Type  | District         | Latitude   | Longitude     | Country     |
       | Private Glade  | 39    | Canterbury       | -44.1625   | 170.993056    | New Zealand |
     When I request the destination usage for destination with id 9001
-    Then the status code received is Forbidden
+    Then the status code received is 403
 
 
   Scenario: Retrieving destination usage for a private destination an admin
@@ -749,4 +749,4 @@ Feature: Destination API Endpoint
       | Name                      | Type  | District         | Latitude   | Longitude     | Country     |
       | Baylys Beach Post Office  | 10    | North Auckland   | -35.953527 | 173.74573     | New Zealand |
     And I request the destination usage for destination with id 325
-    Then the status code received is OK
+    Then the status code received is 200
