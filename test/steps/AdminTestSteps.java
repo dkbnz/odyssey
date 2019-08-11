@@ -297,10 +297,10 @@ public class AdminTestSteps {
 
 
     @When("I change the username of the user with id {int} to {string}")
-    public void iChangeTheUsernameOfTheUserWithIdTo(Integer idTochange, String newUsername) {
+    public void iChangeTheUsernameOfTheUserWithIdTo(Integer idToChange, String newUsername) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, String.valueOf(idTochange))
+                .session(AUTHORIZED, String.valueOf(idToChange))
                 .uri(SINGLE_PROFILE_URI);
         Result result = route(application, request);
         statusCode = result.status();
@@ -324,7 +324,7 @@ public class AdminTestSteps {
                 .method(PUT)
                 .session(AUTHORIZED, userId)
                 .bodyJson(profileToEdit)
-                .uri(PROFILES_UPDATE_URI + idTochange);
+                .uri(PROFILES_UPDATE_URI + idToChange);
 
         result = route(application, request);
         statusCode = result.status();

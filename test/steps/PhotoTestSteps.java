@@ -112,7 +112,6 @@ public class PhotoTestSteps {
 
     /**
      * Applies down evolutions to the database from the test/evolutions/default directory.
-     * <p>
      * This drops tables and data from the database.
      */
     private void applyEvolutions() {
@@ -207,15 +206,15 @@ public class PhotoTestSteps {
         return json;
     }
 
-    @Given("I am logged in as an admin with id {int}")
-    public void anAdminIsLoggedIn(int loggedInId) {
+    @Given("I am logged in as the administrator")
+    public void anAdminIsLoggedIn() {
         loginRequest(VALID_USERNAME, VALID_AUTHPASS);
         Assert.assertEquals(OK, statusCode);
         loggedInUserId = ADMIN_ID;
     }
 
-    @Given("I am logged in as a non-admin with id {int}")
-    public void iAmLoggedInAsARegularUser(int loggedInId) {
+    @Given("I am logged in as a non-admin user")
+    public void iAmLoggedInAsARegularUser() {
         loginRequest(REG_USER, REG_PASS);
         Assert.assertEquals(OK, statusCode);
         loggedInUserId = REG_ID;
