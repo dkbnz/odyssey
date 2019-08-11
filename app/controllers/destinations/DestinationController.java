@@ -77,22 +77,6 @@ public class DestinationController extends Controller {
 
 
     /**
-     * Validates the authentication of the request sent. Checks the logged in user id from the request is a valid user.
-     *
-     * @param request       the request sent.
-     * @return              the profile of the logged in user, null if there is no user authenticated.
-     */
-    private Profile validateAuthentication(Http.Request request) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return null;
-        }
-
-        return profileRepository.findById(loggedInUserId);
-    }
-
-
-    /**
      * Returns a Json object containing a count of trips that a specified destination is used in and how many photos
      * that destination contains. As well as a list of each trips name and owner.
      *
@@ -104,7 +88,7 @@ public class DestinationController extends Controller {
      *                          (Http 403) if the user is not allowed to access this number.
      */
     public Result getDestinationUsage(Http.Request request, Long destinationId) {
-        Profile loggedInUser = validateAuthentication(request);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -159,7 +143,7 @@ public class DestinationController extends Controller {
      *                  (Http 403) if the user has tried to access destinations they are not authorised for.
      */
     public Result fetch(Http.Request request) {
-        Profile loggedInUser = validateAuthentication(request);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -246,7 +230,7 @@ public class DestinationController extends Controller {
      * @return ok() (Http 200) response containing the destinations found in the response body.
      */
     public Result fetchByUser(Http.Request request, Long userId) {
-        Profile loggedInUser = validateAuthentication(request);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -424,7 +408,7 @@ public class DestinationController extends Controller {
      *                          successfully deleted.
      */
     public Result destroy(Http.Request request, Long destinationId) {
-        Profile loggedInUser = validateAuthentication(request);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -452,7 +436,7 @@ public class DestinationController extends Controller {
      * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
      */
     public Result edit(Http.Request request, Long id) throws IllegalAccessException {
-        Profile loggedInUser = validateAuthentication(request);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }

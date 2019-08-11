@@ -2,6 +2,7 @@ package util;
 
 import models.Profile;
 import play.mvc.Http;
+import repositories.ProfileRepository;
 
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
@@ -74,5 +75,22 @@ public final class AuthenticationUtil {
      */
     public static boolean checkObjectIsNull(Object object) {
         return (object == null);
+    }
+
+
+
+    /**
+     * Validates the authentication of the request sent. Checks the logged in user id from the request is a valid user.
+     *
+     * @param profileRepository     the profile repository.
+     * @param request               the request sent.
+     * @return                      the profile of the logged in user, null if there is no user authenticated.
+     */
+    public static Profile validateAuthentication(ProfileRepository profileRepository, Http.Request request) {
+        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
+        if (loggedInUserId == null) {
+            return null;
+        }
+        return profileRepository.findById(loggedInUserId);
     }
 }
