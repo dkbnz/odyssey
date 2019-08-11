@@ -151,14 +151,11 @@ public class TripController extends Controller {
      *                  (Http 401).
      */
     public Result edit(Http.Request request, Long tripId) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
+
         // Retrieve the individual trip being deleted by its id.
         Trip trip = tripRepository.findById(tripId);
 
@@ -405,12 +402,7 @@ public class TripController extends Controller {
      *                  Otherwise, if trip is successfully deleted, returns ok() (Http 200).
      */
     public Result destroy(Http.Request request, Long tripId) {
-
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }

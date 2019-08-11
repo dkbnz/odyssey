@@ -52,11 +52,7 @@ public class TreasureHuntController {
      *                  unauthorized() Http response if no one is logged in.
      */
     public Result create(Http.Request request, Long userId) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -135,11 +131,7 @@ public class TreasureHuntController {
      * @return                  the destination solution for the treasure hunt.
      */
     public Result fetchDestination(Http.Request request, Long treasureHuntId) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -173,11 +165,7 @@ public class TreasureHuntController {
      *                          badRequest() (Http 400) if there is an error with the request.
      */
     public Result edit(Http.Request request, Long treasureHuntId) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -250,12 +238,8 @@ public class TreasureHuntController {
      *                          badRequest() (Http 400) if there is an error with the request.
      */
     public Result delete(Http.Request request, Long treasureHuntId) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
-        if (AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
@@ -289,11 +273,7 @@ public class TreasureHuntController {
      *                  unauthorized() (Http 401) if the user is not logged in.
      */
     public Result fetchAll(Http.Request request) throws IOException {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -331,11 +311,7 @@ public class TreasureHuntController {
      *                  forbidden() (Http 403) if hte user is not allowed to access the specified user's treasure hunts.
      */
     public Result fetchByOwner(Http.Request request, Long ownerId) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
