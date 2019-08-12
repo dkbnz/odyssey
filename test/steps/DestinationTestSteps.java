@@ -1264,6 +1264,7 @@ public class DestinationTestSteps {
         Long ownerId;
         for (int i = 0 ; i < arrNode.size() ; i++) {
             ownerId = destinationRepository.findById(arrNode.get(i).get("id").asLong()).getOwner().getId();  //Gets owner id of destination
+            assertNotNull(ownerId);
             assertEquals(userId, ownerId);
         }
     }
@@ -1277,6 +1278,7 @@ public class DestinationTestSteps {
     @Then("the destination will have photos with the following ids")
     public void theDestinationWillHavePhotosWithTheFollowingIds(io.cucumber.datatable.DataTable dataTable) {
         Destination destination = destinationRepository.findById(destinationId);
+        assertNotNull(destination);
 
         List<String> photoIds = getPhotoIds(destination);
         List<String> expectedIds = new ArrayList<>(dataTable.asList());
@@ -1361,7 +1363,9 @@ public class DestinationTestSteps {
     public void theOwnerIsUser(Integer userId) {
         Destination destination = destinationRepository.findById(destinationId);
         Long expectedId = userId.longValue();
-        assertEquals(expectedId, destination.getOwner().getId());
+        Long ownerId = destination.getOwner().getId();
+        assertNotNull(ownerId);
+        assertEquals(expectedId, ownerId);
     }
 
     @Then("^the status code received is (\\d+)$")
