@@ -49,7 +49,7 @@ public class PhotoTestSteps {
     private Database database;
 
     private static final String AUTHORIZED = "authorized";
-    private static final String UPLOAD_PHOTOS_URI = "/v1/photos/";
+    private static final String PHOTO_URI = "/v1/photos/";
     private static final String CHANGE_PHOTO_PRIVACY_URI = "/v1/photos";
     private static final String PROFILE_PHOTO_URI = "/v1/profilePhoto/";
     private static final String DESTINATION_PHOTO_URI = "/v1/destinationPhotos/";
@@ -63,7 +63,7 @@ public class PhotoTestSteps {
     /**
      * A valid password for login credentials for admin user.
      */
-    private static final String VALID_AUTHPASS = "admin1";
+    private static final String VALID_AUTH_PASS = "admin1";
     private static final String ADMIN_ID = "1";
 
     /**
@@ -208,7 +208,7 @@ public class PhotoTestSteps {
 
     @Given("I am logged in as the administrator")
     public void anAdminIsLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
+        loginRequest(VALID_USERNAME, VALID_AUTH_PASS);
         Assert.assertEquals(OK, statusCode);
         loggedInUserId = ADMIN_ID;
     }
@@ -279,7 +279,7 @@ public class PhotoTestSteps {
 
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
-                        .uri(UPLOAD_PHOTOS_URI + uploadUserId)
+                        .uri(PHOTO_URI + uploadUserId)
                         .method(POST)
                         .bodyRaw(
                                 Collections.singletonList(part),
@@ -315,7 +315,7 @@ public class PhotoTestSteps {
     public void iDeleteThePhotoWithId(int photoId) {
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
-                        .uri(UPLOAD_PHOTOS_URI + photoId)
+                        .uri(PHOTO_URI + photoId)
                         .method(DELETE)
                         .session(AUTHORIZED, loggedInUserId);
         Result changePhotoPrivacyResult = route(application, request);
@@ -379,26 +379,8 @@ public class PhotoTestSteps {
     }
 
 
-    @Then("the status code I get is Created")
-    public void theStatusCodeIsCreated() {
-        Assert.assertEquals(CREATED, statusCode);
-    }
-
-
-    @Then("the status code I get is OK")
-    public void theStatusCodeIsOK() {
-        Assert.assertEquals(OK, statusCode);
-    }
-
-
-    @Then("the status code I get is Forbidden")
-    public void theStatusCodeIGetIsForbidden() {
-        Assert.assertEquals(FORBIDDEN, statusCode);
-    }
-
-
-    @Then("the status code I get is Not Found")
-    public void theStatusCodeIGetIsNotFound() {
-        Assert.assertEquals(NOT_FOUND, statusCode);
+    @Then("^the status code I get is (\\d+)$")
+    public void theStatusCodeIsIGetIs(int expectedStatusCode) {
+        Assert.assertEquals(expectedStatusCode, statusCode);
     }
 }
