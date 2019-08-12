@@ -26,12 +26,17 @@
                            :acceptTypes="'image/jpeg, image/jpg, image/png'">
             </photoUploader>
         </b-modal>
-        <photo-table v-bind:photos="photos"
-                     v-bind:profile="profile"
-                     v-bind:userProfile="userProfile"
+        <div class="d-flex justify-content-center mb-3">
+            <b-spinner v-if="retrievingPhotos"></b-spinner>
+            <p v-if="photos.length === 0"><b>No photos found.</b></p>
+        </div>
+        <photo-table :photos="photos"
+                     :key="reloadPhotoTable"
+                     :profile="profile"
+                     :userProfile="userProfile"
                      :adminView="adminView"
-                     v-on:privacy-update="updatePhotoPrivacy"
-                     v-on:photo-click="photoClicked"
+                     :privacy-update="updatePhotoPrivacy"
+                     :photo-click="photoClicked"
         >
         </photo-table>
         <b-modal centered hide-footer ref="modalImage" size="xl">
@@ -97,6 +102,9 @@
                 errorMessage: "",
                 photoToView: null,
                 refreshTable: 0,
+                reloadPhotoTable: 0,
+                retrievingPhotos: false,
+                refreshPage: 0
             }
         },
 
@@ -104,7 +112,7 @@
             profile: Object,
             userProfile: {
                 default: function () {
-                    return this.profile
+                    return this.profile;
                 }
             },
             adminView: Boolean
@@ -113,6 +121,13 @@
         components: {
             PhotoTable,
             PhotoUploader
+        },
+
+        watch: {
+            profile() {
+                this.userProfile = this.profile;
+                this.checkAuthentication();
+            }
         },
 
         mounted() {
@@ -244,20 +259,26 @@
              */
             getPhotosList() {
                 let self = this;
-                if (this.profile.id !== undefined) {
-                    fetch(`/v1/photos/user/` + this.profile.id, {
+                this.retrievingPhotos = true;
+                setTimeout(function() {
+                    let selfe = self;
+                    fetch(`/v1/photos/user/` + self.profile.id, {
                         accept: "application/json",
                     })
                         .then(response => response.json())
                         .then(photos => {
-                            self.checkAuthentication();
+                            selfe.checkAuthentication();
                             for (let i in photos) {
-                                if (photos[i].public || this.authentication) {
-                                    self.photos.push(photos[i]);
+                                if (photos[i].public || selfe.authentication) {
+                                    selfe.photos.push(photos[i]);
+                                    selfe.reloadPhotoTable += 1;
+                                    selfe.retrievingPhotos = false;
+
+                                    selfe.checkAuthentication();
                                 }
                             }
                         })
-                }
+                }, 500)
             },
 
 
