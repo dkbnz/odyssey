@@ -467,7 +467,7 @@ public class DestinationController extends Controller {
         mergeDestinations(currentDestination);
         destinationRepository.update(currentDestination);
 
-        return ok("Destination updated");
+        return ok(Json.toJson(currentDestination));
     }
 
 
