@@ -34,3 +34,15 @@ testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-Werror")
 
 javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
+
+// Jacoco threshold values. If out report has less than set, test will fail.
+jacocoReportSettings := JacocoReportSettings()
+  .withThresholds(
+    JacocoThresholds(
+      instruction = 0,
+      method = 0,
+      branch = 0,
+      complexity = 0,
+      line = 0,
+      clazz = 0)
+  )
