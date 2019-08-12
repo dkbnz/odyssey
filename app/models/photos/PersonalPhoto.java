@@ -19,7 +19,7 @@ public class PersonalPhoto extends BaseModel {
      * The instance of the actual photo.
      */
     @JsonIgnore
-    @ManyToOne(cascade=CascadeType.REMOVE)
+    @ManyToOne(cascade=CascadeType.PERSIST)
     private Photo photo;
 
 
