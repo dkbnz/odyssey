@@ -318,7 +318,8 @@
                 default: function () {
                     return 'containerWithNav';
                 }
-            }
+            },
+            adminView: false
         },
 
         data() {
