@@ -1,5 +1,8 @@
 package repositories;
 
+import com.google.inject.Inject;
+import io.ebean.BeanRepository;
+import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Profile;
 import models.destinations.Destination;
@@ -11,25 +14,24 @@ import java.util.List;
 import java.util.Set;
 
 
-public class TripRepository {
+/**
+ * Handles database interaction for trips.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
+public class TripRepository extends BeanRepository<Long, Trip> {
 
     private static final String PROFILE_ID = "profile_id";
     private static final String TRIP_ID = "id";
 
+    private ProfileRepository profileRepository;
+    private TripDestinationRepository tripDestinationRepository;
 
-    /**
-     * Saves a new trip to a profile's list of trips, which is persisted to our database.
-     *
-     * @param profile       the profile having a new trip created.
-     * @param trip          the new trip being created for profile.
-     */
-    public void saveNewTrip(Profile profile, Trip trip) {
-
-        // Add the new trip to the profile.
-        profile.addTrip(trip);
-
-        // Update the profile which cascades to save the trip and its contained destinations.
-        profile.save();
+    @Inject
+    public TripRepository(ProfileRepository profileRepository,
+                          TripDestinationRepository tripDestinationRepository) {
+        super(Trip.class, Ebean.getDefaultServer());
+        this.profileRepository = profileRepository;
+        this.tripDestinationRepository = tripDestinationRepository;
     }
 
 
@@ -42,17 +44,8 @@ public class TripRepository {
      */
     public void updateTrip(Profile profile, Trip trip, List<TripDestination> destinationList) {
         trip.setDestinations(destinationList);
-        trip.update();
-        profile.update();
-    }
-
-
-    /**
-     * Updates a trip.
-     * @param trip      The trip to update.
-     */
-    public void update(Trip trip) {
-        trip.update();
+        super.update(trip);
+        profileRepository.update(profile);
     }
 
 
@@ -68,9 +61,9 @@ public class TripRepository {
         List<TripDestination> destinations = trip.getDestinations();
 
         // Go through and delete each one from the database.
-        for (TripDestination destination : destinations) {
-            destination.clearTrip();
-            destination.delete();
+        for (TripDestination tripDestination : destinations) {
+            tripDestination.clearTrip();
+            tripDestinationRepository.delete(tripDestination);
         }
     }
 
@@ -89,40 +82,29 @@ public class TripRepository {
         profile.getTrips().remove(trip);
 
         // Delete the trip from the database.
-        trip.delete();
+        super.delete(trip);
 
         // Update the profile at a database level.
-        profile.update();
+        profileRepository.update(profile);
     }
 
 
     /**
      * Finds all the trips with a specified user id.
      *
-     * @param id            the profile id.
+     * @param profileId     the profile id.
      * @return              the list of trips.
      */
-    public List<Trip> fetchAllTrips(Long id) {
+    public List<Trip> fetchAllTrips(Long profileId) {
 
         List<Trip> trips;
 
         // Creates a list of trips from a query based on profile id
-        ExpressionList<Trip> expressionList = Trip.getFind().query().where();
-        expressionList.eq(PROFILE_ID, id);
+        ExpressionList<Trip> expressionList = query().where();
+        expressionList.eq(PROFILE_ID, profileId);
         trips = expressionList.findList();
 
         return trips;
-    }
-
-
-    /**
-     * Finds a single trip with a given id. Returns null if no such trip was found.
-     *
-     * @param tripId        the id of the trip.
-     * @return              the Trip object associated with the id. Null if no trip was found.
-     */
-    public Trip fetchSingleTrip(Long tripId) {
-        return Trip.getFind().byId(tripId.intValue());
     }
 
 
@@ -132,8 +114,8 @@ public class TripRepository {
      * @param tripId        the id of the trip.
      * @return              the profile id of the owner of the trip.
      */
-    public static Long fetchTripOwner(Long tripId) {
-        return Trip.getFind().query().select("profile.id").where().eq(TRIP_ID, tripId).findSingleAttribute();
+    public Long fetchTripOwner(Long tripId) {
+        return query().select("profile.id").where().eq(TRIP_ID, tripId).findSingleAttribute();
     }
 
 
@@ -144,7 +126,8 @@ public class TripRepository {
      * @return                  the set of Trips a destination is used in.
      */
     public Set<Trip> fetch(Destination usedDestination) {
-        List<TripDestination> tripDestinations = TripDestination.find.query().where().eq("destination", usedDestination).findList();
+
+        List<TripDestination> tripDestinations = tripDestinationRepository.findAllUsing(usedDestination);
         Set<Trip> trips = new HashSet<>();
 
         for (TripDestination tripDestination : tripDestinations) {
@@ -152,5 +135,9 @@ public class TripRepository {
         }
 
         return trips;
+    }
+
+    public ExpressionList<Trip> getExpressionList() {
+        return query().where();
     }
 }

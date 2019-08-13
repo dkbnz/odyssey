@@ -2,51 +2,30 @@ package repositories.destinations;
 
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
-import models.Profile;
+import io.ebean.ExpressionList;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
+import repositories.ProfileRepository;
 
+import com.google.inject.Inject;
 import java.util.List;
-import java.util.Set;
 
+
+/**
+ * Handles database interaction for destinations.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
 public class DestinationRepository extends BeanRepository<Long, Destination> {
 
-    private static final int DEFAULT_ADMIN_ID = 1;
+    private static final Long DEFAULT_ADMIN_ID = 1L;
     private static final String PHOTO_FIELD = "photoGallery.photo";
-    private static final String TRAVELLER_TYPE_PROPOSED = "proposedTravellerTypesAdd";
 
-    public DestinationRepository() {
-        super(Destination.class, Ebean.getServer("default"));
-    }
+    private ProfileRepository profileRepository;
 
-    /**
-     * Update the destination object.
-     *
-     * @param destination       the destination being updated.
-     */
-    public void update(Destination destination) {
-        destination.update();
-    }
-
-
-    /**
-     * Save the destination object.
-     *
-     * @param destination       the destination being saved.
-     */
-    public void save(Destination destination) {
-        destination.save();
-    }
-
-
-    /**
-     * Retrieve a Destination by its Id.
-     *
-     * @param destinationId     the Id of the destination being retrieved.
-     * @return                  the destination object corresponding with the destinationId.
-     */
-    public Destination fetch(Long destinationId) {
-        return Destination.find.byId(destinationId.intValue());
+    @Inject
+    public DestinationRepository(ProfileRepository profileRepository) {
+        super(Destination.class, Ebean.getDefaultServer());
+        this.profileRepository = profileRepository;
     }
 
 
@@ -57,7 +36,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      * @return            list of destinations containing the photo.
      */
     public List<Destination> fetch(PersonalPhoto photo) {
-        return Destination.find.query().where().eq(PHOTO_FIELD, photo).findList();
+        return query().where().eq(PHOTO_FIELD, photo).findList();
     }
 
 
@@ -67,7 +46,7 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      * @return      list of destinations that have proposed traveller types.
      */
     public List<Destination> fetchProposed() {
-        return Ebean.find(Destination.class)
+        return query()
             .select("destination")
             .where()
             .disjunction()
@@ -83,12 +62,14 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      *
      * @param destination       the destination to delete from the database.
      */
+    @Override
     public boolean delete(Destination destination) {
         // Clear the destination photos
+        destination.clearAllTravellerTypeSets();
         destination.clearPhotoGallery();
-        destination.update();
+        super.update(destination);
         // Delete destination
-        return destination.delete();
+        return super.delete(destination);
     }
 
 
@@ -96,25 +77,22 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      * Transfers the ownership of a destination to the default admin. Will be used when a public destination is used by
      * another user.
      *
-     * @param destination the destination to be changed ownership of.
+     * @param destination   the destination to be changed ownership of.
      */
-    public void transferDestinationOwnership(Destination destination) {
-        Profile defaultAdmin = Profile.find.byId(DEFAULT_ADMIN_ID);
-
-        destination.changeOwner(defaultAdmin);
-
-        update(destination);
+    public void transferToAdmin(Destination destination) {
+        destination.changeOwner(profileRepository.findById(DEFAULT_ADMIN_ID));
+        super.update(destination);
     }
 
 
     /**
-     * Returns a list of Destinations that are equal, excluding the given Destination
+     * Returns a list of Destinations that are equal, excluding the given Destination.
      *
-     * @param destination   Destination to search with.
-     * @return              List of destinations that are equal.
+     * @param destination   destination to search with.
+     * @return              list of destinations that are equal.
      */
     public List<Destination> findEqual(Destination destination) {
-        return Ebean.find(Destination.class)
+        return query()
                 .where()
                 .eq("name", destination.getName())
                 .eq("type", destination.getType())
@@ -124,5 +102,9 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
                 .eq("country", destination.getCountry())
                 .ne("id", destination.getId())
                 .findList();
+    }
+
+    public ExpressionList<Destination> getExpressionList() {
+        return query().where();
     }
 }

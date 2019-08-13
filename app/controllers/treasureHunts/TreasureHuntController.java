@@ -1,6 +1,5 @@
 package controllers.treasureHunts;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import models.ApiError;
@@ -27,10 +26,14 @@ public class TreasureHuntController {
     private DestinationRepository destinationRepository;
     private ProfileRepository profileRepository;
 
+    private static final Long GLOBAL_ADMIN_ID = 1L;
+    private static final String DESTINATION_ERROR = "Provided Destination not found.";
+    private static final String TREASURE_HUNT_NOT_FOUND = "Treasure Hunt not found.";
+
     @Inject
     public TreasureHuntController(TreasureHuntRepository treasureHuntRepository,
-                                              DestinationRepository destinationRepository,
-                                              ProfileRepository profileRepository) {
+                                  DestinationRepository destinationRepository,
+                                  ProfileRepository profileRepository) {
         this.treasureHuntRepository = treasureHuntRepository;
         this.destinationRepository = destinationRepository;
         this.profileRepository = profileRepository;
@@ -49,14 +52,12 @@ public class TreasureHuntController {
      *                  unauthorized() Http response if no one is logged in.
      */
     public Result create(Http.Request request, Long userId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
-
-        Profile treasureHuntOwner = profileRepository.fetchSingleProfile(userId.intValue());
+        Profile treasureHuntOwner = profileRepository.findById(userId);
 
         if (treasureHuntOwner == null) {
             return badRequest();
@@ -90,10 +91,22 @@ public class TreasureHuntController {
 
         if(treasureHuntDestination != null && treasureHuntDestination.getId() != null
                 && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
-            treasureHuntErrors.add(new ApiError("Provided Destination not found."));
+            treasureHuntErrors.add(new ApiError(DESTINATION_ERROR));
         }
 
         treasureHunt.setDestination(treasureHuntDestination);
+
+        Profile globalAdmin = profileRepository.findById(GLOBAL_ADMIN_ID);
+
+        if (globalAdmin == null) {
+            return notFound();
+        }
+
+        if (treasureHuntDestination != null) {
+            treasureHuntDestination.changeOwner(globalAdmin);
+        } else {
+            treasureHuntErrors.add(new ApiError(DESTINATION_ERROR));
+        }
 
         // Validate treasure hunt and get any errors
         treasureHuntErrors.addAll(treasureHunt.getErrors());
@@ -104,6 +117,8 @@ public class TreasureHuntController {
 
         treasureHuntRepository.save(treasureHunt);
         profileRepository.update(treasureHuntOwner);
+        destinationRepository.update(treasureHuntDestination);
+        profileRepository.update(globalAdmin);
 
         return created(Json.toJson(treasureHunt.getId()));
     }
@@ -116,15 +131,15 @@ public class TreasureHuntController {
      * @return                  the destination solution for the treasure hunt.
      */
     public Result fetchDestination(Http.Request request, Long treasureHuntId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
         TreasureHunt treasureHunt = treasureHuntRepository.findById(treasureHuntId);
 
         if (treasureHunt == null) {
-            return notFound();
+            return notFound(TREASURE_HUNT_NOT_FOUND);
         }
 
         Destination destinationResult = treasureHunt.getDestination();
@@ -150,19 +165,18 @@ public class TreasureHuntController {
      *                          badRequest() (Http 400) if there is an error with the request.
      */
     public Result edit(Http.Request request, Long treasureHuntId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
         TreasureHunt treasureHunt = treasureHuntRepository.findById(treasureHuntId);
 
         if (treasureHunt == null) {
-            return notFound();
+            return notFound(TREASURE_HUNT_NOT_FOUND);
         }
 
         Profile treasureHuntOwner = treasureHunt.getOwner();
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, treasureHuntOwner)) {
             return forbidden();
@@ -190,7 +204,7 @@ public class TreasureHuntController {
 
         if(treasureHuntDestination != null && treasureHuntDestination.getId() != null
                 && destinationRepository.findById(treasureHuntDestination.getId()) == null) {
-            treasureHuntErrors.add(new ApiError("Provided Destination not found."));
+            treasureHuntErrors.add(new ApiError(DESTINATION_ERROR));
         }
 
         // Validate treasure hunt and get any errors
@@ -224,20 +238,18 @@ public class TreasureHuntController {
      *                          badRequest() (Http 400) if there is an error with the request.
      */
     public Result delete(Http.Request request, Long treasureHuntId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
         TreasureHunt treasureHunt = treasureHuntRepository.findById(treasureHuntId);
 
         if (treasureHunt == null) {
-            return notFound();
+            return notFound(TREASURE_HUNT_NOT_FOUND);
         }
 
         Profile treasureHuntOwner = treasureHunt.getOwner();
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, treasureHuntOwner)) {
             return forbidden();
@@ -261,8 +273,8 @@ public class TreasureHuntController {
      *                  unauthorized() (Http 401) if the user is not logged in.
      */
     public Result fetchAll(Http.Request request) throws IOException {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
@@ -298,14 +310,13 @@ public class TreasureHuntController {
      *                  unauthorized() (Http 401) if the user is not logged in.
      *                  forbidden() (Http 403) if hte user is not allowed to access the specified user's treasure hunts.
      */
-    public Result fetchByOwner(Http.Request request, Long ownerId) throws IOException {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+    public Result fetchByOwner(Http.Request request, Long ownerId) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        Profile requestedUser = profileRepository.fetchSingleProfile(ownerId.intValue());
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
+        Profile requestedUser = profileRepository.findById(ownerId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, requestedUser)) {
             return forbidden();

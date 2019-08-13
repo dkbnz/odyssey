@@ -1,50 +1,19 @@
 package repositories.photos;
 
-import models.Profile;
+import com.google.inject.Inject;
+import io.ebean.BeanRepository;
+import io.ebean.Ebean;
 import models.photos.PersonalPhoto;
 
-public class PersonalPhotoRepository {
 
-    /**
-     * Fetches a single personal photo by the photo id number.
-     *
-     * @param photoId   the id number of the photo.
-     * @return          the PersonalPhoto object given by the personal photo.
-     */
-    public PersonalPhoto fetch(Long photoId) {
-        return PersonalPhoto.getFind().byId(photoId.intValue());
-    }
+/**
+ * Handles database interaction for personal photos.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
+public class PersonalPhotoRepository extends BeanRepository<Long, PersonalPhoto> {
 
-
-    /**
-     * Deletes a personal photo.
-     *
-     * @param photo      the PersonalPhoto object of the photo.
-     */
-    public void delete(PersonalPhoto photo) {
-        photo.delete();
-    }
-
-    /**
-     * Updates a personal photo.
-     *
-     * @param photo      the PersonalPhoto object of the photo.
-     */
-    public void update(PersonalPhoto photo) {
-        photo.update();
-    }
-
-
-    /**
-     * Updates the privacy of the of the specified photo to either public or private.
-     *
-     * @param photoOwner the Profile object of the owner of the photo.
-     * @param photo      the PersonalPhoto object of the photo.
-     * @param isPublic   the new Boolean value of the photos public or private value.
-     */
-    public void updatePrivacy(Profile photoOwner, PersonalPhoto photo, String isPublic) {
-        photo.setPublic(Boolean.parseBoolean(isPublic));
-        photo.update();
-        photoOwner.update();
+    @Inject
+    public PersonalPhotoRepository() {
+        super(PersonalPhoto.class, Ebean.getDefaultServer());
     }
 }

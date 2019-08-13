@@ -16,8 +16,9 @@ import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.ProfileRepository;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -32,7 +33,6 @@ public class AdminTestSteps {
     private Database database;
 
     private static final String AUTHORIZED = "authorized";
-    private int statusCode;
     private static final String PROFILES_URI = "/v1/profiles";
     private static final String PROFILES_UPDATE_URI = "/v1/profile/";
     private static final String SINGLE_PROFILE_URI = "/v1/profile";
@@ -69,6 +69,8 @@ public class AdminTestSteps {
     private static final String REG_ID = "2";
 
     private String userId;
+    private int statusCode;
+    private ProfileRepository profileRepository;
 
     @Before
     public void setUp() {
@@ -87,8 +89,11 @@ public class AdminTestSteps {
         database = application.injector().instanceOf(Database.class);
         applyEvolutions();
 
+        profileRepository = application.injector().instanceOf(ProfileRepository.class);
+
         Helpers.start(application);
     }
+
 
     /**
      * Applies down evolutions to the database from the test/evolutions/default directory.
@@ -105,6 +110,7 @@ public class AdminTestSteps {
         );
     }
 
+
     /**
      * Runs after each test scenario.
      * Cleans up the database by cleaning up evolutions and shutting it down.
@@ -117,6 +123,7 @@ public class AdminTestSteps {
         Helpers.stop(application);
     }
 
+
     /**
      * Applies up evolutions to the database from the test/evolutions/default directory.
      *
@@ -126,10 +133,12 @@ public class AdminTestSteps {
         Evolutions.cleanupEvolutions(database);
     }
 
+
     /**
      * Sends a fake request to the application to login.
-     * @param username      The string of the username to complete the login with.
-     * @param password      The string of the password to complete the login with.
+     *
+     * @param username      the string of the username to complete the login with.
+     * @param password      the string of the password to complete the login with.
      */
     private void loginRequest(String username, String password) {
         ObjectMapper mapper = new ObjectMapper();
@@ -149,9 +158,10 @@ public class AdminTestSteps {
 
 
     /**
-     * Gets the response as an iterator array Node from any fake request so that you can iterate over the response data
-     * @param content the string of the result using helper content as string
-     * @return an Array node iterator
+     * Gets the response as an iterator array Node from any fake request so that you can iterate over the response data.
+     *
+     * @param content   the string of the result using helper content as string.
+     * @return          an Array node iterator.
      */
     private Iterator<JsonNode> getTheResponseIterator(String content) {
         JsonNode arrNode = null;
@@ -165,57 +175,11 @@ public class AdminTestSteps {
     }
 
 
-    @Given("The following profile does not exist with username {string} within the TravelEA database")
-    public void theFollowingProfileDoesNotExistWithUsernameWithinTheTravelEADatabase(String username) {
-        // Sends the fake request
-        Http.RequestBuilder request = fakeRequest()
-                .method(GET)
-                .session(AUTHORIZED, "1")
-                .uri(PROFILES_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
-
-        // Gets the response
-        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
-
-        // Finds profile from the iterator
-        boolean foundProfile = false;
-        while (iterator.hasNext() && !foundProfile) {
-            JsonNode jsonProfile = iterator.next();
-            if (jsonProfile.get(USERNAME).asText().equals(username)) {
-                foundProfile = true;
-            }
-        }
-
-        Assert.assertFalse(foundProfile);
-
-    }
-
-    @Given("An admin is logged in")
-    public void anAdminIsLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
-        Assert.assertEquals(OK, statusCode);
-    }
-
-    @When("An admin attempts to create a profile with the following fields:")
-    public void anAdminAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) {
-        // Creates the json for the profile
-        JsonNode json = convertDataTableToJsonNode(dataTable);
-
-        // Sending the fake request to the back end
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .bodyJson(json)
-                .uri(PROFILES_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
-
-    }
-
     /**
-     * Converts given data table information and creates a profile json for creating a profile
-     * @param dataTable the data table from cucumber
-     * @return the json formatted string of the profile
+     * Converts given data table information and creates a profile json for creating a profile.
+     *
+     * @param dataTable     the data table from cucumber.
+     * @return              the Json formatted string of the profile.
      */
     private JsonNode convertDataTableToJsonNode(io.cucumber.datatable.DataTable dataTable) {
         //Get all input from the data table
@@ -258,6 +222,56 @@ public class AdminTestSteps {
     }
 
 
+    @Given("The following profile does not exist with username {string} within the TravelEA database")
+    public void theFollowingProfileDoesNotExistWithUsernameWithinTheTravelEADatabase(String username) {
+        // Sends the fake request
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, "1")
+                .uri(PROFILES_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+        // Gets the response
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+
+        // Finds profile from the iterator
+        boolean foundProfile = false;
+        while (iterator.hasNext() && !foundProfile) {
+            JsonNode jsonProfile = iterator.next();
+            if (jsonProfile.get(USERNAME).asText().equals(username)) {
+                foundProfile = true;
+            }
+        }
+
+        Assert.assertFalse(foundProfile);
+
+    }
+
+
+    @Given("An admin is logged in")
+    public void anAdminIsLoggedIn() {
+        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
+        Assert.assertEquals(OK, statusCode);
+    }
+
+
+    @When("An admin attempts to create a profile with the following fields:")
+    public void anAdminAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) {
+        // Creates the json for the profile
+        JsonNode json = convertDataTableToJsonNode(dataTable);
+
+        // Sending the fake request to the back end
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .bodyJson(json)
+                .uri(PROFILES_URI);
+        Result result = route(application, request);
+        statusCode = result.status();
+
+    }
+
+
     @Given("I am logged in as an admin")
     public void iAmLoggedInAsAnAdmin() {
         loginRequest(VALID_USERNAME, VALID_AUTHPASS);
@@ -265,27 +279,28 @@ public class AdminTestSteps {
         userId = ADMIN_ID;
     }
 
+
     @Given("a user exists in the database with the id {int} and username {string}")
     public void aUserExistsInTheDatabaseWithTheIdAndUsername(Integer id, String username) {
-        Profile profile = Profile.find.byId(id);
+        Profile profile = profileRepository.findById(id.longValue());
         Assert.assertNotNull(profile);
         Assert.assertEquals(profile.getUsername(), username);
     }
 
+
     @Given("a user does not exist with the username {string}")
     public void aUserDoesNotExistWithTheUsername(String username) {
-        Assert.assertNull(Profile.find
-                .query()
-                .where()
+        Assert.assertNull(profileRepository.getExpressionList()
                 .like(USERNAME, username)
                 .findOne());
     }
 
+
     @When("I change the username of the user with id {int} to {string}")
-    public void iChangeTheUsernameOfTheUserWithIdTo(Integer idTochange, String newUsername) {
+    public void iChangeTheUsernameOfTheUserWithIdTo(Integer idToChange, String newUsername) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, String.valueOf(idTochange))
+                .session(AUTHORIZED, String.valueOf(idToChange))
                 .uri(SINGLE_PROFILE_URI);
         Result result = route(application, request);
         statusCode = result.status();
@@ -309,11 +324,12 @@ public class AdminTestSteps {
                 .method(PUT)
                 .session(AUTHORIZED, userId)
                 .bodyJson(profileToEdit)
-                .uri(PROFILES_UPDATE_URI + idTochange);
+                .uri(PROFILES_UPDATE_URI + idToChange);
 
         result = route(application, request);
         statusCode = result.status();
     }
+
 
     @Given("I am logged in as a regular user")
     public void iAmLoggedInAsARegularUser() {
@@ -321,6 +337,7 @@ public class AdminTestSteps {
         Assert.assertEquals(OK, statusCode);
         userId = REG_ID;
     }
+
 
     @Then("I receive a status code of {int}")
     public void iReceiveAStatusCodeOf(int expectedStatus) {

@@ -3,32 +3,24 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.inject.Inject;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import models.Profile;
-import models.destinations.Destination;
-import models.treasureHunts.TreasureHunt;
 import org.junit.Assert;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.treasureHunts.TreasureHuntRepository;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static play.test.Helpers.*;
 
 public class TreasureHuntTestSteps {
@@ -75,12 +67,6 @@ public class TreasureHuntTestSteps {
 
 
     /**
-     * The logout endpoint uri.
-     */
-    private static final String LOGOUT_URI = "/v1/logout";
-
-
-    /**
      * Valid login credentials for an admin user.
      */
     private static final String ADMIN_ID = "1";
@@ -108,8 +94,6 @@ public class TreasureHuntTestSteps {
     /**
      * Valid login credentials for an alternate user.
      */
-    private static final String ALT_USERNAME = "testuser1@email.com";
-    private static final String ALT_AUTHPASS = "guest123";
     private static final String ALT_ID = "3";
 
 
@@ -124,12 +108,6 @@ public class TreasureHuntTestSteps {
      * Database instance for the fake application.
      */
     private Database database;
-
-    /**
-     * Repository to access the destinations in the running application.
-     */
-    private TreasureHuntRepository treasureHuntRepository = new TreasureHuntRepository();
-
 
 
     private static final String DESTINATION_STRING = "Destination";
@@ -270,7 +248,7 @@ public class TreasureHuntTestSteps {
      * Creates a new datetime object from today's date. This is then used to ensure our tests will always pass, as a
      * buffer is used to make the start date before today and the end date after today.
      *
-     * @param isStartDate   boolean value to determine if the date being changed the start or the end date.
+     * @param isStartDate   boolean value to determine if the date being changed is the start or the end date.
      * @return              the start or end date, which is modified by the necessary date buffer.
      */
     private String getTreasureHuntDateBuffer(boolean isStartDate) {

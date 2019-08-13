@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-row>
-            <b-col>
+            <b-col cols="1.5">
                 <!-- Nav bar for admin to display the selected page they wish to work on. -->
                 <b-navbar toggleable="lg" class="stickyMinorNav">
                     <b-collapse id="nav-collapse-admin" is-nav>
@@ -26,13 +26,14 @@
 
             </b-col>
 
-            <b-col cols="10">
+            <b-col>
                 <view-profile
                         :containerClass="'adminContainer'"
                         :adminView="adminView"
                         :destinations="destinations"
                         :nationalityOptions="nationalityOptions"
                         :profile="editProfile"
+                        :userProfile="profile"
                         :showSaved="showSaved"
                         :travTypeOptions="travTypeOptions"
                         v-if="currentDisplay === 0">
@@ -55,7 +56,7 @@
                         v-if="currentDisplay === 2">
                 </your-trips>
                 <plan-a-trip
-                        :containerClass="'adminContainer'"
+                        :containerClass="'adminTripsContainer'"
                         :adminView="adminView"
                         :destinations="destinations"
                         :heading="'Plan a Trip'"
@@ -68,6 +69,7 @@
                         :destinationTypes="destinationTypes"
                         :adminView="adminView"
                         :destinations="destinations"
+                        :travTypeOptions="travTypeOptions"
                         :profile="editProfile"
                         v-if="currentDisplay === 4">
                 </destinations-page>

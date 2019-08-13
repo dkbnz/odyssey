@@ -8,8 +8,8 @@ public class DestinationTypeTest {
 
     @Test
     public void testEqual() {
-        DestinationType destinationType1 = new DestinationType();
-        DestinationType destinationType2 = new DestinationType();
+        Type destinationType1 = new Type();
+        Type destinationType2 = new Type();
 
         destinationType1.setDestinationType("Stream");
         destinationType2.setDestinationType("Stream");
@@ -19,8 +19,8 @@ public class DestinationTypeTest {
 
     @Test
     public void testNotEqual() {
-        DestinationType destinationType1 = new DestinationType();
-        DestinationType destinationType2 = new DestinationType();
+        Type destinationType1 = new Type();
+        Type destinationType2 = new Type();
 
         destinationType1.setDestinationType("Stream");
         destinationType2.setDestinationType("House");
@@ -30,8 +30,8 @@ public class DestinationTypeTest {
 
     @Test
     public void testEqualHashCode() {
-        DestinationType destinationType1 = new DestinationType();
-        DestinationType destinationType2 = new DestinationType();
+        Type destinationType1 = new Type();
+        Type destinationType2 = new Type();
 
         destinationType1.setDestinationType("Stream");
         destinationType2.setDestinationType("Stream");
@@ -41,8 +41,8 @@ public class DestinationTypeTest {
 
     @Test
     public void testNotEqualHashCode() {
-        DestinationType destinationType1 = new DestinationType();
-        DestinationType destinationType2 = new DestinationType();
+        Type destinationType1 = new Type();
+        Type destinationType2 = new Type();
 
         destinationType1.setDestinationType("Stream");
         destinationType2.setDestinationType("House");

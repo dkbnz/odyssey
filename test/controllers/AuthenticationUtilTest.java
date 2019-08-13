@@ -2,10 +2,14 @@ package controllers;
 
 import models.Profile;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import repositories.ProfileRepository;
 import util.AuthenticationUtil;
 
 import play.mvc.Http;
+
+import static org.mockito.Mockito.mock;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.GET;
 
@@ -17,6 +21,14 @@ public class AuthenticationUtilTest {
     private static final String LOGGED_IN_ID = "1";
     private static final String AUTHORIZED = "authorized";
     private static final String PROFILES_URI = "/v1/profiles";
+
+
+    private ProfileRepository mockProfileRepository;
+
+    @Before
+    public void setUp() {
+        mockProfileRepository = mock(ProfileRepository.class);
+    }
 
 
     @Test
@@ -95,12 +107,14 @@ public class AuthenticationUtilTest {
                 .method(GET)
                 .session(AUTHORIZED, LOGGED_IN_ID)
                 .uri(PROFILES_URI);
+
         //Act
-        Integer userId = AuthenticationUtil.getLoggedInUserId(request.build());
+        Long userId = AuthenticationUtil.getLoggedInUserId(request.build());
+        Long parsedId = Long.parseLong(LOGGED_IN_ID);
 
         //Assert
         Assert.assertNotNull(userId);
-        Assert.assertEquals(userId.longValue(), Long.parseLong(LOGGED_IN_ID));
+        Assert.assertEquals(userId, parsedId);
     }
 
 
@@ -110,11 +124,26 @@ public class AuthenticationUtilTest {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri(PROFILES_URI);
+
         //Act
-        Integer userId = AuthenticationUtil.getLoggedInUserId(request.build());
+        Long userId = AuthenticationUtil.getLoggedInUserId(request.build());
 
         //Assert
         Assert.assertNull(userId);
     }
 
+
+    @Test
+    public void noAuthenticationTest() {
+        //Arrange
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(PROFILES_URI);
+
+        //Act
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(mockProfileRepository, request.build());
+
+        //Assert
+        Assert.assertNull(loggedInUser);
+    }
 }
