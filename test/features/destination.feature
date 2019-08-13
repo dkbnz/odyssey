@@ -683,6 +683,42 @@ Feature: Destination API Endpoint
     And the photo count is 1
 
 
+  Scenario: Getting the destination usage of the changed value for a destination
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | New Place  | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | New Dup    | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
+    When I change the value of the destination name to 'New Place' and I request the destination usage for edited destination
+    Then the status code received is 200
+    And the number of destinations received is at least 1
+
+
+  Scenario: Getting the destination usage of the changed value for a destination as non-owner
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | New Place  | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And I am logged in as an alternate user
+    When I change the value of the destination name to 'New Place' and I request the destination usage for edited destination
+    Then the status code received is 403
+
+
+  Scenario: Getting the destination usage of the changed value for a destination when not logged in
+    Given I am running the application
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | New Place  | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And I am not logged in
+    When I change the value of the destination name to 'New Place' and I request the destination usage for edited destination
+    Then the status code received is 401
+
+
   Scenario: Transferring the ownership of a public destination to default admin when photo is added by another user
     Given I am running the application
     And I am logged in

@@ -46,6 +46,7 @@ public class DestinationController extends Controller {
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String TRIP_COUNT = "trip_count";
     private static final String PHOTO_COUNT = "photo_count";
+    private static final String DESTINATION_COUNT = "destination_count";
     private static final String MATCHING_TRIPS = "matching_trips";
     private static final String MATCHING_DESTINATIONS = "matching_destinations";
     private static final Double LATITUDE_LIMIT = 90.0;
@@ -80,7 +81,7 @@ public class DestinationController extends Controller {
      * Returns a Json object containing a count of trips that a specified destination is used in and how many photos
      * that destination contains. As well as a list of each trips name and owner.
      *
-     * @param request           Http request from the client containing authentication details
+     * @param request           Http request from the client containing authentication details.
      * @param destinationId     the id of the destination to find the number of dependent trips for and photos.
      * @return                  ok()    (Http 200) response containing the number of photos in a destination,
      *                          trips a destination is used in as well as the list of each trips name and its owner's
@@ -118,6 +119,37 @@ public class DestinationController extends Controller {
         returnJson.put(PHOTO_COUNT, photoCount);
         returnJson.putArray(MATCHING_TRIPS).addAll(matchTrips);
         returnJson.putArray(MATCHING_DESTINATIONS).addAll(matchDestinations);
+
+        return ok(returnJson);
+    }
+
+
+    /**
+     * Uses a Json body containing a destination to check any matching destinations upon editing a destination.
+     *
+     * @param request   Http request from the client containing authentication details and the given destination.
+     * @return          unauthorized() (Http 401) if the user is not logged in.
+     *                  forbidden() (Http 403) if the logged in user is not the owner of the destination.
+     *                  ok() (Http 200) containing a Json list of the matching destinations.
+     */
+    public Result getDestinationUsageEdited(Http.Request request) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized();
+        }
+
+        JsonNode destination = request.body().asJson();
+        Destination foundDestination = Json.fromJson(destination, Destination.class);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, foundDestination.getOwner())) {
+            return forbidden();
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode matchDestinations = mapper.valueToTree(destinationRepository.findEqual(foundDestination));
+        ObjectNode returnJson = mapper.createObjectNode();
+        returnJson.putArray(MATCHING_DESTINATIONS).addAll(matchDestinations);
+        returnJson.put(DESTINATION_COUNT, matchDestinations.size());
 
         return ok(returnJson);
     }
@@ -342,7 +374,7 @@ public class DestinationController extends Controller {
                     Profile profileToChange = profileRepository.findById(userId);
 
                     if (profileToChange == null) {
-                        return badRequest();
+                        return badRequest("Profile not found");
                     }
 
                     if (loggedInUser == null) {
