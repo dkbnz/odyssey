@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-row>
-            <b-col>
+            <b-col cols="1.5">
                 <!-- Nav bar for admin to display the selected page they wish to work on. -->
                 <b-navbar toggleable="lg" class="stickyMinorNav">
                     <b-collapse id="nav-collapse-admin" is-nav>
@@ -26,7 +26,7 @@
 
             </b-col>
 
-            <b-col cols="10">
+            <b-col>
                 <view-profile
                         :containerClass="'adminContainer'"
                         :adminView="adminView"
@@ -55,7 +55,7 @@
                         v-if="currentDisplay === 2">
                 </your-trips>
                 <plan-a-trip
-                        :containerClass="'adminContainer'"
+                        :containerClass="'adminTripsContainer'"
                         :adminView="adminView"
                         :destinations="destinations"
                         :heading="'Plan a Trip'"
