@@ -119,6 +119,13 @@ body {
     border-radius: 5px;
 }
 
+.adminTripsContainer {
+    margin: 3vh 1vw 0 0;
+    padding: 1vh 1vw 1vw 1vw;
+    background-color: white;
+    border-radius: 5px;
+}
+
 /* Imports the Bauman's Regular Font */
 @font-face
 {

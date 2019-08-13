@@ -8,7 +8,7 @@
                 <i>Here you can add destinations, search destinations or view destinations on a map!</i>
             </p>
             <b-row>
-                <b-col cols="8">
+                <b-col :cols="adminView ? 7 : 8">
                     <b-card ref="maps">
                         <google-map :destinations="destinationsForMap" ref="map"
                                     v-if="showMap"
