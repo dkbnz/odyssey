@@ -443,6 +443,8 @@
                     body: JSON.stringify(this.inputTreasureHunt)
                 }).then(function (response) {
                     if (response.status >= 400) {
+                        // Ensures the start and end date fields are not wiped after an error occurs.
+                        this.splitDates();
                         // Converts response to text, this is then displayed on the frontend.
                         response.text().then(data => {
                             self.errorMessage = data;
@@ -469,6 +471,8 @@
                     body: JSON.stringify(this.inputTreasureHunt)
                 }).then(function (response) {
                     if (response.status >= 400) {
+                        // Ensures the start and end date fields are not wiped after an error occurs.
+                        this.splitDates();
                         // Converts response to text, this is then displayed on the frontend.
                         response.text().then(data => {
                             self.errorMessage = data;
@@ -574,21 +578,6 @@
              */
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
-            },
-
-
-            /**
-             * Checks the Http response for errors.
-             *
-             * @param response the retrieved Http response.
-             * @returns {*} throws the Http response error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                // Ensures the start and end date fields are not wiped after an error occurs.
-                this.splitDates();
             }
         }
     }
