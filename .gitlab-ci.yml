@@ -27,7 +27,7 @@ stages:
 junit:
   stage: test
   script:
-    - xvfb-run -a sbt test
+    - xvfb-run -a sbt jacoco
 
 # recent-artifacts:
 #   stage: deploy
