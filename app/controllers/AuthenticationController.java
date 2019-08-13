@@ -8,10 +8,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repositories.ProfileRepository;
 import util.AuthenticationUtil;
-
-import javax.xml.bind.DatatypeConverter;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

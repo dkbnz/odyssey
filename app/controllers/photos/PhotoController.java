@@ -168,12 +168,7 @@ public class PhotoController extends Controller {
      *                  badRequest (Http 400).
      */
     public Result destroy(Http.Request request, Long photoId) {
-
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -214,11 +209,7 @@ public class PhotoController extends Controller {
      *                profile picture.
      */
     public Result destroyProfilePhoto(Http.Request request, Long userId) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -250,11 +241,7 @@ public class PhotoController extends Controller {
      *                      owners profile photo, ok() (Http 200) if successful change of profile photo.
      */
     public Result updateProfilePhoto(Http.Request request, Long photoId) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -298,9 +285,8 @@ public class PhotoController extends Controller {
      *                  internalServerError() (Http 500) if for some reason the photo couldn't be changed.
      */
     public Result changePrivacy(Http.Request request) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
-        if (loggedInUserId == null || loggedInUser == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized(NOT_SIGNED_IN);
         }
 
@@ -415,7 +401,7 @@ public class PhotoController extends Controller {
                         return badRequest(); // User does not exist in the system.
                     }
 
-                    if(AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+                    if(loggedInUser == null) {
                         return notFound();
                     }
 
@@ -550,7 +536,7 @@ public class PhotoController extends Controller {
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
                     Profile owner = personalPhoto.getProfile();
 
-                    if (AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+                    if (loggedInUser == null) {
                         return notFound();
                     }
                     if(AuthenticationUtil.validUser(loggedInUser, owner))
@@ -602,7 +588,7 @@ public class PhotoController extends Controller {
                     Profile destinationOwner = destination.getOwner();
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
 
-                    if (AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+                    if (loggedInUser == null) {
                         return notFound();
                     }
 
@@ -670,7 +656,7 @@ public class PhotoController extends Controller {
 
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
 
-                    if (AuthenticationUtil.checkObjectIsNull(loggedInUser)) {
+                    if (loggedInUser == null) {
                         return notFound();
                     }
 

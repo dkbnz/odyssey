@@ -451,8 +451,9 @@
                     if (response.ok) {
                         self.showAlert();
                         self.dismissModal('confirmEditModal');
-                        self.$emit('destination-saved', self.inputDestination);
-                        return JSON.parse(JSON.stringify(response));
+                        response.json().then(data => {
+                            self.$emit('destination-saved', data);
+                        });
                     } else {
                         self.errorMessage = "";
                         self.showError = true;

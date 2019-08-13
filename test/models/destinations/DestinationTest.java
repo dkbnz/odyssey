@@ -7,15 +7,15 @@ import static org.junit.Assert.*;
 
 public class DestinationTest {
 
-    private DestinationType destinationType1;
-    private DestinationType destinationType2;
+    private Type destinationType1;
+    private Type destinationType2;
     private Destination testDestination1;
     private Destination testDestination2;
 
     @Before
     public void setUp() {
-        destinationType1 = new DestinationType();
-        destinationType2 = new DestinationType();
+        destinationType1 = new Type();
+        destinationType2 = new Type();
         testDestination1 = new Destination();
         testDestination2 = new Destination();
     }

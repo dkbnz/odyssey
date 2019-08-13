@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.ExpressionList;
 import models.TravellerType;
+import models.destinations.Type;
 import models.photos.PersonalPhoto;
 import models.treasureHunts.TreasureHunt;
 import play.libs.Json;
@@ -17,7 +18,6 @@ import java.util.*;
 
 import models.Profile;
 import models.destinations.Destination;
-import models.destinations.DestinationType;
 import models.trips.Trip;
 import models.trips.TripDestination;
 import repositories.TripRepository;
@@ -88,12 +88,7 @@ public class DestinationController extends Controller {
      *                          (Http 403) if the user is not allowed to access this number.
      */
     public Result getDestinationUsage(Http.Request request, Long destinationId) {
-
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -134,7 +129,7 @@ public class DestinationController extends Controller {
      * @return ok() (Http 200) response containing all the different types of destinations.
      */
     public Result getTypes() {
-        List<DestinationType> destinationTypes = destinationTypeRepository.findAll();
+        List<Type> destinationTypes = destinationTypeRepository.findAll();
         return ok(Json.toJson(destinationTypes));
     }
 
@@ -148,12 +143,7 @@ public class DestinationController extends Controller {
      *                  (Http 403) if the user has tried to access destinations they are not authorised for.
      */
     public Result fetch(Http.Request request) {
-
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -184,6 +174,32 @@ public class DestinationController extends Controller {
                     .endJunction();
         }
 
+        updateExpressionList(expressionList, request);
+
+        // If page query is set, load said page. Otherwise, return the first page.
+        if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
+            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
+        }
+
+        destinations = expressionList
+                .order(NAME)
+                .setFirstRow(pageNumber*pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
+
+        return ok(Json.toJson(destinations));
+    }
+
+
+    /**
+     * Adds expressions to the expression list to search for destinations depending on values present in the query
+     * string of the given request.
+     *
+     * @param expressionList    the expression list used to search for destinations.
+     * @param request           the request containing the query string used to formulate the expression list.
+     */
+    private void updateExpressionList(ExpressionList<Destination> expressionList, Http.Request request) {
         if (request.getQueryString(NAME) != null && !request.getQueryString(NAME).isEmpty()) {
             expressionList.ilike(NAME, queryComparator(request.getQueryString(NAME)));
         }
@@ -205,20 +221,6 @@ public class DestinationController extends Controller {
         if (request.getQueryString(IS_PUBLIC) != null && !request.getQueryString(IS_PUBLIC).isEmpty()) {
             expressionList.eq(IS_PUBLIC, request.getQueryString(IS_PUBLIC));
         }
-
-        // If page query is set, load said page. Otherwise, return the first page.
-        if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
-            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
-        }
-
-        destinations = expressionList
-                .order(NAME)
-                .setFirstRow(pageNumber*pageSize)
-                .setMaxRows(pageSize)
-                .findPagedList()
-                .getList();
-
-        return ok(Json.toJson(destinations));
     }
 
 
@@ -228,13 +230,7 @@ public class DestinationController extends Controller {
      * @return ok() (Http 200) response containing the destinations found in the response body.
      */
     public Result fetchByUser(Http.Request request, Long userId) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
-
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -396,7 +392,7 @@ public class DestinationController extends Controller {
         destination.setPublic(json.has(IS_PUBLIC) && json.get(IS_PUBLIC).asBoolean());
         destination.changeOwner(owner);
 
-        DestinationType destType = destinationTypeRepository.findById(json.get(TYPE).asLong());
+        Type destType = destinationTypeRepository.findById(json.get(TYPE).asLong());
 
         destination.setType(destType);
 
@@ -412,11 +408,7 @@ public class DestinationController extends Controller {
      *                          successfully deleted.
      */
     public Result destroy(Http.Request request, Long destinationId) {
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -444,12 +436,7 @@ public class DestinationController extends Controller {
      * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
      */
     public Result edit(Http.Request request, Long id) throws IllegalAccessException {
-
-        Long loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
-            return unauthorized();
-        }
-        Profile loggedInUser = profileRepository.findById(loggedInUserId);
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
         }
@@ -480,7 +467,7 @@ public class DestinationController extends Controller {
         mergeDestinations(currentDestination);
         destinationRepository.update(currentDestination);
 
-        return ok("Destination updated");
+        return ok(Json.toJson(currentDestination));
     }
 
 

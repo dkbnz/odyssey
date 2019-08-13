@@ -3,32 +3,24 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.inject.Inject;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import models.Profile;
-import models.destinations.Destination;
-import models.treasureHunts.TreasureHunt;
 import org.junit.Assert;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.treasureHunts.TreasureHuntRepository;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static play.test.Helpers.*;
 
 public class TreasureHuntTestSteps {
