@@ -26,10 +26,12 @@
                            :acceptTypes="'image/jpeg, image/jpg, image/png'">
             </photoUploader>
         </b-modal>
+
         <div class="d-flex justify-content-center mb-3">
             <b-spinner v-if="retrievingPhotos"></b-spinner>
             <p v-if="photos.length === 0"><b>No photos found.</b></p>
         </div>
+
         <photo-table :photos="photos"
                      :key="reloadPhotoTable"
                      :profile="profile"
@@ -91,11 +93,20 @@
     export default {
         name: "photoGallery",
 
+        props: {
+            profile: Object,
+            userProfile: {
+                default: function () {
+                    return this.profile;
+                }
+            },
+            adminView: Boolean
+        },
+
         data: function () {
             return {
                 photos: [],
                 displayImage: false,
-                authentication: false,
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 showError: false,
@@ -108,25 +119,18 @@
             }
         },
 
-        props: {
-            profile: Object,
-            userProfile: {
-                default: function () {
-                    return this.profile;
-                }
-            },
-            adminView: Boolean
-        },
-
         components: {
             PhotoTable,
             PhotoUploader
         },
 
-        watch: {
-            profile() {
-                this.userProfile = this.profile;
-                this.checkAuthentication();
+        computed: {
+            authentication() {
+                if (this.userProfile.id === undefined) {
+                    return true;
+                }
+                return (this.userProfile.id === this.profile.id
+                    || (this.userProfile.isAdmin && this.adminView));
             }
         },
 
@@ -184,7 +188,6 @@
                 this.$refs['deletePhotoModal'].hide();
                 this.$refs['modalImage'].hide();
 
-                this.checkAuthentication();
                 let change = false;
                 for (let i = 0; i < this.photos.length; i++) {
                     if (this.photos[i].id === this.photoToView.id || change) {
@@ -212,16 +215,6 @@
                     personalPhotos.append('photo' + i, files[i]);
                 }
                 return personalPhotos;
-            },
-
-
-            /**
-             * Checks the authorization of the user profile that is logged in to see if they can
-             * view the users private photos and can add or delete images from the media.
-             */
-            checkAuthentication() {
-                this.authentication = (this.userProfile.id === this.profile.id
-                    || (this.userProfile.isAdmin && this.adminView));
             },
 
 
@@ -267,14 +260,11 @@
                     })
                         .then(response => response.json())
                         .then(photos => {
-                            selfe.checkAuthentication();
                             for (let i in photos) {
-                                if (photos[i].public || selfe.authentication) {
+                                if (photos[i].public || selfe.adminView) {
                                     selfe.photos.push(photos[i]);
                                     selfe.reloadPhotoTable += 1;
                                     selfe.retrievingPhotos = false;
-
-                                    selfe.checkAuthentication();
                                 }
                             }
                         })
@@ -335,7 +325,6 @@
              */
             addPhotos(data) {
                 this.profile.photoGallery = data;
-                this.checkAuthentication();
                 this.photos = [];
                 for (let i = 0; i < data.length; i++) {
                     if (data[i].public || this.authentication) {

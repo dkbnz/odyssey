@@ -33,6 +33,7 @@
                         :destinations="destinations"
                         :nationalityOptions="nationalityOptions"
                         :profile="editProfile"
+                        :userProfile="profile"
                         :showSaved="showSaved"
                         :travTypeOptions="travTypeOptions"
                         v-if="currentDisplay === 0">
