@@ -3,9 +3,6 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.PendingException;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
@@ -16,7 +13,6 @@ import io.cucumber.datatable.DataTable;
 import models.TravellerType;
 import models.destinations.Destination;
 import org.junit.Assert;
-import org.springframework.beans.BeansException;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
@@ -34,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 public class DestinationTravellerTypeTestSteps {
@@ -66,6 +61,7 @@ public class DestinationTravellerTypeTestSteps {
      */
     private static final String TRAVELLER_TYPE_PROPOSE_URI = "/travellerTypes/propose";
 
+
     /**
      * The destinations propose endpoint uri.
      */
@@ -95,6 +91,13 @@ public class DestinationTravellerTypeTestSteps {
      */
     private static final String REG_ID = "2";
 
+
+    /**
+     * A destination that exists in the database.
+     */
+    private static final String DESTINATION_ID = "119";
+
+
     /**
      * The fake application.
      */
@@ -110,13 +113,13 @@ public class DestinationTravellerTypeTestSteps {
     /**
      * Repository to access the destinations in the running application.
      */
-    private DestinationRepository destinationRepo = new DestinationRepository();
+    private DestinationRepository destinationRepo;
 
 
     /**
      * Repository to access the destinations in the running application.
      */
-    private TravellerTypeRepository travellerTypeRepository = new TravellerTypeRepository();
+    private TravellerTypeRepository travellerTypeRepository;
 
 
     /**
@@ -141,6 +144,9 @@ public class DestinationTravellerTypeTestSteps {
         application = fakeApplication(configuration);
 
         database = application.injector().instanceOf(Database.class);
+        destinationRepo = application.injector().instanceOf(DestinationRepository.class);
+        travellerTypeRepository = application.injector().instanceOf(TravellerTypeRepository.class);
+
         applyEvolutions();
 
         Helpers.start(application);
@@ -197,10 +203,7 @@ public class DestinationTravellerTypeTestSteps {
 
 
     /**
-     * Attempts to send a log in request with user credentials from constants ADMIN_USERNAME
-     * and ADMIN_AUTHPASS.
-     *
-     * Asserts the login was successful with a status code of OK (200).
+     * Sets the logged in user id to the admin id.
      */
     @Given("The user is logged in as an admin")
     public void theUserIsLoggedInAsAnAdmin() {
@@ -218,7 +221,7 @@ public class DestinationTravellerTypeTestSteps {
                 .method(POST)
                 .session(AUTHORIZED, loggedInId)
                 .bodyJson(json)
-                .uri(DESTINATION_URI + 119 + TRAVELLER_TYPE_PROPOSE_URI);
+                .uri(DESTINATION_URI + DESTINATION_ID + TRAVELLER_TYPE_PROPOSE_URI);
         Result result = route(application, request);
         statusCode = result.status();
 
@@ -237,7 +240,7 @@ public class DestinationTravellerTypeTestSteps {
                 .method(POST)
                 .session(AUTHORIZED, loggedInId)
                 .bodyJson(json)
-                .uri(DESTINATION_URI + 119 + TRAVELLER_TYPES);
+                .uri(DESTINATION_URI + DESTINATION_ID + TRAVELLER_TYPES);
         Result result = route(application, request);
         statusCode = result.status();
 
@@ -295,8 +298,8 @@ public class DestinationTravellerTypeTestSteps {
 
 
     @And("^I (.*)own destination with id (\\d+) and it is (.*)$")
-    public void iOwnDestinationWithIdAndItIs(String ownOrNot, int destinationId, String publicOrPrivate) throws Throwable {
-        Destination destinationOfInterest = destinationRepo.fetch(Long.valueOf(destinationId));
+    public void iOwnDestinationWithIdAndItIs(String ownOrNot, int destinationId, String publicOrPrivate) {
+        Destination destinationOfInterest = destinationRepo.findById(Long.valueOf(destinationId));
 
         // Ensure we can find a destination
         Assert.assertNotNull(destinationOfInterest);
@@ -316,13 +319,14 @@ public class DestinationTravellerTypeTestSteps {
 
 
     @Then("^I receive status code of (\\d+)$")
-    public void iReceiveAStatusCodeOf(int expectedStatusCode) throws Throwable {
+    public void iReceiveAStatusCodeOf(int expectedStatusCode) {
         Assert.assertEquals(expectedStatusCode, statusCode);
     }
 
 
     @When("^I (.*) the following traveller types for destination id (.*)$")
-    public void iTheFollowingTravellerTypesForDestinationId(String suggestOrSet, String destinationId, DataTable travellerTypeIds) throws Throwable {
+    public void iTheFollowingTravellerTypesForDestinationId(String suggestOrSet,
+                                                            String destinationId, DataTable travellerTypeIds) {
 
         List<TravellerType> travellerTypeList = new ArrayList<>();
 
@@ -338,7 +342,8 @@ public class DestinationTravellerTypeTestSteps {
                 .method(POST)
                 .session(AUTHORIZED, loggedInId)
                 .bodyJson(Json.toJson(travellerTypeList))
-                .uri(DESTINATION_URI + destinationId + TRAVELLER_TYPES + (suggestOrSet.equals("suggest") ? "/propose" : ""));
+                .uri(DESTINATION_URI + destinationId + TRAVELLER_TYPES
+                        + (suggestOrSet.equals("suggest") ? "/propose" : ""));
         Result result = route(application, request);
         statusCode = result.status();
     }

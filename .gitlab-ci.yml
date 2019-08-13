@@ -1,77 +1,78 @@
 image: java:8
 
+# TODO Doug, commented everything out as only testing using runner until vm is back up.
+
 stages:
-- clean
-- build
+# - clean
 - test
-- deploy
-- deploy-server
+# - deploy
+# - deploy-server
 
-clean-build:
-  stage: clean
-  script:
-  - if [ -d "target" ]; then sudo rm -r target; fi
-  - if [ -d "project/project" ]; then sudo rm -r project/project; fi
-  - if [ -d "project/target" ]; then sudo rm -r project/target; fi
-  only:
-  - master@seng302-2019/team-100
+# clean-build:
+#   stage: clean
+#   script:
+#   - if [ -d "target" ]; then sudo rm -r target; fi
+#   - if [ -d "project/project" ]; then sudo rm -r project/project; fi
+#   - if [ -d "project/target" ]; then sudo rm -r project/target; fi
+#   only:
+#   - master@seng302-2019/team-100
 
-tag_checker:
-  stage: build
-  script:
-  - python tag_checker.py $CI_COMMIT_TAG
-  only:
-  - tags
+# tag_checker:
+#   stage: build
+#   script:
+#   - python tag_checker.py $CI_COMMIT_TAG
+#   only:
+#   - tags
 
 junit:
   stage: test
   script:
     - xvfb-run -a sbt jacoco
 
-recent-artifacts:
-  stage: deploy
-  script:
-  - sudo git lfs pull
-  - sudo -u gitlab-runner sbt dist
-  artifacts:
-    paths:
-    - target/universal/*.zip
-    expire_in: 1 week
-  except:
-  - tags
+# recent-artifacts:
+#   stage: deploy
+#   script:
+#   - sudo git lfs pull
+#   - sudo -u gitlab-runner sbt dist
+#   artifacts:
+#     paths:
+#     - target/universal/*.zip
+#     expire_in: 1 week
+#   except:
+#   - tags
 
-release-artifacts:
-  stage: deploy
-  script:
-  - sudo git lfs pull
-  - sudo -u gitlab-runner sbt dist
-  artifacts:
-    paths:
-    - target/universal/*.zip
-  only:
-  - tags
+# release-artifacts:
+#   stage: deploy
+#   script:
+#   - sudo git lfs pull
+#   - sudo -u gitlab-runner sbt dist
+#   artifacts:
+#     paths:
+#     - target/universal/*.zip
+#   only:
+#   - tags
 
-update-sonar:
-  stage: deploy
-  script:
-  - echo $PATH
-  - sonar-scanner
-  only:
-  - master@seng302-2019/team-100
-  - dev_branch@seng302-2019/team-100
+# update-sonar:
+#   stage: deploy
+#   script:
+#   - echo $PATH
+#   - sonar-scanner
+#   only:
+#   - master@seng302-2019/team-100
+#   - dev_branch@seng302-2019/team-100
 
-deploy-master:
-  stage: deploy-server
-  script:
-  - sudo mv target/universal/*.zip ${DEPLOY_DIR}/build/
-  - sudo bash scripts/deploy production
-  only:
-  - master@seng302-2019/team-100
+# deploy-master:
+#   stage: deploy-server
+#   script:
+#   - sudo mv target/universal/*.zip ${DEPLOY_DIR}/build/
+#   - sudo bash scripts/deploy production
+#   only:
+#   - master@seng302-2019/team-100
 
-deploy-dev:
-  stage: deploy-server
-  script:
-  - sudo mv target/universal/*.zip ${DEPLOY_DIR}/build/
-  - sudo bash scripts/deploy development
-  only:
-  - dev_branch@seng302-2019/team-100
+# deploy-dev:
+#   stage: deploy-server
+#   script:
+#   - sudo mv target/universal/*.zip ${DEPLOY_DIR}/build/
+#   - sudo bash scripts/deploy development
+#   only:
+#   - dev_branch@seng302-2019/team-100

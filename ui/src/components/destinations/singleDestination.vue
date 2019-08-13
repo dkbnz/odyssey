@@ -177,6 +177,9 @@
                     this.profile.isAdmin) {
                     return "Change Traveller Types"
                 }
+                if (this.showEditTravellerTypes) {
+                    return "Close Traveller Types"
+                }
                 return "Propose Traveller Types"
             }
         },
@@ -249,7 +252,7 @@
              * Sends an Http request to check which trips a destination is used in.
              */
             getTripsUsedBy() {
-                fetch(`/v1/destinationCheck/` + this.copiedDestination.id, {
+                fetch(`/v1/destinations/` + this.copiedDestination.id + `/checkDuplicates`, {
                     accept: "application/json"
                 })
                     .then(response => response.json())
@@ -304,12 +307,14 @@
                             setTimeout(function () {
                                 self.showTravellerTypeUpdateSuccess = false;
                             }, 3000);
+                            self.showEditTravellerTypes = false;
                         } else {
                             self.alertMessage = "Cannot update traveller types";
                             self.showTravellerTypeUpdateFailure = true;
                             setTimeout(function () {
                                 self.showTravellerTypeUpdateFailure = false;
                             }, 3000);
+                            self.showEditTravellerTypes = false;
                         }
                         self.$emit('data-changed');
                         return JSON.parse(JSON.stringify(response));

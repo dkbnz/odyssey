@@ -8,9 +8,7 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import models.Profile;
 import models.destinations.Destination;
-import models.trips.Trip;
 import org.junit.Assert;
 import play.Application;
 import play.db.Database;
@@ -25,6 +23,8 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 import play.db.evolutions.Evolutions;
+import repositories.TripRepository;
+import repositories.destinations.DestinationRepository;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -115,6 +115,9 @@ public class TripTestSteps {
      */
     private static final String TRIP_NAME_FIELD = "name";
 
+    private DestinationRepository destinationRepository;
+    private TripRepository tripRepository;
+
 
     @Before
     public void setUp() {
@@ -132,6 +135,9 @@ public class TripTestSteps {
         application = fakeApplication(configuration);
 
         database = application.injector().instanceOf(Database.class);
+        destinationRepository = application.injector().instanceOf(DestinationRepository.class);
+        tripRepository = application.injector().instanceOf(TripRepository.class);
+
         applyEvolutions();
 
         Helpers.start(application);
@@ -354,8 +360,8 @@ public class TripTestSteps {
      * @return          The id of the trip.
      */
     private Long getTripIdFromTripName(String tripName) {
-        return Trip
-                .find.query()
+        return tripRepository
+                .getExpressionList()
                 .select(TRIP_ID_FIELD)
                 .where().eq(TRIP_NAME_FIELD, tripName)
                 .findSingleAttribute();
@@ -427,7 +433,7 @@ public class TripTestSteps {
 
     @Then("the destination with id {int} ownership changes to the user with id {int}")
     public void theDestinationOwnershipChangesToTheGlobalAdminWithId(Integer destinationId, Integer profileId) {
-        Destination destination = Destination.find.byId(destinationId);
+        Destination destination = destinationRepository.findById(destinationId.longValue());
         assertEquals(profileId.longValue(), destination.getOwner().getId().longValue());
     }
 

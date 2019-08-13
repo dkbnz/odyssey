@@ -1,16 +1,19 @@
 package repositories.destinations;
 
-import models.destinations.DestinationType;
+import com.google.inject.Inject;
+import io.ebean.BeanRepository;
+import io.ebean.Ebean;
+import models.destinations.Type;
 
-public class DestinationTypeRepository {
 
-    /**
-     * Retrieves a destination type by its ID.
-     *
-     * @param typeId    the ID of the desired destination type.
-     * @return          the destination type matching the ID.
-     */
-    public DestinationType fetch(Long typeId) {
-        return DestinationType.find.byId(typeId.intValue());
+/**
+ * Handles database interaction for destination types.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
+public class DestinationTypeRepository extends BeanRepository<Long, Type> {
+
+    @Inject
+    public DestinationTypeRepository() {
+        super(Type.class, Ebean.getDefaultServer());
     }
 }

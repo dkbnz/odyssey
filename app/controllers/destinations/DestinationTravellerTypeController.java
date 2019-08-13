@@ -27,9 +27,6 @@ public class DestinationTravellerTypeController {
     private TravellerTypeRepository travellerTypeRepository;
     private ProfileRepository profileRepository;
 
-    private static final String AUTHORIZED = "authorized";
-    private static final String NOT_SIGNED_IN = "You are not logged in.";
-
     @Inject
     public DestinationTravellerTypeController(DestinationRepository destinationRepository,
                                               TravellerTypeRepository travellerTypeRepository,
@@ -74,19 +71,17 @@ public class DestinationTravellerTypeController {
      *                          updated.
      */
     public Result create(Http.Request request, Long destinationId) {
-
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        Destination destinationToMutate = destinationRepository.fetch(destinationId);
+        Destination destinationToMutate = destinationRepository.findById(destinationId);
 
         if (destinationToMutate == null) {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, destinationToMutate.getOwner())) {
             return forbidden();
@@ -124,13 +119,12 @@ public class DestinationTravellerTypeController {
      *                          updated.
      */
     public Result propose(Http.Request request, Long destinationId) {
-
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        Destination destinationToMutate = destinationRepository.fetch(destinationId);
+        Destination destinationToMutate = destinationRepository.findById(destinationId);
 
         if (destinationToMutate == null) {
             return notFound();
@@ -174,13 +168,10 @@ public class DestinationTravellerTypeController {
      * @return          a json result of all the destinations with proposals.
      */
     public Result fetchProposedDestinations(Http.Request request) {
-
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
-
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!loggedInUser.getIsAdmin()) {
             return forbidden();

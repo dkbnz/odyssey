@@ -21,13 +21,15 @@ import org.springframework.beans.BeansException;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.ProfileRepository;
+import repositories.destinations.DestinationRepository;
+import repositories.photos.PersonalPhotoRepository;
 
 import javax.imageio.ImageIO;
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +49,7 @@ public class PhotoTestSteps {
     private Database database;
 
     private static final String AUTHORIZED = "authorized";
-    private static final String UPLOAD_PHOTOS_URI = "/v1/photos/";
+    private static final String PHOTO_URI = "/v1/photos/";
     private static final String CHANGE_PHOTO_PRIVACY_URI = "/v1/photos";
     private static final String PROFILE_PHOTO_URI = "/v1/profilePhoto/";
     private static final String DESTINATION_PHOTO_URI = "/v1/destinationPhotos/";
@@ -61,7 +63,7 @@ public class PhotoTestSteps {
     /**
      * A valid password for login credentials for admin user.
      */
-    private static final String VALID_AUTHPASS = "admin1";
+    private static final String VALID_AUTH_PASS = "admin1";
     private static final String ADMIN_ID = "1";
 
     /**
@@ -77,7 +79,11 @@ public class PhotoTestSteps {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private int statusCode;
-    private String LOGGED_IN_ID;
+    private String loggedInUserId;
+
+    private PersonalPhotoRepository personalPhotoRepository;
+    private DestinationRepository destinationRepository;
+    private ProfileRepository profileRepository;
 
     @Before
     public void setUp() {
@@ -94,6 +100,11 @@ public class PhotoTestSteps {
         application = fakeApplication(configuration);
 
         database = application.injector().instanceOf(Database.class);
+
+        personalPhotoRepository = application.injector().instanceOf(PersonalPhotoRepository.class);
+        destinationRepository = application.injector().instanceOf(DestinationRepository.class);
+        profileRepository = application.injector().instanceOf(ProfileRepository.class);
+
         applyEvolutions();
 
         Helpers.start(application);
@@ -101,7 +112,6 @@ public class PhotoTestSteps {
 
     /**
      * Applies down evolutions to the database from the test/evolutions/default directory.
-     * <p>
      * This drops tables and data from the database.
      */
     private void applyEvolutions() {
@@ -196,18 +206,18 @@ public class PhotoTestSteps {
         return json;
     }
 
-    @Given("I am logged in as an admin with id {int}")
-    public void anAdminIsLoggedIn(int loggedInId) {
-        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
+    @Given("I am logged in as the administrator")
+    public void anAdminIsLoggedIn() {
+        loginRequest(VALID_USERNAME, VALID_AUTH_PASS);
         Assert.assertEquals(OK, statusCode);
-        LOGGED_IN_ID = ADMIN_ID;
+        loggedInUserId = ADMIN_ID;
     }
 
-    @Given("I am logged in as a non-admin with id {int}")
-    public void iAmLoggedInAsARegularUser(int loggedInId) {
+    @Given("I am logged in as a non-admin user")
+    public void iAmLoggedInAsARegularUser() {
         loginRequest(REG_USER, REG_PASS);
         Assert.assertEquals(OK, statusCode);
-        LOGGED_IN_ID = REG_ID;
+        loggedInUserId = REG_ID;
     }
 
     @Given("I have a application running")
@@ -218,21 +228,21 @@ public class PhotoTestSteps {
 
     @Given("a user exists in the database with the username {string} and id number {int}")
     public void aUserExistsInTheDatabaseWithTheUsernameAndId(String username, Integer id) {
-        Profile profile = Profile.find.byId(id);
+        Profile profile = profileRepository.findById(id.longValue());
         Assert.assertNotNull(profile);
         Assert.assertEquals(profile.getUsername(), username);
     }
 
     @Given("a photo exists with id {int}")
     public void photoExistsInDatabase(Integer id) {
-        PersonalPhoto photo = PersonalPhoto.find.byId(id);
+        PersonalPhoto photo = personalPhotoRepository.findById(id.longValue());
         Assert.assertNotNull(photo);
     }
 
 
     @Given("the destination with id {int} exists")
     public void theDestinationWithIdExists(Integer destinationId) {
-        Destination destination = Destination.find.byId(destinationId);
+        Destination destination = destinationRepository.findById(destinationId.longValue());
         Assert.assertNotNull(destination);
         Assert.assertEquals(destination.getId().toString(), destinationId.toString());
     }
@@ -240,8 +250,8 @@ public class PhotoTestSteps {
 
     @Given("the destination with id {int} has a photo with id {int}")
     public void theDestinationWithIdHasAPhotoWithId(Integer destinationId, Integer photoId) {
-        Destination destination = Destination.find.byId(destinationId);
-        PersonalPhoto photo = PersonalPhoto.find.byId(photoId);
+        Destination destination = destinationRepository.findById(destinationId.longValue());
+        PersonalPhoto photo = personalPhotoRepository.findById(photoId.longValue());
         Assert.assertNotNull(destination);
         Assert.assertNotNull(photo);
         Assert.assertTrue(destination.getPhotoGallery().contains(photo));
@@ -269,7 +279,7 @@ public class PhotoTestSteps {
 
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
-                        .uri(UPLOAD_PHOTOS_URI + uploadUserId)
+                        .uri(PHOTO_URI + uploadUserId)
                         .method(POST)
                         .bodyRaw(
                                 Collections.singletonList(part),
@@ -294,7 +304,7 @@ public class PhotoTestSteps {
                         .uri(CHANGE_PHOTO_PRIVACY_URI)
                         .method(PATCH)
                         .bodyJson(json)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInUserId);
         Result changePhotoPrivacyResult = route(application, request);
 
         statusCode = changePhotoPrivacyResult.status();
@@ -305,9 +315,9 @@ public class PhotoTestSteps {
     public void iDeleteThePhotoWithId(int photoId) {
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
-                        .uri(UPLOAD_PHOTOS_URI + photoId)
+                        .uri(PHOTO_URI + photoId)
                         .method(DELETE)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInUserId);
         Result changePhotoPrivacyResult = route(application, request);
 
         statusCode = changePhotoPrivacyResult.status();
@@ -320,7 +330,7 @@ public class PhotoTestSteps {
                 Helpers.fakeRequest()
                         .uri(PROFILE_PHOTO_URI + userId)
                         .method(DELETE)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInUserId);
         Result changePhotoPrivacyResult = route(application, request);
 
         statusCode = changePhotoPrivacyResult.status();
@@ -333,7 +343,7 @@ public class PhotoTestSteps {
                 Helpers.fakeRequest()
                         .uri(PROFILE_PHOTO_URI + photoId)
                         .method(PUT)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInUserId);
 
         Result changeProfilePhotoResult = route(application, request);
         statusCode = changeProfilePhotoResult.status();
@@ -347,7 +357,7 @@ public class PhotoTestSteps {
                         .uri(DESTINATION_PHOTO_URI + destinationId)
                         .method(POST)
                         .bodyJson(json)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInUserId);
 
         Result addDestinationPhotoResult = route(application, request);
         statusCode = addDestinationPhotoResult.status();
@@ -362,36 +372,15 @@ public class PhotoTestSteps {
                         .uri(DESTINATION_PHOTO_URI + destinationId)
                         .method(DELETE)
                         .bodyJson(json)
-                        .session(AUTHORIZED, LOGGED_IN_ID);
+                        .session(AUTHORIZED, loggedInUserId);
 
         Result addDestinationPhotoResult = route(application, request);
         statusCode = addDestinationPhotoResult.status();
     }
 
 
-    @Then("the status code I get is Created")
-    public void theStatusCodeIsCreated() {
-        Assert.assertEquals(CREATED, statusCode);
+    @Then("^the status code I get is (\\d+)$")
+    public void theStatusCodeIsIGetIs(int expectedStatusCode) {
+        Assert.assertEquals(expectedStatusCode, statusCode);
     }
-
-
-    @Then("the status code I get is OK")
-    public void theStatusCodeIsOK() {
-        Assert.assertEquals(OK, statusCode);
-    }
-
-
-    @Then("the status code I get is Forbidden")
-    public void theStatusCodeIGetIsForbidden() {
-        Assert.assertEquals(FORBIDDEN, statusCode);
-    }
-
-
-    @Then("the status code I get is Not Found")
-    public void theStatusCodeIGetIsNotFound() {
-        Assert.assertEquals(NOT_FOUND, statusCode);
-    }
-
-
-
 }

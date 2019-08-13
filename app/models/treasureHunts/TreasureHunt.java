@@ -3,7 +3,6 @@ package models.treasureHunts;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.ebean.Finder;
 import models.ApiError;
 import models.BaseModel;
 import models.Profile;
@@ -13,7 +12,6 @@ import util.Views;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -25,7 +23,7 @@ import java.util.List;
 @Entity
 public class TreasureHunt extends BaseModel {
 
-    public static final Finder<Integer, TreasureHunt> find = new Finder<>(TreasureHunt.class);
+
 
     @JsonView(Views.Owner.class)
     @ManyToOne
@@ -84,10 +82,6 @@ public class TreasureHunt extends BaseModel {
 
     public void setOwner(Profile owner) {
         this.owner = owner;
-    }
-
-    public static Finder<Integer, TreasureHunt> getFind() {
-        return find;
     }
 
     @JsonIgnore

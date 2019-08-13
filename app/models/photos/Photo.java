@@ -1,7 +1,6 @@
 package models.photos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.ebean.Finder;
 import models.BaseModel;
 import models.Profile;
 
@@ -101,11 +100,4 @@ public class Photo extends BaseModel {
         this.contentType = contentType;
     }
 
-
-    public static final Finder<Integer, Photo> find = new Finder<>(Photo.class);
-
-
-    public static Finder<Integer, Photo> getFind() {
-        return find;
-    }
 }

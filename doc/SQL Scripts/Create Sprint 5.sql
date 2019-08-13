@@ -1,8 +1,3 @@
-# --- Created by Ebean DDL
-# To stop Ebean DDL generation, remove this comment and start using Evolutions
-
-# --- !Ups
-
 create table destination (
   id                            bigint auto_increment not null,
   name                          varchar(255),
@@ -12,7 +7,7 @@ create table destination (
   longitude                     double not null,
   country                       varchar(255),
   owner_id                      bigint,
-  is_public                     boolean,
+  is_public                     tinyint(1),
   constraint pk_destination primary key (id)
 );
 
@@ -40,12 +35,6 @@ create table destination_proposed_traveller_type_remove (
   constraint pk_destination_proposed_traveller_type_remove primary key (destination_id,traveller_type_id)
 );
 
-create table destination_type (
-  id                            bigint auto_increment not null,
-  destination_type              varchar(255),
-  constraint pk_destination_type primary key (id)
-);
-
 create table nationality (
   id                            bigint auto_increment not null,
   nationality                   varchar(255),
@@ -63,7 +52,7 @@ create table personal_photo (
   id                            bigint auto_increment not null,
   photo_id                      bigint,
   profile_id                    bigint,
-  is_public                     boolean,
+  is_public                     tinyint(1),
   constraint pk_personal_photo primary key (id)
 );
 
@@ -86,8 +75,8 @@ create table profile (
   last_name                     varchar(255),
   gender                        varchar(255),
   date_of_birth                 date,
-  is_admin                      boolean default false not null,
-  date_of_creation              timestamp,
+  is_admin                      tinyint(1) default 0 not null,
+  date_of_creation              datetime(6),
   profile_picture_id            bigint,
   constraint uq_profile_profile_picture_id unique (profile_picture_id),
   constraint pk_profile primary key (id)
@@ -123,8 +112,8 @@ create table treasure_hunt (
   id                            bigint auto_increment not null,
   destination_id                bigint,
   riddle                        varchar(255),
-  start_date                    timestamp,
-  end_date                      timestamp,
+  start_date                    datetime(6),
+  end_date                      datetime(6),
   owner_id                      bigint,
   constraint pk_treasure_hunt primary key (id)
 );
@@ -144,6 +133,12 @@ create table trip_destination (
   trip_id                       bigint,
   destination_id                bigint,
   constraint pk_trip_destination primary key (id)
+);
+
+create table destination_type (
+  id                            bigint auto_increment not null,
+  destination_type              varchar(255),
+  constraint pk_destination_type primary key (id)
 );
 
 create index ix_destination_type_id on destination (type_id);
@@ -219,117 +214,3 @@ alter table trip_destination add constraint fk_trip_destination_trip_id foreign 
 
 create index ix_trip_destination_destination_id on trip_destination (destination_id);
 alter table trip_destination add constraint fk_trip_destination_destination_id foreign key (destination_id) references destination (id) on delete restrict on update restrict;
-
-
-# --- !Downs
-
-alter table destination drop constraint if exists fk_destination_type_id;
-drop index if exists ix_destination_type_id;
-
-alter table destination drop constraint if exists fk_destination_owner_id;
-drop index if exists ix_destination_owner_id;
-
-alter table destination_personal_photo drop constraint if exists fk_destination_personal_photo_destination;
-drop index if exists ix_destination_personal_photo_destination;
-
-alter table destination_personal_photo drop constraint if exists fk_destination_personal_photo_personal_photo;
-drop index if exists ix_destination_personal_photo_personal_photo;
-
-alter table destination_traveller_type drop constraint if exists fk_destination_traveller_type_destination;
-drop index if exists ix_destination_traveller_type_destination;
-
-alter table destination_traveller_type drop constraint if exists fk_destination_traveller_type_traveller_type;
-drop index if exists ix_destination_traveller_type_traveller_type;
-
-alter table destination_proposed_traveller_type_add drop constraint if exists fk_destination_proposed_traveller_type_add_destination;
-drop index if exists ix_destination_proposed_traveller_type_add_destination;
-
-alter table destination_proposed_traveller_type_add drop constraint if exists fk_destination_proposed_traveller_type_add_traveller_type;
-drop index if exists ix_destination_proposed_traveller_type_add_traveller_type;
-
-alter table destination_proposed_traveller_type_remove drop constraint if exists fk_destination_proposed_traveller_type_remove_destination;
-drop index if exists ix_destination_proposed_traveller_type_remove_destination;
-
-alter table destination_proposed_traveller_type_remove drop constraint if exists fk_destination_proposed_traveller_type_remove_traveller_t_2;
-drop index if exists ix_destination_proposed_traveller_type_remove_traveller_t_2;
-
-alter table personal_photo drop constraint if exists fk_personal_photo_photo_id;
-drop index if exists ix_personal_photo_photo_id;
-
-alter table personal_photo drop constraint if exists fk_personal_photo_profile_id;
-drop index if exists ix_personal_photo_profile_id;
-
-alter table photo drop constraint if exists fk_photo_upload_profile_id;
-drop index if exists ix_photo_upload_profile_id;
-
-alter table profile drop constraint if exists fk_profile_profile_picture_id;
-
-alter table profile_nationality drop constraint if exists fk_profile_nationality_profile;
-drop index if exists ix_profile_nationality_profile;
-
-alter table profile_nationality drop constraint if exists fk_profile_nationality_nationality;
-drop index if exists ix_profile_nationality_nationality;
-
-alter table profile_traveller_type drop constraint if exists fk_profile_traveller_type_profile;
-drop index if exists ix_profile_traveller_type_profile;
-
-alter table profile_traveller_type drop constraint if exists fk_profile_traveller_type_traveller_type;
-drop index if exists ix_profile_traveller_type_traveller_type;
-
-alter table profile_passport drop constraint if exists fk_profile_passport_profile;
-drop index if exists ix_profile_passport_profile;
-
-alter table profile_passport drop constraint if exists fk_profile_passport_passport;
-drop index if exists ix_profile_passport_passport;
-
-alter table treasure_hunt drop constraint if exists fk_treasure_hunt_destination_id;
-drop index if exists ix_treasure_hunt_destination_id;
-
-alter table treasure_hunt drop constraint if exists fk_treasure_hunt_owner_id;
-drop index if exists ix_treasure_hunt_owner_id;
-
-alter table trip drop constraint if exists fk_trip_profile_id;
-drop index if exists ix_trip_profile_id;
-
-alter table trip_destination drop constraint if exists fk_trip_destination_trip_id;
-drop index if exists ix_trip_destination_trip_id;
-
-alter table trip_destination drop constraint if exists fk_trip_destination_destination_id;
-drop index if exists ix_trip_destination_destination_id;
-
-drop table if exists destination;
-
-drop table if exists destination_personal_photo;
-
-drop table if exists destination_traveller_type;
-
-drop table if exists destination_proposed_traveller_type_add;
-
-drop table if exists destination_proposed_traveller_type_remove;
-
-drop table if exists destination_type;
-
-drop table if exists nationality;
-
-drop table if exists passport;
-
-drop table if exists personal_photo;
-
-drop table if exists photo;
-
-drop table if exists profile;
-
-drop table if exists profile_nationality;
-
-drop table if exists profile_traveller_type;
-
-drop table if exists profile_passport;
-
-drop table if exists traveller_type;
-
-drop table if exists treasure_hunt;
-
-drop table if exists trip;
-
-drop table if exists trip_destination;
-

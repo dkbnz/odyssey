@@ -1,13 +1,13 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.inject.Inject;
 import models.Profile;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import javax.xml.bind.DatatypeConverter;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
+import repositories.ProfileRepository;
+import util.AuthenticationUtil;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,6 +22,13 @@ public class AuthenticationController extends Controller {
     private static final String USERNAME = "username";
     private static final String PASS_FIELD = "password";
     private static final String AUTHORIZED = "authorized";
+
+    private ProfileRepository profileRepository;
+
+    @Inject
+    public AuthenticationController(ProfileRepository profileRepository) {
+        this.profileRepository = profileRepository;
+    }
 
     /**
      * Checks if client is authorized, if authorized, return ok() (Http 200) .If not, checks if user exists in the
@@ -39,26 +46,26 @@ public class AuthenticationController extends Controller {
                 .orElseGet(() -> { // orElseGet tries to get the `getOptional` value, otherwise executes the following function
 
                     // User is not logged in, attempt to search database
-                    JsonNode json = request.body().asJson();
+                    JsonNode loginJson = request.body().asJson();
 
                     // Check if a body was given and has required fields
-                    if (json == null || (!(json.has(USERNAME) && json.has(PASS_FIELD)))) {
+                    if (loginJson == null || (!(loginJson.has(USERNAME) && loginJson.has(PASS_FIELD)))) {
                         // If JSON Object contains no user or pass key, return bad request
                         // Prevents null pointer exceptions when trying to get the values below.
                         return badRequest("Bad User Credentials");
                     }
 
-                    String username = json.get(USERNAME).asText();
+                    String username = loginJson.get(USERNAME).asText();
 
                     // Uses the hashProfilePassword() method to hash the given password.
                     String password = null;
                     try {
-                        password = hashProfilePassword(json.get(PASS_FIELD).asText());
+                        password = AuthenticationUtil.hashProfilePassword(loginJson.get(PASS_FIELD).asText());
                     } catch (NoSuchAlgorithmException e) {
                         LOGGER.log(Level.SEVERE, "Invalid JSON: JSON Object contains no user or password key", e);
                     }
 
-                    Profile profile = Profile.find.query().where()
+                    Profile profile = profileRepository.getExpressionList()
                             .like(USERNAME, username).findOne();
 
                     if ((profile != null) && (profile.getPassword().equals(password))) {
@@ -71,17 +78,6 @@ public class AuthenticationController extends Controller {
                 });
     }
 
-    /**
-     * Hashes a password string using the SHA 256 method from the MessageDigest library.
-     *
-     * @param password                  the string that is requested to be hashed.
-     * @return                          a string of the hashed binary array as a hexadecimal string.
-     * @throws NoSuchAlgorithmException if the algorithm specified does not exist for the MessageDigest library.
-     */
-    private String hashProfilePassword(String password) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        return DatatypeConverter.printHexBinary(digest.digest(password.getBytes(StandardCharsets.UTF_8)));
-    }
 
     /**
      * Clears session resulting in authorized tag being cleared, therefore de-authorizing client.

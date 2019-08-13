@@ -127,7 +127,6 @@ create table treasure_hunt (
   constraint pk_treasure_hunt primary key (id)
 );
 
-
 create table trip (
   id                            bigint auto_increment not null,
   name                          varchar(255),
@@ -325,6 +324,8 @@ drop table if exists profile_traveller_type;
 drop table if exists profile_passport;
 
 drop table if exists traveller_type;
+
+drop table if exists treasure_hunt;
 
 drop table if exists trip;
 

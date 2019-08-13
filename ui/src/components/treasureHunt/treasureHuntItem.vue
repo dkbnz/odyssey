@@ -26,58 +26,56 @@
 
         <b-row>
             <b-col>
+                <b-form>
+
+                    <b-container fluid>
+                        <b-form-group
+                                id="treasure_hunt_riddle-field"
+                                label="Treasure Hunt Riddle:"
+                                label-for="treasure_hunt_riddle">
+                            <b-form-textarea :type="'expandable-text'"
+                                             id="treasure_hunt_riddle"
+                                             trim
+                                             v-model="inputTreasureHunt.riddle"
+                                             :state="validateRiddle"></b-form-textarea>
+                        </b-form-group>
+                    </b-container>
+
+
                     <b-form>
-
                         <b-container fluid>
-                            <b-form-group
-                                    id="treasure_hunt_riddle-field"
-                                    label="Treasure Hunt Riddle:"
-                                    label-for="treasure_hunt_riddle">
-                                <b-form-textarea :type="'expandable-text'"
-                                                 id="treasure_hunt_riddle"
-                                                 trim
-                                                 v-model="inputTreasureHunt.riddle"
-                                                 :state="validateRiddle"></b-form-textarea>
-                            </b-form-group>
-                        </b-container>
+                            <b-row>
+                                <b-col>
+                                    <h6 class="mb-1">Selected Destination:</h6>
+                                    <b-list-group @click="$emit('destination-select')">
+                                        <b-list-group-item href="#" class="flex-column align-items-start"
+                                                           v-if="displayedDestination"
+                                                           id="selectedDestination"
+                                                           :disabled="displayedDestination.length === '{}'"
+                                                           :variant="checkDestinationState">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h5 class="mb-1" v-if="displayedDestination.name">
+                                                    {{displayedDestination.name}}
+                                                </h5>
+                                                <h5 class="mb-1" v-else>Select a Destination</h5>
 
+                                        </div>
 
-                        <b-form>
-                            <b-container fluid>
-                                <b-row>
-                                    <b-col>
-                                        <h6 class="mb-1">Selected Destination:</h6>
-                                        <b-list-group @click="$emit('destination-select')">
-                                            <b-list-group-item href="#" class="flex-column align-items-start"
-                                                               v-if="displayedDestination"
-                                                               id="selectedDestination"
-                                                               :disabled="displayedDestination.length === '{}'"
-                                                               :variant="checkDestinationState">
-                                                <div class="d-flex w-100 justify-content-between">
-                                                    <h5 class="mb-1" v-if="displayedDestination.name">
-                                                        {{displayedDestination.name}}
-                                                    </h5>
-                                                    <h5 class="mb-1" v-else>Select a Destination</h5>
-
-                                                </div>
-
-                                                <p>
-                                                    {{displayedDestination.district}}
-                                                </p>
-                                                <p>
-                                                    {{displayedDestination.country}}
-                                                </p>
-                                            </b-list-group-item>
-                                        </b-list-group>
-                                    </b-col>
-
-                                    <b-col>
-                                        <b-form-group
-                                                id="startDate-field"
-                                                label="Start Date:"
-                                                label-for="startDate">
-                                            <b-row>
+                                            <p>
+                                                {{displayedDestination.district}}
+                                            </p>
+                                            <p>
+                                                {{displayedDestination.country}}
+                                            </p>
+                                        </b-list-group-item>
+                                    </b-list-group>
+                                </b-col>
+                                <b-col>
+                                    <b-form-group
+                                            id="startDate-field">
+                                        <b-row>
                                             <b-col cols="6">
+                                                <label>Start Date:</label>
                                                 <b-form-input :type="'date'"
                                                               id="startDate"
                                                               min='getCurrentDate()'
@@ -88,8 +86,8 @@
 
                                                 </b-form-input>
                                             </b-col>
-
                                             <b-col cols="6">
+                                                <label>Start Time:</label>
                                                 <b-form-input :type="'time'"
                                                               id="startTime"
                                                               min='getCurrentTime()'
@@ -99,48 +97,46 @@
                                                               :state="validateStartTime">
                                                 </b-form-input>
                                             </b-col>
-                                            </b-row>
+                                        </b-row>
 
-                                        </b-form-group>
-                                        <b-form-group
-                                                id="endDate-field"
-                                                label="Expiration Date:"
-                                                label-for="endDate">
-                                            <b-col cols="6"></b-col>
-                                            <b-col cols="6"></b-col>
+                                    </b-form-group>
+                                    <b-form-group
+                                            id="endDate-field">
+                                        <b-col cols="6"></b-col>
+                                        <b-col cols="6"></b-col>
 
-                                            <b-row>
-                                                <b-col cols="6">
-                                                    <b-form-input :type="'date'"
-                                                                  id="endDate"
-                                                                  min='getCurrentDate()'
-                                                                  max='9999-12-31'
-                                                                  trim
-                                                                  v-model="inputTreasureHunt.endDate"
-                                                                  :state="validateEndDate">
+                                        <b-row>
+                                            <b-col cols="6">
+                                                <label>Expiration Date:</label>
+                                                <b-form-input :type="'date'"
+                                                              id="endDate"
+                                                              min='getCurrentDate()'
+                                                              max='9999-12-31'
+                                                              trim
+                                                              v-model="inputTreasureHunt.endDate"
+                                                              :state="validateEndDate">
 
-                                                    </b-form-input>
-                                                </b-col>
+                                                </b-form-input>
+                                            </b-col>
 
-                                                <b-col cols="6">
-                                                    <b-form-input :type="'time'"
-                                                                  id="endTime"
-                                                                  min='getCurrentTime()'
-                                                                  max=''
-                                                                  trim
-                                                                  v-model="endTime"
-                                                                  :state="validateEndTime">
-                                                    </b-form-input>
-                                                </b-col>
-                                            </b-row>
-                                        </b-form-group>
-                                    </b-col>
-                                </b-row>
-
-
-                            </b-container>
-                        </b-form>
+                                            <b-col cols="6">
+                                                <label>Expiration Time:</label>
+                                                <b-form-input :type="'time'"
+                                                              id="endTime"
+                                                              min='getCurrentTime()'
+                                                              max=''
+                                                              trim
+                                                              v-model="endTime"
+                                                              :state="validateEndTime">
+                                                </b-form-input>
+                                            </b-col>
+                                        </b-row>
+                                    </b-form-group>
+                                </b-col>
+                            </b-row>
+                        </b-container>
                     </b-form>
+                </b-form>
 
                 <b-row>
                     <b-col cols="8">
@@ -163,6 +159,7 @@
 <script>
     import DestinationSidebar from "../destinations/destinationSidebar";
     import BCol from "bootstrap-vue/es/components/layout/col";
+
     export default {
         name: "addTreasureHunt",
 
@@ -192,7 +189,7 @@
             },
             heading: String,
             containerClass: {
-                default: function() {
+                default: function () {
                     return 'containerWithNav';
                 }
             }
@@ -229,26 +226,29 @@
 
         computed: {
             /**
-             * Checks that the start date is not after the end date, and is not before the current date for new hunts.
-             * @returns true if start date is valid.
+             * For new hunts, checks the start date is after the current date.
+             * For all other hunts, checks the start date is either the same as or before the end date.
+             *
+             * @returns {boolean} true if start date is valid.
              */
             validateStartDate() {
+                // For a new hunt, the start date must be after today.
                 if ((this.inputTreasureHunt.startDate < this.getDateString() && !this.inputTreasureHunt.id)) {
                     return false;
                 }
-                if (this.inputTreasureHunt.startDate > this.inputTreasureHunt.endDate) {
-                    return false;
-                }
-                return true;
+                // Otherwise, checks the start date is equal to or before the end date.
+                return this.inputTreasureHunt.startDate <= this.inputTreasureHunt.endDate;
             },
 
 
             /**
              * Checks that the start time is not after or the same as the end time if the dates are the same,
              * and that the start time is not before the current time if the current date is today.
-             * @returns true if start time is valid.
+             *
+             * @returns {boolean} true if start time is valid.
              */
             validateStartTime() {
+                // For new hunts, check the start time is after the current time.
                 if (this.startTime === "" || this.startTime === undefined) {
                     return false
                 }
@@ -257,8 +257,9 @@
                         return false;
                     }
                 }
-                if (this.inputTreasureHunt.startDate === this.getDateString() && !this.inputTreasureHunt.id) {
-                    if (this.startTime < this.getTimeString()) {
+                // If the dates are the same, check the start time is before the end time.
+                if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
+                    if (this.startTime >= this.endTime) {
                         return false;
                     }
                 }
@@ -267,23 +268,9 @@
 
 
             /**
-             * Checks that the end date is not before the start date, and is not before the current date for new hunts.
-             * @returns true if end date is valid.
-             */
-            validateEndDate() {
-                if (this.inputTreasureHunt.endDate < this.getDateString() && !this.inputTreasureHunt.id) {
-                    return false;
-                }
-                if (this.inputTreasureHunt.endDate < this.inputTreasureHunt.startDate) {
-                    return false;
-                }
-                return true;
-            },
-
-
-            /**
              * Checks that the end time is not before or the same as the start time if the dates are the same.
-             * @returns true if end time is valid.
+             *
+             * @returns {boolean} true if end time is valid.
              */
             validateEndTime() {
                 if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
@@ -296,39 +283,54 @@
 
 
             /**
+             * For new hunts, checks the end date is after the current date.
+             * For all other hunts, checks the end date is either the same as or after the start date.
+             *
+             * @returns {boolean} true if end date is valid.
+             */
+            validateEndDate() {
+                // For a new hunt, the end date must be after today.
+                if (this.inputTreasureHunt.endDate < this.getDateString() && !this.inputTreasureHunt.id) {
+                    return false;
+                }
+                // Otherwise, checks the end date is equal to or after the start date.
+                return this.inputTreasureHunt.endDate >= this.inputTreasureHunt.startDate;
+            },
+
+
+            /**
              * Returns true if the inputted riddle has length greater than 0.
-             * @returns true if validated.
+             *
+             * @returns {Boolean} true if validated.
              */
             validateRiddle() {
-              if(this.inputTreasureHunt.riddle.length > 0){
-                  return true;
-              }
-              return null;
+                if (this.inputTreasureHunt.riddle.length > 0) {
+                    return true;
+                }
+                return null;
             },
 
 
             /**
              * Returns true if the input destination exists and matches the one selected in the sidebar and isn't empty.
-             * @returns true if valid.
+             *
+             * @returns {boolean} true if valid.
              */
             validateDestination() {
-                if (this.inputTreasureHunt.destination !== null
+                return (this.inputTreasureHunt.destination !== null
                     && this.inputTreasureHunt.destination === this.displayedDestination
                     && this.inputTreasureHunt.destination.name !== undefined
-                    && this.inputTreasureHunt.destination.name.length > 0) {
-
-                    return true;
-                }
-                return false;
+                    && this.inputTreasureHunt.destination.name.length > 0);
             },
 
 
             /**
              * Checks the validity of the destination using validateDestination and returns the appropriate state for
              * display.
+             *
              * @returns 'success' if destination is valid, 'secondary' otherwise.
              */
-            checkDestinationState(){
+            checkDestinationState() {
                 return this.validateDestination ? "success" : "secondary"
             },
         },
@@ -336,6 +338,7 @@
         methods: {
             /**
              * Gets the current date+time as a Date object.
+             *
              * @returns Current Datetime.
              */
             getCurrentDate() {
@@ -357,21 +360,22 @@
 
             /**
              * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day.
+             *
              * @returns Current Date in YYYY-MM-DD String Format.
              */
             getDateString() {
                 let today = this.getCurrentDate();
-                let date =  today.getFullYear()+'-'+
-                    ((today.getMonth()+1) < 10 ? "0" : "")
-                    + (today.getMonth()+1)+'-'+
+                return today.getFullYear() + '-' +
+                    ((today.getMonth() + 1) < 10 ? "0" : "")
+                    + (today.getMonth() + 1) + '-' +
                     (today.getDate() < 10 ? "0" : "") +
                     today.getDate();
-                return date;
             },
 
 
             /**
              * Gets the current time as a string in HH:MM format, including padding O's.
+             *
              * @returns Current Time in HH:MM String Format.
              */
             getTimeString() {
@@ -417,6 +421,7 @@
 
             /**
              * Creates formatted JSON of the currently active treasure hunt.
+             *
              * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
              */
             assembleTreasureHunt() {
@@ -436,12 +441,20 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputTreasureHunt)
-                })
-                    .then(this.checkStatus)
-                    .then(function() {
+                }).then(function (response) {
+                    if (response.status >= 400) {
+                        // Ensures the start and end date fields are not wiped after an error occurs.
+                        this.splitDates();
+                        // Converts response to text, this is then displayed on the frontend.
+                        response.text().then(data => {
+                            self.errorMessage = data;
+                            self.showError = true;
+                        });
+                    } else {
                         self.$emit('successCreate', "Treasure Hunt Successfully Created");
                         self.$emit('cancelCreate')
-                    })
+                    }
+                });
             },
 
 
@@ -456,11 +469,19 @@
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputTreasureHunt)
-                })
-                    .then(this.checkStatus)
-                    .then(function() {
+                }).then(function (response) {
+                    if (response.status >= 400) {
+                        // Ensures the start and end date fields are not wiped after an error occurs.
+                        this.splitDates();
+                        // Converts response to text, this is then displayed on the frontend.
+                        response.text().then(data => {
+                            self.errorMessage = data;
+                            self.showError = true;
+                        });
+                    } else {
                         self.$emit('cancelCreate')
-                    })
+                    }
+                });
             },
 
 
@@ -479,17 +500,23 @@
                 if (this.inputTreasureHunt.id !== null) {
                     this.inputTreasureHunt.startDate = new Date(this.inputTreasureHunt.startDate).toLocaleString();
                     let startDate = this.inputTreasureHunt.startDate;
+                    // The date is the values before the comma
                     this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split(", ")[0];
+                    // Change format of dates from the backslash symbol, reverse the order, and join with hyphens.
                     this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split("/").reverse().join("-");
                     this.startTime = startDate.split(" ")[1];
+                    // Splits by either the + or the - symbol. Removing the timezone.
                     this.startTime = this.startTime.split("+")[0];
                     this.startTime = this.startTime.split("-")[0];
 
                     this.inputTreasureHunt.endDate = new Date(this.inputTreasureHunt.endDate).toLocaleString();
                     let endDate = this.inputTreasureHunt.endDate;
+                    // The date is the values before the comma
                     this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split(", ")[0];
+                    // Change format of dates from the backslash symbol, reverse the order, and join with hyphens.
                     this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split("/").reverse().join("-");
                     this.endTime = endDate.split(" ")[1];
+                    // Splits by either the + or the - symbol. Removing the timezone.
                     this.endTime = this.endTime.split("+")[0];
                     this.endTime = this.endTime.split("-")[0];
                 }
@@ -516,6 +543,8 @@
                 this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate + " "
                     + this.endTime + timeOffset;
 
+                delete this.inputTreasureHunt.startTime;
+                delete this.inputTreasureHunt.endTime;
             },
 
 
@@ -523,12 +552,12 @@
              * Gets the local time offset and pads it to be 4 numbers long.
              */
             formatOffset() {
-                let timeOffset = (Math.abs(new Date().getTimezoneOffset()/60)).toString();
+                let timeOffset = (Math.abs(new Date().getTimezoneOffset() / 60)).toString();
 
                 let fullNumber = timeOffset.padStart(2, '0');
                 fullNumber = fullNumber.padEnd(4, '0');
 
-                let sign = (new Date().getTimezoneOffset() >= 0) ? "-": "+";
+                let sign = (new Date().getTimezoneOffset() >= 0) ? "-" : "+";
 
                 return sign + fullNumber;
             },
@@ -549,55 +578,7 @@
              */
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
-            },
-
-
-            /**
-             * Checks the Http response for errors.
-             *
-             * @param response the retrieved Http response.
-             * @returns {*} throws the Http response error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                console.log(error);
-
-                this.errorMessage = "";
-                response.clone().text().then(text => {
-                    text = JSON.parse(text);
-                    let result = [];
-                    for (let i = 0; i < text.length; i++) {
-                        if (!response.ok) {
-                            console.log(text);
-                            result.push(text[i].message);
-                        }
-                        else {
-                            result.push(text[i]);
-                        }
-                    }
-                    this.errorMessage = result;
-
-                    this.showError = true;
-                });
-                throw error;
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response the Http response.
-             * @returns the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
             }
-
         }
     }
 </script>

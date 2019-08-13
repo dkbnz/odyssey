@@ -1,67 +1,33 @@
 package repositories;
 
+import com.google.inject.Inject;
+import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import models.destinations.Destination;
 import models.trips.TripDestination;
 
 import java.util.List;
 
-public class TripDestinationRepository {
+/**
+ * Handles database interaction for trip destinations.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
+public class TripDestinationRepository extends BeanRepository<Long, TripDestination> {
 
-    /**
-     * Fetches one tripDestination thats contain the given destination for each unique trip id.
-     *
-     * @param destination   the destination being searched for.
-     * @return              the set of tripDestinations found.
-     */
-    public List<TripDestination> fetchTripsContainingDestination(Destination destination) {
 
-        return Ebean.find(TripDestination.class)
-                .select("trip")
-                .where()
-                .eq("destination", destination)
-                .setDistinct(true)
-                .findList();
+    @Inject
+    public TripDestinationRepository() {
+        super(TripDestination.class, Ebean.getDefaultServer());
     }
 
 
     /**
-     * Fetches a single TripDestination by the id given.
+     * Fetches all the trip destinations that a selected destination is associated with.
      *
-     * @param tripDestinationId     the id of the TripDestination to be found.
-     * @return                      the TripDestination object of the matching TripDestination.
+     * @param usedDestination   the destination selected to be queried for associated trip destinations.
+     * @return                  a list of all the trip destinations found.
      */
-    public TripDestination fetch(Long tripDestinationId) {
-        return TripDestination.find.byId(tripDestinationId.intValue());
-    }
-
-
-    /**
-     * Save the TripDestination object.
-     *
-     * @param tripDestination       the TripDestination being saved.
-     */
-    public void save(TripDestination tripDestination) {
-        tripDestination.save();
-    }
-
-
-    /**
-     * Deletes the trip destination.
-     *
-     * @param tripDestination       the TripDestination to be deleted.
-     */
-    public void delete(TripDestination tripDestination) {
-        tripDestination.delete();
-    }
-
-
-    /**
-     * Updates the TripDestination object.
-     *
-     * @param tripDestination       the TripDestination being updated.
-     */
-    public void update(TripDestination tripDestination) {
-        tripDestination.update();
+    public List<TripDestination> findAllUsing(Destination usedDestination) {
+        return query().where().eq("destination", usedDestination).findList();
     }
 }

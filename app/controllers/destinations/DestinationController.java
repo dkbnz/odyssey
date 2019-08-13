@@ -5,25 +5,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.ExpressionList;
+import models.TravellerType;
+import models.destinations.Type;
 import models.photos.PersonalPhoto;
+import models.treasureHunts.TreasureHunt;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import java.util.*;
 
 import models.Profile;
 import models.destinations.Destination;
-import models.destinations.DestinationType;
 import models.trips.Trip;
 import models.trips.TripDestination;
 import repositories.TripRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.ProfileRepository;
-import repositories.destinations.DestinationTypeRepository;
 import repositories.TripDestinationRepository;
+import repositories.destinations.DestinationTypeRepository;
+import repositories.treasureHunts.TreasureHuntRepository;
 import util.AuthenticationUtil;
+
 import static util.QueryUtil.queryComparator;
 
 
@@ -42,21 +46,18 @@ public class DestinationController extends Controller {
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String TRIP_COUNT = "trip_count";
     private static final String PHOTO_COUNT = "photo_count";
+    private static final String DESTINATION_COUNT = "destination_count";
     private static final String MATCHING_TRIPS = "matching_trips";
     private static final String MATCHING_DESTINATIONS = "matching_destinations";
-    private static final String TRIP_ID = "trip_id";
-    private static final String TRIP_NAME = "trip_name";
-    private static final String USER_ID = "user_id";
-    private static final String FIRST_NAME = "first_name";
-    private static final String LAST_NAME = "last_name";
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
 
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
-    private DestinationTypeRepository destinationTypeRepository;
     private TripDestinationRepository tripDestinationRepository;
     private TripRepository tripRepository;
+    private TreasureHuntRepository treasureHuntRepository;
+    private DestinationTypeRepository destinationTypeRepository;
 
 
     @Inject
@@ -65,12 +66,14 @@ public class DestinationController extends Controller {
             DestinationRepository destinationRepository,
             DestinationTypeRepository destinationTypeRepository,
             TripDestinationRepository tripDestinationRepository,
-            TripRepository tripRepository) {
+            TripRepository tripRepository,
+            TreasureHuntRepository treasureHuntRepository) {
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
-        this.destinationTypeRepository = destinationTypeRepository;
         this.tripDestinationRepository = tripDestinationRepository;
         this.tripRepository = tripRepository;
+        this.treasureHuntRepository = treasureHuntRepository;
+        this.destinationTypeRepository = destinationTypeRepository;
     }
 
 
@@ -78,7 +81,7 @@ public class DestinationController extends Controller {
      * Returns a Json object containing a count of trips that a specified destination is used in and how many photos
      * that destination contains. As well as a list of each trips name and owner.
      *
-     * @param request           Http request from the client containing authentication details
+     * @param request           Http request from the client containing authentication details.
      * @param destinationId     the id of the destination to find the number of dependent trips for and photos.
      * @return                  ok()    (Http 200) response containing the number of photos in a destination,
      *                          trips a destination is used in as well as the list of each trips name and its owner's
@@ -86,19 +89,17 @@ public class DestinationController extends Controller {
      *                          (Http 403) if the user is not allowed to access this number.
      */
     public Result getDestinationUsage(Http.Request request, Long destinationId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        Destination destination = destinationRepository.fetch(destinationId);
+        Destination destination = destinationRepository.findById(destinationId);
         if (destination == null) {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
-        Integer destinationOwnerId = destination.getOwner().getId().intValue();
-        Profile destinationOwner = profileRepository.fetchSingleProfile(destinationOwnerId);
+        Profile destinationOwner = destination.getOwner();
 
         if (!AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
             return forbidden();
@@ -124,27 +125,33 @@ public class DestinationController extends Controller {
 
 
     /**
-     * Gets a list of all the trips that uses a particular destination.
+     * Uses a Json body containing a destination to check any matching destinations upon editing a destination.
      *
-     * @param destination destination you want to search for.
-     * @return a list of all the associated trips.
+     * @param request   Http request from the client containing authentication details and the given destination.
+     * @return          unauthorized() (Http 401) if the user is not logged in.
+     *                  forbidden() (Http 403) if the logged in user is not the owner of the destination.
+     *                  ok() (Http 200) containing a Json list of the matching destinations.
      */
-    private List<Map> getTripsUsedByDestination(Destination destination) {
-        List<TripDestination> tripDestinationList = tripDestinationRepository.fetchTripsContainingDestination(destination);
-
-        List<Map> matchingTrips = new ArrayList<>();
-        for (TripDestination tripDestination: tripDestinationList) {
-
-            Trip temporaryTrip = tripDestination.getTrip();
-            Map<Object, Object> tripDetails = new HashMap<>();
-            tripDetails.put(TRIP_ID, temporaryTrip.getId());
-            tripDetails.put(TRIP_NAME, temporaryTrip.getName());
-            tripDetails.put(USER_ID, temporaryTrip.getProfile().getId());
-            tripDetails.put(FIRST_NAME, temporaryTrip.getProfile().getFirstName());
-            tripDetails.put(LAST_NAME, temporaryTrip.getProfile().getLastName());
-            matchingTrips.add(tripDetails);
+    public Result getDestinationUsageEdited(Http.Request request) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized();
         }
-        return matchingTrips;
+
+        JsonNode destination = request.body().asJson();
+        Destination foundDestination = Json.fromJson(destination, Destination.class);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, foundDestination.getOwner())) {
+            return forbidden();
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode matchDestinations = mapper.valueToTree(destinationRepository.findEqual(foundDestination));
+        ObjectNode returnJson = mapper.createObjectNode();
+        returnJson.putArray(MATCHING_DESTINATIONS).addAll(matchDestinations);
+        returnJson.put(DESTINATION_COUNT, matchDestinations.size());
+
+        return ok(returnJson);
     }
 
 
@@ -154,7 +161,7 @@ public class DestinationController extends Controller {
      * @return ok() (Http 200) response containing all the different types of destinations.
      */
     public Result getTypes() {
-        List<DestinationType> destinationTypes = DestinationType.find.all();
+        List<Type> destinationTypes = destinationTypeRepository.findAll();
         return ok(Json.toJson(destinationTypes));
     }
 
@@ -168,23 +175,20 @@ public class DestinationController extends Controller {
      *                  (Http 403) if the user has tried to access destinations they are not authorised for.
      */
     public Result fetch(Http.Request request) {
-
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
-
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         int pageNumber = 0;
         int pageSize = 50;
         List<Destination> destinations;
 
-        ExpressionList<Destination> expressionList = Destination.find.query().where();
+        ExpressionList<Destination> expressionList = destinationRepository.getExpressionList();
 
         // Checks if the owner is specified in the query string and user is valid.
         if (request.getQueryString(OWNER) != null && !request.getQueryString(OWNER).isEmpty()) {
-            Profile destinationOwner = profileRepository.fetchSingleProfile(Integer.valueOf(request.getQueryString(OWNER)));
+            Profile destinationOwner = profileRepository.findById(Long.valueOf(request.getQueryString(OWNER)));
 
             if (AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
                 expressionList.eq(OWNER, destinationOwner);
@@ -202,6 +206,32 @@ public class DestinationController extends Controller {
                     .endJunction();
         }
 
+        updateExpressionList(expressionList, request);
+
+        // If page query is set, load said page. Otherwise, return the first page.
+        if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
+            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
+        }
+
+        destinations = expressionList
+                .order(NAME)
+                .setFirstRow(pageNumber*pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
+
+        return ok(Json.toJson(destinations));
+    }
+
+
+    /**
+     * Adds expressions to the expression list to search for destinations depending on values present in the query
+     * string of the given request.
+     *
+     * @param expressionList    the expression list used to search for destinations.
+     * @param request           the request containing the query string used to formulate the expression list.
+     */
+    private void updateExpressionList(ExpressionList<Destination> expressionList, Http.Request request) {
         if (request.getQueryString(NAME) != null && !request.getQueryString(NAME).isEmpty()) {
             expressionList.ilike(NAME, queryComparator(request.getQueryString(NAME)));
         }
@@ -223,20 +253,6 @@ public class DestinationController extends Controller {
         if (request.getQueryString(IS_PUBLIC) != null && !request.getQueryString(IS_PUBLIC).isEmpty()) {
             expressionList.eq(IS_PUBLIC, request.getQueryString(IS_PUBLIC));
         }
-
-        // If page query is set, load said page. Otherwise, return the first page.
-        if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
-            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
-        }
-
-        destinations = expressionList
-                .order(NAME)
-                .setFirstRow(pageNumber*pageSize)
-                .setMaxRows(pageSize)
-                .findPagedList()
-                .getList();
-
-        return ok(Json.toJson(destinations));
     }
 
 
@@ -246,14 +262,12 @@ public class DestinationController extends Controller {
      * @return ok() (Http 200) response containing the destinations found in the response body.
      */
     public Result fetchByUser(Http.Request request, Long userId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
-
-        Profile profileToChange = profileRepository.fetchSingleProfile(userId.intValue());
+        Profile profileToChange = profileRepository.findById(userId);
 
         if (profileToChange == null) {
             return badRequest();
@@ -264,7 +278,7 @@ public class DestinationController extends Controller {
         }
 
         List<Destination> destinations;
-        ExpressionList<Destination> expressionList = Destination.find.query().where();
+        ExpressionList<Destination> expressionList = destinationRepository.getExpressionList();
         expressionList.eq(OWNER,profileToChange);
 
         destinations = expressionList.findList();
@@ -330,7 +344,7 @@ public class DestinationController extends Controller {
         String name = json.get(NAME).asText();
         String district = json.get(DISTRICT).asText();
 
-        List<Destination> destinations = Destination.find.query().where()
+        List<Destination> destinations = destinationRepository.getExpressionList()
                 .ilike(NAME, name)
                 .ilike(DISTRICT, district)
                 .disjunction()
@@ -356,12 +370,15 @@ public class DestinationController extends Controller {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
-
-                    Profile profileToChange = profileRepository.fetchSingleProfile(userId.intValue());
+                    Profile loggedInUser = profileRepository.findById(Long.valueOf(loggedInUserId));
+                    Profile profileToChange = profileRepository.findById(userId);
 
                     if (profileToChange == null) {
-                        return badRequest();
+                        return badRequest("Profile not found");
+                    }
+
+                    if (loggedInUser == null) {
+                        return unauthorized();
                     }
 
                     if(!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
@@ -376,12 +393,12 @@ public class DestinationController extends Controller {
                     }
                     if (destinationDoesNotExist(json, profileToChange)) {
                         Destination destination = createNewDestination(json, profileToChange);
-                        destination.save();
+                        destinationRepository.save(destination);
 
                         profileToChange.addDestination(destination);
                         profileRepository.save(profileToChange);
 
-                        return created("Created");
+                        return created(Json.toJson(destination.getId()));
                     } else {
                         return badRequest("A destination with these details already exists either in your " +
                                 "destinations or public destinations lists.");
@@ -407,7 +424,7 @@ public class DestinationController extends Controller {
         destination.setPublic(json.has(IS_PUBLIC) && json.get(IS_PUBLIC).asBoolean());
         destination.changeOwner(owner);
 
-        DestinationType destType = DestinationType.find.byId(json.get(TYPE).asInt());
+        Type destType = destinationTypeRepository.findById(json.get(TYPE).asLong());
 
         destination.setType(destType);
 
@@ -423,22 +440,20 @@ public class DestinationController extends Controller {
      *                          successfully deleted.
      */
     public Result destroy(Http.Request request, Long destinationId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        Destination destination = Destination.find.byId(destinationId.intValue());
+        Destination destination = destinationRepository.findById(destinationId);
 
         if (destination == null) {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
         if (!AuthenticationUtil.validUser(loggedInUser, destination.getOwner())) {
             return forbidden();
         }
-
 
         destinationRepository.delete(destination);
         return ok("Deleted");
@@ -452,31 +467,26 @@ public class DestinationController extends Controller {
      * @param request   Http request containing a Json body of fields to update in the destination.
      * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
      */
-    public Result edit(Http.Request request, Long id) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+    public Result edit(Http.Request request, Long id) throws IllegalAccessException {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        Destination currentDestination = destinationRepository.fetch(id);
+        Destination currentDestination = destinationRepository.findById(id);
 
         if (currentDestination == null) {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, currentDestination.getOwner())) {
             return forbidden();
         }
 
-        List<TripDestination> tripDestinationsList = currentDestination.getTripDestinations();
-
         JsonNode json = request.body().asJson();
 
-        currentDestination = Json.fromJson(json, Destination.class);
-
-        currentDestination.addTripDestinations(tripDestinationsList);
+        currentDestination.updateFromObject(Json.fromJson(json, Destination.class));
 
         if (currentDestination.getLongitude() > LONGITUDE_LIMIT || currentDestination.getLongitude() < -LONGITUDE_LIMIT) {
             return badRequest();
@@ -488,7 +498,8 @@ public class DestinationController extends Controller {
 
         mergeDestinations(currentDestination);
         destinationRepository.update(currentDestination);
-        return ok("Destination updated");
+
+        return ok(Json.toJson(currentDestination));
     }
 
 
@@ -500,14 +511,11 @@ public class DestinationController extends Controller {
     private void mergeDestinations(Destination destinationToUpdate) {
         List<Destination> similarDestinations = destinationRepository.findEqual(destinationToUpdate);
 
-        if (shouldMerge(destinationToUpdate, similarDestinations)) {
-            if (!similarDestinations.isEmpty()) {
+        if (!similarDestinations.isEmpty() && shouldMerge(destinationToUpdate, similarDestinations)) {
+                destinationRepository.transferToAdmin(destinationToUpdate);
                 for (Destination destinationToMerge: similarDestinations) {
                     consume(destinationToUpdate, destinationToMerge);
                 }
-                // Destination has been merged from other sources, change owner to admin.
-                destinationRepository.transferDestinationOwnership(destinationToUpdate);
-            }
         }
     }
 
@@ -515,10 +523,10 @@ public class DestinationController extends Controller {
     /**
      * Determines if the given destination and similar destinations should be merged into a single destination.
      *
-     * @param destinationToUpdate   the destination that consumes similar destinations
-     * @param similarDestinations   the list of similar destinations to destinationToUpdate
+     * @param destinationToUpdate   the destination that consumes similar destinations.
+     * @param similarDestinations   the list of similar destinations to destinationToUpdate.
      * @return                      true if destinationToUpdate is public or any destinations in similarDestinations is
-     *                              public. False otherwise.
+     *                              public, and false otherwise.
      */
     private boolean shouldMerge(Destination destinationToUpdate, List<Destination> similarDestinations) {
         if (destinationToUpdate.getPublic()) {
@@ -548,12 +556,12 @@ public class DestinationController extends Controller {
 
         mergeTripDestinations(destinationToUpdate, destinationToMerge);
         mergePersonalPhotos(destinationToUpdate, destinationToMerge);
+        mergeTravellerTypes(destinationToUpdate, destinationToMerge);
+        mergeTreasureHunts(destinationToUpdate, destinationToMerge);
+        destinationToUpdate.setPublic(true);
 
-
-        // Save destination that has had attributes taken to prevent deletion of attributes via cascading
-        destinationRepository.update(destinationToUpdate);
-        destinationRepository.update(destinationToMerge);
-
+        destinationRepository.save(destinationToUpdate);
+        destinationRepository.save(destinationToMerge);
         destinationRepository.delete(destinationToMerge);
     }
 
@@ -566,7 +574,8 @@ public class DestinationController extends Controller {
      * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
      */
     private void mergeTripDestinations(Destination destinationToUpdate, Destination destinationToMerge) {
-        // Takes all trip destinations from other into this destination
+
+        //Takes all trip destinations from other into this destination
         List<TripDestination> tripDestinationsToAdd = new ArrayList<>();
         List<TripDestination> tripDestinationsToDelete = new ArrayList<>();
 
@@ -636,10 +645,58 @@ public class DestinationController extends Controller {
     private void mergePersonalPhotos(Destination destinationToUpdate, Destination destinationToMerge) {
         // Take all PersonalPhotos
         for (PersonalPhoto photo : destinationToMerge.getPhotoGallery()) {
-            // Remove photo from destination being merged
-            destinationToMerge.removePhotoFromGallery(photo);
             // Save to destination to update
             destinationToUpdate.addPhotoToGallery(photo);
+        }
+        destinationToMerge.clearPhotoGallery();
+    }
+
+
+    /**
+     * Merges all the traveller types for the destinations including proposed traveller types.
+     *
+     * @param destinationToUpdate   destination that gains all of the traveller types.
+     * @param destinationToMerge    destination that is being consumed.
+     */
+    private void mergeTravellerTypes(Destination destinationToUpdate, Destination destinationToMerge) {
+        // Gets the traveller types for both destinations
+        Set<TravellerType> mergeTravelTypesProposeAdd = destinationToMerge.getProposedTravellerTypesAdd();
+        Set<TravellerType> mergeTravelTypesProposeRemove = destinationToMerge.getProposedTravellerTypesRemove();
+
+        // Adds the two sets together into a combined traveller type set
+        destinationToUpdate.addTravellerTypes(destinationToMerge.getTravellerTypes());
+
+        // Adds all the remove proposed traveller types to destination to merge
+        destinationToUpdate.addProposeTravellerTypesRemove(mergeTravelTypesProposeRemove);
+
+        // Adds all the proposed traveller types that are not already in the main set
+        destinationToUpdate.addProposeTravellerTypesAdd(mergeTravelTypesProposeAdd);
+        Set<TravellerType> combinedProposedAdd = destinationToUpdate.getProposedTravellerTypesAdd();
+
+        for (TravellerType travelType : destinationToUpdate.getTravellerTypes()) {
+            combinedProposedAdd.remove(travelType);
+        }
+
+        destinationToUpdate.setProposedTravellerTypesAdd(combinedProposedAdd);
+
+        // Removes all traveller type references for the destination to merge
+        destinationToMerge.clearAllTravellerTypeSets();
+    }
+
+
+    /**
+     * Merges all the treasure hunts for the destinations.
+     *
+     * @param destinationToUpdate   the destination that gains all the treasure hunts.
+     * @param destinationToMerge    the destination that is being consumed.
+     */
+    private void mergeTreasureHunts(Destination destinationToUpdate, Destination destinationToMerge) {
+        List<TreasureHunt> mergeTreasureHuntsList = treasureHuntRepository
+                .getTreasureHuntsWithDestination(destinationToMerge);
+
+        for (TreasureHunt treasureHunt : mergeTreasureHuntsList) {
+            treasureHunt.setDestination(destinationToUpdate);
+            treasureHuntRepository.update(treasureHunt);
         }
     }
 }

@@ -1,6 +1,5 @@
 package models;
 
-import io.ebean.Finder;
 import javax.persistence.Entity;
 
 
@@ -24,5 +23,5 @@ public class Nationality extends BaseModel {
     }
 
 
-    public static final Finder<Integer, Nationality> find = new Finder<>(Nationality.class);
+
 }
