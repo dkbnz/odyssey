@@ -305,6 +305,12 @@
             }
         },
 
+        watch: {
+            profile() {
+                this.getAllTrips();
+            }
+        },
+
         components: {
             PlanATrip
         },

@@ -146,7 +146,7 @@
         },
 
         mounted() {
-            this.checkAuth();
+            //this.checkAuth();
             this.getProfilePictureThumbnail();
             this.getProfilePictureFull();
         },
