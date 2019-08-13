@@ -44,19 +44,18 @@
                         </b-list-group-item>
                     </b-list-group>
                 </div>
-                <div v-if="destinationConflicts.matching_destinations !== undefined
-                        && destinationConflicts.matching_destinations.length > 0">
-                    <p v-if="destinationConflicts.matching_destinations.length === 1">
-                        This will merge the following 1 private destination:
+                <div v-if="editDestinationConflicts !== undefined && editDestinationConflicts.destination_count > 0">
+                    <p v-if="editDestinationConflicts.destination_count === 1">
+                        This will merge the following destination:
                     </p>
+
                     <p v-else>
-                        This will merge the following {{destinationConflicts.matching_destinations.length}} private
-                        destinations:
+                        This will merge the following {{editDestinationConflicts.destination_count}} destinations:
                     </p>
                     <b-list-group
                             style="overflow-y: scroll; height: 30vh;">
                         <b-list-group-item class="flex-column align-items-start"
-                                           v-for="destination in destinationConflicts.matching_destinations"
+                                           v-for="destination in editDestinationConflicts.matching_destinations"
                                            :key="destination.id">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">Name: {{destination.name}}</h5>
@@ -64,6 +63,9 @@
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">Created by: {{destination.owner.firstName}}
                                     {{destination.owner.lastName}}</h5>
+                            </div>
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{convertToPublicString(destination.public)}} Destination</h6>
                             </div>
                         </b-list-group-item>
                     </b-list-group>
@@ -209,7 +211,8 @@
                 dismissCountDown: 0,
                 latitudeErrorMessage: "",
                 longitudeErrorMessage: "",
-                destinationConflicts: []
+                destinationConflicts: [],
+                editDestinationConflicts: []
             }
         },
 
@@ -410,21 +413,37 @@
 
 
             /**
-             * Checks whether the destination being edited is present in any trips. This is to display a confirmation
-             * message to the user.
+             * Checks whether the destination being edited is present in any other parts of the application.
+             * This is to display a confirmation message to the user.
              *
              */
             validateEdit() {
                 let self = this;
-                fetch(`/v1/destinationCheck/` + this.inputDestination.id, {
+                fetch(`/v1/destinations/` + this.inputDestination.id + `/checkDuplicates`, {
                     accept: "application/json"
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
                     .then(function (response) {
+                        self.getMatchingEditedDestination();
                         self.displayConfirmation();
                     });
+            },
+
+
+            getMatchingEditedDestination() {
+                let self = this;
+                fetch(`/v1/destinationsCheckEdit`, {
+                    method: 'POST',
+                        headers: {'content-type': 'application/json'},
+                        body: (JSON.stringify(this.inputDestination))
+                })
+                    .then(function(response) {
+                        response.json().then(data => {
+                            self.editDestinationConflicts = data;
+                        })
+                    })
             },
 
 
@@ -534,6 +553,20 @@
              */
             parseJSON(response) {
                 return response.json();
+            },
+
+
+            /**
+             * Converts the given boolean value to a readable string.
+             *
+             * @param isPublic      boolean value false if the destination is not public, true otherwise.
+             * @returns {string}    returns a string 'Public' or 'Private' depending on the given parameter.
+             */
+            convertToPublicString(isPublic) {
+                if (isPublic) {
+                    return "Public";
+                }
+                return "Private";
             }
         }
     }

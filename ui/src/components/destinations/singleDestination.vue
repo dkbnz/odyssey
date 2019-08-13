@@ -252,7 +252,7 @@
              * Sends an Http request to check which trips a destination is used in.
              */
             getTripsUsedBy() {
-                fetch(`/v1/destinationCheck/` + this.copiedDestination.id, {
+                fetch(`/v1/destinations/` + this.copiedDestination.id + `/checkDuplicates`, {
                     accept: "application/json"
                 })
                     .then(response => response.json())

@@ -1,5 +1,6 @@
 package steps;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -63,6 +64,12 @@ public class DestinationTestSteps {
 
 
     /**
+     * The id of the newly created destination, used for destination usage retrieval.
+     */
+    private Long createdDestinationId;
+
+
+    /**
      * The size of the list of trips received.
      */
     private int tripCountReceived;
@@ -101,7 +108,13 @@ public class DestinationTestSteps {
     /**
      * The endpoint uri for checking which trips a destination is used in.
      */
-    private static final String DESTINATION_CHECK_URI = "/v1/destinationCheck/";
+    private static final String DESTINATION_CHECK_URI = "/checkDuplicates";
+
+
+    /**
+     * The endpoint uri for checking duplicate destinations.
+     */
+    private static final String DESTINATION_EDIT_CHECK = "/v1/destinationsCheckEdit";
 
 
     /**
@@ -190,6 +203,7 @@ public class DestinationTestSteps {
     private static final String IS_PUBLIC_STRING = "is_public";
     private static final String TRIP_COUNT = "trip_count";
     private static final String PHOTO_COUNT = "photo_count";
+    private static final String DESTINATION_COUNT = "destination_count";
     private static final String MATCHING_TRIPS = "matching_trips";
     private static final String TRIP_NAME_FIELD = "name";
 
@@ -360,6 +374,10 @@ public class DestinationTestSteps {
                 .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
+
+        if (statusCode < 400) {
+            createdDestinationId = Long.parseLong(Helpers.contentAsString(result));
+        }
     }
 
 
@@ -817,7 +835,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .session(AUTHORIZED, loggedInId)
-                .uri(DESTINATION_CHECK_URI + destinationId);
+                .uri(DESTINATION_URI+ "/"  + destinationId + DESTINATION_CHECK_URI);
         Result result = route(application, request);
         statusCode = result.status();
 
@@ -985,8 +1003,7 @@ public class DestinationTestSteps {
             createDestinationRequest(json);
 
             // Saves the last created destination id
-            Long id = getDestinationId(dataTable);
-            destinationId = id;
+            destinationId = getDestinationId(dataTable);
         }
     }
 
@@ -1157,7 +1174,7 @@ public class DestinationTestSteps {
     public void iRequestTheDestinationUsageForDestinationWithId(Integer destinationId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .uri(DESTINATION_CHECK_URI + destinationId)
+                .uri(DESTINATION_URI+ "/"  + destinationId + DESTINATION_CHECK_URI)
                 .session(AUTHORIZED, loggedInId);
         Result result = route(application, request);
         statusCode = result.status();
@@ -1178,6 +1195,30 @@ public class DestinationTestSteps {
         Result addDestinationPhotoResult = route(application, request);
         statusCode = addDestinationPhotoResult.status();
     }
+
+    @When("I change the value of the destination name to {string} and I request the destination usage for edited destination")
+    public void iRequestTheDestinationUsageForEditedDestinationWithId(String name) {
+        Destination destination = destinationRepository.findById(createdDestinationId);
+        destination.setName(name);
+
+        Http.RequestBuilder request =
+                Helpers.fakeRequest()
+                        .uri(DESTINATION_EDIT_CHECK)
+                        .method(POST)
+                        .bodyJson(Json.toJson(destination))
+                        .session(AUTHORIZED, loggedInId);
+
+        Result result= route(application, request);
+        statusCode = result.status();
+        responseBody = Helpers.contentAsString(result);
+    }
+
+    @Then("^the number of destinations received is at least (\\d+)$")
+    public void theNumberOfDestinationsReceivedIs(int destinationsReceived) throws IOException {
+        int responseCount = new ObjectMapper().readTree(responseBody).get(DESTINATION_COUNT).asInt();
+        assertTrue(responseCount >= destinationsReceived);
+    }
+
 
 
     @Then("there is only one destination with the following values")
