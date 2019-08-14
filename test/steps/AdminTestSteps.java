@@ -28,132 +28,39 @@ import static play.test.Helpers.*;
 
 public class AdminTestSteps {
 
-    @Inject
-    Application application;
-    private Database database;
+    private TestContext testContext;
+    private GeneralSteps generalSteps;
 
     private static final String AUTHORIZED = "authorized";
     private static final String PROFILES_URI = "/v1/profiles";
     private static final String PROFILES_UPDATE_URI = "/v1/profile/";
     private static final String SINGLE_PROFILE_URI = "/v1/profile";
-    private static final String LOGIN_URI = "/v1/login";
+
+    /**
+     * The username string variable.
+     */
     private static final String USERNAME = "username";
+
+    /**
+     * The password string variable.
+     */
     private static final String PASS_FIELD = "password";
 
-
-    /**
-     * A valid username for login credentials for admin user.
-     */
-    private static final String VALID_USERNAME = "admin@travelea.com";
-
-
-    /**
-     * A valid password for login credentials for admin user.
-     */
-    private static final String VALID_AUTHPASS = "admin1";
-    private static final String ADMIN_ID = "1";
 
     private static final Logger LOGGER = Logger.getLogger( AdminTestSteps.class.getName() );
 
 
-    /**
-     * A valid username for login credentials for a regular user.
-     */
-    private static final String REG_USER = "guestUser@travelea.com";
-
-
-    /**
-     * A valid password for login credentials for a regular user.
-     */
-    private static final String REG_PASS = "guest123";
-    private static final String REG_ID = "2";
-
-    private String userId;
-    private int statusCode;
     private ProfileRepository profileRepository;
 
     @Before
     public void setUp() {
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("play.db.config", "db");
-        configuration.put("play.db.default", "default");
-        configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:testDBAdmin;MODE=MYSQL;");
-        configuration.put("ebean.default", "models.*");
-        configuration.put("play.evolutions.db.default.enabled", "true");
-        configuration.put("play.evolutions.autoApply", "false");
+        testContext = TestContext.getInstance();
 
-        //Set up the fake application to use the in memory database config
-        application = fakeApplication(configuration);
+        generalSteps = new GeneralSteps();
+        generalSteps.setUp();
 
-        database = application.injector().instanceOf(Database.class);
-        applyEvolutions();
+        profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
-        profileRepository = application.injector().instanceOf(ProfileRepository.class);
-
-        Helpers.start(application);
-    }
-
-
-    /**
-     * Applies down evolutions to the database from the test/evolutions/default directory.
-     *
-     * This drops tables and data from the database.
-     */
-    private void applyEvolutions() {
-        Evolutions.applyEvolutions(
-                database,
-                Evolutions.fromClassLoader(
-                        getClass().getClassLoader(),
-                        "test/"
-                )
-        );
-    }
-
-
-    /**
-     * Runs after each test scenario.
-     * Cleans up the database by cleaning up evolutions and shutting it down.
-     * Stops running the fake application.
-     */
-    @After
-    public void tearDown() {
-        cleanEvolutions();
-        database.shutdown();
-        Helpers.stop(application);
-    }
-
-
-    /**
-     * Applies up evolutions to the database from the test/evolutions/default directory.
-     *
-     * This populates the database with necessary tables and values.
-     */
-    private void cleanEvolutions() {
-        Evolutions.cleanupEvolutions(database);
-    }
-
-
-    /**
-     * Sends a fake request to the application to login.
-     *
-     * @param username      the string of the username to complete the login with.
-     * @param password      the string of the password to complete the login with.
-     */
-    private void loginRequest(String username, String password) {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode json = mapper.createObjectNode();
-
-        json.put(USERNAME, username);
-        json.put(PASS_FIELD, password);
-
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .bodyJson(json)
-                .uri(LOGIN_URI);
-        Result loginResult = route(application, request);
-
-        statusCode = loginResult.status();
     }
 
 
@@ -229,8 +136,8 @@ public class AdminTestSteps {
                 .method(GET)
                 .session(AUTHORIZED, "1")
                 .uri(PROFILES_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
         // Gets the response
         Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
@@ -249,13 +156,6 @@ public class AdminTestSteps {
     }
 
 
-    @Given("An admin is logged in")
-    public void anAdminIsLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
-        Assert.assertEquals(OK, statusCode);
-    }
-
-
     @When("An admin attempts to create a profile with the following fields:")
     public void anAdminAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) {
         // Creates the json for the profile
@@ -266,17 +166,9 @@ public class AdminTestSteps {
                 .method(POST)
                 .bodyJson(json)
                 .uri(PROFILES_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
-    }
-
-
-    @Given("I am logged in as an admin")
-    public void iAmLoggedInAsAnAdmin() {
-        loginRequest(VALID_USERNAME, VALID_AUTHPASS);
-        Assert.assertEquals(OK, statusCode);
-        userId = ADMIN_ID;
     }
 
 
@@ -302,10 +194,10 @@ public class AdminTestSteps {
                 .method(GET)
                 .session(AUTHORIZED, String.valueOf(idToChange))
                 .uri(SINGLE_PROFILE_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
-        Assert.assertEquals(OK, statusCode);
+        Assert.assertEquals(OK, testContext.getStatusCode());
 
         ObjectNode profileToEdit = null;
 
@@ -322,26 +214,12 @@ public class AdminTestSteps {
         // Sending the fake request to the back end for updating
         request = fakeRequest()
                 .method(PUT)
-                .session(AUTHORIZED, userId)
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .bodyJson(profileToEdit)
                 .uri(PROFILES_UPDATE_URI + idToChange);
 
-        result = route(application, request);
-        statusCode = result.status();
-    }
-
-
-    @Given("I am logged in as a regular user")
-    public void iAmLoggedInAsARegularUser() {
-        loginRequest(REG_USER, REG_PASS);
-        Assert.assertEquals(OK, statusCode);
-        userId = REG_ID;
-    }
-
-
-    @Then("I receive a status code of {int}")
-    public void iReceiveAStatusCodeOf(int expectedStatus) {
-        Assert.assertEquals(expectedStatus, statusCode);
+        result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
 
 }

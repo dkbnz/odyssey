@@ -30,14 +30,13 @@ import static play.test.Helpers.*;
 
 public class ProfileTestSteps {
 
-    @Inject
-    Application application;
-    private Database database;
-
     /**
-     * Stores the status code of a response.
+     * Singleton class which stores generally used variables and functions
      */
-    private int statusCode;
+    private GeneralSteps generalSteps;
+
+    private TestContext testContext;
+
 
     /**
      * Authorised string variable.
@@ -68,12 +67,6 @@ public class ProfileTestSteps {
      * The login uri.
      */
     private static final String LOGIN_URI = "/v1/login";
-
-
-    /**
-     * The logout uri.
-     */
-    private static final String LOGOUT_URI = "/v1/logout";
 
 
     /**
@@ -120,37 +113,10 @@ public class ProfileTestSteps {
 
     @Before
     public void setUp() {
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("play.db.config", "db");
-        configuration.put("play.db.default", "default");
-        configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:testDBProfile;MODE=MYSQL;");
-        configuration.put("ebean.default", "models.*");
-        configuration.put("play.evolutions.db.default.enabled", "true");
-        configuration.put("play.evolutions.autoApply", "false");
+        testContext = TestContext.getInstance();
 
-        //Set up the fake application to use the in memory database config
-        application = fakeApplication(configuration);
-
-        database = application.injector().instanceOf(Database.class);
-        applyEvolutions();
-
-        Helpers.start(application);
-    }
-
-
-    /**
-     * Applies down evolutions to the database from the test/evolutions/default directory.
-     * This drops tables and data from the database.
-     */
-    private void applyEvolutions() {
-        Evolutions.applyEvolutions(
-                database,
-                Evolutions.fromClassLoader(
-                        getClass().getClassLoader(),
-                        "test/"
-                )
-        );
+        generalSteps = new GeneralSteps();
+        generalSteps.setUp();
     }
 
 
@@ -162,52 +128,7 @@ public class ProfileTestSteps {
      */
     @After
     public void tearDown() {
-        logoutRequest();
-        cleanEvolutions();
-        database.shutdown();
-        Helpers.stop(application);
-    }
-
-
-    /**
-     * Sends a fake request to the application to logout.
-     */
-    private void logoutRequest() {
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .uri(LOGOUT_URI);
-        route(application, request);
-    }
-
-
-    /**
-     * Sends a fake request to the application to login.
-     * @param username      the string of the username to complete the login with.
-     * @param password      the string of the password to complete the login with.
-     */
-    private void loginRequest(String username, String password) {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode json = mapper.createObjectNode();
-
-        json.put(USERNAME, username);
-        json.put(PASS_FIELD, password);
-
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .bodyJson(json)
-                .uri(LOGIN_URI);
-        Result loginResult = route(application, request);
-        statusCode = loginResult.status();
-    }
-
-
-    /**
-     * Applies up evolutions to the database from the test/evolutions/default directory.
-     *
-     * This populates the database with necessary tables and values.
-     */
-    private void cleanEvolutions() {
-        Evolutions.cleanupEvolutions(database);
+        generalSteps.tearDown();
     }
 
 
@@ -272,27 +193,16 @@ public class ProfileTestSteps {
     }
 
 
-    @Given("the application is running")
-    public void theApplicationIsRunning() throws BeansException {
-        Assert.assertTrue(application.isTest());
-    }
-
-
-    @And("I have logged in")
-    public void iAmLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_AUTH_PASS);
-        assertEquals(OK, statusCode);
-    }
 
 
     @When("I send a GET request to the profiles endpoint")
     public void iSendAGETRequestToTheProfilesEndpoint() throws BeansException {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, "1")
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .uri(PROFILES_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
         Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
 
@@ -309,14 +219,8 @@ public class ProfileTestSteps {
         if (count != NUMBER_OF_PROFILES) {
             passProfiles = false;
         }
-        statusCode = result.status();
+        testContext.setStatusCode(result.status());
         Assert.assertTrue(passProfiles);
-    }
-
-
-    @Then("the status code is OK")
-    public void theReceivedStatusCodeIs() throws BeansException{
-        Assert.assertEquals(OK, statusCode);
     }
 
 
@@ -326,27 +230,27 @@ public class ProfileTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri(TRAVELLER_TYPES_URI);
-        Result result = route(application, request);
+        Result result = route(testContext.getApplication(), request);
 
         // Gets the response
         Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
 
         // Checks the response for Holidaymaker and length of 7 traveller types
-        boolean passTraveltypes = false;
+        boolean passTravelTypes = false;
         int count = 0;
         while (iterator.hasNext()) {
             JsonNode jsonTravellerType = iterator.next();
             count++;
             if (jsonTravellerType.get("id").asText().equals("5")
                     && jsonTravellerType.get("travellerType").asText().equals("Holidaymaker")) {
-                passTraveltypes = true;
+                passTravelTypes = true;
             }
         }
         if (count != NUMBER_OF_TRAVELLER_TYPES) {
-            passTraveltypes = false;
+            passTravelTypes = false;
         }
-        statusCode = result.status();
-        Assert.assertTrue(passTraveltypes);
+        testContext.setStatusCode(result.status());
+        Assert.assertTrue(passTravelTypes);
     }
 
 
@@ -356,7 +260,7 @@ public class ProfileTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri(NATIONALITIES_URI);
-        Result result = route(application, request);
+        Result result = route(testContext.getApplication(), request);
 
         // Gets the response
         Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
@@ -376,8 +280,8 @@ public class ProfileTestSteps {
             passNationalities = false;
         }
 
-        statusCode = result.status();
-        Assert.assertEquals(true, passNationalities);
+        testContext.setStatusCode(result.status());
+        Assert.assertTrue(passNationalities);
     }
 
 
@@ -388,8 +292,8 @@ public class ProfileTestSteps {
                 .method(GET)
                 .session(AUTHORIZED, "1")
                 .uri(PROFILES_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
         // Gets the response
         Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
@@ -417,8 +321,8 @@ public class ProfileTestSteps {
                 .method(POST)
                 .bodyJson(json)
                 .uri(PROFILES_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
 
 
@@ -429,8 +333,8 @@ public class ProfileTestSteps {
                 .method(GET)
                 .session(AUTHORIZED, "1")
                 .uri(PROFILES_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
         // Gets the response
         Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
@@ -448,18 +352,6 @@ public class ProfileTestSteps {
     }
 
 
-    @Then("the status code is Created")
-    public void theStatusCodeIsCreated() throws BeansException{
-        Assert.assertEquals(CREATED, statusCode);
-    }
-
-
-    @Then("the status code is BadRequest")
-    public void theStatusCodeIsBadRequest() throws BeansException{
-        Assert.assertEquals(BAD_REQUEST, statusCode);
-    }
-
-
     @When("The user attempts to update their profile information within the TravelEA database:")
     public void theUserAttemptsToUpdateTheirProfileInformationWithinTheTravelEADatabase(DataTable dataTable) {
         // Creates the json for the profile
@@ -471,7 +363,7 @@ public class ProfileTestSteps {
                 .session(AUTHORIZED, "2")
                 .bodyJson(json)
                 .uri(PROFILES_UPDATE_URI + 2); // Adding the id number to the uri, which is a string
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
 }
