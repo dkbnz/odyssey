@@ -76,7 +76,7 @@ public class QuestAttempt extends BaseModel {
      * @return  current TreasureHunt to solve.
      */
     @JsonProperty("current")
-    @JsonIgnoreProperties({"destination"})
+    @JsonIgnoreProperties({"destination", "radius"})
     public TreasureHunt getCurrent() {
         if (!solvedCurrent && !completed) {
             return questAttempted
@@ -94,7 +94,7 @@ public class QuestAttempt extends BaseModel {
      * @return  a list of unsolved treasure hunts
      */
     @JsonProperty("unsolved")
-    @JsonIgnoreProperties({"destination"})
+    @JsonIgnoreProperties({"destination", "radius"})
     public List<TreasureHunt> getUnsolved() {
         return questAttempted
                 .getTreasureHunts()
