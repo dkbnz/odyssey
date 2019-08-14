@@ -44,42 +44,27 @@ import static play.test.Helpers.*;
 
 public class PhotoTestSteps {
 
-    @Inject
-    Application application;
-    private Database database;
+    /**
+     * Singleton class which stores generally used variables
+     */
+    private TestContext testContext;
+
+    /**
+     * Test file with test steps common over different scenarios
+     */
+    private GeneralSteps generalSteps;
+
+
 
     private static final String AUTHORIZED = "authorized";
     private static final String PHOTO_URI = "/v1/photos/";
     private static final String CHANGE_PHOTO_PRIVACY_URI = "/v1/photos";
     private static final String PROFILE_PHOTO_URI = "/v1/profilePhoto/";
     private static final String DESTINATION_PHOTO_URI = "/v1/destinationPhotos/";
-    private static final String LOGIN_URI = "/v1/login";
 
-    /**
-     * A valid username for login credentials for admin user.
-     */
-    private static final String VALID_USERNAME = "admin@travelea.com";
 
-    /**
-     * A valid password for login credentials for admin user.
-     */
-    private static final String VALID_AUTH_PASS = "admin1";
-    private static final String ADMIN_ID = "1";
-
-    /**
-     * A valid username for login credentials for a regular user.
-     */
-    private static final String REG_USER = "guestUser@travelea.com";
-
-    /**
-     * A valid password for login credentials for a regular user.
-     */
-    private static final String REG_PASS = "guest123";
-    private static final String REG_ID = "2";
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private int statusCode;
-    private String loggedInUserId;
 
     private PersonalPhotoRepository personalPhotoRepository;
     private DestinationRepository destinationRepository;
@@ -87,42 +72,16 @@ public class PhotoTestSteps {
 
     @Before
     public void setUp() {
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("play.db.config", "db");
-        configuration.put("play.db.default", "default");
-        configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:testDBPhotos;MODE=MYSQL;");
-        configuration.put("ebean.default", "models.*");
-        configuration.put("play.evolutions.db.default.enabled", "true");
-        configuration.put("play.evolutions.autoApply", "false");
+        testContext = TestContext.getInstance();
 
-        //Set up the fake application to use the in memory database config
-        application = fakeApplication(configuration);
+        generalSteps = new GeneralSteps();
+        generalSteps.setUp();
 
-        database = application.injector().instanceOf(Database.class);
-
-        personalPhotoRepository = application.injector().instanceOf(PersonalPhotoRepository.class);
-        destinationRepository = application.injector().instanceOf(DestinationRepository.class);
-        profileRepository = application.injector().instanceOf(ProfileRepository.class);
-
-        applyEvolutions();
-
-        Helpers.start(application);
+        personalPhotoRepository = testContext.getApplication().injector().instanceOf(PersonalPhotoRepository.class);
+        destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
+        profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
     }
 
-    /**
-     * Applies down evolutions to the database from the test/evolutions/default directory.
-     * This drops tables and data from the database.
-     */
-    private void applyEvolutions() {
-        Evolutions.applyEvolutions(
-                database,
-                Evolutions.fromClassLoader(
-                        getClass().getClassLoader(),
-                        "test/"
-                )
-        );
-    }
 
     /**
      * Runs after each test scenario.
@@ -131,42 +90,9 @@ public class PhotoTestSteps {
      */
     @After
     public void tearDown() {
-        cleanEvolutions();
-        database.shutdown();
-        Helpers.stop(application);
+        generalSteps.tearDown();
     }
 
-    /**
-     * Applies up evolutions to the database from the test/evolutions/default directory.
-     *
-     * This populates the database with necessary tables and values.
-     */
-    private void cleanEvolutions() {
-        Evolutions.cleanupEvolutions(database);
-    }
-
-
-    /**
-     * Sends a fake request to the application to login.
-     *
-     * @param username The string of the username to complete the login with.
-     * @param password The string of the password to complete the login with.
-     */
-    private void loginRequest(String username, String password) {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode json = mapper.createObjectNode();
-
-        json.put("username", username);
-        json.put("password", password);
-
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .bodyJson(json)
-                .uri(LOGIN_URI);
-        Result loginResult = route(application, request);
-
-        statusCode = loginResult.status();
-    }
 
     /**
      * Creates a Json ObjectNode to be used for the photo.
@@ -204,25 +130,6 @@ public class PhotoTestSteps {
         json.put("id", photoId);
 
         return json;
-    }
-
-    @Given("I am logged in as the administrator")
-    public void anAdminIsLoggedIn() {
-        loginRequest(VALID_USERNAME, VALID_AUTH_PASS);
-        Assert.assertEquals(OK, statusCode);
-        loggedInUserId = ADMIN_ID;
-    }
-
-    @Given("I am logged in as a non-admin user")
-    public void iAmLoggedInAsARegularUser() {
-        loginRequest(REG_USER, REG_PASS);
-        Assert.assertEquals(OK, statusCode);
-        loggedInUserId = REG_ID;
-    }
-
-    @Given("I have a application running")
-    public void theApplicationIsRunning() throws BeansException {
-        Assert.assertTrue(application.isTest());
     }
 
 
@@ -284,11 +191,11 @@ public class PhotoTestSteps {
                         .bodyRaw(
                                 Collections.singletonList(part),
                                 play.libs.Files.singletonTemporaryFileCreator(),
-                                application.asScala().materializer())
-                        .session(AUTHORIZED, REG_ID);
+                                testContext.getApplication().asScala().materializer())
+                        .session(AUTHORIZED, testContext.getLoggedInId());
 
-        Result createPhotoResult = route(application, request);
-        statusCode = createPhotoResult.status();
+        Result createPhotoResult = route(testContext.getApplication(), request);
+        testContext.setStatusCode(createPhotoResult.status());
 
         if (!file.delete())
             log.error("Unable to delete test file");
@@ -304,10 +211,10 @@ public class PhotoTestSteps {
                         .uri(CHANGE_PHOTO_PRIVACY_URI)
                         .method(PATCH)
                         .bodyJson(json)
-                        .session(AUTHORIZED, loggedInUserId);
-        Result changePhotoPrivacyResult = route(application, request);
+                        .session(AUTHORIZED, testContext.getLoggedInId());
+        Result changePhotoPrivacyResult = route(testContext.getApplication(), request);
 
-        statusCode = changePhotoPrivacyResult.status();
+        testContext.setStatusCode(changePhotoPrivacyResult.status());
     }
 
 
@@ -317,10 +224,10 @@ public class PhotoTestSteps {
                 Helpers.fakeRequest()
                         .uri(PHOTO_URI + photoId)
                         .method(DELETE)
-                        .session(AUTHORIZED, loggedInUserId);
-        Result changePhotoPrivacyResult = route(application, request);
+                        .session(AUTHORIZED, testContext.getLoggedInId());
+        Result changePhotoPrivacyResult = route(testContext.getApplication(), request);
 
-        statusCode = changePhotoPrivacyResult.status();
+        testContext.setStatusCode(changePhotoPrivacyResult.status());
     }
 
 
@@ -330,10 +237,10 @@ public class PhotoTestSteps {
                 Helpers.fakeRequest()
                         .uri(PROFILE_PHOTO_URI + userId)
                         .method(DELETE)
-                        .session(AUTHORIZED, loggedInUserId);
-        Result changePhotoPrivacyResult = route(application, request);
+                        .session(AUTHORIZED, testContext.getLoggedInId());
+        Result changePhotoPrivacyResult = route(testContext.getApplication(), request);
 
-        statusCode = changePhotoPrivacyResult.status();
+        testContext.setStatusCode(changePhotoPrivacyResult.status());
     }
 
 
@@ -343,10 +250,10 @@ public class PhotoTestSteps {
                 Helpers.fakeRequest()
                         .uri(PROFILE_PHOTO_URI + photoId)
                         .method(PUT)
-                        .session(AUTHORIZED, loggedInUserId);
+                        .session(AUTHORIZED, testContext.getLoggedInId());
 
-        Result changeProfilePhotoResult = route(application, request);
-        statusCode = changeProfilePhotoResult.status();
+        Result changeProfilePhotoResult = route(testContext.getApplication(), request);
+        testContext.setStatusCode(changeProfilePhotoResult.status());
     }
 
     @When("I add a photo with id {int} to a destination with id {int}")
@@ -357,10 +264,10 @@ public class PhotoTestSteps {
                         .uri(DESTINATION_PHOTO_URI + destinationId)
                         .method(POST)
                         .bodyJson(json)
-                        .session(AUTHORIZED, loggedInUserId);
+                        .session(AUTHORIZED, testContext.getLoggedInId());
 
-        Result addDestinationPhotoResult = route(application, request);
-        statusCode = addDestinationPhotoResult.status();
+        Result addDestinationPhotoResult = route(testContext.getApplication(), request);
+        testContext.setStatusCode(addDestinationPhotoResult.status());
     }
 
 
@@ -372,15 +279,9 @@ public class PhotoTestSteps {
                         .uri(DESTINATION_PHOTO_URI + destinationId)
                         .method(DELETE)
                         .bodyJson(json)
-                        .session(AUTHORIZED, loggedInUserId);
+                        .session(AUTHORIZED, testContext.getLoggedInId());
 
-        Result addDestinationPhotoResult = route(application, request);
-        statusCode = addDestinationPhotoResult.status();
-    }
-
-
-    @Then("^the status code I get is (\\d+)$")
-    public void theStatusCodeIsIGetIs(int expectedStatusCode) {
-        Assert.assertEquals(expectedStatusCode, statusCode);
+        Result addDestinationPhotoResult = route(testContext.getApplication(), request);
+        testContext.setStatusCode(addDestinationPhotoResult.status());
     }
 }
