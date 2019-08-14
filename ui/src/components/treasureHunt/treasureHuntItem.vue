@@ -71,7 +71,7 @@
                                         label="Selected Destination check in radius:"
                                         label-for="radius">
                                     <!--Dropdown field for destination check in values-->
-                                    <b-form-select id="radius" trim v-model="radiusSelected">
+                                    <b-form-select id="radius" trim v-model="inputTreasureHunt.radius">
                                         <template slot="first">
                                         </template>
                                         <option :value="radius" v-for="radius in radiusList"
@@ -81,10 +81,10 @@
                                     </b-form-select>
                                 </b-form-group>
 
-                                <div ref="map" v-if="radiusSelected !== null && selectedDestination.name">
+                                <div ref="map" v-if="inputTreasureHunt.radius !== null && selectedDestination.name">
                                     <google-map ref="map"
                                                 :showRadius="true"
-                                                :radius="radiusSelected.value"
+                                                :radius="inputTreasureHunt.radius.value"
                                                 :selectedRadiusDestination="selectedDestination">
                                     </google-map>
                                 </div>
@@ -95,7 +95,7 @@
                 <b-row>
                     <b-col cols="8">
                         <b-button @click="validateTreasureHunt" block variant="primary">
-                            Save
+                            {{ heading }}
                         </b-button>
                     </b-col>
                     <b-col>
@@ -135,7 +135,8 @@
                         startDate: "",
                         startTime: "",
                         endDate: "",
-                        endTime: "23:59"
+                        endTime: "23:59",
+                        radius: null
                     }
                 }
             },
@@ -170,7 +171,6 @@
                     {value: 5, text: "5 Km"},
                     {value: 10, text: "10 Km"},
                 ],
-                radiusSelected: null,
                 initial: {
                     zoom: 5,
                     view: {
@@ -275,10 +275,10 @@
              * @returns true if validated.
              */
             validateCheckIn() {
-                if (this.radiusSelected === null) {
+                if (this.inputTreasureHunt.radius === null) {
                     return false;
                 }
-                return this.radiusSelected.length > 0 || this.radiusSelected !== null;
+                return this.inputTreasureHunt.radius.length > 0 || this.inputTreasureHunt.radius !== null;
             },
 
 
@@ -374,12 +374,15 @@
              * updateHunt if there is an active editing ID or saveHunt otherwise (adding a new one).
              */
             validateTreasureHunt() {
-                if (this.validateStartDate && this.validateStartTime && this.validateEndDate && this.validateEndTime
-                    && this.validateDestination && this.validateRiddle && this.validateCheckIn) {
-                    if (this.inputTreasureHunt.id !== null) {
-                        this.updateHunt();
+                if (this.validateDestination && this.validateRiddle && this.validateCheckIn) {
+                    if (this.heading === "Add") {
+                        this.addHunt();
                     } else {
-                        this.saveHunt();
+                        if (this.inputTreasureHunt.id !== null) {
+                            this.updateHunt();
+                        } else {
+                            this.saveHunt();
+                        }
                     }
                 } else {
                     this.errorMessage = "Not all fields have valid information!";
@@ -398,13 +401,27 @@
 
 
             /**
+             * When used in quests for adding a treasure hunt to the quests list by emitting it outside of the component
+             */
+            addHunt() {
+                this.inputTreasureHunt.destination = {"id": this.inputTreasureHunt.destination.id};
+                this.inputTreasureHunt.radius = this.inputTreasureHunt.radius.value;
+                delete this.inputTreasureHunt.startTime;
+                delete this.inputTreasureHunt.endTime;
+                delete this.inputTreasureHunt.startDate;
+                delete this.inputTreasureHunt.endDate;
+                this.$emit('addTreasureHunt', this.inputTreasureHunt);
+                this.$emit('cancelCreate')
+            },
+
+
+            /**
              * Creates formatted JSON of the currently active treasure hunt.
              * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
              */
             assembleTreasureHunt() {
                 this.joinDates();
                 this.inputTreasureHunt.destination = {"id": this.inputTreasureHunt.destination.id};
-                console.log(this.inputTreasureHunt);
 
                 delete this.inputTreasureHunt.startTime;
                 delete this.inputTreasureHunt.endTime;
