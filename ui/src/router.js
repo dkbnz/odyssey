@@ -6,6 +6,7 @@ import Profiles from './components/profiles/profilesPage'
 import Trips from './components/trips/tripsPage'
 import AdminPanel from './components/admin/adminPanel'
 import SingleProfile from './components/admin/singleProfile'
+import Quests from './components/quests/questPage'
 
 import VueRouter from 'vue-router';
 
@@ -29,6 +30,11 @@ const routes = [
         path:"/treasureHunts",
         name: "treasureHunts",
         component: TreasureHunts
+    },
+    {
+        path:"/quests",
+        name: "quests",
+        component: Quests
     },
     {
         path:"/profiles",
