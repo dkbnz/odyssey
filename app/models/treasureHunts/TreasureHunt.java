@@ -56,7 +56,7 @@ public class TreasureHunt extends BaseModel {
 //    private Set<Profile> checkedInProfiles;
 //
 //    @JsonView(Views.Owner.class)
-//    private Double marginOfError;
+//    private Double radius;
 
     public Destination getDestination() {
         return destination;
@@ -143,7 +143,7 @@ public class TreasureHunt extends BaseModel {
         }
 
         //TODO Joel will add margin of error stuff later
-//        if (marginOfError == null || marginOfError <= 0) {
+//        if (radius == null || radius <= 0) {
 //            errors.add(new ApiError("You must select a range for the destination's check in"));
 //        }
 
