@@ -114,12 +114,14 @@
                 </div>
 
                 <b-row v-if="addNewTreasureHunt">
-                    <add-treasure-hunt
-                                       :profile="profile"
-                                       :heading="'Create'"
-                                       @destination-select="$emit('destination-select')"
-                                       :selectedDestination="selectedDestination">
-                    </add-treasure-hunt>
+                    <b-col cols="12">
+                        <add-treasure-hunt
+                                :profile="profile"
+                                :heading="'Create'"
+                                @destination-select="$emit('destination-select')"
+                                :selectedDestination="selectedDestination">
+                        </add-treasure-hunt>
+                    </b-col>
                 </b-row>
 
                 <b-row>
@@ -167,7 +169,7 @@
             newDestination: Object,
             selectedDestination: {
                 default: function () {
-                    return this.inputQuest.destination
+                    return {}
                 }
             },
             heading: String,

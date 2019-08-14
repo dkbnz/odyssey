@@ -27,7 +27,6 @@
         <b-row>
             <b-col>
                     <b-form>
-
                         <b-container fluid>
                             <b-form-group
                                     id="treasure_hunt_riddle-field"
@@ -44,111 +43,44 @@
 
                         <b-form>
                             <b-container fluid>
-                                <b-row>
-                                    <b-col>
-                                        <h6 class="mb-1">Selected Destination:</h6>
-                                        <b-list-group @click="$emit('destination-select')">
-                                            <b-list-group-item href="#" class="flex-column align-items-start"
-                                                               v-if="selectedDestination"
-                                                               id="selectedDestination"
-                                                               :disabled="selectedDestination.length === '{}'"
-                                                               :variant="checkDestinationState">
-                                                <div class="d-flex w-100 justify-content-between">
-                                                    <h5 class="mb-1" v-if="selectedDestination.name">
-                                                        {{selectedDestination.name}}
-                                                    </h5>
-                                                    <h5 class="mb-1" v-else>Select a Destination</h5>
+                                <h6 class="mb-1">Selected Destination:</h6>
+                                <b-list-group @click="$emit('destination-select')">
+                                    <b-list-group-item href="#" class="flex-column align-items-start"
+                                                       v-if="selectedDestination"
+                                                       id="selectedDestination"
+                                                       :disabled="selectedDestination.length === '{}'"
+                                                       :variant="checkDestinationState">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1" v-if="selectedDestination.name">
+                                                {{selectedDestination.name}}
+                                            </h5>
+                                            <h5 class="mb-1" v-else>Select a Destination</h5>
 
-                                                </div>
+                                        </div>
 
-                                                <p>
-                                                    {{selectedDestination.district}}
-                                                </p>
-                                                <p>
-                                                    {{selectedDestination.country}}
-                                                </p>
-                                            </b-list-group-item>
-                                        </b-list-group>
-                                        <b-form-group
-                                                id="radius-field"
-                                                label="Selected Destination check in radius:"
-                                                label-for="radius">
-                                            <!--Dropdown field for destination check in values-->
-                                            <b-form-select id="radius" trim v-model="radiusSelected">
-                                                <template slot="first">
-                                                </template>
-                                                <option :value="radius" v-for="radius in radiusList"
-                                                        :state="validateCheckIn">
-                                                    {{radius.text}}
-                                                </option>
-                                            </b-form-select>
-                                        </b-form-group>
-                                    </b-col>
+                                        <p>
+                                            {{selectedDestination.district}}
+                                        </p>
+                                        <p>
+                                            {{selectedDestination.country}}
+                                        </p>
+                                    </b-list-group-item>
+                                </b-list-group>
+                                <b-form-group
+                                        id="radius-field"
+                                        label="Selected Destination check in radius:"
+                                        label-for="radius">
+                                    <!--Dropdown field for destination check in values-->
+                                    <b-form-select id="radius" trim v-model="radiusSelected">
+                                        <template slot="first">
+                                        </template>
+                                        <option :value="radius" v-for="radius in radiusList"
+                                                :state="validateCheckIn">
+                                            {{radius.text}}
+                                        </option>
+                                    </b-form-select>
+                                </b-form-group>
 
-                                    <b-col>
-                                        <b-form-group
-                                                id="startDate-field"
-                                                label="Start Date:"
-                                                label-for="startDate">
-                                            <b-row>
-                                            <b-col cols="6">
-                                                <b-form-input :type="'date'"
-                                                              id="startDate"
-                                                              min='getCurrentDate()'
-                                                              max='9999-12-31'
-                                                              trim
-                                                              v-model="inputTreasureHunt.startDate"
-                                                              :state="validateStartDate">
-
-                                                </b-form-input>
-                                            </b-col>
-                                            <b-col cols="6">
-                                                <b-form-input :type="'time'"
-                                                              id="startTime"
-                                                              min='getCurrentTime()'
-                                                              max=''
-                                                              trim
-                                                              v-model="inputTreasureHunt.startTime"
-                                                              :state="validateStartTime">
-                                                </b-form-input>
-                                            </b-col>
-                                            </b-row>
-
-                                        </b-form-group>
-                                        <b-form-group
-                                                id="endDate-field"
-                                                label="Expiration Date:"
-                                                label-for="endDate">
-                                            <b-col cols="6"></b-col>
-                                            <b-col cols="6"></b-col>
-
-                                            <b-row>
-                                                <b-col cols="6">
-                                                    <b-form-input :type="'date'"
-                                                                  id="endDate"
-                                                                  min='getCurrentDate()'
-                                                                  max='9999-12-31'
-                                                                  trim
-                                                                  v-model="inputTreasureHunt.endDate"
-                                                                  :state="validateEndDate">
-
-                                                    </b-form-input>
-                                                </b-col>
-
-                                                <b-col cols="6">
-                                                    <b-form-input :type="'time'"
-                                                                  id="endTime"
-                                                                  min='getCurrentTime()'
-                                                                  max=''
-                                                                  trim
-                                                                  v-model="inputTreasureHunt.endTime"
-                                                                  :state="validateEndTime">
-                                                    </b-form-input>
-                                                </b-col>
-                                            </b-row>
-                                        </b-form-group>
-                                    </b-col>
-                                </b-row>
                                 <div ref="map" v-if="radiusSelected !== null && selectedDestination.name">
                                     <google-map ref="map"
                                                 :showRadius="true"
