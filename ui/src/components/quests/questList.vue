@@ -19,6 +19,12 @@
                         ></b-progress>
                     </b-alert>
                     <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingQuest">
+                        <QuestItem
+                                :heading="'Create'"
+                                :profile="profile"
+                                @cancelCreate="cancelEdit"
+                                :selectedDestination="selectedDestination"
+                        ></QuestItem>
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center" v-if="!creatingQuest">
                         <div class="d-flex justify-content-center">
@@ -56,14 +62,6 @@
                                 </b-col>
                             </b-row>
                         </template>
-                        <add-treasure-hunt v-else
-                                           :profile="profile"
-                                           :heading="'Edit'"
-                                           :input-treasure-hunt="copiedTreasureHunt"
-                                           @cancelCreate="cancelEdit"
-                                           @destination-select="$emit('destination-select')"
-                                           :selectedDestination="selectedDestination">
-                        </add-treasure-hunt>
                         <!--Quest component-->
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">

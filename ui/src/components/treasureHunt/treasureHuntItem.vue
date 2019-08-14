@@ -7,15 +7,15 @@
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
-        <!-- Displays success alert and progress bar on trip creation as a loading bar
-        for the trip being added to the database -->
+        <!-- Displays success alert and progress bar on treasure hunt creation as a loading bar
+        for the treasure hunt being added to the database -->
         <b-alert
                 :show="dismissCountDown"
                 @dismiss-count-down="countDownChanged"
                 @dismissed="dismissCountDown=0"
                 dismissible
                 variant="success">
-            <p>Trip Successfully Saved</p>
+            <p>Treasure Hunt Successfully Saved</p>
             <b-progress
                     :max="dismissSecs"
                     :value="dismissCountDown"
@@ -44,96 +44,29 @@
 
                     <b-form>
                         <b-container fluid>
-                            <b-row>
-                                <b-col>
-                                    <h6 class="mb-1">Selected Destination:</h6>
-                                    <b-list-group @click="$emit('destination-select')">
-                                        <b-list-group-item href="#" class="flex-column align-items-start"
-                                                           v-if="displayedDestination"
-                                                           id="selectedDestination"
-                                                           :disabled="displayedDestination.length === '{}'"
-                                                           :variant="checkDestinationState">
-                                            <div class="d-flex w-100 justify-content-between">
-                                                <h5 class="mb-1" v-if="displayedDestination.name">
-                                                    {{displayedDestination.name}}
-                                                </h5>
-                                                <h5 class="mb-1" v-else>Select a Destination</h5>
+                            <h6 class="mb-1">Selected Destination:</h6>
+                            <b-list-group @click="$emit('destination-select')">
+                                <b-list-group-item href="#" class="flex-column align-items-start"
+                                                   v-if="displayedDestination"
+                                                   id="selectedDestination"
+                                                   :disabled="displayedDestination.length === '{}'"
+                                                   :variant="checkDestinationState">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1" v-if="displayedDestination.name">
+                                            {{displayedDestination.name}}
+                                        </h5>
+                                        <h5 class="mb-1" v-else>Select a Destination</h5>
 
-                                        </div>
+                                </div>
 
-                                            <p>
-                                                {{displayedDestination.district}}
-                                            </p>
-                                            <p>
-                                                {{displayedDestination.country}}
-                                            </p>
-                                        </b-list-group-item>
-                                    </b-list-group>
-                                </b-col>
-                                <b-col>
-                                    <b-form-group
-                                            id="startDate-field">
-                                        <b-row>
-                                            <b-col cols="6">
-                                                <label>Start Date:</label>
-                                                <b-form-input :type="'date'"
-                                                              id="startDate"
-                                                              min='getCurrentDate()'
-                                                              max='9999-12-31'
-                                                              trim
-                                                              v-model="inputTreasureHunt.startDate"
-                                                              :state="validateStartDate">
-
-                                                </b-form-input>
-                                            </b-col>
-                                            <b-col cols="6">
-                                                <label>Start Time:</label>
-                                                <b-form-input :type="'time'"
-                                                              id="startTime"
-                                                              min='getCurrentTime()'
-                                                              max=''
-                                                              trim
-                                                              v-model="startTime"
-                                                              :state="validateStartTime">
-                                                </b-form-input>
-                                            </b-col>
-                                        </b-row>
-
-                                    </b-form-group>
-                                    <b-form-group
-                                            id="endDate-field">
-                                        <b-col cols="6"></b-col>
-                                        <b-col cols="6"></b-col>
-
-                                        <b-row>
-                                            <b-col cols="6">
-                                                <label>Expiration Date:</label>
-                                                <b-form-input :type="'date'"
-                                                              id="endDate"
-                                                              min='getCurrentDate()'
-                                                              max='9999-12-31'
-                                                              trim
-                                                              v-model="inputTreasureHunt.endDate"
-                                                              :state="validateEndDate">
-
-                                                </b-form-input>
-                                            </b-col>
-
-                                            <b-col cols="6">
-                                                <label>Expiration Time:</label>
-                                                <b-form-input :type="'time'"
-                                                              id="endTime"
-                                                              min='getCurrentTime()'
-                                                              max=''
-                                                              trim
-                                                              v-model="endTime"
-                                                              :state="validateEndTime">
-                                                </b-form-input>
-                                            </b-col>
-                                        </b-row>
-                                    </b-form-group>
-                                </b-col>
-                            </b-row>
+                                    <p>
+                                        {{displayedDestination.district}}
+                                    </p>
+                                    <p>
+                                        {{displayedDestination.country}}
+                                    </p>
+                                </b-list-group-item>
+                            </b-list-group>
                         </b-container>
                     </b-form>
                 </b-form>
