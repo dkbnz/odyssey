@@ -91,6 +91,7 @@ public class AdminTestSteps {
     private JsonNode convertDataTableToJsonNode(io.cucumber.datatable.DataTable dataTable) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+
         String username = list.get(0).get("username");
         String password = list.get(0).get("password");
         String firstName = list.get(0).get("first_name");
@@ -128,34 +129,6 @@ public class AdminTestSteps {
         return json;
     }
 
-
-    @Given("The following profile does not exist with username {string} within the TravelEA database")
-    public void theFollowingProfileDoesNotExistWithUsernameWithinTheTravelEADatabase(String username) {
-        // Sends the fake request
-        Http.RequestBuilder request = fakeRequest()
-                .method(GET)
-                .session(AUTHORIZED, "1")
-                .uri(PROFILES_URI);
-        Result result = route(testContext.getApplication(), request);
-        testContext.setStatusCode(result.status());
-
-        // Gets the response
-        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
-
-        // Finds profile from the iterator
-        boolean foundProfile = false;
-        while (iterator.hasNext() && !foundProfile) {
-            JsonNode jsonProfile = iterator.next();
-            if (jsonProfile.get(USERNAME).asText().equals(username)) {
-                foundProfile = true;
-            }
-        }
-
-        Assert.assertFalse(foundProfile);
-
-    }
-
-
     @When("An admin attempts to create a profile with the following fields:")
     public void anAdminAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) {
         // Creates the json for the profile
@@ -172,7 +145,7 @@ public class AdminTestSteps {
     }
 
 
-    @Given("a user exists in the database with the id {int} and username {string}")
+    @Given("^a user exists in the database with the id (\\d+) and username \"(\\w+)@(\\w+)\\.(\\w+)\"$")
     public void aUserExistsInTheDatabaseWithTheIdAndUsername(Integer id, String username) {
         Profile profile = profileRepository.findById(id.longValue());
         Assert.assertNotNull(profile);
@@ -180,7 +153,7 @@ public class AdminTestSteps {
     }
 
 
-    @Given("a user does not exist with the username {string}")
+    @Given("^a user does not exist with the username \"(\\w+)@(\\w+)\\.(\\w+)\"$")
     public void aUserDoesNotExistWithTheUsername(String username) {
         Assert.assertNull(profileRepository.getExpressionList()
                 .like(USERNAME, username)
@@ -188,7 +161,7 @@ public class AdminTestSteps {
     }
 
 
-    @When("I change the username of the user with id {int} to {string}")
+    @When("^I change the username of the user with id (\\d+) to \"(\\w+)@(\\w+)\\.(\\w+)\"$")
     public void iChangeTheUsernameOfTheUserWithIdTo(Integer idToChange, String newUsername) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
