@@ -3,19 +3,19 @@
     <div>
 
 
-        <h1 class="page-title">{{ heading }} a Treasure Hunt!</h1>
+        <h1 class="page-title">{{ heading }} a Quest!</h1>
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
-        <!-- Displays success alert and progress bar on trip creation as a loading bar
-        for the trip being added to the database -->
+        <!-- Displays success alert and progress bar on quest creation as a loading bar
+        for the quest being added to the database -->
         <b-alert
                 :show="dismissCountDown"
                 @dismiss-count-down="countDownChanged"
                 @dismissed="dismissCountDown=0"
                 dismissible
                 variant="success">
-            <p>Trip Successfully Saved</p>
+            <p>Quest Successfully Saved</p>
             <b-progress
                     :max="dismissSecs"
                     :value="dismissCountDown"
@@ -30,117 +30,101 @@
 
                     <b-container fluid>
                         <b-form-group
-                                id="treasure_hunt_riddle-field"
-                                label="Treasure Hunt Riddle:"
-                                label-for="treasure_hunt_riddle">
+                                id="quest_title-field"
+                                label="Quest Title:"
+                                label-for="quest_title">
                             <b-form-textarea :type="'expandable-text'"
-                                             id="treasure_hunt_riddle"
+                                             id="quest_title"
                                              trim
-                                             v-model="inputTreasureHunt.riddle"
-                                             :state="validateRiddle"></b-form-textarea>
+                                             v-model="inputQuest.title"
+                                             :state="validateTitle"></b-form-textarea>
                         </b-form-group>
                     </b-container>
 
 
                     <b-form>
                         <b-container fluid>
-                            <b-row>
-                                <b-col>
-                                    <h6 class="mb-1">Selected Destination:</h6>
-                                    <b-list-group @click="$emit('destination-select')">
-                                        <b-list-group-item href="#" class="flex-column align-items-start"
-                                                           v-if="displayedDestination"
-                                                           id="selectedDestination"
-                                                           :disabled="displayedDestination.length === '{}'"
-                                                           :variant="checkDestinationState">
-                                            <div class="d-flex w-100 justify-content-between">
-                                                <h5 class="mb-1" v-if="displayedDestination.name">
-                                                    {{displayedDestination.name}}
-                                                </h5>
-                                                <h5 class="mb-1" v-else>Select a Destination</h5>
+                            <b-form-group
+                                    id="startDate-field">
+                                <b-row>
+                                    <b-col cols="6">
+                                        <label>Start Date:</label>
+                                        <b-form-input :type="'date'"
+                                                      id="startDate"
+                                                      min='getCurrentDate()'
+                                                      max='9999-12-31'
+                                                      trim
+                                                      v-model="inputQuest.startDate"
+                                                      :state="validateStartDate">
 
-                                        </div>
+                                        </b-form-input>
+                                    </b-col>
+                                    <b-col cols="6">
+                                        <label>Start Time:</label>
+                                        <b-form-input :type="'time'"
+                                                      id="startTime"
+                                                      min='getCurrentTime()'
+                                                      max=''
+                                                      trim
+                                                      v-model="startTime"
+                                                      :state="validateStartTime">
+                                        </b-form-input>
+                                    </b-col>
+                                </b-row>
 
-                                            <p>
-                                                {{displayedDestination.district}}
-                                            </p>
-                                            <p>
-                                                {{displayedDestination.country}}
-                                            </p>
-                                        </b-list-group-item>
-                                    </b-list-group>
-                                </b-col>
-                                <b-col>
-                                    <b-form-group
-                                            id="startDate-field">
-                                        <b-row>
-                                            <b-col cols="6">
-                                                <label>Start Date:</label>
-                                                <b-form-input :type="'date'"
-                                                              id="startDate"
-                                                              min='getCurrentDate()'
-                                                              max='9999-12-31'
-                                                              trim
-                                                              v-model="inputTreasureHunt.startDate"
-                                                              :state="validateStartDate">
+                            </b-form-group>
+                            <b-form-group
+                                    id="endDate-field">
+                                <b-col cols="6"></b-col>
+                                <b-col cols="6"></b-col>
 
-                                                </b-form-input>
-                                            </b-col>
-                                            <b-col cols="6">
-                                                <label>Start Time:</label>
-                                                <b-form-input :type="'time'"
-                                                              id="startTime"
-                                                              min='getCurrentTime()'
-                                                              max=''
-                                                              trim
-                                                              v-model="startTime"
-                                                              :state="validateStartTime">
-                                                </b-form-input>
-                                            </b-col>
-                                        </b-row>
+                                <b-row>
+                                    <b-col cols="6">
+                                        <label>Expiration Date:</label>
+                                        <b-form-input :type="'date'"
+                                                      id="endDate"
+                                                      min='getCurrentDate()'
+                                                      max='9999-12-31'
+                                                      trim
+                                                      v-model="inputQuest.endDate"
+                                                      :state="validateEndDate">
 
-                                    </b-form-group>
-                                    <b-form-group
-                                            id="endDate-field">
-                                        <b-col cols="6"></b-col>
-                                        <b-col cols="6"></b-col>
+                                        </b-form-input>
+                                    </b-col>
 
-                                        <b-row>
-                                            <b-col cols="6">
-                                                <label>Expiration Date:</label>
-                                                <b-form-input :type="'date'"
-                                                              id="endDate"
-                                                              min='getCurrentDate()'
-                                                              max='9999-12-31'
-                                                              trim
-                                                              v-model="inputTreasureHunt.endDate"
-                                                              :state="validateEndDate">
-
-                                                </b-form-input>
-                                            </b-col>
-
-                                            <b-col cols="6">
-                                                <label>Expiration Time:</label>
-                                                <b-form-input :type="'time'"
-                                                              id="endTime"
-                                                              min='getCurrentTime()'
-                                                              max=''
-                                                              trim
-                                                              v-model="endTime"
-                                                              :state="validateEndTime">
-                                                </b-form-input>
-                                            </b-col>
-                                        </b-row>
-                                    </b-form-group>
-                                </b-col>
-                            </b-row>
+                                    <b-col cols="6">
+                                        <label>Expiration Time:</label>
+                                        <b-form-input :type="'time'"
+                                                      id="endTime"
+                                                      min='getCurrentTime()'
+                                                      max=''
+                                                      trim
+                                                      v-model="endTime"
+                                                      :state="validateEndTime">
+                                        </b-form-input>
+                                    </b-col>
+                                </b-row>
+                            </b-form-group>
                         </b-container>
                     </b-form>
                 </b-form>
 
+                <div class="d-flex justify-content-center" >
+                    <b-button variant="success"  @click="addNewTreasureHunt = !addNewTreasureHunt" block>Add a New Treasure Hunt</b-button>
+                </div>
+
+                <b-row v-if="addNewTreasureHunt">
+                    <add-treasure-hunt
+                                       :profile="profile"
+                                       :heading="'Create'"
+                                       @destination-select="$emit('destination-select')"
+                                       :selectedDestination="selectedDestination">
+                    </add-treasure-hunt>
+                </b-row>
+
                 <b-row>
                     <b-col cols="8">
-                        <b-button @click="validateTreasureHunt" block variant="primary">
+                        <b-button @click="validateQuest" block variant="primary">
                             Save
                         </b-button>
                     </b-col>
@@ -157,25 +141,24 @@
 </template>
 
 <script>
-    import DestinationSidebar from "../destinations/destinationSidebar";
     import BCol from "bootstrap-vue/es/components/layout/col";
+    import AddTreasureHunt from "../treasureHunt/treasureHuntItem";
 
     export default {
         name: "questItem",
 
         components: {
             BCol,
-            DestinationSidebar
+            AddTreasureHunt
         },
 
         props: {
             profile: Object,
-            inputTreasureHunt: {
+            inputQuest: {
                 default: function () {
                     return {
                         id: null,
-                        destination: null,
-                        riddle: "",
+                        title: "",
                         startDate: "",
                         endDate: "",
                     }
@@ -184,7 +167,7 @@
             newDestination: Object,
             selectedDestination: {
                 default: function () {
-                    return this.inputTreasureHunt.destination
+                    return this.inputQuest.destination
                 }
             },
             heading: String,
@@ -207,37 +190,37 @@
                 letTreasureHuntSaved: false,
                 startTime: "",
                 endTime: "23:59",
-                displayedDestination: null
+                displayedDestination: null,
+                addNewTreasureHunt: false
             }
         },
 
         watch: {
             selectedDestination() {
-                this.inputTreasureHunt.destination = this.selectedDestination;
+                this.inputQuest.destination = this.selectedDestination;
                 this.displayedDestination = this.selectedDestination;
             }
         },
 
         mounted() {
             this.splitDates();
-            this.editingTreasureHunt();
             this.setDateTimeString();
         },
 
         computed: {
             /**
-             * For new hunts, checks the start date is after the current date.
-             * For all other hunts, checks the start date is either the same as or before the end date.
+             * For new quest, checks the start date is after the current date.
+             * For all other quests, checks the start date is either the same as or before the end date.
              *
              * @returns {boolean} true if start date is valid.
              */
             validateStartDate() {
                 // For a new hunt, the start date must be after today.
-                if ((this.inputTreasureHunt.startDate < this.getDateString() && !this.inputTreasureHunt.id)) {
+                if ((this.inputQuest.startDate < this.getDateString() && !this.inputQuest.id)) {
                     return false;
                 }
                 // Otherwise, checks the start date is equal to or before the end date.
-                return this.inputTreasureHunt.startDate <= this.inputTreasureHunt.endDate;
+                return this.inputQuest.startDate <= this.inputQuest.endDate;
             },
 
 
@@ -248,17 +231,17 @@
              * @returns {boolean} true if start time is valid.
              */
             validateStartTime() {
-                // For new hunts, check the start time is after the current time.
+                // For new quests, check the start time is after the current time.
                 if (this.startTime === "" || this.startTime === undefined) {
                     return false
                 }
-                if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
+                if (this.inputQuest.startDate === this.inputQuest.endDate) {
                     if (this.startTime >= this.endTime) {
                         return false;
                     }
                 }
                 // If the dates are the same, check the start time is before the end time.
-                if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
+                if (this.inputQuest.startDate === this.inputQuest.endDate) {
                     if (this.startTime >= this.endTime) {
                         return false;
                     }
@@ -273,7 +256,7 @@
              * @returns {boolean} true if end time is valid.
              */
             validateEndTime() {
-                if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
+                if (this.inputQuest.startDate === this.inputQuest.endDate) {
                     if (this.endTime <= this.startTime) {
                         return false;
                     }
@@ -283,55 +266,31 @@
 
 
             /**
-             * For new hunts, checks the end date is after the current date.
-             * For all other hunts, checks the end date is either the same as or after the start date.
+             * For new quests, checks the end date is after the current date.
+             * For all other quests, checks the end date is either the same as or after the start date.
              *
              * @returns {boolean} true if end date is valid.
              */
             validateEndDate() {
-                // For a new hunt, the end date must be after today.
-                if (this.inputTreasureHunt.endDate < this.getDateString() && !this.inputTreasureHunt.id) {
+                // For a new quests, the end date must be after today.
+                if (this.inputQuest.endDate < this.getDateString() && !this.inputQuest.id) {
                     return false;
                 }
                 // Otherwise, checks the end date is equal to or after the start date.
-                return this.inputTreasureHunt.endDate >= this.inputTreasureHunt.startDate;
+                return this.inputQuest.endDate >= this.inputQuest.startDate;
             },
 
 
             /**
-             * Returns true if the inputted riddle has length greater than 0.
+             * Returns true if the inputted title has length greater than 0.
              *
              * @returns {Boolean} true if validated.
              */
-            validateRiddle() {
-                if (this.inputTreasureHunt.riddle.length > 0) {
+            validateTitle() {
+                if (this.inputQuest.title.length > 0) {
                     return true;
                 }
                 return null;
-            },
-
-
-            /**
-             * Returns true if the input destination exists and matches the one selected in the sidebar and isn't empty.
-             *
-             * @returns {boolean} true if valid.
-             */
-            validateDestination() {
-                return (this.inputTreasureHunt.destination !== null
-                    && this.inputTreasureHunt.destination === this.displayedDestination
-                    && this.inputTreasureHunt.destination.name !== undefined
-                    && this.inputTreasureHunt.destination.name.length > 0);
-            },
-
-
-            /**
-             * Checks the validity of the destination using validateDestination and returns the appropriate state for
-             * display.
-             *
-             * @returns 'success' if destination is valid, 'secondary' otherwise.
-             */
-            checkDestinationState() {
-                return this.validateDestination ? "success" : "secondary"
             },
         },
 
@@ -350,9 +309,9 @@
              * sets the input values to be their proper string versions of current date/time.
              */
             setDateTimeString() {
-                if (this.inputTreasureHunt.id === null) {
-                    this.inputTreasureHunt.startDate = this.getDateString();
-                    this.inputTreasureHunt.endDate = this.getDateString();
+                if (this.inputQuest.id === null) {
+                    this.inputQuest.startDate = this.getDateString();
+                    this.inputQuest.endDate = this.getDateString();
                     this.startTime = this.getTimeString();
                 }
             },
@@ -388,28 +347,16 @@
 
 
             /**
-             * Fills the destination with the existing destination of a hunt when editing it.
+             * If all field validations pass on the active quest, saves the quest using either
+             * updateQuest if there is an active editing ID or saveQuest otherwise (adding a new one).
              */
-            editingTreasureHunt() {
-                if (this.inputTreasureHunt.id !== null) {
-                    this.displayedDestination = this.inputTreasureHunt.destination;
-                } else {
-                    this.displayedDestination = this.selectedDestination;
-                }
-            },
-
-
-            /**
-             * If all field validations pass on the active treasure hunt, saves the treasure hunt using either
-             * updateHunt if there is an active editing ID or saveHunt otherwise (adding a new one).
-             */
-            validateTreasureHunt() {
+            validateQuest() {
                 if (this.validateStartDate && this.validateStartTime && this.validateEndDate && this.validateEndTime
-                    && this.validateDestination && this.validateRiddle) {
-                    if (this.inputTreasureHunt.id !== null) {
-                        this.updateHunt();
+                    && this.validateTitle) {
+                    if (this.inputQuest.id !== null) {
+                        this.updateQuest();
                     } else {
-                        this.saveHunt();
+                        this.saveQuest();
                     }
                 } else {
                     this.errorMessage = "Not all fields have valid information!";
@@ -420,27 +367,26 @@
 
 
             /**
-             * Creates formatted JSON of the currently active treasure hunt.
+             * Creates formatted JSON of the currently active quest.
              *
-             * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
+             * @returns JSON string with fields 'title', 'treasureHunts', 'startDate', 'endDate'.
              */
-            assembleTreasureHunt() {
+            assembleQuest() {
                 this.joinDates();
-                this.inputTreasureHunt.destination = {"id": this.inputTreasureHunt.destination.id};
             },
 
 
             /**
-             * POST's the currently active destination to the treasureHunts endpoint in JSON format, for newly creating
-             * destinations.
+             * POST's the currently active quest to the quests endpoint in JSON format, for newly creating
+             * quests.
              */
-            saveHunt() {
-                this.assembleTreasureHunt();
+            saveQuest() {
+                this.assembleQuest();
                 let self = this;
-                fetch('/v1/treasureHunts/' + this.profile.id, {
+                fetch('/v1/quests/' + this.profile.id, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
-                    body: JSON.stringify(this.inputTreasureHunt)
+                    body: JSON.stringify(this.inputQuest)
                 }).then(function (response) {
                     if (response.status >= 400) {
                         // Ensures the start and end date fields are not wiped after an error occurs.
@@ -451,7 +397,7 @@
                             self.showError = true;
                         });
                     } else {
-                        self.$emit('successCreate', "Treasure Hunt Successfully Created");
+                        self.$emit('successCreate', "Quest Successfully Created");
                         self.$emit('cancelCreate')
                     }
                 });
@@ -459,16 +405,16 @@
 
 
             /**
-             * PUT's the currently active destination to the treasureHunts endpoint in JSON format, for edited
-             * destinations.
+             * PUT's the currently active quest to the quests endpoint in JSON format, for edited
+             * quests.
              */
-            updateHunt() {
-                this.assembleTreasureHunt();
+            updateQuest() {
+                this.assembleQuest();
                 let self = this;
-                fetch('/v1/treasureHunts/' + this.inputTreasureHunt.id, {
+                fetch('/v1/quests/' + this.inputQuest.id, {
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},
-                    body: JSON.stringify(this.inputTreasureHunt)
+                    body: JSON.stringify(this.inputQuest)
                 }).then(function (response) {
                     if (response.status >= 400) {
                         // Ensures the start and end date fields are not wiped after an error occurs.
@@ -486,7 +432,7 @@
 
 
             /**
-             * Cancels the creation or editing of a treasure hunt by emitting a value to the treasureHuntList.
+             * Cancels the creation or editing of a quest by emitting a value to the questList.
              */
             cancelCreate() {
                 this.$emit('cancelCreate');
@@ -494,27 +440,27 @@
 
 
             /**
-             * Splits the dates of the inputTreasureHunt to put in the edit fields.
+             * Splits the dates of the quest to put in the edit fields.
              */
             splitDates() {
-                if (this.inputTreasureHunt.id !== null) {
-                    this.inputTreasureHunt.startDate = new Date(this.inputTreasureHunt.startDate).toLocaleString();
-                    let startDate = this.inputTreasureHunt.startDate;
+                if (this.inputQuest.id !== null) {
+                    this.inputQuest.startDate = new Date(this.inputQuest.startDate).toLocaleString();
+                    let startDate = this.quest.startDate;
                     // The date is the values before the comma
-                    this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split(", ")[0];
+                    this.inputQuest.startDate = this.inputQuest.startDate.split(", ")[0];
                     // Change format of dates from the backslash symbol, reverse the order, and join with hyphens.
-                    this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split("/").reverse().join("-");
+                    this.inputQuest.startDate = this.inputQuest.startDate.split("/").reverse().join("-");
                     this.startTime = startDate.split(" ")[1];
                     // Splits by either the + or the - symbol. Removing the timezone.
                     this.startTime = this.startTime.split("+")[0];
                     this.startTime = this.startTime.split("-")[0];
 
-                    this.inputTreasureHunt.endDate = new Date(this.inputTreasureHunt.endDate).toLocaleString();
-                    let endDate = this.inputTreasureHunt.endDate;
+                    this.inputQuest.endDate = new Date(this.inputQuest.endDate).toLocaleString();
+                    let endDate = this.quest.endDate;
                     // The date is the values before the comma
-                    this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split(", ")[0];
+                    this.inputQuest.endDate = this.inputQuest.endDate.split(", ")[0];
                     // Change format of dates from the backslash symbol, reverse the order, and join with hyphens.
-                    this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split("/").reverse().join("-");
+                    this.inputQuest.endDate = this.inputQuest.endDate.split("/").reverse().join("-");
                     this.endTime = endDate.split(" ")[1];
                     // Splits by either the + or the - symbol. Removing the timezone.
                     this.endTime = this.endTime.split("+")[0];
@@ -537,14 +483,14 @@
                     this.endTime += ":00";
                 }
 
-                this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate + " "
+                this.inputQuest.startDate = this.inputQuest.startDate + " "
                     + this.startTime + timeOffset;
 
-                this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate + " "
+                this.inputQuest.endDate = this.inputQuest.endDate + " "
                     + this.endTime + timeOffset;
 
-                delete this.inputTreasureHunt.startTime;
-                delete this.inputTreasureHunt.endTime;
+                delete this.inputQuest.startTime;
+                delete this.inputQuest.endTime;
             },
 
 
@@ -564,7 +510,7 @@
 
 
             /**
-             * Displays the countdown alert on the successful saving of a trip.
+             * Displays the countdown alert on the successful saving of a quest.
              */
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
@@ -572,7 +518,7 @@
 
 
             /**
-             * Used to allow an alert to countdown on the successful saving of a trip.
+             * Used to allow an alert to countdown on the successful saving of a quest.
              *
              * @param dismissCountDown      the name of the alert.
              */
