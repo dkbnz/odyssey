@@ -1,8 +1,8 @@
 <template>
     <div>
-        <div ref="map" class="mapDiv">
+        <div ref="map" :class="[showRadius ? 'mapDivTreasureHunt' : 'mapDivDestination']">
         </div>
-        <div ref="legend" class="legend">
+        <div ref="legend" v-if="!showRadius" class="legend">
             <div>
                 <img :src="publicMarker"><strong>Public Destination</strong>
             </div>
@@ -28,10 +28,14 @@
             destinations: {
                 default: null
             },
+            showRadius: false,
+            selectedRadiusDestination: Object,
+            radius: null
         },
 
         mounted() {
             this.initMap();
+            this.createCircle();
             this.createMarkers();
         },
 
@@ -48,6 +52,8 @@
                 markerArray: [],
                 publicMarker: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
                 privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                circle: null,
+                radiusMarker: null,
                 addingMarker: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
                 markerToAdd: false
             }
@@ -108,12 +114,67 @@
                 },
                 // Signals that the watcher needs to check all children for changes.
                 deep: true
+            },
+
+
+            /**
+             * Calls the create circle function
+             */
+            radius: function() {
+                this.createCircle();
+            },
+
+
+            /**
+             * Calls the create circle function
+             */
+            selectedRadiusDestination: function() {
+                this.createCircle();
             }
 
 
         },
 
         methods: {
+
+            /**
+             * Creates the circle for the map to show radius of the margin of error
+             */
+            createCircle() {
+                if (this.radiusMarker !== null) {
+                    this.radiusMarker.setPosition({lat: this.selectedRadiusDestination.latitude, lng: this.selectedRadiusDestination.longitude})
+                } else {
+                    this.radiusMarker = new google.maps.Marker({
+                        position: {lat: this.selectedRadiusDestination.latitude, lng: this.selectedRadiusDestination.longitude},
+                        map: this.$map,
+                        icon: this.privateMarker
+                    });
+                }
+                if (this.circle !== null) {
+                    this.circle.setRadius(this.radius * 1000)
+                    this.circle.setCenter({
+                        lat: this.selectedRadiusDestination.latitude,
+                        lng: this.selectedRadiusDestination.longitude
+                    })
+                } else {
+                    this.circle = new google.maps.Circle({
+                        strokeColor: '#0000ff',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: '#0000ff',
+                        fillOpacity: 0.1,
+                        map: this.$map,
+                        center: {
+                            lat: this.selectedRadiusDestination.latitude,
+                            lng: this.selectedRadiusDestination.longitude
+                        },
+                        radius: this.radius * 1000
+                    });
+                }
+                this.$map.setZoom(this.radius >= 0.5 ? 11 : 16);
+                this.$map.panTo({lat: this.selectedRadiusDestination.latitude, lng: this.selectedRadiusDestination.longitude});
+            },
+
             /**
              * Initializes the map with given latitude and longitude and zoom
              */
@@ -148,16 +209,18 @@
              * If the marker exists, it will update the position.
              */
             addDestinationToAdd() {
-                if (this.destinationToAdd.latitude !== null && this.destinationToAdd.longitude !== null) {
-                    if (this.markerToAdd === false) {
-                        //Create the marker.
-                        this.markerToAdd = this.placeDestinationMarker(this.destinationToAdd);
-                    } else {
-                        //Marker has already been added, so just change its location.
-                        this.updateDestinationMarker(this.destinationToAdd);
+                if (this.destinationToAdd !== undefined) {
+                    if (this.destinationToAdd.latitude !== null && this.destinationToAdd.longitude !== null) {
+                        if (this.markerToAdd === false) {
+                            //Create the marker.
+                            this.markerToAdd = this.placeDestinationMarker(this.destinationToAdd);
+                        } else {
+                            //Marker has already been added, so just change its location.
+                            this.updateDestinationMarker(this.destinationToAdd);
+                        }
+                        this.markerToAdd.setIcon(this.addingMarker);
+                        this.$map.panTo(this.parseCoordinates(this.destinationToAdd));
                     }
-                    this.markerToAdd.setIcon(this.addingMarker);
-                    this.$map.panTo(this.parseCoordinates(this.destinationToAdd));
                 }
             },
 
