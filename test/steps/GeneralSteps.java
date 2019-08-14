@@ -1,34 +1,16 @@
 package steps;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
-import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
-import io.cucumber.datatable.DataTable;
 import org.junit.Assert;
-import org.springframework.beans.BeansException;
-import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import com.google.inject.Inject;
-import repositories.TripRepository;
-import repositories.destinations.DestinationRepository;
-import repositories.destinations.DestinationTypeRepository;
-import repositories.destinations.TravellerTypeRepository;
-import repositories.treasureHunts.TreasureHuntRepository;
-
-import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -94,18 +76,6 @@ public class GeneralSteps {
     private static final String ALT_USERNAME = "testuser1@email.com";
     private static final String ALT_AUTH_PASS = "guest123";
     private static final String ALT_ID = "3";
-
-
-    /**
-     * Repository to access the destinations in the running application.
-     */
-    private DestinationRepository destinationRepository;
-    private TravellerTypeRepository travellerTypeRepository;
-    private DestinationTypeRepository destinationTypeRepository;
-    private TreasureHuntRepository treasureHuntRepository;
-    private TripRepository tripRepository;
-
-
 
 
     public void setUp() {
@@ -193,7 +163,7 @@ public class GeneralSteps {
     /**
      * Sends a fake request to the application to logout.
      */
-    public void logoutRequest() {
+    private void logoutRequest() {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .uri(LOGOUT_URI);

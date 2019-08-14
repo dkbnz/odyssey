@@ -5,27 +5,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
-import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
 import org.junit.Assert;
 import org.springframework.beans.BeansException;
-import play.Application;
-import play.db.Database;
-import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-
-import com.google.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.*;
 
 public class ProfileTestSteps {
@@ -64,30 +56,14 @@ public class ProfileTestSteps {
     private static final String NATIONALITIES_URI = "/v1/nationalities";
 
     /**
-     * The login uri.
-     */
-    private static final String LOGIN_URI = "/v1/login";
-
-
-    /**
      * The username string variable.
      */
     private static final String USERNAME = "username";
 
     /**
-     * The password string variable.
-     */
-    private static final String PASS_FIELD = "password";
-
-    /**
      * A valid username for login credentials for admin user.
      */
     private static final String VALID_USERNAME = "admin@travelea.com";
-
-    /**
-     * A valid password for login credentials for admin user.
-     */
-    private static final String VALID_AUTH_PASS = "admin1";
 
     /**
      * The number of traveller types expected.
@@ -224,8 +200,8 @@ public class ProfileTestSteps {
     }
 
 
-    @When("I send a GET request to the \\/travtypes endpoint")
-    public void iSendAGETRequestToTheTravtypesEndpoint() throws BeansException {
+    @When("I send a GET request to the /travtypes endpoint")
+    public void iSendAGETRequestToTheTravTypesEndpoint() throws BeansException {
         // Does the request to back end
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
@@ -285,7 +261,7 @@ public class ProfileTestSteps {
     }
 
 
-    @Given("The following profile exists with username {string} within the TravelEA database:")
+    @Given("^The following profile exists with username \"(.*)\" within the TravelEA database:$")
     public void theFollowingProfileExistsWithUsernameWithinTheTravelEADatabase(String username) {
         // Sends the fake request
         Http.RequestBuilder request = fakeRequest()
@@ -326,7 +302,7 @@ public class ProfileTestSteps {
     }
 
 
-    @Given("The following profile does not exist with the username {string} within the TravelEA database")
+    @Given("^The following profile does not exist with the username \"(.*)\" within the TravelEA database$")
     public void theFollowingProfileDoesNotExistWithTheUsernameWithinTheTravelEADatabase(String username) {
         // Sends the fake request
         Http.RequestBuilder request = fakeRequest()

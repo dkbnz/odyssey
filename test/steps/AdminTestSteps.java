@@ -3,22 +3,15 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.Profile;
 import org.junit.Assert;
-import play.Application;
-import play.db.Database;
-import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repositories.ProfileRepository;
-
-import com.google.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -61,24 +54,6 @@ public class AdminTestSteps {
 
         profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
-    }
-
-
-    /**
-     * Gets the response as an iterator array Node from any fake request so that you can iterate over the response data.
-     *
-     * @param content   the string of the result using helper content as string.
-     * @return          an Array node iterator.
-     */
-    private Iterator<JsonNode> getTheResponseIterator(String content) {
-        JsonNode arrNode = null;
-        try {
-            arrNode = new ObjectMapper().readTree(content);
-        } catch (IOException e) {
-
-            LOGGER.log(Level.SEVERE, "Unable to get response iterator for fake request.", e);
-        }
-        return arrNode.elements();
     }
 
 
@@ -145,7 +120,7 @@ public class AdminTestSteps {
     }
 
 
-    @Given("^a user exists in the database with the id (\\d+) and username \"(\\w+)@(\\w+)\\.(\\w+)\"$")
+    @Given("^a user exists in the database with the id (\\d+) and username \"(.*)\"$")
     public void aUserExistsInTheDatabaseWithTheIdAndUsername(Integer id, String username) {
         Profile profile = profileRepository.findById(id.longValue());
         Assert.assertNotNull(profile);
@@ -153,7 +128,7 @@ public class AdminTestSteps {
     }
 
 
-    @Given("^a user does not exist with the username \"(\\w+)@(\\w+)\\.(\\w+)\"$")
+    @Given("^a user does not exist with the username \"(.*)\"$")
     public void aUserDoesNotExistWithTheUsername(String username) {
         Assert.assertNull(profileRepository.getExpressionList()
                 .like(USERNAME, username)
@@ -161,7 +136,7 @@ public class AdminTestSteps {
     }
 
 
-    @When("^I change the username of the user with id (\\d+) to \"(\\w+)@(\\w+)\\.(\\w+)\"$")
+    @When("^I change the username of the user with id (\\d+) to \"(.*)\"$")
     public void iChangeTheUsernameOfTheUserWithIdTo(Integer idToChange, String newUsername) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)

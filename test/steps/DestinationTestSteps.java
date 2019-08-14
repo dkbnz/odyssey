@@ -1,6 +1,5 @@
 package steps;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -18,10 +17,6 @@ import models.photos.PersonalPhoto;
 import models.treasureHunts.TreasureHunt;
 import models.trips.Trip;
 import org.junit.*;
-import play.Application;
-import play.db.Database;
-
-import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -38,7 +33,6 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 import static play.mvc.Http.Status.CREATED;
-import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 import static util.QueryUtil.queryComparator;
 
@@ -514,7 +508,7 @@ public class DestinationTestSteps {
         ObjectNode json = mapper.createObjectNode();
         ObjectNode jsonDestination = json.putObject(DESTINATION);
 
-        if(!destinationId.equals("null")) {
+        if(!(destinationId == null)) {
             jsonDestination.put(ID,  destinationId.intValue());
         }
 
@@ -710,7 +704,7 @@ public class DestinationTestSteps {
     }
 
 
-    @Given("the destination is used in trip {string}")
+    @Given("^the destination is used in trip \"(.*)\"$")
     public void theDestinationIsUsedInTrip(String tripName) {
         JsonNode json = createNewTripJson(tripName);
 
@@ -742,7 +736,7 @@ public class DestinationTestSteps {
     }
 
 
-    @Given("the destination has a photo with id {int}")
+    @Given("^the destination has a photo with id (\\d+)$")
     public void theDestinationHasAPhotoWithId(Integer photoId) {
         addDestinationPhoto(photoId, destinationId);
     }
@@ -769,7 +763,7 @@ public class DestinationTestSteps {
      * @param userId the user who will be in ownership of the destination(s).
      * @param dataTable the values of the destinations to be added.
      */
-    @Given("a destination already exists for user {int} with the following values")
+    @Given("^a destination already exists for user (\\d+) with the following values$")
     public void aDestinationAlreadyExistsForUserWithTheFollowingValues(Integer userId,
                                                                        io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(userId.toString());
@@ -910,7 +904,7 @@ public class DestinationTestSteps {
     }
 
 
-    @When("I search for all destinations by user {int}")
+    @When("^I search for all destinations by user (\\d+)$")
     public void iSearchForAllDestinationsByUser(Integer userId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
@@ -930,13 +924,13 @@ public class DestinationTestSteps {
     }
 
 
-    @When("I attempt to delete the destination with id {int}")
+    @When("^I attempt to delete the destination with id (\\d+)$")
     public void iAttemptToDeleteTheDestinationWithId(Integer destinationId) {
         deleteDestinationRequest(destinationId.longValue());
     }
 
 
-    @When("I add a photo with id {int} to the destination")
+    @When("^I add a photo with id (\\d+) to the destination$")
     public void iAddAPhotoWithIdToTheDestination(Integer photoId) {
         addDestinationPhoto(photoId, destinationId);
     }
@@ -959,7 +953,7 @@ public class DestinationTestSteps {
      * @param destinationId the destination to be edited.
      * @param dataTable the information used to edit the destination.
      */
-    @When("I attempt to edit destination {int} using the following values")
+    @When("^I attempt to edit destination (-?\\d+) using the following values$")
     public void iAttemptToEditDestinationUsingTheFollowingValues(Integer destinationId, io.cucumber.datatable.DataTable dataTable) {
         this.destinationId = destinationId.longValue();
         JsonNode editValues = convertDataTableToEditDestination(dataTable);
@@ -967,7 +961,7 @@ public class DestinationTestSteps {
     }
 
 
-    @When("I request the destination usage for destination with id {int}")
+    @When("^I request the destination usage for destination with id (\\d+)$")
     public void iRequestTheDestinationUsageForDestinationWithId(Integer destinationId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
@@ -979,7 +973,7 @@ public class DestinationTestSteps {
     }
 
 
-    @When("I add a photo with id {int} to an existing destination with id {int}")
+    @When("^I add a photo with id (\\d+) to an existing destination with id (\\d+)$")
     public void iAddAPhotoToASpecifiedDestination(Integer photoId, Integer destinationId) {
         JsonNode json = createDestinationPhotoJson(photoId);
         Http.RequestBuilder request =
@@ -993,7 +987,7 @@ public class DestinationTestSteps {
         testContext.setStatusCode(addDestinationPhotoResult.status());
     }
 
-    @When("I change the value of the destination name to {string} and I request the destination usage for edited destination")
+    @When("^I change the value of the destination name to \'(.*)\' and I request the destination usage for edited destination$")
     public void iRequestTheDestinationUsageForEditedDestinationWithId(String name) {
         Destination destination = destinationRepository.findById(createdDestinationId);
         destination.setName(name);
@@ -1025,7 +1019,7 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("the trip count is {int}")
+    @Then("^the trip count is (\\d+)$")
     public void theTripCountIs(int tripCountExpected) throws IOException {
         int tripCount = new ObjectMapper().readTree(testContext.getResponseBody()).get(TRIP_COUNT).asInt();
         tripCountReceived = new ObjectMapper().readTree(testContext.getResponseBody()).get(MATCHING_TRIPS).size();
@@ -1033,13 +1027,13 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("the number of trips received is {int}")
-    public void theNumberOfTripsReceivedIs(int tripListSize) throws IOException {
+    @Then("^the number of trips received is (\\d+)$")
+    public void theNumberOfTripsReceivedIs(int tripListSize) {
         Assert.assertEquals(tripCountReceived, tripListSize);
     }
 
 
-    @Then("the photo count is {int}")
+    @Then("^the photo count is (\\d+)$")
     public void thePhotoCountIs(int photoCountExpected) throws IOException {
         int photoCount = new ObjectMapper().readTree(testContext.getResponseBody()).get(PHOTO_COUNT).asInt();
         Assert.assertEquals(photoCountExpected, photoCount);
@@ -1096,7 +1090,7 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("the response contains only destinations owned by the user with id {int}")
+    @Then("^the response contains only destinations owned by the user with id (\\d+)$")
     public void theResponseContainsOnlyDestinationsOwnedByTheUserWithId(Integer id) throws IOException {
         Long userId = id.longValue();
         JsonNode arrNode = new ObjectMapper().readTree(testContext.getResponseBody());
@@ -1130,7 +1124,7 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("the destination will have the following number of treasure hunts {int}")
+    @Then("^the destination will have the following number of treasure hunts (\\d+)$")
     public void theDestinationWillHaveTheFollowingNumberOfTreasureHunts(Integer expectedSize) {
         Destination destination = destinationRepository.findById(destinationId);
 
@@ -1186,7 +1180,7 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("the trip with name {string} is deleted")
+    @Then("^the trip with name \"(.*)\" is deleted$")
     public void theTripWithNameIsDeleted(String tripName) {
         List<Trip> trips = tripRepository.getExpressionList().ilike(TRIP_NAME_FIELD, queryComparator(tripName)).findList();
         Assert.assertEquals(0, trips.size());
@@ -1198,7 +1192,7 @@ public class DestinationTestSteps {
      *
      * @param userId    id of the expected owner.
      */
-    @Then("the owner is user {int}")
+    @Then("^the owner is user (\\d+)$")
     public void theOwnerIsUser(Integer userId) {
         Destination destination = destinationRepository.findById(destinationId);
         Long expectedId = userId.longValue();
