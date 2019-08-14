@@ -7,6 +7,8 @@
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
+        <b-alert dismissible v-model="showSuccessTreasureHunt" variant="success">{{successMessage}}</b-alert>
+
         <!-- Displays success alert and progress bar on quest creation as a loading bar
         for the quest being added to the database -->
         <b-alert
@@ -110,17 +112,23 @@
                 </b-form>
 
                 <div class="d-flex justify-content-center" >
-                    <b-button variant="success"  @click="addNewTreasureHunt = !addNewTreasureHunt" block>Add a New Treasure Hunt</b-button>
+                    <b-button v-if="!addNewTreasureHunt" variant="success"  @click="addNewTreasureHunt = !addNewTreasureHunt" block>Add a New Treasure Hunt</b-button>
                 </div>
+
+                {{inputQuest.treasureHunts}}
 
                 <b-row v-if="addNewTreasureHunt">
                     <b-col cols="12">
+                        <b-card>
                         <add-treasure-hunt
                                 :profile="profile"
-                                :heading="'Create'"
+                                :heading="'Add'"
+                                @addTreasureHunt="addTreasureHunt($event, treasureHunt)"
+                                @cancelCreate="cancelTreasureHuntCreate"
                                 @destination-select="$emit('destination-select')"
                                 :selectedDestination="selectedDestination">
                         </add-treasure-hunt>
+                        </b-card>
                     </b-col>
                 </b-row>
 
@@ -163,6 +171,7 @@
                         title: "",
                         startDate: "",
                         endDate: "",
+                        treasureHunts: []
                     }
                 }
             },
@@ -193,7 +202,9 @@
                 startTime: "",
                 endTime: "23:59",
                 displayedDestination: null,
-                addNewTreasureHunt: false
+                addNewTreasureHunt: false,
+                showSuccessTreasureHunt: false,
+                successMessage: ''
             }
         },
 
@@ -433,11 +444,26 @@
             },
 
 
+            addTreasureHunt(treasureHunt) {
+                this.inputQuest.treasureHunts.push(treasureHunt);
+                this.successMessage = "Treasure Hunt Successfully added";
+                this.showSuccessTreasureHunt = true;
+            },
+
+
             /**
              * Cancels the creation or editing of a quest by emitting a value to the questList.
              */
             cancelCreate() {
                 this.$emit('cancelCreate');
+            },
+
+
+            /**
+             * Cancels the current creation of a treasure hunt addition to a quest
+             */
+            cancelTreasureHuntCreate() {
+                this.addNewTreasureHunt = false;
             },
 
 
