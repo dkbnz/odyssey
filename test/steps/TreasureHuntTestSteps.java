@@ -15,6 +15,7 @@ import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.DebugHelp;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -349,6 +350,7 @@ public class TreasureHuntTestSteps {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToTreasureHuntJson(dataTable, i);
             createTreasureHuntRequest(json);
+            Assert.assertEquals(CREATED, statusCode);
         }
     }
 

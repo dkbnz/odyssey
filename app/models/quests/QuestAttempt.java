@@ -7,7 +7,7 @@ import models.BaseModel;
 import models.Profile;
 import models.destinations.Destination;
 import models.treasureHunts.TreasureHunt;
-
+import javax.persistence.ManyToOne;
 import java.util.List;
 
 public class QuestAttempt extends BaseModel {
@@ -15,12 +15,14 @@ public class QuestAttempt extends BaseModel {
     /**
      * Profile that has attempted the Quest.
      */
+    @ManyToOne
     @JsonIgnore
     private Profile attemptedBy;
 
     /**
      * The Quest to be attempted.
      */
+    @ManyToOne
     @JsonIgnore
     private Quest questAttempted;
 
@@ -39,10 +41,12 @@ public class QuestAttempt extends BaseModel {
      */
     private boolean completed;
 
-    public QuestAttempt() {
-        // Empty constructor needed by Ebeans
-    }
-
+    /**
+     * QuestAttempt constructor.
+     *
+     * @param attemptedBy       the profile that is attempting the quest.
+     * @param questAttempted    the quest that the profile is attempting.
+     */
     public QuestAttempt(Profile attemptedBy, Quest questAttempted) {
         this.questAttempted = questAttempted;
         this.attemptedBy = attemptedBy;
@@ -67,19 +71,20 @@ public class QuestAttempt extends BaseModel {
      * Returns the current Treasure Hunt the user needs to solve.
      * Will return null if there is no current treasure hunt to solve.
      * This means that the previously solved treasure hunt has not been checked in to, or the quest is complete.
-     * When serialized using Json.toJson destination will not show in the treasure hunts.
+     * When serialized using Json.toJson destination will not show in the treasure hunt.
      *
      * @return  current TreasureHunt to solve.
      */
     @JsonProperty("current")
     @JsonIgnoreProperties({"destination"})
     public TreasureHunt getCurrent() {
-        if (!solvedCurrent && !completed)
+        if (!solvedCurrent && !completed) {
             return questAttempted
                     .getTreasureHunts()
                     .get(checkedInIndex);
-        else
+        } else {
             return null;
+        }
     }
 
     /**

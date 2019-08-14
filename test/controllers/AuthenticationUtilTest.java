@@ -36,7 +36,7 @@ public class AuthenticationUtilTest {
         //Arrange
         Profile admin = new Profile();
         admin.setId(ADMIN_ID);
-        admin.setIsAdmin(true);
+        admin.setAdmin(true);
 
         Profile owner = new Profile();
         owner.setId(OWNER_ID);
@@ -53,7 +53,7 @@ public class AuthenticationUtilTest {
         //Arrange
         Profile notAdmin = new Profile();
         notAdmin.setId(ADMIN_ID);
-        notAdmin.setIsAdmin(false);
+        notAdmin.setAdmin(false);
 
         Profile owner = new Profile();
         owner.setId(OWNER_ID);
@@ -70,7 +70,7 @@ public class AuthenticationUtilTest {
         //Arrange
         Profile user = new Profile();
         user.setId(ADMIN_ID);
-        user.setIsAdmin(false);
+        user.setAdmin(false);
 
         Profile owner = new Profile();
         owner.setId(ADMIN_ID);
@@ -91,7 +91,7 @@ public class AuthenticationUtilTest {
         owner.setId(ADMIN_ID);
 
         notOwner.setId(OWNER_ID);
-        notOwner.setIsAdmin(false);
+        notOwner.setAdmin(false);
 
         //Act
         boolean result = AuthenticationUtil.validUser(notOwner, owner);
