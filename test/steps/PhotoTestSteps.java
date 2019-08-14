@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.Profile;
 import models.destinations.Destination;
@@ -17,10 +16,6 @@ import models.photos.PersonalPhoto;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import play.Application;
-import play.db.Database;
-import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -29,14 +24,11 @@ import repositories.destinations.DestinationRepository;
 import repositories.photos.PersonalPhotoRepository;
 
 import javax.imageio.ImageIO;
-import com.google.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import static play.mvc.Http.HttpVerbs.PATCH;
 import static play.test.Helpers.*;
@@ -133,21 +125,21 @@ public class PhotoTestSteps {
     }
 
 
-    @Given("a user exists in the database with the username {string} and id number {int}")
+    @Given("^a user exists in the database with the username \"(.*)\" and id number (\\d+)$")
     public void aUserExistsInTheDatabaseWithTheUsernameAndId(String username, Integer id) {
         Profile profile = profileRepository.findById(id.longValue());
         Assert.assertNotNull(profile);
         Assert.assertEquals(profile.getUsername(), username);
     }
 
-    @Given("a photo exists with id {int}")
+    @Given("^a photo exists with id (\\d+)$")
     public void photoExistsInDatabase(Integer id) {
         PersonalPhoto photo = personalPhotoRepository.findById(id.longValue());
         Assert.assertNotNull(photo);
     }
 
 
-    @Given("the destination with id {int} exists")
+    @Given("^the destination with id (\\d+) exists$")
     public void theDestinationWithIdExists(Integer destinationId) {
         Destination destination = destinationRepository.findById(destinationId.longValue());
         Assert.assertNotNull(destination);
@@ -155,7 +147,7 @@ public class PhotoTestSteps {
     }
 
 
-    @Given("the destination with id {int} has a photo with id {int}")
+    @Given("^the destination with id (\\d+) has a photo with id (\\d+)$")
     public void theDestinationWithIdHasAPhotoWithId(Integer destinationId, Integer photoId) {
         Destination destination = destinationRepository.findById(destinationId.longValue());
         PersonalPhoto photo = personalPhotoRepository.findById(photoId.longValue());
@@ -165,7 +157,7 @@ public class PhotoTestSteps {
     }
 
 
-    @When("I upload a valid jpeg photo to a profile with id {int}")
+    @When("^I upload a valid jpeg photo to a profile with id (\\d+)$")
     public void iUploadAValidJpegPhotoToMyOwnProfile(int uploadUserId) throws IOException {
         BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
         File file = new File("image.png");
@@ -203,7 +195,7 @@ public class PhotoTestSteps {
     }
 
 
-    @When("I change the privacy of the photo with id {int} to public {string}")
+    @When("^I change the privacy of the photo with id (\\d+) to public (.*)$")
     public void iChangeThePrivacyOfThePhoto(int photoId, String isPublic) {
         JsonNode json = createJson(photoId, Boolean.parseBoolean(isPublic));
         Http.RequestBuilder request =
@@ -218,7 +210,7 @@ public class PhotoTestSteps {
     }
 
 
-    @When("I delete the photo with id {int}")
+    @When("^I delete the photo with id (\\d+)$")
     public void iDeleteThePhotoWithId(int photoId) {
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
@@ -231,7 +223,7 @@ public class PhotoTestSteps {
     }
 
 
-    @When("I delete a profile picture of profile {int}")
+    @When("^I delete a profile picture of profile (\\d+)$")
     public void iDeleteAProfilePicture(int userId) {
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
@@ -244,7 +236,7 @@ public class PhotoTestSteps {
     }
 
 
-    @When("I set a profile photo from their photo Gallery with id {int}")
+    @When("^I set a profile photo from their photo Gallery with id (\\d+)$")
     public void iSetAProfilePhotoFromTheirPhotoGalleryWithId(Integer photoId) {
         Http.RequestBuilder request =
                 Helpers.fakeRequest()
@@ -256,7 +248,7 @@ public class PhotoTestSteps {
         testContext.setStatusCode(changeProfilePhotoResult.status());
     }
 
-    @When("I add a photo with id {int} to a destination with id {int}")
+    @When("^I add a photo with id (\\d+) to a destination with id (\\d+)$")
     public void iAddAPhotoWithIdToADestinationWithId(Integer photoId, Integer destinationId) {
         JsonNode json = createDestinationPhotoJson(photoId);
         Http.RequestBuilder request =
@@ -271,7 +263,7 @@ public class PhotoTestSteps {
     }
 
 
-    @When("I remove a photo with id {int} from a destination with id {int}")
+    @When("^I remove a photo with id (\\d+) from a destination with id (\\d+)$")
     public void iRemoveAPhotoWithIdFromADestinationWithId(Integer photoId, Integer destinationId) {
         JsonNode json = createDestinationPhotoJson(photoId);
         Http.RequestBuilder request =

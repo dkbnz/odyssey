@@ -2,36 +2,23 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.destinations.Destination;
-import org.junit.Assert;
-import play.Application;
-import play.db.Database;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.Helpers;
-
-import static org.junit.Assert.assertEquals;
-import static play.mvc.Http.HttpVerbs.PATCH;
-import static play.mvc.Http.Status.CREATED;
-import static play.mvc.Http.Status.OK;
-import static play.test.Helpers.*;
-
-import play.db.evolutions.Evolutions;
 import repositories.TripRepository;
 import repositories.destinations.DestinationRepository;
-
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static play.test.Helpers.fakeApplication;
+import static org.junit.Assert.assertEquals;
+import static play.mvc.Http.HttpVerbs.PATCH;
+import static play.test.Helpers.*;
 
 public class TripTestSteps {
 
@@ -228,14 +215,14 @@ public class TripTestSteps {
         testContext.setStatusCode(result.status());
     }
 
-    @When("I change the trip, {string} to contain the following data")
+    @When("^I change the trip, \"(.*)\" to contain the following data$")
     public void iChangeTheTripToContainTheFollowingData(String tripName, String tripData) throws IOException {
         Integer tripId = getTripIdFromTripName(tripName).intValue();
         editTripRequest(tripId, tripData);
     }
 
 
-    @Then("the destination with id {int} ownership changes to the user with id {int}")
+    @Then("^the destination with id (\\d+) ownership changes to the user with id (\\d+)$")
     public void theDestinationOwnershipChangesToTheGlobalAdminWithId(Integer destinationId, Integer profileId) {
         Destination destination = destinationRepository.findById(destinationId.longValue());
         assertEquals(profileId.longValue(), destination.getOwner().getId().longValue());

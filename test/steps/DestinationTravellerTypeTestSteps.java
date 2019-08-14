@@ -13,21 +13,15 @@ import io.cucumber.datatable.DataTable;
 import models.TravellerType;
 import models.destinations.Destination;
 import org.junit.Assert;
-import play.Application;
-import play.db.Database;
-import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repositories.destinations.DestinationRepository;
 import repositories.destinations.TravellerTypeRepository;
-
 import java.util.ArrayList;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.*;
