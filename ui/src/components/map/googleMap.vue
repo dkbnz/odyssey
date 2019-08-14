@@ -118,7 +118,7 @@
 
 
             /**
-             * Calls the create circle function
+             * Calls the create circle function.
              */
             radius: function() {
                 this.createCircle();
@@ -126,13 +126,19 @@
 
 
             /**
-             * Calls the create circle function
+             * Calls the create circle function.
              */
             selectedRadiusDestination: function() {
                 this.createCircle();
+            },
+
+
+            /**
+             * When show radius is changed run create circle function.
+             */
+            showRadius: function() {
+                this.createCircle();
             }
-
-
         },
 
         methods: {
@@ -181,10 +187,19 @@
             initMap() {
                 let self = this;
 
+                if (this.showRadius) {
+                    this.$map = new google.maps.Map(this.$refs['map'], {
+                        center: {lat: this.selectedRadiusDestination.latitude, lng: this.selectedRadiusDestination.longitude},
+                        zoom: this.initial.zoom
+                    });
+                } else {
                 this.$map = new google.maps.Map(this.$refs['map'], {
                     center: this.initial.view,
                     zoom: this.initial.zoom
                 });
+                }
+
+
 
                 this.$map
                     .controls[google.maps.ControlPosition.LEFT_BOTTOM]

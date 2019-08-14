@@ -27,7 +27,6 @@
         <b-row>
             <b-col>
                     <b-form>
-
                         <b-container fluid>
                             <b-form-group
                                     id="treasure_hunt_riddle-field"
@@ -44,115 +43,48 @@
 
                         <b-form>
                             <b-container fluid>
-                                <b-row>
-                                    <b-col>
-                                        <h6 class="mb-1">Selected Destination:</h6>
-                                        <b-list-group @click="$emit('destination-select')">
-                                            <b-list-group-item href="#" class="flex-column align-items-start"
-                                                               v-if="selectedDestination"
-                                                               id="selectedDestination"
-                                                               :disabled="selectedDestination.length === '{}'"
-                                                               :variant="checkDestinationState">
-                                                <div class="d-flex w-100 justify-content-between">
-                                                    <h5 class="mb-1" v-if="selectedDestination.name">
-                                                        {{selectedDestination.name}}
-                                                    </h5>
-                                                    <h5 class="mb-1" v-else>Select a Destination</h5>
+                                <h6 class="mb-1">Selected Destination:</h6>
+                                <b-list-group @click="$emit('destination-select')">
+                                    <b-list-group-item href="#" class="flex-column align-items-start"
+                                                       v-if="selectedDestination"
+                                                       id="selectedDestination"
+                                                       :disabled="selectedDestination.length === '{}'"
+                                                       :variant="checkDestinationState">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1" v-if="selectedDestination.name">
+                                                {{selectedDestination.name}}
+                                            </h5>
+                                            <h5 class="mb-1" v-else>Select a Destination</h5>
 
-                                                </div>
+                                        </div>
 
-                                                <p>
-                                                    {{selectedDestination.district}}
-                                                </p>
-                                                <p>
-                                                    {{selectedDestination.country}}
-                                                </p>
-                                            </b-list-group-item>
-                                        </b-list-group>
-                                        <b-form-group
-                                                id="radius-field"
-                                                label="Selected Destination check in radius:"
-                                                label-for="radius">
-                                            <!--Dropdown field for destination check in values-->
-                                            <b-form-select id="radius" trim v-model="radiusSelected">
-                                                <template slot="first">
-                                                </template>
-                                                <option :value="radius" v-for="radius in radiusList"
-                                                        :state="validateCheckIn">
-                                                    {{radius.text}}
-                                                </option>
-                                            </b-form-select>
-                                        </b-form-group>
-                                    </b-col>
+                                        <p>
+                                            {{selectedDestination.district}}
+                                        </p>
+                                        <p>
+                                            {{selectedDestination.country}}
+                                        </p>
+                                    </b-list-group-item>
+                                </b-list-group>
+                                <b-form-group
+                                        id="radius-field"
+                                        label="Selected Destination check in radius:"
+                                        label-for="radius">
+                                    <!--Dropdown field for destination check in values-->
+                                    <b-form-select id="radius" trim v-model="inputTreasureHunt.radius">
+                                        <template slot="first">
+                                        </template>
+                                        <option :value="radius" v-for="radius in radiusList"
+                                                :state="validateCheckIn">
+                                            {{radius.text}}
+                                        </option>
+                                    </b-form-select>
+                                </b-form-group>
 
-                                    <b-col>
-                                        <b-form-group
-                                                id="startDate-field"
-                                                label="Start Date:"
-                                                label-for="startDate">
-                                            <b-row>
-                                            <b-col cols="6">
-                                                <b-form-input :type="'date'"
-                                                              id="startDate"
-                                                              min='getCurrentDate()'
-                                                              max='9999-12-31'
-                                                              trim
-                                                              v-model="inputTreasureHunt.startDate"
-                                                              :state="validateStartDate">
-
-                                                </b-form-input>
-                                            </b-col>
-                                            <b-col cols="6">
-                                                <b-form-input :type="'time'"
-                                                              id="startTime"
-                                                              min='getCurrentTime()'
-                                                              max=''
-                                                              trim
-                                                              v-model="inputTreasureHunt.startTime"
-                                                              :state="validateStartTime">
-                                                </b-form-input>
-                                            </b-col>
-                                            </b-row>
-
-                                        </b-form-group>
-                                        <b-form-group
-                                                id="endDate-field"
-                                                label="Expiration Date:"
-                                                label-for="endDate">
-                                            <b-col cols="6"></b-col>
-                                            <b-col cols="6"></b-col>
-
-                                            <b-row>
-                                                <b-col cols="6">
-                                                    <b-form-input :type="'date'"
-                                                                  id="endDate"
-                                                                  min='getCurrentDate()'
-                                                                  max='9999-12-31'
-                                                                  trim
-                                                                  v-model="inputTreasureHunt.endDate"
-                                                                  :state="validateEndDate">
-
-                                                    </b-form-input>
-                                                </b-col>
-
-                                                <b-col cols="6">
-                                                    <b-form-input :type="'time'"
-                                                                  id="endTime"
-                                                                  min='getCurrentTime()'
-                                                                  max=''
-                                                                  trim
-                                                                  v-model="inputTreasureHunt.endTime"
-                                                                  :state="validateEndTime">
-                                                    </b-form-input>
-                                                </b-col>
-                                            </b-row>
-                                        </b-form-group>
-                                    </b-col>
-                                </b-row>
-                                <div ref="map" v-if="radiusSelected !== null && selectedDestination.name">
+                                <div ref="map" v-if="inputTreasureHunt.radius !== null && selectedDestination.name">
                                     <google-map ref="map"
                                                 :showRadius="true"
-                                                :radius="radiusSelected.value"
+                                                :radius="inputTreasureHunt.radius.value"
                                                 :selectedRadiusDestination="selectedDestination">
                                     </google-map>
                                 </div>
@@ -163,7 +95,7 @@
                 <b-row>
                     <b-col cols="8">
                         <b-button @click="validateTreasureHunt" block variant="primary">
-                            Save
+                            {{ heading }}
                         </b-button>
                     </b-col>
                     <b-col>
@@ -203,7 +135,8 @@
                         startDate: "",
                         startTime: "",
                         endDate: "",
-                        endTime: "23:59"
+                        endTime: "23:59",
+                        radius: null
                     }
                 }
             },
@@ -238,7 +171,6 @@
                     {value: 5, text: "5 Km"},
                     {value: 10, text: "10 Km"},
                 ],
-                radiusSelected: null,
                 initial: {
                     zoom: 5,
                     view: {
@@ -343,10 +275,10 @@
              * @returns true if validated.
              */
             validateCheckIn() {
-                if (this.radiusSelected === null) {
+                if (this.inputTreasureHunt.radius === null) {
                     return false;
                 }
-                return this.radiusSelected.length > 0 || this.radiusSelected !== null;
+                return this.inputTreasureHunt.radius.length > 0 || this.inputTreasureHunt.radius !== null;
             },
 
 
@@ -442,12 +374,15 @@
              * updateHunt if there is an active editing ID or saveHunt otherwise (adding a new one).
              */
             validateTreasureHunt() {
-                if (this.validateStartDate && this.validateStartTime && this.validateEndDate && this.validateEndTime
-                    && this.validateDestination && this.validateRiddle && this.validateCheckIn) {
-                    if (this.inputTreasureHunt.id !== null) {
-                        this.updateHunt();
+                if (this.validateDestination && this.validateRiddle && this.validateCheckIn) {
+                    if (this.heading === "Add") {
+                        this.addHunt();
                     } else {
-                        this.saveHunt();
+                        if (this.inputTreasureHunt.id !== null) {
+                            this.updateHunt();
+                        } else {
+                            this.saveHunt();
+                        }
                     }
                 } else {
                     this.errorMessage = "Not all fields have valid information!";
@@ -466,13 +401,27 @@
 
 
             /**
+             * When used in quests for adding a treasure hunt to the quests list by emitting it outside of the component
+             */
+            addHunt() {
+                this.inputTreasureHunt.destination = {"id": this.inputTreasureHunt.destination.id};
+                this.inputTreasureHunt.radius = this.inputTreasureHunt.radius.value;
+                delete this.inputTreasureHunt.startTime;
+                delete this.inputTreasureHunt.endTime;
+                delete this.inputTreasureHunt.startDate;
+                delete this.inputTreasureHunt.endDate;
+                this.$emit('addTreasureHunt', this.inputTreasureHunt);
+                this.$emit('cancelCreate')
+            },
+
+
+            /**
              * Creates formatted JSON of the currently active treasure hunt.
              * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
              */
             assembleTreasureHunt() {
                 this.joinDates();
                 this.inputTreasureHunt.destination = {"id": this.inputTreasureHunt.destination.id};
-                console.log(this.inputTreasureHunt);
 
                 delete this.inputTreasureHunt.startTime;
                 delete this.inputTreasureHunt.endTime;
