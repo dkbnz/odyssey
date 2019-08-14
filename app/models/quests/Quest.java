@@ -1,16 +1,14 @@
 package models.quests;
 
+import models.BaseModel;
 import models.Profile;
 import models.treasureHunts.TreasureHunt;
 
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OrderColumn;
+import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
-public class Quest {
+public class Quest extends BaseModel {
 
     /**
      * List of treasure hunts to be solved in this quest.
@@ -19,14 +17,30 @@ public class Quest {
     @OrderColumn
     private List<TreasureHunt> treasureHunts;
 
-    private String title;
-
-    private LocalDate startDate;
-
-    private LocalDate endDate;
-
+    /**
+     * List of attempts that have been had on this quest.
+     */
+    @OneToMany(cascade = CascadeType.REMOVE)
     private List<QuestAttempt> attempts;
 
+    /**
+     * Title of this quest.
+     */
+    private String title;
+
+    /**
+     * Date which this quest starts.
+     */
+    private LocalDate startDate;
+
+    /**
+     * Date which this quest ends.
+     */
+    private LocalDate endDate;
+
+    /**
+     * Owner of this quest.
+     */
     @ManyToOne
     private Profile owner;
 

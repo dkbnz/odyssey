@@ -89,7 +89,7 @@ public class ProfileController {
 
         Profile userProfile = AuthenticationUtil.validateAuthentication(profileRepository, request);
 
-        if (userProfile != null && !userProfile.getIsAdmin()) {
+        if (userProfile != null && !userProfile.isAdmin()) {
             return badRequest();
         }
 
@@ -121,7 +121,7 @@ public class ProfileController {
         newUser.setGender(json.get(GENDER).asText());
         newUser.setDateOfBirth(LocalDate.parse(json.get(DATE_OF_BIRTH).asText()));
         newUser.setDateOfCreation(new Date());
-        newUser.setIsAdmin(false);
+        newUser.setAdmin(false);
 
         profileRepository.save(newUser);
 
@@ -148,7 +148,7 @@ public class ProfileController {
 
         profileRepository.save(newUser);
 
-        return (userProfile != null && userProfile.getIsAdmin())
+        return (userProfile != null && userProfile.isAdmin())
                 ? created("")
                 : created().addingToSession(request, AUTHORIZED, newUser.id.toString());
     }
@@ -384,7 +384,7 @@ public class ProfileController {
 
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
                         // If user is admin, they can delete other profiles
-                        if (userProfile.getIsAdmin()) {
+                        if (userProfile.isAdmin()) {
                             profileRepository.delete(profileToDelete);
                             return ok("Delete successful");
                         }
@@ -654,12 +654,12 @@ public class ProfileController {
                         return notFound(NO_PROFILE_FOUND);
                     }
                     // If profile logged in is admin, can make another user admin.
-                    if (userProfile.getIsAdmin()) {
+                    if (userProfile.isAdmin()) {
                         Profile updateProfile = profileRepository.findById(id);
                         if (updateProfile == null) {
                             return notFound(NO_PROFILE_FOUND);
                         }
-                        updateProfile.setIsAdmin(true);
+                        updateProfile.setAdmin(true);
                         profileRepository.update(updateProfile);
                     } else {
                         return forbidden();
@@ -690,15 +690,15 @@ public class ProfileController {
                         return notFound(NO_PROFILE_FOUND);
                     }
                     // If the logged in user is admin
-                    if (userProfile.getIsAdmin()) {
+                    if (userProfile.isAdmin()) {
                         Profile updateProfile = profileRepository.findById(id);
                         if (updateProfile == null) {
                             return notFound(NO_PROFILE_FOUND);
                         }
                         // If the profile trying to be changed is not the global admin (id number one).
                         if (!updateProfile.getId().equals(DEFAULT_ADMIN_ID)) {
-                            if (updateProfile.getIsAdmin()) {
-                                updateProfile.setIsAdmin(false);
+                            if (updateProfile.isAdmin()) {
+                                updateProfile.setAdmin(false);
                                 profileRepository.update(updateProfile);
                             }
                         } else {

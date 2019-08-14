@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
+import models.quests.Quest;
+import models.quests.QuestAttempt;
 import models.treasureHunts.TreasureHunt;
 import models.trips.Trip;
 import play.data.format.Formats;
@@ -46,22 +48,30 @@ public class Profile extends BaseModel {
     private List<Passport> passports;
 
     @JsonIgnore
-    @OneToMany(cascade=CascadeType.ALL, mappedBy = "profile")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "profile")
     private List<Trip> trips;
 
-    @OneToMany(cascade=CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<PersonalPhoto> photoGallery;
 
     @OneToOne(cascade = CascadeType.REMOVE)
     private PersonalPhoto profilePicture;
 
     @JsonIgnore
-    @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<Destination> myDestinations;
 
     @JsonIgnore
-    @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<TreasureHunt> myTreasureHunts;
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "attemptedBy")
+    private List<QuestAttempt> questAttempts;
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    private List<Quest> myQuests;
 
     public List<TreasureHunt> getMyTreasureHunts() {
         return myTreasureHunts;
@@ -218,16 +228,6 @@ public class Profile extends BaseModel {
     }
 
 
-    public boolean getIsAdmin() {
-        return isAdmin;
-    }
-
-
-    public void setIsAdmin(boolean isAdmin) {
-        this.isAdmin = isAdmin;
-    }
-
-
     public List<PersonalPhoto> getPhotoGallery() {
         return photoGallery;
     }
@@ -300,6 +300,27 @@ public class Profile extends BaseModel {
         this.myTreasureHunts = myTreasureHunts;
     }
 
+    public boolean isAdmin() {
+        return isAdmin;
+    }
 
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
 
+    public List<QuestAttempt> getQuestAttempts() {
+        return questAttempts;
+    }
+
+    public void setQuestAttempts(List<QuestAttempt> questAttempts) {
+        this.questAttempts = questAttempts;
+    }
+
+    public List<Quest> getMyQuests() {
+        return myQuests;
+    }
+
+    public void setMyQuests(List<Quest> myQuests) {
+        this.myQuests = myQuests;
+    }
 }

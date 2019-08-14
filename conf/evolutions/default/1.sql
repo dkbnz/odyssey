@@ -40,12 +40,6 @@ create table destination_proposed_traveller_type_remove (
   constraint pk_destination_proposed_traveller_type_remove primary key (destination_id,traveller_type_id)
 );
 
-create table destination_type (
-  id                            bigint auto_increment not null,
-  destination_type              varchar(255),
-  constraint pk_destination_type primary key (id)
-);
-
 create table nationality (
   id                            bigint auto_increment not null,
   nationality                   varchar(255),
@@ -144,6 +138,12 @@ create table trip_destination (
   trip_id                       bigint,
   destination_id                bigint,
   constraint pk_trip_destination primary key (id)
+);
+
+create table destination_type (
+  id                            bigint auto_increment not null,
+  destination_type              varchar(255),
+  constraint pk_destination_type primary key (id)
 );
 
 create index ix_destination_type_id on destination (type_id);
@@ -307,8 +307,6 @@ drop table if exists destination_proposed_traveller_type_add;
 
 drop table if exists destination_proposed_traveller_type_remove;
 
-drop table if exists destination_type;
-
 drop table if exists nationality;
 
 drop table if exists passport;
@@ -332,4 +330,6 @@ drop table if exists treasure_hunt;
 drop table if exists trip;
 
 drop table if exists trip_destination;
+
+drop table if exists destination_type;
 
