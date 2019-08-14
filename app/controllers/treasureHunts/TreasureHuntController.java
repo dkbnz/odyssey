@@ -455,15 +455,6 @@ public class TreasureHuntController {
         Calendar now = Calendar.getInstance();
         List<TreasureHunt> treasureHunts = new ArrayList<>();
 
-        for (TreasureHunt treasureHunt: treasureHuntsQuery) {
-            if ((treasureHunt.getStartDate().before(now.getTime())
-                    || treasureHunt.getStartDate().compareTo(now.getTime()) == 0)
-                    && (treasureHunt.getEndDate().after(now.getTime())
-                    || treasureHunt.getEndDate().compareTo(now.getTime()) == 0)) {
-                treasureHunts.add(treasureHunt);
-            }
-        }
-
         ObjectMapper mapper = new ObjectMapper();
         String result = mapper
                 .writerWithView(Views.Public.class)

@@ -27,34 +27,40 @@ public class TreasureHunt extends BaseModel {
     @ManyToOne
     private Destination destination;
 
+    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    private Profile owner;
+
     @JsonView(Views.Public.class)
     private String riddle;
 
-    @JsonView(Views.Public.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ssZ")
-    private Date startDate;
-
-    @JsonView(Views.Public.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ssZ")
-    private Date endDate;
+    @JsonView(Views.Owner.class)
+    private Double radius;
 
     @JsonIgnore
-    @ManyToOne(cascade=CascadeType.PERSIST)
-    private Profile owner;
+    public Collection<ApiError> getErrors() {
+        List<ApiError> errors = new ArrayList<>();
 
-//    @JsonIgnore
-//    @ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(name = "treasure_hunt_profiles_solved")
-//    private Set<Profile> solvedProfiles;
+        if (riddle == null || riddle.isEmpty()) {
+            errors.add(new ApiError("A riddle must be provided."));
+        } else if (riddle.length() > 255) {
+            errors.add(new ApiError("Riddles must not exceed 255 characters in length."));
+        }
 
-    //TODO Joel will add margin of error stuff later
-//    @JsonIgnore
-//    @ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(name = "treasure_hunt_profiles_checked_in")
-//    private Set<Profile> checkedInProfiles;
-//
-//    @JsonView(Views.Owner.class)
-//    private Double radius;
+        if (owner == null) {
+            errors.add(new ApiError("This treasure hunt does not have an owner."));
+        }
+
+        if (destination == null || destination.getId() == null) {
+            errors.add(new ApiError("Treasure hunts must have a destination."));
+        }
+
+        if (radius == null || radius <= 0) {
+            errors.add(new ApiError("You must select a range for the destination's check in"));
+        }
+
+        return errors;
+    }
 
     public Destination getDestination() {
         return destination;
@@ -72,22 +78,6 @@ public class TreasureHunt extends BaseModel {
         this.riddle = riddle;
     }
 
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
     public Profile getOwner() {
         return owner;
     }
@@ -96,55 +86,5 @@ public class TreasureHunt extends BaseModel {
         this.owner = owner;
     }
 
-//    public Set<Profile> getSolvedProfiles(){return solvedProfiles;};
-//
-//    public void addSolvedProfile(Profile newProfile){solvedProfiles.add(newProfile);}
-//
-//    public void changeToCheckedIn(Profile profile) {
-//        solvedProfiles.remove(profile);
-//        //TODO Joel will add margin of error stuff later
-//        //checkedInProfiles.add(profile);
-//    }
-//
-//    public static Finder<Integer, TreasureHunt> getFind() {
-//        return find;
-//    }
-
-    @JsonIgnore
-    public Collection<ApiError> getErrors() {
-        List<ApiError> errors = new ArrayList<>();
-
-        if (riddle == null || riddle.isEmpty()) {
-            errors.add(new ApiError("A riddle must be provided."));
-        } else if (riddle.length() > 255) {
-            errors.add(new ApiError("Riddles must not exceed 255 characters in length."));
-        }
-
-        if(startDate == null) {
-            errors.add(new ApiError("You must provide a start date."));
-        }
-
-        if(endDate == null) {
-            errors.add(new ApiError("You must provide an end date."));
-        }
-
-        if (startDate != null && endDate != null && endDate.before(startDate)) {
-            errors.add(new ApiError("Start date must be before end date."));
-        }
-
-        if (owner == null) {
-            errors.add(new ApiError("This treasure hunt does not have an owner."));
-        }
-
-        if (destination == null || destination.getId() == null) {
-            errors.add(new ApiError("Treasure hunts must have a destination."));
-        }
-
-        //TODO Joel will add margin of error stuff later
-//        if (radius == null || radius <= 0) {
-//            errors.add(new ApiError("You must select a range for the destination's check in"));
-//        }
-
-        return errors;
-    }
 }
+
