@@ -5,20 +5,22 @@ import models.treasureHunts.TreasureHunt;
 
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OrderColumn;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Quest {
 
     /**
-     * Map holding a list of treasure hunts mapped to their order.
+     * List of treasure hunts to be solved in this quest.
      */
-//    @ManyToMany
-//    private Map<Integer, TreasureHunt> treasureHunts;
+    @ManyToMany
+    @OrderColumn
+    private List<TreasureHunt> treasureHunts;
 
-    private  List<TreasureHunt> treasureHunts = new ArrayList<>();
+    private String title;
+
     private LocalDate startDate;
 
     private LocalDate endDate;
@@ -27,7 +29,6 @@ public class Quest {
 
     @ManyToOne
     private Profile owner;
-
 
     public List<TreasureHunt> getTreasureHunts() {
         return treasureHunts;
@@ -42,10 +43,30 @@ public class Quest {
     }
 
     public boolean removeTreasureHunt(TreasureHunt treasureHunt) {
-//        List<TreasureHunt> treasureHunts = getTreasureHunts();
-//        boolean successful = treasureHunts.remove(treasureHunt);
-//        this.setTreasureHunts(treasureHunts);
-//        return successful;
         return treasureHunts.remove(treasureHunt);
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 }

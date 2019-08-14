@@ -23,8 +23,6 @@ import java.util.List;
 @Entity
 public class TreasureHunt extends BaseModel {
 
-
-
     @JsonView(Views.Owner.class)
     @ManyToOne
     private Destination destination;
