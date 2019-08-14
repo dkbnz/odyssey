@@ -3,7 +3,7 @@ Feature: Admin API Endpoint
   Scenario: Attempting to create a new user from the admin panel
     Given the application is running
     And I am logged in as an admin user
-    And The following profile does not exist with username "adminNew@travelea.com" within the TravelEA database
+    And a user does not exist with the username "adminNew@travelea.com"
     When An admin attempts to create a profile with the following fields:
       | username                 | password    | first_name | middle_name | last_name | date_of_birth | gender | nationality | traveller_type | passport_country |
       | adminNew@travelea.com    | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  | 1           | 1              | 1                |
