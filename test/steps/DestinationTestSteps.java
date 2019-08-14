@@ -1,6 +1,5 @@
 package steps;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -18,10 +17,6 @@ import models.photos.PersonalPhoto;
 import models.treasureHunts.TreasureHunt;
 import models.trips.Trip;
 import org.junit.*;
-import play.Application;
-import play.db.Database;
-
-import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -38,23 +33,20 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 import static play.mvc.Http.Status.CREATED;
-import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 import static util.QueryUtil.queryComparator;
 
 public class DestinationTestSteps {
 
+    /**
+     * Singleton class which stores generally used variables
+     */
+    private TestContext testContext;
 
     /**
-     * Variable to hold the status code of the result.
+     * Test file with test steps common over different scenarios
      */
-    private int statusCode;
-
-
-    /**
-     * The Json body of the response.
-     */
-    private String responseBody;
+    private GeneralSteps generalSteps;
 
 
     /**
@@ -130,53 +122,6 @@ public class DestinationTestSteps {
 
 
     /**
-     * The login endpoint uri.
-     */
-    private static final String LOGIN_URI = "/v1/login";
-
-
-    /**
-     * The logout endpoint uri.
-     */
-    private static final String LOGOUT_URI = "/v1/logout";
-
-
-    /**
-     * Valid login credentials for an admin user.
-     */
-    private static final String ADMIN_USERNAME = "admin@travelea.com";
-    private static final String ADMIN_AUTH_PASS = "admin1";
-    private static final String ADMIN_ID = "1";
-
-
-    /**
-     * Valid login credentials for a regular user.
-     */
-    private static final String REG_USERNAME = "guestUser@travelea.com";
-    private static final String REG_AUTH_PASS = "guest123";
-    private static final String REG_ID = "2";
-
-
-    /**
-     * Valid login credentials for an alternate user.
-     */
-    private static final String ALT_USERNAME = "testuser1@email.com";
-    private static final String ALT_AUTH_PASS = "guest123";
-    private static final String ALT_ID = "3";
-
-
-    /**
-     * Currently logged-in user
-     */
-    private String loggedInId;
-
-
-    /**
-     * Target user for destination changes
-     */
-    private String targetId;
-
-    /**
      * String to add the equals character (=) to build a query string.
      */
     private static final String EQUALS = "=";
@@ -229,28 +174,11 @@ public class DestinationTestSteps {
     private static final int START_DATE_BUFFER = -10;
     private static final int END_DATE_BUFFER = 10;
 
-    /**
-     * The fake application.
-     */
-
-    private Application application;
-
-
-    /**
-     * Database instance for the fake application.
-     */
-    private Database database;
-
-
-    /**
-     * Repository to access the destinations in the running application.
-     */
     private DestinationRepository destinationRepository;
     private TravellerTypeRepository travellerTypeRepository;
     private DestinationTypeRepository destinationTypeRepository;
     private TreasureHuntRepository treasureHuntRepository;
     private TripRepository tripRepository;
-
 
     /**
      * Runs before each test scenario.
@@ -261,27 +189,17 @@ public class DestinationTestSteps {
      */
     @Before
     public void setUp() {
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("play.db.config", "db");
-        configuration.put("play.db.default", "default");
-        configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:testDBDestination;MODE=MYSQL;");
-        configuration.put("ebean.default", "models.*");
-        configuration.put("play.evolutions.db.default.enabled", "true");
-        configuration.put("play.evolutions.autoApply", "false");
+        testContext = TestContext.getInstance();
 
-        //Set up the fake application to use the in memory database config
-        application = fakeApplication(configuration);
+        generalSteps = new GeneralSteps();
+        generalSteps.setUp();
 
-        database = application.injector().instanceOf(Database.class);
-        applyEvolutions();
 
-        Helpers.start(application);
-        destinationRepository = application.injector().instanceOf(DestinationRepository.class);
-        travellerTypeRepository = application.injector().instanceOf(TravellerTypeRepository.class);
-        destinationTypeRepository = application.injector().instanceOf(DestinationTypeRepository.class);
-        treasureHuntRepository = application.injector().instanceOf(TreasureHuntRepository.class);
-        tripRepository = application.injector().instanceOf(TripRepository.class);
+        destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
+        travellerTypeRepository = testContext.getApplication().injector().instanceOf(TravellerTypeRepository.class);
+        destinationTypeRepository = testContext.getApplication().injector().instanceOf(DestinationTypeRepository.class);
+        treasureHuntRepository = testContext.getApplication().injector().instanceOf(TreasureHuntRepository.class);
+        tripRepository = testContext.getApplication().injector().instanceOf(TripRepository.class);
     }
 
 
@@ -293,71 +211,7 @@ public class DestinationTestSteps {
      */
     @After
     public void tearDown() {
-        logoutRequest();
-        cleanEvolutions();
-        database.shutdown();
-        Helpers.stop(application);
-    }
-
-
-    /**
-     * Applies down evolutions to the database from the test/evolutions/default directory.
-     *
-     * This drops tables and data from the database.
-     */
-    private void applyEvolutions() {
-        Evolutions.applyEvolutions(
-                database,
-                Evolutions.fromClassLoader(
-                        getClass().getClassLoader(),
-                        "test/"
-                )
-        );
-    }
-
-
-    /**
-     * Applies up evolutions to the database from the test/evolutions/default directory.
-     *
-     * This populates the database with necessary tables and values.
-     */
-    private void cleanEvolutions() {
-        Evolutions.cleanupEvolutions(database);
-    }
-
-
-    /**
-     * Sends a fake request to the application to login.
-     *
-     * @param username      the string of the username to complete the login with.
-     * @param password      the string of the password to complete the login with.
-     */
-    private void loginRequest(String username, String password) {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode json = mapper.createObjectNode();
-
-        json.put("username", username);
-        json.put("password", password);
-
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .bodyJson(json)
-                .uri(LOGIN_URI);
-        Result loginResult = route(application, request);
-
-        statusCode = loginResult.status();
-    }
-
-
-    /**
-     * Sends a fake request to the application to logout.
-     */
-    private void logoutRequest() {
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .uri(LOGOUT_URI);
-        route(application, request);
-        loggedInId = null;
+        generalSteps.tearDown();
     }
 
 
@@ -370,12 +224,12 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(DESTINATION_URI + "/" + targetId)
-                .session(AUTHORIZED, loggedInId);
-        Result result = route(application, request);
-        statusCode = result.status();
+                .uri(DESTINATION_URI + "/" + testContext.getTargetId())
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
-        if (statusCode < 400) {
+        if (testContext.getStatusCode() < 400) {
             createdDestinationId = Long.parseLong(Helpers.contentAsString(result));
         }
     }
@@ -389,12 +243,12 @@ public class DestinationTestSteps {
     private void searchDestinationsRequest(String query) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, loggedInId)
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .uri(DESTINATION_URI + query);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
-        responseBody = Helpers.contentAsString(result);
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 
@@ -408,9 +262,9 @@ public class DestinationTestSteps {
                 .method(PUT)
                 .bodyJson(json)
                 .uri(DESTINATION_URI + "/" + destinationId)
-                .session(AUTHORIZED, loggedInId);
-        Result result = route(application, request);
-        statusCode = result.status();
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
 
 
@@ -422,10 +276,10 @@ public class DestinationTestSteps {
     private void deleteDestinationRequest(Long destinationId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(DELETE)
-                .session(AUTHORIZED, loggedInId)
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .uri(DESTINATION_URI + "/" + destinationId);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
 
 
@@ -472,10 +326,10 @@ public class DestinationTestSteps {
                 .method(POST)
                 .bodyJson(json)
                 .uri(TREASURE_HUNT_URI + "/" + targetUserId)
-                .session(AUTHORIZED, loggedInId);
-        Result result = route(application, request);
-        statusCode = result.status();
-        assertEquals(CREATED, statusCode);
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        assertEquals(CREATED, testContext.getStatusCode());
     }
 
 
@@ -505,10 +359,10 @@ public class DestinationTestSteps {
                         .uri(DESTINATION_PHOTO_URI + destinationId)
                         .method(POST)
                         .bodyJson(json)
-                        .session(AUTHORIZED, loggedInId);
+                        .session(AUTHORIZED, testContext.getLoggedInId());
 
-        Result addDestinationPhotoResult = route(application, request);
-        statusCode = addDestinationPhotoResult.status();
+        Result addDestinationPhotoResult = route(testContext.getApplication(), request);
+        testContext.setStatusCode(addDestinationPhotoResult.status());
     }
 
 
@@ -654,7 +508,7 @@ public class DestinationTestSteps {
         ObjectNode json = mapper.createObjectNode();
         ObjectNode jsonDestination = json.putObject(DESTINATION);
 
-        if(!destinationId.equals("null")) {
+        if(!(destinationId == null)) {
             jsonDestination.put(ID,  destinationId.intValue());
         }
 
@@ -834,13 +688,13 @@ public class DestinationTestSteps {
 
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, loggedInId)
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .uri(DESTINATION_URI+ "/"  + destinationId + DESTINATION_CHECK_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
-        responseBody = Helpers.contentAsString(result);
-        JsonNode matchingTrips = new ObjectMapper().readTree(responseBody).get(MATCHING_TRIPS);
+        testContext.setResponseBody(Helpers.contentAsString(result));
+        JsonNode matchingTrips = new ObjectMapper().readTree(testContext.getResponseBody()).get(MATCHING_TRIPS);
 
         for (JsonNode trip : matchingTrips) {
             names.add(trip.get(TRIP_NAME_FIELD).asText());
@@ -850,17 +704,17 @@ public class DestinationTestSteps {
     }
 
 
-    @Given("the destination is used in trip {string}")
+    @Given("^the destination is used in trip \"(.*)\"$")
     public void theDestinationIsUsedInTrip(String tripName) {
         JsonNode json = createNewTripJson(tripName);
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
-                .session(AUTHORIZED, loggedInId)
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .bodyJson(json)
-                .uri(TRIPS_URI + loggedInId);
-        Result result = route(application, request);
-        statusCode = result.status();
+                .uri(TRIPS_URI + testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
 
 
@@ -878,11 +732,11 @@ public class DestinationTestSteps {
         String destinationName = getValueFromDataTable("Name", dataTable);
         String query = createSearchDestinationQueryString(NAME, destinationName);
         searchDestinationsRequest(query);
-        assertTrue(responseBody.contains(destinationName));
+        assertTrue(testContext.getResponseBody().contains(destinationName));
     }
 
 
-    @Given("the destination has a photo with id {int}")
+    @Given("^the destination has a photo with id (\\d+)$")
     public void theDestinationHasAPhotoWithId(Integer photoId) {
         addDestinationPhoto(photoId, destinationId);
     }
@@ -895,12 +749,12 @@ public class DestinationTestSteps {
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
-                .session(AUTHORIZED, loggedInId)
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .bodyJson(Json.toJson(travellerTypeList))
                 .uri(DESTINATION_URI + "/" + destinationId + TRAVELLER_TYPES
                         + (proposedOrNot.equals("proposed") ? "/propose" : ""));
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
 
 
@@ -909,10 +763,10 @@ public class DestinationTestSteps {
      * @param userId the user who will be in ownership of the destination(s).
      * @param dataTable the values of the destinations to be added.
      */
-    @Given("a destination already exists for user {int} with the following values")
+    @Given("^a destination already exists for user (\\d+) with the following values$")
     public void aDestinationAlreadyExistsForUserWithTheFollowingValues(Integer userId,
                                                                        io.cucumber.datatable.DataTable dataTable) {
-        targetId = userId.toString();
+        testContext.setTargetId(userId.toString());
 
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToDestinationJson(dataTable, i);
@@ -927,69 +781,6 @@ public class DestinationTestSteps {
 
 
     /**
-     * Asserts the fake application is in test mode.
-     */
-    @Given("I have a running application")
-    public void iHaveARunningApplication() {
-        Assert.assertTrue(application.isTest());
-    }
-
-
-    /**
-     * Attempts to send a log in request with user credentials from constants VALID_USERNAME
-     * and VALID_AUTH_PASS.
-     *
-     * Asserts the login was successful with a status code of OK (200).
-     */
-    @Given("I am logged in")
-    public void iAmLoggedIn() {
-        loginRequest(REG_USERNAME, REG_AUTH_PASS);
-        assertEquals(OK, statusCode);
-        loggedInId = REG_ID;
-    }
-
-
-    /**
-     * Attempts to send a log in request with user credentials from constants ALT_USERNAME
-     * and ALT_AUTH_PASS.
-     *
-     * Asserts the login was successful with a status code of OK (200).
-     */
-    @Given("I am logged in as an alternate user")
-    public void iAmLoggedInAsAnAlternateUser() {
-        loginRequest(ALT_USERNAME, ALT_AUTH_PASS);
-        assertEquals(OK, statusCode);
-        loggedInId = ALT_ID;
-    }
-
-
-    /**
-     * Attempts to send a log in request with user credentials from constants ADMIN_USERNAME
-     * and ADMIN_AUTH_PASS.
-     *
-     * Asserts the login was successful with a status code of OK (200).
-     */
-    @Given("I am logged in as an admin user")
-    public void iAmLoggedInAsAnAdminUser() {
-        loginRequest(ADMIN_USERNAME, ADMIN_AUTH_PASS);
-        assertEquals(OK, statusCode);
-        loggedInId = ADMIN_ID;
-    }
-
-
-    /**
-     * Sends a logout request to the system.
-     *
-     * Asserts the value of loggedInId is null.
-     */
-    @Given("I am not logged in")
-    public void iAmNotLoggedIn() {
-        logoutRequest();
-        assertNull(loggedInId);
-    }
-
-
-    /**
      * Sends a request to create a new destination with valid values given in the data table to
      * ensure a destination already exists in the database.
      *
@@ -997,7 +788,7 @@ public class DestinationTestSteps {
      */
     @And("a destination already exists with the following values")
     public void aDestinationExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        targetId = loggedInId;
+        testContext.setTargetId(testContext.getLoggedInId());
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
@@ -1013,13 +804,13 @@ public class DestinationTestSteps {
      */
     @When("I send a GET request to the destinations endpoint")
     public void iSendAGetRequestToTheDestinationsEndpoint() {
-        targetId = loggedInId;
+        testContext.setTargetId(testContext.getLoggedInId());
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, loggedInId)
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .uri(DESTINATION_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
 
 
@@ -1033,11 +824,11 @@ public class DestinationTestSteps {
     public void createTripRequest(String docString) throws IOException {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
-                .session(AUTHORIZED,loggedInId)
+                .session(AUTHORIZED,testContext.getLoggedInId())
                 .bodyJson(convertTripStringToJson(docString))
-                .uri(TRIPS_URI + loggedInId);
-        Result result = route(application, request);
-        statusCode = result.status();
+                .uri(TRIPS_URI + testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
 
 
@@ -1048,7 +839,7 @@ public class DestinationTestSteps {
      */
     @When("I create a new destination with the following values")
     public void iCreateANewDestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        targetId = loggedInId;
+        testContext.setTargetId(testContext.getLoggedInId());
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
@@ -1058,7 +849,7 @@ public class DestinationTestSteps {
 
     @When("I create a new destination with the following values for another user")
     public void iCreateANewDestinationWithTheFollowingValuesForAnotherUser(io.cucumber.datatable.DataTable dataTable) {
-        targetId = loggedInId;
+        testContext.setTargetId(testContext.getLoggedInId());
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToDestinationJson(dataTable, i);
             createDestinationRequest(json);
@@ -1113,16 +904,16 @@ public class DestinationTestSteps {
     }
 
 
-    @When("I search for all destinations by user {int}")
+    @When("^I search for all destinations by user (\\d+)$")
     public void iSearchForAllDestinationsByUser(Integer userId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri(DESTINATION_URI + "/" + userId)
-                .session(AUTHORIZED, loggedInId);
-        Result result = route(application, request);
-        statusCode = result.status();
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
-        responseBody = Helpers.contentAsString(result);
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 
@@ -1133,13 +924,13 @@ public class DestinationTestSteps {
     }
 
 
-    @When("I attempt to delete the destination with id {int}")
+    @When("^I attempt to delete the destination with id (\\d+)$")
     public void iAttemptToDeleteTheDestinationWithId(Integer destinationId) {
         deleteDestinationRequest(destinationId.longValue());
     }
 
 
-    @When("I add a photo with id {int} to the destination")
+    @When("^I add a photo with id (\\d+) to the destination$")
     public void iAddAPhotoWithIdToTheDestination(Integer photoId) {
         addDestinationPhoto(photoId, destinationId);
     }
@@ -1162,7 +953,7 @@ public class DestinationTestSteps {
      * @param destinationId the destination to be edited.
      * @param dataTable the information used to edit the destination.
      */
-    @When("I attempt to edit destination {int} using the following values")
+    @When("^I attempt to edit destination (-?\\d+) using the following values$")
     public void iAttemptToEditDestinationUsingTheFollowingValues(Integer destinationId, io.cucumber.datatable.DataTable dataTable) {
         this.destinationId = destinationId.longValue();
         JsonNode editValues = convertDataTableToEditDestination(dataTable);
@@ -1170,19 +961,19 @@ public class DestinationTestSteps {
     }
 
 
-    @When("I request the destination usage for destination with id {int}")
+    @When("^I request the destination usage for destination with id (\\d+)$")
     public void iRequestTheDestinationUsageForDestinationWithId(Integer destinationId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri(DESTINATION_URI+ "/"  + destinationId + DESTINATION_CHECK_URI)
-                .session(AUTHORIZED, loggedInId);
-        Result result = route(application, request);
-        statusCode = result.status();
-        responseBody = Helpers.contentAsString(result);
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 
-    @When("I add a photo with id {int} to an existing destination with id {int}")
+    @When("^I add a photo with id (\\d+) to an existing destination with id (\\d+)$")
     public void iAddAPhotoToASpecifiedDestination(Integer photoId, Integer destinationId) {
         JsonNode json = createDestinationPhotoJson(photoId);
         Http.RequestBuilder request =
@@ -1190,13 +981,13 @@ public class DestinationTestSteps {
                         .uri(DESTINATION_PHOTO_URI + destinationId)
                         .method(POST)
                         .bodyJson(json)
-                        .session(AUTHORIZED, loggedInId);
+                        .session(AUTHORIZED, testContext.getLoggedInId());
 
-        Result addDestinationPhotoResult = route(application, request);
-        statusCode = addDestinationPhotoResult.status();
+        Result addDestinationPhotoResult = route(testContext.getApplication(), request);
+        testContext.setStatusCode(addDestinationPhotoResult.status());
     }
 
-    @When("I change the value of the destination name to {string} and I request the destination usage for edited destination")
+    @When("^I change the value of the destination name to \'(.*)\' and I request the destination usage for edited destination$")
     public void iRequestTheDestinationUsageForEditedDestinationWithId(String name) {
         Destination destination = destinationRepository.findById(createdDestinationId);
         destination.setName(name);
@@ -1206,16 +997,16 @@ public class DestinationTestSteps {
                         .uri(DESTINATION_EDIT_CHECK)
                         .method(POST)
                         .bodyJson(Json.toJson(destination))
-                        .session(AUTHORIZED, loggedInId);
+                        .session(AUTHORIZED, testContext.getLoggedInId());
 
-        Result result= route(application, request);
-        statusCode = result.status();
-        responseBody = Helpers.contentAsString(result);
+        Result result= route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
     @Then("^the number of destinations received is at least (\\d+)$")
     public void theNumberOfDestinationsReceivedIs(int destinationsReceived) throws IOException {
-        int responseCount = new ObjectMapper().readTree(responseBody).get(DESTINATION_COUNT).asInt();
+        int responseCount = new ObjectMapper().readTree(testContext.getResponseBody()).get(DESTINATION_COUNT).asInt();
         assertTrue(responseCount >= destinationsReceived);
     }
 
@@ -1228,23 +1019,23 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("the trip count is {int}")
+    @Then("^the trip count is (\\d+)$")
     public void theTripCountIs(int tripCountExpected) throws IOException {
-        int tripCount = new ObjectMapper().readTree(responseBody).get(TRIP_COUNT).asInt();
-        tripCountReceived = new ObjectMapper().readTree(responseBody).get(MATCHING_TRIPS).size();
+        int tripCount = new ObjectMapper().readTree(testContext.getResponseBody()).get(TRIP_COUNT).asInt();
+        tripCountReceived = new ObjectMapper().readTree(testContext.getResponseBody()).get(MATCHING_TRIPS).size();
         Assert.assertEquals(tripCountExpected, tripCount);
     }
 
 
-    @Then("the number of trips received is {int}")
-    public void theNumberOfTripsReceivedIs(int tripListSize) throws IOException {
+    @Then("^the number of trips received is (\\d+)$")
+    public void theNumberOfTripsReceivedIs(int tripListSize) {
         Assert.assertEquals(tripCountReceived, tripListSize);
     }
 
 
-    @Then("the photo count is {int}")
+    @Then("^the photo count is (\\d+)$")
     public void thePhotoCountIs(int photoCountExpected) throws IOException {
-        int photoCount = new ObjectMapper().readTree(responseBody).get(PHOTO_COUNT).asInt();
+        int photoCount = new ObjectMapper().readTree(testContext.getResponseBody()).get(PHOTO_COUNT).asInt();
         Assert.assertEquals(photoCountExpected, photoCount);
     }
 
@@ -1257,7 +1048,7 @@ public class DestinationTestSteps {
     @Then("the response contains at least one destination with name")
     public void theResponseContainsAtLeastOneDestinationWithName(io.cucumber.datatable.DataTable dataTable) throws IOException {
         String value = getValueFromDataTable(NAME_STRING, dataTable);
-        String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(NAME).asText();
+        String arrNode = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(NAME).asText();
 
         Assert.assertEquals(value, arrNode);
     }
@@ -1266,7 +1057,7 @@ public class DestinationTestSteps {
     @Then("the response contains at least one destination with district")
     public void theResponseContainsAtLeastOneDestinationWithDistrict(io.cucumber.datatable.DataTable dataTable) throws IOException {
         String value = getValueFromDataTable(DISTRICT_STRING, dataTable);
-        String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(DISTRICT).asText();
+        String arrNode = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(DISTRICT).asText();
 
         Assert.assertEquals(value, arrNode);
     }
@@ -1275,7 +1066,7 @@ public class DestinationTestSteps {
     @Then("the response contains at least one destination with latitude")
     public void theResponseContainsAtLeastOneDestinationWithLatitude(io.cucumber.datatable.DataTable dataTable) throws IOException {
         String value = getValueFromDataTable(LATITUDE_STRING, dataTable);
-        String arrNode = new ObjectMapper().readTree(responseBody).get(0).get(LATITUDE).asText();
+        String arrNode = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(LATITUDE).asText();
 
         Assert.assertEquals(value, arrNode);
     }
@@ -1283,7 +1074,7 @@ public class DestinationTestSteps {
 
     @Then("the response is empty")
     public void theResponseIsEmpty() throws IOException {
-        JsonNode arrNode = new ObjectMapper().readTree(responseBody);
+        JsonNode arrNode = new ObjectMapper().readTree(testContext.getResponseBody());
 
         Assert.assertEquals(0, arrNode.size());
     }
@@ -1291,17 +1082,18 @@ public class DestinationTestSteps {
 
     @Then("the response contains only own or public destinations")
     public void theResponseContainsOnlyOwnOrPublicDestinations() throws IOException {
-        JsonNode arrNode = new ObjectMapper().readTree(responseBody);
+        JsonNode arrNode = new ObjectMapper().readTree(testContext.getResponseBody());
         for (int i = 0 ; i < arrNode.size() ; i++) {
-            assertTrue(arrNode.get(i).get("public").asBoolean() || arrNode.get(i).get("owner").get("id").asText() == loggedInId);
+            assertTrue(arrNode.get(i).get("public").asBoolean() ||
+                    arrNode.get(i).get("owner").get("id").asText() == testContext.getLoggedInId());
         }
     }
 
 
-    @Then("the response contains only destinations owned by the user with id {int}")
+    @Then("^the response contains only destinations owned by the user with id (\\d+)$")
     public void theResponseContainsOnlyDestinationsOwnedByTheUserWithId(Integer id) throws IOException {
         Long userId = id.longValue();
-        JsonNode arrNode = new ObjectMapper().readTree(responseBody);
+        JsonNode arrNode = new ObjectMapper().readTree(testContext.getResponseBody());
         Long ownerId;
         for (int i = 0 ; i < arrNode.size() ; i++) {
             ownerId = destinationRepository.findById(arrNode.get(i).get("id").asLong()).getOwner().getId();  //Gets owner id of destination
@@ -1332,7 +1124,7 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("the destination will have the following number of treasure hunts {int}")
+    @Then("^the destination will have the following number of treasure hunts (\\d+)$")
     public void theDestinationWillHaveTheFollowingNumberOfTreasureHunts(Integer expectedSize) {
         Destination destination = destinationRepository.findById(destinationId);
 
@@ -1388,7 +1180,7 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("the trip with name {string} is deleted")
+    @Then("^the trip with name \"(.*)\" is deleted$")
     public void theTripWithNameIsDeleted(String tripName) {
         List<Trip> trips = tripRepository.getExpressionList().ilike(TRIP_NAME_FIELD, queryComparator(tripName)).findList();
         Assert.assertEquals(0, trips.size());
@@ -1400,17 +1192,12 @@ public class DestinationTestSteps {
      *
      * @param userId    id of the expected owner.
      */
-    @Then("the owner is user {int}")
+    @Then("^the owner is user (\\d+)$")
     public void theOwnerIsUser(Integer userId) {
         Destination destination = destinationRepository.findById(destinationId);
         Long expectedId = userId.longValue();
         Long ownerId = destination.getOwner().getId();
         assertNotNull(ownerId);
         assertEquals(expectedId, ownerId);
-    }
-
-    @Then("^the status code received is (\\d+)$")
-    public void theStatusCodeReceivedIs(int expectedStatusCode) {
-        Assert.assertEquals(expectedStatusCode, statusCode);
     }
 }

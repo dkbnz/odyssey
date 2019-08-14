@@ -2,58 +2,40 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.destinations.Destination;
-import org.junit.Assert;
-import play.Application;
-import play.db.Database;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.Helpers;
-
-import static org.junit.Assert.assertEquals;
-import static play.mvc.Http.HttpVerbs.PATCH;
-import static play.mvc.Http.Status.CREATED;
-import static play.mvc.Http.Status.OK;
-import static play.test.Helpers.*;
-
-import play.db.evolutions.Evolutions;
 import repositories.TripRepository;
 import repositories.destinations.DestinationRepository;
-
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static play.test.Helpers.fakeApplication;
+import static org.junit.Assert.assertEquals;
+import static play.mvc.Http.HttpVerbs.PATCH;
+import static play.test.Helpers.*;
 
 public class TripTestSteps {
 
+    /**
+     * Singleton class which stores generally used variables
+     */
+    private TestContext testContext;
 
     /**
-     * Variable to hold the status code of the result.
+     * Test file with test steps common over different scenarios
      */
-    private int statusCode;
+    private GeneralSteps generalSteps;
+
+
 
     private static final String AUTHORIZED = "authorized";
 
-
-    /**
-     * The login endpoint uri.
-     */
-    private static final String LOGIN_URI = "/v1/login";
-
-
-    /**
-     * The logout endpoint uri.
-     */
-    private static final String LOGOUT_URI = "/v1/logout";
 
 
     /**
@@ -61,47 +43,6 @@ public class TripTestSteps {
      */
     private static final String TRIPS_URI = "/v1/trips/";
 
-
-    /**
-     * The fake application.
-     */
-    private Application application;
-
-
-    /**
-     * Database instance for the fake application.
-     */
-    private Database database;
-
-
-    /**
-     * The id of the currently logged in user to send with the request.
-     */
-    private Integer loggedInUserId;
-
-
-    /**
-     * The username for the default admin user.
-     */
-    private static final String ADMIN_USERNAME = "admin@travelea.com";
-
-
-    /**
-     * The username for the default guest user.
-     */
-    private static final String GUEST_USERNAME = "guestUser@travelea.com";
-
-
-    /**
-     * The admin user id.
-     */
-    private static final Integer ADMIN_ID = 1;
-
-
-    /**
-     * The guest user id.
-     */
-    private static final Integer GUEST_ID = 2;
 
 
     /**
@@ -122,25 +63,14 @@ public class TripTestSteps {
     @Before
     public void setUp() {
 
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("play.db.config", "db");
-        configuration.put("play.db.default", "default");
-        configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:testDBTrip;MODE=MYSQL;");
-        configuration.put("ebean.default", "models.*");
-        configuration.put("play.evolutions.db.default.enabled", "true");
-        configuration.put("play.evolutions.autoApply", "false");
+        testContext = TestContext.getInstance();
 
-        //Set up the fake application to use the in memory database config
-        application = fakeApplication(configuration);
+        generalSteps = new GeneralSteps();
+        generalSteps.setUp();
 
-        database = application.injector().instanceOf(Database.class);
-        destinationRepository = application.injector().instanceOf(DestinationRepository.class);
-        tripRepository = application.injector().instanceOf(TripRepository.class);
+        destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
+        tripRepository = testContext.getApplication().injector().instanceOf(TripRepository.class);
 
-        applyEvolutions();
-
-        Helpers.start(application);
     }
 
 
@@ -152,114 +82,7 @@ public class TripTestSteps {
      */
     @After
     public void tearDown() {
-        logoutRequest();
-        cleanEvolutions();
-        database.shutdown();
-        Helpers.stop(application);
-    }
-
-
-    /**
-     * Applies down evolutions to the database from the test/evolutions/default directory.
-     *
-     * This drops tables and data from the database.
-     */
-    private void applyEvolutions() {
-        Evolutions.applyEvolutions(
-                database,
-                Evolutions.fromClassLoader(
-                        getClass().getClassLoader(),
-                        "test/"
-                )
-        );
-    }
-
-
-    /**
-     * Applies up evolutions to the database from the test/evolutions/default directory.
-     *
-     * This populates the database with necessary tables and values.
-     */
-    private void cleanEvolutions() {
-        Evolutions.cleanupEvolutions(database);
-    }
-
-
-    /**
-     * Sends a fake request to the application to login.
-     * @param username      The string of the username to complete the login with.
-     * @param password      The string of the password to complete the login with.
-     */
-    private void loginRequest(String username, String password) {
-
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode json = mapper.createObjectNode();
-
-
-        json.put("username", username);
-        json.put("password", password);
-
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .bodyJson(json)
-                .uri(LOGIN_URI);
-        Result loginResult = route(application, request);
-
-        statusCode = loginResult.status();
-    }
-
-
-    /**
-     * Sends a fake request to the application to logout.
-     */
-    private void logoutRequest() {
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .uri(LOGOUT_URI);
-        route(application, request);
-    }
-
-
-    /**
-     * Asserts the fake application is in test mode.
-     */
-    @Given("I have an application running")
-    public void iHaveAnApplicationRunning() {
-        Assert.assertTrue(application.isTest());
-    }
-
-
-    /**
-     * Gets log in credentials from the information in the data table and sends a log in request.
-     * @param dataTable     the data table containing the log in credentials
-     */
-    @Given("I am logged in with credentials")
-    public void iAmLoggedInWithCredentials(io.cucumber.datatable.DataTable dataTable) {
-        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String username = list.get(0).get("Username");
-        String pass = list.get(0).get("Password");
-        loginRequest(username, pass);
-    }
-
-
-    /**
-     * Gets log in credentials from the information in the data table and sends a log in request.
-     * @param dataTable     the data table containing the log in credentials
-     */
-    @Given("I am logged as the following user")
-    public void iAmLoggedAsTheFollowingUser(io.cucumber.datatable.DataTable dataTable) {
-        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String username = list.get(0).get("Username");
-        switch (username) {
-            case ADMIN_USERNAME:
-                loggedInUserId = ADMIN_ID;
-                break;
-            case GUEST_USERNAME:
-                loggedInUserId = GUEST_ID;
-                break;
-            default:
-                throw new Error();
-        }
+        generalSteps.tearDown();
     }
 
 
@@ -272,19 +95,12 @@ public class TripTestSteps {
     public void theFollowingJsonContainingATripIsSent(String docString) throws IOException {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
-                .session(AUTHORIZED, "1")
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .bodyJson(convertTripStringToJson(docString))
-                .uri(TRIPS_URI + 1);
-        Result result = route(application, request);
-        statusCode = result.status();
+                .uri(TRIPS_URI + testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
-
-
-    /**
-     * Checks if the status code received is BadRequest (400).
-     */
-    @Then("the response status code is BadRequest")
-    public void theResponseStatusCodeIsBadRequest() { assertEquals(BAD_REQUEST, statusCode); }
 
 
     private JsonNode convertTripStringToJson(String docString) throws IOException {
@@ -311,7 +127,7 @@ public class TripTestSteps {
      */
     @Given("I own the trip with the following data")
     public void iOwnTheTripWithTheFollowingData(String trip) throws IOException {
-        createTripGenericRequest(trip, loggedInUserId);
+        createTripGenericRequest(trip, testContext.getLoggedInId());
     }
 
 
@@ -322,7 +138,8 @@ public class TripTestSteps {
      */
     @Given("I do not own the trip with the following data")
     public void iDoNotOwnTheTripWithTheFollowingName(String trip) throws IOException {
-        createTripGenericRequest(trip, 3);
+        String ownerId = "3";
+        createTripGenericRequest(trip, ownerId);
     }
 
 
@@ -332,13 +149,13 @@ public class TripTestSteps {
      * @param ownerId           The id for the owner of the new trip.
      * @throws IOException      If the trip is formatted incorrectly.
      */
-    private void createTripGenericRequest(String tripData, Integer ownerId) throws IOException {
+    private void createTripGenericRequest(String tripData, String ownerId) throws IOException {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
-                .session(AUTHORIZED, ownerId.toString())
+                .session(AUTHORIZED, ownerId)
                 .bodyJson(convertTripStringToJson(tripData))
-                .uri(TRIPS_URI + ownerId.toString());
-        route(application, request);
+                .uri(TRIPS_URI + ownerId);
+        route(testContext.getApplication(), request);
     }
 
 
@@ -375,10 +192,10 @@ public class TripTestSteps {
     private void deleteTripRequest(Integer tripId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(DELETE)
-                .session(AUTHORIZED, loggedInUserId.toString())
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .uri(TRIPS_URI + tripId.toString());
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
 
 
@@ -391,47 +208,21 @@ public class TripTestSteps {
     private void editTripRequest(Integer tripId, String tripData) throws IOException {
         Http.RequestBuilder request = fakeRequest()
                 .method(PATCH)
-                .session(AUTHORIZED, loggedInUserId.toString())
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .bodyJson(convertTripStringToJson(tripData))
                 .uri(TRIPS_URI + tripId.toString());
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
 
-    @When("I change the trip, {string} to contain the following data")
+    @When("^I change the trip, \"(.*)\" to contain the following data$")
     public void iChangeTheTripToContainTheFollowingData(String tripName, String tripData) throws IOException {
         Integer tripId = getTripIdFromTripName(tripName).intValue();
         editTripRequest(tripId, tripData);
     }
 
 
-    /**
-     * Checks if the status code received is Forbidden (403).
-     */
-    @Then("the response status code is Forbidden")
-    public void theResponseStatusCodeIsForbidden() {
-        assertEquals(FORBIDDEN, statusCode);
-    }
-
-
-    /**
-     * Checks if the status code received is OK (200).
-     */
-    @Then("the response status code is OK")
-    public void theResponseStatusCodeIsOK() {
-        assertEquals(OK, statusCode);
-    }
-
-
-    /**
-     * Checks if the status code received is Created (201).
-     */
-    @Then("the response status code is Created")
-    public void theResponseStatusCodeIsCreated() {
-        assertEquals(CREATED, statusCode);
-    }
-
-    @Then("the destination with id {int} ownership changes to the user with id {int}")
+    @Then("^the destination with id (\\d+) ownership changes to the user with id (\\d+)$")
     public void theDestinationOwnershipChangesToTheGlobalAdminWithId(Integer destinationId, Integer profileId) {
         Destination destination = destinationRepository.findById(destinationId.longValue());
         assertEquals(profileId.longValue(), destination.getOwner().getId().longValue());

@@ -5,68 +5,43 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.junit.Assert;
-import play.Application;
-import play.db.Database;
-import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.Helpers;
-
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.*;
 
 public class AuthenticationTestSteps {
 
-    /**
-     * Variable to hold the status code of the result.
-     */
-    private int statusCode;
 
     /**
-     * The login endpoint uri.
+     * Singleton class which stores generally used variables
+     */
+    private TestContext testContext;
+
+    /**
+     * Test file with test steps common over different scenarios
+     */
+    private GeneralSteps generalSteps;
+
+
+    /**
+     * The username string variable.
+     */
+    private static final String USERNAME = "username";
+
+    /**
+     * The password string variable.
+     */
+    private static final String PASS_FIELD = "password";
+
+
+    /**
+     * The login uri.
      */
     private static final String LOGIN_URI = "/v1/login";
-
-
-    /**
-     * The logout endpoint uri.
-     */
-    private static final String LOGOUT_URI = "/v1/logout";
-
-
-    /**
-     * A valid username for login credentials for admin user.
-     */
-    private static final String VALID_USERNAME = "admin@travelea.com";
-
-
-    /**
-     * A valid password for login credentials for admin user.
-     */
-    private static final String VALID_AUTHPASS = "admin1";
-
-
-    /**
-     * The fake application.
-     */
-
-    protected Application application;
-
-
-    /**
-     * Database instance for the fake applica
-        json.put(USERNAME, username);
-        json.put(PASS_FIELD, password);tion.
-     */
-    private Database database;
 
     /**
      * Runs before each test scenario.
@@ -77,23 +52,10 @@ public class AuthenticationTestSteps {
      */
     @Before
     public void setUp() {
+        testContext = TestContext.getInstance();
 
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("play.db.config", "db");
-        configuration.put("play.db.default", "default");
-        configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:testDBAuth;MODE=MYSQL;");
-        configuration.put("ebean.default", "models.*");
-        configuration.put("play.evolutions.db.default.enabled", "true");
-        configuration.put("play.evolutions.autoApply", "false");
-
-        //Set up the fake application to use the in memory database config
-        application = fakeApplication(configuration);
-
-        database = application.injector().instanceOf(Database.class);
-        applyEvolutions();
-
-        Helpers.start(application);
+        generalSteps = new GeneralSteps();
+        generalSteps.setUp();
     }
 
 
@@ -105,46 +67,7 @@ public class AuthenticationTestSteps {
      */
     @After
     public void tearDown() {
-        logoutRequest();
-        cleanEvolutions();
-        database.shutdown();
-        Helpers.stop(application);
-    }
-
-
-    /**
-     * Applies down evolutions to the database from the test/evolutions/default directory.
-     *
-     * This drops tables and data from the database.
-     */
-    private void applyEvolutions() {
-        Evolutions.applyEvolutions(
-                database,
-                Evolutions.fromClassLoader(
-                        getClass().getClassLoader(),
-                        "test/"
-                )
-        );
-    }
-
-    /**
-     * Sends a fake request to the application to logout.
-     */
-    private void logoutRequest() {
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .uri(LOGOUT_URI);
-        route(application, request);
-    }
-
-
-    /**
-     * Applies up evolutions to the database from the test/evolutions/default directory.
-     *
-     * This populates the database with necessary tables and values.
-     */
-    private void cleanEvolutions() {
-        Evolutions.cleanupEvolutions(database);
+        generalSteps.tearDown();
     }
 
 
@@ -163,39 +86,22 @@ public class AuthenticationTestSteps {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode json = mapper.createObjectNode();
 
-        json.put(VALID_USERNAME, username);
-        json.put(VALID_AUTHPASS, password);
+        json.put(USERNAME, username);
+        json.put(PASS_FIELD, password);
 
         return json;
     }
 
-    /**
-     * Asserts the fake application is in test mode.
-     */
-    @Given("I am running the application")
-    public void iAmRunningTheApplication() {
-        Assert.assertTrue(application.isTest());
+
+    @When("I log in")
+    public void iLogIn() {
+        generalSteps.iAmLoggedIn();
     }
 
 
-    /**
-     * Logs in using the default admin credentials
-     */
-    @When("I send a POST request to the login endpoint with the admin credentials")
-    public void iSendAPOSTRequestToTheLoginEndpointWithTheAdminCredentials() {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode json = mapper.createObjectNode();
-
-        json.put("username", VALID_USERNAME);
-        json.put("password", VALID_AUTHPASS);
-
-        Http.RequestBuilder request = fakeRequest()
-                .bodyJson(json)
-                .method(POST)
-                .uri(LOGIN_URI);
-        Result loginResult = route(application, request);
-
-        statusCode = loginResult.status();
+    @When("I log out")
+    public void iLogOut() {
+        generalSteps.iAmNotLoggedIn();
     }
 
     /**
@@ -210,38 +116,8 @@ public class AuthenticationTestSteps {
                 .bodyJson(json)
                 .method(POST)
                 .uri(LOGIN_URI);
-        Result loginResult = route(application, request);
+        Result loginResult = route(testContext.getApplication(), request);
 
-        statusCode = loginResult.status();
-    }
-
-    /**
-     * Logs out a user using the logout endpoint
-     */
-    @When("I send a POST request to the logout endpoint")
-    public void iSendaPostRequestToLogout() {
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .uri(LOGOUT_URI);
-        Result loginResult = route(application, request);
-
-        statusCode = loginResult.status();
-    }
-
-
-    /**
-     * Checks if the status code received is OK (200).
-     */
-    @Then("I receive an OK status code")
-    public void theStatusCodeReceivedIsOK() {
-        assertEquals(OK, statusCode);
-    }
-
-    /**
-     * Checks if the status code received is BAD_REQUEST (400).
-     */
-    @Then("the received status code is BadRequest")
-    public void theRecievedStatusCodeIsBadRequest() {
-        assertEquals(BAD_REQUEST, statusCode);
+        testContext.setStatusCode(loginResult.status());
     }
 }

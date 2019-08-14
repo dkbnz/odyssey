@@ -1,14 +1,14 @@
 Feature: Destination API Endpoint
 
   Scenario: Get all destinations
-    Given I have a running application
+    Given the application is running
     And I am logged in
     When I send a GET request to the destinations endpoint
     Then the status code received is 200
 
 
   Scenario: Create a new destination with valid input
-    Given I have a running application
+    Given the application is running
     And I am logged in
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
@@ -17,7 +17,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Create a new destination with invalid name input
-    Given I have a running application
+    Given the application is running
     And I am logged in
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
@@ -26,7 +26,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Create a new destination with invalid country input
-    Given I have a running application
+    Given the application is running
     And I am logged in
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country |
@@ -35,7 +35,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Create a destination that already exists in my private destinations
-    Given I have a running application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name      | Type | District | Latitude | Longitude | Country     | is_public |
@@ -47,7 +47,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Create a destination that already exists as a public destination
-    Given I have a running application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District | Latitude | Longitude | Country     |
@@ -59,7 +59,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Create a destination that already exists as a private destination for another user
-    Given I have a running application
+    Given the application is running
     And I am logged in as an admin user
     And a destination already exists for user 3 with the following values
       | Name          | Type | District | Latitude | Longitude | Country     | is_public |
@@ -71,7 +71,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Create a new destination with valid input for another user
-    Given I have a running application
+    Given the application is running
     And I am logged in as an admin user
     When I create a new destination with the following values for another user
       | Name | Type | District | Latitude | Longitude | Country     |
@@ -80,7 +80,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Create a destination for another user that already exists as a public destination
-    Given I have a running application
+    Given the application is running
     And I am logged in as an admin user
     And a destination already exists with the following values
       | Name       | Type | District | Latitude | Longitude | Country     |
@@ -92,7 +92,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Search for a destination by name that exists
-    Given I have a running application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
@@ -107,7 +107,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Search for a destination by district that exists
-    Given I have a running application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
@@ -122,7 +122,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Search for a destination by latitude that exists
-    Given I have a running application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
@@ -137,7 +137,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Search for a private destinations
-    Given I have a running application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name | Type | District | Latitude | Longitude | Country     | is_public |
@@ -152,7 +152,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Search for all destinations
-    Given I have a running application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name     | Type | District | Latitude | Longitude | Country     | is_public |
@@ -166,7 +166,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Search for destinations by owner
-    Given I have a running application
+    Given the application is running
     And I am logged in as an admin user
     And a destination already exists with the following values
       | Name      | Type | District | Latitude | Longitude | Country     | is_public |
@@ -182,7 +182,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to edit a private destination while not logged in
-    Given I have a running application
+    Given the application is running
     And I am not logged in
     When I attempt to edit destination 10000 using the following values
       | Type | District | Latitude  | Longitude  | Country      |
@@ -191,7 +191,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to edit a private destination as the owner
-    Given I have a running application
+    Given the application is running
     And I am logged in
     And a destination already exists for user 2 with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -203,7 +203,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to edit another user's private destination as Admin
-    Given I am running the application
+    Given the application is running
     And I am logged in as an admin user
     When I attempt to edit destination 10000 using the following values
       | District | Country   |
@@ -212,7 +212,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to edit a private destination as another user
-    Given I am running the application
+    Given the application is running
     And I am logged in
     When I attempt to edit destination 10000 using the following values
       | District | Country   |
@@ -221,7 +221,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to edit a destination that does not exist
-    Given I am running the application
+    Given the application is running
     And I am logged in
     When I attempt to edit destination -4 using the following values
       | District | Country |
@@ -230,7 +230,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to edit a destination using an incorrect latitude value
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists for user 2 with the following values
       | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
@@ -242,7 +242,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to edit a destination using an incorrect longitude value
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists for user 2 with the following values
       | Name      | Type | District     | Latitude  | Longitude| Country     | is_public |
@@ -254,7 +254,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to delete a private destination as the owner when it is not used
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -264,7 +264,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to delete a private destination as the owner when it is only used by the owner
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -275,7 +275,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to delete a public destination as the owner when it is not used
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -285,7 +285,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to delete a public destination as the owner when it is only used by the owner
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -296,7 +296,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to delete a public destination as the owner when it is used by another user
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -311,14 +311,14 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to delete a destination that does not exist
-    Given I am running the application
+    Given the application is running
     And I am logged in
     When I attempt to delete the destination with id 100
     Then the status code received is 404
 
 
   Scenario: Attempt to delete a private destination as another user
-    Given I am running the application
+    Given the application is running
     And I am logged in as an admin user
     And a destination already exists for user 3 with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -330,7 +330,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to delete a public destination as another user
-    Given I am running the application
+    Given the application is running
     And I am logged in as an admin user
     And a destination already exists for user 3 with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -342,7 +342,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to delete a private destination as an admin
-    Given I am running the application
+    Given the application is running
     And I am logged in as an admin user
     And a destination already exists for user 3 with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -352,7 +352,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to delete a used public destination as an admin
-    Given I am running the application
+    Given the application is running
     And I am logged in as an admin user
     And a destination already exists for user 3 with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -362,7 +362,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to delete a public destination as an admin when it is used by another user
-    Given I am running the application
+    Given the application is running
     And I am logged in as an admin user
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -373,14 +373,14 @@ Feature: Destination API Endpoint
 
 
   Scenario: Attempt to delete a destination when not logged in
-    Given I am running the application
+    Given the application is running
     And I am not logged in
     When I attempt to delete the destination with id 119
     Then the status code received is 401
 
 
   Scenario: Deleting a destination as the owner deletes the trip
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -392,7 +392,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Previous owner uses a private destination
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -402,7 +402,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Previous owner uses a public destination
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -412,7 +412,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Another user uses a public destination
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -424,7 +424,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Merging two destinations which have photos
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -446,7 +446,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Merging three destinations which have photos
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -475,7 +475,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Merging two destinations are used in trips
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -497,7 +497,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Merging two destinations that have traveller types
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -519,7 +519,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Merging two destinations that have proposed traveller types to add
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -544,7 +544,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Merging two public destinations upon editing one to be identical to the other
-    Given I am running the application
+    Given the application is running
     And I am logged in as an admin user
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -562,7 +562,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Merging two destinations that have treasure hunts
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -582,7 +582,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Merging two destinations that both have treasure hunts
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -605,7 +605,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Retrieving destination usage for 1 trip
-    Given I am running the application
+    Given the application is running
     And I am logged in as an admin user
     And the following json body containing a trip is sent:
       """
@@ -633,7 +633,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Retrieving destination usage for 1 photo
-    Given I am running the application
+    Given the application is running
     And I am logged in as an admin user
     And a photo exists with id 1
     When I add a photo with id 1 to an existing destination with id 1155
@@ -645,7 +645,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Retrieving destination usage for 0 photos and 0 trips
-    Given I am running the application
+    Given the application is running
     And I am logged in as an admin user
     When I request the destination usage for destination with id 1155
     Then the status code received is 200
@@ -655,7 +655,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Retrieving destination usage for 1 photo and 1 trip
-    Given I am running the application
+    Given the application is running
     And I am logged in as an admin user
     And the following json body containing a trip is sent:
       """
@@ -684,7 +684,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Getting the destination usage of the changed value for a destination
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -698,7 +698,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Getting the destination usage of the changed value for a destination as non-owner
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -709,7 +709,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Getting the destination usage of the changed value for a destination when not logged in
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -720,7 +720,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Transferring the ownership of a public destination to default admin when photo is added by another user
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -732,7 +732,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: The ownership is not changed when the owner adds a photo to their own un-used public destination
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -742,7 +742,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Retrieving destination usage when not logged in
-    Given I am running the application
+    Given the application is running
     And I am not logged in
     And a destination already exists with the following values
       | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
@@ -752,14 +752,14 @@ Feature: Destination API Endpoint
 
 
   Scenario: Retrieving destination usage for a destination that doesn't exist
-    Given I am running the application
+    Given the application is running
     And I am logged in
     When I request the destination usage for destination with id 1
     Then the status code received is 404
 
 
   Scenario: Retrieving destination usage for my own private destination
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name                      | Type  | District         | Latitude   | Longitude     | Country     |
@@ -769,7 +769,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Retrieving destination usage for a private destination as another user
-    Given I am running the application
+    Given the application is running
     And I am logged in
     And a destination already exists with the following values
       | Name           | Type  | District         | Latitude   | Longitude     | Country     |
@@ -779,7 +779,7 @@ Feature: Destination API Endpoint
 
 
   Scenario: Retrieving destination usage for a private destination an admin
-    Given I am running the application
+    Given the application is running
     And I am logged in as an admin user
     And a destination already exists with the following values
       | Name                      | Type  | District         | Latitude   | Longitude     | Country     |

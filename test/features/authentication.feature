@@ -1,20 +1,20 @@
 Feature: Authentication API Endpoint
 
   Scenario: Log in using a valid profile
-    Given I am running the application
-    When I send a POST request to the login endpoint with the admin credentials
-    Then I receive an OK status code
+    Given the application is running
+    When I log in
+    Then the status code received is 200
 
 
   Scenario: Login using an invalid profile
-    Given I am running the application
+    Given the application is running
     When I send a POST request to the login endpoint with the following credentials
       | Username          | Password |
       | ohno@travelea.com | badpass1 |
-    Then the received status code is BadRequest
+    Then the status code received is 401
 
 
   Scenario: Logging out
-    Given I am running the application
-    When I send a POST request to the logout endpoint
-    Then I receive an OK status code
+    Given the application is running
+    When I log out
+    Then the status code received is 200
