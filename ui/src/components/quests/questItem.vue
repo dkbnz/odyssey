@@ -531,6 +531,9 @@
              */
             assembleQuest() {
                 this.joinDates();
+                for (let i = 0; i < this.inputQuest.objectives.length; i++) {
+                    this.inputQuest.objectives[i].destination = {"id": this.inputQuest.objectives[i].destination.id};
+                }
             },
 
 
@@ -539,6 +542,7 @@
              * quests.
              */
             saveQuest() {
+                delete this.inputQuest.destination;
                 this.assembleQuest();
                 let self = this;
                 fetch('/v1/quests/' + this.profile.id, {

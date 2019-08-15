@@ -1,5 +1,6 @@
 package models.quests;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import models.ApiError;
 import models.BaseModel;
@@ -36,11 +37,13 @@ public class Quest extends BaseModel {
     /**
      * Date which this quest starts.
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ssZ")
     private Date startDate;
 
     /**
      * Date which this quest ends.
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ssZ")
     private Date endDate;
 
     /**
