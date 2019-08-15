@@ -29,11 +29,11 @@
                     <b-form>
                         <b-container fluid>
                             <b-form-group
-                                    id="treasure_hunt_riddle-field"
+                                    id="objective_riddle-field"
                                     label="Objective Riddle:"
-                                    label-for="treasure_hunt_riddle">
+                                    label-for="objective_riddle">
                                 <b-form-textarea :type="'expandable-text'"
-                                                 id="treasure_hunt_riddle"
+                                                 id="objective_riddle"
                                                  trim
                                                  v-model="inputObjective.riddle"
                                                  :state="validateRiddle"></b-form-textarea>
@@ -46,24 +46,24 @@
                                 <h6 class="mb-1">Selected Destination:</h6>
                                 <b-list-group @click="$emit('destination-select')">
                                     <b-list-group-item href="#" class="flex-column align-items-start"
-                                                       v-if="selectedDestination"
+                                                       v-if="destinationSelected"
                                                        id="selectedDestination"
-                                                       :disabled="selectedDestination.length === '{}'"
+                                                       :disabled="destinationSelected.length === '{}'"
                                                        :variant="checkDestinationState"
                                                        draggable="false">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h5 class="mb-1" v-if="selectedDestination.name">
-                                                {{selectedDestination.name}}
+                                            <h5 class="mb-1" v-if="destinationSelected.name">
+                                                {{destinationSelected.name}}
                                             </h5>
                                             <h5 class="mb-1" v-else>Select a Destination</h5>
 
                                         </div>
 
                                         <p>
-                                            {{selectedDestination.district}}
+                                            {{destinationSelected.district}}
                                         </p>
                                         <p>
-                                            {{selectedDestination.country}}
+                                            {{destinationSelected.country}}
                                         </p>
                                     </b-list-group-item>
                                 </b-list-group>
@@ -80,11 +80,11 @@
                                     </b-form-select>
                                 </b-form-group>
 
-                                <div ref="map" v-if="inputObjective.radius !== null && selectedDestination.name">
+                                <div ref="map" v-if="inputObjective.radius !== null && destinationSelected.name">
                                     <google-map ref="map"
                                                 :showRadius="true"
                                                 :radius="inputObjective.radius.value"
-                                                :selectedRadiusDestination="selectedDestination">
+                                                :selectedRadiusDestination="destinationSelected">
                                     </google-map>
                                 </div>
                             </b-container>
@@ -173,19 +173,18 @@
                         lng: 173.299565
                     }
                 },
+                destinationSelected: {}
             }
         },
 
         watch: {
-            selectedDestination() {
-                this.inputObjective.destination = this.selectedDestination;
+            inputObjective() {
+                this.destinationSelected = this.inputObjective.destination;
             },
 
-            inputObjective() {
-                this.selectedDestination = this.inputObjective.destination;
-                if(this.inputObjective.radius === undefined) {
-                    this.inputObjective.radius = {value:0.005, text:"5 Meters"}
-                }
+            selectedDestination() {
+                this.destinationSelected = this.selectedDestination;
+                this.inputObjective.destination = this.destinationSelected;
             }
         },
 
@@ -224,11 +223,11 @@
              */
             validateDestination() {
                 if (this.inputObjective.destination !== null
-                    && this.inputObjective.destination === this.selectedDestination
+                    && this.inputObjective.destination === this.destinationSelected
                     && this.inputObjective.destination.name !== undefined
                     && this.inputObjective.destination.name.length > 0
                     || this.inputObjective.destination !== null
-                    && this.inputObjective.destination.id === this.selectedDestination.id) {
+                    && this.inputObjective.destination.id === this.destinationSelected.id) {
                     return true;
                 }
                 return false;
@@ -252,7 +251,7 @@
              */
             editingObjective() {
                 if (this.inputObjective.id !== null) {
-                    this.selectedDestination = this.inputObjective.destination;
+                    this.destinationSelected = this.inputObjective.destination;
                 }
             },
 
@@ -286,7 +285,7 @@
              * Used after the destination is added, resets the form for adding a destination.
              */
             resetDestForm() {
-                this.selectedDestination = {};
+                this.destinationSelected = {};
             },
 
 
