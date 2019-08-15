@@ -403,6 +403,9 @@
             },
 
 
+            /**
+             * Clears the values for a treasure hunt.
+             */
             clearTreasureHunt() {
                 this.selectedTreasureHunt = JSON.parse(JSON.stringify(this.selectedTreasureHuntTemplate));
                 this.selectedDestination = {};
