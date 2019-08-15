@@ -1,4 +1,3 @@
-
 # --- !Ups
 
 create table destination (
@@ -36,12 +35,6 @@ create table destination_proposed_traveller_type_remove (
   destination_id                bigint not null,
   traveller_type_id             bigint not null,
   constraint pk_destination_proposed_traveller_type_remove primary key (destination_id,traveller_type_id)
-);
-
-create table destination_type (
-  id                            bigint auto_increment not null,
-  destination_type              varchar(255),
-  constraint pk_destination_type primary key (id)
 );
 
 create table nationality (
@@ -84,11 +77,17 @@ create table profile (
   last_name                     varchar(255),
   gender                        varchar(255),
   date_of_birth                 date,
-  is_admin                      boolean,
+  is_admin                      boolean default false not null,
   date_of_creation              timestamp,
   profile_picture_id            bigint,
   constraint uq_profile_profile_picture_id unique (profile_picture_id),
   constraint pk_profile primary key (id)
+);
+
+create table destination_type (
+  id                            bigint auto_increment not null,
+  destination_type              varchar(255),
+  constraint pk_destination_type primary key (id)
 );
 
 create table profile_nationality (
@@ -109,6 +108,31 @@ create table profile_passport (
   constraint pk_profile_passport primary key (profile_id,passport_id)
 );
 
+create table quest (
+  id                            bigint auto_increment not null,
+  title                         varchar(255),
+  start_date                    date,
+  end_date                      date,
+  owner_id                      bigint,
+  constraint pk_quest primary key (id)
+);
+
+create table quest_treasure_hunt (
+  quest_id                      bigint not null,
+  treasure_hunt_id              bigint not null,
+  constraint pk_quest_treasure_hunt primary key (quest_id,treasure_hunt_id)
+);
+
+create table quest_attempt (
+  id                            bigint auto_increment not null,
+  attempted_by_id               bigint,
+  quest_attempted_id            bigint,
+  solved_current                boolean default false not null,
+  checked_in_index              integer not null,
+  completed                     boolean default false not null,
+  constraint pk_quest_attempt primary key (id)
+);
+
 create table traveller_type (
   id                            bigint auto_increment not null,
   traveller_type                varchar(255),
@@ -120,10 +144,9 @@ create table traveller_type (
 create table treasure_hunt (
   id                            bigint auto_increment not null,
   destination_id                bigint,
-  riddle                        varchar(255),
-  start_date                    timestamp,
-  end_date                      timestamp,
   owner_id                      bigint,
+  riddle                        varchar(255),
+  radius                        double,
   constraint pk_treasure_hunt primary key (id)
 );
 
@@ -203,6 +226,21 @@ alter table profile_passport add constraint fk_profile_passport_profile foreign 
 create index ix_profile_passport_passport on profile_passport (passport_id);
 alter table profile_passport add constraint fk_profile_passport_passport foreign key (passport_id) references passport (id) on delete restrict on update restrict;
 
+create index ix_quest_owner_id on quest (owner_id);
+alter table quest add constraint fk_quest_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
+
+create index ix_quest_treasure_hunt_quest on quest_treasure_hunt (quest_id);
+alter table quest_treasure_hunt add constraint fk_quest_treasure_hunt_quest foreign key (quest_id) references quest (id) on delete restrict on update restrict;
+
+create index ix_quest_treasure_hunt_treasure_hunt on quest_treasure_hunt (treasure_hunt_id);
+alter table quest_treasure_hunt add constraint fk_quest_treasure_hunt_treasure_hunt foreign key (treasure_hunt_id) references treasure_hunt (id) on delete restrict on update restrict;
+
+create index ix_quest_attempt_attempted_by_id on quest_attempt (attempted_by_id);
+alter table quest_attempt add constraint fk_quest_attempt_attempted_by_id foreign key (attempted_by_id) references profile (id) on delete restrict on update restrict;
+
+create index ix_quest_attempt_quest_attempted_id on quest_attempt (quest_attempted_id);
+alter table quest_attempt add constraint fk_quest_attempt_quest_attempted_id foreign key (quest_attempted_id) references quest (id) on delete restrict on update restrict;
+
 create index ix_treasure_hunt_destination_id on treasure_hunt (destination_id);
 alter table treasure_hunt add constraint fk_treasure_hunt_destination_id foreign key (destination_id) references destination (id) on delete restrict on update restrict;
 
@@ -217,7 +255,6 @@ alter table trip_destination add constraint fk_trip_destination_trip_id foreign 
 
 create index ix_trip_destination_destination_id on trip_destination (destination_id);
 alter table trip_destination add constraint fk_trip_destination_destination_id foreign key (destination_id) references destination (id) on delete restrict on update restrict;
-
 
 # --- !Downs
 
@@ -280,6 +317,21 @@ drop index if exists ix_profile_passport_profile;
 alter table profile_passport drop constraint if exists fk_profile_passport_passport;
 drop index if exists ix_profile_passport_passport;
 
+alter table quest drop constraint if exists fk_quest_owner_id;
+drop index if exists ix_quest_owner_id;
+
+alter table quest_treasure_hunt drop constraint if exists fk_quest_treasure_hunt_quest;
+drop index if exists ix_quest_treasure_hunt_quest;
+
+alter table quest_treasure_hunt drop constraint if exists fk_quest_treasure_hunt_treasure_hunt;
+drop index if exists ix_quest_treasure_hunt_treasure_hunt;
+
+alter table quest_attempt drop constraint if exists fk_quest_attempt_attempted_by_id;
+drop index if exists ix_quest_attempt_attempted_by_id;
+
+alter table quest_attempt drop constraint if exists fk_quest_attempt_quest_attempted_id;
+drop index if exists ix_quest_attempt_quest_attempted_id;
+
 alter table treasure_hunt drop constraint if exists fk_treasure_hunt_destination_id;
 drop index if exists ix_treasure_hunt_destination_id;
 
@@ -323,6 +375,12 @@ drop table if exists profile_traveller_type;
 
 drop table if exists profile_passport;
 
+drop table if exists quest;
+
+drop table if exists quest_treasure_hunt;
+
+drop table if exists quest_attempt;
+
 drop table if exists traveller_type;
 
 drop table if exists treasure_hunt;
@@ -330,4 +388,3 @@ drop table if exists treasure_hunt;
 drop table if exists trip;
 
 drop table if exists trip_destination;
-
