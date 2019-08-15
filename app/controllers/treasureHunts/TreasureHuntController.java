@@ -464,7 +464,6 @@ public class TreasureHuntController {
     }
 
 
-
     /**
      * Retrieves all the treasure hunts stored in the database (if they have the correct dates).
      *
