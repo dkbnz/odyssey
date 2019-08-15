@@ -16,7 +16,8 @@
                         variant="success"
                 ></b-progress>
             </b-alert>
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingHunt">
+            <b-list-group-item href="#" class="flex-column justify-content-center"
+                               v-if="creatingHunt" draggable="false">
                 <add-treasure-hunt :profile="profile" :heading="'Create'"
                                    @cancelCreate="cancelCreate"
                                    :selectedDestination="selectedDestination"
@@ -25,14 +26,23 @@
 
                 </add-treasure-hunt>
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="!creatingHunt">
-                <div class="d-flex justify-content-center">
-                    <b-button variant="success"  @click="addTreasureHunt" block>Add a New Treasure Hunt</b-button>
-                </div>
-            </b-list-group-item>
+            <div v-if="!sideBarView">
+                <b-list-group-item href="#" class="flex-column justify-content-center"
+                                   v-if="!creatingHunt" draggable="false">
+                    <div class="d-flex justify-content-center">
+                        <b-button variant="success"
+                                  @click="addTreasureHunt" block>
+                            Add a New Treasure Hunt
+                        </b-button>
+                    </div>
+                </b-list-group-item>
+            </div>
+
             <b-list-group-item v-for="treasureHunt in (foundTreasureHunts)" href="#"
                                class="flex-column align-items-start"
-                               :key="treasureHunt.id">
+                               :key="treasureHunt.id"
+                               draggable="false"
+                               @click="emitTreasureHunt(treasureHunt)">
                 <template v-if="!editingHunt && !(activeId === treasureHunt.id)">
                         <h4>Riddle</h4>
                         {{treasureHunt.riddle}}
@@ -53,10 +63,13 @@
 
                     <b-row v-if="yourTreasureHunts">
                         <b-col>
-                            <b-button variant="warning" @click="setActiveId(treasureHunt)" block>Edit</b-button>
+                            <b-button v-if="!sideBarView" variant="warning" @click="setActiveId(treasureHunt)" block>
+                                Edit
+                            </b-button>
                         </b-col>
                         <b-col>
-                            <b-button variant="danger" @click="setTreasureHunt(treasureHunt)" block>Delete
+                            <b-button variant="danger" v-if="!sideBarView" @click="setTreasureHunt(treasureHunt)" block>
+                                Delete
                             </b-button>
                         </b-col>
                     </b-row>
@@ -72,13 +85,14 @@
                 </add-treasure-hunt>
                 <!--Treasure Hunt component-->
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
+            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults"
+                               draggable="false">
                 <div class="d-flex justify-content-center">
                     <b-spinner label="Loading..."></b-spinner>
                 </div>
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center"
-                               v-if="!loadingResults && foundTreasureHunts.length === 0">
+                               v-if="!loadingResults && foundTreasureHunts.length === 0" draggable="false">
                 <div class="d-flex justify-content-center">
                     <strong>No Treasure Hunts</strong>
                 </div>
@@ -125,7 +139,12 @@
             },
             yourTreasureHunts: Boolean,
             selectedDestination: {},
-            refreshTreasureHunts: Boolean
+            refreshTreasureHunts: Boolean,
+            sideBarView: {
+                default: function () {
+                    return false;
+                }
+            }
         },
 
         data() {
@@ -345,6 +364,16 @@
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
+
+
+            /**
+             * Emits the selected treasure hunt when selecting on the side bar for quests.
+             */
+            emitTreasureHunt(treasureHunt) {
+                if (this.sideBarView) {
+                    this.$emit('select-treasure-hunt', treasureHunt)
+                }
+            }
         },
 
         components: {
