@@ -13,7 +13,7 @@
                     <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/destinations'}" @click="goToDestinations()">
                         Destinations
                     </b-nav-item>
-                    <b-nav-item :class="{active: currentPage==='/treasureHunts'}" @click="goToTreasureHunts()">Treasure Hunts</b-nav-item>
+                    <b-nav-item :class="{active: currentPage==='/objectives'}" @click="goToObjectives()">Objectives</b-nav-item>
                     <b-nav-item :class="{active: currentPage==='/quests'}" @click="goToQuests()">Quests</b-nav-item>
                     <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/admin'}" @click="goToAdminPanel()"
                                 v-if="profile.isAdmin">
@@ -109,8 +109,8 @@
             goToAdminPanel() {
                 this.$router.push("/admin");
             },
-            goToTreasureHunts() {
-                this.$router.push("/treasureHunts");
+            goToObjectives() {
+                this.$router.push("/objectives");
             },
             goToQuests() {
                 this.$router.push("/quests");

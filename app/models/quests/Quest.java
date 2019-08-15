@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import models.ApiError;
 import models.BaseModel;
 import models.Profile;
-import models.treasureHunts.TreasureHunt;
+import models.objectives.Objective;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -17,11 +16,11 @@ import java.util.List;
 public class Quest extends BaseModel {
 
     /**
-     * List of treasure hunts to be solved in this quest.
+     * List of objectives to be solved in this quest.
      */
     @ManyToMany
     @OrderColumn
-    private List<TreasureHunt> treasureHunts;
+    private List<Objective> objectives;
 
     /**
      * List of attempts that have been had on this quest.
@@ -76,28 +75,28 @@ public class Quest extends BaseModel {
             errors.add(new ApiError("This quest does not have an owner."));
         }
 
-        if (treasureHunts.isEmpty()) {
-            errors.add(new ApiError("You must provide at least one Treasure Hunt for a quest"));
+        if (objectives.isEmpty()) {
+            errors.add(new ApiError("You must provide at least one Objective for a quest"));
         }
 
         return errors;
     }
 
 
-    public List<TreasureHunt> getTreasureHunts() {
-        return treasureHunts;
+    public List<Objective> getObjectives() {
+        return objectives;
     }
 
-    public void setTreasureHunts(List<TreasureHunt> treasureHunts) {
-        this.treasureHunts = treasureHunts;
+    public void setObjectives(List<Objective> objectives) {
+        this.objectives = objectives;
     }
 
-    public boolean addTreasureHunt(TreasureHunt treasureHunt) {
-        return treasureHunts.add(treasureHunt);
+    public boolean addObjective(Objective objective) {
+        return objectives.add(objective);
     }
 
-    public boolean removeTreasureHunt(TreasureHunt treasureHunt) {
-        return treasureHunts.remove(treasureHunt);
+    public boolean removeObjective(Objective objective) {
+        return objectives.remove(objective);
     }
 
     public String getTitle() {

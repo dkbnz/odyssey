@@ -6,7 +6,7 @@ import models.destinations.Destination;
 import models.photos.PersonalPhoto;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
-import models.treasureHunts.TreasureHunt;
+import models.objectives.Objective;
 import models.trips.Trip;
 import play.data.format.Formats;
 
@@ -63,7 +63,7 @@ public class Profile extends BaseModel {
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-    private List<TreasureHunt> myTreasureHunts;
+    private List<Objective> myObjectives;
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "attemptedBy")
@@ -73,8 +73,8 @@ public class Profile extends BaseModel {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<Quest> myQuests;
 
-    public List<TreasureHunt> getMyTreasureHunts() {
-        return myTreasureHunts;
+    public List<Objective> getMyObjectives() {
+        return myObjectives;
     }
 
 
@@ -248,13 +248,13 @@ public class Profile extends BaseModel {
     }
 
 
-    public void addTreasureHunt(TreasureHunt newTreasureHunt) {
-        this.myTreasureHunts.add(newTreasureHunt);
+    public void addObjective(Objective newObjective) {
+        this.myObjectives.add(newObjective);
     }
 
 
-    public boolean removeTreasureHunt(TreasureHunt treasureHunt) {
-        return myTreasureHunts.remove(treasureHunt);
+    public boolean removeObjective(Objective objective) {
+        return myObjectives.remove(objective);
     }
 
 
@@ -296,8 +296,8 @@ public class Profile extends BaseModel {
         this.myDestinations = myDestinations;
     }
 
-    public void setMyTreasureHunts(List<TreasureHunt> myTreasureHunts) {
-        this.myTreasureHunts = myTreasureHunts;
+    public void setMyObjectives(List<Objective> myObjectives) {
+        this.myObjectives = myObjectives;
     }
 
     public boolean isAdmin() {

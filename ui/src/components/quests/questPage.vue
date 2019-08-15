@@ -55,7 +55,7 @@
             return {
                 selectedDestination: {},
                 showDestinations: false,
-                refreshTreasureHunts: false
+                refreshObjectives: false
             }
         },
 

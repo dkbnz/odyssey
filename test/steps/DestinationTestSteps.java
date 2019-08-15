@@ -4,17 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.java.After;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.api.java.Before;
 import io.ebean.ExpressionList;
 import models.TravellerType;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
-import models.treasureHunts.TreasureHunt;
+import models.objectives.Objective;
 import models.trips.Trip;
 import org.junit.*;
 import play.libs.Json;
@@ -25,7 +23,7 @@ import repositories.TripRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.destinations.TravellerTypeRepository;
-import repositories.treasureHunts.TreasureHuntRepository;
+import repositories.objectives.ObjectiveRepository;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -63,7 +61,7 @@ public class DestinationTestSteps {
 
 
     /**
-     * User who owns the treasure hunt
+     * User who owns the objective
      */
     private String targetUserId;
 
@@ -105,9 +103,9 @@ public class DestinationTestSteps {
 
 
     /**
-     * The treasure hunt uri.
+     * The objective uri.
      */
-    private static final String TREASURE_HUNT_URI = "/v1/treasureHunts";
+    private static final String TREASURE_HUNT_URI = "/v1/objectives";
 
 
     /**
@@ -172,7 +170,7 @@ public class DestinationTestSteps {
     private DestinationRepository destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
     private TravellerTypeRepository travellerTypeRepository = testContext.getApplication().injector().instanceOf(TravellerTypeRepository.class);
     private DestinationTypeRepository destinationTypeRepository = testContext.getApplication().injector().instanceOf(DestinationTypeRepository.class);
-    private TreasureHuntRepository treasureHuntRepository = testContext.getApplication().injector().instanceOf(TreasureHuntRepository.class);
+    private ObjectiveRepository objectiveRepository = testContext.getApplication().injector().instanceOf(ObjectiveRepository.class);
     private TripRepository tripRepository = testContext.getApplication().injector().instanceOf(TripRepository.class);
 
 
@@ -278,11 +276,11 @@ public class DestinationTestSteps {
 
 
     /**
-     * Sends a request to create a treasure hunt with values from the given Json node.
+     * Sends a request to create a objective with values from the given Json node.
      *
-     * @param json      a JsonNode containing the values for a new treasure hunt object.
+     * @param json      a JsonNode containing the values for a new objective object.
      */
-    private void createTreasureHuntRequest(JsonNode json) {
+    private void createObjectiveRequest(JsonNode json) {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
@@ -446,7 +444,7 @@ public class DestinationTestSteps {
      * @param dataTable     the data table containing values of a destination.
      * @return              a JsonNode of a destination containing information from the data table.
      */
-    private JsonNode convertDataTableToTreasureHuntJson(io.cucumber.datatable.DataTable dataTable, int index) {
+    private JsonNode convertDataTableToObjectiveJson(io.cucumber.datatable.DataTable dataTable, int index) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         String riddle                  = list.get(index).get(RIDDLE_STRING);
@@ -457,11 +455,11 @@ public class DestinationTestSteps {
         targetUserId = list.get(index).get(OWNER_STRING);
 
         if (startDate.equals("")) {
-            startDate = getTreasureHuntDateBuffer(true);
+            startDate = getObjectiveDateBuffer(true);
         }
 
         if (endDate.equals("")) {
-            endDate = getTreasureHuntDateBuffer(false);
+            endDate = getObjectiveDateBuffer(false);
         }
 
         //Add values to a JsonNode
@@ -488,7 +486,7 @@ public class DestinationTestSteps {
      * @param isStartDate   boolean value to determine if the date being changed the start or the end date.
      * @return              the start or end date, which is modified by the necessary date buffer.
      */
-    private String getTreasureHuntDateBuffer(boolean isStartDate) {
+    private String getObjectiveDateBuffer(boolean isStartDate) {
         Calendar calendar = Calendar.getInstance();
 
         if (isStartDate) {
@@ -679,11 +677,11 @@ public class DestinationTestSteps {
     }
 
 
-    @Given("the destination exists in a treasure hunt with the following values")
-    public void theDestinationExistsInATreasureHuntWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+    @Given("the destination exists in a objective with the following values")
+    public void theDestinationExistsInAObjectiveWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode json = convertDataTableToTreasureHuntJson(dataTable, i);
-            createTreasureHuntRequest(json);
+            JsonNode json = convertDataTableToObjectiveJson(dataTable, i);
+            createObjectiveRequest(json);
         }
     }
 
@@ -1085,13 +1083,13 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("^the destination will have the following number of treasure hunts (\\d+)$")
-    public void theDestinationWillHaveTheFollowingNumberOfTreasureHunts(Integer expectedSize) {
+    @Then("^the destination will have the following number of objectives (\\d+)$")
+    public void theDestinationWillHaveTheFollowingNumberOfObjectives(Integer expectedSize) {
         Destination destination = destinationRepository.findById(destinationId);
 
-        List<TreasureHunt> treasureHunts = treasureHuntRepository.getTreasureHuntsWithDestination(destination);
+        List<Objective> objectives = objectiveRepository.getObjectivesWithDestination(destination);
 
-        assertEquals(expectedSize.longValue(), treasureHunts.size());
+        assertEquals(expectedSize.longValue(), objectives.size());
     }
 
 
