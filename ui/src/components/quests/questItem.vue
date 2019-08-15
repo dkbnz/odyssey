@@ -167,14 +167,14 @@
                         <!-- Buttons that appear for each treasure hunt added to table -->
                         <template slot="actions" slot-scope="row">
                             <b-button size="sm"
-                                      @click="editObjective(row.index)"
+                                      @click="editObjective(row.item)"
                                       variant="warning"
                                       class="mr-2"
                                       block>Edit
                             </b-button>
                             <!--Removes treasure hunt from table-->
                             <b-button size="sm"
-                                      @click="deleteObjective(row.index)"
+                                      @click="deleteObjective(row.item)"
                                       variant="danger"
                                       class="mr-2"
                                       block>Delete
@@ -203,7 +203,7 @@
                     </b-table>
                     <!-- Determines pagination and number of results per row of the table -->
                     <b-row>
-                        <b-col cols="1">
+                        <b-col cols="2">
                             <b-form-group
                                     id="numItems-field"
                                     label-for="perPage">
@@ -214,7 +214,7 @@
                                 </b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col cols="8">
+                        <b-col>
                             <b-pagination
                                     :per-page="perPage"
                                     :total-rows="rows"
@@ -313,10 +313,12 @@
                     {key: 'radius', label: 'Radius'},
                     'actions'
                 ],
-                optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
-                    value: 15,
-                    text: "15"
-                }],
+                optionViews: [
+                    {value: 1, text: "1"},
+                    {value: 5, text: "5"},
+                    {value: 10, text: "10"},
+                    {value: 15, text: "15"},
+                    {value:Infinity, text:"All"}],
                 perPage: 5,
                 currentPage: 1,
                 editCurrentObjective: false,
@@ -630,9 +632,10 @@
             /**
              * Displays the edit treasure hunt field and sets the current treasure hunt to the specified value.
              */
-            editObjective(rowIndex) {
-                this.objectiveIndex = rowIndex;
-                let radius = this.inputQuest.objectives[rowIndex].radius;
+            editObjective(objective) {
+                console.log(this.inputQuest.objectives.indexOf(objective));
+                this.objectiveIndex = this.inputQuest.objectives.indexOf(objective);
+                let radius = this.inputQuest.objectives[this.objectiveIndex].radius;
                 let radiusValue;
                 let radiusList = [
                     {value: 0.005, text: "5 Meters"},
@@ -650,9 +653,9 @@
                         radiusValue = radiusList[i];
                     }
                 }
-                this.objectiveSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[rowIndex]));
+                this.objectiveSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[this.objectiveIndex]));
                 this.objectiveSelected.radius = radiusValue;
-                this.destinationSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[rowIndex].destination));
+                this.destinationSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[this.objectiveIndex].destination));
                 console.log(this.destinationSelected);
                 this.editCurrentObjective = true;
                 this.$emit('OBJ-side-bar', true);
@@ -662,7 +665,8 @@
             /**
              * Removes a treasure hunt from the list of quest's treasure hunts.
              */
-            deleteObjective(rowIndex) {
+            deleteObjective(objective) {
+                let rowIndex = this.inputQuest.objectives.indexOf(objective);
                 this.inputQuest.objectives.splice(rowIndex, 1);
                 this.showSuccessObjective = false;
                 this.successMessage = "Objective Successfully Deleted";
