@@ -115,7 +115,7 @@ public class QuestController {
          }
 
          if (questOwner == null) {
-             return badRequest();
+             return badRequest(ApiError.notFound());
          }
 
          questRepository.delete(quest);

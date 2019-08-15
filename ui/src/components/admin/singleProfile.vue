@@ -91,7 +91,7 @@
     import YourTrips from './../trips/yourTrips.vue'
     import EditProfile from "./../dash/editProfile.vue"
     import DestinationsPage from "./../destinations/destinationsPage.vue"
-    import ObjectivePage from "../objective/objectivePage";
+    import ObjectivePage from "../objectives/objectivePage";
 
     export default {
         name: "singleProfile",
