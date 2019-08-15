@@ -399,7 +399,27 @@
              * Sets the treasure hunt emitted from the select treasure hunt side bar.
              */
             setSelectedTreasureHunt(treasureHunt) {
-                this.selectedTreasureHunt = treasureHunt;
+                let newTreasureHunt = JSON.parse(JSON.stringify(treasureHunt));
+                let radius = newTreasureHunt.radius;
+                let radiusValue;
+                let radiusList = [
+                    {value: 0.005, text: "5 Meters"},
+                    {value: 0.01, text: "10 Meters"},
+                    {value: 0.02, text: "20 Meters"},
+                    {value: 0.05, text: "50 Meters"},
+                    {value: 0.1, text: "100 Meters"},
+                    {value: 0.5, text: "500 Meters"},
+                    {value: 1, text: "1 Km"},
+                    {value: 5, text: "5 Km"},
+                    {value: 10, text: "10 Km"},
+                ];
+                for (let i = 0; i < radiusList.length; i++) {
+                    if (radius === radiusList[i].value) {
+                        radiusValue = radiusList[i];
+                    }
+                }
+                newTreasureHunt.radius = radiusValue;
+                this.selectedTreasureHunt = newTreasureHunt;
             },
 
 
