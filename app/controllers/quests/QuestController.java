@@ -90,6 +90,58 @@ public class QuestController {
 
 
     /**
+     * Edits a specific request from the database if the user is permitted to. Restricts editing if the quest is in use.
+     *
+     * @param request       the request from the front end of the application containing login information.
+     * @param questId       the id of the quest being edited.
+     * @return              ok() (Http 200) if the quest has successfully been edited.
+     *                      forbidden() (Http 403) if the user is not authorised to edit the quest.
+     *                      notFound() (Http 404) if the quest doesn't exist.
+     *                      badRequest() (Http 400) if the owner of the quest doesn't exist, or there is an error in the
+     *                      Json body of the quest.
+     */
+    public Result edit(Http.Request request, Long questId) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        Quest quest = questRepository.findById(questId);
+
+        if (quest == null) {
+            return notFound(ApiError.notFound());
+        }
+
+        Profile questOwner = quest.getOwner();
+
+        if (!AuthenticationUtil.validUser(loggedInUser, questOwner)) {
+            return forbidden(ApiError.forbidden());
+        }
+
+        if (questOwner == null) {
+            return badRequest(ApiError.notFound());
+        }
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            // Attempt to turn json body into a objective object.
+            quest = mapper.readerWithView(Views.Owner.class)
+                    .forType(Quest.class)
+                    .readValue(request.body().asJson());
+        } catch (Exception e) {
+            System.out.println(Json.toJson(quest));
+            return badRequest(ApiError.invalidJson());
+        }
+
+        quest.setOwner(questOwner);
+
+        questRepository.update(quest);
+
+        return ok(Json.toJson(quest));
+    }
+
+
+    /**
      * Deletes a specific quest from the database if the user is permitted to.
      *
      * @param request   the request from the front end of the application containing login information.
