@@ -30,7 +30,7 @@ public final class AuthenticationUtil {
      * @return                  true if the logged in user is allowed to manipulate the owners data.
      */
     public static boolean validUser(Profile loggedInUser, Profile owner) {
-        return loggedInUser.getIsAdmin()|| owner.getId().equals(loggedInUser.getId());
+        return loggedInUser.isAdmin()|| owner.getId().equals(loggedInUser.getId());
     }
 
 

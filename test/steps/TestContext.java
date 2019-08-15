@@ -6,8 +6,7 @@ import play.db.Database;
 
 public class TestContext {
 
-    private static final TestContext INSTANCE = new TestContext();
-
+    private static TestContext INSTANCE;
 
     @Inject
     Application application;
@@ -36,6 +35,10 @@ public class TestContext {
      */
     private String targetId;
 
+
+    private TestContext() {
+        //Private Constructor to prevent instantiation.
+    }
 
 
     public Application getApplication() {
@@ -78,7 +81,6 @@ public class TestContext {
         this.loggedInId = loggedInId;
     }
 
-
     public String getTargetId() {
         return targetId;
     }
@@ -88,6 +90,9 @@ public class TestContext {
     }
 
     public static TestContext getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new TestContext();
+        }
         return INSTANCE;
     }
 }

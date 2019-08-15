@@ -195,7 +195,7 @@ public class DestinationController extends Controller {
             } else {
                 return forbidden();
             }
-        } else if (!loggedInUser.getIsAdmin()) {
+        } else if (!loggedInUser.isAdmin()) {
             expressionList
                     .disjunction()
                         .eq(IS_PUBLIC, true)

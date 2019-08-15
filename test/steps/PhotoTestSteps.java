@@ -14,6 +14,7 @@ import models.Profile;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
 import org.junit.Assert;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
@@ -39,12 +40,8 @@ public class PhotoTestSteps {
     /**
      * Singleton class which stores generally used variables
      */
-    private TestContext testContext;
+    private TestContext testContext = TestContext.getInstance();
 
-    /**
-     * Test file with test steps common over different scenarios
-     */
-    private GeneralSteps generalSteps;
 
 
 
@@ -58,32 +55,9 @@ public class PhotoTestSteps {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 
-    private PersonalPhotoRepository personalPhotoRepository;
-    private DestinationRepository destinationRepository;
-    private ProfileRepository profileRepository;
-
-    @Before
-    public void setUp() {
-        testContext = TestContext.getInstance();
-
-        generalSteps = new GeneralSteps();
-        generalSteps.setUp();
-
-        personalPhotoRepository = testContext.getApplication().injector().instanceOf(PersonalPhotoRepository.class);
-        destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
-        profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
-    }
-
-
-    /**
-     * Runs after each test scenario.
-     * Cleans up the database by cleaning up evolutions and shutting it down.
-     * Stops running the fake application.
-     */
-    @After
-    public void tearDown() {
-        generalSteps.tearDown();
-    }
+    private PersonalPhotoRepository personalPhotoRepository = testContext.getApplication().injector().instanceOf(PersonalPhotoRepository.class);
+    private DestinationRepository destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
+    private ProfileRepository profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
 
     /**

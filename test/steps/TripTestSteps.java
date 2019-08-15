@@ -25,13 +25,7 @@ public class TripTestSteps {
     /**
      * Singleton class which stores generally used variables
      */
-    private TestContext testContext;
-
-    /**
-     * Test file with test steps common over different scenarios
-     */
-    private GeneralSteps generalSteps;
-
+    private TestContext testContext = TestContext.getInstance();
 
 
     private static final String AUTHORIZED = "authorized";
@@ -56,34 +50,8 @@ public class TripTestSteps {
      */
     private static final String TRIP_NAME_FIELD = "name";
 
-    private DestinationRepository destinationRepository;
-    private TripRepository tripRepository;
-
-
-    @Before
-    public void setUp() {
-
-        testContext = TestContext.getInstance();
-
-        generalSteps = new GeneralSteps();
-        generalSteps.setUp();
-
-        destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
-        tripRepository = testContext.getApplication().injector().instanceOf(TripRepository.class);
-
-    }
-
-
-    /**
-     * Runs after each test scenario.
-     * Sends a logout request.
-     * Cleans up the database by cleaning up evolutions and shutting it down.
-     * Stops running the fake application.
-     */
-    @After
-    public void tearDown() {
-        generalSteps.tearDown();
-    }
+    private DestinationRepository destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
+    private TripRepository tripRepository = testContext.getApplication().injector().instanceOf(TripRepository.class);
 
 
     /**

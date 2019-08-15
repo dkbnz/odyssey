@@ -2,6 +2,8 @@ package steps;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import cucumber.api.java.After;
+import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import org.junit.Assert;
@@ -36,8 +38,6 @@ public class GeneralSteps {
      */
     private static final String PASS_FIELD = "password";
 
-
-
     //--------------------------------------URIs-------------------------------------------
 
     /**
@@ -49,8 +49,6 @@ public class GeneralSteps {
      * The logout uri.
      */
     private static final String LOGOUT_URI = "/v1/logout";
-
-
 
     //----------------------------------Login Details---------------------------------------------
 
@@ -78,13 +76,14 @@ public class GeneralSteps {
     private static final String ALT_ID = "3";
 
 
-    public void setUp() {
+    @Before
+    public void setUp(String dbName) {
 
         Map<String, String> configuration = new HashMap<>();
         configuration.put("play.db.config", "db");
         configuration.put("play.db.default", "default");
         configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:testDBProfile;MODE=MYSQL;");
+        configuration.put("db.default.url", "jdbc:h2:mem:" + dbName + ";MODE=MYSQL;");
         configuration.put("ebean.default", "models.*");
         configuration.put("play.evolutions.db.default.enabled", "true");
         configuration.put("play.evolutions.autoApply", "false");
@@ -130,12 +129,13 @@ public class GeneralSteps {
      * Cleans up the database by cleaning up evolutions and shutting it down.
      * Stops running the fake application.JsonNode.
      */
+    @After
     public void tearDown() {
         logoutRequest();
         cleanEvolutions();
-//        Database database = testContext.getDatabase();
-//        database.shutdown();
-//        Helpers.stop(testContext.getApplication());
+        Database database = testContext.getDatabase();
+        database.shutdown();
+        Helpers.stop(testContext.getApplication());
     }
 
 
