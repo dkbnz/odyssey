@@ -63,16 +63,16 @@ DELETE  /v1/profilePhoto/:userId                controllers.photos.PhotoControll
 POST    /v1/destinationPhotos/:destinationId    controllers.photos.PhotoController.addDestinationPhoto(request: Request, destinationId: Long)
 DELETE  /v1/destinationPhotos/:destinationId    controllers.photos.PhotoController.removeDestinationPhoto(request: Request, destinationId: Long)
 
-# Treasure Hunts
-GET     /v1/treasureHunts                                       controllers.treasureHunts.TreasureHuntController.fetchAll(request: Request)
-GET     /v1/treasureHunts/:userId                               controllers.treasureHunts.TreasureHuntController.fetchByOwner(request: Request, userId: Long)
-GET     /v1/treasureHuntDest/:treasureHuntId                    controllers.treasureHunts.TreasureHuntController.fetchDestination(request: Request, treasureHuntId: Long)
-POST    /v1/treasureHunts/:userId                               controllers.treasureHunts.TreasureHuntController.create(request: Request, userId: Long)
-PUT     /v1/treasureHunts/:treasureHuntId                       controllers.treasureHunts.TreasureHuntController.edit(request: Request, treasureHuntId: Long)
-DELETE  /v1/treasureHunts/:treasureHuntId                       controllers.treasureHunts.TreasureHuntController.delete(request: Request, treasureHuntId: Long)
-#GET     /v1/treasureHunts/:treasureHuntId/checkGuess            controllers.treasureHunts.TreasureHuntController.checkGuess(request: Request, treasureHuntId: Long)
-#GET     /v1/treasureHunts/:treasureHuntId/checkIn               controllers.treasureHunts.TreasureHuntController.checkIn(request: Request, treasureHuntId: Long)
-#GET     /v1/treasureHunts/:treasureHuntId/hasSolved/:userId     controllers.treasureHunts.TreasureHuntController.hasSolved(request: Request, treasureHuntId: Long, userId: Long)
+# Objectives
+GET     /v1/objectives                                       controllers.objectives.ObjectiveController.fetchAll(request: Request)
+GET     /v1/objectives/:userId                               controllers.objectives.ObjectiveController.fetchByOwner(request: Request, userId: Long)
+GET     /v1/objectiveDest/:objectiveId                 controllers.objectives.ObjectiveController.fetchDestination(request: Request, objectiveId: Long)
+POST    /v1/objectives/:userId                               controllers.objectives.ObjectiveController.create(request: Request, userId: Long)
+PUT     /v1/objectives/:objectiveId                       controllers.objectives.ObjectiveController.edit(request: Request, objectiveId: Long)
+DELETE  /v1/objectives/:objectiveId                       controllers.objectives.ObjectiveController.delete(request: Request, objectiveId: Long)
+#GET     /v1/objectives/:objectiveId/checkGuess            controllers.objectives.ObjectiveController.checkGuess(request: Request, objectiveId: Long)
+#GET     /v1/objectives/:objectiveId/checkIn               controllers.objectives.ObjectiveController.checkIn(request: Request, objectiveId: Long)
+#GET     /v1/objectives/:objectiveId/hasSolved/:userId     controllers.objectives.ObjectiveController.hasSolved(request: Request, objectiveId: Long, userId: Long)
 
 # Quests
 POST    /v1/quests/:userId                      controllers.quests.QuestController.create(request: Request, userId: Long)
