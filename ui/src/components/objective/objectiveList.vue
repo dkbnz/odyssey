@@ -17,7 +17,7 @@
                 ></b-progress>
             </b-alert>
             <b-list-group-item href="#" class="flex-column justify-content-center"
-                               v-if="creatingHunt" draggable="false">
+                               v-if="creatingObjective" draggable="false">
                 <add-objective :profile="profile" :heading="'Create'"
                                    @cancelCreate="cancelCreate"
                                    :selectedDestination="selectedDestination"
@@ -28,7 +28,7 @@
             </b-list-group-item>
             <div v-if="!sideBarView">
                 <b-list-group-item href="#" class="flex-column justify-content-center"
-                                   v-if="!creatingHunt" draggable="false">
+                                   v-if="!creatingObjective" draggable="false">
                     <div class="d-flex justify-content-center">
                         <b-button variant="success"
                                   @click="addObjective" block>
@@ -43,7 +43,7 @@
                                :key="objective.id"
                                draggable="false"
                                @click="emitObjective(objective)">
-                <template v-if="!editingHunt && !(activeId === objective.id)">
+                <template v-if="!editingObjective && !(activeId === objective.id)">
                         <h4>Riddle</h4>
                         {{objective.riddle}}
                         <h4 class="buttonMarginsTop">Radius</h4>
@@ -144,8 +144,8 @@
                 foundObjectives: [],
                 loadingResults: true,
                 moreResults: true,
-                creatingHunt: false,
-                editingHunt: false,
+                creatingObjective: false,
+                editingObjective: false,
                 activeId: 0,
                 objectiveId: null,
                 dismissSeconds: 3,
@@ -252,24 +252,24 @@
 
 
             /**
-             * Changes creatingHunt to true to show the create objective window, and calls function to close edit
+             * Changes creatingObjective to true to show the create objective window, and calls function to close edit
              * windows,             *
              */
             addObjective() {
-                this.creatingHunt = true;
+                this.creatingObjective = true;
                 this.cancelEdit()
             },
 
 
             /**
-             * Changes the active objective ID to the inputted one, and sets creatingHunt to false to hide creation
+             * Changes the active objective ID to the inputted one, and sets creatingObjective to false to hide creation
              * box.
              * @param objective the objective to be changed to.
              */
             setActiveId(objective) {
                 this.copyObjective(objective);
                 this.activeId = objective.id;
-                this.creatingHunt = false
+                this.creatingObjective = false
             },
 
 
@@ -285,23 +285,23 @@
 
 
             /**
-             * Sets editingHunt to false and the active hunt ID to 0 to close any open hunt editing box. Emits signal
+             * Sets editingObjective to false and the active objective ID to 0 to close any open objective editing box. Emits signal
              * to hide destination search box. clears selected destination.
              */
             cancelEdit() {
                 this.getMore();
-                this.editingHunt = false;
+                this.editingObjective = false;
                 this.activeId = 0;
                 this.$emit('hide-destinations');
             },
 
 
             /**
-             * Sets creatingHunt to false and emits signal to hide destination search box. clears selected destination.
+             * Sets creatingObjective to false and emits signal to hide destination search box. clears selected destination.
              */
             cancelCreate() {
                 this.getMore();
-                this.creatingHunt = false;
+                this.creatingObjective = false;
                 this.$emit('hide-destinations');
             },
 

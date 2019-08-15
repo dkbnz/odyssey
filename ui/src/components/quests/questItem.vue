@@ -4,7 +4,7 @@
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
-        <b-alert dismissible v-model="showSuccessTreasureHunt" variant="success">{{successMessage}}</b-alert>
+        <b-alert dismissible v-model="showSuccessObjective" variant="success">{{successMessage}}</b-alert>
 
         <!-- Displays success alert and progress bar on quest creation as a loading bar
         for the quest being added to the database -->
@@ -106,75 +106,75 @@
                     </b-form>
                 </b-form>
 
-                <div v-if="!editCurrentTreasureHunt">
+                <div v-if="!editCurrentObjective">
                     <b-row>
                         <b-col>
-                            <b-button v-if="!addNewTreasureHunt" variant="success"
-                                      @click="showTreasureHuntComponent" block>
-                                Add a New Treasure Hunt
+                            <b-button v-if="!addNewObjective" variant="success"
+                                      @click="showObjectiveComponent" block>
+                                Add a New Objective
                             </b-button>
                         </b-col>
                         <b-col>
-                            <b-button v-if="!addNewTreasureHunt" variant="primary"
-                                      @click="showYourTreasureHuntsComponent" block>
-                                Select a Treasure Hunt
+                            <b-button v-if="!addNewObjective" variant="primary"
+                                      @click="showYourObjectivesComponent" block>
+                                Select a Objective
                             </b-button>
                         </b-col>
                     </b-row>
                 </div>
-                <b-row v-if="addNewTreasureHunt">
+                <b-row v-if="addNewObjective">
                     <b-col cols="12">
                         <b-card>
-                        <add-treasure-hunt
-                                :inputTreasureHunt="treasureHuntSelected"
+                        <add-objective
+                                :inputObjective="objectiveSelected"
                                 :profile="profile"
                                 :heading="'Add'"
-                                @addTreasureHunt="addTreasureHunt"
-                                @cancelCreate="cancelTreasureHuntCreate"
+                                @addObjective="addObjective"
+                                @cancelCreate="cancelObjectiveCreate"
                                 @destination-select="$emit('destination-select')"
                                 :selectedDestination="destinationSelected">
-                        </add-treasure-hunt>
+                        </add-objective>
                         </b-card>
                     </b-col>
                 </b-row>
-                <b-row v-if="editCurrentTreasureHunt">
+                <b-row v-if="editCurrentObjective">
                     <b-col cols="12">
                         <b-card>
-                            <add-treasure-hunt
-                                    :inputTreasureHunt="treasureHuntSelected"
+                            <add-objective
+                                    :inputObjective="objectiveSelected"
                                     :profile="profile"
                                     :heading="'Edit'"
-                                    @addTreasureHunt="addTreasureHunt"
-                                    @editTreasureHunt="treasureHuntEdited"
-                                    @cancelCreate="cancelTreasureHuntCreate"
+                                    @addObjective="addObjective"
+                                    @editObjective="objectiveEdited"
+                                    @cancelCreate="cancelObjectiveCreate"
                                     @destination-select="$emit('destination-select')"
                                     :selectedDestination="destinationSelected">
-                            </add-treasure-hunt>
+                            </add-objective>
                         </b-card>
                     </b-col>
                 </b-row>
 
-                <b-container fluid style="margin-top: 20px" v-if="inputQuest.treasureHunts.length > 0">
+                <b-container fluid style="margin-top: 20px" v-if="inputQuest.objectives.length > 0">
                     <!-- Table displaying all added destinations -->
-                    <b-table :current-page="currentPage" :fields="fields" :items="inputQuest.treasureHunts"
+                    <b-table :current-page="currentPage" :fields="fields" :items="inputQuest.objectives"
                              :per-page="perPage"
                              hover
                              id="myTrips"
                              outlined
-                             ref="questTreasureHunt"
+                             ref="questObjective"
                              striped>
 
                         <!-- Buttons that appear for each treasure hunt added to table -->
                         <template slot="actions" slot-scope="row">
                             <b-button size="sm"
-                                      @click="editTreasureHunt(row.index)"
+                                      @click="editObjective(row.index)"
                                       variant="warning"
                                       class="mr-2"
                                       block>Edit
                             </b-button>
                             <!--Removes treasure hunt from table-->
                             <b-button size="sm"
-                                      @click="deleteTreasureHunt(row.index)"
+                                      @click="deleteObjective(row.index)"
                                       variant="danger"
                                       class="mr-2"
                                       block>Delete
@@ -183,14 +183,14 @@
 
                         <!-- Buttons to shift destinations up/down in table -->
                         <template slot="order" slot-scope="row">
-                            <b-button :disabled="inputQuest.treasureHunts.length === 1 || row.index === 0"
+                            <b-button :disabled="inputQuest.objectives.length === 1 || row.index === 0"
                                       @click="moveUp(row.index)"
                                       class="mr-2"
                                       size="sm"
                                       variant="success">&uarr;
                             </b-button>
-                            <b-button :disabled="inputQuest.treasureHunts.length === 1 ||
-                           row.index === inputQuest.treasureHunts.length-1"
+                            <b-button :disabled="inputQuest.objectives.length === 1 ||
+                           row.index === inputQuest.objectives.length-1"
                                       @click="moveDown(row.index)"
                                       class="mr-2"
                                       size="sm"
@@ -249,14 +249,14 @@
 
 <script>
     import BCol from "bootstrap-vue/es/components/layout/col";
-    import AddTreasureHunt from "../treasureHunt/treasureHuntItem";
+    import AddObjective from "../objective/objectiveItem";
 
     export default {
         name: "questItem",
 
         components: {
             BCol,
-            AddTreasureHunt
+            AddObjective
         },
 
         props: {
@@ -268,7 +268,7 @@
                         title: "",
                         startDate: "",
                         endDate: "",
-                        treasureHunts: []
+                        objectives: []
                     }
                 }
             },
@@ -284,7 +284,7 @@
                     return 'containerWithNav';
                 }
             },
-            selectedTreasureHunt: {
+            selectedObjective: {
                 default: function () {
                     return {}
                 }
@@ -298,13 +298,13 @@
                 errorMessage: "",
                 dismissSecs: 3,
                 dismissCountDown: 0,
-                savingTreasureHunt: false,
-                letTreasureHuntSaved: false,
+                savingObjective: false,
+                letObjectiveSaved: false,
                 startTime: "",
                 endTime: "23:59",
                 displayedDestination: null,
-                addNewTreasureHunt: false,
-                showSuccessTreasureHunt: false,
+                addNewObjective: false,
+                showSuccessObjective: false,
                 successMessage: '',
                 fields: [
                     'order',
@@ -317,16 +317,18 @@
                     value: 15,
                     text: "15"
                 }],
-                editCurrentTreasureHunt: false,
-                treasureHuntIndex: 0,
-                treasureHuntSelected: {
+                perPage: 5,
+                currentPage: 1,
+                editCurrentObjective: false,
+                objectiveIndex: 0,
+                objectiveSelected: {
                     id: null,
                     destination: null,
                     riddle: "",
                     radius: null
                 },
                 destinationSelected: {},
-                treasureHuntTemplate: {
+                objectiveTemplate: {
                     id: null,
                     destination: null,
                     riddle: "",
@@ -342,8 +344,8 @@
                 this.displayedDestination = this.selectedDestination;
             },
 
-            selectedTreasureHunt() {
-                this.treasureHuntSelected = this.selectedTreasureHunt;
+            selectedObjective() {
+                this.objectiveSelected = this.selectedObjective;
             }
         },
 
@@ -446,7 +448,7 @@
              *                      displayed.
              */
             rows() {
-                return this.inputQuest.treasureHunts.length
+                return this.inputQuest.objectives.length
             }
         },
 
@@ -525,7 +527,7 @@
             /**
              * Creates formatted JSON of the currently active quest.
              *
-             * @returns JSON string with fields 'title', 'treasureHunts', 'startDate', 'endDate'.
+             * @returns JSON string with fields 'title', 'objectives', 'startDate', 'endDate'.
              */
             assembleQuest() {
                 this.joinDates();
@@ -590,43 +592,43 @@
             /**
              * Adds the specified treasure hunt to the list of quest treasure hunts and handles the appropriate actions.
              */
-            addTreasureHunt(treasureHunt) {
-                this.inputQuest.treasureHunts.push(JSON.parse(JSON.stringify(treasureHunt)));
-                this.treasureHuntSelected = this.treasureHuntTemplate;
+            addObjective(objective) {
+                this.inputQuest.objectives.push(JSON.parse(JSON.stringify(objective)));
+                this.objectiveSelected = JSON.parse(JSON.stringify(this.objectiveTemplate));
                 this.destinationSelected = {};
-                this.successMessage = "Treasure Hunt Successfully Added";
-                this.showSuccessTreasureHunt = true;
+                this.successMessage = "Objective Successfully Added";
+                this.showSuccessObjective = true;
                 let self = this;
                 setTimeout(function () {
-                    self.showSuccessTreasureHunt = false;
+                    self.showSuccessObjective = false;
                 }, 3000);
-                this.$emit('TH-side-bar', false)
+                this.$emit('OBJ-side-bar', false)
             },
 
 
             /**
              * Replaces the treasure hunt in the quest treasure hunts array with the newly edited treasure hunt.
              */
-            treasureHuntEdited(treasureHunt) {
-                this.inputQuest.treasureHunts[this.treasureHuntIndex] = JSON.parse(JSON.stringify(treasureHunt));
-                this.treasureHuntSelected = this.treasureHuntTemplate;
+            objectiveEdited(objective) {
+                this.inputQuest.objectives[this.objectiveIndex] = JSON.parse(JSON.stringify(objective));
+                this.objectiveSelected = JSON.parse(JSON.stringify(this.objectiveTemplate));
                 this.destinationSelected = {};
-                this.successMessage = "Treasure Hunt Successfully Edited";
-                this.showSuccessTreasureHunt = true;
+                this.successMessage = "Objective Successfully Edited";
+                this.showSuccessObjective = true;
                 let self = this;
                 setTimeout(function () {
-                    self.showSuccessTreasureHunt = false;
+                    self.showSuccessObjective = false;
                 }, 3000);
-                this.$refs.questTreasureHunt.refresh();
+                this.$refs.questObjective.refresh();
             },
 
 
             /**
              * Displays the edit treasure hunt field and sets the current treasure hunt to the specified value.
              */
-            editTreasureHunt(rowIndex) {
-                this.treasureHuntIndex = rowIndex;
-                let radius = this.inputQuest.treasureHunts[rowIndex].radius;
+            editObjective(rowIndex) {
+                this.objectiveIndex = rowIndex;
+                let radius = this.inputQuest.objectives[rowIndex].radius;
                 let radiusValue;
                 let radiusList = [
                     {value: 0.005, text: "5 Meters"},
@@ -644,25 +646,26 @@
                         radiusValue = radiusList[i];
                     }
                 }
-                this.treasureHuntSelected = JSON.parse(JSON.stringify(this.inputQuest.treasureHunts[rowIndex]));
-                this.treasureHuntSelected.radius = radiusValue;
-                this.$emit('TH-side-bar', true);
-                this.destinationSelected = JSON.parse(JSON.stringify(this.inputQuest.treasureHunts[rowIndex].destination));
-                this.editCurrentTreasureHunt = true;
+                this.objectiveSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[rowIndex]));
+                this.objectiveSelected.radius = radiusValue;
+                this.destinationSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[rowIndex].destination));
+                console.log(this.destinationSelected);
+                this.editCurrentObjective = true;
+                this.$emit('OBJ-side-bar', true);
             },
 
 
             /**
              * Removes a treasure hunt from the list of quest's treasure hunts.
              */
-            deleteTreasureHunt(rowIndex) {
-                this.inputQuest.treasureHunts.splice(rowIndex, 1);
-                this.showSuccessTreasureHunt = false;
-                this.successMessage = "Treasure Hunt Successfully Deleted";
-                this.showSuccessTreasureHunt = true;
+            deleteObjective(rowIndex) {
+                this.inputQuest.objectives.splice(rowIndex, 1);
+                this.showSuccessObjective = false;
+                this.successMessage = "Objective Successfully Deleted";
+                this.showSuccessObjective = true;
                 let self = this;
                 setTimeout(function () {
-                    self.showSuccessTreasureHunt = false;
+                    self.showSuccessObjective = false;
                 }, 3000);
             },
 
@@ -678,12 +681,14 @@
             /**
              * Cancels the current creation of a treasure hunt addition to a quest
              */
-            cancelTreasureHuntCreate() {
-                this.addNewTreasureHunt = false;
-                this.editCurrentTreasureHunt = false;
-                this.$emit('clear-treasure-hunt-values');
-                this.$emit('TH-side-bar', false);
-                this.$emit('Your-TH-side-bar', false);
+            cancelObjectiveCreate() {
+                this.addNewObjective = false;
+                this.editCurrentObjective = false;
+                this.objectiveSelected = JSON.parse(JSON.stringify(this.objectiveTemplate));
+                this.destinationSelected = {};
+                this.$emit('clear-objective-values');
+                this.$emit('OBJ-side-bar', false);
+                this.$emit('Your-OBJ-side-bar', false);
             },
 
 
@@ -782,10 +787,10 @@
              */
             moveUp(rowIndex) {
                 let upIndex = rowIndex - 1;
-                let swapRow = this.inputQuest.treasureHunts[rowIndex];
-                this.inputQuest.treasureHunts[rowIndex] = this.inputQuest.treasureHunts[upIndex];
-                this.inputQuest.treasureHunts[upIndex] = swapRow;
-                this.$refs.questTreasureHunt.refresh();
+                let swapRow = this.inputQuest.objectives[rowIndex];
+                this.inputQuest.objectives[rowIndex] = this.inputQuest.objectives[upIndex];
+                this.inputQuest.objectives[upIndex] = swapRow;
+                this.$refs.questObjective.refresh();
             },
 
 
@@ -796,32 +801,30 @@
              */
             moveDown(rowIndex) {
                 let downIndex = rowIndex + 1;
-                let swapRow = this.inputQuest.treasureHunts[rowIndex];
-                this.inputQuest.treasureHunts[rowIndex] = this.inputQuest.treasureHunts[downIndex];
-                this.inputQuest.treasureHunts[downIndex] = swapRow;
-                this.$refs.questTreasureHunt.refresh();
+                let swapRow = this.inputQuest.objectives[rowIndex];
+                this.inputQuest.objectives[rowIndex] = this.inputQuest.objectives[downIndex];
+                this.inputQuest.objectives[downIndex] = swapRow;
+                this.$refs.questObjective.refresh();
             },
 
 
             /**
              * Displays the add treasure hunt component and the search destinations side bar.
              */
-            showTreasureHuntComponent() {
-                this.addNewTreasureHunt = !this.addNewTreasureHunt;
-                this.$emit('TH-side-bar', true);
-                this.$emit('Your-TH-side-bar', false);
-                //this.treasureHuntSelected = {};
+            showObjectiveComponent() {
+                this.addNewObjective = !this.addNewObjective;
+                this.$emit('OBJ-side-bar', true);
+                this.$emit('Your-OBJ-side-bar', false);
             },
 
 
             /**
              * Displays the add treasure hunt component and the your treasure hunts side bar.
              */
-            showYourTreasureHuntsComponent() {
-                this.addNewTreasureHunt = !this.addNewTreasureHunt;
-                this.$emit('Your-TH-side-bar', true);
-                this.$emit('TH-side-bar', false);
-                //this.treasureHuntSelected = {};
+            showYourObjectivesComponent() {
+                this.addNewObjective = !this.addNewObjective;
+                this.$emit('Your-OBJ-side-bar', true);
+                this.$emit('OBJ-side-bar', false);
             },
 
 
