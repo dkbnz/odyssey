@@ -46,16 +46,8 @@
                 <template v-if="!editingHunt && !(activeId === treasureHunt.id)">
                         <h4>Riddle</h4>
                         {{treasureHunt.riddle}}
-                    <b-row class="buttonMarginsTop">
-                        <b-col>
-                            <h4>Start Date</h4>
-                            {{new Date(treasureHunt.startDate)}}
-                        </b-col>
-                        <b-col>
-                            <h4>End Date</h4>
-                            {{new Date(treasureHunt.endDate)}}
-                        </b-col>
-                    </b-row>
+                        <h4 class="buttonMarginsTop">Radius</h4>
+                        {{getRadiusValue(treasureHunt.radius)}}
                     <div v-if="yourTreasureHunts" class="buttonMarginsTop">
                         <h4>Answer</h4>
                         <p>{{treasureHunt.destination.name}}</p>
@@ -373,6 +365,19 @@
                 if (this.sideBarView) {
                     this.$emit('select-treasure-hunt', treasureHunt)
                 }
+            },
+
+
+            /**
+             * Returns a string radius value determined by the size.
+             *
+             * @param radius    the radius to be changed.
+             */
+            getRadiusValue(radius) {
+                if (radius < 1) {
+                    return radius * 1000 + " Meters"
+                }
+                return radius + " Km";
             }
         },
 
