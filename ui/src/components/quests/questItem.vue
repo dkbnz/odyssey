@@ -126,13 +126,13 @@
                     <b-col cols="12">
                         <b-card>
                         <add-treasure-hunt
-                                :inputTreasureHunt="selectedTreasureHunt"
+                                :inputTreasureHunt="treasureHuntSelected"
                                 :profile="profile"
                                 :heading="'Add'"
                                 @addTreasureHunt="addTreasureHunt"
                                 @cancelCreate="cancelTreasureHuntCreate"
                                 @destination-select="$emit('destination-select')"
-                                :selectedDestination="selectedDestination">
+                                :selectedDestination="destinationSelected">
                         </add-treasure-hunt>
                         </b-card>
                     </b-col>
@@ -141,14 +141,14 @@
                     <b-col cols="12">
                         <b-card>
                             <add-treasure-hunt
-                                    :inputTreasureHunt="selectedTreasureHunt"
+                                    :inputTreasureHunt="treasureHuntSelected"
                                     :profile="profile"
                                     :heading="'Edit'"
                                     @addTreasureHunt="addTreasureHunt"
                                     @editTreasureHunt="treasureHuntEdited"
                                     @cancelCreate="cancelTreasureHuntCreate"
                                     @destination-select="$emit('destination-select')"
-                                    :selectedDestination="selectedDestination">
+                                    :selectedDestination="destinationSelected">
                             </add-treasure-hunt>
                         </b-card>
                     </b-col>
@@ -318,14 +318,32 @@
                     text: "15"
                 }],
                 editCurrentTreasureHunt: false,
-                treasureHuntIndex: 0
+                treasureHuntIndex: 0,
+                treasureHuntSelected: {
+                    id: null,
+                    destination: null,
+                    riddle: "",
+                    radius: null
+                },
+                destinationSelected: {},
+                treasureHuntTemplate: {
+                    id: null,
+                    destination: null,
+                    riddle: "",
+                    radius: null
+                }
             }
         },
 
         watch: {
             selectedDestination() {
+                this.destinationSelected = this.selectedDestination;
                 this.inputQuest.destination = this.selectedDestination;
                 this.displayedDestination = this.selectedDestination;
+            },
+
+            selectedTreasureHunt() {
+                this.treasureHuntSelected = this.selectedTreasureHunt;
             }
         },
 
@@ -574,7 +592,8 @@
              */
             addTreasureHunt(treasureHunt) {
                 this.inputQuest.treasureHunts.push(JSON.parse(JSON.stringify(treasureHunt)));
-                this.$emit('clear-treasure-hunt-values');
+                this.treasureHuntSelected = this.treasureHuntTemplate;
+                this.destinationSelected = {};
                 this.successMessage = "Treasure Hunt Successfully Added";
                 this.showSuccessTreasureHunt = true;
                 let self = this;
@@ -590,7 +609,8 @@
              */
             treasureHuntEdited(treasureHunt) {
                 this.inputQuest.treasureHunts[this.treasureHuntIndex] = JSON.parse(JSON.stringify(treasureHunt));
-                this.$emit('clear-treasure-hunt-values');
+                this.treasureHuntSelected = this.treasureHuntTemplate;
+                this.destinationSelected = {};
                 this.successMessage = "Treasure Hunt Successfully Edited";
                 this.showSuccessTreasureHunt = true;
                 let self = this;
@@ -624,9 +644,10 @@
                         radiusValue = radiusList[i];
                     }
                 }
-                this.selectedTreasureHunt = JSON.parse(JSON.stringify(this.inputQuest.treasureHunts[rowIndex]));
-                this.selectedTreasureHunt.radius = radiusValue;
-                this.selectedDestination = JSON.parse(JSON.stringify(this.inputQuest.treasureHunts[rowIndex].destination));
+                this.treasureHuntSelected = JSON.parse(JSON.stringify(this.inputQuest.treasureHunts[rowIndex]));
+                this.treasureHuntSelected.radius = radiusValue;
+                this.$emit('TH-side-bar', true);
+                this.destinationSelected = JSON.parse(JSON.stringify(this.inputQuest.treasureHunts[rowIndex].destination));
                 this.editCurrentTreasureHunt = true;
             },
 
@@ -789,7 +810,7 @@
                 this.addNewTreasureHunt = !this.addNewTreasureHunt;
                 this.$emit('TH-side-bar', true);
                 this.$emit('Your-TH-side-bar', false);
-                this.selectedTreasureHunt = {};
+                //this.treasureHuntSelected = {};
             },
 
 
@@ -800,7 +821,7 @@
                 this.addNewTreasureHunt = !this.addNewTreasureHunt;
                 this.$emit('Your-TH-side-bar', true);
                 this.$emit('TH-side-bar', false);
-                this.selectedTreasureHunt = {};
+                //this.treasureHuntSelected = {};
             },
 
 

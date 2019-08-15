@@ -1,14 +1,14 @@
 <template>
 
     <div>
-
+        {{inputTreasureHunt}}
 
         <h1 class="page-title">{{ heading }} a Treasure Hunt!</h1>
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
-        <!-- Displays success alert and progress bar on trip creation as a loading bar
-        for the trip being added to the database -->
+        <!-- Displays success alert and progress bar on treasure hunt creation as a loading bar
+        for the treasure hunt being added to the database -->
         <b-alert
                 :show="dismissCountDown"
                 @dismiss-count-down="countDownChanged"
@@ -148,7 +148,6 @@
         data() {
             return {
                 showError: false,
-                showDateError: false,
                 errorMessage: "",
                 successTripAddedAlert: false,
                 dismissSecs: 3,
@@ -190,77 +189,11 @@
         },
 
         mounted() {
-            // this.splitDates();
             this.editingTreasureHunt();
-            // this.setDateTimeString();
             this.initMap();
         },
 
         computed: {
-            // /**
-            //  * Checks that the start date is not after the end date, and is not before the current date for new hunts.
-            //  * @returns true if start date is valid.
-            //  */
-            // validateStartDate() {
-            //     if ((this.inputTreasureHunt.startDate < this.getDateString() && !this.inputTreasureHunt.id)) {
-            //         return false;
-            //     }
-            //     if (this.inputTreasureHunt.startDate > this.inputTreasureHunt.endDate) {
-            //         return false;
-            //     }
-            //     return true;
-            // },
-            //
-            //
-            // /**
-            //  * Checks that the start time is not after or the same as the end time if the dates are the same,
-            //  * and that the start time is not before the current time if the current date is today.
-            //  * @returns true if start time is valid.
-            //  */
-            // validateStartTime() {
-            //     if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
-            //         if (this.inputTreasureHunt.startTime >= this.inputTreasureHunt.endTime) {
-            //             return false;
-            //         }
-            //     }
-            //     if (this.inputTreasureHunt.startDate === this.getDateString() && !this.inputTreasureHunt.id) {
-            //         if (this.inputTreasureHunt.startTime < this.getTimeString()) {
-            //             return false;
-            //         }
-            //     }
-            //     return true;
-            // },
-            //
-            //
-            // /**
-            //  * Checks that the end date is not before the start date, and is not before the current date for new hunts.
-            //  * @returns true if end date is valid.
-            //  */
-            // validateEndDate() {
-            //     if (this.inputTreasureHunt.endDate < this.getDateString() && !this.inputTreasureHunt.id) {
-            //         return false;
-            //     }
-            //     if (this.inputTreasureHunt.endDate < this.inputTreasureHunt.startDate) {
-            //         return false;
-            //     }
-            //     return true;
-            // },
-            //
-            //
-            // /**
-            //  * Checks that the end time is not before or the same as the start time if the dates are the same.
-            //  * @returns true if end time is valid.
-            //  */
-            // validateEndTime() {
-            //     if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
-            //         if (this.inputTreasureHunt.endTime <= this.inputTreasureHunt.startTime) {
-            //             return false;
-            //         }
-            //     }
-            //     return true;
-            // },
-
-
             /**
              * Returns true if the inputted riddle has length greater than 0.
              * @returns true if validated.
@@ -313,56 +246,6 @@
         },
 
         methods: {
-
-            // /**
-            //  * Gets the current date+time as a Date object.
-            //  * @returns Current Datetime.
-            //  */
-            // getCurrentDate() {
-            //     return new Date();
-            // },
-            //
-            //
-            // /**
-            //  * sets the input values to be their proper string versions of current date/time.
-            //  */
-            // setDateTimeString() {
-            //     if (this.inputTreasureHunt.id === null) {
-            //         this.inputTreasureHunt.startDate = this.getDateString();
-            //         this.inputTreasureHunt.endDate = this.getDateString();
-            //         this.inputTreasureHunt.startTime = this.getTimeString();
-            //     }
-            // },
-            //
-            //
-            // /**
-            //  * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day.
-            //  * @returns Current Date in YYYY-MM-DD String Format.
-            //  */
-            // getDateString() {
-            //     let today = this.getCurrentDate();
-            //     let date =  today.getFullYear()+'-'+
-            //         ((today.getMonth()+1) < 10 ? "0" : "")
-            //         + (today.getMonth()+1)+'-'+
-            //         (today.getDate() < 10 ? "0" : "") +
-            //         today.getDate();
-            //     return date;
-            // },
-
-            //
-            // /**
-            //  * Gets the current time as a string in HH:MM format, including padding O's.
-            //  * @returns Current Time in HH:MM String Format.
-            //  */
-            // getTimeString() {
-            //     let today = this.getCurrentDate();
-            //     return ((today.getHours()) < 10 ? "0" : "") +
-            //         today.getHours() + ":"
-            //         + ((today.getMinutes()) < 10 ? "0" : "") +
-            //         today.getMinutes();
-            // },
-
-
             /**
              * Fills the destination with the existing destination of a hunt when editing it.
              */
@@ -441,11 +324,7 @@
              * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
              */
             assembleTreasureHunt() {
-                this.joinDates();
                 this.inputTreasureHunt.destination = {"id": this.inputTreasureHunt.destination.id};
-
-                delete this.inputTreasureHunt.startTime;
-                delete this.inputTreasureHunt.endTime;
             },
 
 
@@ -494,68 +373,6 @@
             cancelCreate() {
                 this.$emit('cancelCreate');
             },
-
-
-            // /**
-            //  * Splits the dates of the inputTreasureHunt to put in the edit fields.
-            //  */
-            // splitDates() {
-            //     if (this.inputTreasureHunt.id !== null) {
-            //         this.inputTreasureHunt.startDate = new Date(this.inputTreasureHunt.startDate).toLocaleString();
-            //         let startDate = this.inputTreasureHunt.startDate;
-            //         this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split(", ")[0];
-            //         this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split("/").reverse().join("-");
-            //         this.inputTreasureHunt.startTime = startDate.split(" ")[1];
-            //         this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("+")[0];
-            //         this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("-")[0];
-            //
-            //         this.inputTreasureHunt.endDate = new Date(this.inputTreasureHunt.endDate).toLocaleString();
-            //         let endDate = this.inputTreasureHunt.endDate;
-            //         this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split(", ")[0];
-            //         this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split("/").reverse().join("-");
-            //         this.inputTreasureHunt.endTime = endDate.split(" ")[1];
-            //         this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("+")[0];
-            //         this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("-")[0];
-            //     }
-            // },
-
-
-            // /**
-            //  * Combines dates and times together from input fields and adds :00 on the end for seconds.
-            //  */
-            // joinDates() {
-            //     let timeOffset = this.formatOffset();
-            //
-            //     if(this.inputTreasureHunt.startTime.length === 5) {
-            //         this.inputTreasureHunt.startTime += ":00";
-            //     }
-            //
-            //     if(this.inputTreasureHunt.endTime.length === 5) {
-            //         this.inputTreasureHunt.endTime += ":00";
-            //     }
-            //
-            //     this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate + " "
-            //         + this.inputTreasureHunt.startTime + timeOffset;
-            //
-            //     this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate + " "
-            //         + this.inputTreasureHunt.endTime + timeOffset;
-            //
-            // },
-
-
-            // /**
-            //  * Gets the local time offset and pads it to be 4 numbers long.
-            //  */
-            // formatOffset() {
-            //     let timeOffset = (Math.abs(new Date().getTimezoneOffset()/60)).toString();
-            //
-            //     let fullNumber = timeOffset.padStart(2, '0');
-            //     fullNumber = fullNumber.padEnd(4, '0');
-            //
-            //     let sign = (new Date().getTimezoneOffset() >= 0) ? "-": "+";
-            //
-            //     return sign + fullNumber;
-            // },
 
 
             /**
