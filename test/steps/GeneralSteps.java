@@ -77,13 +77,13 @@ public class GeneralSteps {
 
 
     @Before
-    public void setUp(String dbName) {
+    public void setUp() {
 
         Map<String, String> configuration = new HashMap<>();
         configuration.put("play.db.config", "db");
         configuration.put("play.db.default", "default");
         configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:" + dbName + ";MODE=MYSQL;");
+        configuration.put("db.default.url", "jdbc:h2:mem:db;MODE=MYSQL;");
         configuration.put("ebean.default", "models.*");
         configuration.put("play.evolutions.db.default.enabled", "true");
         configuration.put("play.evolutions.autoApply", "false");
