@@ -249,7 +249,7 @@
 
 <script>
     import BCol from "bootstrap-vue/es/components/layout/col";
-    import AddObjective from "../objective/objectiveItem";
+    import AddObjective from "../objectives/objectiveItem";
 
     export default {
         name: "questItem",
@@ -702,7 +702,7 @@
             splitDates() {
                 if (this.inputQuest.id !== null) {
                     this.inputQuest.startDate = new Date(this.inputQuest.startDate).toLocaleString();
-                    let startDate = this.quest.startDate;
+                    let startDate = this.inputQuest.startDate;
                     // The date is the values before the comma
                     this.inputQuest.startDate = this.inputQuest.startDate.split(", ")[0];
                     // Change format of dates from the backslash symbol, reverse the order, and join with hyphens.
@@ -713,7 +713,7 @@
                     this.startTime = this.startTime.split("-")[0];
 
                     this.inputQuest.endDate = new Date(this.inputQuest.endDate).toLocaleString();
-                    let endDate = this.quest.endDate;
+                    let endDate = this.inputQuest.endDate;
                     // The date is the values before the comma
                     this.inputQuest.endDate = this.inputQuest.endDate.split(", ")[0];
                     // Change format of dates from the backslash symbol, reverse the order, and join with hyphens.

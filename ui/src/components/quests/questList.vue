@@ -32,6 +32,20 @@
                         ></quest-item>
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center"
+                                       v-if="editingQuest"
+                                       draggable="false">
+                        <quest-item
+                                :selected-objective="selectedObjective"
+                                :inputQuest="copiedQuest"
+                                :heading="'Edit'"
+                                :profile="profile"
+                                @cancelCreate="cancelEdit"
+                                :selectedDestination="destinationSelected"
+                                @OBJ-side-bar="showHideBar => this.showDestinations = showHideBar"
+                                @Your-OBJ-side-bar="showHideBar => this.showYourObjectives = showHideBar"
+                        ></quest-item>
+                    </b-list-group-item>
+                    <b-list-group-item href="#" class="flex-column justify-content-center"
                                        v-if="!creatingQuest"
                                        draggable="false">
                         <div class="d-flex justify-content-center">
@@ -74,11 +88,11 @@
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
                         <div class="d-flex justify-content-center">
-                            <b-spinner label="Loading..."></b-spinner>
+                            <b-spinner></b-spinner>
                         </div>
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="!loadingResults && yourQuests.length === 0">
+                                       v-if="!loadingResults && foundQuests.length === 0">
                         <div class="d-flex justify-content-center">
                             <strong>No Quests</strong>
                         </div>
@@ -132,7 +146,7 @@
 <script>
     import QuestItem from "./questItem";
     import FoundDestinations from "../destinations/destinationSearchList";
-    import ObjectiveList from "../objective/objectiveList";
+    import ObjectiveList from "../objectives/objectiveList";
 
     export default {
         name: "questList",
@@ -161,7 +175,7 @@
                 dismissSeconds: 3,
                 dismissCountDown: 0,
                 alertText: "",
-                copiedObjective: null,
+                copiedQuest: null,
                 deleteAlertError: false,
                 deleteAlertMessage: "",
                 showDestinations: false,
@@ -199,10 +213,10 @@
 
         methods: {
             /**
-             * Used to convert the objective object into a Json object.
+             * Used to convert the quest object into a Json object.
              */
-            copyObjective(objective) {
-                this.copiedObjective = JSON.parse(JSON.stringify(objective))
+            copyQuest(quest) {
+                this.copiedQuest = JSON.parse(JSON.stringify(quest))
             },
 
 
@@ -224,7 +238,7 @@
              */
             deleteQuest() {
                 let self = this;
-                fetch(`/v1/quests/` + this.objectiveId, {
+                fetch(`/v1/quests/` + this.questId, {
                     method: 'DELETE'
                 }).then(function (response) {
                     if (response.ok) {
@@ -299,7 +313,8 @@
             setActiveId(quest) {
                 this.copyQuest(quest);
                 this.activeId = quest.id;
-                this.creatingQuest = false
+                this.creatingQuest = false;
+                this.editingQuest = true;
             },
 
 
