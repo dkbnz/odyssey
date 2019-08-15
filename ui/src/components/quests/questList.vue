@@ -22,14 +22,14 @@
                                        v-if="creatingQuest"
                                        draggable="false">
                         <quest-item
-                                :selected-treasure-hunt="selectedTreasureHunt"
+                                :selected-objective="selectedObjective"
                                 :heading="'Create'"
                                 :profile="profile"
                                 @cancelCreate="cancelCreate"
                                 :selectedDestination="selectedDestination"
                                 @TH-side-bar="showHideBar => this.showDestinations = showHideBar"
-                                @Your-TH-side-bar="showHideBar => this.showYourTreasureHunts = showHideBar"
-                                @clear-treasure-hunt-values="clearTreasureHunt"
+                                @Your-TH-side-bar="showHideBar => this.showYourObjectives = showHideBar"
+                                @clear-objective-values="clearObjective"
                         ></quest-item>
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center"
@@ -58,7 +58,7 @@
                             </b-row>
                             <div v-if="yourQuests" class="buttonMarginsTop">
                                 <h4>View Locations</h4>
-                                <p>Show Treasure Hunts here</p>
+                                <p>Show Objectives here</p>
                             </div>
 
                             <b-row v-if="yourQuests">
@@ -79,7 +79,7 @@
                         </div>
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="!loadingResults && foundTreasureHunts.length === 0">
+                                       v-if="!loadingResults && foundObjectives.length === 0">
                         <div class="d-flex justify-content-center">
                             <strong>No Quests</strong>
                         </div>
@@ -117,13 +117,13 @@
                             :profile="profile"
                             @destination-click="destination => this.selectedDestination = destination">
                     </found-destinations>
-                    <treasure-hunt-list
-                            v-if="showYourTreasureHunts"
-                            :yourTreasureHunts="true"
+                    <objective-list
+                            v-if="showYourObjectives"
+                            :yourObjectives="true"
                             :profile="profile"
                             :sideBarView="true"
-                            @select-treasure-hunt="setSelectedTreasureHunt">
-                    </treasure-hunt-list>
+                            @select-objective="setSelectedObjective">
+                    </objective-list>
                 </b-card>
             </b-col>
         </b-row>
@@ -133,7 +133,7 @@
 <script>
     import QuestItem from "./questItem";
     import FoundDestinations from "../destinations/destinationSearchList";
-    import TreasureHuntList from "../treasureHunt/treasureHuntList";
+    import ObjectiveList from "../objective/objectiveList";
 
     export default {
         name: "questList",
@@ -162,12 +162,12 @@
                 dismissSeconds: 3,
                 dismissCountDown: 0,
                 alertText: "",
-                copiedTreasureHunt: null,
+                copiedObjective: null,
                 deleteAlertError: false,
                 deleteAlertMessage: "",
                 showDestinations: false,
-                showYourTreasureHunts: false,
-                selectedTreasureHuntTemplate: {
+                showYourObjectives: false,
+                selectedObjectiveTemplate: {
                     id: null,
                     destination: null,
                     riddle: "",
@@ -177,7 +177,7 @@
                     endTime: "23:59",
                     radius: null
                 },
-                selectedTreasureHunt: {
+                selectedObjective: {
                     id: null,
                     destination: null,
                     riddle: "",
@@ -196,7 +196,7 @@
         },
 
         watch: {
-            refreshTreasureHunts() {
+            refreshObjectives() {
                 this.getMore();
             },
 
@@ -207,10 +207,10 @@
 
         methods: {
             /**
-             * Used to convert the treasureHunt object into a Json object.
+             * Used to convert the objective object into a Json object.
              */
-            copyTreasureHunt(treasureHunt) {
-                this.copiedTreasureHunt = JSON.parse(JSON.stringify(treasureHunt))
+            copyObjective(objective) {
+                this.copiedObjective = JSON.parse(JSON.stringify(objective))
             },
 
 
@@ -232,7 +232,7 @@
              */
             deleteQuest() {
                 let self = this;
-                fetch(`/v1/quests/` + this.treasureHuntId, {
+                fetch(`/v1/quests/` + this.objectiveId, {
                     method: 'DELETE'
                 }).then(function (response) {
                     if (response.ok) {
@@ -396,11 +396,11 @@
 
 
             /**
-             * Sets the treasure hunt emitted from the select treasure hunt side bar.
+             * Sets the objective emitted from the select objective side bar.
              */
-            setSelectedTreasureHunt(treasureHunt) {
-                let newTreasureHunt = JSON.parse(JSON.stringify(treasureHunt));
-                let radius = newTreasureHunt.radius;
+            setSelectedObjective(objective) {
+                let newObjective = JSON.parse(JSON.stringify(objective));
+                let radius = newObjective.radius;
                 let radiusValue;
                 let radiusList = [
                     {value: 0.005, text: "5 Meters"},
@@ -418,22 +418,22 @@
                         radiusValue = radiusList[i];
                     }
                 }
-                newTreasureHunt.radius = radiusValue;
-                this.selectedTreasureHunt = newTreasureHunt;
+                newObjective.radius = radiusValue;
+                this.selectedObjective = newObjective;
             },
 
 
             /**
-             * Clears the values for a treasure hunt.
+             * Clears the values for a objective.
              */
-            clearTreasureHunt() {
-                this.selectedTreasureHunt = JSON.parse(JSON.stringify(this.selectedTreasureHuntTemplate));
+            clearObjective() {
+                this.selectedObjective = JSON.parse(JSON.stringify(this.selectedObjectiveTemplate));
                 this.selectedDestination = {};
             }
         },
 
         components: {
-            TreasureHuntList,
+            ObjectiveList,
             QuestItem,
             FoundDestinations
         }

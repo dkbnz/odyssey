@@ -1,6 +1,5 @@
-package models.treasureHunts;
+package models.objectives;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import models.ApiError;
@@ -14,14 +13,13 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 /**
- * Class for treasure hunt, is used to initialise a treasure hunt.
+ * Class for objective, is used to initialise a objective.
  */
 @Entity
-public class TreasureHunt extends BaseModel {
+public class Objective extends BaseModel {
 
     @JsonView(Views.Owner.class)
     @ManyToOne
@@ -48,11 +46,11 @@ public class TreasureHunt extends BaseModel {
         }
 
         if (owner == null) {
-            errors.add(new ApiError("This treasure hunt does not have an owner."));
+            errors.add(new ApiError("This objective does not have an owner."));
         }
 
         if (destination == null || destination.getId() == null) {
-            errors.add(new ApiError("Treasure hunts must have a destination."));
+            errors.add(new ApiError("Objectives must have a destination."));
         }
 
         if (radius == null || radius <= 0) {
