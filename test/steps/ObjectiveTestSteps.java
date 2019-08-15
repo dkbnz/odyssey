@@ -19,7 +19,7 @@ import java.util.*;
 
 import static play.test.Helpers.*;
 
-public class TreasureHuntTestSteps {
+public class ObjectiveTestSteps {
 
     /**
      * Singleton class which stores generally used variables
@@ -28,9 +28,9 @@ public class TreasureHuntTestSteps {
 
 
     /**
-     * The ID of the treasure hunt to be updated.
+     * The ID of the objective to be updated.
      */
-    private Long treasureHuntId;
+    private Long objectiveId;
 
 
     /**
@@ -40,9 +40,9 @@ public class TreasureHuntTestSteps {
 
 
     /**
-     * The treasure hunt uri.
+     * The objective uri.
      */
-    private static final String TREASURE_HUNT_URI = "/v1/treasureHunts";
+    private static final String TREASURE_HUNT_URI = "/v1/objectives";
 
 
     private static final String DESTINATION_STRING = "Destination";
@@ -66,7 +66,7 @@ public class TreasureHuntTestSteps {
      * @param dataTable     the data table containing values of a destination.
      * @return              a JsonNode of a destination containing information from the data table.
      */
-    private JsonNode convertDataTableToTreasureHuntJson(io.cucumber.datatable.DataTable dataTable, int index) {
+    private JsonNode convertDataTableToObjectiveJson(io.cucumber.datatable.DataTable dataTable, int index) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         String destinationId           = list.get(index).get(DESTINATION_STRING);
@@ -77,11 +77,11 @@ public class TreasureHuntTestSteps {
         testContext.setTargetId(list.get(index).get(OWNER_STRING));
 
         if (startDate.equals("null")) {
-            startDate = getTreasureHuntDateBuffer(true);
+            startDate = getObjectiveDateBuffer(true);
         }
 
         if (endDate.equals("null")) {
-            endDate = getTreasureHuntDateBuffer(false);
+            endDate = getObjectiveDateBuffer(false);
         }
 
         //Add values to a JsonNode
@@ -108,7 +108,7 @@ public class TreasureHuntTestSteps {
      * @param isStartDate   boolean value to determine if the date being changed is the start or the end date.
      * @return              the start or end date, which is modified by the necessary date buffer.
      */
-    private String getTreasureHuntDateBuffer(boolean isStartDate) {
+    private String getObjectiveDateBuffer(boolean isStartDate) {
         Calendar calendar = Calendar.getInstance();
 
         if (isStartDate) {
@@ -121,10 +121,10 @@ public class TreasureHuntTestSteps {
 
 
     /**
-     * Sends a request to create a treasure hunt with values from the given Json node.
-     * @param json      a JsonNode containing the values for a new treasure hunt object.
+     * Sends a request to create a objective with values from the given Json node.
+     * @param json      a JsonNode containing the values for a new objective object.
      */
-    private void createTreasureHuntRequest(JsonNode json) {
+    private void createObjectiveRequest(JsonNode json) {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
@@ -135,38 +135,38 @@ public class TreasureHuntTestSteps {
 
         if (testContext.getStatusCode() == 200 || testContext.getStatusCode() == 201) {
             testContext.setResponseBody(Helpers.contentAsString(result));
-            treasureHuntId = Long.valueOf(testContext.getResponseBody());
+            objectiveId = Long.valueOf(testContext.getResponseBody());
         }
     }
 
 
     /**
-     * Sends a request to edit a treasure hunt with values from the given Json node.
-     * @param json      a JsonNode containing the values for a edited treasure hunt object.
+     * Sends a request to edit a objective with values from the given Json node.
+     * @param json      a JsonNode containing the values for a edited objective object.
      */
-    private void editTreasureHuntRequest(JsonNode json) {
+    private void editObjectiveRequest(JsonNode json) {
         Http.RequestBuilder request = fakeRequest()
                 .method(PUT)
                 .bodyJson(json)
-                .uri(TREASURE_HUNT_URI + "/" + treasureHuntId)
+                .uri(TREASURE_HUNT_URI + "/" + objectiveId)
                 .session(AUTHORIZED, testContext.getLoggedInId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
     }
 
 
-    @Given("a treasure hunt already exists with the following values")
-    public void aTreasureHuntAlreadyExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+    @Given("a objective already exists with the following values")
+    public void aObjectiveAlreadyExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode json = convertDataTableToTreasureHuntJson(dataTable, i);
-            createTreasureHuntRequest(json);
+            JsonNode json = convertDataTableToObjectiveJson(dataTable, i);
+            createObjectiveRequest(json);
             Assert.assertEquals(CREATED, testContext.getStatusCode());
         }
     }
 
 
-    @When("I request to retrieve all treasure hunts")
-    public void iRequestToRetrieveAllTreasureHunts() {
+    @When("I request to retrieve all objectives")
+    public void iRequestToRetrieveAllObjectives() {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .session(AUTHORIZED, testContext.getLoggedInId())
@@ -179,44 +179,44 @@ public class TreasureHuntTestSteps {
 
 
     @When("I attempt to delete the treasure Hunt")
-    public void iAttemptToDeleteTheTreasureHunt() {
+    public void iAttemptToDeleteTheObjective() {
         Http.RequestBuilder request = fakeRequest()
                 .method(DELETE)
                 .session(AUTHORIZED, testContext.getLoggedInId())
-                .uri(TREASURE_HUNT_URI + "/" + treasureHuntId);
+                .uri(TREASURE_HUNT_URI + "/" + objectiveId);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
     }
 
 
-    @When("I attempt to create a treasure hunt with the following values")
-    public void iAttemptToCreateATreasureHuntWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+    @When("I attempt to create a objective with the following values")
+    public void iAttemptToCreateAObjectiveWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(testContext.getLoggedInId());
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode json = convertDataTableToTreasureHuntJson(dataTable, i);
-            createTreasureHuntRequest(json);
+            JsonNode json = convertDataTableToObjectiveJson(dataTable, i);
+            createObjectiveRequest(json);
         }
     }
 
 
-    @When("I attempt to edit the treasure hunt with the following values")
-    public void iAttemptToEditTheTreasureHuntWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+    @When("I attempt to edit the objective with the following values")
+    public void iAttemptToEditTheObjectiveWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            JsonNode editValues = convertDataTableToTreasureHuntJson(dataTable, i);
-            editTreasureHuntRequest(editValues);
+            JsonNode editValues = convertDataTableToObjectiveJson(dataTable, i);
+            editObjectiveRequest(editValues);
         }
     }
 
 
-    @Then("the response contains at least one treasure hunt")
-    public void theResponseContainsAtLeastOneTreasureHunt() throws IOException {
+    @Then("the response contains at least one objective")
+    public void theResponseContainsAtLeastOneObjective() throws IOException {
         int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
         Assert.assertTrue(responseSize > 0);
     }
 
 
-    @Then("the response contains no treasure hunts")
-    public void theResponseContainsNoTreasureHunts() throws IOException {
+    @Then("the response contains no objectives")
+    public void theResponseContainsNoObjectives() throws IOException {
         int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
         Assert.assertEquals(0, responseSize);
     }

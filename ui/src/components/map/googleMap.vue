@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div ref="map" :class="[showRadius ? 'mapDivTreasureHunt' : 'mapDivDestination']">
+        <div ref="map" :class="[showRadius ? 'mapDivObjective' : 'mapDivDestination']">
         </div>
         <div ref="legend" v-if="!showRadius" class="legend">
             <div>

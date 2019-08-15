@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import models.BaseModel;
 import models.Profile;
 import models.destinations.Destination;
-import models.treasureHunts.TreasureHunt;
+import models.objectives.Objective;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -30,7 +30,7 @@ public class QuestAttempt extends BaseModel {
     private Quest questAttempted;
 
     /**
-     * Boolean to indicate if the current treasurehunt of interest has been solved.
+     * Boolean to indicate if the current objective of interest has been solved.
      */
     private boolean solvedCurrent;
 
@@ -59,31 +59,31 @@ public class QuestAttempt extends BaseModel {
     }
 
     /**
-     * Get a list of TreasureHunts that the user has correctly guessed the destination for.
+     * Get a list of Objectives that the user has correctly guessed the destination for.
      *
-     * @return  list of treasure hunts the user has solved for this particular quest attempt.
+     * @return  list of objectives the user has solved for this particular quest attempt.
      */
     @JsonProperty("solved")
-    public List<TreasureHunt> getSolved() {
+    public List<Objective> getSolved() {
         return questAttempted
-                .getTreasureHunts()
+                .getObjectives()
                 .subList(0, checkedInIndex + (solvedCurrent ? 1 : 0));
     }
 
     /**
-     * Returns the current Treasure Hunt the user needs to solve.
-     * Will return null if there is no current treasure hunt to solve.
-     * This means that the previously solved treasure hunt has not been checked in to, or the quest is complete.
-     * When serialized using Json.toJson destination will not show in the treasure hunt.
+     * Returns the current Objective the user needs to solve.
+     * Will return null if there is no current objective to solve.
+     * This means that the previously solved objective has not been checked in to, or the quest is complete.
+     * When serialized using Json.toJson destination will not show in the objective.
      *
-     * @return  current TreasureHunt to solve.
+     * @return  current Objective to solve.
      */
     @JsonProperty("current")
     @JsonIgnoreProperties({"destination", "radius"})
-    public TreasureHunt getCurrent() {
+    public Objective getCurrent() {
         if (!solvedCurrent && !completed) {
             return questAttempted
-                    .getTreasureHunts()
+                    .getObjectives()
                     .get(checkedInIndex);
         } else {
             return null;
@@ -91,23 +91,23 @@ public class QuestAttempt extends BaseModel {
     }
 
     /**
-     * Returns a list of TreasureHunts that the user is yet to solve.
-     * When serialized using Json.toJson destinations will not show in the list of treasure hunts.
+     * Returns a list of Objectives that the user is yet to solve.
+     * When serialized using Json.toJson destinations will not show in the list of objectives.
      *
-     * @return  a list of unsolved treasure hunts
+     * @return  a list of unsolved objectives
      */
     @JsonProperty("unsolved")
     @JsonIgnoreProperties({"destination", "radius"})
-    public List<TreasureHunt> getUnsolved() {
+    public List<Objective> getUnsolved() {
         return questAttempted
-                .getTreasureHunts()
+                .getObjectives()
                 .subList(checkedInIndex + (solvedCurrent ? 1 : 0),
-                        questAttempted.getTreasureHunts().size()
+                        questAttempted.getObjectives().size()
                 );
     }
 
     /**
-     * Provide a destination to attempt to solve the current TreasureHunt.
+     * Provide a destination to attempt to solve the current Objective.
      *
      * @param destination   the destination that the user has entered as a guess.
      * @return              true if the guess was correct.
@@ -115,7 +115,7 @@ public class QuestAttempt extends BaseModel {
     public boolean solveCurrent(Destination destination) {
         if(!solvedCurrent && !completed) {
             solvedCurrent = questAttempted
-                    .getTreasureHunts()
+                    .getObjectives()
                     .get(checkedInIndex)
                     .getDestination()
                     .equals(destination);
@@ -126,23 +126,23 @@ public class QuestAttempt extends BaseModel {
     }
 
     /**
-     * Check in to the most recently solved TreasureHunt.
-     * Will make the next TreasureHunt available to solve.
-     * If the user checks in to the last TreasureHunt, Quest will be complete.
+     * Check in to the most recently solved Objective.
+     * Will make the next Objective available to solve.
+     * If the user checks in to the last Objective, Quest will be complete.
      */
     public void checkIn() {
-        if(solvedCurrent && !completed && (checkedInIndex < questAttempted.getTreasureHunts().size())) {
+        if(solvedCurrent && !completed && (checkedInIndex < questAttempted.getObjectives().size())) {
             checkedInIndex += 1;
             solvedCurrent = false;
         }
 
-        // If we have checked in to the last treasure hunt, quest is complete.
-        completed = checkedInIndex == questAttempted.getTreasureHunts().size();
+        // If we have checked in to the last objective, quest is complete.
+        completed = checkedInIndex == questAttempted.getObjectives().size();
     }
 
     /**
      * Checks if the current quest attempt is completed.
-     * If true, the user has solved and checked in to every TreasureHunt in the quest.
+     * If true, the user has solved and checked in to every Objective in the quest.
      *
      * @return true if the quest is completed.
      */
