@@ -26,10 +26,9 @@
                                 :heading="'Create'"
                                 :profile="profile"
                                 @cancelCreate="cancelCreate"
-                                :selectedDestination="selectedDestination"
-                                @TH-side-bar="showHideBar => this.showDestinations = showHideBar"
-                                @Your-TH-side-bar="showHideBar => this.showYourObjectives = showHideBar"
-                                @clear-objective-values="clearObjective"
+                                :selectedDestination="destinationSelected"
+                                @OBJ-side-bar="showHideBar => this.showDestinations = showHideBar"
+                                @Your-OBJ-side-bar="showHideBar => this.showYourObjectives = showHideBar"
                         ></quest-item>
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center"
@@ -115,7 +114,7 @@
                             v-if="showDestinations"
                             :search-public="true"
                             :profile="profile"
-                            @destination-click="destination => this.selectedDestination = destination">
+                            @destination-click="destination => this.destinationSelected = destination">
                     </found-destinations>
                     <objective-list
                             v-if="showYourObjectives"
@@ -171,22 +170,15 @@
                     id: null,
                     destination: null,
                     riddle: "",
-                    startDate: "",
-                    startTime: "",
-                    endDate: "",
-                    endTime: "23:59",
                     radius: null
                 },
                 selectedObjective: {
                     id: null,
                     destination: null,
                     riddle: "",
-                    startDate: "",
-                    startTime: "",
-                    endDate: "",
-                    endTime: "23:59",
                     radius: null
-                }
+                },
+                destinationSelected: {}
 
             }
         },
@@ -396,7 +388,7 @@
 
 
             /**
-             * Sets the objective emitted from the select objective side bar.
+             * Sets the treasure hunt emitted from the select treasure hunt side bar.
              */
             setSelectedObjective(objective) {
                 let newObjective = JSON.parse(JSON.stringify(objective));
@@ -420,15 +412,6 @@
                 }
                 newObjective.radius = radiusValue;
                 this.selectedObjective = newObjective;
-            },
-
-
-            /**
-             * Clears the values for a objective.
-             */
-            clearObjective() {
-                this.selectedObjective = JSON.parse(JSON.stringify(this.selectedObjectiveTemplate));
-                this.selectedDestination = {};
             }
         },
 

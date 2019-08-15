@@ -126,13 +126,13 @@
                     <b-col cols="12">
                         <b-card>
                         <add-objective
-                                :inputObjective="selectedObjective"
+                                :inputObjective="objectiveSelected"
                                 :profile="profile"
                                 :heading="'Add'"
                                 @addObjective="addObjective"
                                 @cancelCreate="cancelObjectiveCreate"
                                 @destination-select="$emit('destination-select')"
-                                :selectedDestination="selectedDestination">
+                                :selectedDestination="destinationSelected">
                         </add-objective>
                         </b-card>
                     </b-col>
@@ -141,14 +141,14 @@
                     <b-col cols="12">
                         <b-card>
                             <add-objective
-                                    :inputObjective="selectedObjective"
+                                    :inputObjective="objectiveSelected"
                                     :profile="profile"
                                     :heading="'Edit'"
                                     @addObjective="addObjective"
                                     @editObjective="objectiveEdited"
                                     @cancelCreate="cancelObjectiveCreate"
                                     @destination-select="$emit('destination-select')"
-                                    :selectedDestination="selectedDestination">
+                                    :selectedDestination="destinationSelected">
                             </add-objective>
                         </b-card>
                     </b-col>
@@ -164,7 +164,7 @@
                              ref="questObjective"
                              striped>
 
-                        <!-- Buttons that appear for each objective added to table -->
+                        <!-- Buttons that appear for each treasure hunt added to table -->
                         <template slot="actions" slot-scope="row">
                             <b-button size="sm"
                                       @click="editObjective(row.index)"
@@ -172,7 +172,7 @@
                                       class="mr-2"
                                       block>Edit
                             </b-button>
-                            <!--Removes objective from table-->
+                            <!--Removes treasure hunt from table-->
                             <b-button size="sm"
                                       @click="deleteObjective(row.index)"
                                       variant="danger"
@@ -317,15 +317,35 @@
                     value: 15,
                     text: "15"
                 }],
+                perPage: 5,
+                currentPage: 1,
                 editCurrentObjective: false,
-                objectiveIndex: 0
+                objectiveIndex: 0,
+                objectiveSelected: {
+                    id: null,
+                    destination: null,
+                    riddle: "",
+                    radius: null
+                },
+                destinationSelected: {},
+                objectiveTemplate: {
+                    id: null,
+                    destination: null,
+                    riddle: "",
+                    radius: null
+                }
             }
         },
 
         watch: {
             selectedDestination() {
+                this.destinationSelected = this.selectedDestination;
                 this.inputQuest.destination = this.selectedDestination;
                 this.displayedDestination = this.selectedDestination;
+            },
+
+            selectedObjective() {
+                this.objectiveSelected = this.selectedObjective;
             }
         },
 
@@ -424,7 +444,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @returns {number}    the number of rows required in the table based on number of objectives to be
+             * @returns {number}    the number of rows required in the table based on number of treasure hunts to be
              *                      displayed.
              */
             rows() {
@@ -570,27 +590,29 @@
 
 
             /**
-             * Adds the specified objective to the list of quest objectives and handles the appropriate actions.
+             * Adds the specified treasure hunt to the list of quest treasure hunts and handles the appropriate actions.
              */
             addObjective(objective) {
                 this.inputQuest.objectives.push(JSON.parse(JSON.stringify(objective)));
-                this.$emit('clear-objective-values');
+                this.objectiveSelected = JSON.parse(JSON.stringify(this.objectiveTemplate));
+                this.destinationSelected = {};
                 this.successMessage = "Objective Successfully Added";
                 this.showSuccessObjective = true;
                 let self = this;
                 setTimeout(function () {
                     self.showSuccessObjective = false;
                 }, 3000);
-                this.$emit('TH-side-bar', false)
+                this.$emit('OBJ-side-bar', false)
             },
 
 
             /**
-             * Replaces the objective in the quest objectives array with the newly edited objective.
+             * Replaces the treasure hunt in the quest treasure hunts array with the newly edited treasure hunt.
              */
             objectiveEdited(objective) {
                 this.inputQuest.objectives[this.objectiveIndex] = JSON.parse(JSON.stringify(objective));
-                this.$emit('clear-objective-values');
+                this.objectiveSelected = JSON.parse(JSON.stringify(this.objectiveTemplate));
+                this.destinationSelected = {};
                 this.successMessage = "Objective Successfully Edited";
                 this.showSuccessObjective = true;
                 let self = this;
@@ -602,7 +624,7 @@
 
 
             /**
-             * Displays the edit objective field and sets the current objective to the specified value.
+             * Displays the edit treasure hunt field and sets the current treasure hunt to the specified value.
              */
             editObjective(rowIndex) {
                 this.objectiveIndex = rowIndex;
@@ -624,15 +646,17 @@
                         radiusValue = radiusList[i];
                     }
                 }
-                this.selectedObjective = JSON.parse(JSON.stringify(this.inputQuest.objectives[rowIndex]));
-                this.selectedObjective.radius = radiusValue;
-                this.selectedDestination = JSON.parse(JSON.stringify(this.inputQuest.objectives[rowIndex].destination));
+                this.objectiveSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[rowIndex]));
+                this.objectiveSelected.radius = radiusValue;
+                this.destinationSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[rowIndex].destination));
+                console.log(this.destinationSelected);
                 this.editCurrentObjective = true;
+                this.$emit('OBJ-side-bar', true);
             },
 
 
             /**
-             * Removes a objective from the list of quest's objectives.
+             * Removes a treasure hunt from the list of quest's treasure hunts.
              */
             deleteObjective(rowIndex) {
                 this.inputQuest.objectives.splice(rowIndex, 1);
@@ -655,14 +679,16 @@
 
 
             /**
-             * Cancels the current creation of a objective addition to a quest
+             * Cancels the current creation of a treasure hunt addition to a quest
              */
             cancelObjectiveCreate() {
                 this.addNewObjective = false;
                 this.editCurrentObjective = false;
+                this.objectiveSelected = JSON.parse(JSON.stringify(this.objectiveTemplate));
+                this.destinationSelected = {};
                 this.$emit('clear-objective-values');
-                this.$emit('TH-side-bar', false);
-                this.$emit('Your-TH-side-bar', false);
+                this.$emit('OBJ-side-bar', false);
+                this.$emit('Your-OBJ-side-bar', false);
             },
 
 
@@ -755,9 +781,9 @@
 
 
             /**
-             * Used to move a objective in the table up one place.
+             * Used to move a treasure hunt in the table up one place.
              *
-             * @param rowIndex      the row index of the objective in the table.
+             * @param rowIndex      the row index of the treasure hunt in the table.
              */
             moveUp(rowIndex) {
                 let upIndex = rowIndex - 1;
@@ -769,9 +795,9 @@
 
 
             /**
-             * Used to move a objective in the table down one place.
+             * Used to move a treasure hunt in the table down one place.
              *
-             * @param rowIndex      the row index of the objective in the table.
+             * @param rowIndex      the row index of the treasure hunt in the table.
              */
             moveDown(rowIndex) {
                 let downIndex = rowIndex + 1;
@@ -783,24 +809,22 @@
 
 
             /**
-             * Displays the add objective component and the search destinations side bar.
+             * Displays the add treasure hunt component and the search destinations side bar.
              */
             showObjectiveComponent() {
                 this.addNewObjective = !this.addNewObjective;
-                this.$emit('TH-side-bar', true);
-                this.$emit('Your-TH-side-bar', false);
-                this.selectedObjective = {};
+                this.$emit('OBJ-side-bar', true);
+                this.$emit('Your-OBJ-side-bar', false);
             },
 
 
             /**
-             * Displays the add objective component and the your objectives side bar.
+             * Displays the add treasure hunt component and the your treasure hunts side bar.
              */
             showYourObjectivesComponent() {
                 this.addNewObjective = !this.addNewObjective;
-                this.$emit('Your-TH-side-bar', true);
-                this.$emit('TH-side-bar', false);
-                this.selectedObjective = {};
+                this.$emit('Your-OBJ-side-bar', true);
+                this.$emit('OBJ-side-bar', false);
             },
 
 
