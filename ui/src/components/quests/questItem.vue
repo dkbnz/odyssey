@@ -39,11 +39,10 @@
                                              id="quest_title"
                                              trim
                                              v-model="inputQuest.title"
-                                             :state="validateTitle"></b-form-textarea>
+                                             :state="validateTitle">
+                            </b-form-textarea>
                         </b-form-group>
                     </b-container>
-
-
                     <b-form>
                         <b-container fluid>
                             <b-form-group
@@ -73,7 +72,6 @@
                                         </b-form-input>
                                     </b-col>
                                 </b-row>
-
                             </b-form-group>
                             <b-form-group
                                     id="endDate-field">
@@ -111,16 +109,27 @@
                     </b-form>
                 </b-form>
 
-                <div class="d-flex justify-content-center" >
-                    <b-button v-if="!addNewTreasureHunt" variant="success"  @click="addNewTreasureHunt = !addNewTreasureHunt" block>Add a New Treasure Hunt</b-button>
+                <div>
+                    <b-row>
+                        <b-col>
+                            <b-button v-if="!addNewTreasureHunt" variant="success"
+                                      @click="showTreasureHuntComponent" block>
+                                Add a New Treasure Hunt
+                            </b-button>
+                        </b-col>
+                        <b-col>
+                            <b-button v-if="!addNewTreasureHunt" variant="primary"
+                                      @click="showYourTreasureHuntsComponent" block>
+                                Select a Treasure Hunt
+                            </b-button>
+                        </b-col>
+                    </b-row>
                 </div>
-
-                {{inputQuest.treasureHunts}}
-
                 <b-row v-if="addNewTreasureHunt">
                     <b-col cols="12">
                         <b-card>
                         <add-treasure-hunt
+                                :inputTreasureHunt="selectedTreasureHunt"
                                 :profile="profile"
                                 :heading="'Add'"
                                 @addTreasureHunt="addTreasureHunt($event, treasureHunt)"
@@ -131,9 +140,77 @@
                         </b-card>
                     </b-col>
                 </b-row>
+                <b-container fluid style="margin-top: 20px" v-if="inputQuest.treasureHunts.length > 0">
+                    <!-- Table displaying all added destinations -->
+                    <b-table :current-page="currentPage" :fields="fields" :items="inputQuest.treasureHunts"
+                             :per-page="perPage"
+                             hover
+                             id="myTrips"
+                             outlined
+                             ref="questTreasureHunt"
+                             striped>
 
-                <b-row>
-                    <b-col cols="8">
+                        <!-- Buttons that appear for each treasure hunt added to table -->
+                        <template slot="actions" slot-scope="row">
+                            <!--Removes treasure hunt from table-->
+                            <b-button size="sm"
+                                      @click="deleteTreasureHunt(row.index)"
+                                      variant="danger"
+                                      class="mr-2"
+                                      block>Delete
+                            </b-button>
+                        </template>
+
+                        <!-- Buttons to shift destinations up/down in table -->
+                        <template slot="order" slot-scope="row">
+                            <b-button :disabled="inputQuest.treasureHunts.length === 1 || row.index === 0"
+                                      @click="moveUp(row.index)"
+                                      class="mr-2"
+                                      size="sm"
+                                      variant="success">&uarr;
+                            </b-button>
+                            <b-button :disabled="inputQuest.treasureHunts.length === 1 ||
+                           row.index === inputQuest.treasureHunts.length-1"
+                                      @click="moveDown(row.index)"
+                                      class="mr-2"
+                                      size="sm"
+                                      variant="success">&darr;
+                            </b-button>
+                        </template>
+                        <template slot="radius">
+                            {{getRadiusValue(row.item)}}
+                        </template>
+                    </b-table>
+                    <!-- Determines pagination and number of results per row of the table -->
+                    <b-row>
+                        <b-col cols="1">
+                            <b-form-group
+                                    id="numItems-field"
+                                    label-for="perPage">
+                                <b-form-select :options="optionViews"
+                                               id="perPage"
+                                               size="sm"
+                                               trim v-model="perPage">
+                                </b-form-select>
+                            </b-form-group>
+                        </b-col>
+                        <b-col cols="8">
+                            <b-pagination
+                                    :per-page="perPage"
+                                    :total-rows="rows"
+                                    align="center"
+                                    aria-controls="my-table"
+                                    first-text="First"
+                                    last-text="Last"
+                                    size="sm"
+                                    v-model="currentPage">
+                            </b-pagination>
+                        </b-col>
+                    </b-row>
+                </b-container>
+
+                <b-row class="buttonMarginsTop">
+                    <b-col>
                         <b-button @click="validateQuest" block variant="primary">
                             Save
                         </b-button>
@@ -186,7 +263,12 @@
                 default: function () {
                     return 'containerWithNav';
                 }
-            }
+            },
+            selectedTreasureHunt: {
+                default: function () {
+                    return {}
+                }
+            },
         },
 
         data() {
@@ -194,7 +276,6 @@
                 showError: false,
                 showDateError: false,
                 errorMessage: "",
-                successTripAddedAlert: false,
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 savingTreasureHunt: false,
@@ -204,7 +285,18 @@
                 displayedDestination: null,
                 addNewTreasureHunt: false,
                 showSuccessTreasureHunt: false,
-                successMessage: ''
+                successMessage: '',
+                fields: [
+                    'order',
+                    {key: 'riddle', label: 'Riddle'},
+                    {key: 'destination.name', label: 'Destination'},
+                    {key: 'radius', label: 'Radius'},
+                    'actions'
+                ],
+                optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
+                    value: 15,
+                    text: "15"
+                }]
             }
         },
 
@@ -446,8 +538,14 @@
 
             addTreasureHunt(treasureHunt) {
                 this.inputQuest.treasureHunts.push(treasureHunt);
+                this.selectedDestination = {};
                 this.successMessage = "Treasure Hunt Successfully added";
                 this.showSuccessTreasureHunt = true;
+                let self = this;
+                setTimeout(function () {
+                    self.showSuccessTreasureHunt = false;
+                }, 3000);
+                this.$emit('TH-side-bar', false)
             },
 
 
@@ -464,6 +562,7 @@
              */
             cancelTreasureHuntCreate() {
                 this.addNewTreasureHunt = false;
+                this.$emit('TH-side-bar', false);
             },
 
 
@@ -552,6 +651,63 @@
              */
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
+            },
+
+
+            /**
+             * Used to move a treasure hunt in the table up one place.
+             *
+             * @param rowIndex      the row index of the treasure hunt in the table.
+             */
+            moveUp(rowIndex) {
+                let upIndex = rowIndex - 1;
+                let swapRow = this.inputQuest.treasureHunts[rowIndex];
+                this.inputQuest.treasureHunts[rowIndex] = this.inputQuest.treasureHunts[upIndex];
+                this.inputQuest.treasureHunts[upIndex] = swapRow;
+                this.$refs.questTreasureHunt.refresh();
+            },
+
+
+            /**
+             * Used to move a treasure hunt in the table down one place.
+             *
+             * @param rowIndex      the row index of the treasure hunt in the table.
+             */
+            moveDown(rowIndex) {
+                let downIndex = rowIndex + 1;
+                let swapRow = this.inputQuest.treasureHunts[rowIndex];
+                this.inputQuest.treasureHunts[rowIndex] = this.inputQuest.treasureHunts[downIndex];
+                this.inputQuest.treasureHunts[downIndex] = swapRow;
+                this.$refs.questTreasureHunt.refresh();
+            },
+
+
+            /**
+             * Displays the add treasure hunt component and the search destinations side bar.
+             */
+            showTreasureHuntComponent() {
+                this.addNewTreasureHunt = !this.addNewTreasureHunt;
+                this.$emit('TH-side-bar', true);
+            },
+
+
+            /**
+             * Displays the add treasure hunt component and the your treasure hunts side bar.
+             */
+            showYourTreasureHuntsComponent() {
+                this.addNewTreasureHunt = !this.addNewTreasureHunt;
+                this.$emit('Your-TH-side-bar', true);
+            },
+
+
+            /**
+             * Returns a string radius value determined by the size.
+             *
+             * @param radius    the radius to be changed.
+             */
+            getRadiusValue(radius) {
+                console.log(radius);
+                return radius;
             }
         }
     }

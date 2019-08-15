@@ -18,22 +18,30 @@
                                 variant="success"
                         ></b-progress>
                     </b-alert>
-                    <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingQuest">
-                        <QuestItem
+                    <b-list-group-item href="#" class="flex-column justify-content-center"
+                                       v-if="creatingQuest"
+                                       draggable="false">
+                        <quest-item
+                                :selected-treasure-hunt="selectedTreasureHunt"
                                 :heading="'Create'"
                                 :profile="profile"
-                                @cancelCreate="cancelEdit"
+                                @cancelCreate="cancelCreate"
                                 :selectedDestination="selectedDestination"
-                        ></QuestItem>
+                                @TH-side-bar="showHideBar => this.showDestinations = showHideBar"
+                                @Your-TH-side-bar="showHideBar => this.showYourTreasureHunts = showHideBar"
+                        ></quest-item>
                     </b-list-group-item>
-                    <b-list-group-item href="#" class="flex-column justify-content-center" v-if="!creatingQuest">
+                    <b-list-group-item href="#" class="flex-column justify-content-center"
+                                       v-if="!creatingQuest"
+                                       draggable="false">
                         <div class="d-flex justify-content-center">
                             <b-button variant="success"  @click="addQuest" block>Add a New Quest</b-button>
                         </div>
                     </b-list-group-item>
                     <b-list-group-item v-for="quest in (foundQuests)" href="#"
                                        class="flex-column align-items-start"
-                                       :key="quest.id">
+                                       :key="quest.id"
+                                       draggable="false">
                         <template v-if="!editingQuest && !(activeId === quest.id)">
                                 <h4>Title</h4>
                                 {{quest.title}}
@@ -108,6 +116,13 @@
                             :profile="profile"
                             @destination-click="destination => this.selectedDestination = destination">
                     </found-destinations>
+                    <treasure-hunt-list
+                            v-if="showYourTreasureHunts"
+                            :yourTreasureHunts="true"
+                            :profile="profile"
+                            :sideBarView="true"
+                            @select-treasure-hunt="setSelectedTreasureHunt">
+                    </treasure-hunt-list>
                 </b-card>
             </b-col>
         </b-row>
@@ -117,6 +132,7 @@
 <script>
     import QuestItem from "./questItem";
     import FoundDestinations from "../destinations/destinationSearchList";
+    import TreasureHuntList from "../treasureHunt/treasureHuntList";
 
     export default {
         name: "questList",
@@ -148,7 +164,18 @@
                 copiedTreasureHunt: null,
                 deleteAlertError: false,
                 deleteAlertMessage: "",
-                showDestinations: false
+                showDestinations: false,
+                showYourTreasureHunts: false,
+                selectedTreasureHunt: {
+                        id: null,
+                        destination: null,
+                        riddle: "",
+                        startDate: "",
+                        startTime: "",
+                        endDate: "",
+                        endTime: "23:59",
+                        radius: null
+                },
             }
         },
 
@@ -158,6 +185,10 @@
 
         watch: {
             refreshTreasureHunts() {
+                this.getMore();
+            },
+
+            profile() {
                 this.getMore();
             }
         },
@@ -253,7 +284,6 @@
             addQuest() {
                 this.creatingQuest = true;
                 this.cancelEdit();
-                this.showDestinations = true;
             },
 
 
@@ -351,9 +381,18 @@
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
+
+
+            /**
+             * Sets the treasure hunt emitted from the select treasure hunt side bar.
+             */
+            setSelectedTreasureHunt(treasureHunt) {
+                this.selectedTreasureHunt = treasureHunt;
+            }
         },
 
         components: {
+            TreasureHuntList,
             QuestItem,
             FoundDestinations
         }

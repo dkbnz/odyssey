@@ -49,7 +49,8 @@
                                                        v-if="selectedDestination"
                                                        id="selectedDestination"
                                                        :disabled="selectedDestination.length === '{}'"
-                                                       :variant="checkDestinationState">
+                                                       :variant="checkDestinationState"
+                                                       draggable="false">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h5 class="mb-1" v-if="selectedDestination.name">
                                                 {{selectedDestination.name}}
@@ -132,10 +133,6 @@
                         id: null,
                         destination: null,
                         riddle: "",
-                        startDate: "",
-                        startTime: "",
-                        endDate: "",
-                        endTime: "23:59",
                         radius: null
                     }
                 }
@@ -184,6 +181,14 @@
         watch: {
             selectedDestination() {
                 this.inputTreasureHunt.destination = this.selectedDestination;
+            },
+
+            inputTreasureHunt() {
+                console.log(this.inputTreasureHunt);
+                this.selectedDestination = this.inputTreasureHunt.destination;
+                if(this.inputTreasureHunt.radius === undefined) {
+                    this.inputTreasureHunt.radius = {value:0.005, text:"5 Meters"}
+                }
             }
         },
 
@@ -404,7 +409,6 @@
              * When used in quests for adding a treasure hunt to the quests list by emitting it outside of the component
              */
             addHunt() {
-                this.inputTreasureHunt.destination = {"id": this.inputTreasureHunt.destination.id};
                 this.inputTreasureHunt.radius = this.inputTreasureHunt.radius.value;
                 delete this.inputTreasureHunt.startTime;
                 delete this.inputTreasureHunt.endTime;
