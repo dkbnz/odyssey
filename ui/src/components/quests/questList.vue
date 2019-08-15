@@ -78,7 +78,7 @@
                         </div>
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="!loadingResults && foundObjectives.length === 0">
+                                       v-if="!loadingResults && yourQuests.length === 0">
                         <div class="d-flex justify-content-center">
                             <strong>No Quests</strong>
                         </div>
