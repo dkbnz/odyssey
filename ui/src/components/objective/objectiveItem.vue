@@ -7,8 +7,8 @@
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 
-        <!-- Displays success alert and progress bar on trip creation as a loading bar
-        for the trip being added to the database -->
+        <!-- Displays success alert and progress bar on objective creation as a loading bar
+        for the objective being added to the database -->
         <b-alert
                 :show="dismissCountDown"
                 @dismiss-count-down="countDownChanged"
@@ -29,11 +29,11 @@
                     <b-form>
                         <b-container fluid>
                             <b-form-group
-                                    id="treasure_hunt_riddle-field"
+                                    id="objective_riddle-field"
                                     label="Objective Riddle:"
-                                    label-for="treasure_hunt_riddle">
+                                    label-for="objective_riddle">
                                 <b-form-textarea :type="'expandable-text'"
-                                                 id="treasure_hunt_riddle"
+                                                 id="objective_riddle"
                                                  trim
                                                  v-model="inputObjective.riddle"
                                                  :state="validateRiddle"></b-form-textarea>
@@ -46,24 +46,24 @@
                                 <h6 class="mb-1">Selected Destination:</h6>
                                 <b-list-group @click="$emit('destination-select')">
                                     <b-list-group-item href="#" class="flex-column align-items-start"
-                                                       v-if="selectedDestination"
+                                                       v-if="destinationSelected"
                                                        id="selectedDestination"
-                                                       :disabled="selectedDestination.length === '{}'"
+                                                       :disabled="destinationSelected.length === '{}'"
                                                        :variant="checkDestinationState"
                                                        draggable="false">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h5 class="mb-1" v-if="selectedDestination.name">
-                                                {{selectedDestination.name}}
+                                            <h5 class="mb-1" v-if="destinationSelected.name">
+                                                {{destinationSelected.name}}
                                             </h5>
                                             <h5 class="mb-1" v-else>Select a Destination</h5>
 
                                         </div>
 
                                         <p>
-                                            {{selectedDestination.district}}
+                                            {{destinationSelected.district}}
                                         </p>
                                         <p>
-                                            {{selectedDestination.country}}
+                                            {{destinationSelected.country}}
                                         </p>
                                     </b-list-group-item>
                                 </b-list-group>
@@ -80,11 +80,11 @@
                                     </b-form-select>
                                 </b-form-group>
 
-                                <div ref="map" v-if="inputObjective.radius !== null && selectedDestination.name">
+                                <div ref="map" v-if="inputObjective.radius !== null && destinationSelected.name">
                                     <google-map ref="map"
                                                 :showRadius="true"
                                                 :radius="inputObjective.radius.value"
-                                                :selectedRadiusDestination="selectedDestination">
+                                                :selectedRadiusDestination="destinationSelected">
                                     </google-map>
                                 </div>
                             </b-container>
@@ -173,94 +173,27 @@
                         lng: 173.299565
                     }
                 },
+                destinationSelected: {}
             }
         },
 
         watch: {
-            selectedDestination() {
-                this.inputObjective.destination = this.selectedDestination;
+            inputObjective() {
+                this.destinationSelected = this.inputObjective.destination;
             },
 
-            inputObjective() {
-                this.selectedDestination = this.inputObjective.destination;
-                if(this.inputObjective.radius === undefined) {
-                    this.inputObjective.radius = {value:0.005, text:"5 Meters"}
-                }
+            selectedDestination() {
+                this.destinationSelected = this.selectedDestination;
+                this.inputObjective.destination = this.destinationSelected;
             }
         },
 
         mounted() {
-            // this.splitDates();
             this.editingObjective();
-            // this.setDateTimeString();
             this.initMap();
         },
 
         computed: {
-            // /**
-            //  * Checks that the start date is not after the end date, and is not before the current date for new hunts.
-            //  * @returns true if start date is valid.
-            //  */
-            // validateStartDate() {
-            //     if ((this.inputObjective.startDate < this.getDateString() && !this.inputObjective.id)) {
-            //         return false;
-            //     }
-            //     if (this.inputObjective.startDate > this.inputObjective.endDate) {
-            //         return false;
-            //     }
-            //     return true;
-            // },
-            //
-            //
-            // /**
-            //  * Checks that the start time is not after or the same as the end time if the dates are the same,
-            //  * and that the start time is not before the current time if the current date is today.
-            //  * @returns true if start time is valid.
-            //  */
-            // validateStartTime() {
-            //     if (this.inputObjective.startDate === this.inputObjective.endDate) {
-            //         if (this.inputObjective.startTime >= this.inputObjective.endTime) {
-            //             return false;
-            //         }
-            //     }
-            //     if (this.inputObjective.startDate === this.getDateString() && !this.inputObjective.id) {
-            //         if (this.inputObjective.startTime < this.getTimeString()) {
-            //             return false;
-            //         }
-            //     }
-            //     return true;
-            // },
-            //
-            //
-            // /**
-            //  * Checks that the end date is not before the start date, and is not before the current date for new hunts.
-            //  * @returns true if end date is valid.
-            //  */
-            // validateEndDate() {
-            //     if (this.inputObjective.endDate < this.getDateString() && !this.inputObjective.id) {
-            //         return false;
-            //     }
-            //     if (this.inputObjective.endDate < this.inputObjective.startDate) {
-            //         return false;
-            //     }
-            //     return true;
-            // },
-            //
-            //
-            // /**
-            //  * Checks that the end time is not before or the same as the start time if the dates are the same.
-            //  * @returns true if end time is valid.
-            //  */
-            // validateEndTime() {
-            //     if (this.inputObjective.startDate === this.inputObjective.endDate) {
-            //         if (this.inputObjective.endTime <= this.inputObjective.startTime) {
-            //             return false;
-            //         }
-            //     }
-            //     return true;
-            // },
-
-
             /**
              * Returns true if the inputted riddle has length greater than 0.
              * @returns true if validated.
@@ -290,11 +223,11 @@
              */
             validateDestination() {
                 if (this.inputObjective.destination !== null
-                    && this.inputObjective.destination === this.selectedDestination
+                    && this.inputObjective.destination === this.destinationSelected
                     && this.inputObjective.destination.name !== undefined
                     && this.inputObjective.destination.name.length > 0
                     || this.inputObjective.destination !== null
-                    && this.inputObjective.destination.id === this.selectedDestination.id) {
+                    && this.inputObjective.destination.id === this.destinationSelected.id) {
                     return true;
                 }
                 return false;
@@ -313,62 +246,12 @@
         },
 
         methods: {
-
-            // /**
-            //  * Gets the current date+time as a Date object.
-            //  * @returns Current Datetime.
-            //  */
-            // getCurrentDate() {
-            //     return new Date();
-            // },
-            //
-            //
-            // /**
-            //  * sets the input values to be their proper string versions of current date/time.
-            //  */
-            // setDateTimeString() {
-            //     if (this.inputObjective.id === null) {
-            //         this.inputObjective.startDate = this.getDateString();
-            //         this.inputObjective.endDate = this.getDateString();
-            //         this.inputObjective.startTime = this.getTimeString();
-            //     }
-            // },
-            //
-            //
-            // /**
-            //  * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day.
-            //  * @returns Current Date in YYYY-MM-DD String Format.
-            //  */
-            // getDateString() {
-            //     let today = this.getCurrentDate();
-            //     let date =  today.getFullYear()+'-'+
-            //         ((today.getMonth()+1) < 10 ? "0" : "")
-            //         + (today.getMonth()+1)+'-'+
-            //         (today.getDate() < 10 ? "0" : "") +
-            //         today.getDate();
-            //     return date;
-            // },
-
-            //
-            // /**
-            //  * Gets the current time as a string in HH:MM format, including padding O's.
-            //  * @returns Current Time in HH:MM String Format.
-            //  */
-            // getTimeString() {
-            //     let today = this.getCurrentDate();
-            //     return ((today.getHours()) < 10 ? "0" : "") +
-            //         today.getHours() + ":"
-            //         + ((today.getMinutes()) < 10 ? "0" : "") +
-            //         today.getMinutes();
-            // },
-
-
             /**
              * Fills the destination with the existing destination of a hunt when editing it.
              */
             editingObjective() {
                 if (this.inputObjective.id !== null) {
-                    this.selectedDestination = this.inputObjective.destination;
+                    this.destinationSelected = this.inputObjective.destination;
                 }
             },
 
@@ -402,7 +285,7 @@
              * Used after the destination is added, resets the form for adding a destination.
              */
             resetDestForm() {
-                this.selectedDestination = {};
+                this.destinationSelected = {};
             },
 
 
@@ -441,11 +324,7 @@
              * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
              */
             assembleObjective() {
-                this.joinDates();
                 this.inputObjective.destination = {"id": this.inputObjective.destination.id};
-
-                delete this.inputObjective.startTime;
-                delete this.inputObjective.endTime;
             },
 
 
@@ -494,68 +373,6 @@
             cancelCreate() {
                 this.$emit('cancelCreate');
             },
-
-
-            // /**
-            //  * Splits the dates of the inputObjective to put in the edit fields.
-            //  */
-            // splitDates() {
-            //     if (this.inputObjective.id !== null) {
-            //         this.inputObjective.startDate = new Date(this.inputObjective.startDate).toLocaleString();
-            //         let startDate = this.inputObjective.startDate;
-            //         this.inputObjective.startDate = this.inputObjective.startDate.split(", ")[0];
-            //         this.inputObjective.startDate = this.inputObjective.startDate.split("/").reverse().join("-");
-            //         this.inputObjective.startTime = startDate.split(" ")[1];
-            //         this.inputObjective.startTime = this.inputObjective.startTime.split("+")[0];
-            //         this.inputObjective.startTime = this.inputObjective.startTime.split("-")[0];
-            //
-            //         this.inputObjective.endDate = new Date(this.inputObjective.endDate).toLocaleString();
-            //         let endDate = this.inputObjective.endDate;
-            //         this.inputObjective.endDate = this.inputObjective.endDate.split(", ")[0];
-            //         this.inputObjective.endDate = this.inputObjective.endDate.split("/").reverse().join("-");
-            //         this.inputObjective.endTime = endDate.split(" ")[1];
-            //         this.inputObjective.endTime = this.inputObjective.endTime.split("+")[0];
-            //         this.inputObjective.endTime = this.inputObjective.endTime.split("-")[0];
-            //     }
-            // },
-
-
-            // /**
-            //  * Combines dates and times together from input fields and adds :00 on the end for seconds.
-            //  */
-            // joinDates() {
-            //     let timeOffset = this.formatOffset();
-            //
-            //     if(this.inputObjective.startTime.length === 5) {
-            //         this.inputObjective.startTime += ":00";
-            //     }
-            //
-            //     if(this.inputObjective.endTime.length === 5) {
-            //         this.inputObjective.endTime += ":00";
-            //     }
-            //
-            //     this.inputObjective.startDate = this.inputObjective.startDate + " "
-            //         + this.inputObjective.startTime + timeOffset;
-            //
-            //     this.inputObjective.endDate = this.inputObjective.endDate + " "
-            //         + this.inputObjective.endTime + timeOffset;
-            //
-            // },
-
-
-            // /**
-            //  * Gets the local time offset and pads it to be 4 numbers long.
-            //  */
-            // formatOffset() {
-            //     let timeOffset = (Math.abs(new Date().getTimezoneOffset()/60)).toString();
-            //
-            //     let fullNumber = timeOffset.padStart(2, '0');
-            //     fullNumber = fullNumber.padEnd(4, '0');
-            //
-            //     let sign = (new Date().getTimezoneOffset() >= 0) ? "-": "+";
-            //
-            //     return sign + fullNumber;
-            // },
 
 
             /**
