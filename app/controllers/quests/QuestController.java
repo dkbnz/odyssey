@@ -3,7 +3,6 @@ package controllers.quests;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
-import com.google.protobuf.Api;
 import models.ApiError;
 import models.Profile;
 import models.quests.Quest;
@@ -16,7 +15,7 @@ import util.AuthenticationUtil;
 import util.Views;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static play.mvc.Results.*;
@@ -64,8 +63,6 @@ public class QuestController {
             return forbidden(ApiError.forbidden());
         }
 
-        List<ApiError> questCreationErrors = new ArrayList<>();
-
         ObjectMapper mapper = new ObjectMapper();
 
         Quest newQuest;
@@ -79,8 +76,7 @@ public class QuestController {
         }
 
         newQuest.setOwner(questOwner);
-
-        questCreationErrors.addAll(newQuest.getErrors());
+        Collection<ApiError> questCreationErrors = newQuest.getErrors();
 
         if (!questCreationErrors.isEmpty()) {
             return badRequest(Json.toJson(questCreationErrors));
