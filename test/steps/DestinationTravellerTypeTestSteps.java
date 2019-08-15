@@ -30,7 +30,7 @@ public class DestinationTravellerTypeTestSteps {
     /**
      * Singleton class which stores generally used variables
      */
-    private TestContext testContext;
+    private TestContext testContext = TestContext.getInstance();
 
     /**
      * Test file with test steps common over different scenarios
@@ -77,44 +77,13 @@ public class DestinationTravellerTypeTestSteps {
     /**
      * Repository to access the destinations in the running application.
      */
-    private DestinationRepository destinationRepository;
+    private DestinationRepository destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
 
 
     /**
      * Repository to access the destinations in the running application.
      */
-    private TravellerTypeRepository travellerTypeRepository;
-
-
-    /**
-     * Runs before each test scenario.
-     * Sets up a fake application for testing.
-     * Applies configuration settings to use an in memory database for the fake application.
-     * Starts the application.
-     * Calls apply evolutions to set up the database state.
-     */
-    @Before
-    public void setUp() {
-        testContext = TestContext.getInstance();
-
-        generalSteps = new GeneralSteps();
-        generalSteps.setUp();
-
-        destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
-        travellerTypeRepository = testContext.getApplication().injector().instanceOf(TravellerTypeRepository.class);
-    }
-
-
-    /**
-     * Runs after each test scenario.
-     * Sends a logout request.
-     * Cleans up the database by cleaning up evolutions and shutting it down.
-     * Stops running the fake application.
-     */
-    @After
-    public void tearDown() {
-        generalSteps.tearDown();
-    }
+    private TravellerTypeRepository travellerTypeRepository = testContext.getApplication().injector().instanceOf(TravellerTypeRepository.class);
 
 
     @Given("There is a destination with one traveller type to add")

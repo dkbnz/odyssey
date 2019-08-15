@@ -41,12 +41,7 @@ public class DestinationTestSteps {
     /**
      * Singleton class which stores generally used variables
      */
-    private TestContext testContext;
-
-    /**
-     * Test file with test steps common over different scenarios
-     */
-    private GeneralSteps generalSteps;
+    private TestContext testContext = TestContext.getInstance();
 
 
     /**
@@ -174,45 +169,11 @@ public class DestinationTestSteps {
     private static final int START_DATE_BUFFER = -10;
     private static final int END_DATE_BUFFER = 10;
 
-    private DestinationRepository destinationRepository;
-    private TravellerTypeRepository travellerTypeRepository;
-    private DestinationTypeRepository destinationTypeRepository;
-    private TreasureHuntRepository treasureHuntRepository;
-    private TripRepository tripRepository;
-
-    /**
-     * Runs before each test scenario.
-     * Sets up a fake application for testing.
-     * Applies configuration settings to use an in memory database for the fake application.
-     * Starts the application.
-     * Calls apply evolutions to set up the database state.
-     */
-    @Before
-    public void setUp() {
-        testContext = TestContext.getInstance();
-
-        generalSteps = new GeneralSteps();
-        generalSteps.setUp();
-
-
-        destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
-        travellerTypeRepository = testContext.getApplication().injector().instanceOf(TravellerTypeRepository.class);
-        destinationTypeRepository = testContext.getApplication().injector().instanceOf(DestinationTypeRepository.class);
-        treasureHuntRepository = testContext.getApplication().injector().instanceOf(TreasureHuntRepository.class);
-        tripRepository = testContext.getApplication().injector().instanceOf(TripRepository.class);
-    }
-
-
-    /**
-     * Runs after each test scenario.
-     * Sends a logout request.
-     * Cleans up the database by cleaning up evolutions and shutting it down.
-     * Stops running the fake application.
-     */
-    @After
-    public void tearDown() {
-        generalSteps.tearDown();
-    }
+    private DestinationRepository destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
+    private TravellerTypeRepository travellerTypeRepository = testContext.getApplication().injector().instanceOf(TravellerTypeRepository.class);
+    private DestinationTypeRepository destinationTypeRepository = testContext.getApplication().injector().instanceOf(DestinationTypeRepository.class);
+    private TreasureHuntRepository treasureHuntRepository = testContext.getApplication().injector().instanceOf(TreasureHuntRepository.class);
+    private TripRepository tripRepository = testContext.getApplication().injector().instanceOf(TripRepository.class);
 
 
     /**
