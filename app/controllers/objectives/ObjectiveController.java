@@ -345,13 +345,13 @@ public class ObjectiveController {
         Objective objective = objectiveRepository.findById(objectiveId);
 
         if (objective == null) {
-            return notFound(TREASURE_HUNT_NOT_FOUND);
+            return notFound(ApiError.notFound());
         }
 
         Profile objectiveOwner = objective.getOwner();
 
         if (!AuthenticationUtil.validUser(loggedInUser, objectiveOwner)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         // Create list to hold objective errors

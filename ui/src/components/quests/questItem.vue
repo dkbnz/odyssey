@@ -573,6 +573,7 @@
              * quests.
              */
             updateQuest() {
+                delete this.inputQuest.owner;
                 this.assembleQuest();
                 let self = this;
                 fetch('/v1/quests/' + this.inputQuest.id, {
