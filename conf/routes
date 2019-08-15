@@ -74,5 +74,8 @@ DELETE  /v1/treasureHunts/:treasureHuntId                       controllers.trea
 #GET     /v1/treasureHunts/:treasureHuntId/checkIn               controllers.treasureHunts.TreasureHuntController.checkIn(request: Request, treasureHuntId: Long)
 #GET     /v1/treasureHunts/:treasureHuntId/hasSolved/:userId     controllers.treasureHunts.TreasureHuntController.hasSolved(request: Request, treasureHuntId: Long, userId: Long)
 
+# Quests
+POST    /v1/quests/:userId                      controllers.quests.QuestController.create(request: Request, userId: Long)
+
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
 GET     /*file                                  controllers.Assets.at(path="/public", file)

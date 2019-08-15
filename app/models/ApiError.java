@@ -1,6 +1,12 @@
 package models;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import play.libs.Json;
+
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.List;
+import java.util.List.*;
 
 public class ApiError {
 
@@ -26,5 +32,21 @@ public class ApiError {
 
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public static JsonNode unauthorized() {
+        return Json.toJson(Arrays.asList(new ApiError("You are not logged in.")));
+    }
+
+    public static JsonNode notFound() {
+        return Json.toJson(Arrays.asList(new ApiError("Resource not found.")));
+    }
+
+    public static JsonNode forbidden() {
+        return Json.toJson(Arrays.asList(new ApiError("You are not authorized to access this resource.")));
+    }
+
+    public static JsonNode invalidJson() {
+        return Json.toJson(Arrays.asList(new ApiError("The JSON body received in the request was invalid.")));
     }
 }

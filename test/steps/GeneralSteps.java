@@ -38,8 +38,6 @@ public class GeneralSteps {
      */
     private static final String PASS_FIELD = "password";
 
-
-
     //--------------------------------------URIs-------------------------------------------
 
     /**
@@ -51,8 +49,6 @@ public class GeneralSteps {
      * The logout uri.
      */
     private static final String LOGOUT_URI = "/v1/logout";
-
-
 
     //----------------------------------Login Details---------------------------------------------
 
@@ -81,13 +77,13 @@ public class GeneralSteps {
 
 
     @Before
-    public void setUp() {
+    public void setUp(String dbName) {
 
         Map<String, String> configuration = new HashMap<>();
         configuration.put("play.db.config", "db");
         configuration.put("play.db.default", "default");
         configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:testDBProfile;MODE=MYSQL;");
+        configuration.put("db.default.url", "jdbc:h2:mem:" + dbName + ";MODE=MYSQL;");
         configuration.put("ebean.default", "models.*");
         configuration.put("play.evolutions.db.default.enabled", "true");
         configuration.put("play.evolutions.autoApply", "false");
