@@ -15,17 +15,12 @@ import static play.test.Helpers.*;
 
 public class AuthenticationTestSteps {
 
-
     /**
      * Singleton class which stores generally used variables
      */
-    private TestContext testContext;
+    private TestContext testContext = TestContext.getInstance();
 
-    /**
-     * Test file with test steps common over different scenarios
-     */
-    private GeneralSteps generalSteps;
-
+    private GeneralSteps generalSteps = new GeneralSteps();
 
     /**
      * The username string variable.
@@ -42,33 +37,6 @@ public class AuthenticationTestSteps {
      * The login uri.
      */
     private static final String LOGIN_URI = "/v1/login";
-
-    /**
-     * Runs before each test scenario.
-     * Sets up a fake application for testing.
-     * Applies configuration settings to use an in memory database for the fake application.
-     * Starts the application.
-     * Calls apply evolutions to set up the database state.
-     */
-    @Before
-    public void setUp() {
-        testContext = TestContext.getInstance();
-
-        generalSteps = new GeneralSteps();
-        generalSteps.setUp();
-    }
-
-
-    /**
-     * Runs after each test scenario.
-     * Sends a logout request.
-     * Cleans up the database by cleaning up evolutions and shutting it down.
-     * Stops running the fake application.
-     */
-    @After
-    public void tearDown() {
-        generalSteps.tearDown();
-    }
 
 
     /**
@@ -103,6 +71,8 @@ public class AuthenticationTestSteps {
     public void iLogOut() {
         generalSteps.iAmNotLoggedIn();
     }
+
+
 
     /**
      * Logs in using a login that is not stored in the database.

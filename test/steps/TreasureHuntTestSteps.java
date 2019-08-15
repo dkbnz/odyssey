@@ -12,7 +12,6 @@ import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import util.DebugHelp;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -25,12 +24,7 @@ public class TreasureHuntTestSteps {
     /**
      * Singleton class which stores generally used variables
      */
-    private TestContext testContext;
-
-    /**
-     * Test file with test steps common over different scenarios
-     */
-    private GeneralSteps generalSteps;
+    private TestContext testContext = TestContext.getInstance();
 
 
     /**
@@ -65,23 +59,6 @@ public class TreasureHuntTestSteps {
 
     private static final int START_DATE_BUFFER = -10;
     private static final int END_DATE_BUFFER = 10;
-
-
-
-    /**
-     * Runs before each test scenario.
-     * Sets up a fake application for testing.
-     * Applies configuration settings to use an in memory database for the fake application.
-     * Starts the application.
-     * Calls apply evolutions to set up the database state.
-     */
-    @Before
-    public void setUp() {
-        testContext = TestContext.getInstance();
-
-        generalSteps = new GeneralSteps();
-        generalSteps.setUp();
-    }
 
 
     /**
@@ -144,18 +121,6 @@ public class TreasureHuntTestSteps {
 
 
     /**
-     * Runs after each test scenario.
-     * Sends a logout request.
-     * Cleans up the database by cleaning up evolutions and shutting it down.
-     * Stops running the fake application.
-     */
-    @After
-    public void tearDown() {
-        generalSteps.tearDown();
-    }
-
-
-    /**
      * Sends a request to create a treasure hunt with values from the given Json node.
      * @param json      a JsonNode containing the values for a new treasure hunt object.
      */
@@ -195,7 +160,7 @@ public class TreasureHuntTestSteps {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             JsonNode json = convertDataTableToTreasureHuntJson(dataTable, i);
             createTreasureHuntRequest(json);
-            Assert.assertEquals(CREATED, statusCode);
+            Assert.assertEquals(CREATED, testContext.getStatusCode());
         }
     }
 
