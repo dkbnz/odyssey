@@ -29,6 +29,7 @@
                                 :selectedDestination="selectedDestination"
                                 @TH-side-bar="showHideBar => this.showDestinations = showHideBar"
                                 @Your-TH-side-bar="showHideBar => this.showYourTreasureHunts = showHideBar"
+                                @clear-treasure-hunt-values="clearTreasureHunt"
                         ></quest-item>
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center"
@@ -166,16 +167,27 @@
                 deleteAlertMessage: "",
                 showDestinations: false,
                 showYourTreasureHunts: false,
-                selectedTreasureHunt: {
-                        id: null,
-                        destination: null,
-                        riddle: "",
-                        startDate: "",
-                        startTime: "",
-                        endDate: "",
-                        endTime: "23:59",
-                        radius: null
+                selectedTreasureHuntTemplate: {
+                    id: null,
+                    destination: null,
+                    riddle: "",
+                    startDate: "",
+                    startTime: "",
+                    endDate: "",
+                    endTime: "23:59",
+                    radius: null
                 },
+                selectedTreasureHunt: {
+                    id: null,
+                    destination: null,
+                    riddle: "",
+                    startDate: "",
+                    startTime: "",
+                    endDate: "",
+                    endTime: "23:59",
+                    radius: null
+                }
+
             }
         },
 
@@ -388,6 +400,12 @@
              */
             setSelectedTreasureHunt(treasureHunt) {
                 this.selectedTreasureHunt = treasureHunt;
+            },
+
+
+            clearTreasureHunt() {
+                this.selectedTreasureHunt = JSON.parse(JSON.stringify(this.selectedTreasureHuntTemplate));
+                this.selectedDestination = {};
             }
         },
 
