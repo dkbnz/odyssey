@@ -29,7 +29,6 @@
                                 :selectedDestination="selectedDestination"
                                 @TH-side-bar="showHideBar => this.showDestinations = showHideBar"
                                 @Your-TH-side-bar="showHideBar => this.showYourTreasureHunts = showHideBar"
-                                @clear-treasure-hunt-values="clearTreasureHunt"
                         ></quest-item>
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center"
@@ -420,15 +419,6 @@
                 }
                 newTreasureHunt.radius = radiusValue;
                 this.selectedTreasureHunt = newTreasureHunt;
-            },
-
-
-            /**
-             * Clears the values for a treasure hunt.
-             */
-            clearTreasureHunt() {
-                this.selectedTreasureHunt = JSON.parse(JSON.stringify(this.selectedTreasureHuntTemplate));
-                this.selectedDestination = {};
             }
         },
 
