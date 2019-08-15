@@ -144,15 +144,6 @@ create table traveller_type (
   constraint pk_traveller_type primary key (id)
 );
 
-create table treasure_hunt (
-  id                            bigint auto_increment not null,
-  destination_id                bigint,
-  owner_id                      bigint,
-  riddle                        varchar(255),
-  radius                        double,
-  constraint pk_treasure_hunt primary key (id)
-);
-
 create table trip (
   id                            bigint auto_increment not null,
   name                          varchar(255),
@@ -256,12 +247,6 @@ alter table quest_attempt add constraint fk_quest_attempt_attempted_by_id foreig
 create index ix_quest_attempt_quest_attempted_id on quest_attempt (quest_attempted_id);
 alter table quest_attempt add constraint fk_quest_attempt_quest_attempted_id foreign key (quest_attempted_id) references quest (id) on delete restrict on update restrict;
 
-create index ix_treasure_hunt_destination_id on treasure_hunt (destination_id);
-alter table objective add constraint fk_treasure_hunt_destination_id foreign key (destination_id) references destination (id) on delete restrict on update restrict;
-
-create index ix_treasure_hunt_owner_id on treasure_hunt (owner_id);
-alter table objective add constraint fk_treasure_hunt_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
-
 create index ix_trip_profile_id on trip (profile_id);
 alter table trip add constraint fk_trip_profile_id foreign key (profile_id) references profile (id) on delete restrict on update restrict;
 
@@ -354,12 +339,6 @@ drop index if exists ix_quest_attempt_attempted_by_id;
 alter table quest_attempt drop constraint if exists fk_quest_attempt_quest_attempted_id;
 drop index if exists ix_quest_attempt_quest_attempted_id;
 
-alter table objective drop constraint if exists fk_treasure_hunt_destination_id;
-drop index if exists ix_treasure_hunt_destination_id;
-
-alter table objective drop constraint if exists fk_treasure_hunt_owner_id;
-drop index if exists ix_treasure_hunt_owner_id;
-
 alter table trip drop constraint if exists fk_trip_profile_id;
 drop index if exists ix_trip_profile_id;
 
@@ -404,8 +383,6 @@ drop table if exists quest_objective;
 drop table if exists quest_attempt;
 
 drop table if exists traveller_type;
-
-drop table if exists treasure_hunt;
 
 drop table if exists trip;
 
