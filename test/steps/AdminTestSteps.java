@@ -21,8 +21,10 @@ import static play.test.Helpers.*;
 
 public class AdminTestSteps {
 
-    private TestContext testContext;
-    private GeneralSteps generalSteps;
+    /**
+     * Singleton class which stores generally used variables
+     */
+    private TestContext testContext = TestContext.getInstance();
 
     private static final String AUTHORIZED = "authorized";
     private static final String PROFILES_URI = "/v1/profiles";
@@ -43,18 +45,7 @@ public class AdminTestSteps {
     private static final Logger LOGGER = Logger.getLogger( AdminTestSteps.class.getName() );
 
 
-    private ProfileRepository profileRepository;
-
-    @Before
-    public void setUp() {
-        testContext = TestContext.getInstance();
-
-        generalSteps = new GeneralSteps();
-        generalSteps.setUp();
-
-        profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
-
-    }
+    private ProfileRepository profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
 
     /**

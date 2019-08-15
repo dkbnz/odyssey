@@ -23,11 +23,9 @@ import static play.test.Helpers.*;
 public class ProfileTestSteps {
 
     /**
-     * Singleton class which stores generally used variables and functions
+     * Singleton class which stores generally used variables
      */
-    private GeneralSteps generalSteps;
-
-    private TestContext testContext;
+    private TestContext testContext = TestContext.getInstance();
 
 
     /**
@@ -84,28 +82,6 @@ public class ProfileTestSteps {
      * Logs any errors in the tests.
      */
     private static final Logger LOGGER = Logger.getLogger( ProfileTestSteps.class.getName() );
-
-
-
-    @Before
-    public void setUp() {
-        testContext = TestContext.getInstance();
-
-        generalSteps = new GeneralSteps();
-        generalSteps.setUp();
-    }
-
-
-    /**
-     * Runs after each test scenario.
-     * Sends a logout request.
-     * Cleans up the database by cleaning up evolutions and shutting it down.
-     * Stops running the fake application.JsonNode.
-     */
-    @After
-    public void tearDown() {
-        generalSteps.tearDown();
-    }
 
 
     /**

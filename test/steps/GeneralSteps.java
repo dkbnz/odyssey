@@ -2,6 +2,8 @@ package steps;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import cucumber.api.java.After;
+import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import org.junit.Assert;
@@ -78,6 +80,7 @@ public class GeneralSteps {
     private static final String ALT_ID = "3";
 
 
+    @Before
     public void setUp() {
 
         Map<String, String> configuration = new HashMap<>();
@@ -130,12 +133,13 @@ public class GeneralSteps {
      * Cleans up the database by cleaning up evolutions and shutting it down.
      * Stops running the fake application.JsonNode.
      */
+    @After
     public void tearDown() {
         logoutRequest();
         cleanEvolutions();
-//        Database database = testContext.getDatabase();
-//        database.shutdown();
-//        Helpers.stop(testContext.getApplication());
+        Database database = testContext.getDatabase();
+        database.shutdown();
+        Helpers.stop(testContext.getApplication());
     }
 
 
