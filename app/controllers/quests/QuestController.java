@@ -94,6 +94,41 @@ public class QuestController {
 
 
     /**
+     * Deletes a specific quest from the database if the user is permitted to.
+     *
+     * @param request   the request from the front end of the application containing login information.
+     * @param questId   the id of the quest being deleted.
+     * @return          ok() (Http 200) response for a successful deletion.
+     */
+    public Result delete(Http.Request request, Long questId) {
+         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+         if (loggedInUser == null) {
+             return unauthorized(ApiError.unauthorized());
+         }
+
+         Quest quest = questRepository.findById(questId);
+
+         if (quest == null) {
+             return notFound(ApiError.notFound());
+         }
+
+         Profile questOwner = quest.getOwner();
+
+         if (!AuthenticationUtil.validUser(loggedInUser, questOwner)) {
+             return forbidden(ApiError.forbidden());
+         }
+
+         if (questOwner == null) {
+             return badRequest();
+         }
+
+         questRepository.delete(quest);
+         profileRepository.update(questOwner);
+         return ok();
+    }
+
+
+    /**
      * Retrieves all the quests stored in the database.
      *
      * @param request   the request from the front end of the application containing login information.
@@ -151,8 +186,4 @@ public class QuestController {
 
         return ok(Json.toJson(requestedUser.getMyQuests()));
     }
-
-
-
-
 }

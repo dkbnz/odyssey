@@ -127,6 +127,7 @@ public class Quest extends BaseModel {
         this.owner = owner;
     }
 
-
-
+    public Profile getOwner() {
+        return owner;
+    }
 }
