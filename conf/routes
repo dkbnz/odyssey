@@ -75,7 +75,10 @@ DELETE  /v1/objectives/:objectiveId                       controllers.objectives
 #GET     /v1/objectives/:objectiveId/hasSolved/:userId     controllers.objectives.ObjectiveController.hasSolved(request: Request, objectiveId: Long, userId: Long)
 
 # Quests
+GET     /v1/quests                              controllers.quests.QuestController.fetchAll(request: Request)
+GET     /v1/quests/:userId                      controllers.quests.QuestController.fetchByOwner(request: Request, userId: Long)
 POST    /v1/quests/:userId                      controllers.quests.QuestController.create(request: Request, userId: Long)
+DELETE  /v1/quests/:questId                     controllers.quests.QuestController.delete(request: Request, questId: Long)
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
 GET     /*file                                  controllers.Assets.at(path="/public", file)
