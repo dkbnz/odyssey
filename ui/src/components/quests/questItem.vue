@@ -109,7 +109,7 @@
                     </b-form>
                 </b-form>
 
-                <div>
+                <div v-if="!editCurrentTreasureHunt">
                     <b-row>
                         <b-col>
                             <b-button v-if="!addNewTreasureHunt" variant="success"
@@ -132,7 +132,7 @@
                                 :inputTreasureHunt="selectedTreasureHunt"
                                 :profile="profile"
                                 :heading="'Add'"
-                                @addTreasureHunt="addTreasureHunt($event, treasureHunt)"
+                                @addTreasureHunt="addTreasureHunt"
                                 @cancelCreate="cancelTreasureHuntCreate"
                                 @destination-select="$emit('destination-select')"
                                 :selectedDestination="selectedDestination">
@@ -140,6 +140,23 @@
                         </b-card>
                     </b-col>
                 </b-row>
+                <b-row v-if="editCurrentTreasureHunt">
+                    <b-col cols="12">
+                        <b-card>
+                            <add-treasure-hunt
+                                    :inputTreasureHunt="selectedTreasureHunt"
+                                    :profile="profile"
+                                    :heading="'Edit'"
+                                    @addTreasureHunt="addTreasureHunt"
+                                    @editTreasureHunt="treasureHuntEdited"
+                                    @cancelCreate="cancelTreasureHuntCreate"
+                                    @destination-select="$emit('destination-select')"
+                                    :selectedDestination="selectedDestination">
+                            </add-treasure-hunt>
+                        </b-card>
+                    </b-col>
+                </b-row>
+
                 <b-container fluid style="margin-top: 20px" v-if="inputQuest.treasureHunts.length > 0">
                     <!-- Table displaying all added destinations -->
                     <b-table :current-page="currentPage" :fields="fields" :items="inputQuest.treasureHunts"
@@ -152,6 +169,12 @@
 
                         <!-- Buttons that appear for each treasure hunt added to table -->
                         <template slot="actions" slot-scope="row">
+                            <b-button size="sm"
+                                      @click="editTreasureHunt(row.index)"
+                                      variant="danger"
+                                      class="mr-2"
+                                      block>Edit
+                            </b-button>
                             <!--Removes treasure hunt from table-->
                             <b-button size="sm"
                                       @click="deleteTreasureHunt(row.index)"
@@ -177,8 +200,8 @@
                                       variant="success">&darr;
                             </b-button>
                         </template>
-                        <template slot="radius">
-                            {{getRadiusValue(row.item)}}
+                        <template slot="radius" slot-scope="row">
+                            {{getRadiusValue(row.item.radius)}}
                         </template>
                     </b-table>
                     <!-- Determines pagination and number of results per row of the table -->
@@ -268,7 +291,7 @@
                 default: function () {
                     return {}
                 }
-            },
+            }
         },
 
         data() {
@@ -296,7 +319,9 @@
                 optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
                     value: 15,
                     text: "15"
-                }]
+                }],
+                editCurrentTreasureHunt: false,
+                treasureHuntIndex: 0
             }
         },
 
@@ -536,16 +561,65 @@
             },
 
 
+            /**
+             * Adds the specified treasure hunt to the list of quest treasure hunts and handles the appropriate actions.
+             */
             addTreasureHunt(treasureHunt) {
-                this.inputQuest.treasureHunts.push(treasureHunt);
-                this.selectedDestination = {};
-                this.successMessage = "Treasure Hunt Successfully added";
+                this.inputQuest.treasureHunts.push(JSON.parse(JSON.stringify(treasureHunt)));
+                this.$emit('clear-treasure-hunt-values');
+                this.successMessage = "Treasure Hunt Successfully Added";
                 this.showSuccessTreasureHunt = true;
                 let self = this;
                 setTimeout(function () {
                     self.showSuccessTreasureHunt = false;
                 }, 3000);
                 this.$emit('TH-side-bar', false)
+            },
+
+
+            /**
+             * Replaces the treasure hunt in the quest treasure hunts array with the newly edited treasure hunt.
+             */
+            treasureHuntEdited(treasureHunt) {
+                this.inputQuest.treasureHunts[this.treasureHuntIndex] = JSON.parse(JSON.stringify(treasureHunt));
+                this.$emit('clear-treasure-hunt-values');
+                this.successMessage = "Treasure Hunt Successfully Edited";
+                this.showSuccessTreasureHunt = true;
+                let self = this;
+                setTimeout(function () {
+                    self.showSuccessTreasureHunt = false;
+                }, 3000);
+                this.$refs.questTreasureHunt.refresh();
+            },
+
+
+            /**
+             * Displays the edit treasure hunt field and sets the current treasure hunt to the specified value.
+             */
+            editTreasureHunt(rowIndex) {
+                this.treasureHuntIndex = rowIndex;
+                let radius = this.inputQuest.treasureHunts[rowIndex].radius;
+                let radiusValue;
+                let radiusList = [
+                    {value: 0.005, text: "5 Meters"},
+                    {value: 0.01, text: "10 Meters"},
+                    {value: 0.02, text: "20 Meters"},
+                    {value: 0.05, text: "50 Meters"},
+                    {value: 0.1, text: "100 Meters"},
+                    {value: 0.5, text: "500 Meters"},
+                    {value: 1, text: "1 Km"},
+                    {value: 5, text: "5 Km"},
+                    {value: 10, text: "10 Km"},
+                ];
+                for (let i = 0; i < radiusList.length; i++) {
+                    if (radius === radiusList[i].value) {
+                        radiusValue = radiusList[i];
+                    }
+                }
+                this.selectedTreasureHunt = JSON.parse(JSON.stringify(this.inputQuest.treasureHunts[rowIndex]));
+                this.selectedTreasureHunt.radius = radiusValue;
+                this.selectedDestination =  JSON.parse(JSON.stringify(this.inputQuest.treasureHunts[rowIndex].destination));
+                this.editCurrentTreasureHunt = true;
             },
 
 
@@ -562,7 +636,10 @@
              */
             cancelTreasureHuntCreate() {
                 this.addNewTreasureHunt = false;
+                this.editCurrentTreasureHunt = false;
+                this.$emit('clear-treasure-hunt-values');
                 this.$emit('TH-side-bar', false);
+                this.$emit('Your-TH-side-bar', false);
             },
 
 
@@ -688,6 +765,8 @@
             showTreasureHuntComponent() {
                 this.addNewTreasureHunt = !this.addNewTreasureHunt;
                 this.$emit('TH-side-bar', true);
+                this.$emit('Your-TH-side-bar', false);
+                this.selectedTreasureHunt = {};
             },
 
 
@@ -697,6 +776,8 @@
             showYourTreasureHuntsComponent() {
                 this.addNewTreasureHunt = !this.addNewTreasureHunt;
                 this.$emit('Your-TH-side-bar', true);
+                this.$emit('TH-side-bar', false);
+                this.selectedTreasureHunt = {};
             },
 
 
@@ -706,8 +787,10 @@
              * @param radius    the radius to be changed.
              */
             getRadiusValue(radius) {
-                console.log(radius);
-                return radius;
+                if (radius < 1) {
+                    return radius * 1000 + " Meters"
+                }
+                return radius + " Km";
             }
         }
     }

@@ -73,8 +73,6 @@
                                         label-for="radius">
                                     <!--Dropdown field for destination check in values-->
                                     <b-form-select id="radius" trim v-model="inputTreasureHunt.radius">
-                                        <template slot="first">
-                                        </template>
                                         <option :value="radius" v-for="radius in radiusList"
                                                 :state="validateCheckIn">
                                             {{radius.text}}
@@ -184,7 +182,6 @@
             },
 
             inputTreasureHunt() {
-                console.log(this.inputTreasureHunt);
                 this.selectedDestination = this.inputTreasureHunt.destination;
                 if(this.inputTreasureHunt.radius === undefined) {
                     this.inputTreasureHunt.radius = {value:0.005, text:"5 Meters"}
@@ -193,75 +190,75 @@
         },
 
         mounted() {
-            this.splitDates();
+            // this.splitDates();
             this.editingTreasureHunt();
-            this.setDateTimeString();
+            // this.setDateTimeString();
             this.initMap();
         },
 
         computed: {
-            /**
-             * Checks that the start date is not after the end date, and is not before the current date for new hunts.
-             * @returns true if start date is valid.
-             */
-            validateStartDate() {
-                if ((this.inputTreasureHunt.startDate < this.getDateString() && !this.inputTreasureHunt.id)) {
-                    return false;
-                }
-                if (this.inputTreasureHunt.startDate > this.inputTreasureHunt.endDate) {
-                    return false;
-                }
-                return true;
-            },
-
-
-            /**
-             * Checks that the start time is not after or the same as the end time if the dates are the same,
-             * and that the start time is not before the current time if the current date is today.
-             * @returns true if start time is valid.
-             */
-            validateStartTime() {
-                if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
-                    if (this.inputTreasureHunt.startTime >= this.inputTreasureHunt.endTime) {
-                        return false;
-                    }
-                }
-                if (this.inputTreasureHunt.startDate === this.getDateString() && !this.inputTreasureHunt.id) {
-                    if (this.inputTreasureHunt.startTime < this.getTimeString()) {
-                        return false;
-                    }
-                }
-                return true;
-            },
-
-
-            /**
-             * Checks that the end date is not before the start date, and is not before the current date for new hunts.
-             * @returns true if end date is valid.
-             */
-            validateEndDate() {
-                if (this.inputTreasureHunt.endDate < this.getDateString() && !this.inputTreasureHunt.id) {
-                    return false;
-                }
-                if (this.inputTreasureHunt.endDate < this.inputTreasureHunt.startDate) {
-                    return false;
-                }
-                return true;
-            },
-
-
-            /**
-             * Checks that the end time is not before or the same as the start time if the dates are the same.
-             * @returns true if end time is valid.
-             */
-            validateEndTime() {
-                if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
-                    if (this.inputTreasureHunt.endTime <= this.inputTreasureHunt.startTime) {
-                        return false;
-                    }
-                }
-                return true;
-            },
+            // /**
+            //  * Checks that the start date is not after the end date, and is not before the current date for new hunts.
+            //  * @returns true if start date is valid.
+            //  */
+            // validateStartDate() {
+            //     if ((this.inputTreasureHunt.startDate < this.getDateString() && !this.inputTreasureHunt.id)) {
+            //         return false;
+            //     }
+            //     if (this.inputTreasureHunt.startDate > this.inputTreasureHunt.endDate) {
+            //         return false;
+            //     }
+            //     return true;
+            // },
+            //
+            //
+            // /**
+            //  * Checks that the start time is not after or the same as the end time if the dates are the same,
+            //  * and that the start time is not before the current time if the current date is today.
+            //  * @returns true if start time is valid.
+            //  */
+            // validateStartTime() {
+            //     if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
+            //         if (this.inputTreasureHunt.startTime >= this.inputTreasureHunt.endTime) {
+            //             return false;
+            //         }
+            //     }
+            //     if (this.inputTreasureHunt.startDate === this.getDateString() && !this.inputTreasureHunt.id) {
+            //         if (this.inputTreasureHunt.startTime < this.getTimeString()) {
+            //             return false;
+            //         }
+            //     }
+            //     return true;
+            // },
+            //
+            //
+            // /**
+            //  * Checks that the end date is not before the start date, and is not before the current date for new hunts.
+            //  * @returns true if end date is valid.
+            //  */
+            // validateEndDate() {
+            //     if (this.inputTreasureHunt.endDate < this.getDateString() && !this.inputTreasureHunt.id) {
+            //         return false;
+            //     }
+            //     if (this.inputTreasureHunt.endDate < this.inputTreasureHunt.startDate) {
+            //         return false;
+            //     }
+            //     return true;
+            // },
+            //
+            //
+            // /**
+            //  * Checks that the end time is not before or the same as the start time if the dates are the same.
+            //  * @returns true if end time is valid.
+            //  */
+            // validateEndTime() {
+            //     if (this.inputTreasureHunt.startDate === this.inputTreasureHunt.endDate) {
+            //         if (this.inputTreasureHunt.endTime <= this.inputTreasureHunt.startTime) {
+            //             return false;
+            //         }
+            //     }
+            //     return true;
+            // },
 
 
             /**
@@ -295,8 +292,9 @@
                 if (this.inputTreasureHunt.destination !== null
                     && this.inputTreasureHunt.destination === this.selectedDestination
                     && this.inputTreasureHunt.destination.name !== undefined
-                    && this.inputTreasureHunt.destination.name.length > 0) {
-
+                    && this.inputTreasureHunt.destination.name.length > 0
+                    || this.inputTreasureHunt.destination !== null
+                    && this.inputTreasureHunt.destination.id === this.selectedDestination.id) {
                     return true;
                 }
                 return false;
@@ -306,6 +304,7 @@
             /**
              * Checks the validity of the destination using validateDestination and returns the appropriate state for
              * display.
+             *
              * @returns 'success' if destination is valid, 'secondary' otherwise.
              */
             checkDestinationState(){
@@ -315,53 +314,53 @@
 
         methods: {
 
-            /**
-             * Gets the current date+time as a Date object.
-             * @returns Current Datetime.
-             */
-            getCurrentDate() {
-                return new Date();
-            },
+            // /**
+            //  * Gets the current date+time as a Date object.
+            //  * @returns Current Datetime.
+            //  */
+            // getCurrentDate() {
+            //     return new Date();
+            // },
+            //
+            //
+            // /**
+            //  * sets the input values to be their proper string versions of current date/time.
+            //  */
+            // setDateTimeString() {
+            //     if (this.inputTreasureHunt.id === null) {
+            //         this.inputTreasureHunt.startDate = this.getDateString();
+            //         this.inputTreasureHunt.endDate = this.getDateString();
+            //         this.inputTreasureHunt.startTime = this.getTimeString();
+            //     }
+            // },
+            //
+            //
+            // /**
+            //  * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day.
+            //  * @returns Current Date in YYYY-MM-DD String Format.
+            //  */
+            // getDateString() {
+            //     let today = this.getCurrentDate();
+            //     let date =  today.getFullYear()+'-'+
+            //         ((today.getMonth()+1) < 10 ? "0" : "")
+            //         + (today.getMonth()+1)+'-'+
+            //         (today.getDate() < 10 ? "0" : "") +
+            //         today.getDate();
+            //     return date;
+            // },
 
-
-            /**
-             * sets the input values to be their proper string versions of current date/time.
-             */
-            setDateTimeString() {
-                if (this.inputTreasureHunt.id === null) {
-                    this.inputTreasureHunt.startDate = this.getDateString();
-                    this.inputTreasureHunt.endDate = this.getDateString();
-                    this.inputTreasureHunt.startTime = this.getTimeString();
-                }
-            },
-
-
-            /**
-             * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day.
-             * @returns Current Date in YYYY-MM-DD String Format.
-             */
-            getDateString() {
-                let today = this.getCurrentDate();
-                let date =  today.getFullYear()+'-'+
-                    ((today.getMonth()+1) < 10 ? "0" : "")
-                    + (today.getMonth()+1)+'-'+
-                    (today.getDate() < 10 ? "0" : "") +
-                    today.getDate();
-                return date;
-            },
-
-
-            /**
-             * Gets the current time as a string in HH:MM format, including padding O's.
-             * @returns Current Time in HH:MM String Format.
-             */
-            getTimeString() {
-                let today = this.getCurrentDate();
-                return ((today.getHours()) < 10 ? "0" : "") +
-                    today.getHours() + ":"
-                    + ((today.getMinutes()) < 10 ? "0" : "") +
-                    today.getMinutes();
-            },
+            //
+            // /**
+            //  * Gets the current time as a string in HH:MM format, including padding O's.
+            //  * @returns Current Time in HH:MM String Format.
+            //  */
+            // getTimeString() {
+            //     let today = this.getCurrentDate();
+            //     return ((today.getHours()) < 10 ? "0" : "") +
+            //         today.getHours() + ":"
+            //         + ((today.getMinutes()) < 10 ? "0" : "") +
+            //         today.getMinutes();
+            // },
 
 
             /**
@@ -382,6 +381,8 @@
                 if (this.validateDestination && this.validateRiddle && this.validateCheckIn) {
                     if (this.heading === "Add") {
                         this.addHunt();
+                    } else if (this.heading === "Edit") {
+                        this.editHunt();
                     } else {
                         if (this.inputTreasureHunt.id !== null) {
                             this.updateHunt();
@@ -406,7 +407,8 @@
 
 
             /**
-             * When used in quests for adding a treasure hunt to the quests list by emitting it outside of the component
+             * When used in quests for adding a treasure hunt to the quests list by emitting it outside of the
+             * component.
              */
             addHunt() {
                 this.inputTreasureHunt.radius = this.inputTreasureHunt.radius.value;
@@ -415,6 +417,21 @@
                 delete this.inputTreasureHunt.startDate;
                 delete this.inputTreasureHunt.endDate;
                 this.$emit('addTreasureHunt', this.inputTreasureHunt);
+                this.$emit('cancelCreate')
+            },
+
+
+            /**
+             * When used in quests for editing a treasure hunt to the quests list by emitting it outside of the
+             * component.
+             */
+            editHunt() {
+                this.inputTreasureHunt.radius = this.inputTreasureHunt.radius.value;
+                delete this.inputTreasureHunt.startTime;
+                delete this.inputTreasureHunt.endTime;
+                delete this.inputTreasureHunt.startDate;
+                delete this.inputTreasureHunt.endDate;
+                this.$emit('editTreasureHunt', this.inputTreasureHunt);
                 this.$emit('cancelCreate')
             },
 
@@ -479,66 +496,66 @@
             },
 
 
-            /**
-             * Splits the dates of the inputTreasureHunt to put in the edit fields.
-             */
-            splitDates() {
-                if (this.inputTreasureHunt.id !== null) {
-                    this.inputTreasureHunt.startDate = new Date(this.inputTreasureHunt.startDate).toLocaleString();
-                    let startDate = this.inputTreasureHunt.startDate;
-                    this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split(", ")[0];
-                    this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split("/").reverse().join("-");
-                    this.inputTreasureHunt.startTime = startDate.split(" ")[1];
-                    this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("+")[0];
-                    this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("-")[0];
-
-                    this.inputTreasureHunt.endDate = new Date(this.inputTreasureHunt.endDate).toLocaleString();
-                    let endDate = this.inputTreasureHunt.endDate;
-                    this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split(", ")[0];
-                    this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split("/").reverse().join("-");
-                    this.inputTreasureHunt.endTime = endDate.split(" ")[1];
-                    this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("+")[0];
-                    this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("-")[0];
-                }
-            },
-
-
-            /**
-             * Combines dates and times together from input fields and adds :00 on the end for seconds.
-             */
-            joinDates() {
-                let timeOffset = this.formatOffset();
-
-                if(this.inputTreasureHunt.startTime.length === 5) {
-                    this.inputTreasureHunt.startTime += ":00";
-                }
-
-                if(this.inputTreasureHunt.endTime.length === 5) {
-                    this.inputTreasureHunt.endTime += ":00";
-                }
-
-                this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate + " "
-                    + this.inputTreasureHunt.startTime + timeOffset;
-
-                this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate + " "
-                    + this.inputTreasureHunt.endTime + timeOffset;
-
-            },
+            // /**
+            //  * Splits the dates of the inputTreasureHunt to put in the edit fields.
+            //  */
+            // splitDates() {
+            //     if (this.inputTreasureHunt.id !== null) {
+            //         this.inputTreasureHunt.startDate = new Date(this.inputTreasureHunt.startDate).toLocaleString();
+            //         let startDate = this.inputTreasureHunt.startDate;
+            //         this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split(", ")[0];
+            //         this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate.split("/").reverse().join("-");
+            //         this.inputTreasureHunt.startTime = startDate.split(" ")[1];
+            //         this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("+")[0];
+            //         this.inputTreasureHunt.startTime = this.inputTreasureHunt.startTime.split("-")[0];
+            //
+            //         this.inputTreasureHunt.endDate = new Date(this.inputTreasureHunt.endDate).toLocaleString();
+            //         let endDate = this.inputTreasureHunt.endDate;
+            //         this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split(", ")[0];
+            //         this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate.split("/").reverse().join("-");
+            //         this.inputTreasureHunt.endTime = endDate.split(" ")[1];
+            //         this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("+")[0];
+            //         this.inputTreasureHunt.endTime = this.inputTreasureHunt.endTime.split("-")[0];
+            //     }
+            // },
 
 
-            /**
-             * Gets the local time offset and pads it to be 4 numbers long.
-             */
-            formatOffset() {
-                let timeOffset = (Math.abs(new Date().getTimezoneOffset()/60)).toString();
+            // /**
+            //  * Combines dates and times together from input fields and adds :00 on the end for seconds.
+            //  */
+            // joinDates() {
+            //     let timeOffset = this.formatOffset();
+            //
+            //     if(this.inputTreasureHunt.startTime.length === 5) {
+            //         this.inputTreasureHunt.startTime += ":00";
+            //     }
+            //
+            //     if(this.inputTreasureHunt.endTime.length === 5) {
+            //         this.inputTreasureHunt.endTime += ":00";
+            //     }
+            //
+            //     this.inputTreasureHunt.startDate = this.inputTreasureHunt.startDate + " "
+            //         + this.inputTreasureHunt.startTime + timeOffset;
+            //
+            //     this.inputTreasureHunt.endDate = this.inputTreasureHunt.endDate + " "
+            //         + this.inputTreasureHunt.endTime + timeOffset;
+            //
+            // },
 
-                let fullNumber = timeOffset.padStart(2, '0');
-                fullNumber = fullNumber.padEnd(4, '0');
 
-                let sign = (new Date().getTimezoneOffset() >= 0) ? "-": "+";
-
-                return sign + fullNumber;
-            },
+            // /**
+            //  * Gets the local time offset and pads it to be 4 numbers long.
+            //  */
+            // formatOffset() {
+            //     let timeOffset = (Math.abs(new Date().getTimezoneOffset()/60)).toString();
+            //
+            //     let fullNumber = timeOffset.padStart(2, '0');
+            //     fullNumber = fullNumber.padEnd(4, '0');
+            //
+            //     let sign = (new Date().getTimezoneOffset() >= 0) ? "-": "+";
+            //
+            //     return sign + fullNumber;
+            // },
 
 
             /**
