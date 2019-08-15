@@ -1,5 +1,6 @@
 package controllers.objectives;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import models.ApiError;
@@ -52,11 +53,12 @@ public class ObjectiveController {
      * the user is an admin. It also checks the request for validity.
      *
      * @param request   the Http request containing a Json body of the new objective details.
-     * @param userId    the id of the user who will own the created destination.
-     * @return          created() Http response if creation is successful.
-     *                  forbidden() Http response if the logged in user is not the target owner or an admin.
-     *                  badRequest() Http response if the request contains any errors.
-     *                  unauthorized() Http response if no one is logged in.
+     * @param userId    the id of the user who will own the created objective.
+     * @return          created() (Http 201) response if creation is successful.
+     *                  notFound() (Http 404) response if
+     *                  forbidden() (Http 403) response if the logged in user is not the target owner or an admin.
+     *                  badRequest() (Http 400) response if the request contains any errors.
+     *                  unauthorized() (Http 401) response if no one is logged in.
      */
     public Result create(Http.Request request, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -134,7 +136,7 @@ public class ObjectiveController {
     /**
      * Retrieves the destination solution to the objective.
      * @param request           the request from the front end of the application containing login information.
-     * @param objectiveId    the id of the objective for which the destination is needed.
+     * @param objectiveId       the id of the objective for which the destination is needed.
      * @return                  the destination solution for the objective.
      */
     public Result fetchDestination(Http.Request request, Long objectiveId) {
@@ -440,23 +442,27 @@ public class ObjectiveController {
      *
      * @param request   the request from the front end of the application containing login information.
      * @return          ok() (Http 200) containing a Json body of the retrieved objectives.
-     *                  unauthorized() (Http 401) if the user is not logged in.
+     *                  badRequest() (Http 400) response containing an ApiError for an invalid Json body.
+     *                  unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
      */
-    public Result fetchAll(Http.Request request) throws IOException {
+    public Result fetchAll(Http.Request request) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         List<Objective> objectivesQuery = objectiveRepository.findAll();
 
-        Calendar now = Calendar.getInstance();
-        List<Objective> objectives = new ArrayList<>();
-
         ObjectMapper mapper = new ObjectMapper();
-        String result = mapper
-                .writerWithView(Views.Public.class)
-                .writeValueAsString(objectives);
+        String result;
+
+        try {
+            result = mapper
+                    .writerWithView(Views.Public.class)
+                    .writeValueAsString(objectivesQuery);
+        } catch (JsonProcessingException e) {
+            return badRequest(ApiError.invalidJson());
+        }
 
         return ok(result);
     }
@@ -467,19 +473,25 @@ public class ObjectiveController {
      *
      * @param request   the request from the front end of the application containing login information.
      * @return          ok() (Http 200) containing a Json body of the retrieved objectives.
-     *                  unauthorized() (Http 401) if the user is not logged in.
-     *                  forbidden() (Http 403) if hte user is not allowed to access the specified user's objectives.
+     *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
+     *      *           forbidden() (Http 401) response containing an ApiError for disallowed retrieval.
+     *      *           unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
+     *
      */
     public Result fetchByOwner(Http.Request request, Long ownerId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Profile requestedUser = profileRepository.findById(ownerId);
 
+        if (requestedUser == null) {
+            return notFound(ApiError.notFound());
+        }
+
         if (!AuthenticationUtil.validUser(loggedInUser, requestedUser)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         return ok(Json.toJson(requestedUser.getMyObjectives()));
