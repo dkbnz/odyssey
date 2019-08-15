@@ -1,8 +1,5 @@
 <template>
-
     <div>
-
-
         <h1 class="page-title">{{ heading }} a Quest!</h1>
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
@@ -171,7 +168,7 @@
                         <template slot="actions" slot-scope="row">
                             <b-button size="sm"
                                       @click="editTreasureHunt(row.index)"
-                                      variant="danger"
+                                      variant="warning"
                                       class="mr-2"
                                       block>Edit
                             </b-button>
@@ -422,6 +419,17 @@
                 }
                 return null;
             },
+
+
+            /**
+             * Computed function used for the pagination of the table.
+             *
+             * @returns {number}    the number of rows required in the table based on number of treasure hunts to be
+             *                      displayed.
+             */
+            rows() {
+                return this.inputQuest.treasureHunts.length
+            }
         },
 
         methods: {
@@ -618,8 +626,23 @@
                 }
                 this.selectedTreasureHunt = JSON.parse(JSON.stringify(this.inputQuest.treasureHunts[rowIndex]));
                 this.selectedTreasureHunt.radius = radiusValue;
-                this.selectedDestination =  JSON.parse(JSON.stringify(this.inputQuest.treasureHunts[rowIndex].destination));
+                this.selectedDestination = JSON.parse(JSON.stringify(this.inputQuest.treasureHunts[rowIndex].destination));
                 this.editCurrentTreasureHunt = true;
+            },
+
+
+            /**
+             * Removes a treasure hunt from the list of quest's treasure hunts.
+             */
+            deleteTreasureHunt(rowIndex) {
+                this.inputQuest.treasureHunts.splice(rowIndex, 1);
+                this.showSuccessTreasureHunt = false;
+                this.successMessage = "Treasure Hunt Successfully Deleted";
+                this.showSuccessTreasureHunt = true;
+                let self = this;
+                setTimeout(function () {
+                    self.showSuccessTreasureHunt = false;
+                }, 3000);
             },
 
 
