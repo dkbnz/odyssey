@@ -19,7 +19,7 @@ public class Quest extends BaseModel {
     /**
      * List of objectives to be solved in this quest.
      */
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @OrderColumn
     private List<Objective> objectives;
 

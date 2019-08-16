@@ -35,7 +35,7 @@ public class QuestAttempt extends BaseModel {
     private boolean solvedCurrent;
 
     /**
-     * Index of the most recently checked in treasurehunt.
+     * Index of the most recently checked in objective.
      */
     private int checkedInIndex;
 
@@ -43,6 +43,7 @@ public class QuestAttempt extends BaseModel {
      * Boolean to indicate if the quest attempt has been completed.
      */
     private boolean completed;
+
 
     /**
      * QuestAttempt constructor.
@@ -58,6 +59,7 @@ public class QuestAttempt extends BaseModel {
         this.completed = false;
     }
 
+
     /**
      * Get a list of Objectives that the user has correctly guessed the destination for.
      *
@@ -69,6 +71,7 @@ public class QuestAttempt extends BaseModel {
                 .getObjectives()
                 .subList(0, checkedInIndex + (solvedCurrent ? 1 : 0));
     }
+
 
     /**
      * Returns the current Objective the user needs to solve.
@@ -90,6 +93,7 @@ public class QuestAttempt extends BaseModel {
         }
     }
 
+
     /**
      * Returns a list of Objectives that the user is yet to solve.
      * When serialized using Json.toJson destinations will not show in the list of objectives.
@@ -105,6 +109,7 @@ public class QuestAttempt extends BaseModel {
                         questAttempted.getObjectives().size()
                 );
     }
+
 
     /**
      * Provide a destination to attempt to solve the current Objective.
@@ -125,6 +130,7 @@ public class QuestAttempt extends BaseModel {
         }
     }
 
+
     /**
      * Check in to the most recently solved Objective.
      * Will make the next Objective available to solve.
@@ -139,6 +145,7 @@ public class QuestAttempt extends BaseModel {
         // If we have checked in to the last objective, quest is complete.
         completed = checkedInIndex == questAttempted.getObjectives().size();
     }
+
 
     /**
      * Checks if the current quest attempt is completed.
