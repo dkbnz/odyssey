@@ -117,7 +117,7 @@
                         <b-col>
                             <b-button v-if="!addNewObjective" variant="primary"
                                       @click="showYourObjectivesComponent" block>
-                                Select a Objective
+                                Select an Objective
                             </b-button>
                         </b-col>
                     </b-row>
