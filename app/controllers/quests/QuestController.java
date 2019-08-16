@@ -129,7 +129,6 @@ public class QuestController {
                     .forType(Quest.class)
                     .readValue(request.body().asJson());
         } catch (Exception e) {
-            System.out.println(Json.toJson(quest));
             return badRequest(ApiError.invalidJson());
         }
 
@@ -137,7 +136,7 @@ public class QuestController {
 
         questRepository.update(quest);
 
-        return ok(Json.toJson(quest));
+        return ok(Json.toJson(quest.getId()));
     }
 
 
