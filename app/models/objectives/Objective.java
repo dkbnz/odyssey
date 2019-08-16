@@ -42,7 +42,7 @@ public class Objective extends BaseModel {
         if (riddle == null || riddle.isEmpty()) {
             errors.add(new ApiError("A riddle must be provided."));
         } else if (riddle.length() > 255) {
-            errors.add(new ApiError("Riddles must not exceed 255 characters in length."));
+            errors.add(new ApiError("Objective riddles must not exceed 255 characters in length."));
         }
 
         if (owner == null) {
@@ -54,7 +54,7 @@ public class Objective extends BaseModel {
         }
 
         if (radius == null || radius <= 0) {
-            errors.add(new ApiError("You must select a range for the destination's check in"));
+            errors.add(new ApiError("You must select a range for an objective destination's check in"));
         }
 
         return errors;
@@ -82,6 +82,14 @@ public class Objective extends BaseModel {
 
     public void setOwner(Profile owner) {
         this.owner = owner;
+    }
+
+    public Double getRadius() {
+        return radius;
+    }
+
+    public void setRadius(Double radius) {
+        this.radius = radius;
     }
 
 }

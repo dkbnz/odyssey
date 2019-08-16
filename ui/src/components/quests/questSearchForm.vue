@@ -108,7 +108,7 @@
         data() {
             return {
                 searchTitle: "",
-                searchOperator: "",
+                searchOperator: "=",
                 searchNumberObjective: "",
                 searchCreatedFirst: "",
                 searchCreatedLast: "",
@@ -134,61 +134,43 @@
              * @returns {*} true if input is valid.
              */
             questTitleValidation() {
-                // if (this.searchName.length === 0) {
-                //     return null;
-                // }
-                // return this.searchName.length > 0;
-                return true;
+                if (this.searchTitle.length === 0) {
+                    return null;
+                }
+                return this.searchTitle.length > 0;
             },
             operatorOptionsValidation() {
-                // if (this.searchType === null) {
-                //     return null;
-                // }
-                // return this.searchType.length > 0 || this.searchType !== null;
-                return true;
+                if (this.searchOperator === null) {
+                    return null;
+                }
+                return this.searchOperator.length > 0 || this.searchOperator !== null;
             },
             numberObjectiveValidation() {
-                // if (this.searchDistrict.length === 0) {
-                //     return null;
-                // }
-                // return this.searchDistrict.length > 0;
-                return true;
+                if (this.searchNumberObjective.length === 0) {
+                    return null;
+                }
+                return (!isNaN(this.searchNumberObjective) &&
+                    !(this.searchNumberObjective < 1 || this.searchNumberObjective.includes(".")))
             },
             createdFirstValidation() {
-                // if (this.searchLatitude.length === 0) {
-                //     return null;
-                // }
-                // if (isNaN(this.searchLatitude)) {
-                //     this.latitudeErrorMessage = "Latitude: '" + this.searchLatitude + "' is not a number!";
-                //     return false;
-                // } else if (this.searchLatitude > 90 || this.searchLatitude < -90) {
-                //     this.latitudeErrorMessage = "Latitude: '" + this.searchLatitude + "' must be between " +
-                //         "-90 and 90";
-                //     return false;
-                // }
-                return true;
+                if (this.searchCreatedFirst.length === 0) {
+                    return null;
+                }
+                let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
+                return nameRegex.test(this.searchCreatedFirst);
             },
             createdLastValidation() {
-                // if (this.searchLongitude.length === 0) {
-                //     return null;
-                // }
-                // if (isNaN(this.searchLongitude)) {
-                //     this.longitudeErrorMessage = "Longitude: '" + this.searchLongitude + "' is not a number!";
-                //     return false;
-                // } else if (this.searchLongitude > 180 || this.searchLongitude < -180) {
-                //     this.longitudeErrorMessage = "Longitude: '" + this.searchLongitude + "' must be between " +
-                //         "-180 and 180";
-                //     return false;
-                // }
-                return true;
+                if (this.searchCreatedLast.length === 0) {
+                    return null;
+                }
+                let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
+                return nameRegex.test(this.searchCreatedLast);
             },
             countryValidation() {
-                // if (this.searchCountry.length === 0) {
-                //     return null;
-                // }
-                // let countryRegex = /\d/;
-                // return !countryRegex.test(this.searchCountry);
-                return true;
+                if (this.searchCountry === null) {
+                    return null;
+                }
+                return this.searchCountry.length > 0 || this.searchCountry !== null;
             }
         },
 
