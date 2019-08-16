@@ -2,19 +2,20 @@ package models.quests;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import models.ApiError;
 import models.BaseModel;
 import models.Profile;
 import models.objectives.Objective;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class Quest extends BaseModel {
+
+    @ElementCollection
+    private Map<String, Integer> countryOccurrences;
 
     /**
      * List of objectives to be solved in this quest.
@@ -26,7 +27,7 @@ public class Quest extends BaseModel {
     /**
      * List of attempts that have been had on this quest.
      */
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.PERSIST)
     private List<QuestAttempt> attempts;
 
     /**
@@ -102,6 +103,10 @@ public class Quest extends BaseModel {
         return objectives.add(objective);
     }
 
+    public void clearObjectives() {
+        objectives.clear();
+    }
+
     public boolean removeObjective(Objective objective) {
         return objectives.remove(objective);
     }
@@ -136,5 +141,13 @@ public class Quest extends BaseModel {
 
     public Profile getOwner() {
         return owner;
+    }
+
+    public Map<String, Integer> getCountryOccurrences() {
+        return countryOccurrences;
+    }
+
+    public void setCountryOccurrences(Map<String, Integer> countryOccurrences) {
+        this.countryOccurrences = countryOccurrences;
     }
 }
