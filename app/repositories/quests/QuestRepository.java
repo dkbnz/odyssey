@@ -21,7 +21,7 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
      * @param country   the Country to find.
      * @return          a List of Quests that have the given country as an occurrence.
      */
-    public List<Quest> findUsing(String country) {
+    public List<Quest> findAllUsing(String country) {
         return query().where().in("countryOccurrences.key", country).findList();
     }
 }
