@@ -18,6 +18,8 @@ import repositories.objectives.ObjectiveRepository;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.fail;
 import static play.mvc.Http.HttpVerbs.PUT;
@@ -257,4 +259,22 @@ public class QuestSteps {
             convertDataTableToQuestJson(dataTable, i);
         }
     }
+
+    @When("I attempt to create a quest using the following json")
+    public void iCreateAQuestUsingTheFollowingJson(String questJson) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode body = mapper.readTree(questJson);
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .bodyJson(body)
+                .uri(QUEST_URI + "/" +testContext.getLoggedInId())
+                .session(AUTHORIZED, testContext.getLoggedInId());
+
+        Result result = route(testContext.getApplication(), request);
+
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
 }

@@ -174,6 +174,7 @@ public class GeneralSteps {
         testContext.setStatusCode(logoutResult.status());
     }
 
+
     @Given("the application is running")
     public void theApplicationIsRunning() {
         Assert.assertTrue(testContext.getApplication().isTest());
@@ -238,4 +239,21 @@ public class GeneralSteps {
     public void theStatusCodeReceivedIs(int expectedStatusCode) {
         Assert.assertEquals(expectedStatusCode, testContext.getStatusCode());
     }
+
+
+    @Then("the following ApiErrors are returned")
+    public void theFollowingApiErrorsAreReturned(io.cucumber.datatable.DataTable dataTable) {
+        // Write code here that turns the phrase above into concrete actions
+        // For automatic transformation, change DataTable to one of
+        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+        // Double, Byte, Short, Long, BigInteger or BigDecimal.
+        //
+        // For other transformations you can register a DataTableType.
+
+        List<String> errors = dataTable.asList();
+
+        throw new cucumber.api.PendingException();
+    }
+
 }
