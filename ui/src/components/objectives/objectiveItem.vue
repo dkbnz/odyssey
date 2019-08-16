@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1 class="page-title">{{ heading }} a Objective!</h1>
+        <h1 class="page-title">{{ heading }} an Objective!</h1>
 
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
 

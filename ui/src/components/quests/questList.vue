@@ -46,13 +46,15 @@
                                 @Your-OBJ-side-bar="showHideBar => this.showYourObjectives = showHideBar"
                         ></quest-item>
                     </b-list-group-item>
-                    <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="!creatingQuest"
-                                       draggable="false">
-                        <div class="d-flex justify-content-center">
-                            <b-button variant="success"  @click="addQuest" block>Add a New Quest</b-button>
-                        </div>
-                    </b-list-group-item>
+                    <div v-if="yourQuests">
+                        <b-list-group-item href="#" class="flex-column justify-content-center"
+                                           v-if="!creatingQuest"
+                                           draggable="false">
+                            <div class="d-flex justify-content-center">
+                                <b-button variant="success"  @click="addQuest" block>Add a New Quest</b-button>
+                            </div>
+                        </b-list-group-item>
+                    </div>
                     <b-list-group-item v-for="quest in (foundQuests)" href="#"
                                        class="flex-column align-items-start"
                                        :key="quest.id"
@@ -138,6 +140,10 @@
                             :sideBarView="true"
                             @select-objective="setSelectedObjective">
                     </objective-list>
+                    <quest-search-form
+                            v-if="availableQuests"
+                            :profile="profile">
+                    </quest-search-form>
                 </b-card>
             </b-col>
         </b-row>
@@ -148,6 +154,7 @@
     import QuestItem from "./questItem";
     import FoundDestinations from "../destinations/destinationSearchList";
     import ObjectiveList from "../objectives/objectiveList";
+    import QuestSearchForm from "./questSearchForm";
 
     export default {
         name: "questList",
@@ -159,7 +166,21 @@
                     return false;
                 }
             },
-            yourQuests: Boolean,
+            yourQuests: {
+                default: function () {
+                    return false;
+                }
+            },
+            availableQuests: {
+                default: function () {
+                    return false;
+                }
+            },
+            activeQuests: {
+                default: function () {
+                    return false;
+                }
+            },
             selectedDestination: {},
             refreshQuests: Boolean
         },
@@ -447,7 +468,8 @@
         components: {
             ObjectiveList,
             QuestItem,
-            FoundDestinations
+            FoundDestinations,
+            QuestSearchForm
         }
     }
 </script>
