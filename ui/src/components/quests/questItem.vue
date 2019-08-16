@@ -534,6 +534,7 @@
             assembleQuest() {
                 this.joinDates();
                 for (let i = 0; i < this.inputQuest.objectives.length; i++) {
+                    this.inputQuest.objectives[i].id = null;
                     this.inputQuest.objectives[i].destination = {"id": this.inputQuest.objectives[i].destination.id};
                 }
             },
@@ -590,6 +591,7 @@
                             self.showError = true;
                         });
                     } else {
+                        self.$emit('successEdit', "Quest Successfully Edited");
                         self.$emit('cancelCreate')
                     }
                 });
@@ -634,7 +636,6 @@
              * Displays the edit treasure hunt field and sets the current treasure hunt to the specified value.
              */
             editObjective(objective) {
-                console.log(this.inputQuest.objectives.indexOf(objective));
                 this.objectiveIndex = this.inputQuest.objectives.indexOf(objective);
                 let radius = this.inputQuest.objectives[this.objectiveIndex].radius;
                 let radiusValue;

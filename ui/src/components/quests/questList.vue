@@ -39,6 +39,7 @@
                                 :inputQuest="copiedQuest"
                                 :heading="'Edit'"
                                 :profile="profile"
+                                @successEdit="successEdit"
                                 @cancelCreate="cancelEdit"
                                 :selectedDestination="destinationSelected"
                                 @OBJ-side-bar="showHideBar => this.showDestinations = showHideBar"
@@ -337,7 +338,18 @@
                 this.editingQuest = false;
                 this.activeId = 0;
                 this.showDestinations = false;
-                this.alertText = "Quest successfully edited"
+            },
+
+
+            /**
+             * Displays success message and hides all edit fields.
+             */
+            successEdit() {
+                this.getMore();
+                this.editingQuest = false;
+                this.activeId = 0;
+                this.showDestinations = false;
+                this.alertText = "Quest successfully edited";
                 this.showAlert();
             },
 
