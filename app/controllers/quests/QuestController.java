@@ -138,6 +138,10 @@ public class QuestController {
         quest.setOwner(questOwner);
         quest.setId(questId);
 
+        for(Objective newObjective : quest.getObjectives()) {
+            newObjective.setOwner(questOwner);
+        }
+
         Collection<ApiError> questEditErrors = quest.getErrors();
 
         if (!questEditErrors.isEmpty()) {
