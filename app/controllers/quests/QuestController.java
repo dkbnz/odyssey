@@ -33,7 +33,6 @@ public class QuestController {
                            ProfileRepository profileRepository) {
         this.questRepository = questRepository;
         this.profileRepository = profileRepository;
-
     }
 
 
@@ -79,6 +78,9 @@ public class QuestController {
         }
 
         newQuest.setOwner(questOwner);
+        for(Objective newObjective : newQuest.getObjectives()) {
+            newObjective.setOwner(questOwner);
+        }
         Collection<ApiError> questCreationErrors = newQuest.getErrors();
 
         if (!questCreationErrors.isEmpty()) {
@@ -151,10 +153,21 @@ public class QuestController {
         }
 
         quest.setOwner(questOwner);
+        quest.setId(questId);
+
+        for(Objective newObjective : quest.getObjectives()) {
+            newObjective.setOwner(questOwner);
+        }
+
+        Collection<ApiError> questEditErrors = quest.getErrors();
+
+        if (!questEditErrors.isEmpty()) {
+            return badRequest(Json.toJson(questEditErrors));
+        }
 
         questRepository.update(quest);
 
-        return ok(Json.toJson(quest.getId()));
+        return ok(Json.toJson(quest));
     }
 
 
@@ -164,6 +177,10 @@ public class QuestController {
      * @param request   the request from the front end of the application containing login information.
      * @param questId   the id of the quest being deleted.
      * @return          ok() (Http 200) response for a successful deletion.
+     *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
+     *                  forbidden() (Http 403) response containing an ApiError for disallowed deletion.
+     *                  badRequest() (Http 400) response containing an ApiError for an invalid Json body.
+     *                  unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
      */
     public Result delete(Http.Request request, Long questId) {
          Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
