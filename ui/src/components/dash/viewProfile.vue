@@ -102,14 +102,14 @@
 
         props: {
             profile: Object,
-            nationalityOptions: Array,
-            travTypeOptions: Array,
-            trips: Array,
             userProfile: {
                 default: function() {
                     return this.profile;
                 }
             },
+            nationalityOptions: Array,
+            travTypeOptions: Array,
+            trips: Array,
             adminView: Boolean,
             destinations: Array,
             showSaved: {
@@ -145,8 +145,14 @@
             }
         },
 
+        watch: {
+            userProfile() {
+                this.checkAuth();
+            },
+        },
+
         mounted() {
-            //this.checkAuth();
+            this.checkAuth();
             this.getProfilePictureThumbnail();
             this.getProfilePictureFull();
         },
@@ -252,7 +258,7 @@
              * view the users private photos and can add or delete images from the media.
              */
             checkAuth() {
-                this.auth = (this.userProfile.id !== undefined) && (this.userProfile.id === this.profile.id) || (this.userProfile.isAdmin && this.adminView);
+                this.auth = (this.userProfile.id !== undefined) && (this.userProfile.id === this.profile.id) || (this.userProfile.admin && this.adminView);
             },
 
 
