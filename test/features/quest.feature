@@ -169,6 +169,85 @@ Feature: Quest API Endpoint
 #    Then the status code received is 403
 
 
+
+  Scenario: Successfully creating a quest with valid input as a regular user
+    Given the application is running
+    And I am logged in
+    When I attempt to create a quest using the following values
+      | Title       | Start Date | End Date  |
+      | Cool Quest  |            |           |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    Then the status code received is 201
+
+
+  Scenario: Successfully creating a quest with valid input for a regular user as an admin
+    Given the application is running
+    And I am logged in as an admin user
+    When I attempt to create a quest for a regular user using the following values
+      | Title       | Start Date | End Date |
+      | Cool Quest  |            |          |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    Then the status code received is 201
+
+
+  Scenario: Unsuccessfully creating a quest without a title as a regular user
+    Given the application is running
+    And I am logged in
+    When I attempt to create a quest using the following values
+      | Title | Start Date | End Date |
+      |       |            |          |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    Then the status code received is 400
+    And the following ApiErrors are returned
+      | A quest title must be provided. |
+
+
+
+  Scenario: Unsuccessfully creating a quest without a title for a regular user as an admin
+    Given the application is running
+    And I am logged in as an admin user
+    When I attempt to create a quest for a regular user using the following values
+      | Title | Start Date | End Date |
+      |       |            |          |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    Then the status code received is 400
+    And the following ApiErrors are returned
+      | A quest title must be provided. |
+
+
+
   Scenario: Successfully editing a quest with valid input as a regular user
     Given the application is running
     And I am logged in
@@ -243,6 +322,7 @@ Feature: Quest API Endpoint
       | Destination | Riddle                                 | Radius |
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
     Then the status code received is 403
+
 
 
   Scenario: Unsuccessfully editing a quest when not logged in
