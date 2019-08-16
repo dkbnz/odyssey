@@ -75,3 +75,19 @@ Feature: Quest API Endpoint
 #      | Title       | Start Date         | End Date  |
 #      | Cool Quest  | XXX                |  XXX      |
 #    Then the status code received is 400
+
+  # TODO: Matthew and Matilda
+#  Scenario: Retrieve all quests I have created
+#    Given I am logged in
+#    And the application is running
+#    When I attempt to retrieve my quests
+#
+#
+#  Scenario: Retrieve quests when I have none created
+#    Given I am logged in as an alternate user
+#    And the application is running
+#
+#  Scenario: Retrieve quests when I am not logged in
+#    Given I am not logged in
+#    And the application is running
+#    When I attempt to retrieve my quests
