@@ -80,6 +80,7 @@ GET     /v1/quests/:userId                      controllers.quests.QuestControll
 POST    /v1/quests/:userId                      controllers.quests.QuestController.create(request: Request, userId: Long)
 PUT     /v1/quests/:userId                      controllers.quests.QuestController.edit(request: Request, userId: Long)
 DELETE  /v1/quests/:questId                     controllers.quests.QuestController.delete(request: Request, questId: Long)
+GET     /v1/quests/:questId/users               controllers.quests.QuestController.fetchActiveUsers(request: Request, questId: Long)
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
 GET     /*file                                  controllers.Assets.at(path="/public", file)

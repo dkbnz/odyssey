@@ -233,4 +233,40 @@ public class QuestController {
 
         return ok(Json.toJson(requestedUser.getMyQuests()));
     }
+
+
+
+    /**
+     * Retrieves all the profiles that have the specified quest currently active
+     *
+     * @param request   the request from the front end of the application containing login information.
+     * @param questId   the id of the quest that the active profiles are being retrieved for
+     * @return          ok() (Http 200) response containing the quests owned by the specified user.
+     *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
+     *                  forbidden() (Http 401) response containing an ApiError for disallowed retrieval.
+     *                  unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
+     *
+     */
+    public Result fetchActiveUsers(Http.Request request, Long questId){
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+
+        Quest requestQuest = questRepository.findById(questId);
+        List<Profile> activeProfiles = profileRepository.findAllUsing(requestQuest);
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        String result;
+        try {
+            result = mapper
+                    .writerWithView(Views.Public.class)
+                    .writeValueAsString(activeProfiles);
+        } catch (JsonProcessingException e) {
+            return badRequest(ApiError.invalidJson());
+        }
+        return ok(result);
+    }
 }
