@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import models.ApiError;
 import models.Profile;
+import models.objectives.Objective;
 import models.quests.Quest;
 import play.libs.Json;
 import play.mvc.Http;
@@ -16,7 +17,9 @@ import util.Views;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static play.mvc.Results.*;
 
@@ -82,8 +85,23 @@ public class QuestController {
             return badRequest(Json.toJson(questCreationErrors));
         }
 
+        Map<String, Integer> countryOccurrences = new HashMap<>();
+        for(Objective objective : newQuest.getObjectives()) {
+            if (countryOccurrences.get(objective.getDestination().getCountry()) != null){
+                Integer count = countryOccurrences.get(objective.getDestination().getCountry());
+                count += 1;
+                countryOccurrences.put(objective.getDestination().getCountry(), count);
+            } else {
+                countryOccurrences.put(objective.getDestination().getCountry(), 1);
+            }
+        }
+        newQuest.setCountryOccurrences(countryOccurrences);
+
+
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
+
+        questRepository.refresh(newQuest);
 
         return created(Json.toJson(newQuest));
     }
