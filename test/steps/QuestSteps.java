@@ -100,13 +100,6 @@ public class QuestSteps {
 
 
     /**
-     * Repository to access the destinations in the running application.
-     */
-    private ObjectiveRepository objectiveRepository = testContext.getApplication().injector().instanceOf(ObjectiveRepository.class);
-    private ProfileRepository profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
-
-
-    /**
      * Converts a given data table of quest values to a Json node object of this quest.
      *
      * @param dataTable     the data table containing values of an quest.
@@ -209,7 +202,6 @@ public class QuestSteps {
      * @param json      a JsonNode containing the values for a new quest object.
      */
     private void editQuestRequest(JsonNode json) {
-        System.out.println(json);
         Http.RequestBuilder request = fakeRequest()
                 .method(PUT)
                 .bodyJson(json)
@@ -217,7 +209,6 @@ public class QuestSteps {
                 .session(AUTHORIZED, testContext.getLoggedInId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
-        System.out.println(Helpers.contentAsString(result));
     }
 
 
