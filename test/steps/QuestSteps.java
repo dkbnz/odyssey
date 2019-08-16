@@ -30,9 +30,18 @@ import static play.test.Helpers.route;
 public class QuestSteps {
 
     /**
-     * Singleton class which stores generally used variables
+     * Singleton class which stores generally used variables.
      */
     private TestContext testContext = TestContext.getInstance();
+
+
+    /**
+     * User Ids for the test context.
+     */
+    private static final String ADMIN_USER = "1";
+    private static final String REGULAR_USER = "1";
+    private static final String ALTERNATE_USER = "1";
+
 
 
     /**
@@ -193,6 +202,8 @@ public class QuestSteps {
             JsonNode actualObj = mapper.readTree(Helpers.contentAsString(result));
             questId = Long.parseLong(actualObj.get(ID).toString());
         }
+
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 
@@ -251,21 +262,22 @@ public class QuestSteps {
         }
     }
 
-    @When("I attempt to create a quest using the following json")
-    public void iCreateAQuestUsingTheFollowingJson(String questJson) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode body = mapper.readTree(questJson);
 
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .bodyJson(body)
-                .uri(QUEST_URI + "/" +testContext.getLoggedInId())
-                .session(AUTHORIZED, testContext.getLoggedInId());
-
-        Result result = route(testContext.getApplication(), request);
-
-        testContext.setStatusCode(result.status());
-        testContext.setResponseBody(Helpers.contentAsString(result));
+    @When("I attempt to create a quest using the following values")
+    public void iAttemptToCreateAQuestUsingTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        testContext.setTargetId(testContext.getLoggedInId());
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            convertDataTableToQuestJson(dataTable, i);
+        }
     }
 
+
+    @When("I attempt to create a quest for a regular user using the following values")
+    public void iAttemptToCreateAQuestForARegularUserUsingTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        testContext.setTargetId(REGULAR_USER);
+        testContext.setTargetId(testContext.getTargetId());
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            convertDataTableToQuestJson(dataTable, i);
+        }
+    }
 }

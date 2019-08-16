@@ -1,5 +1,6 @@
 package steps;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
@@ -13,6 +14,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -242,18 +244,13 @@ public class GeneralSteps {
 
 
     @Then("the following ApiErrors are returned")
-    public void theFollowingApiErrorsAreReturned(io.cucumber.datatable.DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-
-        List<String> errors = dataTable.asList();
-
-        throw new cucumber.api.PendingException();
+    public void theFollowingApiErrorsAreReturned(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode body = objectMapper.readTree(testContext.getResponseBody());
+        List<String> expectedApiErrors = dataTable.asList();
+        for(JsonNode error : body){
+            Assert.assertTrue(expectedApiErrors.contains(error.get("message").asText()));
+        }
     }
 
 }
