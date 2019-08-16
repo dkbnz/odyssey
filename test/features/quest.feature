@@ -170,128 +170,131 @@ Feature: Quest API Endpoint
 
 
 
-  Scenario: Successfully creating a quest with valid input as a regular user
-    Given the application is running
-    And I am logged in
-    When I attempt to create a quest using the following values
-      | Title       | Start Date | End Date  |
-      | Cool Quest  |            |           |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 201
-
-
-  Scenario: Successfully creating a quest with valid input for a regular user as an admin
-    Given the application is running
-    And I am logged in as an admin user
-    When I attempt to create a quest for a regular user using the following values
-      | Title       | Start Date | End Date |
-      | Cool Quest  |            |          |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 201
-
-
-  Scenario: Unsuccessfully creating a quest without a title as a regular user
-    Given the application is running
-    And I am logged in
-    When I attempt to create a quest using the following values
-      | Title | Start Date | End Date |
-      |       |            |          |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 400
-    And the following ApiErrors are returned
-      | A quest title must be provided. |
-
-
-  Scenario: Unsuccessfully creating a quest without a title for a regular user as an admin
-    Given the application is running
-    And I am logged in as an admin user
-    When I attempt to create a quest for a regular user using the following values
-      | Title | Start Date | End Date |
-      |       |            |          |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 400
-    And the following ApiErrors are returned
-      | A quest title must be provided. |
-
-
-  Scenario: Unsuccessfully creating a quest with incorrectly ordered dates
-    Given the application is running
-    And I am logged in
-    When I attempt to create a quest using the following values
-      | Title       | Start Date               | End Date                 |
-      | Cool Quest  | 2019-08-25 18:08:59+0000 | 2019-08-15 18:08:59+0000 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 400
-    And the following ApiErrors are returned
-      | Start date must be before end date. |
-
-
-  Scenario: Unsuccessfully creating a quest with incorrectly ordered dates for a regular user as an admin
-    Given the application is running
-    And I am logged in as an admin user
-    When I attempt to create a quest for a regular user using the following values
-      | Title       | Start Date               | End Date                 |
-      | Cool Quest  | 2019-08-25 18:08:59+0000 | 2019-08-15 18:08:59+0000 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 400
-    And the following ApiErrors are returned
-      | Start date must be before end date. |
-
-#  TODO: Vinnie and Doug - Currently both return 200 instead of 400, which isn't a returned status code within create
+#  Scenario: Successfully creating a quest with valid input as a regular user
+#    Given the application is running
+#    And I am logged in
+#    When I attempt to create a quest using the following values
+#      | Title       | Start Date | End Date  |
+#      | Cool Quest  |            |           |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 201
+#
+#
+#  Scenario: Successfully creating a quest with valid input for a regular user as an admin
+#    Given the application is running
+#    And I am logged in as an admin user
+#    When I attempt to create a quest for a regular user using the following values
+#      | Title       | Start Date | End Date |
+#      | Cool Quest  |            |          |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 201
+#
+#
+#  Scenario: Unsuccessfully creating a quest without a title as a regular user
+#    Given the application is running
+#    And I am logged in
+#    When I attempt to create a quest using the following values
+#      | Title | Start Date | End Date |
+#      |       |            |          |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 400
+#    And the following ApiErrors are returned
+#      | A quest title must be provided. |
+#
+#
+#  Scenario: Unsuccessfully creating a quest without a title for a regular user as an admin
+#    Given the application is running
+#    And I am logged in as an admin user
+#    When I attempt to create a quest for a regular user using the following values
+#      | Title | Start Date | End Date |
+#      |       |            |          |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 400
+#    And the following ApiErrors are returned
+#      | A quest title must be provided. |
+#
+#
+#  Scenario: Unsuccessfully creating a quest with incorrectly ordered dates
+#    Given the application is running
+#    And I am logged in
+#    When I attempt to create a quest using the following values
+#      | Title       | Start Date               | End Date                 |
+#      | Cool Quest  | 2019-08-25 18:08:59+0000 | 2019-08-15 18:08:59+0000 |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 400
+#    And the following ApiErrors are returned
+#      | Start date must be before end date. |
+#
+#
+#  Scenario: Unsuccessfully creating a quest with incorrectly ordered dates for a regular user as an admin
+#    Given the application is running
+#    And I am logged in as an admin user
+#    When I attempt to create a quest for a regular user using the following values
+#      | Title       | Start Date               | End Date                 |
+#      | Cool Quest  | 2019-08-25 18:08:59+0000 | 2019-08-15 18:08:59+0000 |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 400
+#    And the following ApiErrors are returned
+#      | Start date must be before end date. |
+#
+##  TODO: Vinnie and Doug - Currently both return 200 instead of 400, which isn't a returned status code within create
 #  Scenario: Unsuccessfully creating a quest with no objectives
 #    Given the application is running
 #    And I am logged in
 #    When I attempt to create a quest using the following values
 #      | Title       | Start Date | End Date  |
 #      | Cool Quest  |            |           |
+#    And with the following objective
+#      | Destination | Riddle      | Radius |
+#      |             |             |        |
 #    Then the status code received is 400
 #    And the following ApiErrors are returned
 #      | You must provide at least one Objective for a quest. |
@@ -303,203 +306,206 @@ Feature: Quest API Endpoint
 #    When I attempt to create a quest for a regular user using the following values
 #      | Title       | Start Date | End Date  |
 #      | Cool Quest  |            |           |
+#    And with the following objective
+#      | Destination | Riddle      | Radius |
+#      |             |             |        |
 #    Then the status code received is 400
 #    And the following ApiErrors are returned
 #      | You must provide at least one Objective for a quest. |
+#
+#
+#  Scenario: Unsuccessfully creating a quest for a regular user as an alternate user
+#    Given the application is running
+#    And I am logged in as an alternate user
+#    When I attempt to create a quest for a regular user using the following values
+#      | Title       | Start Date | End Date |
+#      | Not Allowed |            |          |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 403
+#    And the following ApiErrors are returned
+#      | You are not authorized to access this resource. |
+#
+#
+#  Scenario: Successfully editing a quest with valid input as a regular user
+#    Given the application is running
+#    And I am logged in
+#    And a quest already exists with the following values
+#      | Title       | Start Date | End Date  |
+#      | Cool Quest  |            |           |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    When I attempt to edit the quest with the following values
+#      | Title       | Start Date | End Date  |
+#      | Epic Quest  |            |           |
+#    And with the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 200
+#
+#
+#  Scenario: Successfully editing another user's quests as an admin
+#    Given the application is running
+#    And I am logged in
+#    And a quest already exists with the following values
+#      | Title       | Start Date         | End Date  |
+#      | Cool Quest  |                    |           |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And I am not logged in
+#    And I am logged in as an admin user
+#    When I attempt to edit the quest with the following values
+#      | Title       | Start Date         | End Date  |
+#      | Epic Quest  |                    |           |
+#    And with the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 200
+#
+#
+#  Scenario: Unsuccessfully editing another user's quests as a regular user
+#    Given the application is running
+#    And I am logged in
+#    And a quest already exists with the following values
+#      | Title       | Start Date         | End Date  |
+#      | Cool Quest  |                    |           |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And I am not logged in
+#    And I am logged in as an alternate user
+#    When I attempt to edit the quest with the following values
+#      | Title       | Start Date         | End Date  |
+#      | Epic Quest  |                    |           |
+#    And with the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 403
+#
+#
+#
+#  Scenario: Unsuccessfully editing a quest when not logged in
+#    Given the application is running
+#    And I am logged in
+#    And a quest already exists with the following values
+#      | Title       | Start Date         | End Date  |
+#      | Cool Quest  |                    |           |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And I am not logged in
+#    When I attempt to edit the quest with the following values
+#      | Title       | Start Date         | End Date  |
+#      | Epic Quest  |                    |           |
+#    And with the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 401
+#
+#
+#  Scenario: Unsuccessfully editing a quest due to no title
+#  Given the application is running
+#  And I am logged in
+#    And a quest already exists with the following values
+#      | Title       | Start Date         | End Date  |
+#      | Cool Quest  |                    |           |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    When I attempt to edit the quest with the following values
+#      | Title       | Start Date         | End Date  |
+#      |             |                    |           |
+#    And with the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 400
 
 
-  Scenario: Unsuccessfully creating a quest for a regular user as an alternate user
-    Given the application is running
-    And I am logged in as an alternate user
-    When I attempt to create a quest for a regular user using the following values
-      | Title       | Start Date | End Date |
-      | Not Allowed |            |          |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 403
-    And the following ApiErrors are returned
-      | You are not authorized to access this resource. |
+#  Scenario: Unsuccessfully editing a quest due to no objectives
+#    Given the application is running
+#    And I am logged in
+#    And a quest already exists with the following values
+#      | Title       | Start Date         | End Date  |
+#      | Cool Quest  |                    |           |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    When I attempt to edit the quest with the following values
+#      | Title       | Start Date         | End Date  |
+#      | Cool Quest  |                    |           |
+#    And with the following objective
+#      | Destination | Riddle      | Radius |
+#      |             |             |        |
+#    Then the status code received is 400
 
 
-  Scenario: Successfully editing a quest with valid input as a regular user
-    Given the application is running
-    And I am logged in
-    And a quest already exists with the following values
-      | Title       | Start Date | End Date  |
-      | Cool Quest  |            |           |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    When I attempt to edit the quest with the following values
-      | Title       | Start Date | End Date  |
-      | Epic Quest  |            |           |
-    And with the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 200
-
-
-  Scenario: Successfully editing another user's quests as an admin
-    Given the application is running
-    And I am logged in
-    And a quest already exists with the following values
-      | Title       | Start Date         | End Date  |
-      | Cool Quest  |                    |           |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I am not logged in
-    And I am logged in as an admin user
-    When I attempt to edit the quest with the following values
-      | Title       | Start Date         | End Date  |
-      | Epic Quest  |                    |           |
-    And with the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 200
-
-
-  Scenario: Unsuccessfully editing another user's quests as a regular user
-    Given the application is running
-    And I am logged in
-    And a quest already exists with the following values
-      | Title       | Start Date         | End Date  |
-      | Cool Quest  |                    |           |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I am not logged in
-    And I am logged in as an alternate user
-    When I attempt to edit the quest with the following values
-      | Title       | Start Date         | End Date  |
-      | Epic Quest  |                    |           |
-    And with the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 403
-
-
-
-  Scenario: Unsuccessfully editing a quest when not logged in
-    Given the application is running
-    And I am logged in
-    And a quest already exists with the following values
-      | Title       | Start Date         | End Date  |
-      | Cool Quest  |                    |           |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I am not logged in
-    When I attempt to edit the quest with the following values
-      | Title       | Start Date         | End Date  |
-      | Epic Quest  |                    |           |
-    And with the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 401
-
-
-  Scenario: Unsuccessfully editing a quest due to no title
-  Given the application is running
-  And I am logged in
-    And a quest already exists with the following values
-      | Title       | Start Date         | End Date  |
-      | Cool Quest  |                    |           |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    When I attempt to edit the quest with the following values
-      | Title       | Start Date         | End Date  |
-      |             |                    |           |
-    And with the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 400
-
-
-  Scenario: Unsuccessfully editing a quest due to no objectives
-    Given the application is running
-    And I am logged in
-    And a quest already exists with the following values
-      | Title       | Start Date         | End Date  |
-      | Cool Quest  |                    |           |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    When I attempt to edit the quest with the following values
-      | Title       | Start Date         | End Date  |
-      | Cool Quest  |                    |           |
-    And with the following objective
-      | Destination | Riddle      | Radius |
-      |             |             |        |
-    Then the status code received is 400
-
-
-  Scenario: Unsuccessfully editing a quest due to bad dates
-    Given the application is running
-    And I am logged in
-    And a quest already exists with the following values
-      | Title       | Start Date         | End Date  |
-      | Cool Quest  |                    |           |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    When I attempt to edit the quest with the following values
-      | Title       | Start Date         | End Date  |
-      | Cool Quest  | XXX                |  XXX      |
-    And with the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    Then the status code received is 400
+#  Scenario: Unsuccessfully editing a quest due to bad dates
+#    Given the application is running
+#    And I am logged in
+#    And a quest already exists with the following values
+#      | Title       | Start Date         | End Date  |
+#      | Cool Quest  |                    |           |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes some stuff?                | 0.005  |
+#    And the quest has the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    When I attempt to edit the quest with the following values
+#      | Title       | Start Date         | End Date  |
+#      | Cool Quest  | XXX                |  XXX      |
+#    And with the following objective
+#      | Destination | Riddle                                 | Radius |
+#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+#    Then the status code received is 400
 
   # TODO: Matthew and Matilda
 #  Scenario: Retrieve all quests I have created
