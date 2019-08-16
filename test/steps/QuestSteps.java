@@ -204,6 +204,7 @@ public class QuestSteps {
         }
 
         testContext.setResponseBody(Helpers.contentAsString(result));
+        //System.out.println(Helpers.contentAsString(result));
     }
 
 
