@@ -26,7 +26,7 @@ public class Quest extends BaseModel {
     /**
      * List of attempts that have been had on this quest.
      */
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.PERSIST)
     private List<QuestAttempt> attempts;
 
     /**
@@ -100,6 +100,10 @@ public class Quest extends BaseModel {
 
     public boolean addObjective(Objective objective) {
         return objectives.add(objective);
+    }
+
+    public void clearObjectives() {
+        objectives.clear();
     }
 
     public boolean removeObjective(Objective objective) {

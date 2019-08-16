@@ -271,10 +271,13 @@
                     }
                     else {
                         // Converts response to text, this is then displayed on the frontend.
-                        response.text().then(data => {
-                            self.deleteAlertMessage = data;
-                            self.deleteAlertError = true;
-                        });
+                        let responseBody = JSON.parse(data);
+                        let message = "";
+                        for (let i = 0; i < responseBody.length; i++) {
+                            message += responseBody[i].message + "\n";
+                        }
+                        self.deleteAlertMessage = message;
+                        self.deleteAlertError = true;
                     }
                 });
             },
