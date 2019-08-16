@@ -34,6 +34,8 @@ public class ProfileRepository extends BeanRepository<Long, Profile> {
      */
     public List<Profile> findAllUsing(Quest usedQuest) {
 
-        return query().where().eq("quest", usedQuest).findList();
+        return query().where().eq("questAttempts.questAttempted", usedQuest).findList();
+
+
     }
 }
