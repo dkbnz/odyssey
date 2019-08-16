@@ -67,6 +67,10 @@
             }
         },
 
+        mounted() {
+            this.testActiveProfiles();
+        },
+
         methods: {
             /**
              * Shows the destination searching sidebar.
@@ -82,7 +86,16 @@
                 this.showDestinations = false;
                 this.selectedDestination = {};
             },
+
+            testActiveProfiles() {
+                fetch('/v1/quests/9/profiles', {
+                    method: 'GET',
+                    headers: {'content-type': 'application/json'},
+                })
+            }
         },
+
+
 
 
         components: {

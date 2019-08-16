@@ -212,7 +212,7 @@ public class QuestController {
      * @param ownerId   the id of the specific user whose quests are being retrieved.
      * @return          ok() (Http 200) response containing the quests owned by the specified user.
      *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
-     *                  forbidden() (Http 401) response containing an ApiError for disallowed retrieval.
+     *                  forbidden() (Http 403) response containing an ApiError for disallowed retrieval.
      *                  unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
      */
     public Result fetchByOwner(Http.Request request, Long ownerId) {
@@ -243,7 +243,6 @@ public class QuestController {
      * @param questId   the id of the quest that the active profiles are being retrieved for
      * @return          ok() (Http 200) response containing the quests owned by the specified user.
      *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
-     *                  forbidden() (Http 401) response containing an ApiError for disallowed retrieval.
      *                  unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
      *
      */
@@ -253,20 +252,21 @@ public class QuestController {
             return unauthorized(ApiError.unauthorized());
         }
 
-
         Quest requestQuest = questRepository.findById(questId);
+        if (requestQuest == null) {
+            return notFound(ApiError.notFound());
+        }
         List<Profile> activeProfiles = profileRepository.findAllUsing(requestQuest);
 
-
-        ObjectMapper mapper = new ObjectMapper();
-        String result;
-        try {
-            result = mapper
-                    .writerWithView(Views.Public.class)
-                    .writeValueAsString(activeProfiles);
-        } catch (JsonProcessingException e) {
-            return badRequest(ApiError.invalidJson());
-        }
-        return ok(result);
+//        ObjectMapper mapper = new ObjectMapper();
+//        String result;
+//        try {
+//            result = mapper
+//                    .writerWithView(Views.Public.class)
+//                    .writeValueAsString(activeProfiles);
+//        } catch (JsonProcessingException e) {
+//            return badRequest(ApiError.invalidJson());
+//        }
+        return ok(Json.toJson(activeProfiles));
     }
 }
