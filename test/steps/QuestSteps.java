@@ -9,6 +9,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -137,4 +138,22 @@ public class QuestSteps {
             editQuestRequest(json);
         }
     }
+
+    @When("I attempt to create a quest using the following json")
+    public void iCreateAQuestUsingTheFollowingJson(String questJson) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode body = mapper.readTree(questJson);
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .bodyJson(body)
+                .uri(QUEST_URI + "/" +testContext.getLoggedInId())
+                .session(AUTHORIZED, testContext.getLoggedInId());
+
+        Result result = route(testContext.getApplication(), request);
+
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
 }

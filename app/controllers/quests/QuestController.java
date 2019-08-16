@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import models.ApiError;
 import models.Profile;
+import models.objectives.Objective;
 import models.quests.Quest;
 import play.libs.Json;
 import play.mvc.Http;
@@ -30,7 +31,6 @@ public class QuestController {
                            ProfileRepository profileRepository) {
         this.questRepository = questRepository;
         this.profileRepository = profileRepository;
-
     }
 
 
@@ -76,6 +76,9 @@ public class QuestController {
         }
 
         newQuest.setOwner(questOwner);
+        for(Objective newObjective : newQuest.getObjectives()) {
+            newObjective.setOwner(questOwner);
+        }
         Collection<ApiError> questCreationErrors = newQuest.getErrors();
 
         if (!questCreationErrors.isEmpty()) {
