@@ -149,6 +149,10 @@ public class QuestController {
      * @param request   the request from the front end of the application containing login information.
      * @param questId   the id of the quest being deleted.
      * @return          ok() (Http 200) response for a successful deletion.
+     *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
+     *                  forbidden() (Http 403) response containing an ApiError for disallowed deletion.
+     *                  badRequest() (Http 400) response containing an ApiError for an invalid Json body.
+     *                  unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
      */
     public Result delete(Http.Request request, Long questId) {
          Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
