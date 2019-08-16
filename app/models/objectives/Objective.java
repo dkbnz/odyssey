@@ -84,5 +84,13 @@ public class Objective extends BaseModel {
         this.owner = owner;
     }
 
+    public Double getRadius() {
+        return radius;
+    }
+
+    public void setRadius(Double radius) {
+        this.radius = radius;
+    }
+
 }
 

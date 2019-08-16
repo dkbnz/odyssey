@@ -12,6 +12,8 @@ import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -172,7 +174,6 @@ public class GeneralSteps {
         testContext.setStatusCode(logoutResult.status());
     }
 
-
     @Given("the application is running")
     public void theApplicationIsRunning() {
         Assert.assertTrue(testContext.getApplication().isTest());
@@ -237,5 +238,4 @@ public class GeneralSteps {
     public void theStatusCodeReceivedIs(int expectedStatusCode) {
         Assert.assertEquals(expectedStatusCode, testContext.getStatusCode());
     }
-
 }
