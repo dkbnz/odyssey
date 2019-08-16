@@ -3,7 +3,7 @@
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
 
         <!-- Can only be seen if logged in user is an admin -->
-        <div v-if="profile.isAdmin">
+        <div v-if="profile.admin">
             <!-- The admin actions panel, which acts as the Admin Dashboard -->
             <admin-actions
                     v-if="editProfile === null"

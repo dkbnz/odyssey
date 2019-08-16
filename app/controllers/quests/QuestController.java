@@ -11,6 +11,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.ProfileRepository;
+import repositories.objectives.ObjectiveRepository;
 import repositories.quests.QuestRepository;
 import util.AuthenticationUtil;
 import util.Views;
@@ -186,6 +187,9 @@ public class QuestController {
          if (questOwner == null) {
              return badRequest(ApiError.notFound());
          }
+
+         quest.clearObjectives();
+         questRepository.update(quest);
 
          questRepository.delete(quest);
          profileRepository.update(questOwner);
