@@ -444,6 +444,17 @@
 
 
             /**
+             *
+             * @returns {Boolean} true if validated.
+             */
+            validateObjectives() {
+                if (this.inputQuest.objectives.length > 0) {
+                    return true;
+                }
+            },
+
+
+            /**
              * Computed function used for the pagination of the table.
              *
              * @returns {number}    the number of rows required in the table based on number of treasure hunts to be
@@ -512,12 +523,15 @@
              */
             validateQuest() {
                 if (this.validateStartDate && this.validateStartTime && this.validateEndDate && this.validateEndTime
-                    && this.validateTitle) {
+                    && this.validateTitle && this.validateObjectives) {
                     if (this.inputQuest.id !== null) {
                         this.updateQuest();
                     } else {
                         this.saveQuest();
                     }
+                } else if (!this.validateObjectives) {
+                    this.errorMessage = "You must have at least 1 objective in the quest!";
+                    this.showError = true;
                 } else {
                     this.errorMessage = "Not all fields have valid information!";
                     this.showError = true;
@@ -561,7 +575,12 @@
                         this.splitDates();
                         // Converts response to text, this is then displayed on the frontend.
                         response.text().then(data => {
-                            self.errorMessage = data;
+                            let responseBody = JSON.parse(data);
+                            let message = "";
+                            for (let i = 0; i < responseBody.length; i++) {
+                                message += responseBody[i].message + "\n";
+                            }
+                            self.errorMessage = message;
                             self.showError = true;
                         });
                     } else {
@@ -587,10 +606,15 @@
                 }).then(function (response) {
                     if (response.status >= 400) {
                         // Ensures the start and end date fields are not wiped after an error occurs.
-                        this.splitDates();
+                        //this.splitDates();
                         // Converts response to text, this is then displayed on the frontend.
                         response.text().then(data => {
-                            self.errorMessage = data;
+                            let responseBody = JSON.parse(data);
+                            let message = "";
+                            for (let i = 0; i < responseBody.length; i++) {
+                                message += responseBody[i].message + "\n";
+                            }
+                            self.errorMessage = message;
                             self.showError = true;
                         });
                     } else {
