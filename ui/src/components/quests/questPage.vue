@@ -10,10 +10,18 @@
             <b-card>
                 <b-tabs content-class="mt-3">
                     <b-tab title="Active Quests" @click="">
+                        <quest-list
+                                :profile="profile"
+                                :active-quests="true"
+                        ></quest-list>
                     </b-tab>
-                    <b-tab title="Available Quests" @click="">
+                    <b-tab title="Available Quests" @click="" active>
+                        <quest-list
+                                :profile="profile"
+                                :available-quests="true"
+                        ></quest-list>
                     </b-tab>
-                    <b-tab title="Your Quests" @click="" active>
+                    <b-tab title="Your Quests" @click="">
                         <quest-list
                                 :profile="profile"
                                 :your-quests="true"
