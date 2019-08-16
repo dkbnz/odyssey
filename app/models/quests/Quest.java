@@ -81,6 +81,10 @@ public class Quest extends BaseModel {
 
         if (objectives.isEmpty()) {
             errors.add(new ApiError("You must provide at least one Objective for a quest"));
+        } else {
+            for(Objective objective : objectives) {
+                errors.addAll(objective.getErrors());
+            }
         }
 
         return errors;
