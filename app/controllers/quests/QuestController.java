@@ -133,10 +133,17 @@ public class QuestController {
         }
 
         quest.setOwner(questOwner);
+        quest.setId(questId);
+
+        Collection<ApiError> questEditErrors = quest.getErrors();
+
+        if (!questEditErrors.isEmpty()) {
+            return badRequest(Json.toJson(questEditErrors));
+        }
 
         questRepository.update(quest);
 
-        return ok(Json.toJson(quest.getId()));
+        return ok(Json.toJson(quest));
     }
 
 
