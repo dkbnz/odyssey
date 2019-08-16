@@ -130,7 +130,7 @@
                     return true;
                 }
                 return (this.userProfile.id === this.profile.id
-                    || (this.userProfile.isAdmin && this.adminView));
+                    || (this.userProfile.admin && this.adminView));
             }
         },
 

@@ -62,7 +62,7 @@
              */
             profile: function() {
                 if (this.profile.id !== undefined) {
-                    if (this.profile.isAdmin) {
+                    if (this.profile.admin) {
                         this.$router.replace("/admin");
                     } else {
                         this.$router.replace("/dash");

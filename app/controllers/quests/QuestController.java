@@ -11,13 +11,16 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.ProfileRepository;
+import repositories.objectives.ObjectiveRepository;
 import repositories.quests.QuestRepository;
 import util.AuthenticationUtil;
 import util.Views;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static play.mvc.Results.*;
 
@@ -85,8 +88,23 @@ public class QuestController {
             return badRequest(Json.toJson(questCreationErrors));
         }
 
+        Map<String, Integer> countryOccurrences = new HashMap<>();
+        for(Objective objective : newQuest.getObjectives()) {
+            if (countryOccurrences.get(objective.getDestination().getCountry()) != null){
+                Integer count = countryOccurrences.get(objective.getDestination().getCountry());
+                count += 1;
+                countryOccurrences.put(objective.getDestination().getCountry(), count);
+            } else {
+                countryOccurrences.put(objective.getDestination().getCountry(), 1);
+            }
+        }
+        newQuest.setCountryOccurrences(countryOccurrences);
+
+
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
+
+        questRepository.refresh(newQuest);
 
         return created(Json.toJson(newQuest));
     }
@@ -187,6 +205,9 @@ public class QuestController {
              return badRequest(ApiError.notFound());
          }
 
+         quest.clearObjectives();
+         questRepository.update(quest);
+
          questRepository.delete(quest);
          profileRepository.update(questOwner);
          return ok();
@@ -230,7 +251,7 @@ public class QuestController {
      * @param ownerId   the id of the specific user whose quests are being retrieved.
      * @return          ok() (Http 200) response containing the quests owned by the specified user.
      *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
-     *                  forbidden() (Http 401) response containing an ApiError for disallowed retrieval.
+     *                  forbidden() (Http 403) response containing an ApiError for disallowed retrieval.
      *                  unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
      */
     public Result fetchByOwner(Http.Request request, Long ownerId) {
@@ -250,5 +271,41 @@ public class QuestController {
         }
 
         return ok(Json.toJson(requestedUser.getMyQuests()));
+    }
+
+
+
+    /**
+     * Retrieves all the profiles that have the specified quest currently active
+     *
+     * @param request   the request from the front end of the application containing login information.
+     * @param questId   the id of the quest that the active profiles are being retrieved for
+     * @return          ok() (Http 200) response containing the quests owned by the specified user.
+     *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
+     *                  unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
+     *
+     */
+    public Result fetchActiveUsers(Http.Request request, Long questId){
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        Quest requestQuest = questRepository.findById(questId);
+        if (requestQuest == null) {
+            return notFound(ApiError.notFound());
+        }
+        List<Profile> activeProfiles = profileRepository.findAllUsing(requestQuest);
+
+//        ObjectMapper mapper = new ObjectMapper();
+//        String result;
+//        try {
+//            result = mapper
+//                    .writerWithView(Views.Public.class)
+//                    .writeValueAsString(activeProfiles);
+//        } catch (JsonProcessingException e) {
+//            return badRequest(ApiError.invalidJson());
+//        }
+        return ok(Json.toJson(activeProfiles));
     }
 }
