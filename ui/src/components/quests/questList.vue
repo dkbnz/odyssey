@@ -25,6 +25,7 @@
                                 :selected-objective="selectedObjective"
                                 :heading="'Create'"
                                 :profile="profile"
+                                @successCreate="showSuccess"
                                 @cancelCreate="cancelCreate"
                                 :selectedDestination="destinationSelected"
                                 @OBJ-side-bar="showHideBar => this.showDestinations = showHideBar"
