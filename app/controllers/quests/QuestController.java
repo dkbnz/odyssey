@@ -150,6 +150,7 @@ public class QuestController {
 
         for(Objective newObjective : quest.getObjectives()) {
             newObjective.setOwner(questOwner);
+            newObjective.setDestination(destinationRepository.findById(newObjective.getDestination().getId()));
         }
 
         Collection<ApiError> questEditErrors = quest.getErrors();

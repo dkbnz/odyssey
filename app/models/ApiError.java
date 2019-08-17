@@ -5,8 +5,6 @@ import play.libs.Json;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.List;
-import java.util.List.*;
 
 public class ApiError {
 

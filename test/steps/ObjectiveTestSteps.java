@@ -42,19 +42,17 @@ public class ObjectiveTestSteps {
     /**
      * The objective uri.
      */
-    private static final String TREASURE_HUNT_URI = "/v1/objectives";
+    private static final String OBJECTIVE_URI = "/v1/objectives";
 
 
     private static final String DESTINATION_STRING = "Destination";
     private static final String RIDDLE_STRING = "Riddle";
-    private static final String START_DATE_STRING = "Start Date";
-    private static final String END_DATE_STRING = "End Date";
+    private static final String RADIUS_STRING = "Radius";
     private static final String OWNER_STRING = "Owner";
 
     private static final String DESTINATION = "destination";
     private static final String RIDDLE = "riddle";
-    private static final String START_DATE = "startDate";
-    private static final String END_DATE = "endDate";
+    private static final String RADIUS = "radius";
     private static final String ID = "id";
 
     private static final int START_DATE_BUFFER = -10;
@@ -71,18 +69,10 @@ public class ObjectiveTestSteps {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         String destinationId           = list.get(index).get(DESTINATION_STRING);
         String riddle                  = list.get(index).get(RIDDLE_STRING);
-        String startDate               = list.get(index).get(START_DATE_STRING);
-        String endDate                 = list.get(index).get(END_DATE_STRING);
+        String radius                  = list.get(index).get(RADIUS_STRING);
 
         testContext.setTargetId(list.get(index).get(OWNER_STRING));
 
-        if (startDate.equals("null")) {
-            startDate = getObjectiveDateBuffer(true);
-        }
-
-        if (endDate.equals("null")) {
-            endDate = getObjectiveDateBuffer(false);
-        }
 
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
@@ -94,29 +84,8 @@ public class ObjectiveTestSteps {
         }
 
         json.put(RIDDLE, riddle);
-        json.put(START_DATE, startDate);
-        json.put(END_DATE, endDate);
-
+        json.put(RADIUS, radius);
         return json;
-    }
-
-
-    /**
-     * Creates a new datetime object from today's date. This is then used to ensure our tests will always pass, as a
-     * buffer is used to make the start date before today and the end date after today.
-     *
-     * @param isStartDate   boolean value to determine if the date being changed is the start or the end date.
-     * @return              the start or end date, which is modified by the necessary date buffer.
-     */
-    private String getObjectiveDateBuffer(boolean isStartDate) {
-        Calendar calendar = Calendar.getInstance();
-
-        if (isStartDate) {
-            calendar.add(Calendar.DATE, START_DATE_BUFFER);
-        }
-        calendar.add(Calendar.DATE, END_DATE_BUFFER);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:MM:ssZ");
-        return sdf.format(calendar.getTime());
     }
 
 
@@ -128,7 +97,7 @@ public class ObjectiveTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(TREASURE_HUNT_URI + "/" + testContext.getTargetId())
+                .uri(OBJECTIVE_URI + "/" + testContext.getTargetId())
                 .session(AUTHORIZED, testContext.getLoggedInId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
@@ -148,7 +117,7 @@ public class ObjectiveTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(PUT)
                 .bodyJson(json)
-                .uri(TREASURE_HUNT_URI + "/" + objectiveId)
+                .uri(OBJECTIVE_URI + "/" + objectiveId)
                 .session(AUTHORIZED, testContext.getLoggedInId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
@@ -170,7 +139,7 @@ public class ObjectiveTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .session(AUTHORIZED, testContext.getLoggedInId())
-                .uri(TREASURE_HUNT_URI);
+                .uri(OBJECTIVE_URI);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
 
@@ -178,12 +147,12 @@ public class ObjectiveTestSteps {
     }
 
 
-    @When("I attempt to delete the treasure Hunt")
+    @When("I attempt to delete the objective")
     public void iAttemptToDeleteTheObjective() {
         Http.RequestBuilder request = fakeRequest()
                 .method(DELETE)
                 .session(AUTHORIZED, testContext.getLoggedInId())
-                .uri(TREASURE_HUNT_URI + "/" + objectiveId);
+                .uri(OBJECTIVE_URI + "/" + objectiveId);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
     }
