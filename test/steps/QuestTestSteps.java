@@ -36,9 +36,7 @@ public class QuestTestSteps {
     /**
      * User Ids for the test context.
      */
-    private static final String ADMIN_USER = "1";
     private static final String REGULAR_USER = "2";
-    private static final String ALTERNATE_USER = "3";
     private static final String NON_EXISTENT_USER = "-1";
 
 
@@ -49,7 +47,6 @@ public class QuestTestSteps {
     private static final String TITLE_STRING = "Title";
     private static final String START_DATE_STRING = "Start Date";
     private static final String END_DATE_STRING = "End Date";
-    private static final String OBJECTIVES_STRING = "Objectives";
 
 
     /**
@@ -116,7 +113,8 @@ public class QuestTestSteps {
     /**
      * Repository to access the objectives in the running application.
      */
-    private ObjectiveRepository objectiveRepository = testContext.getApplication().injector().instanceOf(ObjectiveRepository.class);
+    private ObjectiveRepository objectiveRepository =
+            testContext.getApplication().injector().instanceOf(ObjectiveRepository.class);
 
 
     /**
@@ -173,7 +171,6 @@ public class QuestTestSteps {
     }
 
 
-
     /**
      * Creates a new datetime object from today's date. This is then used to ensure our tests will always pass, as a
      * buffer is used to make the start date before today and the end date after today.
@@ -215,7 +212,6 @@ public class QuestTestSteps {
         }
 
         testContext.setResponseBody(Helpers.contentAsString(result));
-        //System.out.println(Helpers.contentAsString(result));
     }
 
 
@@ -340,6 +336,12 @@ public class QuestTestSteps {
         } catch (IOException e) {
             fail();
         }
+    }
+
+
+    @When("I edit the quest")
+    public void iEditTheQuest() {
+        editQuestRequest(questObjectJson);
     }
 
 
