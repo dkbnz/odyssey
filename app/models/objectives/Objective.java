@@ -22,7 +22,7 @@ import java.util.List;
 public class Objective extends BaseModel {
 
     @JsonView(Views.Owner.class)
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Destination destination;
 
     @JsonIgnore

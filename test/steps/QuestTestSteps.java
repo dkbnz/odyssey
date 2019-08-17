@@ -39,6 +39,7 @@ public class QuestTestSteps {
     private static final String ADMIN_USER = "1";
     private static final String REGULAR_USER = "2";
     private static final String ALTERNATE_USER = "3";
+    private static final String NON_EXISTENT_USER = "-1";
 
 
 
@@ -293,21 +294,6 @@ public class QuestTestSteps {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             convertDataTableToObjectiveJson(dataTable, i);
             questObjectJson.putArray(OBJECTIVES).addAll(questObjectivesJson);
-            try {
-                createQuestRequest(questObjectJson);
-            } catch (IOException e) {
-                fail();
-            }
-        }
-    }
-
-
-    @Given("with the following objective")
-    public void questEditObjectives(io.cucumber.datatable.DataTable dataTable) {
-        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            convertDataTableToObjectiveJson(dataTable, i);
-            questObjectJson.putArray(OBJECTIVES).addAll(questObjectivesJson);
-            editQuestRequest(questObjectJson);
         }
     }
 
@@ -320,8 +306,8 @@ public class QuestTestSteps {
     }
 
 
-    @When("I attempt to create a quest using the following values")
-    public void iAttemptToCreateAQuestUsingTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+    @When("I start to create a quest using the following values")
+    public void iStartToCreateAQuestUsingTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(testContext.getLoggedInId());
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             convertDataTableToQuestJson(dataTable, i);
@@ -329,12 +315,30 @@ public class QuestTestSteps {
     }
 
 
-    @When("I attempt to create a quest for a regular user using the following values")
-    public void iAttemptToCreateAQuestForARegularUserUsingTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+    @When("I start to create a quest for a regular user using the following values")
+    public void iStartToCreateAQuestForARegularUserUsingTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(REGULAR_USER);
-        testContext.setTargetId(testContext.getTargetId());
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             convertDataTableToQuestJson(dataTable, i);
+        }
+    }
+
+
+    @When("I start to create a quest for a non-existent user using the following values")
+    public void iStartToCreateAQuestForANonExistentUserUsingTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        testContext.setTargetId(NON_EXISTENT_USER);
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            convertDataTableToQuestJson(dataTable, i);
+        }
+    }
+
+
+    @When("I create the quest")
+    public void iCreateTheQuest() {
+        try {
+            createQuestRequest(questObjectJson);
+        } catch (IOException e) {
+            fail();
         }
     }
 
