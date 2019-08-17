@@ -6,10 +6,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import models.objectives.Objective;
+import models.quests.Quest;
 import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.objectives.ObjectiveRepository;
+import repositories.quests.QuestRepository;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -19,10 +23,7 @@ import java.util.Map;
 
 import static org.junit.Assert.fail;
 import static play.mvc.Http.HttpVerbs.PUT;
-import static play.test.Helpers.POST;
-import static play.test.Helpers.GET;
-import static play.test.Helpers.fakeRequest;
-import static play.test.Helpers.route;
+import static play.test.Helpers.*;
 
 public class QuestTestSteps {
 
@@ -103,6 +104,18 @@ public class QuestTestSteps {
 
     private ObjectNode questObjectJson;
     private List<ObjectNode> questObjectivesJson = new ArrayList<>();
+
+
+    /**
+     * Repository to access the quests in the running application.
+     */
+    private QuestRepository questRepository = testContext.getApplication().injector().instanceOf(QuestRepository.class);
+
+
+    /**
+     * Repository to access the objectives in the running application.
+     */
+    private ObjectiveRepository objectiveRepository = testContext.getApplication().injector().instanceOf(ObjectiveRepository.class);
 
 
     /**
@@ -251,6 +264,21 @@ public class QuestTestSteps {
     }
 
 
+    /**
+     * Sends a request to delete a quest with the given id.
+     *
+     * @param questId       the id of the quest to delete.
+     */
+    private void deleteQuestRequest(Integer questId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(DELETE)
+                .uri(QUEST_URI + "/" + questId)
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+    }
+
+
     @Given("a quest already exists with the following values")
     public void aQuestAlreadyExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(testContext.getLoggedInId());
@@ -310,6 +338,7 @@ public class QuestTestSteps {
         }
     }
 
+
     @When("I attempt to retrieve all quests")
     public void iAttemptToRetrieveAllQuests() {
         getAllQuestsRequest();
@@ -328,9 +357,29 @@ public class QuestTestSteps {
     }
 
 
+    @When("^I delete a quest with id (\\d+)$")
+    public void iDeleteAQuestWithId(Integer questId) {
+        deleteQuestRequest(questId);
+    }
+
+
     @Then("^the response contains (\\d+) quests$")
     public void theResponseContainsQuests(int numberOfQuests) throws IOException {
         int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
         Assert.assertEquals(numberOfQuests, responseSize);
+    }
+
+
+    @Then("^the quest with id (\\d+) no longer exists$")
+    public void theQuestWithIdNoLongerExists(Integer questId) {
+        Quest quest = questRepository.findById(questId.longValue());
+        Assert.assertNull(quest);
+    }
+
+
+    @Then("^the objective with id (\\d+) still exists$")
+    public void theObjectiveWithIdStillExists(Integer objectiveId) {
+        Objective objective = objectiveRepository.findById(objectiveId.longValue());
+        Assert.assertNotNull(objective);
     }
 }

@@ -559,3 +559,44 @@ Feature: Quest API Endpoint
     And the application is running
     When I attempt to retrieve quests for user 2
     Then the status code received is 401
+
+
+  Scenario: Delete a quest I own
+    Given I am logged in
+    And the application is running
+    When I delete a quest with id 5
+    Then the status code received is 200
+    And the quest with id 5 no longer exists
+    And the objective with id 10 still exists
+    And the objective with id 11 still exists
+
+
+  Scenario: Delete a quest I do not own
+    Given I am logged in as an alternate user
+    And the application is running
+    When I delete a quest with id 5
+    Then the status code received is 403
+
+
+  Scenario: Delete a quest I do not own as an admin
+    Given I am logged in as an admin user
+    And the application is running
+    When I delete a quest with id 5
+    Then the status code received is 200
+    And the quest with id 5 no longer exists
+    And the objective with id 10 still exists
+    And the objective with id 11 still exists
+
+
+  Scenario: Delete a quest when I am not logged in
+    Given I am not logged in
+    And the application is running
+    When I delete a quest with id 5
+    Then the status code received is 401
+
+
+  Scenario: Delete a quest that does not exist
+    Given I am logged in
+    And the application is running
+    When I delete a quest with id 7
+    Then the status code received is 404
