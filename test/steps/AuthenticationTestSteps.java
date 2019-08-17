@@ -3,8 +3,6 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
 import cucumber.api.java.en.When;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -20,7 +18,7 @@ public class AuthenticationTestSteps {
      */
     private TestContext testContext = TestContext.getInstance();
 
-    private GeneralSteps generalSteps = new GeneralSteps();
+    private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
 
     /**
      * The username string variable.
@@ -63,13 +61,13 @@ public class AuthenticationTestSteps {
 
     @When("I log in")
     public void iLogIn() {
-        generalSteps.iAmLoggedIn();
+        generalTestSteps.iAmLoggedIn();
     }
 
 
     @When("I log out")
     public void iLogOut() {
-        generalSteps.iAmNotLoggedIn();
+        generalTestSteps.iAmNotLoggedIn();
     }
 
 

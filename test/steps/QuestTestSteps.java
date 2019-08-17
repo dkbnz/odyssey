@@ -2,18 +2,14 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mysql.cj.xdevapi.JsonArray;
 import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import models.destinations.Destination;
-import models.objectives.Objective;
+import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.ProfileRepository;
-import repositories.objectives.ObjectiveRepository;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -24,10 +20,11 @@ import java.util.Map;
 import static org.junit.Assert.fail;
 import static play.mvc.Http.HttpVerbs.PUT;
 import static play.test.Helpers.POST;
+import static play.test.Helpers.GET;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
 
-public class QuestSteps {
+public class QuestTestSteps {
 
     /**
      * Singleton class which stores generally used variables.
@@ -39,8 +36,8 @@ public class QuestSteps {
      * User Ids for the test context.
      */
     private static final String ADMIN_USER = "1";
-    private static final String REGULAR_USER = "1";
-    private static final String ALTERNATE_USER = "1";
+    private static final String REGULAR_USER = "2";
+    private static final String ALTERNATE_USER = "3";
 
 
 
@@ -209,6 +206,36 @@ public class QuestSteps {
 
 
     /**
+     * Sends a request to get all quests.
+     */
+    private void getAllQuestsRequest() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(QUEST_URI)
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    /**
+     * Sends a request to get all quests for a given user.
+     *
+     * @param userId        the id of the user who owns the quests.
+     */
+    private void getQuestsRequest(String userId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(QUEST_URI + "/" + userId)
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    /**
      * Sends a request to edit a quest with values from the given Json node.
      *
      * @param json      a JsonNode containing the values for a new quest object.
@@ -246,6 +273,7 @@ public class QuestSteps {
         }
     }
 
+
     @Given("with the following objective")
     public void questEditObjectives(io.cucumber.datatable.DataTable dataTable) {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
@@ -280,5 +308,29 @@ public class QuestSteps {
         for (int i = 0 ; i < dataTable.height() -1 ; i++) {
             convertDataTableToQuestJson(dataTable, i);
         }
+    }
+
+    @When("I attempt to retrieve all quests")
+    public void iAttemptToRetrieveAllQuests() {
+        getAllQuestsRequest();
+    }
+
+
+    @When("I attempt to retrieve my quests")
+    public void iAttemptToRetrieveMyQuests() {
+        getQuestsRequest(testContext.getLoggedInId());
+    }
+
+
+    @When("^I attempt to retrieve quests for user (\\d+)$")
+    public void iAttemptToRetrieveQuestsForUser(Integer userId) {
+        getQuestsRequest(userId.toString());
+    }
+
+
+    @Then("^the response contains (\\d+) quests$")
+    public void theResponseContainsQuests(int numberOfQuests) throws IOException {
+        int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
+        Assert.assertEquals(numberOfQuests, responseSize);
     }
 }
