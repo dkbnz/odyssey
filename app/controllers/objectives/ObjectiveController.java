@@ -98,12 +98,13 @@ public class ObjectiveController {
 
         Destination objectiveDestination = objective.getDestination();
 
-        if(objectiveDestination != null && objectiveDestination.getId() != null
-                && destinationRepository.findById(objectiveDestination.getId()) == null) {
+        if (objectiveDestination == null || objectiveDestination.getId() == null
+                || destinationRepository.findById(objectiveDestination.getId()) == null) {
             objectiveErrors.add(new ApiError(DESTINATION_ERROR));
+        } else {
+            objective.setDestination(destinationRepository.findById(objectiveDestination.getId()));
         }
 
-        objective.setDestination(objectiveDestination);
 
         Profile globalAdmin = profileRepository.findById(GLOBAL_ADMIN_ID);
 
@@ -113,8 +114,6 @@ public class ObjectiveController {
 
         if (objectiveDestination != null) {
             objectiveDestination.changeOwner(globalAdmin);
-        } else {
-            objectiveErrors.add(new ApiError(DESTINATION_ERROR));
         }
 
         // Validate objective and get any errors

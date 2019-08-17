@@ -73,8 +73,50 @@
                                 </b-col>
                             </b-row>
                             <div v-if="yourQuests" class="buttonMarginsTop">
-                                <h4>View Locations</h4>
-                                <p>Show Objectives here</p>
+                                <h4 @click="showLocations = !showLocations">{{showHideText}} Locations
+                                    <strong :class="{'arrow down':showLocations, 'arrow right': !showLocations }"></strong>
+                                </h4>
+                                <b-container fluid style="margin-top: 20px" v-if="showLocations">
+                                    <!-- Table displaying all added destinations -->
+                                    <b-table :current-page="currentPage" :fields="fields" :items="quest.objectives"
+                                             :per-page="perPage"
+                                             hover
+                                             id="myTrips"
+                                             outlined
+                                             ref="questObjective"
+                                             striped>
+
+                                        <template slot="radius" slot-scope="row">
+                                            {{getRadiusValue(row.item.radius)}}
+                                        </template>
+                                    </b-table>
+                                    <!-- Determines pagination and number of results per row of the table -->
+                                    <b-row>
+                                        <b-col cols="2">
+                                            <b-form-group
+                                                    id="numItems-field"
+                                                    label-for="perPage">
+                                                <b-form-select :options="optionViews"
+                                                               id="perPage"
+                                                               size="sm"
+                                                               trim v-model="perPage">
+                                                </b-form-select>
+                                            </b-form-group>
+                                        </b-col>
+                                        <b-col>
+                                            <b-pagination
+                                                    :per-page="perPage"
+                                                    :total-rows="rows(quest)"
+                                                    align="center"
+                                                    aria-controls="my-table"
+                                                    first-text="First"
+                                                    last-text="Last"
+                                                    size="sm"
+                                                    v-model="currentPage">
+                                            </b-pagination>
+                                        </b-col>
+                                    </b-row>
+                                </b-container>
                             </div>
 
                             <b-row v-if="yourQuests">
@@ -214,13 +256,39 @@
                     riddle: "",
                     radius: null
                 },
-                destinationSelected: {}
+                destinationSelected: {},
+                perPage: 5,
+                currentPage: 1,
+                showLocations: false,
+                fields: [
+                    {key: 'riddle', label: 'Riddle'},
+                    {key: 'destination.name', label: 'Destination'},
+                    {key: 'radius', label: 'Radius'},
+                ],
+                optionViews: [
+                    {value: 1, text: "1"},
+                    {value: 5, text: "5"},
+                    {value: 10, text: "10"},
+                    {value: 15, text: "15"},
+                    {value:Infinity, text:"All"}],
 
             }
         },
 
         mounted() {
             this.getMore();
+        },
+
+        computed: {
+            /**
+             * Returns a string for show/hide if the locations in a quest are displayed or not.
+             */
+            showHideText() {
+                if (this.showLocations) {
+                    return "Hide";
+                }
+                return "Show"
+            }
         },
 
         watch: {
@@ -465,6 +533,30 @@
                 }
                 newObjective.radius = radiusValue;
                 this.selectedObjective = newObjective;
+            },
+
+
+            /**
+             * Returns a string radius value determined by the size.
+             *
+             * @param radius    the radius to be changed.
+             */
+            getRadiusValue(radius) {
+                if (radius < 1) {
+                    return radius * 1000 + " Meters"
+                }
+                return radius + " Km";
+            },
+
+
+            /**
+             * Computed function used for the pagination of the table.
+             *
+             * @returns {number}    the number of rows required in the table based on number of objectives to be
+             *                      displayed.
+             */
+            rows(quest) {
+                return quest.objectives.length
             }
         },
 
@@ -476,3 +568,7 @@
         }
     }
 </script>
+
+<style scoped>
+    @import "../../css/quests.css";
+</style>
