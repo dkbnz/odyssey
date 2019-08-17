@@ -507,18 +507,55 @@ Feature: Quest API Endpoint
 #      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
 #    Then the status code received is 400
 
-  # TODO: Matthew and Matilda
-#  Scenario: Retrieve all quests I have created
-#    Given I am logged in
-#    And the application is running
-#    When I attempt to retrieve my quests
-#
-#
-#  Scenario: Retrieve quests when I have none created
-#    Given I am logged in as an alternate user
-#    And the application is running
-#
-#  Scenario: Retrieve quests when I am not logged in
-#    Given I am not logged in
-#    And the application is running
-#    When I attempt to retrieve my quests
+
+  Scenario: Retrieve all quests
+    Given I am logged in as an alternate user
+    And the application is running
+    When I attempt to retrieve all quests
+    Then the status code received is 200
+    And the response contains 5 quests
+
+
+  Scenario: Retrieve all quests when I am not logged in
+    Given I am not logged in
+    And the application is running
+    When I attempt to retrieve all quests
+    Then the status code received is 401
+
+
+  Scenario: Retrieve all quests I have created
+    Given I am logged in
+    And the application is running
+    When I attempt to retrieve my quests
+    Then the status code received is 200
+    And the response contains 5 quests
+
+
+  Scenario: Retrieve all quests when I have none created
+    Given I am logged in as an alternate user
+    And the application is running
+    When I attempt to retrieve my quests
+    Then the status code received is 200
+    And the response contains 0 quests
+
+
+  Scenario: Retrieve all quests for another user as an admin
+    Given I am logged in as an admin user
+    And the application is running
+    When I attempt to retrieve quests for user 2
+    Then the status code received is 200
+    And the response contains 5 quests
+
+
+  Scenario: Retrieve all quests for another user as a regular user
+    Given I am logged in as an alternate user
+    And the application is running
+    When I attempt to retrieve quests for user 2
+    Then the status code received is 403
+
+
+  Scenario: Retrieve all quests when I am not logged in
+    Given I am not logged in
+    And the application is running
+    When I attempt to retrieve quests for user 2
+    Then the status code received is 401

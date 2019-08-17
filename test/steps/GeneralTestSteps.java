@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static play.test.Helpers.*;
 
-public class GeneralSteps {
+public class GeneralTestSteps {
 
     /**
      * Singleton to contain the test variables
