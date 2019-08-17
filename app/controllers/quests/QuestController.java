@@ -150,6 +150,9 @@ public class QuestController {
 
         for(Objective newObjective : quest.getObjectives()) {
             newObjective.setOwner(questOwner);
+            if (newObjective.getDestination().getId() == null) {
+                return badRequest(ApiError.invalidJson());
+            }
             newObjective.setDestination(destinationRepository.findById(newObjective.getDestination().getId()));
         }
 
