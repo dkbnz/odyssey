@@ -11,16 +11,14 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.ProfileRepository;
-import repositories.objectives.ObjectiveRepository;
+import repositories.destinations.DestinationRepository;
 import repositories.quests.QuestRepository;
 import util.AuthenticationUtil;
 import util.Views;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static play.mvc.Results.*;
 
@@ -28,12 +26,14 @@ public class QuestController {
 
     private QuestRepository questRepository;
     private ProfileRepository profileRepository;
+    private DestinationRepository destinationRepository;
 
     @Inject
     public QuestController(QuestRepository questRepository,
-                           ProfileRepository profileRepository) {
+                           ProfileRepository profileRepository, DestinationRepository destinationRepository) {
         this.questRepository = questRepository;
         this.profileRepository = profileRepository;
+        this.destinationRepository = destinationRepository;
     }
 
 
@@ -88,17 +88,9 @@ public class QuestController {
             return badRequest(Json.toJson(questCreationErrors));
         }
 
-        Map<String, Integer> countryOccurrences = new HashMap<>();
         for(Objective objective : newQuest.getObjectives()) {
-            if (countryOccurrences.get(objective.getDestination().getCountry()) != null){
-                Integer count = countryOccurrences.get(objective.getDestination().getCountry());
-                count += 1;
-                countryOccurrences.put(objective.getDestination().getCountry(), count);
-            } else {
-                countryOccurrences.put(objective.getDestination().getCountry(), 1);
-            }
+            objective.setDestination(destinationRepository.findById(objective.getDestination().getId()));
         }
-        newQuest.setCountryOccurrences(countryOccurrences);
 
 
         questRepository.save(newQuest);

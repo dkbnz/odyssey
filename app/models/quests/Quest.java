@@ -14,9 +14,6 @@ import java.util.*;
 @Entity
 public class Quest extends BaseModel {
 
-    @ElementCollection
-    private Map<String, Integer> countryOccurrences;
-
     /**
      * List of objectives to be solved in this quest.
      */
@@ -91,6 +88,20 @@ public class Quest extends BaseModel {
     }
 
 
+    /**
+     * Returns a set containing all countries within the quest objectives.
+     *
+     * @return      a set of strings of countries.
+     */
+    public Set<String> getObjectiveCountries() {
+        Set<String> countries = new HashSet<>();
+        for (Objective objective : objectives) {
+            countries.add(objective.getDestination().getCountry());
+        }
+        return countries;
+    }
+
+
     public List<Objective> getObjectives() {
         return objectives;
     }
@@ -141,13 +152,5 @@ public class Quest extends BaseModel {
 
     public Profile getOwner() {
         return owner;
-    }
-
-    public Map<String, Integer> getCountryOccurrences() {
-        return countryOccurrences;
-    }
-
-    public void setCountryOccurrences(Map<String, Integer> countryOccurrences) {
-        this.countryOccurrences = countryOccurrences;
     }
 }
