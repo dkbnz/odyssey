@@ -26,7 +26,6 @@ import repositories.destinations.TravellerTypeRepository;
 import repositories.objectives.ObjectiveRepository;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -40,6 +39,12 @@ public class DestinationTestSteps {
      * Singleton class which stores generally used variables
      */
     private TestContext testContext = TestContext.getInstance();
+
+
+    /**
+     * New instance of the general test steps.
+     */
+    private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
 
 
     /**
@@ -164,14 +169,16 @@ public class DestinationTestSteps {
     private static final String END_DATE = "endDate";
     private static final String ID = "id";
 
-    private static final int START_DATE_BUFFER = -10;
-    private static final int END_DATE_BUFFER = 10;
-
-    private DestinationRepository destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
-    private TravellerTypeRepository travellerTypeRepository = testContext.getApplication().injector().instanceOf(TravellerTypeRepository.class);
-    private DestinationTypeRepository destinationTypeRepository = testContext.getApplication().injector().instanceOf(DestinationTypeRepository.class);
-    private ObjectiveRepository objectiveRepository = testContext.getApplication().injector().instanceOf(ObjectiveRepository.class);
-    private TripRepository tripRepository = testContext.getApplication().injector().instanceOf(TripRepository.class);
+    private DestinationRepository destinationRepository =
+            testContext.getApplication().injector().instanceOf(DestinationRepository.class);
+    private TravellerTypeRepository travellerTypeRepository =
+            testContext.getApplication().injector().instanceOf(TravellerTypeRepository.class);
+    private DestinationTypeRepository destinationTypeRepository =
+            testContext.getApplication().injector().instanceOf(DestinationTypeRepository.class);
+    private ObjectiveRepository objectiveRepository =
+            testContext.getApplication().injector().instanceOf(ObjectiveRepository.class);
+    private TripRepository tripRepository =
+            testContext.getApplication().injector().instanceOf(TripRepository.class);
 
 
     /**
@@ -455,11 +462,11 @@ public class DestinationTestSteps {
         targetUserId = list.get(index).get(OWNER_STRING);
 
         if (startDate.equals("")) {
-            startDate = getObjectiveDateBuffer(true);
+            startDate = generalTestSteps.getDateBuffer(true);
         }
 
         if (endDate.equals("")) {
-            endDate = getObjectiveDateBuffer(false);
+            endDate = generalTestSteps.getDateBuffer(false);
         }
 
         //Add values to a JsonNode
@@ -476,25 +483,6 @@ public class DestinationTestSteps {
         json.put(END_DATE, endDate);
 
         return json;
-    }
-
-
-    /**
-     * Creates a new datetime object from today's date. This is then used to ensure our tests will always pass, as a
-     * buffer is used to make the start date before today and the end date after today.
-     *
-     * @param isStartDate   boolean value to determine if the date being changed the start or the end date.
-     * @return              the start or end date, which is modified by the necessary date buffer.
-     */
-    private String getObjectiveDateBuffer(boolean isStartDate) {
-        Calendar calendar = Calendar.getInstance();
-
-        if (isStartDate) {
-            calendar.add(Calendar.DATE, START_DATE_BUFFER);
-        }
-        calendar.add(Calendar.DATE, END_DATE_BUFFER);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:MM:ssZ");
-        return sdf.format(calendar.getTime());
     }
 
 
@@ -719,6 +707,7 @@ public class DestinationTestSteps {
 
     /**
      * Creates one or many destinations under the ownership of the given user.
+     *
      * @param userId the user who will be in ownership of the destination(s).
      * @param dataTable the values of the destinations to be added.
      */
