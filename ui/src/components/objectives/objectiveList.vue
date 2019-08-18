@@ -46,10 +46,11 @@
                 <template v-if="!editingObjective && !(activeId === objective.id)">
                         <h4>Riddle</h4>
                         {{objective.riddle}}
-                        <h4 class="buttonMarginsTop">Radius</h4>
-                        {{getRadiusValue(objective.radius)}}
+
                     <div v-if="yourObjectives" class="buttonMarginsTop">
-                        <h4>Answer</h4>
+                        <h4>Radius</h4>
+                        {{getRadiusValue(objective.radius)}}
+                        <h4 class="buttonMarginsTop">Answer</h4>
                         <p>{{objective.destination.name}}</p>
                     </div>
 
