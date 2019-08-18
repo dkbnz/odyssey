@@ -17,6 +17,8 @@ import util.AuthenticationUtil;
 import util.Views;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
@@ -211,7 +213,8 @@ public class QuestController {
 
 
     /**
-     * Retrieves all the quests stored in the database.
+     * Retrieves all the quests stored in the database where today's date and time is between the quest's start and end
+     * dates.
      *
      * @param request   the request from the front end of the application containing login information.
      * @return          ok() (Http 200) response containing a Json body of the retrieved quests.
@@ -225,13 +228,25 @@ public class QuestController {
         }
 
         List<Quest> questQuery = questRepository.findAll();
+        Calendar now = Calendar.getInstance();
+
+        List<Quest> quests = new ArrayList<>();
+
+        for (Quest quest: questQuery) {
+            if ((quest.getStartDate().before(now.getTime())
+                    || quest.getStartDate().compareTo(now.getTime()) == 0)
+                    && (quest.getEndDate().after(now.getTime())
+                    || quest.getEndDate().compareTo(now.getTime()) == 0)) {
+                quests.add(quest);
+            }
+        }
 
         ObjectMapper mapper = new ObjectMapper();
         String result;
         try {
             result = mapper
                     .writerWithView(Views.Public.class)
-                    .writeValueAsString(questQuery);
+                    .writeValueAsString(quests);
         } catch (JsonProcessingException e) {
             return badRequest(ApiError.invalidJson());
         }

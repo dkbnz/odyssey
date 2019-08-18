@@ -401,6 +401,50 @@ Feature: Quest API Endpoint
     And the response contains 5 quests
 
 
+  Scenario: Retrieve all quests that are available with additional invalid quest dates
+    Given I am logged in as an alternate user
+    And the application is running
+    And a quest already exists with the following values
+      | Title       | Start Date               | End Date                 |
+      | Cool Quest  | 2019-08-16 03:02:00-0720 | 2019-08-17 03:02:00-0720 |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    And the status code received is 201
+    When I attempt to retrieve all quests
+    Then the status code received is 200
+    And the response contains 5 quests
+
+
+  Scenario: Retrieve all quests that are available with additional valid quest dates
+    Given I am logged in as an alternate user
+    And the application is running
+    And a quest already exists with the following values
+      | Title       | Start Date               | End Date                 |
+      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    And the status code received is 201
+    When I attempt to retrieve all quests
+    Then the status code received is 200
+    And the response contains 6 quests
+
+
   Scenario: Retrieve all quests when I am not logged in
     Given I am not logged in
     And the application is running

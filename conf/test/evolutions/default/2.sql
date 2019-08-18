@@ -524,11 +524,11 @@ INSERT INTO `objective` (`id`, `destination_id`, `riddle`, `radius`, `owner_id`)
 
 
 INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
-(1, 'Journey to the centre of the Earth', '2019-08-16 03:02:00', '2019-08-16 11:59:00', 2),
-(2, 'My new quest', '2019-08-15 22:47:00', '2019-08-16 11:59:00', 2),
-(3, 'I am your father', '2019-08-16 03:02:00', '2019-08-16 11:59:00', 2),
-(4, 'Use the force Luke', '2019-08-16 04:04:00', '2019-08-16 11:59:00', 2),
-(5, 'Energise', '2019-08-16 04:09:00', '2019-08-16 11:59:00', 2);
+(1, 'Journey to the centre of the Earth', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 2),
+(2, 'My new quest', '2019-08-15 22:47:00', '9999-08-16 11:59:00', 2),
+(3, 'I am your father', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 2),
+(4, 'Use the force Luke', '2019-08-16 04:04:00', '9999-08-16 11:59:00', 2),
+(5, 'Energise', '2019-08-16 04:09:00', '9999-08-16 11:59:00', 2);
 
 INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
 (1, 1),
