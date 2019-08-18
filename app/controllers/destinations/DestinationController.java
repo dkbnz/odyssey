@@ -8,7 +8,7 @@ import io.ebean.ExpressionList;
 import models.TravellerType;
 import models.destinations.Type;
 import models.photos.PersonalPhoto;
-import models.treasureHunts.TreasureHunt;
+import models.objectives.Objective;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -25,7 +25,7 @@ import repositories.destinations.DestinationRepository;
 import repositories.ProfileRepository;
 import repositories.TripDestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
-import repositories.treasureHunts.TreasureHuntRepository;
+import repositories.objectives.ObjectiveRepository;
 import util.AuthenticationUtil;
 
 import static util.QueryUtil.queryComparator;
@@ -56,7 +56,7 @@ public class DestinationController extends Controller {
     private DestinationRepository destinationRepository;
     private TripDestinationRepository tripDestinationRepository;
     private TripRepository tripRepository;
-    private TreasureHuntRepository treasureHuntRepository;
+    private ObjectiveRepository objectiveRepository;
     private DestinationTypeRepository destinationTypeRepository;
 
 
@@ -67,12 +67,12 @@ public class DestinationController extends Controller {
             DestinationTypeRepository destinationTypeRepository,
             TripDestinationRepository tripDestinationRepository,
             TripRepository tripRepository,
-            TreasureHuntRepository treasureHuntRepository) {
+            ObjectiveRepository objectiveRepository) {
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
         this.tripDestinationRepository = tripDestinationRepository;
         this.tripRepository = tripRepository;
-        this.treasureHuntRepository = treasureHuntRepository;
+        this.objectiveRepository = objectiveRepository;
         this.destinationTypeRepository = destinationTypeRepository;
     }
 
@@ -195,7 +195,7 @@ public class DestinationController extends Controller {
             } else {
                 return forbidden();
             }
-        } else if (!loggedInUser.getIsAdmin()) {
+        } else if (!loggedInUser.isAdmin()) {
             expressionList
                     .disjunction()
                         .eq(IS_PUBLIC, true)
@@ -557,7 +557,7 @@ public class DestinationController extends Controller {
         mergeTripDestinations(destinationToUpdate, destinationToMerge);
         mergePersonalPhotos(destinationToUpdate, destinationToMerge);
         mergeTravellerTypes(destinationToUpdate, destinationToMerge);
-        mergeTreasureHunts(destinationToUpdate, destinationToMerge);
+        mergeObjectives(destinationToUpdate, destinationToMerge);
         destinationToUpdate.setPublic(true);
 
         destinationRepository.save(destinationToUpdate);
@@ -685,18 +685,18 @@ public class DestinationController extends Controller {
 
 
     /**
-     * Merges all the treasure hunts for the destinations.
+     * Merges all the objectives for the destinations.
      *
-     * @param destinationToUpdate   the destination that gains all the treasure hunts.
+     * @param destinationToUpdate   the destination that gains all the objectives.
      * @param destinationToMerge    the destination that is being consumed.
      */
-    private void mergeTreasureHunts(Destination destinationToUpdate, Destination destinationToMerge) {
-        List<TreasureHunt> mergeTreasureHuntsList = treasureHuntRepository
-                .getTreasureHuntsWithDestination(destinationToMerge);
+    private void mergeObjectives(Destination destinationToUpdate, Destination destinationToMerge) {
+        List<Objective> mergeObjectivesList = objectiveRepository
+                .getObjectivesWithDestination(destinationToMerge);
 
-        for (TreasureHunt treasureHunt : mergeTreasureHuntsList) {
-            treasureHunt.setDestination(destinationToUpdate);
-            treasureHuntRepository.update(treasureHunt);
+        for (Objective objective : mergeObjectivesList) {
+            objective.setDestination(destinationToUpdate);
+            objectiveRepository.update(objective);
         }
     }
 }

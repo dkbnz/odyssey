@@ -173,7 +173,7 @@ public class DestinationTravellerTypeController {
             return unauthorized();
         }
 
-        if (!loggedInUser.getIsAdmin()) {
+        if (!loggedInUser.isAdmin()) {
             return forbidden();
         }
 

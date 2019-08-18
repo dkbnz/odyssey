@@ -96,11 +96,11 @@
                 </div>
 
                 <b-button @click="editDestination" variant="warning"
-                          v-if="destination.owner.id === profile.id || profile.isAdmin" block>
+                          v-if="destination.owner.id === profile.id || profile.admin" block>
                     Edit
                 </b-button>
                 <b-button @click="confirmDeleteDestination" variant="danger"
-                          v-if="destination.owner.id === profile.id || profile.isAdmin" block>
+                          v-if="destination.owner.id === profile.id || profile.admin" block>
                     Delete
                 </b-button>
             </b-col>
@@ -164,7 +164,7 @@
             travellerTypeButtonText() {
                 if (this.destination.owner !== null &&
                     this.profile.id === this.destination.owner.id ||
-                    this.profile.isAdmin) {
+                    this.profile.admin) {
                     return "Change Traveller Types"
                 }
                 return "Propose Traveller Types"
@@ -174,7 +174,7 @@
                 if (this.destination.owner !== undefined &&
                     this.profile !== undefined &&
                     this.profile.id === this.destination.owner.id ||
-                    this.profile.isAdmin) {
+                    this.profile.admin) {
                     return "Change Traveller Types"
                 }
                 if (this.showEditTravellerTypes) {
@@ -286,7 +286,7 @@
             requestTravellerTypeChange() {
                 let url = `/v1/destinations/` + this.destination.id + `/travellerTypes`;
                 let self = this;
-                if (this.destination.owner.id !== this.profile.id && !this.profile.isAdmin) {
+                if (this.destination.owner.id !== this.profile.id && !this.profile.admin) {
                     url += `/propose`;
                 }
                 fetch(url, {
@@ -296,7 +296,7 @@
                 })
                     .then(function (response) {
                         if (response.ok) {
-                            if (self.destination.owner.id === self.profile.id || self.profile.isAdmin) {
+                            if (self.destination.owner.id === self.profile.id || self.profile.admin) {
                                 self.destination.travellerTypes = self.calculatedTravellerTypes;
                                 self.alertMessage = "Destination traveller types updated";
                             } else {

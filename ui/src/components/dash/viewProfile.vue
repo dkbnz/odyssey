@@ -17,7 +17,7 @@
                 </b-alert>
                 <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
                 <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
-                <p v-if="profile.isAdmin"><i>Administrator</i></p>
+                <p v-if="profile.admin"><i>Administrator</i></p>
                 <p v-else><i>Regular User</i></p>
                 <h2>Personal Details</h2>
                 <p> Username: {{ profile.username }}</p>
@@ -102,14 +102,14 @@
 
         props: {
             profile: Object,
-            nationalityOptions: Array,
-            travTypeOptions: Array,
-            trips: Array,
             userProfile: {
                 default: function() {
                     return this.profile;
                 }
             },
+            nationalityOptions: Array,
+            travTypeOptions: Array,
+            trips: Array,
             adminView: Boolean,
             destinations: Array,
             showSaved: {
@@ -145,8 +145,14 @@
             }
         },
 
+        watch: {
+            userProfile() {
+                this.checkAuth();
+            },
+        },
+
         mounted() {
-            //this.checkAuth();
+            this.checkAuth();
             this.getProfilePictureThumbnail();
             this.getProfilePictureFull();
         },
@@ -252,7 +258,7 @@
              * view the users private photos and can add or delete images from the media.
              */
             checkAuth() {
-                this.auth = (this.userProfile.id !== undefined) && (this.userProfile.id === this.profile.id) || (this.userProfile.isAdmin && this.adminView);
+                this.auth = (this.userProfile.id !== undefined) && (this.userProfile.id === this.profile.id) || (this.userProfile.admin && this.adminView);
             },
 
 

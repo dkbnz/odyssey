@@ -1,4 +1,9 @@
-.mapDiv {
+.mapDivObjective {
+    height: 40vh;
+    margin-bottom: 2vh;
+}
+
+.mapDivDestination {
     height: 50vh;
 }
 
