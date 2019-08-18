@@ -293,7 +293,7 @@
         },
 
         watch: {
-            refreshObjectives() {
+            refreshQuests() {
                 this.getMore();
             },
 
