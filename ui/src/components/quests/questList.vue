@@ -426,10 +426,13 @@
                 this.questId = quest.id;
 
                 this.getActiveUsers();
-                //this.$refs['deleteQuestModal'].show();
+                this.$refs['deleteQuestModal'].show();
             },
 
 
+            /**
+             * Gets all users that are currently using the given quest.
+             */
             getActiveUsers() {
                 return fetch('/v1/quests/' + this.questId + '/profiles', {
                     accept: "application/json"
@@ -439,9 +442,9 @@
                     .then(data => {
                         console.log(data.length);
                         this.activeUsers = data.length;
-                        this.$refs['deleteQuestModal'].show();
                     });
             },
+
 
 
             /**

@@ -23,6 +23,36 @@
             ></b-progress>
         </b-alert>
 
+        <!-- Confirmation modal for deleting a quest. -->
+        <b-modal hide-footer id="editQuestModal" ref="editQuestModal" title="Edit Quest">
+            <div v-if="activeUsers > 0"
+                 class="d-block">
+                This quest is used by {{activeUsers}} users.
+            </div>
+            <div class="d-block">
+                Are you sure that you want to edit this Quest?
+            </div>
+            <b-row>
+                <b-col cols="6">
+                    <b-button
+                            class="mr-2"
+                            variant="warning"
+                            @click="updateQuest"
+                            block>
+                        Edit
+                    </b-button>
+                </b-col>
+                <b-col cols="6">
+                    <b-button
+                            @click="dismissModal('editQuestModal')"
+                            class="mr-2"
+                            block>
+                        Cancel
+                    </b-button>
+                </b-col>
+            </b-row>
+        </b-modal>
+
         <b-row>
             <b-col>
                 <b-form>
@@ -335,7 +365,8 @@
                     destination: null,
                     riddle: "",
                     radius: null
-                }
+                },
+                activeUsers: null
             }
         },
 
@@ -525,7 +556,8 @@
                 if (this.validateStartDate && this.validateStartTime && this.validateEndDate && this.validateEndTime
                     && this.validateTitle && this.validateObjectives) {
                     if (this.inputQuest.id !== null) {
-                        this.updateQuest();
+                        this.getActiveUsers();
+                        this.$refs['editQuestModal'].show()
                     } else {
                         this.saveQuest();
                     }
@@ -590,6 +622,19 @@
                 });
             },
 
+            /**
+             * Gets all users that are currently using the given quest.
+             */
+            getActiveUsers() {
+                return fetch('/v1/quests/' + this.inputQuest.id + '/profiles', {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(data => {
+                        this.activeUsers = data.length;
+                    });
+            },
 
             /**
              * PUT's the currently active quest to the quests endpoint in JSON format, for edited
@@ -685,7 +730,6 @@
                 this.objectiveSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[this.objectiveIndex]));
                 this.objectiveSelected.radius = radiusValue;
                 this.destinationSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[this.objectiveIndex].destination));
-                console.log(this.destinationSelected);
                 this.editCurrentObjective = true;
                 this.$emit('OBJ-side-bar', true);
             },
@@ -800,6 +844,15 @@
 
 
             /**
+             * Used to dismiss the delete a quest confirmation modal.
+             *
+             * @param modal, the modal that is wanting to be dismissed.
+             */
+            dismissModal(modal) {
+                this.$refs[modal].hide();
+            },
+
+            /**
              * Displays the countdown alert on the successful saving of a quest.
              */
             showAlert() {
@@ -875,7 +928,17 @@
                     return radius * 1000 + " Meters"
                 }
                 return radius + " Km";
-            }
+            },
+
+
+            /**
+             * Converts the Http response body to a Json.
+             * @param response  the received Http response.
+             * @returns {*}     the response body as a Json object.
+             */
+            parseJSON(response) {
+                return response.json();
+            },
         }
     }
 </script>
