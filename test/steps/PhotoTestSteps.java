@@ -6,15 +6,12 @@ import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 import models.Profile;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
 import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
@@ -55,9 +52,12 @@ public class PhotoTestSteps {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 
-    private PersonalPhotoRepository personalPhotoRepository = testContext.getApplication().injector().instanceOf(PersonalPhotoRepository.class);
-    private DestinationRepository destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
-    private ProfileRepository profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
+    private PersonalPhotoRepository personalPhotoRepository =
+            testContext.getApplication().injector().instanceOf(PersonalPhotoRepository.class);
+    private DestinationRepository destinationRepository =
+            testContext.getApplication().injector().instanceOf(DestinationRepository.class);
+    private ProfileRepository profileRepository =
+            testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
 
     /**
@@ -221,6 +221,7 @@ public class PhotoTestSteps {
         Result changeProfilePhotoResult = route(testContext.getApplication(), request);
         testContext.setStatusCode(changeProfilePhotoResult.status());
     }
+
 
     @When("^I add a photo with id (\\d+) to a destination with id (\\d+)$")
     public void iAddAPhotoWithIdToADestinationWithId(Integer photoId, Integer destinationId) {
