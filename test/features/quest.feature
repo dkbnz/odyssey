@@ -529,3 +529,61 @@ Feature: Quest API Endpoint
     And the application is running
     When I delete a quest with id 7
     Then the status code received is 404
+
+
+  Scenario: Starting a quest as a regular user
+    Given I am logged in
+    And the application is running
+    And a quest exists with id 5
+    When I start a quest with id 5
+    Then the status code received is 201
+    And the new quest attempt exists
+
+
+  Scenario: Starting a quest for a regular user as an admin
+    Given I am logged in as an admin user
+    And the application is running
+    And a quest exists with id 5
+    When I start a quest with id 5 for user 2
+    Then the status code received is 201
+    And the new quest attempt exists
+
+
+  Scenario: Starting a quest that does not exist
+    Given I am logged in
+    And the application is running
+    And a quest does not exist with id 7
+    When I start a quest with id 7
+    Then the status code received is 404
+    And the following ApiErrors are returned
+    | Resource not found. |
+
+
+  Scenario: Starting a quest for a user that does not exist
+    Given I am logged in as an admin user
+    And the application is running
+    And a quest exists with id 5
+    And a user does not exist with id 10
+    When I start a quest with id 5 for user 10
+    Then the status code received is 404
+    And the following ApiErrors are returned
+      | Resource not found. |
+
+  Scenario: Starting a quest I have already started
+    Given I am logged in
+    And the application is running
+    And a quest exists with id 5
+    When I start a quest with id 5
+    And I start a quest with id 5
+    Then the status code received is 400
+    And the following ApiErrors are returned
+      | An attempt already exists for this quest. |
+
+
+  Scenario: Starting a quest when I am not logged in
+    Given I am not logged in
+    And a quest exists with id 5
+    When I start a quest with id 5 for user 2
+    Then the status code received is 401
+    And the following ApiErrors are returned
+      | You are not logged in. |

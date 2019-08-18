@@ -8,11 +8,13 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.objectives.Objective;
 import models.quests.Quest;
+import models.quests.QuestAttempt;
 import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repositories.objectives.ObjectiveRepository;
+import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
 
 import java.io.IOException;
@@ -100,6 +102,12 @@ public class QuestTestSteps {
     private Long questId;
 
 
+    /**
+     * The id of the newly created quest attempt.
+     */
+    private Long questAttemptId;
+
+
     private ObjectNode questObjectJson;
     private List<ObjectNode> questObjectivesJson = new ArrayList<>();
 
@@ -108,6 +116,13 @@ public class QuestTestSteps {
      * Repository to access the quests in the running application.
      */
     private QuestRepository questRepository = testContext.getApplication().injector().instanceOf(QuestRepository.class);
+
+
+    /**
+     * Repository to access the quests in the running application.
+     */
+    private QuestAttemptRepository questAttemptRepository =
+            testContext.getApplication().injector().instanceOf(QuestAttemptRepository.class);
 
 
     /**
@@ -276,6 +291,25 @@ public class QuestTestSteps {
     }
 
 
+    private void startQuestRequest(Integer questId) throws IOException {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(QUEST_URI + "/" + questId + "/attempt/" + testContext.getTargetId())
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+
+        if (testContext.getStatusCode() < 400) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode actualObj = mapper.readTree(Helpers.contentAsString(result));
+            questAttemptId = Long.parseLong(actualObj.get(ID).toString());
+        } else {
+            questAttemptId = null;
+        }
+    }
+
+
     @Given("a quest already exists with the following values")
     public void aQuestAlreadyExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(testContext.getLoggedInId());
@@ -291,6 +325,32 @@ public class QuestTestSteps {
             convertDataTableToObjectiveJson(dataTable, i);
             questObjectJson.putArray(OBJECTIVES).addAll(questObjectivesJson);
         }
+    }
+
+
+    @Given("^a quest exists with id (\\d+)$")
+    public void aQuestExistsWithId(Integer questId) {
+        Assert.assertNotNull(questRepository.findById(Long.valueOf(questId)));
+    }
+
+
+    @Given("^a quest does not exist with id (\\d+)$")
+    public void aQuestDoesNotExistWithId(Integer questId) {
+        Assert.assertNull(questRepository.findById(Long.valueOf(questId)));
+    }
+
+
+    @When("^I start a quest with id (\\d+)$")
+    public void iStartAQuestWithId(Integer questId) throws IOException {
+        testContext.setTargetId(testContext.getLoggedInId());
+        startQuestRequest(questId);
+    }
+
+
+    @When("^I start a quest with id (\\d+) for user (\\d+)$")
+    public void iStartAQuestWithIdForUser(Integer questId, Integer userId) throws IOException {
+        testContext.setTargetId(userId.toString());
+        startQuestRequest(questId);
     }
 
 
@@ -387,5 +447,11 @@ public class QuestTestSteps {
     public void theObjectiveWithIdStillExists(Integer objectiveId) {
         Objective objective = objectiveRepository.findById(objectiveId.longValue());
         Assert.assertNotNull(objective);
+    }
+
+
+    @Then("the new quest attempt exists")
+    public void theNewQuestAttemptExists() {
+        Assert.assertNotNull(questAttemptRepository.findById(questAttemptId));
     }
 }

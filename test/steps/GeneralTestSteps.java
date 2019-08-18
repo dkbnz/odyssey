@@ -13,6 +13,7 @@ import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.ProfileRepository;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -80,6 +81,12 @@ public class GeneralTestSteps {
     private static final String ALT_ID = "3";
 
 
+    /**
+     * Repository to access the profiles in the running application.
+     */
+    private ProfileRepository profileRepository;
+
+
     @Before
     public void setUp() {
 
@@ -99,6 +106,8 @@ public class GeneralTestSteps {
         applyEvolutions();
 
         Helpers.start(testContext.getApplication());
+
+        profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
     }
 
 
@@ -234,6 +243,12 @@ public class GeneralTestSteps {
     public void iAmNotLoggedIn() {
         logoutRequest();
         assertNull(testContext.getLoggedInId());
+    }
+
+
+    @Given("^a user does not exist with id (\\d+)$")
+    public void aUserDoesNotExistWithId(Integer userId) {
+        Assert.assertNull(profileRepository.findById(Long.valueOf(userId)));
     }
 
 
