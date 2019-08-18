@@ -47,7 +47,6 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
      */
     public List<Destination> fetchProposed() {
         return query()
-            .select("destination")
             .where()
             .disjunction()
             .isNotEmpty("proposedTravellerTypesAdd")
