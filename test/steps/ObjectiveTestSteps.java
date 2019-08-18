@@ -3,8 +3,6 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -14,7 +12,6 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static play.test.Helpers.*;
@@ -55,12 +52,10 @@ public class ObjectiveTestSteps {
     private static final String RADIUS = "radius";
     private static final String ID = "id";
 
-    private static final int START_DATE_BUFFER = -10;
-    private static final int END_DATE_BUFFER = 10;
-
 
     /**
      * Converts a given data table of destination values to a json node object of this destination.
+     *
      * @param dataTable     the data table containing values of a destination.
      * @return              a JsonNode of a destination containing information from the data table.
      */
@@ -91,6 +86,7 @@ public class ObjectiveTestSteps {
 
     /**
      * Sends a request to create a objective with values from the given Json node.
+     *
      * @param json      a JsonNode containing the values for a new objective object.
      */
     private void createObjectiveRequest(JsonNode json) {
@@ -111,6 +107,7 @@ public class ObjectiveTestSteps {
 
     /**
      * Sends a request to edit a objective with values from the given Json node.
+     *
      * @param json      a JsonNode containing the values for a edited objective object.
      */
     private void editObjectiveRequest(JsonNode json) {
