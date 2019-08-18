@@ -246,6 +246,12 @@ public class GeneralTestSteps {
     }
 
 
+    @Given("^a user exists with id (\\d+)$")
+    public void aUserExistsWithId(Integer userId) {
+        Assert.assertNotNull(profileRepository.findById(Long.valueOf(userId)));
+    }
+
+
     @Given("^a user does not exist with id (\\d+)$")
     public void aUserDoesNotExistWithId(Integer userId) {
         Assert.assertNull(profileRepository.findById(Long.valueOf(userId)));
@@ -267,5 +273,4 @@ public class GeneralTestSteps {
             Assert.assertTrue(expectedApiErrors.contains(error.get("message").asText()));
         }
     }
-
 }

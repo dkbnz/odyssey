@@ -340,6 +340,12 @@ public class QuestTestSteps {
     }
 
 
+    @Given("^an objective exists with id (\\d+)$")
+    public void anObjectiveExistsWithId(Integer objectiveId) {
+        Assert.assertNotNull(objectiveRepository.findById(Long.valueOf(objectiveId)));
+    }
+
+
     @When("^I start a quest with id (\\d+)$")
     public void iStartAQuestWithId(Integer questId) throws IOException {
         testContext.setTargetId(testContext.getLoggedInId());
