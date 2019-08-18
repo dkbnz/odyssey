@@ -160,13 +160,11 @@ public class DestinationTestSteps {
     private static final String IS_PUBLIC = "is_public";
 
     private static final String RIDDLE_STRING = "Riddle";
-    private static final String START_DATE_STRING = "Start Date";
-    private static final String END_DATE_STRING = "End Date";
+    private static final String RADIUS_STRING = "Radius";
     private static final String OWNER_STRING = "Owner";
     private static final String DESTINATION = "destination";
     private static final String RIDDLE = "riddle";
-    private static final String START_DATE = "startDate";
-    private static final String END_DATE = "endDate";
+    private static final String RADIUS = "radius";
     private static final String ID = "id";
 
     private DestinationRepository destinationRepository =
@@ -455,19 +453,10 @@ public class DestinationTestSteps {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         String riddle                  = list.get(index).get(RIDDLE_STRING);
-        String startDate               = list.get(index).get(START_DATE_STRING);
-        String endDate                 = list.get(index).get(END_DATE_STRING);
+        String radius                  = list.get(index).get(RADIUS_STRING);
 
 
         targetUserId = list.get(index).get(OWNER_STRING);
-
-        if (startDate.equals("")) {
-            startDate = generalTestSteps.getDateBuffer(true);
-        }
-
-        if (endDate.equals("")) {
-            endDate = generalTestSteps.getDateBuffer(false);
-        }
 
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
@@ -479,8 +468,7 @@ public class DestinationTestSteps {
         }
 
         json.put(RIDDLE, riddle);
-        json.put(START_DATE, startDate);
-        json.put(END_DATE, endDate);
+        json.put(RADIUS, radius);
 
         return json;
     }

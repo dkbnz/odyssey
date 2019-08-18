@@ -61,23 +61,27 @@
                                        :key="quest.id"
                                        draggable="false">
                         <template v-if="!editingQuest && !(activeId === quest.id)">
-                                <h4>Title</h4>
-                                {{quest.title}}
+
+
+
                             <b-row class="buttonMarginsTop">
                                 <b-col>
+                                    <h4>Title</h4>
+                                    <p>{{quest.title}}</p>
                                     <h4>Start Date</h4>
                                     {{new Date(quest.startDate)}}
                                 </b-col>
                                 <b-col>
+                                    <h4>Countries</h4>
+                                    <p>{{getQuestCountries(quest)}}</p>
                                     <h4>End Date</h4>
                                     {{new Date(quest.endDate)}}
                                 </b-col>
                             </b-row>
+
                             <div v-if="yourQuests" class="buttonMarginsTop">
-                                <h4 @click="showLocations = !showLocations">{{showHideText}} Locations
-                                    <strong :class="{'arrow down':showLocations, 'arrow right': !showLocations }"></strong>
-                                </h4>
-                                <b-container fluid style="margin-top: 20px" v-if="showLocations">
+                                <h4 @click="showHideLocations(quest)"> Show/Hide Locations</h4>
+                                <b-container fluid style="margin-top: 20px; display: none" :id="'display-' + quest.id">
                                     <!-- Table displaying all added destinations -->
                                     <b-table :current-page="currentPage" :fields="fields" :items="quest.objectives"
                                              :per-page="perPage"
@@ -289,10 +293,16 @@
             /**
              * Returns a string for show/hide if the locations in a quest are displayed or not.
              */
-            showHideText() {
+            showHideText(quest) {
+
                 if (this.showLocations) {
                     return "Hide";
                 }
+                setTimeout(function() {
+                    if (document.getElementById("display-" + quest.id).hidden) {
+                        console.log("HERE");
+                    }
+                }, 3000)
                 return "Show"
             }
         },
@@ -575,6 +585,23 @@
 
 
             /**
+             * Returns a string of the countries contained in the quest objectives, which indicates the quest scope.
+             *
+             * @param quest     the quest containing one or more countries.
+             */
+            getQuestCountries(quest) {
+                let countries = "";
+                let numberOfCountries = quest.objectiveCountries.length;
+                for (let i = 0; i < numberOfCountries - 1; i++) {
+                    countries += quest.objectiveCountries[i] + ", ";
+                }
+                countries += quest.objectiveCountries[numberOfCountries - 1];
+
+                return countries;
+            },
+
+
+            /**
              * Computed function used for the pagination of the table.
              *
              * @returns {number}    the number of rows required in the table based on number of objectives to be
@@ -582,6 +609,25 @@
              */
             rows(quest) {
                 return quest.objectives.length
+            },
+
+
+            /**
+             * Hides or shows the quest locations given by the quest location id parameter.
+             *
+             * @param quest      the quest locations to hide.
+             */
+            showHideLocations(quest) {
+                let questLocationsId = "display-" + quest.id;
+                let locationsSection = document.getElementById(questLocationsId);
+
+                if (locationsSection.style.display === "none") {
+                    locationsSection.style.display = "block";
+                    this.checkShowHide(quest);
+                } else {
+                    locationsSection.style.display = "none";
+                    this.checkShowHide(quest);
+                }
             }
         },
 
