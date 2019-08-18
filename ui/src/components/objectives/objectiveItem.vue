@@ -1,4 +1,4 @@
-<template>
+      <template>
     <div>
         <h1 class="page-title">{{ heading }} an Objective!</h1>
 
@@ -322,6 +322,7 @@
              */
             assembleObjective() {
                 this.inputObjective.destination = {"id": this.inputObjective.destination.id};
+                this.inputObjective.radius = this.inputObjective.radius.value;
             },
 
 
