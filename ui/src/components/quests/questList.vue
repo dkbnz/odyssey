@@ -61,18 +61,31 @@
                                        :key="quest.id"
                                        draggable="false">
                         <template v-if="!editingQuest && !(activeId === quest.id)">
-                                <h4>Title</h4>
-                                {{quest.title}}
+
+
+
                             <b-row class="buttonMarginsTop">
                                 <b-col>
+                                    <h4>Title</h4>
+                                    <p>{{quest.title}}</p>
                                     <h4>Start Date</h4>
                                     {{new Date(quest.startDate)}}
                                 </b-col>
                                 <b-col>
+                                    <h4>Countries</h4>
+                                    <p>
+                                    {{getQuestCountries(quest)}}<!--<li v-for="country in quest.objectiveCountries">-->
+                                        <!--{{country}}-->
+                                    <!--</li>-->
+                                    </p>
                                     <h4>End Date</h4>
                                     {{new Date(quest.endDate)}}
                                 </b-col>
                             </b-row>
+
+
+
+
                             <div v-if="yourQuests" class="buttonMarginsTop">
                                 <h4 @click="showLocations = !showLocations">{{showHideText}} Locations
                                     <strong :class="{'arrow down':showLocations, 'arrow right': !showLocations }"></strong>
@@ -547,6 +560,23 @@
                     return radius * 1000 + " Meters"
                 }
                 return radius + " Km";
+            },
+
+
+            /**
+             * Returns a string of the countries contained in the quest objectives, which indicates the quest scope.
+             *
+             * @param quest     the quest containing one or more countries.
+             */
+            getQuestCountries(quest) {
+                let countries = "";
+                let numberOfCountries = quest.objectiveCountries.length;
+                for (let i = 0; i < numberOfCountries - 1; i++) {
+                    countries += quest.objectiveCountries[i] + ", ";
+                }
+                countries += quest.objectiveCountries[numberOfCountries - 1];
+
+                return countries;
             },
 
 
