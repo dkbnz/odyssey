@@ -47,4 +47,8 @@ public class ApiError {
     public static JsonNode invalidJson() {
         return Json.toJson(Arrays.asList(new ApiError("The JSON body received in the request was invalid.")));
     }
+
+    public static JsonNode badRequest(String message) {
+        return Json.toJson(Arrays.asList(new ApiError(message)));
+    }
 }

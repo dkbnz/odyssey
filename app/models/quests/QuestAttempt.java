@@ -8,6 +8,7 @@ import models.Profile;
 import models.destinations.Destination;
 import models.objectives.Objective;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import java.util.List;
@@ -18,14 +19,14 @@ public class QuestAttempt extends BaseModel {
     /**
      * Profile that has attempted the Quest.
      */
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JsonIgnore
     private Profile attemptedBy;
 
     /**
      * The Quest to be attempted.
      */
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JsonIgnore
     private Quest questAttempted;
 
@@ -155,5 +156,14 @@ public class QuestAttempt extends BaseModel {
      */
     public boolean isCompleted() {
         return completed;
+    }
+
+
+    public Profile getAttemptedBy() {
+        return attemptedBy;
+    }
+
+    public Quest getQuestAttempted() {
+        return questAttempted;
     }
 }

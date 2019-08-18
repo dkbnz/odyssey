@@ -8,6 +8,10 @@ import models.quests.Quest;
 import java.util.List;
 
 
+/**
+ * Handles database interaction for quests.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
 public class QuestRepository extends BeanRepository<Long, Quest> {
 
     @Inject

@@ -82,5 +82,8 @@ PUT     /v1/quests/:userId                      controllers.quests.QuestControll
 DELETE  /v1/quests/:questId                     controllers.quests.QuestController.delete(request: Request, questId: Long)
 GET     /v1/quests/:questId/profiles            controllers.quests.QuestController.fetchActiveUsers(request: Request, questId: Long)
 
+# Quest Attempt
+POST    /v1/quests/:questId/attempt/:userId     controllers.quests.QuestController.attempt(request: Request, questId: Long, userId: Long)
+
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
 GET     /*file                                  controllers.Assets.at(path="/public", file)

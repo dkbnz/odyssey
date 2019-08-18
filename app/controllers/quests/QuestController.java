@@ -7,11 +7,13 @@ import models.ApiError;
 import models.Profile;
 import models.objectives.Objective;
 import models.quests.Quest;
+import models.quests.QuestAttempt;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.ProfileRepository;
 import repositories.destinations.DestinationRepository;
+import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
 import util.AuthenticationUtil;
 import util.Views;
@@ -26,14 +28,20 @@ import static play.mvc.Results.*;
 
 public class QuestController {
 
+    private static final String QUEST_ATTEMPT_EXISTS = "An attempt already exists for this quest.";
+
     private QuestRepository questRepository;
+    private QuestAttemptRepository questAttemptRepository;
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
 
     @Inject
     public QuestController(QuestRepository questRepository,
-                           ProfileRepository profileRepository, DestinationRepository destinationRepository) {
+                           QuestAttemptRepository questAttemptRepository,
+                           ProfileRepository profileRepository,
+                           DestinationRepository destinationRepository) {
         this.questRepository = questRepository;
+        this.questAttemptRepository = questAttemptRepository;
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
     }
@@ -318,5 +326,40 @@ public class QuestController {
 //            return badRequest(ApiError.invalidJson());
 //        }
         return ok(Json.toJson(activeProfiles));
+    }
+
+
+    /**
+     * Creates a new quest attempt for the given quest and user.
+     *
+     * @param request       the request containing information to start a new quest attempt.
+     * @param questId       the id of the quest to be attempted.
+     * @param userId        the id of the user attempting the quest.
+     * @return              created() (Http 201) response containing the quest attempt.
+     *                      notFound() (Http 404) response containing an ApiError for retrieval failure.
+     *                      unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
+     */
+    public Result attempt(Http.Request request, Long questId, Long userId) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        Quest questToAttempt = questRepository.findById(questId);
+        Profile attemptedBy = profileRepository.findById(userId);
+        if (questToAttempt == null || attemptedBy == null) {
+            return notFound(ApiError.notFound());
+        }
+
+        QuestAttempt attempt = new QuestAttempt(attemptedBy, questToAttempt);
+
+        // Check the user has not already started a quest attempt for the given quest
+        if (questAttemptRepository.exists(attempt)) {
+            return badRequest(ApiError.badRequest(QUEST_ATTEMPT_EXISTS));
+        }
+
+        questAttemptRepository.save(attempt);
+
+        return created(Json.toJson(attempt));
     }
 }
