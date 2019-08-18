@@ -3,6 +3,7 @@ package repositories.quests;
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import models.quests.Quest;
 
 import java.util.List;
@@ -23,5 +24,14 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
      */
     public List<Quest> findAllUsing(String country) {
         return query().where().in("countryOccurrences.key", country).findList();
+    }
+
+
+    /**
+     * Gets the expression list to build the search query for quests.
+     * @return          an expression list with object type Quest.
+     */
+    public ExpressionList<Quest> getExpressionList() {
+        return query().where();
     }
 }

@@ -3,10 +3,12 @@ package controllers.quests;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import io.ebean.ExpressionList;
 import models.ApiError;
 import models.Profile;
 import models.objectives.Objective;
 import models.quests.Quest;
+import org.springframework.core.env.Profiles;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -23,12 +25,20 @@ import java.util.Collection;
 import java.util.List;
 
 import static play.mvc.Results.*;
+import static util.QueryUtil.queryComparator;
 
 public class QuestController {
 
     private QuestRepository questRepository;
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
+
+    private final String TITLE = "title";
+    private final String OPERATOR = "operator";
+    private final String OBJECTIVE = "objective";
+    private final String FIRSTNAME = "first_name";
+    private final String LASTNAME = "last_name";
+    private final String COUNTRY = "country";
 
     @Inject
     public QuestController(QuestRepository questRepository,
@@ -227,7 +237,7 @@ public class QuestController {
             return unauthorized(ApiError.unauthorized());
         }
 
-        List<Quest> questQuery = questRepository.findAll();
+        List<Quest> questQuery = getQuestsQuery(request);
         Calendar now = Calendar.getInstance();
 
         List<Quest> quests = new ArrayList<>();
@@ -318,5 +328,90 @@ public class QuestController {
 //            return badRequest(ApiError.invalidJson());
 //        }
         return ok(Json.toJson(activeProfiles));
+    }
+
+
+    /**
+     * Fetches all destinations based on Http request query parameters. This also includes pagination, destination
+     * ownership and the public or private query.
+     *
+     * @param request   Http request containing query parameters to filter results.
+     * @return          ok() (Http 200) response containing the destinations found in the response body, forbidden()
+     *                  (Http 403) if the user has tried to access destinations they are not authorised for.
+     */
+    private List<Quest> getQuestsQuery(Http.Request request) {
+
+        int pageNumber = 0;
+        int pageSize = 50;
+        List<Quest> quests;
+
+        ExpressionList<Quest> expressionList = questRepository.getExpressionList();
+
+        if (request.getQueryString(TITLE) != null && !request.getQueryString(TITLE).isEmpty()) {
+            expressionList.ilike(TITLE, queryComparator(request.getQueryString(TITLE)));
+        }
+
+        if (request.getQueryString(OPERATOR) != null &&
+            !request.getQueryString(OPERATOR).isEmpty() &&
+            request.getQueryString(OBJECTIVE) != null &&
+            !request.getQueryString(OBJECTIVE).isEmpty()) {
+
+            if (request.getQueryString(OPERATOR).equals("=")) {
+                expressionList.eq(OBJECTIVE, Double.parseDouble(request.getQueryString(OBJECTIVE)));
+            } else if (request.getQueryString(OPERATOR).equals("<")) {
+                expressionList.lt(OBJECTIVE, Double.parseDouble(request.getQueryString(OBJECTIVE)));
+            } else if (request.getQueryString(OPERATOR).equals(">")) {
+                expressionList.gt(OBJECTIVE, Double.parseDouble(request.getQueryString(OBJECTIVE)));
+            }
+        }
+
+        ExpressionList<Profile> profileExpressionList = profileRepository.getExpressionList();
+        Boolean findByOwner = false;
+
+        if (request.getQueryString(FIRSTNAME) != null && !request.getQueryString(FIRSTNAME).isEmpty()) {
+            profileExpressionList.ilike(FIRSTNAME, queryComparator(request.getQueryString(FIRSTNAME)));
+            findByOwner = true;
+        }
+
+        if (request.getQueryString(LASTNAME) != null && !request.getQueryString(LASTNAME).isEmpty()) {
+            profileExpressionList.ilike(LASTNAME, queryComparator(request.getQueryString(LASTNAME)));
+            findByOwner = true;
+        }
+
+        if (findByOwner) {
+            List<Profile> profiles = profileExpressionList
+                    .select("id")
+                    .findList();
+            System.out.println(profiles);
+            //expressionList.in("owner_id", profiles);
+        }
+
+//
+//        }
+//        if (request.getQueryString(LONGITUDE) != null && !request.getQueryString(LONGITUDE).isEmpty()) {
+//            expressionList.eq(LONGITUDE, Double.parseDouble(request.getQueryString(LONGITUDE)));
+//        }
+//        if (request.getQueryString(DISTRICT) != null && !request.getQueryString(DISTRICT).isEmpty()) {
+//            expressionList.ilike(DISTRICT, queryComparator(request.getQueryString(DISTRICT)));
+//        }
+//        if (request.getQueryString(COUNTRY) != null && !request.getQueryString(COUNTRY).isEmpty()) {
+//            expressionList.ilike(COUNTRY, queryComparator(request.getQueryString(COUNTRY)));
+//        }
+//        if (request.getQueryString(IS_PUBLIC) != null && !request.getQueryString(IS_PUBLIC).isEmpty()) {
+//            expressionList.eq(IS_PUBLIC, request.getQueryString(IS_PUBLIC));
+//        }
+
+        // If page query is set, load said page. Otherwise, return the first page.
+//        if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
+//            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
+//        }
+
+        String startDate = "start_date";
+
+        quests = expressionList
+                .order(startDate)
+                .findList();
+
+        return quests;
     }
 }
