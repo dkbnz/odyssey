@@ -144,7 +144,7 @@
              * view the users private photos and can add or delete images from the media.
              */
             checkAuth() {
-                this.auth = (this.userProfile.id === this.profile.id || (this.userProfile.isAdmin && this.adminView));
+                this.auth = (this.userProfile.id === this.profile.id || (this.userProfile.admin && this.adminView));
             },
 
 

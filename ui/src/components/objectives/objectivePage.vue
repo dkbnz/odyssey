@@ -1,37 +1,37 @@
 <template>
     <div v-if="profile.length !== 0" :class="containerClass">
-        <!--Shows tabs for treasure hunt page-->
+        <!--Shows tabs for objective page-->
         <navbar-main v-bind:profile="profile" v-if="!adminView"></navbar-main>
         <div class="containerMain">
-            <h1 class="page-title">Treasure Hunts</h1>
+            <h1 class="page-title">Objectives</h1>
             <p class="page-title">
-                <i>Here you can view and create Treasure hunts!</i>
+                <i>Here you can view and create Objectives!</i>
             </p>
             <b-row>
                 <b-col cols="8">
                     <b-card>
                         <b-tabs content-class="mt-3">
-                            <b-tab title="Available Treasure Hunts" @click="refreshTreasureHunts = !refreshTreasureHunts" active>
-                                <treasure-hunt-list
+                            <b-tab title="Available Objectives" @click="refreshObjectives = !refreshObjectives" active>
+                                <objective-list
                                         :profile="profile"
                                         :adminView="adminView"
-                                        :yourTreasureHunts="false"
-                                        :refreshTreasureHunts="refreshTreasureHunts"
+                                        :yourObjectives="false"
+                                        :refreshObjectives="refreshObjectives"
                                         :selectedDestination="selectedDestination"
                                         @destination-select="showDestinationsSidebar"
                                         @hide-destinations="hideDestinationsSidebar"
-                                ></treasure-hunt-list>
+                                ></objective-list>
                             </b-tab>
-                            <b-tab title="Your Treasure Hunts" @click="refreshTreasureHunts = !refreshTreasureHunts">
-                                <treasure-hunt-list
+                            <b-tab title="Your Objectives" @click="refreshObjectives = !refreshObjectives">
+                                <objective-list
                                         :profile="profile"
                                         :adminView="adminView"
-                                        :yourTreasureHunts="true"
-                                        :refreshTreasureHunts="refreshTreasureHunts"
+                                        :yourObjectives="true"
+                                        :refreshObjectives="refreshObjectives"
                                         :selectedDestination="selectedDestination"
                                         @destination-select="showDestinationsSidebar"
                                         @hide-destinations="hideDestinationsSidebar"
-                                ></treasure-hunt-list>
+                                ></objective-list>
                             </b-tab>
                         </b-tabs>
                     </b-card>
@@ -59,10 +59,10 @@
     import NavbarMain from "../helperComponents/navbarMain";
     import UnauthorisedPromptPage from "../helperComponents/unauthorisedPromptPage";
     import FoundDestinations from "../destinations/destinationSearchList";
-    import TreasureHuntList from "./treasureHuntList";
+    import ObjectiveList from "./objectiveList";
     import FooterMain from "../helperComponents/footerMain";
     export default {
-        name: "treasureHuntPage",
+        name: "objectivePage",
 
         props: {
             profile: Object,
@@ -82,7 +82,7 @@
             return {
                 selectedDestination: {},
                 showDestinations: false,
-                refreshTreasureHunts: false
+                refreshObjectives: false
             }
         },
 
@@ -106,7 +106,7 @@
 
         components: {
             FooterMain,
-            TreasureHuntList,
+            ObjectiveList,
             FoundDestinations,
             UnauthorisedPromptPage,
             NavbarMain,

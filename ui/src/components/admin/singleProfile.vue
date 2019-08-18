@@ -14,11 +14,12 @@
                                 </b-img>
                                 {{editProfile.firstName}}
                             </b-navbar-brand>
-                            <b-nav-item @click="currentDisplay = 1">Edit Profile</b-nav-item>
-                            <b-nav-item @click="currentDisplay = 2">View Trips</b-nav-item>
-                            <b-nav-item @click="currentDisplay = 3">Add Trips</b-nav-item>
-                            <b-nav-item @click="currentDisplay = 4">Destinations</b-nav-item>
-                            <b-nav-item @click="currentDisplay = 5">Treasure Hunts</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 1" :class="{boldText: currentDisplay === 1}">Edit Profile</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 2" :class="{boldText: currentDisplay === 2}">View Trips</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 3" :class="{boldText: currentDisplay === 3}">Add Trips</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 4" :class="{boldText: currentDisplay === 4}">Destinations</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 5" :class="{boldText: currentDisplay === 5}">Objectives</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 6" :class="{boldText: currentDisplay === 6}">Quests</b-nav-item>
                         </b-nav>
                     </b-collapse>
                     <b-navbar-toggle target="nav-collapse-admin"></b-navbar-toggle>
@@ -73,12 +74,18 @@
                         :profile="editProfile"
                         v-if="currentDisplay === 4">
                 </destinations-page>
-                <treasure-hunt-page
+                <objective-page
                         :containerClass="'noBordersContainer'"
                         :adminView="adminView"
                         :profile="editProfile"
                         v-if="currentDisplay === 5">
-                </treasure-hunt-page>
+                </objective-page>
+                <quest-page
+                        :containerClass="'noBordersContainer'"
+                        :adminView="adminView"
+                        :profile="editProfile"
+                        v-if="currentDisplay === 6">
+                </quest-page>
             </b-col>
         </b-row>
     </div>
@@ -91,7 +98,8 @@
     import YourTrips from './../trips/yourTrips.vue'
     import EditProfile from "./../dash/editProfile.vue"
     import DestinationsPage from "./../destinations/destinationsPage.vue"
-    import TreasureHuntPage from "../treasureHunt/treasureHuntPage";
+    import ObjectivePage from "../objectives/objectivePage";
+    import QuestPage from "../quests/questPage";
 
     export default {
         name: "singleProfile",
@@ -148,7 +156,8 @@
         },
 
         components: {
-            TreasureHuntPage,
+            QuestPage,
+            ObjectivePage,
             ViewProfile,
             PlanATrip,
             YourTrips,
@@ -173,6 +182,10 @@
 
     a {
         color: grey;
+    }
+
+    .boldText {
+        font-weight: bold
     }
 
 </style>

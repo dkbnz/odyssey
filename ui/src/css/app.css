@@ -195,3 +195,7 @@ a {
     font-size: 12px;
     color: grey;
 }
+
+.defaultCursor {
+    cursor: default;
+}

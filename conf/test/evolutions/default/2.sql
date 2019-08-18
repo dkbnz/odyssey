@@ -502,4 +502,47 @@ INSERT INTO `destination_personal_photo` (`destination_id`, `personal_photo_id`)
 (119, 4),
 (119, 5);
 
+
+INSERT INTO `objective` (`id`, `destination_id`, `riddle`, `radius`, `owner_id`) VALUES
+(1, 567, 'Gully that *may* have killed its family', 1, 2),
+(2, 733, 'The hive of activity in NZ', 1, 2),
+(3, 858, 'Second Home of Computer Scientists', 1, 1),
+(4, 1031, 'What Rhymes with "sniff cream file week"?', 1, 2),
+(5, 1465, 'What is your favourite colour', 1, 2),
+(6, 1526, 'Where does santa live?', 1, 2),
+(7, 1797, 'I am the place of government in russia', 1, 2),
+(8, 1834, 'My radius riddle', 1, 2),
+(9, 1834, 'Under the seeeeeeeeaaaaaaaa', 1, 2),
+(10, 1834, 'In german I am named Koeln', 1, 2),
+(11, 1834, 'I am the capital of Switzerland', 1, 2),
+(12, 1834, 'I am the capital of Australia', 1, 2),
+(13, 1834, 'I like to move it, move it!', 0.02, 2),
+(14, 1834, 'The better engineering university', 1, 2),
+(15, 1834, 'One small step for man, one giant leap for mankind', 1, 2),
+(16, 1834, 'Gully that *may* have killed its family', 1, 2),
+(17, 1834, 'What rhymes with smangus fat?', 0.005, 2);
+
+
+INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
+(1, 'Journey to the centre of the Earth', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 2),
+(2, 'My new quest', '2019-08-15 22:47:00', '9999-08-16 11:59:00', 2),
+(3, 'I am your father', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 2),
+(4, 'Use the force Luke', '2019-08-16 04:04:00', '9999-08-16 11:59:00', 2),
+(5, 'Energise', '2019-08-16 04:09:00', '9999-08-16 11:59:00', 2);
+
+INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
+(1, 1),
+(1, 2),
+(2, 3),
+(3, 4),
+(3, 5),
+(3, 6),
+(3, 7),
+(4, 8),
+(4, 9),
+(5, 10),
+(5, 11),
+(1, 12),
+(2, 13);
+
 # --- !Downs

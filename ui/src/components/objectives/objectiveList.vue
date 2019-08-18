@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-list-group class="scroll">
-            <!--Successful treasure hunt delete alert -->
+            <!--Successful objective delete alert -->
             <b-alert
                     :show="dismissCountDown"
                     @dismiss-count-down="countDownChanged"
@@ -16,81 +16,87 @@
                         variant="success"
                 ></b-progress>
             </b-alert>
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="creatingHunt">
-                <add-treasure-hunt :profile="profile" :heading="'Create'"
+            <b-list-group-item href="#" class="flex-column justify-content-center"
+                               v-if="creatingObjective" draggable="false">
+                <add-objective :profile="profile" :heading="'Create'"
                                    @cancelCreate="cancelCreate"
                                    :selectedDestination="selectedDestination"
                                    @destination-select="$emit('destination-select')"
                                    @successCreate="message => showSuccess(message)">
 
-                </add-treasure-hunt>
+                </add-objective>
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="!creatingHunt">
-                <div class="d-flex justify-content-center">
-                    <b-button variant="success"  @click="addTreasureHunt" block>Add a New Treasure Hunt</b-button>
-                </div>
-            </b-list-group-item>
-            <b-list-group-item v-for="treasureHunt in (foundTreasureHunts)" href="#"
+            <div v-if="!sideBarView">
+                <b-list-group-item href="#" class="flex-column justify-content-center"
+                                   v-if="!creatingObjective" draggable="false">
+                    <div class="d-flex justify-content-center">
+                        <b-button variant="success"
+                                  @click="addObjective" block>
+                            Add a New Objective
+                        </b-button>
+                    </div>
+                </b-list-group-item>
+            </div>
+
+            <b-list-group-item v-for="objective in (foundObjectives)" href="#"
                                class="flex-column align-items-start"
-                               :key="treasureHunt.id">
-                <template v-if="!editingHunt && !(activeId === treasureHunt.id)">
+                               :key="objective.id"
+                               draggable="false"
+                               @click="emitObjective(objective)">
+                <template v-if="!editingObjective && !(activeId === objective.id)">
                         <h4>Riddle</h4>
-                        {{treasureHunt.riddle}}
-                    <b-row class="buttonMarginsTop">
-                        <b-col>
-                            <h4>Start Date</h4>
-                            {{new Date(treasureHunt.startDate)}}
-                        </b-col>
-                        <b-col>
-                            <h4>End Date</h4>
-                            {{new Date(treasureHunt.endDate)}}
-                        </b-col>
-                    </b-row>
-                    <div v-if="yourTreasureHunts" class="buttonMarginsTop">
+                        {{objective.riddle}}
+                        <h4 class="buttonMarginsTop">Radius</h4>
+                        {{getRadiusValue(objective.radius)}}
+                    <div v-if="yourObjectives" class="buttonMarginsTop">
                         <h4>Answer</h4>
-                        <p>{{treasureHunt.destination.name}}</p>
+                        <p>{{objective.destination.name}}</p>
                     </div>
 
-                    <b-row v-if="yourTreasureHunts">
+                    <b-row v-if="yourObjectives">
                         <b-col>
-                            <b-button variant="warning" @click="setActiveId(treasureHunt)" block>Edit</b-button>
+                            <b-button v-if="!sideBarView" variant="warning" @click="setActiveId(objective)" block>
+                                Edit
+                            </b-button>
                         </b-col>
                         <b-col>
-                            <b-button variant="danger" @click="setTreasureHunt(treasureHunt)" block>Delete
+                            <b-button variant="danger" v-if="!sideBarView" @click="setObjective(objective)" block>
+                                Delete
                             </b-button>
                         </b-col>
                     </b-row>
                 </template>
-                <add-treasure-hunt v-else
+                <add-objective v-else
                                    :profile="profile"
                                    :heading="'Edit'"
-                                   :input-treasure-hunt="copiedTreasureHunt"
+                                   :input-objective="copiedObjective"
                                    @cancelCreate="cancelEdit"
                                    @destination-select="$emit('destination-select')"
                                    :selectedDestination="selectedDestination">
 
-                </add-treasure-hunt>
-                <!--Treasure Hunt component-->
+                </add-objective>
+                <!--Objective component-->
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
+            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults"
+                               draggable="false">
                 <div class="d-flex justify-content-center">
                     <b-spinner label="Loading..."></b-spinner>
                 </div>
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center"
-                               v-if="!loadingResults && foundTreasureHunts.length === 0">
+                               v-if="!loadingResults && foundObjectives.length === 0" draggable="false">
                 <div class="d-flex justify-content-center">
-                    <strong>No Treasure Hunts</strong>
+                    <strong>No Objectives</strong>
                 </div>
             </b-list-group-item>
 
         </b-list-group>
-        <!-- Confirmation modal for deleting a treasure hunt. -->
-        <b-modal hide-footer id="deleteTreasureHuntModal" ref="deleteTreasureHuntModal" title="Delete Treasure Hunt">
+        <!-- Confirmation modal for deleting a objective. -->
+        <b-modal hide-footer id="deleteObjectiveModal" ref="deleteObjectiveModal" title="Delete Objective">
             <div class="d-block">
-                Are you sure that you want to delete this Treasure Hunt?
+                Are you sure that you want to delete this Objective?
             </div>
-            <!--Error when deleting treasure hunt alert-->
+            <!--Error when deleting objective alert-->
             <b-alert
                     v-model="deleteAlertError"
                     dismissible
@@ -100,10 +106,10 @@
             <b-button
                     class="mr-2 float-right"
                     variant="danger"
-                    @click="deleteTreasureHunt">Delete
+                    @click="deleteObjective">Delete
             </b-button>
             <b-button
-                    @click="dismissModal('deleteTreasureHuntModal')"
+                    @click="dismissModal('deleteObjectiveModal')"
                     class="mr-2 float-right">Cancel
             </b-button>
         </b-modal>
@@ -111,10 +117,10 @@
 </template>
 
 <script>
-    import AddTreasureHunt from "./treasureHuntItem";
+    import AddObjective from "./objectiveItem";
 
     export default {
-        name: "treasureHuntList",
+        name: "objectiveList",
 
         props: {
             profile: Object,
@@ -123,24 +129,29 @@
                     return false;
                 }
             },
-            yourTreasureHunts: Boolean,
+            yourObjectives: Boolean,
             selectedDestination: {},
-            refreshTreasureHunts: Boolean
+            refreshObjectives: Boolean,
+            sideBarView: {
+                default: function () {
+                    return false;
+                }
+            }
         },
 
         data() {
             return {
-                foundTreasureHunts: [],
+                foundObjectives: [],
                 loadingResults: true,
                 moreResults: true,
-                creatingHunt: false,
-                editingHunt: false,
+                creatingObjective: false,
+                editingObjective: false,
                 activeId: 0,
-                treasureHuntId: null,
+                objectiveId: null,
                 dismissSeconds: 3,
                 dismissCountDown: 0,
                 alertText: "",
-                copiedTreasureHunt: null,
+                copiedObjective: null,
                 deleteAlertError: false,
                 deleteAlertMessage: ""
             }
@@ -151,45 +162,45 @@
         },
 
         watch: {
-            refreshTreasureHunts() {
+            refreshObjectives() {
                 this.getMore();
             }
         },
 
         methods: {
             /**
-             * Used to convert the treasureHunt object into a Json object.
+             * Used to convert the objective object into a Json object.
              */
-            copyTreasureHunt(treasureHunt) {
-                this.copiedTreasureHunt = JSON.parse(JSON.stringify(treasureHunt))
+            copyObjective(objective) {
+                this.copiedObjective = JSON.parse(JSON.stringify(objective))
             },
 
 
             /**
-             * Function to retrieve more treasure hunts when a user reaches the bottom of the list.
+             * Function to retrieve more objectives when a user reaches the bottom of the list.
              */
             getMore() {
-                this.foundTreasureHunts = [];
-                if (this.yourTreasureHunts) {
-                    this.queryYourTreasureHunts();
+                this.foundObjectives = [];
+                if (this.yourObjectives) {
+                    this.queryYourObjectives();
                 } else {
-                    this.queryTreasureHunts();
+                    this.queryObjectives();
                 }
             },
 
 
             /**
-             * Send the Http request to delete the specified treasure hunt.
+             * Send the Http request to delete the specified objective.
              */
-            deleteTreasureHunt() {
+            deleteObjective() {
                 let self = this;
-                fetch(`/v1/treasureHunts/` + this.treasureHuntId, {
+                fetch(`/v1/objectives/` + this.objectiveId, {
                     method: 'DELETE'
                 }).then(function (response) {
                     if (response.ok) {
                         self.getMore();
-                        self.$refs['deleteTreasureHuntModal'].hide();
-                        self.alertText = "Treasure Hunt Successfully Deleted";
+                        self.$refs['deleteObjectiveModal'].hide();
+                        self.alertText = "Objective Successfully Deleted";
                         self.showAlert();
                     }
                     else {
@@ -204,35 +215,35 @@
 
 
             /**
-             * Runs a query which searches through the treasure hunts in the database and returns all.
+             * Runs a query which searches through the objectives in the database and returns all.
              *
              * @returns {Promise<Response | never>}
              */
-            queryTreasureHunts() {
-                return fetch(`/v1/treasureHunts`, {
+            queryObjectives() {
+                return fetch(`/v1/objectives`, {
                     accept: "application/json"
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
-                        this.foundTreasureHunts = data;
+                        this.foundObjectives = data;
                         this.loadingResults = false;
                     });
             },
 
 
             /**
-             * Runs a query which searches through the treasure hunts in the database and returns only
-             * treasure hunts created by the profile.
+             * Runs a query which searches through the objectives in the database and returns only
+             * objectives created by the profile.
              *
              * @returns {Promise<Response | never>}
              */
-            queryYourTreasureHunts() {
+            queryYourObjectives() {
                 if (this.profile.id !== undefined) {
-                    return fetch(`/v1/treasureHunts/` + this.profile.id, {})
+                    return fetch(`/v1/objectives/` + this.profile.id, {})
                         .then(this.parseJSON)
                         .then((data) => {
-                            this.foundTreasureHunts = data;
+                            this.foundObjectives = data;
                             this.loadingResults = false;
                         })
                 }
@@ -241,56 +252,56 @@
 
 
             /**
-             * Changes creatingHunt to true to show the create treasure hunt window, and calls function to close edit
+             * Changes creatingObjective to true to show the create objective window, and calls function to close edit
              * windows,             *
              */
-            addTreasureHunt() {
-                this.creatingHunt = true;
+            addObjective() {
+                this.creatingObjective = true;
                 this.cancelEdit()
             },
 
 
             /**
-             * Changes the active treasure hunt ID to the inputted one, and sets creatingHunt to false to hide creation
+             * Changes the active objective ID to the inputted one, and sets creatingObjective to false to hide creation
              * box.
-             * @param treasureHunt the treasure hunt to be changed to.
+             * @param objective the objective to be changed to.
              */
-            setActiveId(treasureHunt) {
-                this.copyTreasureHunt(treasureHunt);
-                this.activeId = treasureHunt.id;
-                this.creatingHunt = false
+            setActiveId(objective) {
+                this.copyObjective(objective);
+                this.activeId = objective.id;
+                this.creatingObjective = false
             },
 
 
             /**
-             * Changes the treasure hunt ID to the currently selected treasure hunt id.
-             * Dismisses the delete treasure hunt modal.
+             * Changes the objective ID to the currently selected objective id.
+             * Dismisses the delete objective modal.
              *
              */
-            setTreasureHunt(treasureHunt) {
-                this.treasureHuntId = treasureHunt.id;
-                this.$refs['deleteTreasureHuntModal'].show();
+            setObjective(objective) {
+                this.objectiveId = objective.id;
+                this.$refs['deleteObjectiveModal'].show();
             },
 
 
             /**
-             * Sets editingHunt to false and the active hunt ID to 0 to close any open hunt editing box. Emits signal
+             * Sets editingObjective to false and the active objective ID to 0 to close any open objective editing box. Emits signal
              * to hide destination search box. clears selected destination.
              */
             cancelEdit() {
                 this.getMore();
-                this.editingHunt = false;
+                this.editingObjective = false;
                 this.activeId = 0;
                 this.$emit('hide-destinations');
             },
 
 
             /**
-             * Sets creatingHunt to false and emits signal to hide destination search box. clears selected destination.
+             * Sets creatingObjective to false and emits signal to hide destination search box. clears selected destination.
              */
             cancelCreate() {
                 this.getMore();
-                this.creatingHunt = false;
+                this.creatingObjective = false;
                 this.$emit('hide-destinations');
             },
 
@@ -302,7 +313,7 @@
              */
             showSuccess(message) {
                 this.getMore();
-                this.queryYourTreasureHunts();
+                this.queryYourObjectives();
                 this.alertText = message;
                 this.showAlert();
             },
@@ -319,7 +330,7 @@
 
 
             /**
-             * Used to dismiss the delete a treasure hunt confirmation modal.
+             * Used to dismiss the delete a objective confirmation modal.
              *
              * @param modal, the modal that is wanting to be dismissed.
              */
@@ -330,7 +341,7 @@
 
 
             /**
-             * Displays the countdown alert on the successful deletion of a treasure hunt.
+             * Displays the countdown alert on the successful deletion of a objective.
              */
             showAlert() {
                 this.dismissCountDown = this.dismissSeconds;
@@ -345,10 +356,33 @@
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
+
+
+            /**
+             * Emits the selected objective when selecting on the side bar for quests.
+             */
+            emitObjective(objective) {
+                if (this.sideBarView) {
+                    this.$emit('select-objective', objective)
+                }
+            },
+
+
+            /**
+             * Returns a string radius value determined by the size.
+             *
+             * @param radius    the radius to be changed.
+             */
+            getRadiusValue(radius) {
+                if (radius < 1) {
+                    return radius * 1000 + " Meters"
+                }
+                return radius + " Km";
+            }
         },
 
         components: {
-            AddTreasureHunt
+            AddObjective
         }
     }
 </script>

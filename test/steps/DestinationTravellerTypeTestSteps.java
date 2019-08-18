@@ -3,8 +3,6 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -13,42 +11,30 @@ import io.cucumber.datatable.DataTable;
 import models.TravellerType;
 import models.destinations.Destination;
 import org.junit.Assert;
-import play.Application;
-import play.db.Database;
-import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repositories.destinations.DestinationRepository;
 import repositories.destinations.TravellerTypeRepository;
-
 import java.util.ArrayList;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.*;
 
 public class DestinationTravellerTypeTestSteps {
+    /**
+     * Singleton class which stores generally used variables
+     */
+    private TestContext testContext = TestContext.getInstance();
 
     /**
-     * Currently logged-in user
+     * Test file with test steps common over different scenarios
      */
-    private String loggedInId;
+    private GeneralTestSteps generalTestSteps;
 
-    /**
-     * Variable to hold the status code of the result.
-     */
-    private int statusCode;
-
-
-    /**
-     * The Json body of the response.
-     */
-    private String responseBody;
 
     /**
      * Authorisation token for sessions
@@ -81,134 +67,21 @@ public class DestinationTravellerTypeTestSteps {
 
 
     /**
-     * Valid login credentials for an admin user.
-     */
-    private static final String ADMIN_ID = "1";
-
-
-    /**
-     * Valid login credentials for a regular user.
-     */
-    private static final String REG_ID = "2";
-
-
-    /**
      * A destination that exists in the database.
      */
     private static final String DESTINATION_ID = "119";
 
 
     /**
-     * The fake application.
-     */
-
-    private Application application;
-
-
-    /**
-     * Database instance for the fake application.
-     */
-    private Database database;
-
-    /**
      * Repository to access the destinations in the running application.
      */
-    private DestinationRepository destinationRepo;
+    private DestinationRepository destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
 
 
     /**
      * Repository to access the destinations in the running application.
      */
-    private TravellerTypeRepository travellerTypeRepository;
-
-
-    /**
-     * Runs before each test scenario.
-     * Sets up a fake application for testing.
-     * Applies configuration settings to use an in memory database for the fake application.
-     * Starts the application.
-     * Calls apply evolutions to set up the database state.
-     */
-    @Before
-    public void setUp() {
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("play.db.config", "db");
-        configuration.put("play.db.default", "default");
-        configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:testDBDestinationTraveller;MODE=MYSQL;");
-        configuration.put("ebean.default", "models.*");
-        configuration.put("play.evolutions.db.default.enabled", "true");
-        configuration.put("play.evolutions.autoApply", "false");
-
-        //Set up the fake application to use the in memory database config
-        application = fakeApplication(configuration);
-
-        database = application.injector().instanceOf(Database.class);
-        destinationRepo = application.injector().instanceOf(DestinationRepository.class);
-        travellerTypeRepository = application.injector().instanceOf(TravellerTypeRepository.class);
-
-        applyEvolutions();
-
-        Helpers.start(application);
-    }
-
-
-    /**
-     * Applies down evolutions to the database from the test/evolutions/default directory.
-     *
-     * This drops tables and data from the database.
-     */
-    private void applyEvolutions() {
-        Evolutions.applyEvolutions(
-                database,
-                Evolutions.fromClassLoader(
-                        getClass().getClassLoader(),
-                        "test/"
-                )
-        );
-    }
-
-
-    /**
-     * Applies up evolutions to the database from the test/evolutions/default directory.
-     *
-     * This populates the database with necessary tables and values.
-     */
-    private void cleanEvolutions() {
-        Evolutions.cleanupEvolutions(database);
-    }
-
-
-    /**
-     * Runs after each test scenario.
-     * Sends a logout request.
-     * Cleans up the database by cleaning up evolutions and shutting it down.
-     * Stops running the fake application.
-     */
-    @After
-    public void tearDown() {
-        cleanEvolutions();
-        database.shutdown();
-        Helpers.stop(application);
-    }
-
-
-    /**
-     * Asserts the fake application is in test mode.
-     */
-    @Given("The application is operational")
-    public void theApplicationIsOperational() {
-        Assert.assertTrue(application.isTest());
-    }
-
-
-    /**
-     * Sets the logged in user id to the admin id.
-     */
-    @Given("The user is logged in as an admin")
-    public void theUserIsLoggedInAsAnAdmin() {
-        loggedInId = ADMIN_ID;
-    }
+    private TravellerTypeRepository travellerTypeRepository = testContext.getApplication().injector().instanceOf(TravellerTypeRepository.class);
 
 
     @Given("There is a destination with one traveller type to add")
@@ -219,13 +92,13 @@ public class DestinationTravellerTypeTestSteps {
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
-                .session(AUTHORIZED, loggedInId)
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .bodyJson(json)
                 .uri(DESTINATION_URI + DESTINATION_ID + TRAVELLER_TYPE_PROPOSE_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
-        responseBody = Helpers.contentAsString(result);
+        testContext.setResponseBody(Helpers.contentAsString(result));
 
     }
 
@@ -238,13 +111,13 @@ public class DestinationTravellerTypeTestSteps {
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
-                .session(AUTHORIZED, loggedInId)
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .bodyJson(json)
                 .uri(DESTINATION_URI + DESTINATION_ID + TRAVELLER_TYPES);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
-        responseBody = Helpers.contentAsString(result);
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 
@@ -255,13 +128,13 @@ public class DestinationTravellerTypeTestSteps {
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
-                .session(AUTHORIZED, loggedInId)
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .bodyJson(json)
                 .uri(DESTINATION_URI + 119 + TRAVELLER_TYPE_PROPOSE_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
-        responseBody = Helpers.contentAsString(result);
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 
@@ -269,37 +142,25 @@ public class DestinationTravellerTypeTestSteps {
     public void aRequestForProposedDestinationsIsSent() {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, loggedInId)
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .uri(DESTINATIONS_GET_PROPOSE_URI);
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
 
-        responseBody = Helpers.contentAsString(result);
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 
     @Then("There is a destination to update")
     public void thereIsDestinationToUpdate() throws IOException {
-        Integer receivedAmount = new ObjectMapper().readTree(responseBody).size();
+        Integer receivedAmount = new ObjectMapper().readTree(testContext.getResponseBody()).size();
         Assert.assertEquals(1, receivedAmount.intValue());
-    }
-
-
-    @Given("Im logged in as a regular user")
-    public void imLoggedInAsARegularUser() {
-        loggedInId = REG_ID;
-    }
-
-
-    @Given("Im logged in as an admin user")
-    public void imLoggedInAsAnAdminUser() {
-        loggedInId = ADMIN_ID;
     }
 
 
     @And("^I (.*)own destination with id (\\d+) and it is (.*)$")
     public void iOwnDestinationWithIdAndItIs(String ownOrNot, int destinationId, String publicOrPrivate) {
-        Destination destinationOfInterest = destinationRepo.findById(Long.valueOf(destinationId));
+        Destination destinationOfInterest = destinationRepository.findById(Long.valueOf(destinationId));
 
         // Ensure we can find a destination
         Assert.assertNotNull(destinationOfInterest);
@@ -312,15 +173,9 @@ public class DestinationTravellerTypeTestSteps {
 
         // If we own the destination, logged in should be equal. If not equal and we want it to be then throw assertion
         assertEquals(
-                destinationOfInterest.getOwner().getId().toString().equals(loggedInId),
+                destinationOfInterest.getOwner().getId().toString().equals(testContext.getLoggedInId()),
                 ownOrNot.equals("")
         );
-    }
-
-
-    @Then("^I receive status code of (\\d+)$")
-    public void iReceiveAStatusCodeOf(int expectedStatusCode) {
-        Assert.assertEquals(expectedStatusCode, statusCode);
     }
 
 
@@ -340,11 +195,11 @@ public class DestinationTravellerTypeTestSteps {
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
-                .session(AUTHORIZED, loggedInId)
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .bodyJson(Json.toJson(travellerTypeList))
                 .uri(DESTINATION_URI + destinationId + TRAVELLER_TYPES
                         + (suggestOrSet.equals("suggest") ? "/propose" : ""));
-        Result result = route(application, request);
-        statusCode = result.status();
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
     }
 }

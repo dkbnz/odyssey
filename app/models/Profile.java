@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
-import models.treasureHunts.TreasureHunt;
+import models.quests.Quest;
+import models.quests.QuestAttempt;
+import models.objectives.Objective;
 import models.trips.Trip;
 import play.data.format.Formats;
 
@@ -46,25 +48,33 @@ public class Profile extends BaseModel {
     private List<Passport> passports;
 
     @JsonIgnore
-    @OneToMany(cascade=CascadeType.ALL, mappedBy = "profile")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "profile")
     private List<Trip> trips;
 
-    @OneToMany(cascade=CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<PersonalPhoto> photoGallery;
 
     @OneToOne(cascade = CascadeType.REMOVE)
     private PersonalPhoto profilePicture;
 
     @JsonIgnore
-    @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<Destination> myDestinations;
 
     @JsonIgnore
-    @OneToMany(cascade=CascadeType.ALL, mappedBy = "owner")
-    private List<TreasureHunt> myTreasureHunts;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    private List<Objective> myObjectives;
 
-    public List<TreasureHunt> getMyTreasureHunts() {
-        return myTreasureHunts;
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "attemptedBy")
+    private List<QuestAttempt> questAttempts;
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    private List<Quest> myQuests;
+
+    public List<Objective> getMyObjectives() {
+        return myObjectives;
     }
 
 
@@ -218,16 +228,6 @@ public class Profile extends BaseModel {
     }
 
 
-    public boolean getIsAdmin() {
-        return isAdmin;
-    }
-
-
-    public void setIsAdmin(boolean isAdmin) {
-        this.isAdmin = isAdmin;
-    }
-
-
     public List<PersonalPhoto> getPhotoGallery() {
         return photoGallery;
     }
@@ -248,13 +248,13 @@ public class Profile extends BaseModel {
     }
 
 
-    public void addTreasureHunt(TreasureHunt newTreasureHunt) {
-        this.myTreasureHunts.add(newTreasureHunt);
+    public void addObjective(Objective newObjective) {
+        this.myObjectives.add(newObjective);
     }
 
 
-    public boolean removeTreasureHunt(TreasureHunt treasureHunt) {
-        return myTreasureHunts.remove(treasureHunt);
+    public boolean removeObjective(Objective objective) {
+        return myObjectives.remove(objective);
     }
 
 
@@ -296,10 +296,31 @@ public class Profile extends BaseModel {
         this.myDestinations = myDestinations;
     }
 
-    public void setMyTreasureHunts(List<TreasureHunt> myTreasureHunts) {
-        this.myTreasureHunts = myTreasureHunts;
+    public void setMyObjectives(List<Objective> myObjectives) {
+        this.myObjectives = myObjectives;
     }
 
+    public boolean isAdmin() {
+        return isAdmin;
+    }
 
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
 
+    public List<QuestAttempt> getQuestAttempts() {
+        return questAttempts;
+    }
+
+    public void setQuestAttempts(List<QuestAttempt> questAttempts) {
+        this.questAttempts = questAttempts;
+    }
+
+    public List<Quest> getMyQuests() {
+        return myQuests;
+    }
+
+    public void setMyQuests(List<Quest> myQuests) {
+        this.myQuests = myQuests;
+    }
 }
