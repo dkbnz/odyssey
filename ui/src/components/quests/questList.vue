@@ -147,6 +147,10 @@
                 </b-list-group>
                 <!-- Confirmation modal for deleting a quest. -->
                 <b-modal hide-footer id="deleteQuestModal" ref="deleteQuestModal" title="Delete Quest">
+                    <div v-if="activeUsers > 0"
+                            class="d-block">
+                        This quest is used by {{activeUsers}} users.
+                    </div>
                     <div class="d-block">
                         Are you sure that you want to delete this Quest?
                     </div>
@@ -264,7 +268,7 @@
                 fields: [
                     {key: 'riddle', label: 'Riddle'},
                     {key: 'destination.name', label: 'Destination'},
-                    {key: 'radius', label: 'Radius'},
+                    {key: 'radius', label: 'Radius'}
                 ],
                 optionViews: [
                     {value: 1, text: "1"},
@@ -272,6 +276,7 @@
                     {value: 10, text: "10"},
                     {value: 15, text: "15"},
                     {value:Infinity, text:"All"}],
+                activeUsers: null
 
             }
         },
@@ -329,7 +334,7 @@
              */
             deleteQuest() {
                 let self = this;
-                fetch(`/v1/quests/` + this.questId, {
+                fetch('/v1/quests/' + this.questId, {
                     method: 'DELETE'
                 }).then(function (response) {
                     if (response.ok) {
@@ -358,7 +363,7 @@
              * @returns {Promise<Response | never>}
              */
             queryQuests() {
-                return fetch(`/v1/quests`, {
+                return fetch('/v1/quests', {
                     accept: "application/json"
                 })
                     .then(this.checkStatus)
@@ -419,7 +424,23 @@
              */
             setQuest(quest) {
                 this.questId = quest.id;
-                this.$refs['deleteQuestModal'].show();
+
+                this.getActiveUsers();
+                //this.$refs['deleteQuestModal'].show();
+            },
+
+
+            getActiveUsers() {
+                return fetch('/v1/quests/' + this.questId + '/profiles', {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(data => {
+                        console.log(data.length);
+                        this.activeUsers = data.length;
+                        this.$refs['deleteQuestModal'].show();
+                    });
             },
 
 

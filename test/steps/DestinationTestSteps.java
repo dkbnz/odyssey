@@ -448,19 +448,8 @@ public class DestinationTestSteps {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         String riddle                  = list.get(index).get(RIDDLE_STRING);
-        String startDate               = list.get(index).get(START_DATE_STRING);
-        String endDate                 = list.get(index).get(END_DATE_STRING);
-
 
         targetUserId = list.get(index).get(OWNER_STRING);
-
-        if (startDate.equals("")) {
-            startDate = getObjectiveDateBuffer(true);
-        }
-
-        if (endDate.equals("")) {
-            endDate = getObjectiveDateBuffer(false);
-        }
 
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
@@ -472,8 +461,7 @@ public class DestinationTestSteps {
         }
 
         json.put(RIDDLE, riddle);
-        json.put(START_DATE, startDate);
-        json.put(END_DATE, endDate);
+        json.put("radius", 1); //TODO: Properly implement this
 
         return json;
     }
