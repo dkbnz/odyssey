@@ -73,18 +73,11 @@
                                 </b-col>
                                 <b-col>
                                     <h4>Countries</h4>
-                                    <p>
-                                    {{getQuestCountries(quest)}}<!--<li v-for="country in quest.objectiveCountries">-->
-                                        <!--{{country}}-->
-                                    <!--</li>-->
-                                    </p>
+                                    <p>{{getQuestCountries(quest)}}</p>
                                     <h4>End Date</h4>
                                     {{new Date(quest.endDate)}}
                                 </b-col>
                             </b-row>
-
-
-
 
                             <div v-if="yourQuests" class="buttonMarginsTop">
                                 <h4 @click="showHideLocations(quest)"> Show/Hide Locations</h4>
