@@ -8,11 +8,14 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
+import models.Profile;
 import org.junit.Assert;
 import org.springframework.beans.BeansException;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.ProfileRepository;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -38,6 +41,12 @@ public class ProfileTestSteps {
      */
     private static final String PROFILES_URI = "/v1/profiles";
 
+
+    /**
+     * The profiles uri.
+     */
+    private static final String SINGLE_PROFILE_URI = "/v1/profile";
+
     /**
      * The single profile uri.
      */
@@ -57,6 +66,11 @@ public class ProfileTestSteps {
      * The username string variable.
      */
     private static final String USERNAME = "username";
+
+    /**
+     * The password string variable.
+     */
+    private static final String PASS_FIELD = "password";
 
     /**
      * A valid username for login credentials for admin user.
@@ -82,6 +96,9 @@ public class ProfileTestSteps {
      * Logs any errors in the tests.
      */
     private static final Logger LOGGER = Logger.getLogger( ProfileTestSteps.class.getName() );
+
+
+    private ProfileRepository profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
 
     /**
@@ -316,6 +333,73 @@ public class ProfileTestSteps {
                 .bodyJson(json)
                 .uri(PROFILES_UPDATE_URI + 2); // Adding the id number to the uri, which is a string
         Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+    }
+
+
+    @When("An admin attempts to create a profile with the following fields:")
+    public void anAdminAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) {
+        // Creates the json for the profile
+        JsonNode json = convertDataTableToJsonNode(dataTable);
+
+        // Sending the fake request to the back end
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .bodyJson(json)
+                .uri(PROFILES_URI);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+
+    }
+
+
+    @Given("^a user exists in the database with the id (\\d+) and username \"(.*)\"$")
+    public void aUserExistsInTheDatabaseWithTheIdAndUsername(Integer id, String username) {
+        Profile profile = profileRepository.findById(id.longValue());
+        Assert.assertNotNull(profile);
+        Assert.assertEquals(profile.getUsername(), username);
+    }
+
+
+    @Given("^a user does not exist with the username \"(.*)\"$")
+    public void aUserDoesNotExistWithTheUsername(String username) {
+        Assert.assertNull(profileRepository.getExpressionList()
+                .like(USERNAME, username)
+                .findOne());
+    }
+
+
+    @When("^I change the username of the user with id (\\d+) to \"(.*)\"$")
+    public void iChangeTheUsernameOfTheUserWithIdTo(Integer idToChange, String newUsername) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, String.valueOf(idToChange))
+                .uri(SINGLE_PROFILE_URI);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+
+        Assert.assertEquals(OK, testContext.getStatusCode());
+
+        ObjectNode profileToEdit = null;
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode profileJson = mapper.readTree(Helpers.contentAsString(result));
+            profileToEdit = profileJson.deepCopy();
+            profileToEdit.put(USERNAME, newUsername);
+            profileToEdit.put(PASS_FIELD, "");
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error converting string to Json", e);
+        }
+
+        // Sending the fake request to the back end for updating
+        request = fakeRequest()
+                .method(PUT)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .bodyJson(profileToEdit)
+                .uri(PROFILES_UPDATE_URI + idToChange);
+
+        result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
     }
 }
