@@ -594,7 +594,3 @@
         }
     }
 </script>
-
-<style scoped>
-    @import "../../css/quests.css";
-</style>

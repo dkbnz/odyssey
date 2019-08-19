@@ -40,6 +40,10 @@
                 </ul>
             </div>
             <div :class="containerClassContent">
+                <quest-list :adminView="adminView"
+                            :profile="profile"
+                            :active-quests="true">
+                </quest-list>
                 <!-- Displays the profile's photo gallery -->
                 <photo-gallery :key="refreshPhotos"
                                :profile="profile"
@@ -96,6 +100,7 @@
     import YourTrips from "../trips/yourTrips.vue"
     import PhotoGallery from "../photos/photoGallery";
     import PhotoUploader from "../photos/photoUploader";
+    import QuestList from "../quests/questList";
 
     export default {
         name: "viewProfile",
@@ -374,6 +379,7 @@
         },
 
         components: {
+            QuestList,
             YourTrips,
             PhotoGallery,
             PhotoUploader
