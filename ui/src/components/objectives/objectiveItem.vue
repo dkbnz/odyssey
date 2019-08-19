@@ -84,6 +84,13 @@
                                                 :selectedRadiusDestination="destinationSelected">
                                     </google-map>
                                 </div>
+                                <div ref="map" v-else-if="inputObjective.radius == null && destinationSelected.name">
+                                    <google-map ref="map"
+                                                :showRadius="false"
+                                                :selectedRadiusDestination="destinationSelected"
+                                                :destinations="[]">
+                                    </google-map>
+                                </div>
                             </b-container>
                         </b-form>
                     </b-form>
