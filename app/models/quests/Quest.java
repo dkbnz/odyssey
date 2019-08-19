@@ -24,6 +24,7 @@ public class Quest extends BaseModel {
      * List of attempts that have been had on this quest.
      */
     @OneToMany(cascade = CascadeType.PERSIST)
+    @JsonIgnore
     private List<QuestAttempt> attempts;
 
     /**
