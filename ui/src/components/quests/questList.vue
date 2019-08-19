@@ -142,7 +142,8 @@
                             <h5 class="mb-1">{{questAttempt.questAttempted.title}}</h5>
 
                             <div>
-                                <small>{{questAttempt.questAttempted.startDate}} - {{questAttempt.questAttempted.endDate}}</small>
+                                <small>{{new Date(questAttempt.questAttempted.startDate).toLocaleDateString()}} &#8594
+                                    {{new Date(questAttempt.questAttempted.endDate).toLocaleDateString()}}</small>
                             </div>
                         </div>
 
@@ -157,7 +158,7 @@
                         </div>
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="!loadingResults && foundQuests.length === 0">
+                                       v-if="!loadingResults && !foundQuests && !questAttempts">
                         <div class="d-flex justify-content-center">
                             <strong>No Quests</strong>
                         </div>
