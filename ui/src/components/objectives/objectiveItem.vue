@@ -187,7 +187,7 @@
 
         mounted() {
             this.editingObjective();
-            this.initMap();
+            // this.initMap();
         },
 
         computed: {
