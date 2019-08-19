@@ -193,7 +193,8 @@
                     </objective-list>
                     <quest-search-form
                             v-if="availableQuests"
-                            :profile="profile">
+                            :profile="profile"
+                            @searched-quests="quests => this.foundQuests = quests">
                     </quest-search-form>
                 </b-card>
             </b-col>
