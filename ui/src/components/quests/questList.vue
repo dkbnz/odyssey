@@ -74,7 +74,12 @@
                                 </b-col>
                                 <!-- If looking at the available quests tab, show a 'set active' button -->
                                 <b-col cols="2" v-if="availableQuests">
-                                    <b-button variant="primary">Set Active</b-button>
+                                    <b-row>
+                                        <b-button variant="primary" class="buttonMarginsTop">Start Now</b-button>
+                                    </b-row>
+                                    <b-row class="mt-4">
+                                        <b-button variant="primary" class="align-top">Start Later</b-button>
+                                    </b-row>
                                 </b-col>
                             </b-row>
                             <div v-if="yourQuests" class="buttonMarginsTop">
