@@ -532,8 +532,10 @@ INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
 
 INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
 (1, 1),
+(1, 12),
 (1, 2),
 (2, 3),
+(2, 13),
 (3, 4),
 (3, 5),
 (3, 6),
@@ -541,8 +543,14 @@ INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
 (4, 8),
 (4, 9),
 (5, 10),
-(5, 11),
-(1, 12),
-(2, 13);
+(5, 11);
+
+INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `solved_current`, `checked_in_index`, `completed`) VALUES
+(1, 1, 1, 0, 0, 0),
+(2, 1, 3, 1, 3, 0),
+(3, 2, 3, 1, 1, 0),
+(4, 2, 4, 0, 1, 0),
+(5, 3, 5, 0, 2, 1),
+(6, 4, 2, 0, 2, 1);
 
 # --- !Downs

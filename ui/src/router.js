@@ -55,7 +55,7 @@ const routes = [
         path:"/singleProfile",
         name: "singleProfile",
         component: SingleProfile
-    },
+    }
 ];
 
 const router = new VueRouter({

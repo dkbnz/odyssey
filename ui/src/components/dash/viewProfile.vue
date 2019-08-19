@@ -40,19 +40,27 @@
                 </ul>
             </div>
             <div :class="containerClassContent">
+                <quest-list :adminView="adminView"
+                            :profile="profile"
+                            :active-quests="true"
+                            :hide-side-bar="true"
+                            :class-container="'containerWithNav'">
+                </quest-list>
                 <!-- Displays the profile's photo gallery -->
                 <photo-gallery :key="refreshPhotos"
                                :profile="profile"
                                :userProfile="userProfile"
                                :adminView="adminView"
                                @makeProfilePhoto="setProfilePhoto"
-                               @removePhoto="refreshProfilePicture">
+                               @removePhoto="refreshProfilePicture"
+                               class="d-none d-lg-block">
                 </photo-gallery>
                 <!-- Displays a profile's trips -->
                 <your-trips :adminView="adminView"
                             :destinations="destinations"
                             :profile="profile"
-                            :userProfile="userProfile">
+                            :userProfile="userProfile"
+                            class="d-none d-lg-block">
                 </your-trips>
             </div>
             <b-modal hide-footer centered ref="profilePictureModal" title="Profile Picture" size="xl">
@@ -96,6 +104,7 @@
     import YourTrips from "../trips/yourTrips.vue"
     import PhotoGallery from "../photos/photoGallery";
     import PhotoUploader from "../photos/photoUploader";
+    import QuestList from "../quests/questList";
 
     export default {
         name: "viewProfile",
@@ -374,6 +383,7 @@
         },
 
         components: {
+            QuestList,
             YourTrips,
             PhotoGallery,
             PhotoUploader
