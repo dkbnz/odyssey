@@ -23,7 +23,7 @@ public class Quest extends BaseModel {
     /**
      * List of attempts that have been had on this quest.
      */
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "questAttempted")
     @JsonIgnore
     private List<QuestAttempt> attempts;
 

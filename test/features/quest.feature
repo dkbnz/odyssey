@@ -613,7 +613,7 @@ Feature: Quest API Endpoint
     When I start a quest with id 5 for user 2
     And I retrieve all active quests for user 2
     Then the status code received is 200
-    And the response contains 1 quests
+    And the response contains 3 quests
 
 
   Scenario: Retrieving all quests I have marked as active when not logged in
@@ -637,7 +637,7 @@ Feature: Quest API Endpoint
     And I am logged in as an admin user
     And I retrieve all active quests for user 2
     Then the status code received is 200
-    And the response contains 1 quests
+    And the response contains 3 quests
 
 
   Scenario: Retrieving all quests marked as active for another user as an alternative user
@@ -649,4 +649,4 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     And I retrieve all active quests for user 2
     Then the status code received is 200
-    And the response contains 1 quests
+    And the response contains 3 quests
