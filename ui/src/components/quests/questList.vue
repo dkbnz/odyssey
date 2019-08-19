@@ -1,8 +1,13 @@
 <template>
-    <div>
+    <div :class="classContainer">
+        <div v-if="classContainer" >
+            <h1 class="page-title">Quests</h1>
+            <p class="page-title"><i>Here are all this profile's currently active quests!</i></p>
+        </div>
+
         <b-row>
             <b-col cols="12" md="8">
-                <b-list-group class="scroll">
+                <b-list-group>
                     <!--Successful quest alert -->
                     <b-alert
                             :show="dismissCountDown"
@@ -63,21 +68,19 @@
                                         v-if="!activeQuests">
                         <template v-if="!editingQuest && !(activeId === quest.id)">
                             <h4>Title</h4>
-                            {{quest.title}}
+                            <p>{{quest.title}}</p>
                             <b-row class="buttonMarginsTop">
                                 <b-col>
                                     <h4>Start Date</h4>
-                                    {{new Date(quest.startDate)}}
+                                    <p>{{new Date(quest.startDate)}}</p>
                                 </b-col>
                                 <b-col>
                                     <h4>End Date</h4>
-                                    {{new Date(quest.endDate)}}
+                                    <p>{{new Date(quest.endDate)}}</p>
                                 </b-col>
                             </b-row>
                             <div v-if="yourQuests" class="buttonMarginsTop">
-                                <h4 @click="showLocations = !showLocations">{{showHideText}} Locations
-                                    <strong :class="{'arrow down':showLocations, 'arrow right': !showLocations }"></strong>
-                                </h4>
+                                <h4 @click="showLocations = !showLocations">{{showHideText}} Locations </h4>
                                 <b-container fluid style="margin-top: 20px" v-if="showLocations">
                                     <!-- Table displaying all added destinations -->
                                     <b-table :current-page="currentPage" :fields="fields" :items="quest.objectives"
@@ -140,15 +143,17 @@
                                        v-if="activeQuests">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">{{questAttempt.questAttempted.title}}</h5>
-
-                            <div>
-                                <small>{{new Date(questAttempt.questAttempted.startDate).toLocaleDateString()}} &#8594
-                                    {{new Date(questAttempt.questAttempted.endDate).toLocaleDateString()}}</small>
-                            </div>
+                        </div>
+                        <div class="d-flex w-100 justify-content-center">
+                            <p>{{new Date(questAttempt.questAttempted.startDate).toLocaleDateString()}} &rarr;
+                                {{new Date(questAttempt.questAttempted.endDate).toLocaleDateString()}}</p>
                         </div>
 
                         <p class="mb-1">
-                            <b-progress :value="questAttempt.solved.length - ((questAttempt.current == null && !questAttempt.completed) ? 1 : 0) " :max="questAttempt.solved.length + questAttempt.unsolved.length" class="mb-3"></b-progress>
+                            <b-progress
+                                    :value="questAttempt.solved.length - ((questAttempt.current == null && !questAttempt.completed) ? 1 : 0)"
+                                    :max="questAttempt.solved.length + questAttempt.unsolved.length"
+                                    class="mb-3"></b-progress>
                         </p>
                     </b-list-group-item>
 
@@ -158,9 +163,9 @@
                         </div>
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="!loadingResults && !foundQuests && !questAttempts">
+                                       v-if="!loadingResults && foundQuests.length === 0 && questAttempts.length === 0">
                         <div class="d-flex justify-content-center">
-                            <strong>No Quests</strong>
+                            <strong>No Quests Found</strong>
                         </div>
                     </b-list-group-item>
 
@@ -189,7 +194,7 @@
                 </b-modal>
             </b-col>
             <b-col cols="12" md="4">
-                <b-card class="d-none d-lg-block">
+                <b-card class="d-none d-lg-block" v-if="!hideSideBar">
                     <found-destinations
                             v-if="showDestinations"
                             :search-public="true"
@@ -245,7 +250,17 @@
                 }
             },
             selectedDestination: {},
-            refreshQuests: Boolean
+            refreshQuests: Boolean,
+            hideSideBar: {
+                default: function () {
+                    return false;
+                }
+            },
+            classContainer: {
+                default: function () {
+                    return "";
+                }
+            }
         },
 
         data() {
@@ -381,6 +396,7 @@
              * @returns {Promise<Response | never>}
              */
             queryQuests() {
+                this.loadingResults = true;
                 return fetch(`/v1/quests`, {
                     accept: "application/json"
                 })
@@ -401,6 +417,7 @@
              */
             queryYourQuests() {
                 if (this.profile.id !== undefined) {
+                    this.loadingResults = true;
                     return fetch(`/v1/quests/` + this.profile.id, {})
                         .then(this.parseJSON)
                         .then((data) => {
@@ -420,12 +437,10 @@
              */
             queryYourActiveQuests() {
                 if (this.profile.id !== undefined) {
+                    this.loadingResults = true;
                     return fetch(`/v1/quests/profiles/` + this.profile.id, {})
                         .then(this.parseJSON)
                         .then((data) => {
-                            // for (let i = 0; i < data.length; i++) {
-                            //     this.foundQuests.push(data[i].questAttempted);
-                            // }
                             this.questAttempts = data;
                             this.loadingResults = false;
                         })
