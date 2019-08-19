@@ -375,7 +375,7 @@ public class QuestController {
      *                      badRequest() (Http 400) response containing an ApiError for an invalid Json body.
      *                      ok() (Http 200) containing matching quests that are attempted by the requested profile.
      */
-    public Result getAttemptsByProfile(Http.Request request, Long userId) {
+    public Result getQuestAttemptsByProfile(Http.Request request, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized(ApiError.unauthorized());
@@ -386,9 +386,9 @@ public class QuestController {
             return notFound(ApiError.notFound());
         }
 
-        List<QuestAttempt> questAttempts = requestedUser.getQuestAttempts();
-        ObjectMapper mapper = new ObjectMapper();
+        List<QuestAttempt> questAttempts = questAttemptRepository.findAllUsing(requestedUser);
 
+        ObjectMapper mapper = new ObjectMapper();
         String result;
 
         if (AuthenticationUtil.validUser(loggedInUser, requestedUser)) {

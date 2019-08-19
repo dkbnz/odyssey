@@ -3,7 +3,11 @@ package repositories.quests;
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
+import models.Profile;
 import models.quests.QuestAttempt;
+
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -28,5 +32,14 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
                 .eq("attemptedBy", questAttempt.getAttemptedBy())
                 .eq("questAttempted", questAttempt.getQuestAttempted())
                 .exists();
+    }
+
+
+    public List<QuestAttempt> findAllUsing(Profile requestedProfile) {
+        return query().where()
+                .eq("attemptedBy", requestedProfile)
+                .lt("questAttempted.startDate", new Date())
+                .gt("questAttempted.endDate", new Date())
+                .findList();
     }
 }

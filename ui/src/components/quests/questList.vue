@@ -56,7 +56,7 @@
                             </div>
                         </b-list-group-item>
                     </div>
-                    <b-list-group-item v-for="quest in (foundQuests)" href="#"
+                    <b-list-group-item v-for="quest in foundQuests" href="#"
                                        class="flex-column align-items-start"
                                        :key="quest.id"
                                        draggable="false">
@@ -169,7 +169,7 @@
                 </b-modal>
             </b-col>
             <b-col>
-                <b-card>
+                <b-card class="d-none d-lg-block">
                     <found-destinations
                             v-if="showDestinations"
                             :search-public="true"
@@ -272,6 +272,7 @@
                     {value: 10, text: "10"},
                     {value: 15, text: "15"},
                     {value:Infinity, text:"All"}],
+                questAttempts: {}
 
             }
         },
@@ -318,6 +319,8 @@
                 this.foundQuests = [];
                 if (this.yourQuests) {
                     this.queryYourQuests();
+                } else if (this.activeQuests) {
+                   this.queryYourActiveQuests();
                 } else {
                     this.queryQuests();
                 }
@@ -382,6 +385,28 @@
                         .then(this.parseJSON)
                         .then((data) => {
                             this.foundQuests = data;
+                            this.loadingResults = false;
+                        })
+                }
+
+            },
+
+
+            /**
+             * Runs a query which searches through the quests in the database and returns only
+             * quests started by the profile.
+             *
+             * @returns {Promise<Response | never>}
+             */
+            queryYourActiveQuests() {
+                if (this.profile.id !== undefined) {
+                    return fetch(`/v1/quests/profiles/` + this.profile.id, {})
+                        .then(this.parseJSON)
+                        .then((data) => {
+                            for (let i = 0; i < data.length; i++) {
+                                this.foundQuests.push(data[i].questAttempted);
+                            }
+                            this.questAttempts = data;
                             this.loadingResults = false;
                         })
                 }
