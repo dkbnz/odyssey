@@ -603,3 +603,50 @@ Feature: Quest API Endpoint
     Then the status code received is 401
     And the following ApiErrors are returned
       | You are not logged in. |
+
+
+  Scenario: Retrieving all quests I have marked as active
+    Given I am logged in
+    And the application is running
+    And a quest exists with id 5
+    And a user exists with id 2
+    When I start a quest with id 5 for user 2
+    And I retrieve all active quests for user 2
+    Then the status code received is 200
+    And the response contains 1 quests
+
+
+  Scenario: Retrieving all quests I have marked as active when not logged in
+    Given I am not logged in
+    And the application is running
+    And a quest exists with id 5
+    And a user exists with id 2
+    When I start a quest with id 5 for user 2
+    And I retrieve all active quests for user 2
+    Then the status code received is 401
+    And the following ApiErrors are returned
+      | You are not logged in. |
+
+
+  Scenario: Retrieving all quests marked as active for another user as admin
+    Given I am logged in
+    And the application is running
+    And a quest exists with id 5
+    And a user exists with id 2
+    When I start a quest with id 5 for user 2
+    And I am logged in as an admin user
+    And I retrieve all active quests for user 2
+    Then the status code received is 200
+    And the response contains 1 quests
+
+
+  Scenario: Retrieving all quests marked as active for another user as an alternative user
+    Given I am logged in
+    And the application is running
+    And a quest exists with id 5
+    And a user exists with id 2
+    When I start a quest with id 5 for user 2
+    And I am logged in as an alternate user
+    And I retrieve all active quests for user 2
+    Then the status code received is 200
+    And the response contains 1 quests
