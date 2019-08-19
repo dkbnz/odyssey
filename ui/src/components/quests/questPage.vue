@@ -2,7 +2,7 @@
     <div v-if="profile.length !== 0" :class="containerClass">
         <!--Shows tabs for the quest page-->
         <navbar-main v-bind:profile="profile" v-if="!adminView"></navbar-main>
-        <div class="containerMain">
+        <div class="containerMain d-none d-lg-block">
             <h1 class="page-title">Quests</h1>
             <p class="page-title">
                 <i>Here you can view and create Quests!</i>
@@ -34,6 +34,12 @@
             </b-card>
             <footer-main></footer-main>
         </div>
+        <div class="show-only-mobile">
+            <quests-solve-mobile
+                    :profile="profile">
+
+            </quests-solve-mobile>
+        </div>
     </div>
     <div v-else>
         <unauthorised-prompt-page></unauthorised-prompt-page>
@@ -45,6 +51,7 @@
     import UnauthorisedPromptPage from "../helperComponents/unauthorisedPromptPage";
     import FooterMain from "../helperComponents/footerMain";
     import QuestList from "./questList";
+    import QuestsSolveMobile from "./questsSolveMobile";
     export default {
         name: "questPage",
 
@@ -59,7 +66,7 @@
                 default: function() {
                     return false;
                 }
-            },
+            }
         },
 
         data() {
@@ -103,6 +110,7 @@
 
 
         components: {
+            QuestsSolveMobile,
             QuestList,
             FooterMain,
             UnauthorisedPromptPage,
