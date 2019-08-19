@@ -212,7 +212,6 @@ public class QuestController {
 
          quest.clearObjectives();
          questRepository.update(quest);
-
          questRepository.delete(quest);
          profileRepository.update(questOwner);
          return ok();
