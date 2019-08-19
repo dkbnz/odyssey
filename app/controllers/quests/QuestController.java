@@ -32,7 +32,7 @@ public class QuestController {
 
     private static final String TITLE = "title";
     private static final String OPERATOR = "operator";
-    private static final String OBJECTIVE = "objective";
+    private static final String OBJECTIVE = "objectives";
     private static final String FIRST_NAME = "first_name";
     private static final String LAST_NAME = "last_name";
     private static final String COUNTRY = "country";
@@ -364,7 +364,7 @@ public class QuestController {
         Then checks those id's in the quest table owner id to gather the resulting quests.
          */
         ExpressionList<Profile> profileExpressionList = profileRepository.getExpressionList();
-        Boolean findByOwner = false;
+        boolean findByOwner = false;
 
         if (request.getQueryString(FIRST_NAME) != null && !request.getQueryString(FIRST_NAME).isEmpty()) {
             profileExpressionList.ilike(FIRST_NAME, queryComparator(request.getQueryString(FIRST_NAME)));
@@ -404,7 +404,7 @@ public class QuestController {
 
             for (Quest quest: quests) {
 
-                Integer objectiveSize = quest.getObjectives().size();
+                int objectiveSize = quest.getObjectives().size();
 
                 if ((quest.getStartDate().before(now.getTime())
                     || quest.getStartDate().compareTo(now.getTime()) == 0)
@@ -413,10 +413,9 @@ public class QuestController {
                     (request.getQueryString(OPERATOR).equals(EQUAL_TO) &&
                     objectiveSize == Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
                     request.getQueryString(OPERATOR).equals(LESS_THAN) &&
-                    objectiveSize <= Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
+                    objectiveSize < Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
                     request.getQueryString(OPERATOR).equals(GREATER_THAN) &&
-                    objectiveSize >= Double.parseDouble(request.getQueryString(OBJECTIVE)))) {
-
+                    objectiveSize > Double.parseDouble(request.getQueryString(OBJECTIVE)))) {
                     allQuests.add(quest);
                 }
             }
