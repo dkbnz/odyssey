@@ -582,6 +582,7 @@ Feature: Quest API Endpoint
     And the following ApiErrors are returned
       | Resource not found. |
 
+
   Scenario: Starting a quest I have already started
     Given I am logged in
     And the application is running
@@ -595,6 +596,7 @@ Feature: Quest API Endpoint
 
   Scenario: Starting a quest when I am not logged in
     Given I am not logged in
+    And the application is running
     And a quest exists with id 5
     And a user exists with id 2
     When I start a quest with id 5 for user 2
