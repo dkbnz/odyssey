@@ -72,6 +72,10 @@
                                     <h4>End Date</h4>
                                     {{new Date(quest.endDate)}}
                                 </b-col>
+                                <!-- If looking at the available quests tab, show a 'set active' button -->
+                                <b-col cols="2" v-if="availableQuests">
+                                    <b-button variant="primary">Set Active</b-button>
+                                </b-col>
                             </b-row>
                             <div v-if="yourQuests" class="buttonMarginsTop">
                                 <h4 @click="showLocations = !showLocations">{{showHideText}} Locations
@@ -411,6 +415,22 @@
                         })
                 }
 
+            },
+
+
+            /**
+             * Creates a new quest attempt for the selected quest and current user.
+             *
+             * @returns {Promise<Response | never>}
+             */
+            createAttempt(questToAttempt) {
+                if (this.profile.id !== undefined) {
+                    return fetch(`/v1/quests` + questToAttempt + `attempt` + this.profile.id, {
+                        method: 'POST'
+                    }).then(data => {
+
+                    })
+                }
             },
 
 
