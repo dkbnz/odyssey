@@ -34,7 +34,7 @@
             </b-card>
             <footer-main></footer-main>
         </div>
-        <div class="hidden-sm-up">
+        <div class="show-only-mobile">
             <quests-solve-mobile
                     :profile="profile">
 
