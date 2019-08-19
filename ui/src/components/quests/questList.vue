@@ -49,7 +49,7 @@
                     </b-list-group-item>
                     <div v-if="yourQuests">
                         <b-list-group-item href="#" class="flex-column justify-content-center"
-                                           v-if="!creatingQuest"
+                                           v-if="!creatingQuest && !editingQuest"
                                            draggable="false">
                             <div class="d-flex justify-content-center">
                                 <b-button variant="success"  @click="addQuest" block>Add a New Quest</b-button>
@@ -59,81 +59,76 @@
                     <b-list-group-item v-for="quest in (foundQuests)" href="#"
                                        class="flex-column align-items-start"
                                        :key="quest.id"
-                                       draggable="false">
-                        <template v-if="!editingQuest && !(activeId === quest.id)">
+                                       draggable="false" v-if="!creatingQuest && !editingQuest && !(activeId === quest.id)">
+                        <b-row class="buttonMarginsTop">
+                            <b-col>
+                                <h4>Title</h4>
+                                <p>{{quest.title}}</p>
+                                <h4>Start Date</h4>
+                                {{new Date(quest.startDate)}}
+                            </b-col>
+                            <b-col>
+                                <h4>Countries</h4>
+                                <p>{{getQuestCountries(quest)}}</p>
+                                <h4>End Date</h4>
+                                {{new Date(quest.endDate)}}
+                            </b-col>
+                        </b-row>
 
+                        <div v-if="yourQuests" class="buttonMarginsTop">
+                            <h4 @click="showHideLocations(quest)"> Show/Hide Locations</h4>
+                            <b-container fluid style="margin-top: 20px; display: none" :id="'display-' + quest.id">
+                                <!-- Table displaying all added destinations -->
+                                <b-table :current-page="currentPage" :fields="fields" :items="quest.objectives"
+                                         :per-page="perPage"
+                                         hover
+                                         id="myTrips"
+                                         outlined
+                                         ref="questObjective"
+                                         striped>
 
+                                    <template slot="radius" slot-scope="row">
+                                        {{getRadiusValue(row.item.radius)}}
+                                    </template>
+                                </b-table>
+                                <!-- Determines pagination and number of results per row of the table -->
+                                <b-row>
+                                    <b-col cols="2">
+                                        <b-form-group
+                                                id="numItems-field"
+                                                label-for="perPage">
+                                            <b-form-select :options="optionViews"
+                                                           id="perPage"
+                                                           size="sm"
+                                                           trim v-model="perPage">
+                                            </b-form-select>
+                                        </b-form-group>
+                                    </b-col>
+                                    <b-col>
+                                        <b-pagination
+                                                :per-page="perPage"
+                                                :total-rows="rows(quest)"
+                                                align="center"
+                                                aria-controls="my-table"
+                                                first-text="First"
+                                                last-text="Last"
+                                                size="sm"
+                                                v-model="currentPage">
+                                        </b-pagination>
+                                    </b-col>
+                                </b-row>
+                            </b-container>
+                        </div>
 
-                            <b-row class="buttonMarginsTop">
-                                <b-col>
-                                    <h4>Title</h4>
-                                    <p>{{quest.title}}</p>
-                                    <h4>Start Date</h4>
-                                    {{new Date(quest.startDate)}}
-                                </b-col>
-                                <b-col>
-                                    <h4>Countries</h4>
-                                    <p>{{getQuestCountries(quest)}}</p>
-                                    <h4>End Date</h4>
-                                    {{new Date(quest.endDate)}}
-                                </b-col>
-                            </b-row>
-
-                            <div v-if="yourQuests" class="buttonMarginsTop">
-                                <h4 @click="showHideLocations(quest)"> Show/Hide Locations</h4>
-                                <b-container fluid style="margin-top: 20px; display: none" :id="'display-' + quest.id">
-                                    <!-- Table displaying all added destinations -->
-                                    <b-table :current-page="currentPage" :fields="fields" :items="quest.objectives"
-                                             :per-page="perPage"
-                                             hover
-                                             id="myTrips"
-                                             outlined
-                                             ref="questObjective"
-                                             striped>
-
-                                        <template slot="radius" slot-scope="row">
-                                            {{getRadiusValue(row.item.radius)}}
-                                        </template>
-                                    </b-table>
-                                    <!-- Determines pagination and number of results per row of the table -->
-                                    <b-row>
-                                        <b-col cols="2">
-                                            <b-form-group
-                                                    id="numItems-field"
-                                                    label-for="perPage">
-                                                <b-form-select :options="optionViews"
-                                                               id="perPage"
-                                                               size="sm"
-                                                               trim v-model="perPage">
-                                                </b-form-select>
-                                            </b-form-group>
-                                        </b-col>
-                                        <b-col>
-                                            <b-pagination
-                                                    :per-page="perPage"
-                                                    :total-rows="rows(quest)"
-                                                    align="center"
-                                                    aria-controls="my-table"
-                                                    first-text="First"
-                                                    last-text="Last"
-                                                    size="sm"
-                                                    v-model="currentPage">
-                                            </b-pagination>
-                                        </b-col>
-                                    </b-row>
-                                </b-container>
-                            </div>
-
-                            <b-row v-if="yourQuests">
-                                <b-col>
-                                    <b-button variant="warning" @click="setActiveId(quest)" block>Edit</b-button>
-                                </b-col>
-                                <b-col>
-                                    <b-button variant="danger" @click="setQuest(quest)" block>Delete
-                                    </b-button>
-                                </b-col>
-                            </b-row>
-                        </template>
+                        <b-row v-if="yourQuests">
+                            <b-col>
+                                <b-button variant="warning" @click="setActiveId(quest)" block>Edit</b-button>
+                            </b-col>
+                            <b-col>
+                                <b-button variant="danger" @click="setQuest(quest)" block>Delete
+                                </b-button>
+                            </b-col>
+                        </b-row>
                         <!--Quest component-->
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
