@@ -140,7 +140,8 @@
                                        class="flex-column align-items-start"
                                        :key="questAttempt.id"
                                        draggable="false"
-                                       v-if="activeQuests">
+                                       v-if="activeQuests"
+                                       @click="showSolvePage">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">{{questAttempt.questAttempted.title}}</h5>
                         </div>
@@ -153,7 +154,8 @@
                             <b-progress
                                     :value="questAttempt.solved.length - ((questAttempt.current == null && !questAttempt.completed) ? 1 : 0)"
                                     :max="questAttempt.solved.length + questAttempt.unsolved.length"
-                                    class="mb-3"></b-progress>
+                                    class="mb-3">
+                            </b-progress>
                         </p>
                     </b-list-group-item>
 
