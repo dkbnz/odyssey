@@ -73,6 +73,7 @@ public class Profile extends BaseModel {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<Quest> myQuests;
 
+
     public List<Objective> getMyObjectives() {
         return myObjectives;
     }
