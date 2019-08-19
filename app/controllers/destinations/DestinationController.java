@@ -692,7 +692,7 @@ public class DestinationController extends Controller {
      */
     private void mergeObjectives(Destination destinationToUpdate, Destination destinationToMerge) {
         List<Objective> mergeObjectivesList = objectiveRepository
-                .getObjectivesWithDestination(destinationToMerge);
+                .findAllUsing(destinationToMerge);
 
         for (Objective objective : mergeObjectivesList) {
             objective.setDestination(destinationToUpdate);

@@ -1087,7 +1087,7 @@ public class DestinationTestSteps {
     public void theDestinationWillHaveTheFollowingNumberOfObjectives(Integer expectedSize) {
         Destination destination = destinationRepository.findById(destinationId);
 
-        List<Objective> objectives = objectiveRepository.getObjectivesWithDestination(destination);
+        List<Objective> objectives = objectiveRepository.findAllUsing(destination);
 
         assertEquals(expectedSize.longValue(), objectives.size());
     }
