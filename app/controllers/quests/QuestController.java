@@ -30,12 +30,18 @@ public class QuestController {
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
 
-    private final String TITLE = "title";
-    private final String OPERATOR = "operator";
-    private final String OBJECTIVE = "objective";
-    private final String FIRSTNAME = "first_name";
-    private final String LASTNAME = "last_name";
-    private final String COUNTRY = "country";
+    private static final String TITLE = "title";
+    private static final String OPERATOR = "operator";
+    private static final String OBJECTIVE = "objective";
+    private static final String FIRST_NAME = "first_name";
+    private static final String LAST_NAME = "last_name";
+    private static final String COUNTRY = "country";
+    private static final String ID = "id";
+    private static final String OWNER_ID = "owner_id";
+    private static final String COUNTRY_OCCURRENCES = "countryOccurrences.key";
+    private static final String EQUAL_TO = "=";
+    private static final String GREATER_THAN = ">";
+    private static final String LESS_THAN = "<";
 
     @Inject
     public QuestController(QuestRepository questRepository,
@@ -262,19 +268,7 @@ public class QuestController {
             return unauthorized(ApiError.unauthorized());
         }
 
-        Set<Quest> questQuery = getQuestsQuery(request);
-        Calendar now = Calendar.getInstance();
-
-        List<Quest> quests = new ArrayList<>();
-
-        for (Quest quest: questQuery) {
-            if ((quest.getStartDate().before(now.getTime())
-                    || quest.getStartDate().compareTo(now.getTime()) == 0)
-                    && (quest.getEndDate().after(now.getTime())
-                    || quest.getEndDate().compareTo(now.getTime()) == 0)) {
-                quests.add(quest);
-            }
-        }
+        Set<Quest> quests = getQuestsQuery(request);
 
         ObjectMapper mapper = new ObjectMapper();
         String result;
@@ -357,8 +351,6 @@ public class QuestController {
      */
     private Set<Quest> getQuestsQuery(Http.Request request) {
 
-        int pageNumber = 0;
-        int pageSize = 50;
         Set<Quest> quests;
 
         ExpressionList<Quest> expressionList = questRepository.getExpressionList();
@@ -367,77 +359,78 @@ public class QuestController {
             expressionList.ilike(TITLE, queryComparator(request.getQueryString(TITLE)));
         }
 
-
+        /*
+        Checks the first and last name fields and finds appropriate id's from those names.
+        Then checks those id's in the quest table owner id to gather the resulting quests.
+         */
         ExpressionList<Profile> profileExpressionList = profileRepository.getExpressionList();
         Boolean findByOwner = false;
 
-        if (request.getQueryString(FIRSTNAME) != null && !request.getQueryString(FIRSTNAME).isEmpty()) {
-            profileExpressionList.ilike(FIRSTNAME, queryComparator(request.getQueryString(FIRSTNAME)));
+        if (request.getQueryString(FIRST_NAME) != null && !request.getQueryString(FIRST_NAME).isEmpty()) {
+            profileExpressionList.ilike(FIRST_NAME, queryComparator(request.getQueryString(FIRST_NAME)));
             findByOwner = true;
         }
 
-        if (request.getQueryString(LASTNAME) != null && !request.getQueryString(LASTNAME).isEmpty()) {
-            profileExpressionList.ilike(LASTNAME, queryComparator(request.getQueryString(LASTNAME)));
+        if (request.getQueryString(LAST_NAME) != null && !request.getQueryString(LAST_NAME).isEmpty()) {
+            profileExpressionList.ilike(LAST_NAME, queryComparator(request.getQueryString(LAST_NAME)));
             findByOwner = true;
         }
 
         if (findByOwner) {
             List<Long> profiles = profileExpressionList
-                    .select("id")
+                    .select(ID)
                     .findSingleAttributeList();
-            expressionList.in("owner_id", profiles);
+            expressionList.in(OWNER_ID, profiles);
         }
 
-        Set<Quest> countrySet;
-
-
-
-//
-//        }
-//        if (request.getQueryString(LONGITUDE) != null && !request.getQueryString(LONGITUDE).isEmpty()) {
-//            expressionList.eq(LONGITUDE, Double.parseDouble(request.getQueryString(LONGITUDE)));
-//        }
-//        if (request.getQueryString(DISTRICT) != null && !request.getQueryString(DISTRICT).isEmpty()) {
-//            expressionList.ilike(DISTRICT, queryComparator(request.getQueryString(DISTRICT)));
-//        }
-//        if (request.getQueryString(COUNTRY) != null && !request.getQueryString(COUNTRY).isEmpty()) {
-//            expressionList.ilike(COUNTRY, queryComparator(request.getQueryString(COUNTRY)));
-//        }
-//        if (request.getQueryString(IS_PUBLIC) != null && !request.getQueryString(IS_PUBLIC).isEmpty()) {
-//            expressionList.eq(IS_PUBLIC, request.getQueryString(IS_PUBLIC));
-//        }
-
-        // If page query is set, load said page. Otherwise, return the first page.
-//        if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
-//            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
-//        }
-
-//        String startDate = "start_date";
-//        expressionList.order(startDate);
-
         if (request.getQueryString(COUNTRY) != null && !request.getQueryString(COUNTRY).isEmpty()) {
-            expressionList.in("countryOccurrences.key", request.getQueryString(COUNTRY));
-            //countrySet = questRepository.findAllUsing(request.getQueryString(COUNTRY));
+            expressionList.in(COUNTRY_OCCURRENCES, request.getQueryString(COUNTRY));
         }
 
         quests = expressionList.findSet();
 
+
+        /*
+        Gets the quests and check if they are within the current time windows.
+        Also checks if the amount of objectives is correct to the query search.
+         */
+        Calendar now = Calendar.getInstance();
+        Set<Quest> allQuests = new HashSet<>();
 
         if (request.getQueryString(OPERATOR) != null &&
                 !request.getQueryString(OPERATOR).isEmpty() &&
                 request.getQueryString(OBJECTIVE) != null &&
                 !request.getQueryString(OBJECTIVE).isEmpty()) {
 
-            if (request.getQueryString(OPERATOR).equals("=")) {
-                expressionList.eq(OBJECTIVE, Double.parseDouble(request.getQueryString(OBJECTIVE)));
-            } else if (request.getQueryString(OPERATOR).equals("<")) {
-                expressionList.lt(OBJECTIVE, Double.parseDouble(request.getQueryString(OBJECTIVE)));
-            } else if (request.getQueryString(OPERATOR).equals(">")) {
-                expressionList.gt(OBJECTIVE, Double.parseDouble(request.getQueryString(OBJECTIVE)));
+            for (Quest quest: quests) {
+
+                Integer objectiveSize = quest.getObjectives().size();
+
+                if ((quest.getStartDate().before(now.getTime())
+                    || quest.getStartDate().compareTo(now.getTime()) == 0)
+                    && (quest.getEndDate().after(now.getTime())
+                    || quest.getEndDate().compareTo(now.getTime()) == 0) &&
+                    (request.getQueryString(OPERATOR).equals(EQUAL_TO) &&
+                    objectiveSize == Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
+                    request.getQueryString(OPERATOR).equals(LESS_THAN) &&
+                    objectiveSize <= Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
+                    request.getQueryString(OPERATOR).equals(GREATER_THAN) &&
+                    objectiveSize >= Double.parseDouble(request.getQueryString(OBJECTIVE)))) {
+
+                    allQuests.add(quest);
+                }
+            }
+        } else {
+            for (Quest quest: quests) {
+                if ((quest.getStartDate().before(now.getTime())
+                        || quest.getStartDate().compareTo(now.getTime()) == 0)
+                        && (quest.getEndDate().after(now.getTime())
+                        || quest.getEndDate().compareTo(now.getTime()) == 0)) {
+                    allQuests.add(quest);
+                }
             }
         }
 
-
-        return quests;
+        return allQuests;
     }
 }
