@@ -365,6 +365,55 @@ public class QuestController {
 
 
     /**
+     * Retrieves all quest attempts for a requested user. This is allowed by any user, as attempted quests are displayed
+     * on a user's profile.
+     *
+     * @param request       the request containing information to start a new quest attempt.
+     * @param userId        the id of user that is having their quest attempts requested.
+     * @return              unauthorized() (Http 401) if the user is not logged in.
+     *                      notFound() (Http 404) if the requested user doesn't exist.
+     *                      badRequest() (Http 400) response containing an ApiError for an invalid Json body.
+     *                      ok() (Http 200) containing matching quests that are attempted by the requested profile.
+     */
+    public Result getAttemptsByProfile(Http.Request request, Long userId) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        Profile requestedUser = profileRepository.findById(userId);
+        if (requestedUser == null) {
+            return notFound(ApiError.notFound());
+        }
+
+        List<QuestAttempt> questAttempts = requestedUser.getQuestAttempts();
+        ObjectMapper mapper = new ObjectMapper();
+
+        String result;
+
+        if (AuthenticationUtil.validUser(loggedInUser, requestedUser)) {
+            try {
+                result = mapper
+                        .writerWithView(Views.Owner.class)
+                        .writeValueAsString(questAttempts);
+            } catch (JsonProcessingException e) {
+                return badRequest(ApiError.invalidJson());
+            }
+        } else {
+            try {
+                result = mapper
+                        .writerWithView(Views.Public.class)
+                        .writeValueAsString(questAttempts);
+            } catch (JsonProcessingException e) {
+                return badRequest(ApiError.invalidJson());
+            }
+        }
+
+        return ok(result);
+    }
+
+
+    /**
      * Attempt to solve the current objective for a given quest attempt.
      *
      * @param request           request containing session information.
