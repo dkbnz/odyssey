@@ -77,7 +77,6 @@
                 <b-form-select id="country" trim v-model="searchCountry">
                     <template slot="first">
                         <option value="">-- Any --</option>
-                        <option value="International">-- International --</option>
                     </template>
                     <option :value="country.name" v-for="country in countryList"
                             :state="countryValidation">
