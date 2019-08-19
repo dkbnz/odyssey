@@ -15,7 +15,7 @@
         <div v-else>
             <b-button variant="success" @click="showSearch = true" block>Search</b-button>
             <b-list-group class="scroll">
-                <b-list-group-item v-for="destination in (foundDestinations)" href="#"
+                <b-list-group-item v-for="destination in foundDestinations" href="#"
                                    class="flex-column align-items-start"
                                    @click="$emit('destination-click', destination)" :key="destination.id">
                     <div class="d-flex w-100 justify-content-between">

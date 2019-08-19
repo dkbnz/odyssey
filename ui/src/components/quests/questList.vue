@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-row>
-            <b-col cols="8">
+            <b-col cols="12" md="8">
                 <b-list-group class="scroll">
                     <!--Successful quest alert -->
                     <b-alert
@@ -59,10 +59,11 @@
                     <b-list-group-item v-for="quest in foundQuests" href="#"
                                        class="flex-column align-items-start"
                                        :key="quest.id"
-                                       draggable="false">
+                                       draggable="false"
+                                        v-if="!activeQuests">
                         <template v-if="!editingQuest && !(activeId === quest.id)">
-                                <h4>Title</h4>
-                                {{quest.title}}
+                            <h4>Title</h4>
+                            {{quest.title}}
                             <b-row class="buttonMarginsTop">
                                 <b-col>
                                     <h4>Start Date</h4>
@@ -132,6 +133,24 @@
                         </template>
                         <!--Quest component-->
                     </b-list-group-item>
+                    <b-list-group-item v-for="questAttempt in questAttempts" href="#"
+                                       class="flex-column align-items-start"
+                                       :key="questAttempt.id"
+                                       draggable="false"
+                                       v-if="activeQuests">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{questAttempt.questAttempted.title}}</h5>
+
+                            <div>
+                                <small>{{questAttempt.questAttempted.startDate}} - {{questAttempt.questAttempted.endDate}}</small>
+                            </div>
+                        </div>
+
+                        <p class="mb-1">
+                            <b-progress :value="questAttempt.solved.length - ((questAttempt.current == null && !questAttempt.completed) ? 1 : 0) " :max="questAttempt.solved.length + questAttempt.unsolved.length" class="mb-3"></b-progress>
+                        </p>
+                    </b-list-group-item>
+
                     <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
                         <div class="d-flex justify-content-center">
                             <b-spinner></b-spinner>
@@ -168,7 +187,7 @@
                     </b-button>
                 </b-modal>
             </b-col>
-            <b-col>
+            <b-col cols="12" md="4">
                 <b-card class="d-none d-lg-block">
                     <found-destinations
                             v-if="showDestinations"
@@ -272,7 +291,7 @@
                     {value: 10, text: "10"},
                     {value: 15, text: "15"},
                     {value:Infinity, text:"All"}],
-                questAttempts: {}
+                questAttempts: []
 
             }
         },
@@ -403,9 +422,9 @@
                     return fetch(`/v1/quests/profiles/` + this.profile.id, {})
                         .then(this.parseJSON)
                         .then((data) => {
-                            for (let i = 0; i < data.length; i++) {
-                                this.foundQuests.push(data[i].questAttempted);
-                            }
+                            // for (let i = 0; i < data.length; i++) {
+                            //     this.foundQuests.push(data[i].questAttempted);
+                            // }
                             this.questAttempts = data;
                             this.loadingResults = false;
                         })
