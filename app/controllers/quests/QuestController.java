@@ -2,9 +2,11 @@ package controllers.quests;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import models.ApiError;
 import models.Profile;
+import models.destinations.Destination;
 import models.objectives.Objective;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
@@ -19,10 +21,7 @@ import util.AuthenticationUtil;
 import util.Views;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static play.mvc.Results.*;
 
@@ -316,6 +315,7 @@ public class QuestController {
         }
         List<Profile> activeProfiles = profileRepository.findAllUsing(requestQuest);
 
+        // TODO: Cam
 //        ObjectMapper mapper = new ObjectMapper();
 //        String result;
 //        try {
@@ -410,5 +410,87 @@ public class QuestController {
         }
 
         return ok(result);
+    }
+
+
+    /**
+     * Attempt to solve the current objective for a given quest attempt.
+     *
+     * @param request           request containing session information.
+     * @param attemptId         the id of the quest attempt to be guessed.
+     * @param destinationId     the id of the destination to be used as a guess.
+     * @return                  ok() (Http 200) response containing the result of the guess and the quest attempt.
+     *                          notFound() (Http 404) response containing an ApiError for retrieval failure.
+     *                          unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
+     *                          forbidden() (Http 403) response containing an ApiError if the user is forbidden from
+     *                          guessing for this given attempt.
+     */
+    public Result guess(Http.Request request, Long attemptId, Long destinationId) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        QuestAttempt questAttempt = questAttemptRepository.findById(attemptId);
+        Destination destinationGuess = destinationRepository.findById(destinationId);
+        if (questAttempt == null || destinationGuess == null) {
+            return notFound(ApiError.notFound());
+        }
+
+        Profile attemptedBy = questAttempt.getAttemptedBy();
+        if (attemptedBy != null && !AuthenticationUtil.validUser(loggedInUser, attemptedBy)) {
+            return forbidden(ApiError.forbidden());
+        }
+
+        ObjectNode returnJson = new ObjectMapper().createObjectNode();
+
+        // Attempt to solve the current objective in the quest attempt, serialize the result.
+        returnJson.put("guessResult",
+                questAttempt.solveCurrent(destinationGuess));
+
+        // Serialize quest attempt regardless of result.
+        returnJson.set("attempt", Json.toJson(questAttempt));
+
+        questAttemptRepository.update(questAttempt);
+
+        return ok(returnJson);
+    }
+
+
+    /**
+     * Check in to the most recently solved objective for a given quest attempt.
+     *
+     * @param request           request containing session information.
+     * @param attemptId         the id of the quest attempt to be checked in to
+     * @return                  ok() (Http 200) response containing the quest attempt if check in was successful.
+     *                          notFound() (Http 404) response containing an ApiError for retrieval failure.
+     *                          unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
+     *                          forbidden() (Http 403) response containing an ApiError if the user is forbidden from
+     *                          guessing for this given attempt.
+     */
+    public Result checkIn(Http.Request request, Long attemptId) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        QuestAttempt questAttempt = questAttemptRepository.findById(attemptId);
+        if (questAttempt == null) {
+            return notFound(ApiError.notFound());
+        }
+
+        Profile attemptedBy = questAttempt.getAttemptedBy();
+        if (attemptedBy != null && !AuthenticationUtil.validUser(loggedInUser, attemptedBy)) {
+            return forbidden(ApiError.forbidden());
+        }
+
+        if (questAttempt.checkIn()) {
+            questAttemptRepository.update(questAttempt);
+            return ok(Json.toJson(questAttempt));
+        }
+
+        // User cannot check-in for this current attempt as they have
+        // not solved the current destination or the quest is complete
+        return forbidden(ApiError.forbidden());
     }
 }

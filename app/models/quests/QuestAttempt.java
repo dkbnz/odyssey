@@ -135,15 +135,17 @@ public class QuestAttempt extends BaseModel {
      * Check in to the most recently solved Objective.
      * Will make the next Objective available to solve.
      * If the user checks in to the last Objective, Quest will be complete.
+     * @return true if the user successfully checks in to the current destination.
      */
-    public void checkIn() {
-        if(solvedCurrent && !completed && (checkedInIndex < questAttempted.getObjectives().size())) {
+    public boolean checkIn() {
+        if(solvedCurrent && !completed) {
             checkedInIndex += 1;
             solvedCurrent = false;
+            // If we have checked in to the last objective, quest is complete.
+            completed = checkedInIndex == questAttempted.getObjectives().size();
+            return true;
         }
-
-        // If we have checked in to the last objective, quest is complete.
-        completed = checkedInIndex == questAttempted.getObjectives().size();
+        return false;
     }
 
 
