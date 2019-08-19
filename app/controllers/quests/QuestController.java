@@ -19,10 +19,7 @@ import util.AuthenticationUtil;
 import util.Views;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static play.mvc.Results.*;
 import static util.QueryUtil.queryComparator;
@@ -106,12 +103,37 @@ public class QuestController {
         }
 
 
+        newQuest.setCountryOccurrences(calculateCountryOccurrences(newQuest));
+
+
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
 
         questRepository.refresh(newQuest);
 
         return created(Json.toJson(newQuest));
+    }
+
+
+    /**
+     * Calculates the country occurrences by retrieving them from the objectives and counting them.
+     * Used in create and edit.
+     *
+     * @param quest         the quest for counting the objectives.
+     * @return              Map of country occurrences.
+     */
+    private Map<String, Integer> calculateCountryOccurrences(Quest quest) {
+        Map<String, Integer> countryOccurrences = new HashMap<>();
+        for(Objective objective : quest.getObjectives()) {
+            if (countryOccurrences.get(objective.getDestination().getCountry()) != null){
+                Integer count = countryOccurrences.get(objective.getDestination().getCountry());
+                count += 1;
+                countryOccurrences.put(objective.getDestination().getCountry(), count);
+            } else {
+                countryOccurrences.put(objective.getDestination().getCountry(), 1);
+            }
+        }
+        return countryOccurrences;
     }
 
 
@@ -168,6 +190,8 @@ public class QuestController {
             }
             newObjective.setDestination(destinationRepository.findById(newObjective.getDestination().getId()));
         }
+
+        quest.setCountryOccurrences(calculateCountryOccurrences(quest));
 
         Collection<ApiError> questEditErrors = quest.getErrors();
 
@@ -238,7 +262,7 @@ public class QuestController {
             return unauthorized(ApiError.unauthorized());
         }
 
-        List<Quest> questQuery = getQuestsQuery(request);
+        Set<Quest> questQuery = getQuestsQuery(request);
         Calendar now = Calendar.getInstance();
 
         List<Quest> quests = new ArrayList<>();
@@ -331,11 +355,11 @@ public class QuestController {
      * @return          ok() (Http 200) response containing the destinations found in the response body, forbidden()
      *                  (Http 403) if the user has tried to access destinations they are not authorised for.
      */
-    private List<Quest> getQuestsQuery(Http.Request request) {
+    private Set<Quest> getQuestsQuery(Http.Request request) {
 
         int pageNumber = 0;
         int pageSize = 50;
-        List<Quest> quests;
+        Set<Quest> quests;
 
         ExpressionList<Quest> expressionList = questRepository.getExpressionList();
 
@@ -343,19 +367,6 @@ public class QuestController {
             expressionList.ilike(TITLE, queryComparator(request.getQueryString(TITLE)));
         }
 
-        if (request.getQueryString(OPERATOR) != null &&
-            !request.getQueryString(OPERATOR).isEmpty() &&
-            request.getQueryString(OBJECTIVE) != null &&
-            !request.getQueryString(OBJECTIVE).isEmpty()) {
-
-            if (request.getQueryString(OPERATOR).equals("=")) {
-                expressionList.eq(OBJECTIVE, Double.parseDouble(request.getQueryString(OBJECTIVE)));
-            } else if (request.getQueryString(OPERATOR).equals("<")) {
-                expressionList.lt(OBJECTIVE, Double.parseDouble(request.getQueryString(OBJECTIVE)));
-            } else if (request.getQueryString(OPERATOR).equals(">")) {
-                expressionList.gt(OBJECTIVE, Double.parseDouble(request.getQueryString(OBJECTIVE)));
-            }
-        }
 
         ExpressionList<Profile> profileExpressionList = profileRepository.getExpressionList();
         Boolean findByOwner = false;
@@ -371,12 +382,15 @@ public class QuestController {
         }
 
         if (findByOwner) {
-            List<Profile> profiles = profileExpressionList
+            List<Long> profiles = profileExpressionList
                     .select("id")
-                    .findList();
-            System.out.println(profiles);
-            //expressionList.in("owner_id", profiles);
+                    .findSingleAttributeList();
+            expressionList.in("owner_id", profiles);
         }
+
+        Set<Quest> countrySet;
+
+
 
 //
 //        }
@@ -398,11 +412,31 @@ public class QuestController {
 //            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
 //        }
 
-        String startDate = "start_date";
+//        String startDate = "start_date";
+//        expressionList.order(startDate);
 
-        quests = expressionList
-                .order(startDate)
-                .findList();
+        if (request.getQueryString(COUNTRY) != null && !request.getQueryString(COUNTRY).isEmpty()) {
+            expressionList.in("countryOccurrences.key", request.getQueryString(COUNTRY));
+            //countrySet = questRepository.findAllUsing(request.getQueryString(COUNTRY));
+        }
+
+        quests = expressionList.findSet();
+
+
+        if (request.getQueryString(OPERATOR) != null &&
+                !request.getQueryString(OPERATOR).isEmpty() &&
+                request.getQueryString(OBJECTIVE) != null &&
+                !request.getQueryString(OBJECTIVE).isEmpty()) {
+
+            if (request.getQueryString(OPERATOR).equals("=")) {
+                expressionList.eq(OBJECTIVE, Double.parseDouble(request.getQueryString(OBJECTIVE)));
+            } else if (request.getQueryString(OPERATOR).equals("<")) {
+                expressionList.lt(OBJECTIVE, Double.parseDouble(request.getQueryString(OBJECTIVE)));
+            } else if (request.getQueryString(OPERATOR).equals(">")) {
+                expressionList.gt(OBJECTIVE, Double.parseDouble(request.getQueryString(OBJECTIVE)));
+            }
+        }
+
 
         return quests;
     }

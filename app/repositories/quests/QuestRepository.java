@@ -6,7 +6,9 @@ import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.quests.Quest;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class QuestRepository extends BeanRepository<Long, Quest> {
@@ -22,8 +24,8 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
      * @param country   the Country to find.
      * @return          a List of Quests that have the given country as an occurrence.
      */
-    public List<Quest> findAllUsing(String country) {
-        return query().where().in("countryOccurrences.key", country).findList();
+    public HashSet<Quest> findAllUsing(String country) {
+        return (HashSet<Quest>) query().where().in("countryOccurrences.key", country).findSet();
     }
 
 
