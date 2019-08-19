@@ -217,3 +217,7 @@ a {
 .defaultCursor {
     cursor: default;
 }
+
+.mobile-text {
+    font-size: 15px;
+}

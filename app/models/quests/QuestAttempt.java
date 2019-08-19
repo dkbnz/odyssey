@@ -161,6 +161,17 @@ public class QuestAttempt extends BaseModel {
     }
 
 
+    /**
+     * Calculate the percentage of the quest that is completed.
+     *
+     * @return  a percentage indicating the progress.
+     */
+    @JsonProperty("progress")
+    public int getProgress() {
+        return (checkedInIndex*100)/questAttempted.getObjectives().size();
+    }
+
+
     public Profile getAttemptedBy() {
         return attemptedBy;
     }
