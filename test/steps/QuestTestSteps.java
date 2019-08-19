@@ -97,6 +97,18 @@ public class QuestTestSteps {
 
 
     /**
+     * The quest attempt URI endpoint.
+     */
+    private static final String QUEST_ATTEMPT_URI = "/attempt/";
+
+
+    /**
+     * The profiles quest URI endpoint.
+     */
+    private static final String PROFILES_URI = "/profiles/";
+
+
+    /**
      * The id of the newly created quest.
      */
     private Long questId;
@@ -291,22 +303,49 @@ public class QuestTestSteps {
     }
 
 
+    /**
+     * Sends a request to start a quest with the given id.
+     *
+     * @param questId           the id of the quest to start.
+     * @throws IOException      thrown if there is an error reading the response body following the request.
+     */
     private void startQuestRequest(Integer questId) throws IOException {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
-                .uri(QUEST_URI + "/" + questId + "/attempt/" + testContext.getTargetId())
+                .uri(QUEST_URI + "/" + questId + QUEST_ATTEMPT_URI + testContext.getTargetId())
                 .session(AUTHORIZED, testContext.getLoggedInId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
 
+        setQuestAttemptId();
+    }
+
+
+    /**
+     * Sets the quest attempt id attribute after sending a request.
+     *
+     * @throws IOException      thrown if there is an error reading the response body following the request.
+     */
+    private void setQuestAttemptId() throws IOException {
         if (testContext.getStatusCode() < 400) {
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode actualObj = mapper.readTree(Helpers.contentAsString(result));
+            JsonNode actualObj = mapper.readTree(testContext.getResponseBody());
             questAttemptId = Long.parseLong(actualObj.get(ID).toString());
         } else {
             questAttemptId = null;
         }
+    }
+
+
+    private void retrieveQuestAttempts() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(QUEST_URI + PROFILES_URI + testContext.getTargetId())
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 
@@ -340,17 +379,9 @@ public class QuestTestSteps {
     }
 
 
-    @When("^I start a quest with id (\\d+)$")
-    public void iStartAQuestWithId(Integer questId) throws IOException {
-        testContext.setTargetId(testContext.getLoggedInId());
-        startQuestRequest(questId);
-    }
-
-
-    @When("^I start a quest with id (\\d+) for user (\\d+)$")
-    public void iStartAQuestWithIdForUser(Integer questId, Integer userId) throws IOException {
-        testContext.setTargetId(userId.toString());
-        startQuestRequest(questId);
+    @Given("^an objective exists with id (\\d+)$")
+    public void anObjectiveExistsWithId(Integer objectiveId) {
+        Assert.assertNotNull(objectiveRepository.findById(Long.valueOf(objectiveId)));
     }
 
 
@@ -426,6 +457,27 @@ public class QuestTestSteps {
     @When("^I delete a quest with id (\\d+)$")
     public void iDeleteAQuestWithId(Integer questId) {
         deleteQuestRequest(questId);
+    }
+
+
+    @When("^I start a quest with id (\\d+)$")
+    public void iStartAQuestWithId(Integer questId) throws IOException {
+        testContext.setTargetId(testContext.getLoggedInId());
+        startQuestRequest(questId);
+    }
+
+
+    @When("^I start a quest with id (\\d+) for user (\\d+)$")
+    public void iStartAQuestWithIdForUser(Integer questId, Integer userId) throws IOException {
+        testContext.setTargetId(userId.toString());
+        startQuestRequest(questId);
+    }
+
+
+    @When("^I retrieve all active quests for user (\\d+)$")
+    public void iRetrieveAllActiveQuestsForUser(Integer userId) {
+        testContext.setTargetId(userId.toString());
+        retrieveQuestAttempts();
     }
 
 
