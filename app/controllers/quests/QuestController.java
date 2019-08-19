@@ -391,6 +391,8 @@ public class QuestController {
         ObjectMapper mapper = new ObjectMapper();
         String result;
 
+        System.out.println(Json.toJson(questAttempts));
+
         if (AuthenticationUtil.validUser(loggedInUser, requestedUser)) {
             try {
                 result = mapper
