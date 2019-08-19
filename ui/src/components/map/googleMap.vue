@@ -177,7 +177,11 @@
                         radius: this.radius * 1000
                     });
                 }
-                this.$map.setZoom(this.radius >= 0.5 ? 11 : 16);
+                if (!this.showRadius) {
+                    this.$map.setZoom(10);
+                } else {
+                    this.$map.setZoom(this.radius >= 0.5 ? 11 : 16);
+                }
                 this.$map.panTo({lat: this.selectedRadiusDestination.latitude, lng: this.selectedRadiusDestination.longitude});
             },
 

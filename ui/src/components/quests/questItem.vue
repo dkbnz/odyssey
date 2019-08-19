@@ -55,7 +55,7 @@
 
         <b-row>
             <b-col>
-                <b-form>
+                <b-form v-if="!editCurrentObjective  && !addNewObjective">
 
                     <b-container fluid>
                         <b-form-group
@@ -184,7 +184,7 @@
                     </b-col>
                 </b-row>
 
-                <b-container fluid style="margin-top: 20px" v-if="inputQuest.objectives.length > 0">
+                <b-container fluid style="margin-top: 20px" v-if="inputQuest.objectives.length > 0 && !editCurrentObjective" >
                     <!-- Table displaying all added destinations -->
                     <b-table :current-page="currentPage" :fields="fields" :items="inputQuest.objectives"
                              :per-page="perPage"
@@ -259,7 +259,7 @@
                     </b-row>
                 </b-container>
 
-                <b-row class="buttonMarginsTop">
+                <b-row class="buttonMarginsTop" v-if="!editCurrentObjective && !addNewObjective">
                     <b-col>
                         <b-button @click="validateQuest" block variant="primary">
                             Save
