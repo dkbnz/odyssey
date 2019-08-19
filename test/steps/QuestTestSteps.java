@@ -103,6 +103,12 @@ public class QuestTestSteps {
 
 
     /**
+     * The profiles quest URI endpoint.
+     */
+    private static final String PROFILES_URI = "/profiles/";
+
+
+    /**
      * The id of the newly created quest.
      */
     private Long questId;
@@ -332,6 +338,17 @@ public class QuestTestSteps {
     }
 
 
+    private void retrieveQuestAttempts() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(QUEST_URI + PROFILES_URI + testContext.getTargetId())
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
     @Given("a quest already exists with the following values")
     public void aQuestAlreadyExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(testContext.getLoggedInId());
@@ -454,6 +471,13 @@ public class QuestTestSteps {
     public void iStartAQuestWithIdForUser(Integer questId, Integer userId) throws IOException {
         testContext.setTargetId(userId.toString());
         startQuestRequest(questId);
+    }
+
+
+    @When("^I retrieve all active quests for user (\\d+)$")
+    public void iRetrieveAllActiveQuestsForUser(Integer userId) {
+        testContext.setTargetId(userId.toString());
+        retrieveQuestAttempts();
     }
 
 
