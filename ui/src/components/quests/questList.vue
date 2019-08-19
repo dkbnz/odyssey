@@ -75,10 +75,10 @@
                                 <!-- If looking at the available quests tab, show a 'set active' button -->
                                 <b-col cols="2" v-if="availableQuests">
                                     <b-row>
-                                        <b-button variant="primary" class="buttonMarginsTop">Start Now</b-button>
+                                        <b-button variant="primary" @click="createAttempt(quest)">Start Now</b-button>
                                     </b-row>
                                     <b-row class="mt-4">
-                                        <b-button variant="primary" class="align-top">Start Later</b-button>
+                                        <b-button variant="secondary" @click="createAttempt(quest)">Start Later</b-button>
                                     </b-row>
                                 </b-col>
                             </b-row>
@@ -430,10 +430,10 @@
              */
             createAttempt(questToAttempt) {
                 if (this.profile.id !== undefined) {
-                    return fetch(`/v1/quests` + questToAttempt + `attempt` + this.profile.id, {
+                    return fetch(`/v1/quests/` + questToAttempt.id + `/attempt/` + this.profile.id, {
                         method: 'POST'
                     }).then(data => {
-
+                        this.getMore();
                     })
                 }
             },
