@@ -27,7 +27,6 @@ public class QuestAttempt extends BaseModel {
      * The Quest to be attempted.
      */
     @ManyToOne(cascade = CascadeType.PERSIST)
-    @JsonIgnore
     private Quest questAttempted;
 
     /**

@@ -84,7 +84,7 @@ GET     /v1/quests/:questId/profiles            controllers.quests.QuestControll
 
 # Quest Attempt
 POST    /v1/quests/:questId/attempt/:userId     controllers.quests.QuestController.attempt(request: Request, questId: Long, userId: Long)
-GET     /v1/quests/profiles/:userId             controllers.quests.QuestController.getAttemptsByProfile(request: Request, userId: Long)
+GET     /v1/quests/profiles/:userId             controllers.quests.QuestController.getQuestAttemptsByProfile(request: Request, userId: Long)
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
 GET     /*file                                  controllers.Assets.at(path="/public", file)
