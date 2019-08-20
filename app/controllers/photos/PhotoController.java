@@ -348,7 +348,7 @@ public class PhotoController extends Controller {
                 addImageToProfile(profileToAdd, filename, photo.getContentType(), false);
             } catch (IOException e) {
                 log.error("Unable to convert image to thumbnail", e);
-                return internalServerError("Unable to save image");
+                return internalServerError(Json.toJson(e));
             }
         }
         return created(Json.toJson(profileToAdd.getPhotoGallery()));
