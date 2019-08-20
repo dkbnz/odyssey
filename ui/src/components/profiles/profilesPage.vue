@@ -253,7 +253,7 @@
                 }
             },
             containerClass: {
-                default: function() {
+                default: function () {
                     return 'containerMain';
                 }
             },
@@ -401,7 +401,7 @@
                     method: 'POST',
                 }).then(function () {
                     self.searchProfiles();
-                }).then(function() {
+                }).then(function () {
                     if (self.profile.id === makeAdminProfile.id) {
                         self.$router.push("/dash");
                         self.$router.go();

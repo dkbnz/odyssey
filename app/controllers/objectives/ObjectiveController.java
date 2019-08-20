@@ -15,11 +15,9 @@ import repositories.destinations.DestinationRepository;
 import repositories.objectives.ObjectiveRepository;
 import util.AuthenticationUtil;
 import util.Views;
-
-import java.io.IOException;
 import java.util.*;
-
 import static play.mvc.Results.*;
+
 
 public class ObjectiveController {
 
@@ -30,13 +28,7 @@ public class ObjectiveController {
     private static final Long GLOBAL_ADMIN_ID = 1L;
     private static final String DESTINATION_ERROR = "Provided Destination not found.";
     private static final String TREASURE_HUNT_NOT_FOUND = "Objective not found.";
-
-    private static final String LATITUDE = "latitude";
-    private static final String LONGITUDE = "longitude";
-
-
-    /** Radius of earth in Km's */
-    private static final Double RADIUS_OF_EARTH = 6378.1370;
+    private static final String INVALID_JSON_FORMAT = "Invalid Json format.";
 
     @Inject
     public ObjectiveController(ObjectiveRepository objectiveRepository,
@@ -90,7 +82,7 @@ public class ObjectiveController {
                     .readValue(request.body().asJson());
         } catch (Exception e) {
             // Errors with deserialization.
-            objectiveErrors.add(new ApiError("Invalid Json format"));
+            objectiveErrors.add(new ApiError(INVALID_JSON_FORMAT));
             return badRequest(Json.toJson(objectiveErrors));
         }
 
@@ -159,175 +151,12 @@ public class ObjectiveController {
     }
 
 
-//    /**
-//     * Compares the guessed destination against the actual objective destination.
-//     *
-//     * @param request           the request from the front end of the application containing login information
-//     *                          and the destination guess.
-//     * @param objectiveId    the id of the objective being guessed.
-//     * @return                  a boolean value of whether the guess is correct.
-//     */
-//    public Result checkGuess(Http.Request request, Long objectiveId) {
-//        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-//        if (loggedInUserId == null) {
-//            return unauthorized();
-//        }
-//
-//        Objective objective = objectiveRepository.findById(objectiveId);
-//
-//        if (objective == null) {
-//            return notFound();
-//        }
-//
-//        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
-//        Profile objectiveOwner = objective.getOwner();
-//
-//        if(loggedInUser.equals(objectiveOwner)){
-//            return forbidden();
-//        }
-//
-//        if(objective.getSolvedProfiles().contains(loggedInUser)){
-//            return forbidden();
-//        }
-//
-//        JsonNode json = request.body().asJson();
-//        Long destinationId;
-//
-//        if (json.has("destination_id")) {
-//            destinationId = json.get("destination_id").asLong();
-//        } else {
-//            return badRequest();
-//        }
-//
-//        Destination destinationGuess = destinationRepository.findById(destinationId);
-//
-//
-//        if (destinationGuess == null) {
-//            return notFound();
-//        }
-//
-//        Boolean result = (destinationGuess.equals(objective.getDestination()));
-//
-//        if(result){
-//            objective.addSolvedProfile(loggedInUser);
-//            objectiveRepository.update(objective);
-//        }
-//
-//        return ok(Json.toJson(result));
-//    }
-//
-//
-//    /**
-//     * Checks whether the given user has solved the given objective.
-//     *
-//     * @param request           the request from the front end of the application containing login information.
-//     * @param objectiveId    the objective id to check that the user has solved.
-//     * @return                  ok with true or false if the user has solved the objective.
-//     */
-//    public Result hasSolved(Http.Request request, Long objectiveId, Long userId) {
-//        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-//        if (loggedInUserId == null) {
-//            return unauthorized();
-//        }
-//
-//        Objective objective = objectiveRepository.findById(objectiveId);
-//
-//
-//        if (objective == null) {
-//            return notFound();
-//        }
-//
-//        Profile profileToCheck  = profileRepository.fetchSingleProfile(userId.intValue());
-//
-//
-//        Boolean result = checkSolved(objective, profileToCheck);
-//
-//        return ok(Json.toJson(result));
-//    }
-//
-//
-//    /**
-//     * Helper function to return if a given profile is inside the objectives list of solved profiles.
-//     *
-//     * @param objective      the objective to get the list of solved profile from.
-//     * @param profile           the profile to check is inside the list of solved profiles.
-//     * @return                  true if the profile is in the list of solved
-//     *                          false if the profile is not in the list of solved.
-//     */
-//    private Boolean checkSolved(Objective objective, Profile profile) {
-//        return objective.getSolvedProfiles().contains(profile);
-//    }
-//
-//
-//    /**
-//     * Calculates the distance between two points from the objective destination and latitude and longitude values.
-//     *
-//     * @param objective      the objective the user is trying to check in for.
-//     * @param latitude          the users current latitude.
-//     * @param longitude         the users current longitude.
-//     * @return                  true if within the given radius of the destination for the objective.
-//     *                          false if not within the given radius of the destination for the objective.
-//     */
-//    private Boolean inLocationOfObjective(Objective objective,Long latitude,Long longitude) {
-////        Double objectiveLatituide = objective.getDestination().getLatitude();
-////        Double objectiveLongitude = objective.getDestination().getLongitude();
-////        Double latitude1 = latitude.doubleValue();
-////        Double changeInLatitude = (latitude - objectiveLatituide * Math.PI/180);
-////        Double changeInLongitude = (longitude - objectiveLongitude * Math.PI/180);
-////
-////        Double halfChordLength = (Math.sin(changeInLatitude/2))^2 + Math.cos(objectiveLatituide) * Math.cos(latitude1) * (Math.sin(changeInLongitude/2))^2
-//        return true;
-//    }
-//
-//
-//    /**
-//     * Checking in a user for a solved objective and will verify if the given latitude and longitude in the request
-//     * are within the given objective's destinations radius
-//     *
-//     * @param request               holds the users login information and the latitude and longitude values.
-//     * @param objectiveId        the objective id that the user is trying to check in for.
-//     * @return                      unauthorized() if the user is not logged in.
-//     *                              notFound() if the objective or profile is not found.
-//     *                              forbidden() if the user hasn't soled the objective yet.
-//     *                              ok(true/false) true or false based on if successful check in.
-//     */
-//    public Result checkIn(Http.Request request, Long objectiveId) {
-//        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-//        if (loggedInUserId == null) {
-//            return unauthorized();
-//        }
-//
-//        Objective objective = objectiveRepository.findById(objectiveId);
-//
-//        if (objective == null) {
-//            return notFound();
-//        }
-//
-//        Profile profile  = profileRepository.fetchSingleProfile(loggedInUserId);
-//
-//        if (profile == null) {
-//            return notFound();
-//        }
-//
-//        if (!checkSolved(objective, profile)) {
-//            return forbidden();
-//        }
-//
-//        JsonNode json = request.body().asJson();
-//        Long latitude = json.get(LATITUDE).asLong();
-//        Long longitude = json.get(LONGITUDE).asLong();
-//
-//        return ok(Json.toJson(inLocationOfObjective(objective, latitude, longitude)));
-//
-//    }
-
-
     /**
      * Edits the objective specified by the given id. Changed values are stored in the request body. Validates
      * request body.
      *
      * @param request           the request from the front end of the application containing login information.
-     * @param objectiveId    the id of the objective the user is trying to edit.
+     * @param objectiveId       the id of the objective the user is trying to edit.
      * @return                  unauthorized() (Http 401) if the user is not logged in.
      *                          notFound() (Http 404) if the objective id does not exist in the database.
      *                          forbidden() (Http 403) if the user is not the owner of the objective or is not an
@@ -365,7 +194,7 @@ public class ObjectiveController {
                     .readValue(request.body().asJson());
         } catch (Exception e) {
             // Errors with deserialization.
-            objectiveErrors.add(new ApiError("Invalid Json format"));
+            objectiveErrors.add(new ApiError(INVALID_JSON_FORMAT));
             return badRequest(Json.toJson(objectiveErrors));
         }
 
@@ -400,7 +229,6 @@ public class ObjectiveController {
      *
      * @param request           the request from the front end of the application containing login information.
      * @param objectiveId       the id of the objective the user is trying to delete.
-     *
      * @return                  unauthorized() (Http 401) if the user is not logged in.
      *                          notFound() (Http 404) if the objective id does not exist in the database.
      *                          forbidden() (Http 403) if the user is not the owner of the objective or is not an

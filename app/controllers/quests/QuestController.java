@@ -8,7 +8,6 @@ import models.ApiError;
 import models.Profile;
 import models.objectives.Objective;
 import models.quests.Quest;
-import org.springframework.core.env.Profiles;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -286,9 +285,8 @@ public class QuestController {
     }
 
 
-
     /**
-     * Retrieves all the profiles that have the specified the quest currently active
+     * Retrieves all the profiles that have the specified quest as active.
      *
      * @param request   the request from the front end of the application containing login information.
      * @param questId   the id of the quest that the active profiles are being retrieved for

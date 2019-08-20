@@ -19,10 +19,10 @@
             <b-list-group-item href="#" class="flex-column justify-content-center"
                                v-if="creatingObjective" draggable="false">
                 <add-objective :profile="profile" :heading="'Create'"
-                                   @cancelCreate="cancelCreate"
-                                   :selectedDestination="selectedDestination"
-                                   @destination-select="$emit('destination-select')"
-                                   @successCreate="message => showSuccess(message)">
+                               @cancelCreate="cancelCreate"
+                               :selectedDestination="selectedDestination"
+                               @destination-select="$emit('destination-select')"
+                               @successCreate="message => showSuccess(message)">
 
                 </add-objective>
             </b-list-group-item>
@@ -44,8 +44,8 @@
                                draggable="false"
                                @click="emitObjective(objective)">
                 <template v-if="!editingObjective && !(activeId === objective.id)">
-                        <h4>Riddle</h4>
-                        {{objective.riddle}}
+                    <h4>Riddle</h4>
+                    {{objective.riddle}}
 
                     <div v-if="yourObjectives" class="buttonMarginsTop">
                         <h4>Radius</h4>
@@ -68,12 +68,12 @@
                     </b-row>
                 </template>
                 <add-objective v-else
-                                   :profile="profile"
-                                   :heading="'Edit'"
-                                   :input-objective="copiedObjective"
-                                   @cancelCreate="cancelEdit"
-                                   @destination-select="$emit('destination-select')"
-                                   :selectedDestination="selectedDestination">
+                               :profile="profile"
+                               :heading="'Edit'"
+                               :input-objective="copiedObjective"
+                               @cancelCreate="cancelEdit"
+                               @destination-select="$emit('destination-select')"
+                               :selectedDestination="selectedDestination">
 
                 </add-objective>
                 <!--Objective component-->
@@ -254,7 +254,7 @@
 
             /**
              * Changes creatingObjective to true to show the create objective window, and calls function to close edit
-             * windows,             *
+             * windows.
              */
             addObjective() {
                 this.creatingObjective = true;
