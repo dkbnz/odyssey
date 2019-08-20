@@ -40,12 +40,12 @@
                 </ul>
             </div>
             <div :class="containerClassContent">
-                <quest-list :adminView="adminView"
-                            :profile="profile"
-                            :active-quests="true"
-                            :hide-side-bar="true"
-                            :class-container="'containerWithNav'">
-                </quest-list>
+                <div :class="'containerWithNav'">
+                    <h1 class="page-title">Quests</h1>
+                    <active-quest-list :quest-attempts="questAttempts" :loading-results="loadingResults">
+                    </active-quest-list>
+                </div>
+
                 <!-- Displays the profile's photo gallery -->
                 <photo-gallery :key="refreshPhotos"
                                :profile="profile"
@@ -105,6 +105,7 @@
     import PhotoGallery from "../photos/photoGallery";
     import PhotoUploader from "../photos/photoUploader";
     import QuestList from "../quests/questList";
+    import ActiveQuestList from "../quests/activeQuestList";
 
     export default {
         name: "viewProfile",
@@ -150,7 +151,9 @@
                 newProfilePhoto: -1,
                 refreshPhotos: 0,
                 dismissSecs: 3,
-                dismissCountDown: 0
+                dismissCountDown: 0,
+                questAttempts: [],
+                loadingResults: false
             }
         },
 
@@ -158,12 +161,17 @@
             userProfile() {
                 this.checkAuth();
             },
+
+            profile() {
+                this.queryYourActiveQuests();
+            }
         },
 
         mounted() {
             this.checkAuth();
             this.getProfilePictureThumbnail();
             this.getProfilePictureFull();
+            this.queryYourActiveQuests();
         },
 
         methods: {
@@ -379,10 +387,30 @@
              */
             imageAlt(event) {
                 event.target.src = "../../../static/default_profile_picture.png"
-            }
+            },
+
+
+            /**
+             * Runs a query which searches through the quests in the database and returns only
+             * quests started by the profile.
+             *
+             * @returns {Promise<Response | never>}
+             */
+            queryYourActiveQuests() {
+                if (this.profile.id !== undefined) {
+                    this.loadingResults = true;
+                    return fetch(`/v1/quests/profiles/` + this.profile.id, {})
+                        .then(response => response.json())
+                        .then((data) => {
+                            this.questAttempts = data;
+                            this.loadingResults = false;
+                        })
+                }
+            },
         },
 
         components: {
+            ActiveQuestList,
             QuestList,
             YourTrips,
             PhotoGallery,
