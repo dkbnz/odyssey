@@ -158,7 +158,7 @@ public class DestinationController extends Controller {
     /**
      * Return a Json object listing all destination types in the database.
      *
-     * @return ok() (Http 200) response containing all the different types of destinations.
+     * @return          ok() (Http 200) response containing all the different types of destinations.
      */
     public Result getTypes() {
         List<Type> destinationTypes = destinationTypeRepository.findAll();
@@ -170,7 +170,7 @@ public class DestinationController extends Controller {
      * Fetches all destinations based on Http request query parameters. This also includes pagination, destination
      * ownership and the public or private query.
      *
-     * @param request   Http request containing query parameters to filter results.
+     * @param request   an Http request containing query parameters to filter results.
      * @return          ok() (Http 200) response containing the destinations found in the response body, forbidden()
      *                  (Http 403) if the user has tried to access destinations they are not authorised for.
      */
@@ -259,7 +259,7 @@ public class DestinationController extends Controller {
     /**
      * Fetches all destinations by user.
      *
-     * @return ok() (Http 200) response containing the destinations found in the response body.
+     * @return           ok() (Http 200) response containing the destinations found in the response body.
      */
     public Result fetchByUser(Http.Request request, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);

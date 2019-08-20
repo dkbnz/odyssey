@@ -314,9 +314,8 @@ public class QuestController {
     }
 
 
-
     /**
-     * Retrieves all the profiles that have the specified the quest currently active
+     * Retrieves all the profiles that have the specified quest as active.
      *
      * @param request   the request from the front end of the application containing login information.
      * @param questId   the id of the quest that the active profiles are being retrieved for

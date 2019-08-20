@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+
 /**
  * Class for objective, is used to initialise a objective.
  */
@@ -91,6 +92,5 @@ public class Objective extends BaseModel {
     public void setRadius(Double radius) {
         this.radius = radius;
     }
-
 }
 

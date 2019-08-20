@@ -22,6 +22,7 @@ public class QuestAttempt extends BaseModel {
     @JsonIgnore
     private Profile attemptedBy;
 
+
     /**
      * The Quest to be attempted.
      */
@@ -29,15 +30,18 @@ public class QuestAttempt extends BaseModel {
     @JsonIgnore
     private Quest questAttempted;
 
+
     /**
      * Boolean to indicate if the current objective of interest has been solved.
      */
     private boolean solvedCurrent;
 
+
     /**
      * Index of the most recently checked in objective.
      */
     private int checkedInIndex;
+
 
     /**
      * Boolean to indicate if the quest attempt has been completed.

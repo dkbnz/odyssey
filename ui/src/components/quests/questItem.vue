@@ -155,15 +155,15 @@
                 <b-row v-if="addNewObjective">
                     <b-col cols="12">
                         <b-card>
-                        <add-objective
-                                :inputObjective="objectiveSelected"
-                                :profile="profile"
-                                :heading="'Add'"
-                                @addObjective="addObjective"
-                                @cancelCreate="cancelObjectiveCreate"
-                                @destination-select="$emit('destination-select')"
-                                :selectedDestination="destinationSelected">
-                        </add-objective>
+                            <add-objective
+                                    :inputObjective="objectiveSelected"
+                                    :profile="profile"
+                                    :heading="'Add'"
+                                    @addObjective="addObjective"
+                                    @cancelCreate="cancelObjectiveCreate"
+                                    @destination-select="$emit('destination-select')"
+                                    :selectedDestination="destinationSelected">
+                            </add-objective>
                         </b-card>
                     </b-col>
                 </b-row>
@@ -184,7 +184,8 @@
                     </b-col>
                 </b-row>
 
-                <b-container fluid style="margin-top: 20px" v-if="inputQuest.objectives.length > 0 && !editCurrentObjective" >
+                <b-container fluid style="margin-top: 20px"
+                             v-if="inputQuest.objectives.length > 0 && !editCurrentObjective">
                     <!-- Table displaying all added destinations -->
                     <b-table :current-page="currentPage" :fields="fields" :items="inputQuest.objectives"
                              :per-page="perPage"
@@ -348,7 +349,7 @@
                     {value: 5, text: "5"},
                     {value: 10, text: "10"},
                     {value: 15, text: "15"},
-                    {value:Infinity, text:"All"}],
+                    {value: Infinity, text: "All"}],
                 perPage: 5,
                 currentPage: 1,
                 editCurrentObjective: false,
@@ -809,11 +810,11 @@
             joinDates() {
                 let timeOffset = this.formatOffset();
 
-                if(this.startTime.length === 5) {
+                if (this.startTime.length === 5) {
                     this.startTime += ":00";
                 }
 
-                if(this.endTime.length === 5) {
+                if (this.endTime.length === 5) {
                     this.endTime += ":00";
                 }
 

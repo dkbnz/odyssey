@@ -76,14 +76,15 @@ public class ProfileController {
         this.travellerTypeRepository = travellerTypeRepository;
     }
 
+
     /**
      * Creates a user based on given Json body. All new users are not an admin by default. This is used on the Sign Up
      * page when a user is making a new profile. All parameters are compulsory, except for passport country. When a user
      * creates a new profile, a session is made and they are automatically logged in.
      *
-     * @param request Http Request containing Json Body.
-     * @return If username exists, returns badRequest() (Http 400), if user is created, sets session and
-     * returns created() (Http 201).
+     * @param request       an Http Request containing Json Body.
+     * @return              if username exists, returns badRequest() (Http 400), if user is created, sets session and
+     * returns              created() (Http 201).
      */
     public Result create(Http.Request request) {
 
@@ -158,8 +159,8 @@ public class ProfileController {
      * Validates a new user's data when creating a profile. The validation is the same as the agreed front-end
      * validation.
      *
-     * @param json the Json content given by the new user.
-     * @return a string value of the error if there is one, otherwise returns null.
+     * @param json      the Json content given by the new user.
+     * @return          a string value of the error if there is one, otherwise returns null.
      */
     private String userDataValid(JsonNode json) {
         String username = json.get(USERNAME).asText();
@@ -201,8 +202,8 @@ public class ProfileController {
      * Validates the user's username (email address). Ensures meets a specific regular expression that is used to
      * validate emails.
      *
-     * @param usernameValue the value of the new user's username (email).
-     * @return the string of the error message if it occurs, otherwise null if valid.
+     * @param usernameValue         the value of the new user's username (email).
+     * @return                      the string of the error message if it occurs, otherwise null if valid.
      */
     private String validateUsername(String usernameValue) {
         String emailRegex = "^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})";
@@ -217,10 +218,10 @@ public class ProfileController {
      * Validates each of the users name fields when creating a new user. This validation is the same as the frontend
      * validation for the application.
      *
-     * @param nameValue the specific name data (first, middle or last) to be validated.
-     * @param nameType  the string of the name so an appropriate error message is returned.
-     * @return the error message that may occur if any of the credentials are invalid. Otherwise returns an
-     * null.
+     * @param nameValue     the specific name data (first, middle or last) to be validated.
+     * @param nameType      the string of the name so an appropriate error message is returned.
+     * @return              the error message that may occur if any of the credentials are invalid.
+     *                      Otherwise returns null.
      */
     private String validateName(String nameValue, String nameType) {
         if (nameType.equals(MIDDLE_NAME)) {
@@ -245,8 +246,8 @@ public class ProfileController {
     /**
      * Validates the new user's gender, the gender must be one specified in the list.
      *
-     * @param genderValue the value of the new user's gender.
-     * @return a string saying what is invalid about the user's gender, or null if valid.
+     * @param genderValue       the value of the new user's gender.
+     * @return                  a string saying what is invalid about the user's gender, or null if valid.
      */
     private String validateGender(String genderValue) {
         ArrayList<String> genders = new ArrayList<>();
@@ -264,8 +265,8 @@ public class ProfileController {
     /**
      * Validates the new user's date of birth, the date of birth must be before today.
      *
-     * @param dateOfBirthValue the value of the new user's date of birth.
-     * @return a string saying the user's date of birth is invalid, or null if valid.
+     * @param dateOfBirthValue      the value of the new user's date of birth.
+     * @return                      a string saying the user's date of birth is invalid, or null if valid.
      */
     private String validateDateOfBirth(LocalDate dateOfBirthValue) {
         if (LocalDate.now().isBefore(dateOfBirthValue)) {
@@ -280,9 +281,9 @@ public class ProfileController {
      * no duplicate usernames (emails), as the login functionality requires a username. This is checked on profile
      * creation in the ProfileController.
      *
-     * @param username the name being checked (inputted as a String).
-     * @return false if the username is unique (acceptable), or true if the profile username exists
-     * (unacceptable).
+     * @param username          the name being checked (inputted as a String).
+     * @return                  false if the username is unique (acceptable), or true if the profile username exists
+     *                          (unacceptable).
      */
     private boolean profileExists(String username) {
         return profileRepository.getExpressionList()
@@ -296,9 +297,9 @@ public class ProfileController {
      * no duplicate usernames (emails), as the login functionality requires a username. This error is shown to the
      * user when validating their email on Sign Up.
      *
-     * @param request Http Request containing Json Body.
-     * @return ok() (Http 200) when there is no username in the database, or a badRequest() (Http 400) when
-     * there is already is a user with that username in the database.
+     * @param request       an Http Request containing Json Body.
+     * @return              ok() (Http 200) when there is no username in the database, or a badRequest() (Http 400) when
+     *                      there is already is a user with that username in the database.
      */
     public Result checkUsername(Http.Request request) {
         JsonNode json = request.body().asJson();
@@ -341,9 +342,9 @@ public class ProfileController {
      * logged in profile on the dash page, and used throughout the application wherever the logged in profile is
      * referenced.
      *
-     * @param request Http Request containing Json Body.
-     * @return If profile is successfully retrieved, returns ok() (Http 200) with the Json body of the user
-     * profile. Otherwise returns unauthorized() (Http 401).
+     * @param request      an Http Request containing Json Body.
+     * @return             if profile is successfully retrieved, returns ok() (Http 200) with the Json body of the user
+     *                     profile. Otherwise returns unauthorized() (Http 401).
      */
     public Result fetch(Http.Request request) {
         return request.session()
@@ -362,10 +363,11 @@ public class ProfileController {
      * in the Json body, delete specified id. Ensures the global admin (id number of one) cannot be deleted by any
      * user, admin or not.
      *
-     * @param request Http Request containing Json Body.
-     * @return ok() (Http 200) if the profile is successfully deleted. Returns unauthorized() (Http 401),
-     * if not logged in. Otherwise returns forbidden() (Http 403), this is logged in user is not
-     * and admin, or they are trying to delete the global admin (id number one).
+     * @param request       an Http Request containing Json Body.
+     * @return              ok() (Http 200) if the profile is successfully deleted.
+     *                      unauthorized() (Http 401) if not logged in.
+     *                      forbidden() (Http 403) when the logged in user is not an admin, or they are trying to delete
+     *                      the global admin (id 1).
      */
     public Result delete(Http.Request request, Long id) {
         if (id == DEFAULT_ADMIN_ID) {
@@ -404,9 +406,9 @@ public class ProfileController {
      * Ensures there are the required number of nationalities and traveller types.
      * Checks if user data is within expected ranges.
      *
-     * @param jsonToValidate the JsonNode of the users input.
-     * @return badRequest() (Http 400) with associated error if an error exists.
-     * null if checks pass.
+     * @param jsonToValidate        the JsonNode of the users input.
+     * @return                      badRequest() (Http 400) with associated error if an error exists.
+     *                              null if checks pass.
      */
     private Result validateProfileJson(JsonNode jsonToValidate) {
         if (!(jsonToValidate.has(USERNAME)
@@ -440,12 +442,12 @@ public class ProfileController {
     /**
      * Takes a Http request containing a Json body and finds a logged in user. Then uses a PUT request to update
      * the logged in user based on the Http Request body. The validation is the same as creating a new profile.
-     * <p>
+     *
      * If the Id is specified in the Json body, and the logged in user is an admin, then edit the specified Id.
      *
-     * @param request Http Request containing Json Body.
-     * @return ok() (Http 200) if the profile is successfully updated. Returns unauthorized() (Http 401),
-     * if not logged in.
+     * @param request       an Http Request containing Json Body.
+     * @return              ok() (Http 200) if the profile is successfully updated.
+     *                      unauthorized() (Http 401) if not logged in.
      */
     public Result update(Http.Request request, Long editUserId) {
         return request.session()
@@ -534,9 +536,9 @@ public class ProfileController {
      * uses the searchProfiles() method to execute a search based on the search query parameters. This is used on the
      * Search Profiles page.
      *
-     * @param request Http Request containing Json Body.
-     * @return unauthorized() (Http 401) if the user is not logged in. Otherwise returns ok() (Http 200) if the
-     * search is successfully done.
+     * @param request           an Http Request containing Json Body.
+     * @return                  unauthorized() (Http 401) if the user is not logged in.
+     *                          ok() (Http 200) if the search is successful.
      */
     public Result list(Http.Request request) {
         return request.session()
@@ -565,8 +567,8 @@ public class ProfileController {
     /**
      * Validates the search query string for profiles.
      *
-     * @param queryString the query string from the request body, given by the user.
-     * @return string message of error in query string, empty if no error present.
+     * @param queryString           the query string from the request body, given by the user.
+     * @return                      string message of error in query string, empty if no error present.
      */
     private String validQueryString(Map<String, String[]> queryString) {
         Integer minAge;
@@ -599,8 +601,8 @@ public class ProfileController {
      * Function to validate a query string and return a list of profiles based on the query string.
      * If no profiles are found, return an empty list. This is used on the Search Profiles page.
      *
-     * @param queryString the query string of the search parameters that are used for searching for profiles.
-     * @return the list of profiles found from the resulting query string (can be empty).
+     * @param queryString       the query string of the search parameters that are used for searching for profiles.
+     * @return                  the list of profiles found from the resulting query string (can be empty).
      */
     private List<Profile> searchProfiles(Map<String, String[]> queryString) {
         ExpressionList<Profile> profileExpressionList = Ebean.find(Profile.class).where();
@@ -639,10 +641,11 @@ public class ProfileController {
      * If user is not logged in they are unauthorised, if they are logged in and they are not admin they are forbidden
      * to make another user an admin.
      *
-     * @param request Http Request containing Json Body.
-     * @param id      the id of the user to made an admin.
-     * @return ok() (Http 200) if successfully making a user admin, unauthorized() (Http 401) if they are not
-     * logged in, forbidden() (Http 403) if logged in user is not an admin.
+     * @param request       an Http Request containing Json Body.
+     * @param id            the id of the user to made an admin.
+     * @return              ok() (Http 200) if successfully making a user admin,
+     *                      unauthorized() (Http 401) if they are not logged in,
+     *                      forbidden() (Http 403) if logged in user is not an admin.
      */
     public Result makeAdmin(Http.Request request, Long id) {
         return request.session()
@@ -674,11 +677,12 @@ public class ProfileController {
      * Removes the admin property from a specified user based on the user id. This can only be done if the currently
      * logged in user is an admin and the user they are trying to change is not the global admin.
      *
-     * @param request Http Request containing Json Body.
-     * @param id      the id of the user to be removed as an admin.
-     * @return forbidden() (Http 403) if logged in user is not an admin or the profile trying to be changed is
-     * the global admin, unauthorized() (Http 401) if the user is not logged in, ok() (Http 200) if
-     * successfully updating the admin property of a profile.
+     * @param request       an Http Request containing Json Body.
+     * @param id            the id of the user to be removed as an admin.
+     * @return              forbidden() (Http 403) if logged in user is not an admin or the profile trying to be changed
+     *                      is the global admin,
+     *                      unauthorized() (Http 401) if the user is not logged in,
+     *                      ok() (Http 200) if successfully updating the admin property of a profile.
      */
     public Result removeAdmin(Http.Request request, Long id) {
         return request.session()
