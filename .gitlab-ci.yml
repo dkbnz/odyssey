@@ -3,6 +3,7 @@ image: java:8
 stages:
 - clean
 - test
+- build
 - deploy
 - deploy-server
 
