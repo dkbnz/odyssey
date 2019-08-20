@@ -6,7 +6,7 @@
             <!--Input fields for searching for quests-->
             <b-form-group
                     id="title-field"
-                    label="Quest Title's:"
+                    label="Quest Title:"
                     label-for="title">
                 <b-form-input id="title" v-model="searchTitle" :state="questTitleValidation"></b-form-input>
             </b-form-group>

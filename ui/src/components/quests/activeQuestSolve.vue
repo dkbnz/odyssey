@@ -2,7 +2,8 @@
     <div>
         <div v-if="showDestinationSearch">
             <b-button @click="goBack" class="buttonMarginsBottom" size="sm">Back</b-button>
-            <b-button v-if="!showDestinationSearchCollapse" @click="showDestinationSearchCollapse = true; showSelectedDestination = false; foundDestinationsKey += 1" variant="primary" block>Search Again</b-button>
+            <b-button v-if="!showDestinationSearchCollapse" @click="showDestinationSearchCollapse = true;
+            showSelectedDestination = false; foundDestinationsKey += 1" variant="primary" block>Search Again</b-button>
             <b-collapse v-model="showDestinationSearchCollapse" id="destinations-collapse">
                 <found-destinations
                         :key="foundDestinationsKey"
@@ -34,7 +35,6 @@
                             </div>
                         </small>
                     </div>
-
                     <p>
                         {{selectedDestination.district}}
                     </p>
@@ -87,14 +87,16 @@
                     <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
                     <b-button size="sm" variant="primary" @click="showDestinationSearch = true">Solve</b-button>
                 </b-list-group-item>
-
                 <!-- If we have an objective to check in to, display it -->
                 <b-list-group-item href="#"
                                    class="d-flex justify-content-between align-items-center"
                                    draggable="false" v-if="questAttempt.toCheckIn != null">
                     <span class="mobile-text font-weight-bold">{{questAttempt.toCheckIn.riddle}}</span>
-                    <b-button class="no-wrap-text" size="sm" variant="warning" @click="checkIn">Check In</b-button>
+                    <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
                 </b-list-group-item>
+                <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop">
+                    You are not at the required location, you are {{Number(Math.round(this.totalDistance+'e2')+'e-2')}} km's away.
+                </b-alert>
 
                 <!-- List the remaining unsolved objectives in the quest attempt -->
                 <b-list-group-item v-for="objective in questAttempt.unsolved" href="#"
@@ -126,7 +128,31 @@
                 showError: false,
                 showDestinationSearchCollapse: true,
                 showSelectedDestination: false,
-                foundDestinationsKey: 0
+                foundDestinationsKey: 0,
+                currentLocation: {
+                    latitude: null,
+                    longitude: null
+                },
+                foundLocation: false,
+                validCheckIn: false,
+                showNotValidCheckIn: false,
+                totalDistance: null
+            }
+        },
+
+        watch: {
+            foundLocation() {
+                if (this.foundLocation) {
+                    if (this.validCheckIn) {
+                        this.sendCheckInRequest();
+                    } else {
+                        this.showNotValidCheckIn = true;
+                        setTimeout(function () {
+                            this.showNotValidCheckIn = false;
+                        }, 3000);
+                    }
+                    this.foundLocation = false;
+                }
             }
         },
 
@@ -181,9 +207,53 @@
 
 
             /**
-             * Send a check in request for a quest attempt, will check in to the most recently solved objective.
+             * Gets the current location using geolocation.
              */
-            checkIn() {
+            getCurrentLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(this.currentPosition);
+                } else {
+                    this.$bvToast.toast('Unable to Get Current Location', {
+                        title: `Geolocation Error`,
+                        variant: "danger",
+                        autoHideDelay: "3000",
+                        solid: true
+                    });
+                }
+            },
+
+
+            /**
+             * Helper function of getCurrentLocation that saves lat/long to appropriate variables.
+             *
+             * @param position  the current position on the map.
+             */
+            currentPosition(position) {
+                this.currentLocation.latitude = position.coords.latitude;
+                this.currentLocation.longitude = position.coords.longitude;
+                this.checkCurrentLocation();
+            },
+
+
+            /**
+             * Checks if the user's current location is within the required radius for the current objective.
+             */
+            checkCurrentLocation() {
+                let destinationLocation = new google.maps.LatLng(
+                    this.questAttempt.toCheckIn.destination.latitude,
+                    this.questAttempt.toCheckIn.destination.longitude
+                );
+                let currentLocation = new google.maps.LatLng(this.currentLocation.latitude, this.currentLocation.longitude);
+                this.totalDistance = google.maps.geometry.spherical.computeDistanceBetween(destinationLocation, currentLocation) * 0.001;
+                this.validCheckIn = this.questAttempt.toCheckIn.radius >= this.totalDistance;
+                this.foundLocation = true;
+            },
+
+
+            /**
+             * Sends the request to check in to the current objective.
+             */
+            sendCheckInRequest() {
                 let self = this;
                 return fetch('/v1/quests/attempt/' + this.questAttempt.id + '/checkIn', {
                     method: "POST",
@@ -211,6 +281,11 @@
             },
 
 
+            /**
+             * Handles the emit event for when a destination is clicked in the search destination form.
+             *
+             * @param destination   the destination that has been clicked.
+             */
             destinationClicked(destination) {
                 this.selectedDestination = destination;
                 this.showDestinationSearchCollapse = false;
