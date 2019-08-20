@@ -1,15 +1,17 @@
 <template>
     <div>
         <div v-if="showDestinationSearch">
-            <b-button v-if="!showDestinationSearchCollapse" @click="showDestinationSearchCollapse = true; showSelectedDestination = false;" variant="primary" block>Search Again</b-button>
+            <b-button @click="showDestinationSearch = false" class="buttonMarginsBottom" size="sm">Back</b-button>
+            <b-button v-if="!showDestinationSearchCollapse" @click="showDestinationSearchCollapse = true; showSelectedDestination = false; foundDestinationsKey += 1" variant="primary" block>Search Again</b-button>
             <b-collapse v-model="showDestinationSearchCollapse">
                 <found-destinations
+                        :key="foundDestinationsKey"
                         :search-public="true"
                         :destination-types="destinationTypes" @destination-click="destinationClicked">
                 </found-destinations>
             </b-collapse>
 
-            <b-alert v-model="showError" variant="danger" dismissible>
+            <b-alert v-model="showError" variant="danger" class="buttonMarginsTop" dismissible>
                 Incorrect, try again.
             </b-alert>
 
@@ -46,6 +48,7 @@
             <!--{{guessSuccess}}-->
         </div>
         <div v-else>
+            <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom" size="sm">Back</b-button>
             <h2 class="page-title">{{questAttempt.questAttempted.title}}</h2>
 
             <b-alert v-model="guessSuccess" variant="success" dismissible>
@@ -61,6 +64,7 @@
 
             <b-list-group>
 
+                <!-- List the solved objectives in the quest attempt -->
                 <b-list-group-item v-for="objective in questAttempt.solved" href="#"
                                    class="flex-column align-items-start"
                                    :key="objective.id"
@@ -76,13 +80,23 @@
                     </p>
                 </b-list-group-item>
 
+                <!-- If we have an objective to solve, display it -->
                 <b-list-group-item href="#"
                                    class="d-flex justify-content-between align-items-center"
-                                   draggable="false" v-if="questAttempt.current != null">
-                    <span class="mobile-text">{{questAttempt.current.riddle}}</span>
+                                   draggable="false" v-if="questAttempt.toSolve != null">
+                    <span class="mobile-text">{{questAttempt.toSolve.riddle}}</span>
                     <b-button size="sm" variant="primary" @click="showDestinationSearch = true">Solve</b-button>
                 </b-list-group-item>
 
+                <!-- If we have an objective to check in to, display it -->
+                <b-list-group-item href="#"
+                                   class="d-flex justify-content-between align-items-center"
+                                   draggable="false" v-if="questAttempt.toCheckIn != null">
+                    <span class="mobile-text">{{questAttempt.toCheckIn.riddle}}</span>
+                    <b-button size="sm" variant="primary" @click="checkIn">Check In</b-button>
+                </b-list-group-item>
+
+                <!-- List the remaining unsolved objectives in the quest attempt -->
                 <b-list-group-item v-for="objective in questAttempt.unsolved" href="#"
                                    class="d-flex justify-content-between align-items-center"
                                    :key="objective.id"
@@ -111,7 +125,8 @@
                 guessSuccess: false,
                 showError: false,
                 showDestinationSearchCollapse: true,
-                showSelectedDestination: false
+                showSelectedDestination: false,
+                foundDestinationsKey: 0
             }
         },
 
@@ -124,6 +139,10 @@
         },
 
         methods: {
+            /**
+             * Sends a request to check the users guess for a given quest attempt.
+             * Displays appropriate messages upon receiving a response.
+             */
             checkGuess() {
                 let self = this;
                 return fetch('/v1/quests/attempt/' + this.questAttempt.id + '/guess/' + this.selectedDestination.id, {
@@ -136,9 +155,31 @@
                             self.showDestinationSearch = false;
                             self.guessSuccess = true;
                             self.$emit('updated-quest-attempt', data.attempt);
+                            setTimeout(function() {
+                                self.guessSuccess = false;
+                            }, 3000)
                         } else {
                             self.showError = true;
+                            setTimeout(function() {
+                                self.showError = false;
+                            }, 3000)
                         }
+                    })
+            },
+
+
+            /**
+             * Send a check in request for a quest attempt, will check in to the most recently solved objective.
+             */
+            checkIn() {
+                let self = this;
+                return fetch('/v1/quests/attempt/' + this.questAttempt.id + '/checkIn', {
+                    method: "POST",
+                    accept: "application/json"
+                })
+                    .then(response => response.json())
+                    .then((data) => {
+                        self.$emit('updated-quest-attempt', data);
                     })
             },
 
