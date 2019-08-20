@@ -22,11 +22,11 @@
         mounted() {
             this.getProfile(profile => this.profile = profile);
             this.getNationalities(nationalities => this.nationalityOptions = nationalities);
-            this.getTravTypes(travTypes => this.travTypeOptions = travTypes);
+            this.getTravellerTypes(travellerTypes => this.travTypeOptions = travellerTypes);
             if (this.profile.id !== undefined) {
                 this.getDestinations();
             }
-            this.getDestinationTypes(destinationT => this.destinationTypes = destinationT);
+            this.getDestinationTypes(destinationTypes => this.destinationTypes = destinationTypes);
         },
 
         data() {
@@ -95,7 +95,7 @@
             /**
              * Retrieves all the traveller types.
              */
-            getTravTypes(updateTravellerTypes) {
+            getTravellerTypes(updateTravellerTypes) {
                 return fetch(`/v1/travtypes`, {
                     accept: "application/json"
                 })
