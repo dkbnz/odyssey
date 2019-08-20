@@ -31,7 +31,8 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
      * @return              true if exists.
      */
     public boolean exists(QuestAttempt questAttempt) {
-        return query().where()
+        return query().where()                .lt("questAttempted.startDate", new Date())
+                .gt("questAttempted.endDate", new Date())
                 .eq(ATTEMPTED_PROFILE, questAttempt.getAttemptedBy())
                 .eq("questAttempted", questAttempt.getQuestAttempted())
                 .exists();
