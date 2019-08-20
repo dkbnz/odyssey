@@ -29,6 +29,8 @@ public class QuestController {
 
     private static final String QUEST_ATTEMPT_EXISTS = "An attempt already exists for this quest.";
 
+    private static final String START_OWN_QUEST = "You cannot start your own quest.";
+
     private QuestRepository questRepository;
     private QuestAttemptRepository questAttemptRepository;
     private ProfileRepository profileRepository;
@@ -348,6 +350,10 @@ public class QuestController {
         Profile attemptedBy = profileRepository.findById(userId);
         if (questToAttempt == null || attemptedBy == null) {
             return notFound(ApiError.notFound());
+        }
+
+        if (attemptedBy.equals(questToAttempt.getOwner())) {
+            return forbidden(ApiError.forbidden(START_OWN_QUEST));
         }
 
         QuestAttempt attempt = new QuestAttempt(attemptedBy, questToAttempt);

@@ -615,14 +615,14 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieving all quests I have marked as active
-    Given I am logged in
+    Given I am logged in as an alternate user
     And the application is running
     And a quest exists with id 5
-    And a user exists with id 2
-    When I start a quest with id 5 for user 2
-    And I retrieve all active quests for user 2
+    And a user exists with id 3
+    When I start a quest with id 5 for user 3
+    And I retrieve all active quests for user 3
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 1 quests
 
 
   Scenario: Retrieving all quests I have marked as active when not logged in
@@ -638,27 +638,27 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieving all quests marked as active for another user as admin
-    Given I am logged in
+    Given I am logged in as an alternate user
     And the application is running
     And a quest exists with id 5
-    And a user exists with id 2
-    When I start a quest with id 5 for user 2
+    And a user exists with id 3
+    When I start a quest with id 5 for user 3
     And I am logged in as an admin user
-    And I retrieve all active quests for user 2
+    And I retrieve all active quests for user 3
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 1 quests
 
 
   Scenario: Retrieving all quests marked as active for another user as an alternative user
-    Given I am logged in
+    Given I am logged in as an alternate user
     And the application is running
     And a quest exists with id 5
-    And a user exists with id 2
-    When I start a quest with id 5 for user 2
-    And I am logged in as an alternate user
-    And I retrieve all active quests for user 2
+    And a user exists with id 3
+    When I start a quest with id 5 for user 3
+    And I am logged in
+    And I retrieve all active quests for user 3
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 1 quests
 
 
   Scenario: Retrieving all completed quests as a regular user
