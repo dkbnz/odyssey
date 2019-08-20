@@ -14,7 +14,7 @@ public class VueRedirect extends Controller {
      * @return      vue frontend index page.
      */
     public Result matchAll(String path) {
-        return ok(ClassLoader.getSystemClassLoader().getResourceAsStream("public/index.html")).as("text/html");
+        return ok(ClassLoader.getSystemClassLoader().getResourceAsStream("/public/index.html")).as("text/html");
     }
 
 }
