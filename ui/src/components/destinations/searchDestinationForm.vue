@@ -3,7 +3,7 @@
         <h4 class="page-title" v-if="searchPublic">Search Public Destinations</h4>
         <h4 class="page-title" v-else>Search Your Destinations</h4>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
-        <div>
+        <b-form @submit.prevent="searchDestinations">
             <!--Input fields for searching for destinations-->
             <b-form-group
                     id="name-field"
@@ -76,8 +76,8 @@
                 </b-form-select>
             </b-form-group>
 
-            <b-button @click="searchDestinations" block variant="primary">Search</b-button>
-        </div>
+            <b-button @click="searchDestinations" block variant="primary" type="submit">Search</b-button>
+        </b-form>
     </div>
 </template>
 
