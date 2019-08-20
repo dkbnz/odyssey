@@ -123,6 +123,12 @@ create table quest (
   constraint pk_quest primary key (id)
 );
 
+create table quest_country_occurrences (
+  quest_id                      bigint not null,
+  mkey                          varchar(255) not null,
+  value                         integer not null
+);
+
 create table quest_objective (
   quest_id                      bigint not null,
   objective_id                  bigint not null,
@@ -238,6 +244,9 @@ alter table profile_passport add constraint fk_profile_passport_passport foreign
 create index ix_quest_owner_id on quest (owner_id);
 alter table quest add constraint fk_quest_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
 
+create index ix_quest_country_occurrences_quest_id on quest_country_occurrences (quest_id);
+alter table quest_country_occurrences add constraint fk_quest_country_occurrences_quest_id foreign key (quest_id) references quest (id) on delete restrict on update restrict;
+
 create index ix_quest_objective_quest on quest_objective (quest_id);
 alter table quest_objective add constraint fk_quest_objective_quest foreign key (quest_id) references quest (id) on delete restrict on update restrict;
 
@@ -330,6 +339,9 @@ drop index if exists ix_profile_passport_passport;
 alter table quest drop constraint if exists fk_quest_owner_id;
 drop index if exists ix_quest_owner_id;
 
+alter table quest_country_occurrences drop constraint if exists fk_quest_country_occurrences_quest_id;
+drop index if exists ix_quest_country_occurrences_quest_id;
+
 alter table quest_objective drop constraint if exists fk_quest_objective_quest;
 drop index if exists ix_quest_objective_quest;
 
@@ -380,6 +392,8 @@ drop table if exists profile_traveller_type;
 drop table if exists profile_passport;
 
 drop table if exists quest;
+
+drop table if exists quest_country_occurrences;
 
 drop table if exists quest_objective;
 
