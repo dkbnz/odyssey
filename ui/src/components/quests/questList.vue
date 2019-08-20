@@ -49,7 +49,7 @@
                     </b-list-group-item>
                     <div v-if="yourQuests">
                         <b-list-group-item href="#" class="flex-column justify-content-center"
-                                           v-if="!creatingQuest"
+                                           v-if="!creatingQuest && !editingQuest"
                                            draggable="false">
                             <div class="d-flex justify-content-center">
                                 <b-button variant="success"  @click="addQuest" block>Add a New Quest</b-button>
@@ -59,90 +59,76 @@
                     <b-list-group-item v-for="quest in (foundQuests)" href="#"
                                        class="flex-column align-items-start"
                                        :key="quest.id"
-                                       draggable="false">
-                        <template v-if="!editingQuest && !(activeId === quest.id)">
+                                       draggable="false" v-if="!creatingQuest && !editingQuest && !(activeId === quest.id)">
+                        <b-row class="buttonMarginsTop">
+                            <b-col>
+                                <h4>Title</h4>
+                                <p>{{quest.title}}</p>
+                                <h4>Start Date</h4>
+                                {{new Date(quest.startDate)}}
+                            </b-col>
+                            <b-col>
+                                <h4>Countries</h4>
+                                <p>{{getQuestCountries(quest)}}</p>
+                                <h4>End Date</h4>
+                                {{new Date(quest.endDate)}}
+                            </b-col>
+                        </b-row>
 
+                        <div v-if="yourQuests" class="buttonMarginsTop">
+                            <h4 @click="showHideLocations(quest)"> Show/Hide Locations</h4>
+                            <b-container fluid style="margin-top: 20px; display: none" :id="'display-' + quest.id">
+                                <!-- Table displaying all added destinations -->
+                                <b-table :current-page="currentPage" :fields="fields" :items="quest.objectives"
+                                         :per-page="perPage"
+                                         hover
+                                         id="myTrips"
+                                         outlined
+                                         ref="questObjective"
+                                         striped>
 
+                                    <template slot="radius" slot-scope="row">
+                                        {{getRadiusValue(row.item.radius)}}
+                                    </template>
+                                </b-table>
+                                <!-- Determines pagination and number of results per row of the table -->
+                                <b-row>
+                                    <b-col cols="2">
+                                        <b-form-group
+                                                id="numItems-field"
+                                                label-for="perPage">
+                                            <b-form-select :options="optionViews"
+                                                           id="perPage"
+                                                           size="sm"
+                                                           trim v-model="perPage">
+                                            </b-form-select>
+                                        </b-form-group>
+                                    </b-col>
+                                    <b-col>
+                                        <b-pagination
+                                                :per-page="perPage"
+                                                :total-rows="rows(quest)"
+                                                align="center"
+                                                aria-controls="my-table"
+                                                first-text="First"
+                                                last-text="Last"
+                                                size="sm"
+                                                v-model="currentPage">
+                                        </b-pagination>
+                                    </b-col>
+                                </b-row>
+                            </b-container>
+                        </div>
 
-                            <b-row class="buttonMarginsTop">
-                                <b-col>
-                                    <h4>Title</h4>
-                                    <p>{{quest.title}}</p>
-                                    <h4>Start Date</h4>
-                                    {{new Date(quest.startDate)}}
-                                </b-col>
-                                <b-col>
-                                    <h4>Countries</h4>
-                                    <p>
-                                    {{getQuestCountries(quest)}}<!--<li v-for="country in quest.objectiveCountries">-->
-                                        <!--{{country}}-->
-                                    <!--</li>-->
-                                    </p>
-                                    <h4>End Date</h4>
-                                    {{new Date(quest.endDate)}}
-                                </b-col>
-                            </b-row>
-
-
-
-
-                            <div v-if="yourQuests" class="buttonMarginsTop">
-                                <h4 @click="showLocations = !showLocations">{{showHideText}} Locations
-                                    <strong :class="{'arrow down':showLocations, 'arrow right': !showLocations }"></strong>
-                                </h4>
-                                <b-container fluid style="margin-top: 20px" v-if="showLocations">
-                                    <!-- Table displaying all added destinations -->
-                                    <b-table :current-page="currentPage" :fields="fields" :items="quest.objectives"
-                                             :per-page="perPage"
-                                             hover
-                                             id="myTrips"
-                                             outlined
-                                             ref="questObjective"
-                                             striped>
-
-                                        <template slot="radius" slot-scope="row">
-                                            {{getRadiusValue(row.item.radius)}}
-                                        </template>
-                                    </b-table>
-                                    <!-- Determines pagination and number of results per row of the table -->
-                                    <b-row>
-                                        <b-col cols="2">
-                                            <b-form-group
-                                                    id="numItems-field"
-                                                    label-for="perPage">
-                                                <b-form-select :options="optionViews"
-                                                               id="perPage"
-                                                               size="sm"
-                                                               trim v-model="perPage">
-                                                </b-form-select>
-                                            </b-form-group>
-                                        </b-col>
-                                        <b-col>
-                                            <b-pagination
-                                                    :per-page="perPage"
-                                                    :total-rows="rows(quest)"
-                                                    align="center"
-                                                    aria-controls="my-table"
-                                                    first-text="First"
-                                                    last-text="Last"
-                                                    size="sm"
-                                                    v-model="currentPage">
-                                            </b-pagination>
-                                        </b-col>
-                                    </b-row>
-                                </b-container>
-                            </div>
-
-                            <b-row v-if="yourQuests">
-                                <b-col>
-                                    <b-button variant="warning" @click="setActiveId(quest)" block>Edit</b-button>
-                                </b-col>
-                                <b-col>
-                                    <b-button variant="danger" @click="setQuest(quest)" block>Delete
-                                    </b-button>
-                                </b-col>
-                            </b-row>
-                        </template>
+                        <b-row v-if="yourQuests">
+                            <b-col>
+                                <b-button variant="warning" @click="setActiveId(quest)" block>Edit</b-button>
+                            </b-col>
+                            <b-col>
+                                <b-button variant="danger" @click="setQuest(quest)" block>Delete
+                                </b-button>
+                            </b-col>
+                        </b-row>
                         <!--Quest component-->
                     </b-list-group-item>
                     <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
@@ -160,6 +146,10 @@
                 </b-list-group>
                 <!-- Confirmation modal for deleting a quest. -->
                 <b-modal hide-footer id="deleteQuestModal" ref="deleteQuestModal" title="Delete Quest">
+                    <div v-if="activeUsers > 0"
+                            class="d-block">
+                        This quest is used by {{activeUsers}} users.
+                    </div>
                     <div class="d-block">
                         Are you sure that you want to delete this Quest?
                     </div>
@@ -198,7 +188,8 @@
                     </objective-list>
                     <quest-search-form
                             v-if="availableQuests"
-                            :profile="profile">
+                            :profile="profile"
+                            @searched-quests="quests => this.foundQuests = quests">
                     </quest-search-form>
                 </b-card>
             </b-col>
@@ -277,7 +268,7 @@
                 fields: [
                     {key: 'riddle', label: 'Riddle'},
                     {key: 'destination.name', label: 'Destination'},
-                    {key: 'radius', label: 'Radius'},
+                    {key: 'radius', label: 'Radius'}
                 ],
                 optionViews: [
                     {value: 1, text: "1"},
@@ -285,6 +276,7 @@
                     {value: 10, text: "10"},
                     {value: 15, text: "15"},
                     {value:Infinity, text:"All"}],
+                activeUsers: null
 
             }
         },
@@ -297,10 +289,16 @@
             /**
              * Returns a string for show/hide if the locations in a quest are displayed or not.
              */
-            showHideText() {
+            showHideText(quest) {
+
                 if (this.showLocations) {
                     return "Hide";
                 }
+                setTimeout(function() {
+                    if (document.getElementById("display-" + quest.id).hidden) {
+                        console.log("HERE");
+                    }
+                }, 3000)
                 return "Show"
             }
         },
@@ -342,7 +340,7 @@
              */
             deleteQuest() {
                 let self = this;
-                fetch(`/v1/quests/` + this.questId, {
+                fetch('/v1/quests/' + this.questId, {
                     method: 'DELETE'
                 }).then(function (response) {
                     if (response.ok) {
@@ -371,7 +369,7 @@
              * @returns {Promise<Response | never>}
              */
             queryQuests() {
-                return fetch(`/v1/quests`, {
+                return fetch('/v1/quests', {
                     accept: "application/json"
                 })
                     .then(this.checkStatus)
@@ -432,8 +430,27 @@
              */
             setQuest(quest) {
                 this.questId = quest.id;
+
+                this.getActiveUsers();
                 this.$refs['deleteQuestModal'].show();
             },
+
+
+            /**
+             * Gets all users that are currently using the given quest.
+             */
+            getActiveUsers() {
+                return fetch('/v1/quests/' + this.questId + '/profiles', {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(data => {
+                        console.log(data.length);
+                        this.activeUsers = data.length;
+                    });
+            },
+
 
 
             /**
@@ -588,6 +605,25 @@
              */
             rows(quest) {
                 return quest.objectives.length
+            },
+
+
+            /**
+             * Hides or shows the quest locations given by the quest location id parameter.
+             *
+             * @param quest      the quest locations to hide.
+             */
+            showHideLocations(quest) {
+                let questLocationsId = "display-" + quest.id;
+                let locationsSection = document.getElementById(questLocationsId);
+
+                if (locationsSection.style.display === "none") {
+                    locationsSection.style.display = "block";
+                    this.checkShowHide(quest);
+                } else {
+                    locationsSection.style.display = "none";
+                    this.checkShowHide(quest);
+                }
             }
         },
 
