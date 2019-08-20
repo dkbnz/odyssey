@@ -95,7 +95,7 @@
                     <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
                 </b-list-group-item>
                 <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop">
-                    You are not at the required location, you are {{Number(Math.round(this.totalDistance+'e2')+'e-2')}} km's away.
+                    You are not at the required location, you are {{getHowClose()}} away.
                 </b-alert>
 
                 <!-- List the remaining unsolved objectives in the quest attempt -->
@@ -147,8 +147,9 @@
                         this.sendCheckInRequest();
                     } else {
                         this.showNotValidCheckIn = true;
-                        setTimeout(function () {
-                            this.showNotValidCheckIn = false;
+                        let self = this;
+                        setTimeout(function() {
+                            self.showNotValidCheckIn = false;
                         }, 3000);
                     }
                     this.foundLocation = false;
@@ -290,6 +291,19 @@
                 this.selectedDestination = destination;
                 this.showDestinationSearchCollapse = false;
                 this.showSelectedDestination = true;
+            },
+
+
+            /**
+             * Returns a string value for the distance from the user's current location to the location of the
+             * objective destination.
+             */
+            getHowClose() {
+                if (this.totalDistance >= 1) {
+                    return String(Number(Math.round(this.totalDistance+'e3')+'e-3')) + " km's";
+                }
+                return String(Number(Math.round((this.totalDistance * 1000)+'e0')+'e-0')) + " metres";
+
             }
         }
 
