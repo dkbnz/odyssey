@@ -1,5 +1,6 @@
 package controllers;
 
+import play.api.Play;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -13,7 +14,7 @@ public class VueRedirect extends Controller {
      * @return      vue frontend index page.
      */
     public Result matchAll(String path) {
-        return ok(VueRedirect.class.getResourceAsStream("public/index.html")).as("text/html");
+        return ok(ClassLoader.getSystemClassLoader().getResourceAsStream("public/index.html")).as("text/html");
     }
 
 }
