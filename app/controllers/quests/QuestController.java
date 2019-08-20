@@ -521,7 +521,6 @@ public class QuestController {
             for (Quest quest: quests) {
 
                 int objectiveSize = quest.getObjectives().size();
-                System.out.println("what the hell is going on");
 
                 if ((quest.getStartDate().before(now.getTime())
                     || quest.getStartDate().compareTo(now.getTime()) == 0)
