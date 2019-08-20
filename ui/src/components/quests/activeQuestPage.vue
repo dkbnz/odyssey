@@ -27,7 +27,8 @@
         name: "activeQuestPage",
 
         props: {
-            profile: Object
+            profile: Object,
+            refreshQuests: Boolean
         },
 
         mounted() {
@@ -36,6 +37,10 @@
 
         watch: {
             profile() {
+                this.queryYourActiveQuests();
+            },
+
+            refreshQuests() {
                 this.queryYourActiveQuests();
             }
         },
