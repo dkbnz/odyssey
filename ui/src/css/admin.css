@@ -1,0 +1,12 @@
+.singleProfileNav {
+    background: white;
+    padding: 15px;
+}
+
+a {
+    color: grey;
+}
+
+.boldText {
+    font-weight: bold
+}

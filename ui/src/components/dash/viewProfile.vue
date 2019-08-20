@@ -63,7 +63,7 @@
                         <b-button
                                 block class="mr-2"
                                 size="sm" style="margin-top: 10px"
-                                v-if="auth" variant="info"
+                                v-if="authentication" variant="info"
                                 @click="showUploader">Change my profile picture
                         </b-button>
                         <b-modal ref="profilePhotoUploader" id="profilePhotoUploader" hide-footer centered
@@ -80,7 +80,7 @@
                                 @click="deleteProfilePhoto"
                                 block class="mr-2"
                                 size="sm" style="margin-top: 10px"
-                                v-if="auth && profile.profilePicture !== null"
+                                v-if="authentication && profile.profilePicture !== null"
                                 variant="danger">Remove as Profile Photo
                         </b-button>
                     </b-col>
@@ -131,7 +131,7 @@
 
         data() {
             return {
-                auth: false,
+                authentication: false,
                 showSuccess: false,
                 showError: false,
                 alertMessage: "",
@@ -147,12 +147,12 @@
 
         watch: {
             userProfile() {
-                this.checkAuth();
+                this.checkAuthentication();
             },
         },
 
         mounted() {
-            this.checkAuth();
+            this.checkAuthentication();
             this.getProfilePictureThumbnail();
             this.getProfilePictureFull();
         },
@@ -257,8 +257,8 @@
              * Checks the authorization of the user profile that is logged in to see if they can
              * view the users private photos and can add or delete images from the media.
              */
-            checkAuth() {
-                this.auth = (this.userProfile.id !== undefined) && (this.userProfile.id === this.profile.id) || (this.userProfile.admin && this.adminView);
+            checkAuthentication() {
+                this.authentication = (this.userProfile.id !== undefined) && (this.userProfile.id === this.profile.id) || (this.userProfile.admin && this.adminView);
             },
 
 

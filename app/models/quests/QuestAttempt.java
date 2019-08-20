@@ -12,6 +12,11 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import java.util.List;
 
+
+/**
+ * Class for quest attempt, is used to initialise a quest attempt.
+ * This is a user's instance of a currently active quest.
+ */
 @Entity
 public class QuestAttempt extends BaseModel {
 

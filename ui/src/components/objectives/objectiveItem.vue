@@ -194,13 +194,13 @@
 
         mounted() {
             this.editingObjective();
-            // this.initMap();
         },
 
         computed: {
             /**
              * Returns true if the inputted riddle has length greater than 0.
-             * @returns true if validated.
+             *
+             * @returns {Boolean} true if validated.
              */
             validateRiddle() {
                 if (this.inputObjective.riddle.length > 0) {
@@ -209,8 +209,10 @@
                 return null;
             },
 
+
             /**
              * Returns true if the user has selected a check in radius
+             *
              * @returns true if validated.
              */
             validateCheckIn() {
@@ -223,18 +225,16 @@
 
             /**
              * Returns true if the input destination exists and matches the one selected in the sidebar and isn't empty.
-             * @returns true if valid.
+             *
+             * @returns {boolean} true if valid.
              */
             validateDestination() {
-                if (this.inputObjective.destination !== null
+                return (this.inputObjective.destination !== null
                     && this.inputObjective.destination === this.destinationSelected
                     && this.inputObjective.destination.name !== undefined
                     && this.inputObjective.destination.name.length > 0
                     || this.inputObjective.destination !== null
-                    && this.inputObjective.destination.id === this.destinationSelected.id) {
-                    return true;
-                }
-                return false;
+                    && this.inputObjective.destination.id === this.destinationSelected.id);
             },
 
 
@@ -242,7 +242,7 @@
              * Checks the validity of the destination using validateDestination and returns the appropriate state for
              * display.
              *
-             * @returns 'success' if destination is valid, 'secondary' otherwise.
+             * @returns         {string}, 'success' if destination is valid, 'secondary' otherwise.
              */
             checkDestinationState() {
                 return this.validateDestination ? "success" : "secondary"
@@ -251,7 +251,7 @@
 
         methods: {
             /**
-             * Fills the destination with the existing destination of a hunt when editing it.
+             * Fills the destination with the existing destination of a objective when editing it.
              */
             editingObjective() {
                 if (this.inputObjective.id !== null) {
@@ -262,26 +262,25 @@
 
             /**
              * If all field validations pass on the active objective, saves the objective using either
-             * updateHunt if there is an active editing ID or saveHunt otherwise (adding a new one).
+             * updateObjective if there is an active editing ID or saveObjective otherwise (adding a new one).
              */
             validateObjective() {
                 if (this.validateDestination && this.validateRiddle && this.validateCheckIn) {
                     if (this.heading === "Add") {
-                        this.addHunt();
+                        this.addObjective();
                     } else if (this.heading === "Edit") {
-                        this.editHunt();
+                        this.editObjective();
                     } else {
                         if (this.inputObjective.id !== null) {
-                            this.updateHunt();
+                            this.updateObjective();
                         } else {
-                            this.saveHunt();
+                            this.saveObjective();
                         }
                     }
                 } else {
                     this.errorMessage = "Not all fields have valid information!";
                     this.showError = true;
                 }
-
             },
 
 
@@ -297,7 +296,7 @@
              * When used in quests for adding a objective to the quests list by emitting it outside of the
              * component.
              */
-            addHunt() {
+            addObjective() {
                 this.inputObjective.radius = this.inputObjective.radius.value;
                 delete this.inputObjective.startTime;
                 delete this.inputObjective.endTime;
@@ -312,7 +311,7 @@
              * When used in quests for editing a objective to the quests list by emitting it outside of the
              * component.
              */
-            editHunt() {
+            editObjective() {
                 this.inputObjective.radius = this.inputObjective.radius.value;
                 delete this.inputObjective.startTime;
                 delete this.inputObjective.endTime;
@@ -325,6 +324,7 @@
 
             /**
              * Creates formatted JSON of the currently active objective.
+             *
              * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
              */
             assembleObjective() {
@@ -337,7 +337,7 @@
              * POST's the currently active destination to the objectives endpoint in JSON format, for newly creating
              * destinations.
              */
-            saveHunt() {
+            saveObjective() {
                 this.assembleObjective();
                 let self = this;
                 fetch('/v1/objectives/' + this.profile.id, {
@@ -357,7 +357,7 @@
              * PUT's the currently active destination to the objectives endpoint in JSON format, for edited
              * destinations.
              */
-            updateHunt() {
+            updateObjective() {
                 this.assembleObjective();
                 let self = this;
                 fetch('/v1/objectives/' + this.inputObjective.id, {

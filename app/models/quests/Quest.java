@@ -10,8 +10,14 @@ import models.objectives.Objective;
 import javax.persistence.*;
 import java.util.*;
 
+
+/**
+ * Class for quest, is used to initialise a quest.
+ */
 @Entity
 public class Quest extends BaseModel {
+
+    private static final int MAX_TITLE_SIZE = 255;
 
     @ElementCollection
     private Map<String, Integer> countryOccurrences;
@@ -58,7 +64,7 @@ public class Quest extends BaseModel {
 
         if (title == null || title.isEmpty()) {
             errors.add(new ApiError("A quest title must be provided."));
-        } else if (title.length() > 255) {
+        } else if (title.length() > MAX_TITLE_SIZE) {
             errors.add(new ApiError("Quest titles must not exceed 255 characters in length."));
         }
 
