@@ -101,14 +101,6 @@
                 this.selectedDestination = {};
             },
 
-            //TODO: Cam
-            testActiveProfiles() {
-                fetch('/v1/quests/9/profiles', {
-                    method: 'GET',
-                    headers: {'content-type': 'application/json'},
-                })
-            },
-
 
             /**
              * Displays the quest solve page.
