@@ -464,6 +464,7 @@
                 }
             },
 
+
             /**
              * Emits and event to prompt the quest page to switch the current tab to the active quests tab.
              */

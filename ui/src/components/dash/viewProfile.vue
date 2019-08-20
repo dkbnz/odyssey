@@ -438,13 +438,49 @@
                 }
             },
 
+
+            /**
+             * Shows the modal to add the quest to your list of quests only if you are not looking at your own profile.
+             *
+             * @param questAttempt  the quest attempt containing the quest to be added.
+             */
             showAddQuestAttempt(questAttempt) {
-                this.selectedQuest = questAttempt.questAttempted;
-                this.$refs['selected-quest-modal'].show();
+                if (this.userProfile.id !== this.profile.id) {
+                    this.selectedQuest = questAttempt.questAttempted;
+                    this.$refs['selected-quest-modal'].show();
+                }
+
             },
 
+
+            /**
+             * Sends the request to add the selected quest to your quest attempts. Show's toasts on error/success.
+             *
+             * @returns {Promise<Response | never>}    the Fetch method promise.
+             */
             addQuestToProfile() {
-                console.log(this.selectedQuest);
+                if (this.userProfile.id !== undefined) {
+                    return fetch(`/v1/quests/` + this.selectedQuest.id + `/attempt/` + this.userProfile.id, {
+                        method: 'POST'
+                    }).then(response => {
+                        if (response.ok) {
+                            // Display 'created' toast
+                            this.$bvToast.toast('Quest added to active', {
+                                title: `Quest Added`,
+                                variant: "default",
+                                autoHideDelay: "3000",
+                                solid: true
+                            });
+                        } else {
+                            this.$bvToast.toast('Something went wrong', {
+                                title: `Quest Adding Failed`,
+                                variant: "danger",
+                                autoHideDelay: "3000",
+                                solid: true
+                            });
+                        }
+                    })
+                }
             }
         },
 
