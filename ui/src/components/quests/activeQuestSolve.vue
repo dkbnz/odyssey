@@ -1,9 +1,9 @@
 <template>
     <div>
         <div v-if="showDestinationSearch">
-            <b-button @click="showDestinationSearch = false" class="buttonMarginsBottom" size="sm">Back</b-button>
+            <b-button @click="goBack" class="buttonMarginsBottom" size="sm">Back</b-button>
             <b-button v-if="!showDestinationSearchCollapse" @click="showDestinationSearchCollapse = true; showSelectedDestination = false; foundDestinationsKey += 1" variant="primary" block>Search Again</b-button>
-            <b-collapse v-model="showDestinationSearchCollapse">
+            <b-collapse v-model="showDestinationSearchCollapse" id="destinations-collapse">
                 <found-destinations
                         :key="foundDestinationsKey"
                         :search-public="true"
@@ -15,7 +15,7 @@
                 Incorrect, try again.
             </b-alert>
 
-            <b-collapse v-model="showSelectedDestination">
+            <b-collapse v-model="showSelectedDestination" id="selected-destination-collapse">
                 <b-list-group-item href="#" class="flex-column align-items-start"
                                    id="selectedDestination"
                                    :disabled="selectedDestination === {}">
@@ -48,7 +48,7 @@
             <!--{{guessSuccess}}-->
         </div>
         <div v-else>
-            <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom" size="sm">Back</b-button>
+            <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom show-only-mobile" size="sm">Back</b-button>
             <h2 class="page-title">{{questAttempt.questAttempted.title}}</h2>
 
             <b-alert v-model="guessSuccess" variant="success" dismissible>
@@ -70,7 +70,7 @@
                                    :key="objective.id"
                                    draggable="false">
                     <div class="d-flex w-100 justify-content-between">
-                        <p class="mb-1 mobile-text">{{objective.riddle}}</p>
+                        <p class="mb-1 mobile-text font-weight-bold">{{objective.riddle}}</p>
                         <small>
                             <b-img src="../../../static/check_mark.png" fluid></b-img>
                         </small>
@@ -84,7 +84,7 @@
                 <b-list-group-item href="#"
                                    class="d-flex justify-content-between align-items-center"
                                    draggable="false" v-if="questAttempt.toSolve != null">
-                    <span class="mobile-text">{{questAttempt.toSolve.riddle}}</span>
+                    <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
                     <b-button size="sm" variant="primary" @click="showDestinationSearch = true">Solve</b-button>
                 </b-list-group-item>
 
@@ -92,8 +92,8 @@
                 <b-list-group-item href="#"
                                    class="d-flex justify-content-between align-items-center"
                                    draggable="false" v-if="questAttempt.toCheckIn != null">
-                    <span class="mobile-text">{{questAttempt.toCheckIn.riddle}}</span>
-                    <b-button size="sm" variant="primary" @click="checkIn">Check In</b-button>
+                    <span class="mobile-text font-weight-bold">{{questAttempt.toCheckIn.riddle}}</span>
+                    <b-button class="no-wrap-text" size="sm" variant="warning" @click="checkIn">Check In</b-button>
                 </b-list-group-item>
 
                 <!-- List the remaining unsolved objectives in the quest attempt -->
@@ -101,7 +101,7 @@
                                    class="d-flex justify-content-between align-items-center"
                                    :key="objective.id"
                                    draggable="false" disabled>
-                    <span class="mobile-text">{{objective.riddle}}</span>
+                    <span class="mobile-text font-weight-bold">{{objective.riddle}}</span>
                 </b-list-group-item>
             </b-list-group>
         </div>
@@ -111,7 +111,7 @@
 <script>
     import FoundDestinations from "../destinations/destinationSearchList";
     export default {
-        name: "questAttemptSolve",
+        name: "activeQuestSolve",
 
         props: {
             questAttempt: Object
@@ -152,10 +152,7 @@
                     .then(response => response.json())
                     .then((data) => {
                         if (data.guessResult) {
-                            self.showDestinationSearch = false;
-                            self.showDestinationSearchCollapse = true;
-                            self.showSelectedDestination = false;
-                            self.selectedDestination = {};
+                            self.goBack();
                             self.guessSuccess = true;
                             self.$emit('updated-quest-attempt', data.attempt);
                             setTimeout(function() {
@@ -168,6 +165,18 @@
                             }, 3000)
                         }
                     })
+            },
+
+
+            /**
+             * Resets all the appropriate variables and hides the search destination page when searching for a correct
+             * answer to an objectives' riddle.
+             */
+            goBack() {
+                this.showDestinationSearch = false;
+                this.showDestinationSearchCollapse = true;
+                this.showSelectedDestination = false;
+                this.selectedDestination = {};
             },
 
 
@@ -211,7 +220,3 @@
 
     }
 </script>
-
-<style scoped>
-
-</style>
