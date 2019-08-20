@@ -19,10 +19,6 @@
             }
         },
 
-        created() {
-            document.title = "TravelEA";
-        },
-
         mounted() {
             this.getProfile(profile => this.profile = profile);
             this.getNationalities(nationalities => this.nationalityOptions = nationalities);
