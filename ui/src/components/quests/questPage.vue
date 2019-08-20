@@ -13,7 +13,8 @@
                     <b-tab title="Active Quests" @click="refreshQuests = !refreshQuests" active>
                         <active-quest-page
                                 :profile="profile"
-                                :refresh-quests="refreshQuests">
+                                :refresh-quests="refreshQuests"
+                                :active-quest="activeQuest">
                         </active-quest-page>
                     </b-tab>
                     <b-tab title="Available Quests" @click="refreshQuests = !refreshQuests">
@@ -21,7 +22,7 @@
                                 :profile="profile"
                                 :available-quests="true"
                                 :refresh-quests="refreshQuests"
-                                @change-to-active="changeToActiveTab"
+                                @change-to-active="quest => changeToActiveTab(quest)"
                         ></quest-list>
                     </b-tab>
                     <b-tab title="Your Quests" @click="refreshQuests = !refreshQuests">
@@ -80,7 +81,11 @@
                 refreshQuests: false,
                 showQuestAttemptSolve: false,
                 selectedQuestAttempt: {},
-                tabIndex: 0
+                tabIndex: 0,
+                activeQuest: {
+                    type: Object,
+                    default: null
+                }
             }
         },
 
@@ -117,10 +122,11 @@
              * Switches to the 'active' page and refreshes the quest list.
              * The 'active' page has an index of 0
              */
-            changeToActiveTab() {
-                console.log("Changing");
+            changeToActiveTab(quest) {
+                this.activeQuest = quest;
                 this.tabIndex = 0;
                 this.refreshQuests = !this.refreshQuests;
+
             }
         },
 

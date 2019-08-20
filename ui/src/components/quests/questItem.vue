@@ -685,7 +685,6 @@
                 this.objectiveSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[this.objectiveIndex]));
                 this.objectiveSelected.radius = radiusValue;
                 this.destinationSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[this.objectiveIndex].destination));
-                console.log(this.destinationSelected);
                 this.editCurrentObjective = true;
                 this.$emit('OBJ-side-bar', true);
             },

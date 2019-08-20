@@ -457,8 +457,7 @@
 
                             // If 'start now' is clicked
                             if (viewActive) {
-                                console.log("Active");
-                                this.changeToActiveTab();
+                                this.changeToActiveTab(questToAttempt);
                             }
                         }
                     })
@@ -468,8 +467,8 @@
             /**
              * Emits and event to prompt the quest page to switch the current tab to the active quests tab.
              */
-            changeToActiveTab() {
-                this.$emit('change-to-active');
+            changeToActiveTab(quest) {
+                this.$emit('change-to-active', quest);
             },
 
 
