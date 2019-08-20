@@ -42,8 +42,37 @@
             <div :class="containerClassContent">
                 <div :class="'containerWithNav'">
                     <h1 class="page-title">Quests</h1>
-                    <active-quest-list :quest-attempts="questAttempts" :loading-results="loadingResults">
+                    <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
+                    <active-quest-list
+                            :quest-attempts="questAttempts"
+                            :loading-results="loadingResults"
+                            @quest-attempt-clicked="showAddQuestAttempt">
                     </active-quest-list>
+                    <b-modal id="modal-selected-quest" centered ref="selected-quest-modal">
+                        <div v-if="selectedQuest" slot="modal-title" class="mb-1">
+                            {{selectedQuest.title}}
+                        </div>
+                        <div v-if="selectedQuest">
+
+                            <div class="d-flex w-100 justify-content-center">
+                                <p>{{new Date(selectedQuest.startDate).toLocaleDateString()}} &rarr;
+                                    {{new Date(selectedQuest.endDate).toLocaleDateString()}}</p>
+                            </div>
+                        </div>
+                        <template slot="modal-footer">
+                            <b-col>
+                                <b-button @click="$refs['selected-quest-modal'].hide()" block>
+                                    Close
+                                </b-button>
+                            </b-col>
+                            <b-col>
+                                <b-button variant="primary"
+                                          @click="addQuestToProfile" block>Add to Your Quests
+                                </b-button>
+                            </b-col>
+                        </template>
+
+                    </b-modal>
                 </div>
 
                 <!-- Displays the profile's photo gallery -->
@@ -153,7 +182,8 @@
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 questAttempts: [],
-                loadingResults: false
+                loadingResults: false,
+                selectedQuest: null
             }
         },
 
@@ -407,6 +437,15 @@
                         })
                 }
             },
+
+            showAddQuestAttempt(questAttempt) {
+                this.selectedQuest = questAttempt.questAttempted;
+                this.$refs['selected-quest-modal'].show();
+            },
+
+            addQuestToProfile() {
+                console.log(this.selectedQuest);
+            }
         },
 
         components: {
