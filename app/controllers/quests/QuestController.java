@@ -367,8 +367,8 @@ public class QuestController {
      * Retrieves all quest attempts for a requested user. This is allowed by any user, as attempted quests are displayed
      * on a user's profile.
      *
-     * @param request       the request containing information to start a new quest attempt.
-     * @param userId        the id of user that is having their quest attempts requested.
+     * @param request       the request containing information to get quest attempts.
+     * @param userId        the id of user to retrieve quest attempts for.
      * @return              unauthorized() (Http 401) if the user is not logged in.
      *                      notFound() (Http 404) if the requested user doesn't exist.
      *                      badRequest() (Http 400) response containing an ApiError for an invalid Json body.
@@ -387,14 +387,56 @@ public class QuestController {
 
         List<QuestAttempt> questAttempts = questAttemptRepository.findAllUsing(requestedUser);
 
+
+        return getCorrectView(AuthenticationUtil.validUser(loggedInUser, requestedUser), questAttempts);
+    }
+
+
+    /**
+     * Retrieves all quests for a requested user that are complete.
+     *
+     * @param request       the request containing information to get quests completed.
+     * @param userId        the id of user that is requesting their completed quests.
+     * @return              unauthorized() (Http 401) if the user is not logged in.
+     *                      notFound() (Http 404) if the requested user doesn't exist.
+     *                      badRequest() (Http 400) response containing an ApiError for an invalid Json body.
+     *                      ok() (Http 200) containing matching quests that are completed by the requested profile.
+     */
+    public Result getQuestsCompletedByProfile(Http.Request request, Long userId) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        Profile requestedUser = profileRepository.findById(userId);
+        if (requestedUser == null) {
+            return notFound(ApiError.notFound());
+        }
+
+        List<Quest> quests = questRepository.findAllCompleted(requestedUser);
+
+
+        return getCorrectView(AuthenticationUtil.validUser(loggedInUser, requestedUser), quests);
+
+    }
+
+
+    /**
+     * Returns the correct jackson view for a given list of requested data based on the logged in users access.
+     *
+     * @param validAccess        a boolean representing the logged in users view access to this requested data.
+     * @param requestedData      the data the logged in user is requesting to view.
+     * @return                   badRequest() (Http 400)  response containing an ApiError for an invalid Json body.
+     *                           ok() (Http 200) containing matching data that is requested by the logged in user.
+     */
+    private Result getCorrectView(boolean validAccess, List requestedData) {
         ObjectMapper mapper = new ObjectMapper();
         String result;
-
-        if (AuthenticationUtil.validUser(loggedInUser, requestedUser)) {
+        if (validAccess) {
             try {
                 result = mapper
                         .writerWithView(Views.Owner.class)
-                        .writeValueAsString(questAttempts);
+                        .writeValueAsString(requestedData);
             } catch (JsonProcessingException e) {
                 return badRequest(ApiError.invalidJson());
             }
@@ -402,7 +444,7 @@ public class QuestController {
             try {
                 result = mapper
                         .writerWithView(Views.Public.class)
-                        .writeValueAsString(questAttempts);
+                        .writeValueAsString(requestedData);
             } catch (JsonProcessingException e) {
                 return badRequest(ApiError.invalidJson());
             }
