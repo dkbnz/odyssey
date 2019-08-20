@@ -108,38 +108,12 @@ public class QuestController {
             objective.setDestination(destinationRepository.findById(objective.getDestination().getId()));
         }
 
-
-        newQuest.setCountryOccurrences(calculateCountryOccurrences(newQuest));
-
-
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
 
         questRepository.refresh(newQuest);
 
         return created(Json.toJson(newQuest));
-    }
-
-
-    /**
-     * Calculates the country occurrences by retrieving them from the objectives and counting them.
-     * Used in create and edit.
-     *
-     * @param quest         the quest for counting the objectives.
-     * @return              Map of country occurrences.
-     */
-    private Map<String, Integer> calculateCountryOccurrences(Quest quest) {
-        Map<String, Integer> countryOccurrences = new HashMap<>();
-        for(Objective objective : quest.getObjectives()) {
-            if (countryOccurrences.get(objective.getDestination().getCountry()) != null){
-                Integer count = countryOccurrences.get(objective.getDestination().getCountry());
-                count += 1;
-                countryOccurrences.put(objective.getDestination().getCountry(), count);
-            } else {
-                countryOccurrences.put(objective.getDestination().getCountry(), 1);
-            }
-        }
-        return countryOccurrences;
     }
 
 
@@ -196,8 +170,6 @@ public class QuestController {
             }
             newObjective.setDestination(destinationRepository.findById(newObjective.getDestination().getId()));
         }
-
-        quest.setCountryOccurrences(calculateCountryOccurrences(quest));
 
         Collection<ApiError> questEditErrors = quest.getErrors();
 
