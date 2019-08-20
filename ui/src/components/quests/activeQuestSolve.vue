@@ -45,7 +45,6 @@
             </b-collapse>
 
 
-            <!--{{guessSuccess}}-->
         </div>
         <div v-else>
             <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom show-only-mobile" size="sm">Back</b-button>

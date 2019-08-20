@@ -28,7 +28,8 @@
 
         props: {
             profile: Object,
-            refreshQuests: Boolean
+            refreshQuests: Boolean,
+            activeQuest: Object
         },
 
         mounted() {
@@ -42,6 +43,10 @@
 
             refreshQuests() {
                 this.queryYourActiveQuests();
+            },
+
+            activeQuest() {
+                this.checkIfActiveSelected();
             }
         },
 
@@ -87,6 +92,20 @@
                 let foundIndex = this.questAttempts.findIndex(x => x.id === questAttempt.id);
                 this.questAttempts.splice(foundIndex, 1, questAttempt);
                 this.selectedQuestAttempt = questAttempt;
+            },
+
+            checkIfActiveSelected() {
+                if (this.activeQuest !== null) {
+                    let self = this;
+                    this.queryYourActiveQuests().then(function() {
+                        for (let i = 0; i < self.questAttempts.length; i++) {
+                            let currentQuest = self.questAttempts[i].questAttempted;
+                            if (currentQuest.id === self.activeQuest.id) {
+                                self.selectedQuestAttempt = self.questAttempts[i];
+                            }
+                        }
+                    })
+                }
             }
         }
     }
