@@ -93,4 +93,4 @@ GET     /v1/quests/profiles/:userId                            controllers.quest
 GET     /static/*file                                  controllers.Assets.at(path="/public/static", file)
 
 # Anything else not found, send to index.html, let vue handle 404. Must stay at bottom of Routes for production.
-GET     /*path                                     controllers.VueRedirect.matchAll(path: String)
+GET     /*anyUrl                                     controllers.VueRedirect.matchAll(anyUrl)
