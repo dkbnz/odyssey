@@ -8,12 +8,12 @@
                 <i>Here you can view and create Quests!</i>
             </p>
             <b-card>
-                <b-tabs content-class="mt-3">
+                <b-tabs content-class="mt-3"
+                        v-model="tabIndex">
                     <b-tab title="Active Quests" @click="refreshQuests = !refreshQuests" active>
                         <active-quest-page
                                 :profile="profile"
                                 :refresh-quests="refreshQuests">
-
                         </active-quest-page>
                     </b-tab>
                     <b-tab title="Available Quests" @click="refreshQuests = !refreshQuests">
@@ -21,6 +21,7 @@
                                 :profile="profile"
                                 :available-quests="true"
                                 :refresh-quests="refreshQuests"
+                                @change-to-active="changeToActiveTab"
                         ></quest-list>
                     </b-tab>
                     <b-tab title="Your Quests" @click="refreshQuests = !refreshQuests">
@@ -78,12 +79,12 @@
                 refreshObjectives: false,
                 refreshQuests: false,
                 showQuestAttemptSolve: false,
-                selectedQuestAttempt: {}
+                selectedQuestAttempt: {},
+                tabIndex: 0
             }
         },
 
         mounted() {
-            this.testActiveProfiles();
         },
 
         methods: {
@@ -109,6 +110,17 @@
             showQuestAttemptPage(questAttempt) {
                 this.showQuestAttemptSolve = true;
                 this.selectedQuestAttempt = questAttempt;
+            },
+
+
+            /**
+             * Switches to the 'active' page and refreshes the quest list.
+             * The 'active' page has an index of 0
+             */
+            changeToActiveTab() {
+                console.log("Changing");
+                this.tabIndex = 0;
+                this.refreshQuests = !this.refreshQuests;
             }
         },
 
