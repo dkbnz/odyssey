@@ -458,10 +458,10 @@
                 let self = this;
                 fetch(`/v1/destinationsCheckEdit`, {
                     method: 'POST',
-                        headers: {'content-type': 'application/json'},
-                        body: (JSON.stringify(this.inputDestination))
+                    headers: {'content-type': 'application/json'},
+                    body: (JSON.stringify(this.inputDestination))
                 })
-                    .then(function(response) {
+                    .then(function (response) {
                         response.json().then(data => {
                             self.editDestinationConflicts = data;
                         })

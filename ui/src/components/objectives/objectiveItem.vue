@@ -1,4 +1,4 @@
-      <template>
+<template>
     <div>
         <h1 class="page-title">{{ heading }} an Objective!</h1>
 
@@ -23,77 +23,77 @@
 
         <b-row>
             <b-col>
+                <b-form>
+                    <b-container fluid>
+                        <b-form-group
+                                id="objective_riddle-field"
+                                label="Objective Riddle:"
+                                label-for="objective_riddle">
+                            <b-form-textarea :type="'expandable-text'"
+                                             id="objective_riddle"
+                                             trim
+                                             v-model="inputObjective.riddle"
+                                             :state="validateRiddle"></b-form-textarea>
+                        </b-form-group>
+                    </b-container>
+
+
                     <b-form>
                         <b-container fluid>
+                            <h6 class="mb-1">Selected Destination:</h6>
+                            <b-list-group @click="$emit('destination-select')">
+                                <b-list-group-item href="#" class="flex-column align-items-start"
+                                                   v-if="destinationSelected"
+                                                   id="selectedDestination"
+                                                   :disabled="destinationSelected.length === '{}'"
+                                                   :variant="checkDestinationState"
+                                                   draggable="false">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1" v-if="destinationSelected.name">
+                                            {{destinationSelected.name}}
+                                        </h5>
+                                        <h5 class="mb-1" v-else>Select a Destination</h5>
+
+                                    </div>
+
+                                    <p>
+                                        {{destinationSelected.district}}
+                                    </p>
+                                    <p>
+                                        {{destinationSelected.country}}
+                                    </p>
+                                </b-list-group-item>
+                            </b-list-group>
                             <b-form-group
-                                    id="objective_riddle-field"
-                                    label="Objective Riddle:"
-                                    label-for="objective_riddle">
-                                <b-form-textarea :type="'expandable-text'"
-                                                 id="objective_riddle"
-                                                 trim
-                                                 v-model="inputObjective.riddle"
-                                                 :state="validateRiddle"></b-form-textarea>
+                                    id="radius-field"
+                                    label="Selected Destination check in radius:"
+                                    label-for="radius">
+                                <!--Dropdown field for destination check in values-->
+                                <b-form-select id="radius" trim v-model="inputObjective.radius">
+                                    <option :value="radius" v-for="radius in radiusList"
+                                            :state="validateCheckIn">
+                                        {{radius.text}}
+                                    </option>
+                                </b-form-select>
                             </b-form-group>
+
+                            <div ref="map" v-if="inputObjective.radius !== null && destinationSelected.name">
+                                <google-map ref="map"
+                                            :showRadius="true"
+                                            :radius="inputObjective.radius.value"
+                                            :selectedRadiusDestination="destinationSelected">
+                                </google-map>
+                            </div>
+                            <div ref="map" v-else-if="inputObjective.radius == null && destinationSelected.name">
+                                <google-map ref="map"
+                                            :showRadius="false"
+                                            :selectedRadiusDestination="destinationSelected"
+                                            :destinations="[]">
+                                </google-map>
+                            </div>
                         </b-container>
-
-
-                        <b-form>
-                            <b-container fluid>
-                                <h6 class="mb-1">Selected Destination:</h6>
-                                <b-list-group @click="$emit('destination-select')">
-                                    <b-list-group-item href="#" class="flex-column align-items-start"
-                                                       v-if="destinationSelected"
-                                                       id="selectedDestination"
-                                                       :disabled="destinationSelected.length === '{}'"
-                                                       :variant="checkDestinationState"
-                                                       draggable="false">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h5 class="mb-1" v-if="destinationSelected.name">
-                                                {{destinationSelected.name}}
-                                            </h5>
-                                            <h5 class="mb-1" v-else>Select a Destination</h5>
-
-                                        </div>
-
-                                        <p>
-                                            {{destinationSelected.district}}
-                                        </p>
-                                        <p>
-                                            {{destinationSelected.country}}
-                                        </p>
-                                    </b-list-group-item>
-                                </b-list-group>
-                                <b-form-group
-                                        id="radius-field"
-                                        label="Selected Destination check in radius:"
-                                        label-for="radius">
-                                    <!--Dropdown field for destination check in values-->
-                                    <b-form-select id="radius" trim v-model="inputObjective.radius">
-                                        <option :value="radius" v-for="radius in radiusList"
-                                                :state="validateCheckIn">
-                                            {{radius.text}}
-                                        </option>
-                                    </b-form-select>
-                                </b-form-group>
-
-                                <div ref="map" v-if="inputObjective.radius !== null && destinationSelected.name">
-                                    <google-map ref="map"
-                                                :showRadius="true"
-                                                :radius="inputObjective.radius.value"
-                                                :selectedRadiusDestination="destinationSelected">
-                                    </google-map>
-                                </div>
-                                <div ref="map" v-else-if="inputObjective.radius == null && destinationSelected.name">
-                                    <google-map ref="map"
-                                                :showRadius="false"
-                                                :selectedRadiusDestination="destinationSelected"
-                                                :destinations="[]">
-                                    </google-map>
-                                </div>
-                            </b-container>
-                        </b-form>
                     </b-form>
+                </b-form>
 
                 <b-row>
                     <b-col cols="8">
@@ -143,7 +143,7 @@
             selectedDestination: {},
             heading: String,
             containerClass: {
-                default: function() {
+                default: function () {
                     return 'containerWithNav';
                 }
             }
@@ -194,23 +194,25 @@
 
         mounted() {
             this.editingObjective();
-            // this.initMap();
         },
 
         computed: {
             /**
              * Returns true if the inputted riddle has length greater than 0.
-             * @returns true if validated.
+             *
+             * @returns {Boolean} true if validated.
              */
             validateRiddle() {
-              if(this.inputObjective.riddle.length > 0){
-                  return true;
-              }
-              return null;
+                if (this.inputObjective.riddle.length > 0) {
+                    return true;
+                }
+                return null;
             },
+
 
             /**
              * Returns true if the user has selected a check in radius
+             *
              * @returns true if validated.
              */
             validateCheckIn() {
@@ -223,18 +225,16 @@
 
             /**
              * Returns true if the input destination exists and matches the one selected in the sidebar and isn't empty.
-             * @returns true if valid.
+             *
+             * @returns {boolean} true if valid.
              */
             validateDestination() {
-                if (this.inputObjective.destination !== null
+                return (this.inputObjective.destination !== null
                     && this.inputObjective.destination === this.destinationSelected
                     && this.inputObjective.destination.name !== undefined
                     && this.inputObjective.destination.name.length > 0
                     || this.inputObjective.destination !== null
-                    && this.inputObjective.destination.id === this.destinationSelected.id) {
-                    return true;
-                }
-                return false;
+                    && this.inputObjective.destination.id === this.destinationSelected.id);
             },
 
 
@@ -242,16 +242,16 @@
              * Checks the validity of the destination using validateDestination and returns the appropriate state for
              * display.
              *
-             * @returns 'success' if destination is valid, 'secondary' otherwise.
+             * @returns         {string}, 'success' if destination is valid, 'secondary' otherwise.
              */
-            checkDestinationState(){
+            checkDestinationState() {
                 return this.validateDestination ? "success" : "secondary"
             },
         },
 
         methods: {
             /**
-             * Fills the destination with the existing destination of a hunt when editing it.
+             * Fills the destination with the existing destination of a objective when editing it.
              */
             editingObjective() {
                 if (this.inputObjective.id !== null) {
@@ -262,26 +262,25 @@
 
             /**
              * If all field validations pass on the active objective, saves the objective using either
-             * updateHunt if there is an active editing ID or saveHunt otherwise (adding a new one).
+             * updateObjective if there is an active editing ID or saveObjective otherwise (adding a new one).
              */
             validateObjective() {
                 if (this.validateDestination && this.validateRiddle && this.validateCheckIn) {
                     if (this.heading === "Add") {
-                        this.addHunt();
+                        this.addObjective();
                     } else if (this.heading === "Edit") {
-                        this.editHunt();
+                        this.editObjective();
                     } else {
                         if (this.inputObjective.id !== null) {
-                            this.updateHunt();
+                            this.updateObjective();
                         } else {
-                            this.saveHunt();
+                            this.saveObjective();
                         }
                     }
                 } else {
                     this.errorMessage = "Not all fields have valid information!";
                     this.showError = true;
                 }
-
             },
 
 
@@ -297,7 +296,7 @@
              * When used in quests for adding a objective to the quests list by emitting it outside of the
              * component.
              */
-            addHunt() {
+            addObjective() {
                 this.inputObjective.radius = this.inputObjective.radius.value;
                 delete this.inputObjective.startTime;
                 delete this.inputObjective.endTime;
@@ -312,7 +311,7 @@
              * When used in quests for editing a objective to the quests list by emitting it outside of the
              * component.
              */
-            editHunt() {
+            editObjective() {
                 this.inputObjective.radius = this.inputObjective.radius.value;
                 delete this.inputObjective.startTime;
                 delete this.inputObjective.endTime;
@@ -325,6 +324,7 @@
 
             /**
              * Creates formatted JSON of the currently active objective.
+             *
              * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
              */
             assembleObjective() {
@@ -337,7 +337,7 @@
              * POST's the currently active destination to the objectives endpoint in JSON format, for newly creating
              * destinations.
              */
-            saveHunt() {
+            saveObjective() {
                 this.assembleObjective();
                 let self = this;
                 fetch('/v1/objectives/' + this.profile.id, {
@@ -346,7 +346,7 @@
                     body: JSON.stringify(this.inputObjective)
                 })
                     .then(this.checkStatus)
-                    .then(function() {
+                    .then(function () {
                         self.$emit('successCreate', "Objective Successfully Created");
                         self.$emit('cancelCreate')
                     })
@@ -357,7 +357,7 @@
              * PUT's the currently active destination to the objectives endpoint in JSON format, for edited
              * destinations.
              */
-            updateHunt() {
+            updateObjective() {
                 this.assembleObjective();
                 let self = this;
                 fetch('/v1/objectives/' + this.inputObjective.id, {
@@ -366,7 +366,7 @@
                     body: JSON.stringify(this.inputObjective)
                 })
                     .then(this.checkStatus)
-                    .then(function() {
+                    .then(function () {
                         self.$emit('cancelCreate')
                     })
             },
