@@ -95,7 +95,7 @@
                     <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
                 </b-list-group-item>
                 <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop">
-                    You are not at the required location, you are {{Number(Math.round(this.totalDistance+'e2')+'e-2')}} km's away.
+                    You are not at the required location, you are {{Number(Math.round(this.totalDistance+'e2')+'e-2')}} kms away.
                 </b-alert>
 
                 <!-- List the remaining unsolved objectives in the quest attempt -->

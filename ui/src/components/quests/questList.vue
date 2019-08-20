@@ -65,7 +65,8 @@
                                        class="flex-column align-items-start"
                                        :key="quest.id"
                                        draggable="false"
-                                        v-if="!activeQuests">
+                                        v-if="!activeQuests"
+                                       @click="selectedQuest = quest">
                         <template v-if="!editingQuest && !(activeId === quest.id)">
                             <h4>Title</h4>
                             <p>{{quest.title}}</p>
@@ -158,6 +159,17 @@
                             class="mr-2 float-right">Cancel
                     </b-button>
                 </b-modal>
+                <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
+                    <div class="d-flex justify-content-center">
+                        <b-spinner></b-spinner>
+                    </div>
+                </b-list-group-item>
+                <b-list-group-item href="#" class="flex-column justify-content-center"
+                                   v-if="!loadingResults && foundQuests.length === 0">
+                    <div class="d-flex justify-content-center">
+                        <strong>No Quests Found</strong>
+                    </div>
+                </b-list-group-item>
             </b-col>
             <b-col cols="12" md="4">
                 <b-card class="d-none d-lg-block" v-if="!hideSideBar">
@@ -179,6 +191,10 @@
                             :profile="profile"
                             @searched-quests="quests => this.foundQuests = quests">
                     </quest-search-form>
+                    <completed-quest-details
+                            v-if="completedQuests"
+                            :quest="selectedQuest">
+                    </completed-quest-details>
                 </b-card>
             </b-col>
         </b-row>
@@ -192,6 +208,7 @@
     import QuestSearchForm from "./questSearchForm";
     import QuestAttemptSolve from "./activeQuestSolve";
     import ActiveQuestList from "./activeQuestPage";
+    import CompletedQuestDetails from "./completedQuestDetails";
 
     export default {
         name: "questList",
@@ -204,6 +221,11 @@
                 }
             },
             yourQuests: {
+                default: function () {
+                    return false;
+                }
+            },
+            completedQuests: {
                 default: function () {
                     return false;
                 }
@@ -278,7 +300,8 @@
                     {value: 15, text: "15"},
                     {value:Infinity, text:"All"}],
                 questAttempts: [],
-                selectedQuestAttempt: {}
+                selectedQuestAttempt: {},
+                selectedQuest: {}
             }
         },
 
@@ -324,6 +347,8 @@
                 this.foundQuests = [];
                 if (this.yourQuests) {
                     this.queryYourQuests();
+                } else if(this.completedQuests) {
+                    this.queryCompletedQuests();
                 } else {
                     this.queryQuests();
                 }
@@ -387,6 +412,26 @@
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
                     return fetch(`/v1/quests/` + this.profile.id, {})
+                        .then(this.parseJSON)
+                        .then((data) => {
+                            this.foundQuests = data;
+                            this.loadingResults = false;
+                        })
+                }
+
+            },
+
+
+            /**
+             * Runs a query which searches through the quests in the database and returns only
+             * quests created by the profile.
+             *
+             * @returns {Promise<Response | never>}
+             */
+            queryCompletedQuests() {
+                if (this.profile.id !== undefined) {
+                    this.loadingResults = true;
+                    return fetch(`/v1/quests/` + this.profile.id + `/complete`, {})
                         .then(this.parseJSON)
                         .then((data) => {
                             this.foundQuests = data;
@@ -577,6 +622,7 @@
         },
 
         components: {
+            CompletedQuestDetails,
             ActiveQuestList,
             QuestAttemptSolve,
             ObjectiveList,
