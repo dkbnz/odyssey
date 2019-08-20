@@ -61,6 +61,12 @@
                             </div>
                         </b-list-group-item>
                     </div>
+                    <div v-if="foundQuests.length === 0">
+                        <b-list-group-item>
+                            <h5>No Quests Found</h5>
+                        </b-list-group-item>
+                    </div>
+                    <div v-else>
                     <b-list-group-item v-for="quest in foundQuests" href="#"
                                        class="flex-column align-items-start"
                                        :key="quest.id"
@@ -143,43 +149,8 @@
                                 </b-col>
                             </b-row>
                         </template>
-                        <!--Quest component-->
                     </b-list-group-item>
-                    <b-list-group-item v-for="questAttempt in questAttempts" href="#"
-                                       class="flex-column align-items-start"
-                                       :key="questAttempt.id"
-                                       draggable="false"
-                                       v-if="activeQuests"
-                                       @click="showSolvePage">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">{{questAttempt.questAttempted.title}}</h5>
-                        </div>
-                        <div class="d-flex w-100 justify-content-center">
-                            <p>{{new Date(questAttempt.questAttempted.startDate).toLocaleDateString()}} &rarr;
-                                {{new Date(questAttempt.questAttempted.endDate).toLocaleDateString()}}</p>
-                        </div>
-
-                        <p class="mb-1">
-                            <b-progress
-                                    :value="questAttempt.solved.length - ((questAttempt.current == null && !questAttempt.completed) ? 1 : 0)"
-                                    :max="questAttempt.solved.length + questAttempt.unsolved.length"
-                                    class="mb-3">
-                            </b-progress>
-                        </p>
-                    </b-list-group-item>
-
-                    <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
-                        <div class="d-flex justify-content-center">
-                            <b-spinner></b-spinner>
-                        </div>
-                    </b-list-group-item>
-                    <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="!loadingResults && foundQuests.length === 0 && questAttempts.length === 0">
-                        <div class="d-flex justify-content-center">
-                            <strong>No Quests Found</strong>
-                        </div>
-                    </b-list-group-item>
-
+                    </div>
                 </b-list-group>
                 <!-- Confirmation modal for deleting a quest. -->
                 <b-modal hide-footer id="deleteQuestModal" ref="deleteQuestModal" title="Delete Quest">
@@ -221,7 +192,8 @@
                     </objective-list>
                     <quest-search-form
                             v-if="availableQuests"
-                            :profile="profile">
+                            :profile="profile"
+                            @searched-quests="quests => this.foundQuests = quests">
                     </quest-search-form>
                 </b-card>
             </b-col>
@@ -234,6 +206,8 @@
     import FoundDestinations from "../destinations/destinationSearchList";
     import ObjectiveList from "../objectives/objectiveList";
     import QuestSearchForm from "./questSearchForm";
+    import QuestAttemptSolve from "./activeQuestSolve";
+    import ActiveQuestList from "./activeQuestPage";
 
     export default {
         name: "questList",
@@ -291,6 +265,7 @@
                 deleteAlertMessage: "",
                 showDestinations: false,
                 showYourObjectives: false,
+                showQuestAttemptSolve: false,
                 selectedObjectiveTemplate: {
                     id: null,
                     destination: null,
@@ -318,8 +293,8 @@
                     {value: 10, text: "10"},
                     {value: 15, text: "15"},
                     {value:Infinity, text:"All"}],
-                questAttempts: []
-
+                questAttempts: [],
+                selectedQuestAttempt: {}
             }
         },
 
@@ -365,8 +340,6 @@
                 this.foundQuests = [];
                 if (this.yourQuests) {
                     this.queryYourQuests();
-                } else if (this.activeQuests) {
-                   this.queryYourActiveQuests();
                 } else {
                     this.queryQuests();
                 }
@@ -645,10 +618,19 @@
              */
             rows(quest) {
                 return quest.objectives.length
+            },
+
+
+            questAttemptClicked(questAttempt) {
+                this.$emit('quest-attempt-click', questAttempt);
+                this.selectedQuestAttempt = questAttempt;
+                this.showQuestAttemptSolve = true;
             }
         },
 
         components: {
+            ActiveQuestList,
+            QuestAttemptSolve,
             ObjectiveList,
             QuestItem,
             FoundDestinations,

@@ -77,6 +77,7 @@ DELETE  /v1/objectives/:objectiveId                    controllers.objectives.Ob
 # Quests
 GET     /v1/quests                              controllers.quests.QuestController.fetchAll(request: Request)
 GET     /v1/quests/:userId                      controllers.quests.QuestController.fetchByOwner(request: Request, userId: Long)
+GET     /v1/quests/:userId/complete             controllers.quests.QuestController.getQuestsCompletedByProfile(request: Request, userId: Long)
 POST    /v1/quests/:userId                      controllers.quests.QuestController.create(request: Request, userId: Long)
 PUT     /v1/quests/:userId                      controllers.quests.QuestController.edit(request: Request, userId: Long)
 DELETE  /v1/quests/:questId                     controllers.quests.QuestController.delete(request: Request, questId: Long)
@@ -84,9 +85,12 @@ GET     /v1/quests/:questId/profiles            controllers.quests.QuestControll
 
 # Quest Attempt
 POST    /v1/quests/:questId/attempt/:userId                    controllers.quests.QuestController.attempt(request: Request, questId: Long, userId: Long)
-PUT     /v1/quests/attempt/:attemptId/guess/:destinationId     controllers.quests.QuestController.guess(request: Request, attemptId: Long, destinationId: Long)
-PUT     /v1/quests/attempt/:attemptId/checkIn                  controllers.quests.QuestController.checkIn(request: Request, attemptId: Long)
-GET     /v1/quests/profiles/:userId             controllers.quests.QuestController.getQuestAttemptsByProfile(request: Request, userId: Long)
+POST    /v1/quests/attempt/:attemptId/guess/:destinationId     controllers.quests.QuestController.guess(request: Request, attemptId: Long, destinationId: Long)
+POST    /v1/quests/attempt/:attemptId/checkIn                  controllers.quests.QuestController.checkIn(request: Request, attemptId: Long)
+GET     /v1/quests/profiles/:userId                            controllers.quests.QuestController.getQuestAttemptsByProfile(request: Request, userId: Long)
 
-# Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
-GET     /*file                                  controllers.Assets.at(path="/public", file)
+# Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production, but above redirect.
+GET     /static/*file                                  controllers.Assets.at(path="/public/static", file)
+
+# Anything else not found, send to index.html, let vue handle 404. Must stay at bottom of Routes for production.
+GET     /*anyUrl                                     controllers.VueRedirect.matchAll(anyUrl)

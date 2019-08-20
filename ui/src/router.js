@@ -5,7 +5,6 @@ import Objectives from './components/objectives/objectivePage'
 import Profiles from './components/profiles/profilesPage'
 import Trips from './components/trips/tripsPage'
 import AdminPanel from './components/admin/adminPanel'
-import SingleProfile from './components/admin/singleProfile'
 import Quests from './components/quests/questPage'
 
 import VueRouter from 'vue-router';
@@ -14,53 +13,77 @@ const routes = [
     {
         path:"/",
         name: "index",
-        component: Index
+        component: Index,
+        meta: {
+            title: "Welcome to TravelEA"
+        }
     },
     {
         path:"/dash",
         name: "dash",
-        component: Dash
+        component: Dash,
+        meta: {
+            title: "Your Profile - TravelEA"
+        }
     },
     {
         path:"/destinations",
         name: "destinations",
-        component: Destinations
+        component: Destinations,
+        meta: {
+            title: "Destinations - TravelEA"
+        }
     },
     {
         path:"/objectives",
         name: "objectives",
-        component: Objectives
+        component: Objectives,
+        meta: {
+            title: "Objectives - TravelEA"
+        }
     },
     {
         path:"/quests",
         name: "quests",
-        component: Quests
+        component: Quests,
+        meta: {
+            title: "Quests - TravelEA"
+        }
     },
     {
         path:"/profiles",
         name: "profiles",
-        component: Profiles
+        component: Profiles,
+        meta: {
+            title: "Profiles - TravelEA"
+        }
     },
     {
         path:"/trips",
         name: "trips",
-        component: Trips
+        component: Trips,
+        meta: {
+            title: "Trips - TravelEA"
+        }
     },
     {
         path:"/admin",
         name: "admin",
-        component: AdminPanel
-    },
-    {
-        path:"/singleProfile",
-        name: "singleProfile",
-        component: SingleProfile
+        component: AdminPanel,
+        meta: {
+            title: "Administrator - TravelEA"
+        }
     }
 ];
 
 const router = new VueRouter({
     routes: routes,
     mode: 'history'
+});
+
+const defaultTitle = 'TravelEA';
+router.afterEach((to, from) => {
+    document.title = to.meta.title || defaultTitle;
 });
 
 export default router;

@@ -57,11 +57,19 @@
 <script>
     import SearchDestinations from "./searchDestinationForm";
     export default {
-        name: "foundDestinations",
+        name: "destinationSearchList",
 
         components: {SearchDestinations},
 
-        props: ['profile', 'destinationTypes', 'searchPublic'],
+        props: {
+            profile: {
+                default: function () {
+                    return null;
+                }
+            },
+            destinationTypes: Array,
+            searchPublic: Boolean
+        },
 
         data() {
            return {

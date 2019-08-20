@@ -44,6 +44,10 @@ public class ApiError {
         return Json.toJson(Arrays.asList(new ApiError("You are not authorized to access this resource.")));
     }
 
+    public static JsonNode forbidden(String message) {
+        return Json.toJson(Arrays.asList(new ApiError(message)));
+    }
+
     public static JsonNode invalidJson() {
         return Json.toJson(Arrays.asList(new ApiError("The JSON body received in the request was invalid.")));
     }
