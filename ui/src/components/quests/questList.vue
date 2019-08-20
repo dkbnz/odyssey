@@ -141,7 +141,7 @@
                                        :key="questAttempt.id"
                                        draggable="false"
                                        v-if="activeQuests"
-                                       @click="showSolvePage">
+                                       @click="$emit('quest-attempt-click', questAttempt)">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">{{questAttempt.questAttempted.title}}</h5>
                         </div>
@@ -152,8 +152,9 @@
 
                         <p class="mb-1">
                             <b-progress
-                                    :value="questAttempt.solved.length - ((questAttempt.current == null && !questAttempt.completed) ? 1 : 0)"
-                                    :max="questAttempt.solved.length + questAttempt.unsolved.length"
+                                    :value="questAttempt.progress"
+                                    :max="100"
+                                    :variant="(questAttempt.completed ? 'success' : 'primary')"
                                     class="mb-3">
                             </b-progress>
                         </p>

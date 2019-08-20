@@ -68,7 +68,6 @@
                 </b-card>
                 <b-card v-else>
                     <b-form>
-
                         <b-container fluid>
                             <b-form-group
                                     id="trip_name-field"
