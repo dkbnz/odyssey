@@ -90,6 +90,8 @@ public class ProfileController {
 
         Profile userProfile = AuthenticationUtil.validateAuthentication(profileRepository, request);
 
+        // If the user is not logged in, then they are unauthorized so can create a profile.
+        // If they are logged in, they must be an admin.
         if (userProfile != null && !userProfile.isAdmin()) {
             return badRequest();
         }
