@@ -919,3 +919,23 @@ Feature: Quest API Endpoint
     Then the status code received is 401
     And the following ApiErrors are returned
       | You are not logged in. |
+
+
+  Scenario: Completing a quest as a regular user
+    Given I am logged in
+    And the application is running
+    And a quest exists with id 3
+    And I have started a quest with id 3
+    When I check in to the quest with id 3
+    Then the status code received is 200
+    And the quest is completed
+
+
+  Scenario: Completing a quest as a regular user
+    Given I am logged in
+    And the application is running
+    And a quest exists with id 3
+    And I have started a quest with id 3
+    When I check in to the quest with id 3
+    Then the status code received is 200
+    And the quest is completed
