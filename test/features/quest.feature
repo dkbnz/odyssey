@@ -606,7 +606,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests created by the user 'Dave' 'McInloch'
     Then the status code received is 200
-    And the response contains 5 quests
+    And the response contains 3 quests
 
 
   Scenario: Retrieve all quests that are contained the country of 'New Zealand'
@@ -653,7 +653,7 @@ Feature: Quest API Endpoint
     And the application is running
     When I attempt to retrieve my quests
     Then the status code received is 200
-    And the response contains 5 quests
+    And the response contains 2 quests
 
 
   Scenario: Retrieve all quests when I have none created
@@ -670,7 +670,7 @@ Feature: Quest API Endpoint
     And a user exists with id 2
     When I attempt to retrieve quests for user 2
     Then the status code received is 200
-    And the response contains 5 quests
+    And the response contains 2 quests
 
 
   Scenario: Retrieve all quests for another user as a regular user
@@ -695,9 +695,9 @@ Feature: Quest API Endpoint
     And a quest exists with id 5
     And an objective exists with id 10
     And an objective exists with id 11
-    When I delete a quest with id 5
+    When I delete a quest with id 4
     Then the status code received is 200
-    And the quest with id 5 no longer exists
+    And the quest with id 4 no longer exists
     And the objective with id 10 still exists
     And the objective with id 11 still exists
 
@@ -804,8 +804,8 @@ Feature: Quest API Endpoint
   Scenario: Starting a quest that I own
     Given I am logged in
     And the application is running
-    And a quest exists with id 5
-    When I start a quest with id 5
+    And a quest exists with id 4
+    When I start a quest with id 4
     Then the status code received is 403
     And the following ApiErrors are returned
       | You cannot start your own quest. |
@@ -921,21 +921,126 @@ Feature: Quest API Endpoint
       | You are not logged in. |
 
 
-  Scenario: Completing a quest as a regular user
+  Scenario: Guessing an objective as a regular user
     Given I am logged in
     And the application is running
-    And a quest exists with id 3
-    And I have started a quest with id 3
-    When I check in to the quest with id 3
+    And a quest exists with id 2
+    When I start a quest with id 2
+    And I guess destination id 858
     Then the status code received is 200
-    And the quest is completed
+    And the guess result is true
+    And I receive a valid quest attempt in the response
 
 
-  Scenario: Completing a quest as a regular user
+  Scenario: Unsuccessfully guessing an objective as a regular user
     Given I am logged in
     And the application is running
-    And a quest exists with id 3
-    And I have started a quest with id 3
-    When I check in to the quest with id 3
+    And a quest exists with id 2
+    When I start a quest with id 2
+    And I guess destination id 1526
     Then the status code received is 200
-    And the quest is completed
+    And the guess result is false
+    And I receive a valid quest attempt in the response
+
+
+  Scenario: Guessing an objective as a regular user for another regular user
+    Given I am logged in
+    And the application is running
+    And a quest exists with id 2
+    When I guess destination id 1526 for quest attempt 5
+    Then the status code received is 403
+    And the following ApiErrors are returned
+      | You are not authorized to access this resource. |
+
+
+  Scenario: Guessing an objective as an admin for a regular user
+    Given I am logged in as an admin user
+    And the application is running
+    And a quest exists with id 2
+    When I start a quest with id 2 for user 3
+    And I guess destination id 858
+    Then the status code received is 200
+    And the guess result is true
+    And I receive a valid quest attempt in the response
+
+
+  Scenario: Unsuccessfully guessing an objective as an admin for a regular user
+    Given I am logged in as an admin user
+    And the application is running
+    And a quest exists with id 2
+    When I start a quest with id 2 for user 3
+    And I guess destination id 1526
+    Then the status code received is 200
+    And the guess result is false
+    And I receive a valid quest attempt in the response
+
+
+  Scenario: Guessing an objective while not logged in
+    Given I am logged in
+    And the application is running
+    And a quest exists with id 2
+    When I start a quest with id 2
+    And I log out
+    And I guess destination id 1526
+    Then the status code received is 401
+    And the following ApiErrors are returned
+      | You are not logged in. |
+
+
+  Scenario: Guessing an objective using a destination that does not exist
+    Given I am logged in
+    And the application is running
+    And a quest exists with id 2
+    When I start a quest with id 2
+    And I guess destination id 6756
+    Then the status code received is 404
+    And the following ApiErrors are returned
+      | Resource not found. |
+
+
+  Scenario: Checking in to an objective as a regular user
+    Given I am logged in
+    And the application is running
+    When I check in for quest attempt 3
+    Then the status code received is 200
+    And I receive a valid quest attempt in the response
+
+
+  Scenario: Unsuccessfully checking in to an objective as a regular user
+    Given I am logged in
+    And the application is running
+    When I check in for quest attempt 4
+    Then the status code received is 403
+
+
+  Scenario: Checking in to an objective as an admin for a regular user
+    Given I am logged in as an admin user
+    And the application is running
+    When I check in for quest attempt 3
+    Then the status code received is 200
+    And I receive a valid quest attempt in the response
+
+
+  Scenario: Unsuccessfully checking in to an objective as an admin for a regular user
+    Given I am logged in
+    And the application is running
+    When I check in for quest attempt 4
+    Then the status code received is 403
+
+
+  Scenario: Checking in to an objective while not logged in
+    Given I am not logged in
+    And the application is running
+    When I check in for quest attempt 4
+    Then the status code received is 401
+    And the following ApiErrors are returned
+      | You are not logged in. |
+
+
+  Scenario: Checking in to an objective for a quest attempt that does not exist
+    Given I am logged in
+    And the application is running
+    When I check in for quest attempt 78
+    Then the status code received is 404
+    And the following ApiErrors are returned
+      | Resource not found. |

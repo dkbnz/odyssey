@@ -3,13 +3,12 @@ package repositories.quests;
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
-import models.Profile;
+import models.profiles.Profile;
 import io.ebean.ExpressionList;
 import models.quests.Quest;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 /**

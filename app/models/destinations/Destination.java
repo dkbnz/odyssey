@@ -1,9 +1,9 @@
 package models.destinations;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import models.BaseModel;
-import models.Profile;
-import models.TravellerType;
+import models.util.BaseModel;
+import models.profiles.Profile;
+import models.profiles.TravellerType;
 import models.photos.PersonalPhoto;
 import models.trips.TripDestination;
 import javax.persistence.*;

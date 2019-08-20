@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import models.destinations.Destination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import models.Profile;
+import models.profiles.Profile;
 import models.photos.PersonalPhoto;
 import models.photos.Photo;
 import play.libs.Files.TemporaryFile;
@@ -14,7 +14,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repositories.destinations.DestinationRepository;
 import repositories.photos.PersonalPhotoRepository;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 import com.typesafe.config.Config;
 
@@ -154,7 +154,7 @@ public class PhotoController extends Controller {
         personalPhoto.setProfile(profileToAdd);
 
         profileToAdd.addPhotoToGallery(personalPhoto);
-        profileRepository.save(profileToAdd);
+        profileRepository.update(profileToAdd);
     }
 
 

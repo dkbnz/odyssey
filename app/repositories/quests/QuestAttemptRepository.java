@@ -3,7 +3,7 @@ package repositories.quests;
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
-import models.Profile;
+import models.profiles.Profile;
 import models.quests.QuestAttempt;
 
 import java.util.Date;

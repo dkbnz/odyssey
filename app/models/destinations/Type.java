@@ -1,6 +1,6 @@
 package models.destinations;
 
-import models.BaseModel;
+import models.util.BaseModel;
 import play.data.validation.Constraints;
 import javax.persistence.Entity;
 import javax.persistence.Table;

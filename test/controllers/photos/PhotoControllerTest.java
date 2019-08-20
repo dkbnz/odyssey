@@ -8,7 +8,7 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.destinations.DestinationRepository;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 import repositories.photos.PersonalPhotoRepository;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

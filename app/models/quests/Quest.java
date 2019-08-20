@@ -2,9 +2,9 @@ package models.quests;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import models.ApiError;
-import models.BaseModel;
-import models.Profile;
+import models.util.ApiError;
+import models.util.BaseModel;
+import models.profiles.Profile;
 import models.objectives.Objective;
 
 import javax.persistence.*;

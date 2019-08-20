@@ -1,10 +1,10 @@
-package repositories;
+package repositories.profiles;
 
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
-import models.Profile;
+import models.profiles.Profile;
 import models.quests.Quest;
 
 import java.util.List;

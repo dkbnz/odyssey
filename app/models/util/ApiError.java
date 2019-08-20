@@ -1,4 +1,4 @@
-package models;
+package models.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import play.libs.Json;
