@@ -287,7 +287,6 @@ Feature: Quest API Endpoint
     Then the status code received is 403
 
 
-
   Scenario: Unsuccessfully editing a quest when not logged in
     Given the application is running
     And I am logged in
@@ -544,10 +543,10 @@ Feature: Quest API Endpoint
 
 
   Scenario: Starting a quest as a regular user
-    Given I am logged in
+    Given I am logged in as an alternate user
     And the application is running
-    And a quest exists with id 5
-    When I start a quest with id 5
+    And a quest exists with id 3
+    When I start a quest with id 3
     Then the status code received is 201
     And the new quest attempt exists
 
@@ -556,8 +555,8 @@ Feature: Quest API Endpoint
     Given I am logged in as an admin user
     And the application is running
     And a quest exists with id 5
-    And a user exists with id 2
-    When I start a quest with id 5 for user 2
+    And a user exists with id 4
+    When I start a quest with id 5 for user 4
     Then the status code received is 201
     And the new quest attempt exists
 
@@ -584,7 +583,7 @@ Feature: Quest API Endpoint
 
 
   Scenario: Starting a quest I have already started
-    Given I am logged in
+    Given I am logged in as an alternate user
     And the application is running
     And a quest exists with id 5
     When I start a quest with id 5
@@ -598,22 +597,32 @@ Feature: Quest API Endpoint
     Given I am not logged in
     And the application is running
     And a quest exists with id 5
-    And a user exists with id 2
-    When I start a quest with id 5 for user 2
+    And a user exists with id 3
+    When I start a quest with id 5 for user 3
     Then the status code received is 401
     And the following ApiErrors are returned
       | You are not logged in. |
 
 
-  Scenario: Retrieving all quests I have marked as active
+  Scenario: Starting a quest that I own
     Given I am logged in
     And the application is running
     And a quest exists with id 5
-    And a user exists with id 2
-    When I start a quest with id 5 for user 2
-    And I retrieve all active quests for user 2
+    When I start a quest with id 5
+    Then the status code received is 403
+    And the following ApiErrors are returned
+      | You cannot start your own quest. |
+
+
+  Scenario: Retrieving all quests I have marked as active
+    Given I am logged in as an alternate user
+    And the application is running
+    And a quest exists with id 5
+    And a user exists with id 3
+    When I start a quest with id 5 for user 3
+    And I retrieve all active quests for user 3
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 1 quests
 
 
   Scenario: Retrieving all quests I have marked as active when not logged in
@@ -629,24 +638,87 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieving all quests marked as active for another user as admin
-    Given I am logged in
+    Given I am logged in as an alternate user
     And the application is running
     And a quest exists with id 5
-    And a user exists with id 2
-    When I start a quest with id 5 for user 2
+    And a user exists with id 3
+    When I start a quest with id 5 for user 3
     And I am logged in as an admin user
-    And I retrieve all active quests for user 2
+    And I retrieve all active quests for user 3
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 1 quests
 
 
   Scenario: Retrieving all quests marked as active for another user as an alternative user
-    Given I am logged in
+    Given I am logged in as an alternate user
     And the application is running
     And a quest exists with id 5
-    And a user exists with id 2
-    When I start a quest with id 5 for user 2
-    And I am logged in as an alternate user
-    And I retrieve all active quests for user 2
+    And a user exists with id 3
+    When I start a quest with id 5 for user 3
+    And I am logged in
+    And I retrieve all active quests for user 3
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 1 quests
+
+
+  Scenario: Retrieving all completed quests as a regular user
+    Given I am logged in as an alternate user
+    And the application is running
+    And a quest exists with id 5
+    And the quest with id 5 has been completed
+    When I retrieve all my complete quests
+    Then the status code received is 200
+    And the response contains 1 quests
+    And the response has owner view
+
+
+  Scenario: Retrieving all completed quests as a regular user when I have none completed
+    Given I am logged in
+    And the application is running
+    When I retrieve all my complete quests
+    Then the status code received is 200
+    And the response contains 0 quests
+
+
+  Scenario: Retrieving all quests another user has completed as a regular user
+    Given I am logged in as an alternate user
+    And the application is running
+    And a quest exists with id 2
+    And a user exists with id 4
+    And the quest with id 2 has been completed by user 4
+    When I retrieve all complete quests for user 4
+    Then the status code received is 200
+    And the response contains 1 quests
+    And the response has public view
+
+
+  Scenario: Retrieving all quests another user has completed as an admin
+    Given I am logged in as an admin user
+    And the application is running
+    And a quest exists with id 5
+    And a user exists with id 3
+    And the quest with id 5 has been completed by user 3
+    When I retrieve all complete quests for user 3
+    Then the status code received is 200
+    And the response contains 1 quests
+    And the response has owner view
+
+
+  Scenario: Retrieving all quests a non existent user has completed as an admin
+    Given I am logged in as an admin user
+    And the application is running
+    And a user does not exist with id 10
+    When I retrieve all complete quests for user 10
+    Then the status code received is 404
+    And the following ApiErrors are returned
+      | Resource not found. |
+
+
+  Scenario: Retrieving all completed quests when not logged in
+    Given I am not logged in
+    And the application is running
+    And a user exists with id 4
+    When I retrieve all complete quests for user 4
+    Then the status code received is 401
+    And the following ApiErrors are returned
+      | You are not logged in. |
