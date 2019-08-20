@@ -61,6 +61,12 @@
                             </div>
                         </b-list-group-item>
                     </div>
+                    <div v-if="foundQuests.length === 0">
+                        <b-list-group-item>
+                            <h5>No Quests Found</h5>
+                        </b-list-group-item>
+                    </div>
+                    <div v-else>
                     <b-list-group-item v-for="quest in foundQuests" href="#"
                                        class="flex-column align-items-start"
                                        :key="quest.id"
@@ -135,6 +141,7 @@
                             </b-row>
                         </template>
                     </b-list-group-item>
+                    </div>
                 </b-list-group>
                 <!-- Confirmation modal for deleting a quest. -->
                 <b-modal hide-footer id="deleteQuestModal" ref="deleteQuestModal" title="Delete Quest">
