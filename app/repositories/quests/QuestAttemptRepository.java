@@ -23,6 +23,7 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
         super(QuestAttempt.class, Ebean.getDefaultServer());
     }
 
+
     /**
      * Return true if a quest attempt exists with identical profile and quest.
      *
