@@ -87,10 +87,10 @@
                                 <!-- If looking at the available quests tab, show a 'set active' button -->
                                 <b-col cols="2" v-if="availableQuests">
                                     <b-row>
-                                        <b-button variant="primary" @click="createAttempt(quest)">Start Now</b-button>
+                                        <b-button variant="primary" @click="createAttempt(quest, true)">Start Now</b-button>
                                     </b-row>
                                     <b-row class="mt-4">
-                                        <b-button variant="secondary" @click="createAttempt(quest)">Start Later</b-button>
+                                        <b-button variant="secondary" @click="createAttempt(quest, false)">Start Later</b-button>
                                     </b-row>
                                 </b-col>
                             </b-row>
@@ -438,22 +438,38 @@
              *
              * @returns {Promise<Response | never>}
              */
-            createAttempt(questToAttempt) {
+            createAttempt(questToAttempt, viewActive) {
                 if (this.profile.id !== undefined) {
                     return fetch(`/v1/quests/` + questToAttempt.id + `/attempt/` + this.profile.id, {
                         method: 'POST'
                     }).then(response => {
                         if (response.ok) {
+                            // Refresh quests
                             this.getMore();
+
+                            // Display 'created' toast
                             this.$bvToast.toast('Quest added to active', {
                                 title: `Quest Added`,
                                 variant: "default",
                                 autoHideDelay: "3000",
                                 solid: true
                             });
+
+                            // If 'start now' is clicked
+                            if (viewActive) {
+                                console.log("Active");
+                                this.changeToActiveTab();
+                            }
                         }
                     })
                 }
+            },
+
+            /**
+             * Emits and event to prompt the quest page to switch the current tab to the active quests tab.
+             */
+            changeToActiveTab() {
+                this.$emit('change-to-active');
             },
 
 
@@ -626,13 +642,6 @@
              */
             rows(quest) {
                 return quest.objectives.length
-            },
-
-
-            questAttemptClicked(questAttempt) {
-                this.$emit('quest-attempt-click', questAttempt);
-                this.selectedQuestAttempt = questAttempt;
-                this.showQuestAttemptSolve = true;
             }
         },
 
