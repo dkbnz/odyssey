@@ -10,11 +10,10 @@
             <b-card>
                 <b-tabs content-class="mt-3">
                     <b-tab title="Active Quests" @click="refreshQuests = !refreshQuests" active>
-                        <quest-list
-                                :profile="profile"
-                                :active-quests="true"
-                                :refresh-quests="refreshQuests"
-                        ></quest-list>
+                        <active-quest-page
+                                :profile="profile">
+
+                        </active-quest-page>
                     </b-tab>
                     <b-tab title="Available Quests" @click="refreshQuests = !refreshQuests">
                         <quest-list
@@ -51,7 +50,9 @@
     import UnauthorisedPromptPage from "../helperComponents/unauthorisedPromptPage";
     import FooterMain from "../helperComponents/footerMain";
     import QuestList from "./questList";
-    import QuestsSolveMobile from "./questsSolveMobile";
+    import QuestsSolveMobile from "./activeQuestPageMobile";
+    import QuestAttemptSolve from "./activeQuestSolve";
+    import ActiveQuestPage from "./activeQuestPage";
     export default {
         name: "questPage",
 
@@ -74,7 +75,9 @@
                 selectedDestination: {},
                 showDestinations: false,
                 refreshObjectives: false,
-                refreshQuests: false
+                refreshQuests: false,
+                showQuestAttemptSolve: false,
+                selectedQuestAttempt: {}
             }
         },
 
@@ -98,18 +101,27 @@
                 this.selectedDestination = {};
             },
 
+            //TODO: Cam
             testActiveProfiles() {
                 fetch('/v1/quests/9/profiles', {
                     method: 'GET',
                     headers: {'content-type': 'application/json'},
                 })
+            },
+
+
+            /**
+             * Displays the quest solve page.
+             */
+            showQuestAttemptPage(questAttempt) {
+                this.showQuestAttemptSolve = true;
+                this.selectedQuestAttempt = questAttempt;
             }
         },
 
-
-
-
         components: {
+            ActiveQuestPage,
+            QuestAttemptSolve,
             QuestsSolveMobile,
             QuestList,
             FooterMain,

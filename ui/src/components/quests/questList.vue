@@ -134,44 +134,7 @@
                                 </b-col>
                             </b-row>
                         </template>
-                        <!--Quest component-->
                     </b-list-group-item>
-                    <b-list-group-item v-for="questAttempt in questAttempts" href="#"
-                                       class="flex-column align-items-start"
-                                       :key="questAttempt.id"
-                                       draggable="false"
-                                       v-if="activeQuests"
-                                       @click="$emit('quest-attempt-click', questAttempt)">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">{{questAttempt.questAttempted.title}}</h5>
-                        </div>
-                        <div class="d-flex w-100 justify-content-center">
-                            <p>{{new Date(questAttempt.questAttempted.startDate).toLocaleDateString()}} &rarr;
-                                {{new Date(questAttempt.questAttempted.endDate).toLocaleDateString()}}</p>
-                        </div>
-
-                        <p class="mb-1">
-                            <b-progress
-                                    :value="questAttempt.progress"
-                                    :max="100"
-                                    :variant="(questAttempt.completed ? 'success' : 'primary')"
-                                    class="mb-3">
-                            </b-progress>
-                        </p>
-                    </b-list-group-item>
-
-                    <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
-                        <div class="d-flex justify-content-center">
-                            <b-spinner></b-spinner>
-                        </div>
-                    </b-list-group-item>
-                    <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="!loadingResults && foundQuests.length === 0 && questAttempts.length === 0">
-                        <div class="d-flex justify-content-center">
-                            <strong>No Quests Found</strong>
-                        </div>
-                    </b-list-group-item>
-
                 </b-list-group>
                 <!-- Confirmation modal for deleting a quest. -->
                 <b-modal hide-footer id="deleteQuestModal" ref="deleteQuestModal" title="Delete Quest">
@@ -226,6 +189,8 @@
     import FoundDestinations from "../destinations/destinationSearchList";
     import ObjectiveList from "../objectives/objectiveList";
     import QuestSearchForm from "./questSearchForm";
+    import QuestAttemptSolve from "./activeQuestSolve";
+    import ActiveQuestList from "./activeQuestPage";
 
     export default {
         name: "questList",
@@ -283,6 +248,7 @@
                 deleteAlertMessage: "",
                 showDestinations: false,
                 showYourObjectives: false,
+                showQuestAttemptSolve: false,
                 selectedObjectiveTemplate: {
                     id: null,
                     destination: null,
@@ -310,8 +276,8 @@
                     {value: 10, text: "10"},
                     {value: 15, text: "15"},
                     {value:Infinity, text:"All"}],
-                questAttempts: []
-
+                questAttempts: [],
+                selectedQuestAttempt: {}
             }
         },
 
@@ -357,8 +323,6 @@
                 this.foundQuests = [];
                 if (this.yourQuests) {
                     this.queryYourQuests();
-                } else if (this.activeQuests) {
-                   this.queryYourActiveQuests();
                 } else {
                     this.queryQuests();
                 }
@@ -425,26 +389,6 @@
                         .then(this.parseJSON)
                         .then((data) => {
                             this.foundQuests = data;
-                            this.loadingResults = false;
-                        })
-                }
-
-            },
-
-
-            /**
-             * Runs a query which searches through the quests in the database and returns only
-             * quests started by the profile.
-             *
-             * @returns {Promise<Response | never>}
-             */
-            queryYourActiveQuests() {
-                if (this.profile.id !== undefined) {
-                    this.loadingResults = true;
-                    return fetch(`/v1/quests/profiles/` + this.profile.id, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.questAttempts = data;
                             this.loadingResults = false;
                         })
                 }
@@ -621,10 +565,19 @@
              */
             rows(quest) {
                 return quest.objectives.length
+            },
+
+
+            questAttemptClicked(questAttempt) {
+                this.$emit('quest-attempt-click', questAttempt);
+                this.selectedQuestAttempt = questAttempt;
+                this.showQuestAttemptSolve = true;
             }
         },
 
         components: {
+            ActiveQuestList,
+            QuestAttemptSolve,
             ObjectiveList,
             QuestItem,
             FoundDestinations,
