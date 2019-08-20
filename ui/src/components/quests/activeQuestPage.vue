@@ -94,6 +94,7 @@
                 this.selectedQuestAttempt = questAttempt;
             },
 
+
             /**
              * Checks to see if a quest is being passed to this component. It finds the quest attempt relating to that quest,
              * and sets it to the selectedQuestAttempt.
