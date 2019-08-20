@@ -85,7 +85,7 @@
                 </b-form-select>
             </b-form-group>
 
-            <b-button @click="searchQuests" block variant="primary">Search</b-button>
+            <b-button @click="searchQuests" :disabled="!allFieldValidation" block variant="primary">Search</b-button>
         </div>
     </div>
 </template>
@@ -170,6 +170,14 @@
                     return null;
                 }
                 return this.searchCountry.length > 0 || this.searchCountry !== null;
+            },
+            allFieldValidation() {
+                return (this.validateFields(this.questTitleValidation)
+                && this.validateFields(this.operatorOptionsValidation)
+                && this.validateFields(this.numberObjectiveValidation)
+                && this.validateFields(this.createdFirstValidation)
+                && this.validateFields(this.createdLastValidation)
+                && this.validateFields(this.countryValidation))
             }
         },
 
@@ -193,12 +201,7 @@
              * Sets values for search.
              */
             searchQuests() {
-                if (this.validateFields(this.questTitleValidation)
-                    && this.validateFields(this.operatorOptionsValidation)
-                    && this.validateFields(this.numberObjectiveValidation)
-                    && this.validateFields(this.createdFirstValidation)
-                    && this.validateFields(this.createdLastValidation)
-                    && this.validateFields(this.countryValidation)) {
+                if (this.allFieldValidation) {
                     this.queryQuests();
                 }
             },
