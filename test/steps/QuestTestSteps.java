@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import models.Profile;
 import models.objectives.Objective;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
@@ -13,6 +14,7 @@ import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.ProfileRepository;
 import repositories.objectives.ObjectiveRepository;
 import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
@@ -103,6 +105,12 @@ public class QuestTestSteps {
 
 
     /**
+     * The quest attempt URI endpoint.
+     */
+    private static final String QUEST_COMPLETE_URI = "/complete";
+
+
+    /**
      * The profiles quest URI endpoint.
      */
     private static final String PROFILES_URI = "/profiles/";
@@ -131,7 +139,13 @@ public class QuestTestSteps {
 
 
     /**
-     * Repository to access the quests in the running application.
+     * Repository to access the profiles in the running application.
+     */
+    private ProfileRepository profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
+
+
+    /**
+     * Repository to access the quest attempts in the running application.
      */
     private QuestAttemptRepository questAttemptRepository =
             testContext.getApplication().injector().instanceOf(QuestAttemptRepository.class);
@@ -273,6 +287,35 @@ public class QuestTestSteps {
 
 
     /**
+     * Sends a request to get all quest attempts.
+     */
+    private void retrieveQuestAttempts() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(QUEST_URI + PROFILES_URI + testContext.getTargetId())
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    /**
+     * Sends a request to get all completed quests for a given user.
+
+     */
+    private void retrieveCompleteQuests() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(QUEST_URI + "/" + testContext.getTargetId() + QUEST_COMPLETE_URI)
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    /**
      * Sends a request to edit a quest with values from the given Json node.
      *
      * @param json      a JsonNode containing the values for a new quest object.
@@ -338,16 +381,6 @@ public class QuestTestSteps {
     }
 
 
-    private void retrieveQuestAttempts() {
-        Http.RequestBuilder request = fakeRequest()
-                .method(GET)
-                .uri(QUEST_URI + PROFILES_URI + testContext.getTargetId())
-                .session(AUTHORIZED, testContext.getLoggedInId());
-        Result result = route(testContext.getApplication(), request);
-        testContext.setStatusCode(result.status());
-        testContext.setResponseBody(Helpers.contentAsString(result));
-    }
-
 
     @Given("a quest already exists with the following values")
     public void aQuestAlreadyExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
@@ -382,6 +415,24 @@ public class QuestTestSteps {
     @Given("^an objective exists with id (\\d+)$")
     public void anObjectiveExistsWithId(Integer objectiveId) {
         Assert.assertNotNull(objectiveRepository.findById(Long.valueOf(objectiveId)));
+    }
+
+
+    @Given("^the quest with id (\\d+) has been completed$")
+    public void theQuestWithIdHasBeenCompleted(Integer questId) {
+        Profile profile = profileRepository.findById(Long.valueOf(testContext.getLoggedInId()));
+        List<QuestAttempt> questAttempts= questAttemptRepository.findAllUsing(profile, Long.valueOf(questId));
+        Assert.assertFalse(questAttempts.isEmpty());
+        Assert.assertTrue(questAttempts.get(0).isCompleted());
+    }
+
+
+    @Given("^the quest with id (\\d+) has been completed by user (\\d+)$")
+    public void theQuestWithIdHasBeenCompletedByUser(Integer questId, Integer userId) {
+        Profile profile = profileRepository.findById(Long.valueOf(userId));
+        List<QuestAttempt> questAttempts= questAttemptRepository.findAllUsing(profile, Long.valueOf(questId));
+        Assert.assertFalse(questAttempts.isEmpty());
+        Assert.assertTrue(questAttempts.get(0).isCompleted());
     }
 
 
@@ -481,6 +532,20 @@ public class QuestTestSteps {
     }
 
 
+    @When("I retrieve all my complete quests")
+    public void iRetrieveAllMyCompleteQuests() {
+        testContext.setTargetId(testContext.getLoggedInId());
+        retrieveCompleteQuests();
+    }
+
+
+    @When("^I retrieve all complete quests for user (\\d+)$")
+    public void iRetrieveAllCompleteQuestsForUser(Integer userId) {
+        testContext.setTargetId(userId.toString());
+        retrieveCompleteQuests();
+    }
+
+
     @Then("^the response contains (\\d+) quests$")
     public void theResponseContainsQuests(int numberOfQuests) throws IOException {
         int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
@@ -505,5 +570,18 @@ public class QuestTestSteps {
     @Then("the new quest attempt exists")
     public void theNewQuestAttemptExists() {
         Assert.assertNotNull(questAttemptRepository.findById(questAttemptId));
+    }
+
+
+    @Then("the response has owner view")
+    public void theResponseHasOwnerView() throws IOException {
+        JsonNode destinationField = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(OBJECTIVES).get(0).get(OBJECTIVE_DESTINATION);
+        Assert.assertNotNull(destinationField);
+    }
+
+    @Then("the response has public view")
+    public void theResponseHasPublicView() throws IOException {
+        JsonNode destinationField = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(OBJECTIVES).get(0).get(OBJECTIVE_DESTINATION);
+        Assert.assertNull(destinationField);
     }
 }
