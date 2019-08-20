@@ -344,21 +344,13 @@ public class DestinationController extends Controller {
      * @return                  true if the destination does not exist in the appropriate database tables.
      */
     private boolean destinationDoesNotExist(JsonNode json, Profile profileToChange) {
-        String name = json.get(NAME).asText();
-        String district = json.get(DISTRICT).asText();
+        Destination destinationToAdd = Json.fromJson(json, Destination.class);
 
-        List<Destination> destinations = destinationRepository.getExpressionList()
-                .ilike(NAME, name)
-                .ilike(DISTRICT, district)
-                .disjunction()
-                    .eq(IS_PUBLIC, true)
-                    .conjunction()
-                        .eq(IS_PUBLIC, false)
-                        .eq(OWNER, profileToChange)
-                    .endJunction()
-                .endJunction()
-                .findList();
-        return (destinations.isEmpty());
+        destinationToAdd.setOwner(profileToChange);
+        destinationToAdd.setType(destinationTypeRepository.findById(json.get(TYPE).asLong()));
+        List<Destination> similarDestinations = destinationRepository.findEqualFromAvailable(destinationToAdd);
+
+        return similarDestinations.isEmpty();
     }
 
 
@@ -394,6 +386,7 @@ public class DestinationController extends Controller {
                     if (!validInput(json)) {
                         return badRequest("Invalid input.");
                     }
+
                     if (destinationDoesNotExist(json, profileToChange)) {
                         Destination destination = createNewDestination(json, profileToChange);
                         destinationRepository.save(destination);
