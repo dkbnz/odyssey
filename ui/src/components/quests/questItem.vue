@@ -195,7 +195,7 @@
                              ref="questObjective"
                              striped>
 
-                        <!-- Buttons that appear for each treasure hunt added to table -->
+                        <!-- Buttons that appear for each objective added to table -->
                         <template slot="actions" slot-scope="row">
                             <b-button size="sm"
                                       @click="editObjective(row.item)"
@@ -203,7 +203,7 @@
                                       class="mr-2"
                                       block>Edit
                             </b-button>
-                            <!--Removes treasure hunt from table-->
+                            <!--Removes objective from table-->
                             <b-button size="sm"
                                       @click="deleteObjective(row.item)"
                                       variant="danger"
@@ -489,7 +489,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @returns {number}    the number of rows required in the table based on number of treasure hunts to be
+             * @returns {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
             rows() {
@@ -652,7 +652,6 @@
                 }).then(function (response) {
                     if (response.status >= 400) {
                         // Ensures the start and end date fields are not wiped after an error occurs.
-                        //this.splitDates();
                         // Converts response to text, this is then displayed on the frontend.
                         response.text().then(data => {
                             let responseBody = JSON.parse(data);
@@ -672,7 +671,7 @@
 
 
             /**
-             * Adds the specified treasure hunt to the list of quest treasure hunts and handles the appropriate actions.
+             * Adds the specified objective to the list of quest objectives and handles the appropriate actions.
              */
             addObjective(objective) {
                 this.inputQuest.objectives.push(JSON.parse(JSON.stringify(objective)));
@@ -689,7 +688,7 @@
 
 
             /**
-             * Replaces the treasure hunt in the quest treasure hunts array with the newly edited treasure hunt.
+             * Replaces the objective in the quest objectives array with the newly edited objective.
              */
             objectiveEdited(objective) {
                 this.inputQuest.objectives[this.objectiveIndex] = JSON.parse(JSON.stringify(objective));
@@ -706,7 +705,7 @@
 
 
             /**
-             * Displays the edit treasure hunt field and sets the current treasure hunt to the specified value.
+             * Displays the edit objective field and sets the current objective to the specified value.
              */
             editObjective(objective) {
                 this.objectiveIndex = this.inputQuest.objectives.indexOf(objective);
@@ -737,7 +736,7 @@
 
 
             /**
-             * Removes a treasure hunt from the list of quest's treasure hunts.
+             * Removes an objective from the list of quest's objectives.
              */
             deleteObjective(objective) {
                 let rowIndex = this.inputQuest.objectives.indexOf(objective);
@@ -761,7 +760,7 @@
 
 
             /**
-             * Cancels the current creation of a treasure hunt addition to a quest
+             * Cancels the current creation of an objective addition to a quest
              */
             cancelObjectiveCreate() {
                 this.addNewObjective = false;
@@ -872,9 +871,9 @@
 
 
             /**
-             * Used to move a treasure hunt in the table up one place.
+             * Used to move an objective in the table up one place.
              *
-             * @param rowIndex      the row index of the treasure hunt in the table.
+             * @param rowIndex      the row index of the objective in the table.
              */
             moveUp(rowIndex) {
                 let upIndex = rowIndex - 1;
@@ -886,9 +885,9 @@
 
 
             /**
-             * Used to move a treasure hunt in the table down one place.
+             * Used to move an objective in the table down one place.
              *
-             * @param rowIndex      the row index of the treasure hunt in the table.
+             * @param rowIndex      the row index of the objective in the table.
              */
             moveDown(rowIndex) {
                 let downIndex = rowIndex + 1;
@@ -900,7 +899,7 @@
 
 
             /**
-             * Displays the add treasure hunt component and the search destinations side bar.
+             * Displays the add objective component and the search destinations side bar.
              */
             showObjectiveComponent() {
                 this.addNewObjective = !this.addNewObjective;
@@ -910,7 +909,7 @@
 
 
             /**
-             * Displays the add treasure hunt component and the your treasure hunts side bar.
+             * Displays the add objective component and the your objectives side bar.
              */
             showYourObjectivesComponent() {
                 this.addNewObjective = !this.addNewObjective;

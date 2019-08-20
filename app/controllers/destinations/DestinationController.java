@@ -259,7 +259,10 @@ public class DestinationController extends Controller {
     /**
      * Fetches all destinations by user.
      *
-     * @return           ok() (Http 200) response containing the destinations found in the response body.
+     * @return          ok() (Http 200) response containing the destinations found in the response body.
+     *                  unauthorized() (Http 401) if the user is not logged in.
+     *                  badRequest() (Http 400) if the requested profile doesn't exist.
+     *                  forbidden() (Http 403) if the user is not allowed to complete this action.
      */
     public Result fetchByUser(Http.Request request, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -363,7 +366,7 @@ public class DestinationController extends Controller {
      * Saves a new destination. Checks the destination to be saved doesn't already exist in the database.
      *
      * @param request   Http request containing a Json body of the new destination details.
-     * @return          Http response created() (Http 201) when the destination is saved. If a destination with
+     * @return          created() (Http 201) when the destination is saved. If a destination with
      *                  the same name and district already exists in the database, returns badRequest() (Http 400).
      */
     public Result save(Http.Request request, Long userId) {
@@ -437,7 +440,8 @@ public class DestinationController extends Controller {
      *
      * @param destinationId     the id of the destination.
      * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if
-     *                          successfully deleted.
+     *                          successfully deleted. unauthorized() (Http 401) if the user is not logged in.
+     *                          forbidden() (Http 403) if he user is not allowed to delete the specified destination.
      */
     public Result destroy(Http.Request request, Long destinationId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -466,6 +470,9 @@ public class DestinationController extends Controller {
      * @param id        the id of the destination.
      * @param request   Http request containing a Json body of fields to update in the destination.
      * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
+     *                  unauthorized() (Http 401) if the user is not logged in, forbidden() (Http 403) if the user
+     *                  is not allowed to edit the destination. badRequest() (Http 400) if the latitude or longitude
+     *                  values for the destination are invalid.
      */
     public Result edit(Http.Request request, Long id) throws IllegalAccessException {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);

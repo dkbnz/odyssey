@@ -180,23 +180,5 @@
 </script>
 
 <style scoped>
-    .singleProfile {
-        margin: 10px;
-        background: white;
-        border-radius: 5px;
-    }
-
-    .singleProfileNav {
-        background: white;
-        padding: 15px;
-    }
-
-    a {
-        color: grey;
-    }
-
-    .boldText {
-        font-weight: bold
-    }
-
+    @import "../../css/admin.css";
 </style>

@@ -142,7 +142,6 @@
         },
 
         methods: {
-
             /**
              * Creates the circle for the map to show radius of the margin of error
              */
@@ -162,8 +161,9 @@
                         icon: this.privateMarker
                     });
                 }
+
                 if (this.circle !== null) {
-                    this.circle.setRadius(this.radius * 1000)
+                    this.circle.setRadius(this.radius * 1000);
                     this.circle.setCenter({
                         lat: this.selectedRadiusDestination.latitude,
                         lng: this.selectedRadiusDestination.longitude
@@ -183,11 +183,13 @@
                         radius: this.radius * 1000
                     });
                 }
+
                 if (!this.showRadius) {
                     this.$map.setZoom(10);
                 } else {
                     this.$map.setZoom(this.radius >= 0.5 ? 11 : 16);
                 }
+
                 this.$map.panTo({
                     lat: this.selectedRadiusDestination.latitude,
                     lng: this.selectedRadiusDestination.longitude

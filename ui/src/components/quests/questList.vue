@@ -286,24 +286,6 @@
             this.getMore();
         },
 
-        computed: {
-            /**
-             * Returns a string for show/hide if the locations in a quest are displayed or not.
-             */
-            showHideText(quest) {
-
-                if (this.showLocations) {
-                    return "Hide";
-                }
-                setTimeout(function () {
-                    if (document.getElementById("display-" + quest.id).hidden) {
-                        console.log("HERE");
-                    }
-                }, 3000)
-                return "Show"
-            }
-        },
-
         watch: {
             refreshQuests() {
                 this.getMore();

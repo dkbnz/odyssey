@@ -72,7 +72,7 @@ public class DestinationTravellerTypeController {
      *                          notFound() (Http 404) if destination could not found.
      *                          forbidden() (Http 403) if the logged in user cannot access the resource.
      */
-    public Result create(Http.Request request, Long destinationId) {
+    public Result addTravellerTypes(Http.Request request, Long destinationId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();

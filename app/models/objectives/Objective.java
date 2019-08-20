@@ -22,6 +22,10 @@ import java.util.List;
 @Entity
 public class Objective extends BaseModel {
 
+    private static final int MAX_RIDDLE_SIZE = 255;
+    private static final int MIN_RADIUS_VALUE = 0;
+
+
     @JsonView(Views.Owner.class)
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Destination destination;
@@ -42,7 +46,7 @@ public class Objective extends BaseModel {
 
         if (riddle == null || riddle.isEmpty()) {
             errors.add(new ApiError("A riddle must be provided."));
-        } else if (riddle.length() > 255) {
+        } else if (riddle.length() > MAX_RIDDLE_SIZE) {
             errors.add(new ApiError("Objective riddles must not exceed 255 characters in length."));
         }
 
@@ -54,7 +58,7 @@ public class Objective extends BaseModel {
             errors.add(new ApiError("Objectives must have a destination."));
         }
 
-        if (radius == null || radius <= 0) {
+        if (radius == null || radius <= MIN_RADIUS_VALUE) {
             errors.add(new ApiError("You must select a range for an objective destination's check in"));
         }
 
