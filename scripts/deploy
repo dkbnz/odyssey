@@ -8,21 +8,21 @@ function cleanUp () {
     systemctl stop travelea-$PROD_OR_DEV.service
 
     # Delete files in webserver directory
-    rm -rf /opt/travelea/$PROD_OR_DEV/
-    mkdir /opt/travelea/$PROD_OR_DEV/
+    rm -rf /home/sengstudent/travelea/$PROD_OR_DEV/
+    mkdir /home/sengstudent/travelea/$PROD_OR_DEV/
 }
 
 function deploy() {
 
     # Unzip copied snapshot into production/development folder
-    unzip /opt/travelea/build/*.zip -d /opt/travelea/$PROD_OR_DEV/
+    unzip /home/sengstudent/travelea/build/*.zip -d /home/sengstudent/travelea/$PROD_OR_DEV/
 
     # Start service to launch webserver
     systemctl start travelea-$PROD_OR_DEV.service
 
     # Clear build directory so it is ready to accept next zip file
-    rm -rf /opt/travelea/build/
-    mkdir /opt/travelea/build/
+    rm -rf /home/sengstudent/travelea/build/
+    mkdir /home/sengstudent/travelea/build/
 }
 
 if [ -z "$PROD_OR_DEV" ]
