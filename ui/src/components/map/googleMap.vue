@@ -50,11 +50,11 @@
                 },
                 dragMarkers: false,
                 markerArray: [],
-                publicMarker: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
-                privateMarker: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                publicMarker: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+                privateMarker: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
                 circle: null,
                 radiusMarker: null,
-                addingMarker: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                addingMarker: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
                 markerToAdd: false
             }
         },
