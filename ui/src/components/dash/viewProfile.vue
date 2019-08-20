@@ -42,8 +42,37 @@
             <div :class="containerClassContent">
                 <div :class="'containerWithNav'">
                     <h1 class="page-title">Quests</h1>
-                    <active-quest-list :quest-attempts="questAttempts" :loading-results="loadingResults">
+                    <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
+                    <active-quest-list
+                            :quest-attempts="questAttempts"
+                            :loading-results="loadingResults"
+                            @quest-attempt-clicked="showAddQuestAttempt">
                     </active-quest-list>
+                    <b-modal id="modal-selected-quest" centered ref="selected-quest-modal">
+                        <div v-if="selectedQuest" slot="modal-title" class="mb-1">
+                            {{selectedQuest.title}}
+                        </div>
+                        <div v-if="selectedQuest">
+
+                            <div class="d-flex w-100 justify-content-center">
+                                <p>{{new Date(selectedQuest.startDate).toLocaleDateString()}} &rarr;
+                                    {{new Date(selectedQuest.endDate).toLocaleDateString()}}</p>
+                            </div>
+                        </div>
+                        <template slot="modal-footer">
+                            <b-col>
+                                <b-button @click="$refs['selected-quest-modal'].hide()" block>
+                                    Close
+                                </b-button>
+                            </b-col>
+                            <b-col>
+                                <b-button variant="primary"
+                                          @click="addQuestToProfile" block>Add to Your Quests
+                                </b-button>
+                            </b-col>
+                        </template>
+
+                    </b-modal>
                 </div>
 
                 <!-- Displays the profile's photo gallery -->
@@ -153,7 +182,8 @@
                 dismissSecs: 3,
                 dismissCountDown: 0,
                 questAttempts: [],
-                loadingResults: false
+                loadingResults: false,
+                selectedQuest: null
             }
         },
 
@@ -407,6 +437,51 @@
                         })
                 }
             },
+
+
+            /**
+             * Shows the modal to add the quest to your list of quests only if you are not looking at your own profile.
+             *
+             * @param questAttempt  the quest attempt containing the quest to be added.
+             */
+            showAddQuestAttempt(questAttempt) {
+                if (this.userProfile.id !== this.profile.id) {
+                    this.selectedQuest = questAttempt.questAttempted;
+                    this.$refs['selected-quest-modal'].show();
+                }
+
+            },
+
+
+            /**
+             * Sends the request to add the selected quest to your quest attempts. Show's toasts on error/success.
+             *
+             * @returns {Promise<Response | never>}    the Fetch method promise.
+             */
+            addQuestToProfile() {
+                if (this.userProfile.id !== undefined) {
+                    return fetch(`/v1/quests/` + this.selectedQuest.id + `/attempt/` + this.userProfile.id, {
+                        method: 'POST'
+                    }).then(response => {
+                        if (response.ok) {
+                            // Display 'created' toast
+                            this.$bvToast.toast('Quest added to active', {
+                                title: `Quest Added`,
+                                variant: "default",
+                                autoHideDelay: "3000",
+                                solid: true
+                            });
+                        } else {
+                            this.$bvToast.toast('Something went wrong', {
+                                title: `Quest Adding Failed`,
+                                variant: "danger",
+                                autoHideDelay: "3000",
+                                solid: true
+                            });
+                        }
+                    })
+                }
+            }
         },
 
         components: {
