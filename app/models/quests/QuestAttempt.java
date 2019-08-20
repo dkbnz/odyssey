@@ -62,7 +62,8 @@ public class QuestAttempt extends BaseModel {
 
 
     /**
-     * Get a list of Objectives that the user has correctly guessed the destination for.
+     * Get a list of Objectives that the user has correctly guessed the destination for
+     * and they have checked in to.
      *
      * @return  list of objectives the user has solved for this particular quest attempt.
      */
@@ -70,7 +71,26 @@ public class QuestAttempt extends BaseModel {
     public List<Objective> getSolved() {
         return questAttempted
                 .getObjectives()
-                .subList(0, checkedInIndex + (solvedCurrent ? 1 : 0));
+                .subList(0, checkedInIndex);
+    }
+
+
+    /**
+     * Returns the current Objective the user needs to check in to.
+     * Will return null if there is no current objective to check in to.
+     * This means that an objective needs to be solved first, or the quest is complete.
+     *
+     * @return  current Objective to check in to.
+     */
+    @JsonProperty("toCheckIn")
+    public Objective getCurrentToCheckIn() {
+        if (solvedCurrent && !completed) {
+            return questAttempted
+                    .getObjectives()
+                    .get(checkedInIndex);
+        } else {
+            return null;
+        }
     }
 
 
@@ -82,9 +102,9 @@ public class QuestAttempt extends BaseModel {
      *
      * @return  current Objective to solve.
      */
-    @JsonProperty("current")
+    @JsonProperty("toSolve")
     @JsonIgnoreProperties({"destination", "radius"})
-    public Objective getCurrent() {
+    public Objective getCurrentToSolve() {
         if (!solvedCurrent && !completed) {
             return questAttempted
                     .getObjectives()
@@ -99,14 +119,14 @@ public class QuestAttempt extends BaseModel {
      * Returns a list of Objectives that the user is yet to solve.
      * When serialized using Json.toJson destinations will not show in the list of objectives.
      *
-     * @return  a list of unsolved objectives
+     * @return  a list of unsolved objectives.
      */
     @JsonProperty("unsolved")
     @JsonIgnoreProperties({"destination", "radius"})
     public List<Objective> getUnsolved() {
         return questAttempted
                 .getObjectives()
-                .subList(checkedInIndex + (solvedCurrent ? 1 : 0),
+                .subList(checkedInIndex + (completed ? 0 : 1),
                         questAttempted.getObjectives().size()
                 );
     }
