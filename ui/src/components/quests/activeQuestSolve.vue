@@ -3,7 +3,7 @@
         <div v-if="showDestinationSearch">
             <b-button @click="goBack" class="buttonMarginsBottom" size="sm">Back</b-button>
             <b-button v-if="!showDestinationSearchCollapse" @click="showDestinationSearchCollapse = true; showSelectedDestination = false; foundDestinationsKey += 1" variant="primary" block>Search Again</b-button>
-            <b-collapse v-model="showDestinationSearchCollapse">
+            <b-collapse v-model="showDestinationSearchCollapse" id="destinations-collapse">
                 <found-destinations
                         :key="foundDestinationsKey"
                         :search-public="true"
@@ -15,7 +15,7 @@
                 Incorrect, try again.
             </b-alert>
 
-            <b-collapse v-model="showSelectedDestination">
+            <b-collapse v-model="showSelectedDestination" id="selected-destination-collapse">
                 <b-list-group-item href="#" class="flex-column align-items-start"
                                    id="selectedDestination"
                                    :disabled="selectedDestination === {}">
@@ -48,7 +48,7 @@
             <!--{{guessSuccess}}-->
         </div>
         <div v-else>
-            <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom" size="sm">Back</b-button>
+            <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom show-only-mobile" size="sm">Back</b-button>
             <h2 class="page-title">{{questAttempt.questAttempted.title}}</h2>
 
             <b-alert v-model="guessSuccess" variant="success" dismissible>
@@ -93,7 +93,7 @@
                                    class="d-flex justify-content-between align-items-center"
                                    draggable="false" v-if="questAttempt.toCheckIn != null">
                     <span class="mobile-text font-weight-bold">{{questAttempt.toCheckIn.riddle}}</span>
-                    <b-button size="sm" variant="primary" @click="checkIn">Check In</b-button>
+                    <b-button class="no-wrap-text" size="sm" variant="warning" @click="checkIn">Check In</b-button>
                 </b-list-group-item>
 
                 <!-- List the remaining unsolved objectives in the quest attempt -->
@@ -111,7 +111,7 @@
 <script>
     import FoundDestinations from "../destinations/destinationSearchList";
     export default {
-        name: "questAttemptSolve",
+        name: "activeQuestSolve",
 
         props: {
             questAttempt: Object
@@ -220,7 +220,3 @@
 
     }
 </script>
-
-<style scoped>
-
-</style>
