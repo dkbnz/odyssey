@@ -2,15 +2,13 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.destinations.Destination;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.TripRepository;
+import repositories.trips.TripRepository;
 import repositories.destinations.DestinationRepository;
 import java.io.IOException;
 import java.util.List;

@@ -1,12 +1,12 @@
-package controllers;
+package controllers.profiles;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
-import models.Nationality;
-import models.Passport;
-import models.Profile;
-import models.TravellerType;
+import models.profiles.Nationality;
+import models.profiles.Passport;
+import models.profiles.Profile;
+import models.profiles.TravellerType;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.libs.Json;
@@ -23,9 +23,9 @@ import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repositories.NationalityRepository;
-import repositories.PassportRepository;
-import repositories.ProfileRepository;
+import repositories.profiles.NationalityRepository;
+import repositories.profiles.PassportRepository;
+import repositories.profiles.ProfileRepository;
 import repositories.destinations.TravellerTypeRepository;
 import util.AuthenticationUtil;
 

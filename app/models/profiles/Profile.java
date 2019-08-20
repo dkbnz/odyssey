@@ -1,7 +1,8 @@
-package models;
+package models.profiles;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import models.util.BaseModel;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
 import models.quests.Quest;
@@ -38,24 +39,24 @@ public class Profile extends BaseModel {
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date dateOfCreation;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "profiles")
     private List<Nationality> nationalities;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "profiles")
     private List<TravellerType> travellerTypes;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "profiles")
     private List<Passport> passports;
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "profile")
     private List<Trip> trips;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<PersonalPhoto> photoGallery;
-
     @OneToOne(cascade = CascadeType.REMOVE)
     private PersonalPhoto profilePicture;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "profile")
+    private List<PersonalPhoto> photoGallery;
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")

@@ -2,13 +2,13 @@ package controllers.trips;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import models.Profile;
+import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
 import repositories.destinations.DestinationRepository;
-import repositories.ProfileRepository;
-import repositories.TripRepository;
+import repositories.profiles.ProfileRepository;
+import repositories.trips.TripRepository;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;

@@ -8,7 +8,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
-import models.TravellerType;
+import models.profiles.TravellerType;
 import models.destinations.Destination;
 import org.junit.Assert;
 import play.libs.Json;
