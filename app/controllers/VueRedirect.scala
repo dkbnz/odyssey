@@ -10,5 +10,11 @@ class VueRedirect @Inject()(assets: Assets,
                              (implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
+  /**
+    * Method to catch all requests that do not match anything in the routes file
+    * Will return the index.html. this allows vue to handle all not found errors
+    *
+    * @param resource   path of the resource being requested
+    */
   def matchAll(resource: String) = assets.at("index.html")
 }
