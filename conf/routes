@@ -66,7 +66,6 @@ DELETE  /v1/destinationPhotos/:destinationId    controllers.photos.PhotoControll
 # Objectives
 GET     /v1/objectives                                 controllers.objectives.ObjectiveController.fetchAll(request: Request)
 GET     /v1/objectives/:userId                         controllers.objectives.ObjectiveController.fetchByOwner(request: Request, userId: Long)
-GET     /v1/objectiveDest/:objectiveId                 controllers.objectives.ObjectiveController.fetchDestination(request: Request, objectiveId: Long)
 POST    /v1/objectives/:userId                         controllers.objectives.ObjectiveController.create(request: Request, userId: Long)
 PUT     /v1/objectives/:objectiveId                    controllers.objectives.ObjectiveController.edit(request: Request, objectiveId: Long)
 DELETE  /v1/objectives/:objectiveId                    controllers.objectives.ObjectiveController.delete(request: Request, objectiveId: Long)

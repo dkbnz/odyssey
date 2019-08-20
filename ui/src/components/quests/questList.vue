@@ -77,7 +77,9 @@
                         </b-row>
 
                         <div v-if="yourQuests" class="buttonMarginsTop">
-                            <h4 @click="showHideLocations(quest)"> Show/Hide Locations</h4>
+                            <b-button @click="showHideLocations(quest)" variant="primary" class="buttonMarginsBottom">
+                                Show/Hide Locations
+                            </b-button>
                             <b-container fluid style="margin-top: 20px; display: none" :id="'display-' + quest.id">
                                 <!-- Table displaying all added destinations -->
                                 <b-table :current-page="currentPage" :fields="fields" :items="quest.objectives"
