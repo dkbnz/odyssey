@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
+import io.ebean.Expr;
 import io.ebean.ExpressionList;
 import models.ApiError;
 import models.Profile;
@@ -42,10 +43,14 @@ public class QuestController {
     private static final String OPERATOR = "operator";
     private static final String OBJECTIVE = "objectives";
     private static final String FIRST_NAME = "first_name";
+    private static final String FIRST_NAME_QUERY = "owner.firstName";
+    private static final String LAST_NAME_QUERY = "owner.lastName";
     private static final String LAST_NAME = "last_name";
     private static final String COUNTRY = "country";
-    private static final String ID = "id";
-    private static final String OWNER_ID = "owner_id";
+    private static final String START_DATE = "startDate";
+    private static final String END_DATE = "endDate";
+    private static final String OWNER_ID = "owner.id";
+    private static final String ATTEMPTS = "attempts";
     private static final String COUNTRY_OCCURRENCES = "countryOccurrences.key";
     private static final String EQUAL_TO = "=";
     private static final String GREATER_THAN = ">";
@@ -277,7 +282,7 @@ public class QuestController {
             return unauthorized(ApiError.unauthorized());
         }
 
-        Set<Quest> quests = getQuestsQuery(request);
+        Set<Quest> quests = getQuestsQuery(request, loggedInUser);
 
         ObjectMapper mapper = new ObjectMapper();
         String result;
@@ -462,91 +467,75 @@ public class QuestController {
      * ownership and the public or private query.
      *
      * @param request   Http request containing query parameters to filter results.
-     * @return          ok() (Http 200) response containing the destinations found in the response body, forbidden()
-     *                  (Http 403) if the user has tried to access destinations they are not authorised for.
+     * @param profile   The profile of the user logged in.
+     * @return          ok() (Http 200) response containing the destinations found in the response body,
+     *                  forbidden() (Http 403) if the user has tried to access destinations they are not authorised for.
      */
-    private Set<Quest> getQuestsQuery(Http.Request request) {
+    private Set<Quest> getQuestsQuery(Http.Request request, Profile profile) {
 
         Set<Quest> quests;
 
         ExpressionList<Quest> expressionList = questRepository.getExpressionList();
 
+        expressionList.ne(OWNER_ID, profile.getId());
+
         if (request.getQueryString(TITLE) != null && !request.getQueryString(TITLE).isEmpty()) {
             expressionList.ilike(TITLE, queryComparator(request.getQueryString(TITLE)));
         }
 
-        /*
-        Checks the first and last name fields and finds appropriate id's from those names.
-        Then checks those id's in the quest table owner id to gather the resulting quests.
-         */
-        ExpressionList<Profile> profileExpressionList = profileRepository.getExpressionList();
-        boolean findByOwner = false;
-
         if (request.getQueryString(FIRST_NAME) != null && !request.getQueryString(FIRST_NAME).isEmpty()) {
-            profileExpressionList.ilike(FIRST_NAME, queryComparator(request.getQueryString(FIRST_NAME)));
-            findByOwner = true;
+            expressionList.ilike(FIRST_NAME_QUERY, queryComparator(request.getQueryString(FIRST_NAME)));
         }
 
         if (request.getQueryString(LAST_NAME) != null && !request.getQueryString(LAST_NAME).isEmpty()) {
-            profileExpressionList.ilike(LAST_NAME, queryComparator(request.getQueryString(LAST_NAME)));
-            findByOwner = true;
-        }
-
-        if (findByOwner) {
-            List<Long> profiles = profileExpressionList
-                    .select(ID)
-                    .findSingleAttributeList();
-            expressionList.in(OWNER_ID, profiles);
+            expressionList.ilike(LAST_NAME_QUERY, queryComparator(request.getQueryString(LAST_NAME)));
         }
 
         if (request.getQueryString(COUNTRY) != null && !request.getQueryString(COUNTRY).isEmpty()) {
             expressionList.in(COUNTRY_OCCURRENCES, request.getQueryString(COUNTRY));
         }
 
+        expressionList.lt(START_DATE, new Date());
+        expressionList.gt(END_DATE, new Date());
+
+        ExpressionList<Quest> expressionListActiveQuests = questRepository.getExpressionList();
+
+        expressionListActiveQuests.in(ATTEMPTS, questAttemptRepository.findAllUsing(profile));
+
+        Set<Quest> profilesActiveQuests = expressionListActiveQuests.findSet();
+
         quests = expressionList.findSet();
+
+        quests.removeAll(profilesActiveQuests);
 
 
         /*
-        Gets the quests and check if they are within the current time windows.
-        Also checks if the amount of objectives is correct to the query search.
+        Gets the quests and checks if the amount of objectives is correct to the query search.
          */
-        Calendar now = Calendar.getInstance();
-        Set<Quest> allQuests = new HashSet<>();
-
         if (request.getQueryString(OPERATOR) != null &&
                 !request.getQueryString(OPERATOR).isEmpty() &&
                 request.getQueryString(OBJECTIVE) != null &&
                 !request.getQueryString(OBJECTIVE).isEmpty()) {
 
+            Set<Quest> allQuests = new HashSet<>();
+
             for (Quest quest: quests) {
 
                 int objectiveSize = quest.getObjectives().size();
 
-                if ((quest.getStartDate().before(now.getTime())
-                    || quest.getStartDate().compareTo(now.getTime()) == 0)
-                    && (quest.getEndDate().after(now.getTime())
-                    || quest.getEndDate().compareTo(now.getTime()) == 0) &&
-                    (request.getQueryString(OPERATOR).equals(EQUAL_TO) &&
+                if (request.getQueryString(OPERATOR).equals(EQUAL_TO) &&
                     objectiveSize == Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
                     request.getQueryString(OPERATOR).equals(LESS_THAN) &&
                     objectiveSize < Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
                     request.getQueryString(OPERATOR).equals(GREATER_THAN) &&
-                    objectiveSize > Double.parseDouble(request.getQueryString(OBJECTIVE)))) {
+                    objectiveSize > Double.parseDouble(request.getQueryString(OBJECTIVE))) {
                     allQuests.add(quest);
                 }
             }
+            return allQuests;
         } else {
-            for (Quest quest: quests) {
-                if ((quest.getStartDate().before(now.getTime())
-                        || quest.getStartDate().compareTo(now.getTime()) == 0)
-                        && (quest.getEndDate().after(now.getTime())
-                        || quest.getEndDate().compareTo(now.getTime()) == 0)) {
-                    allQuests.add(quest);
-                }
-            }
+            return quests;
         }
-
-        return allQuests;
     }
 
 
