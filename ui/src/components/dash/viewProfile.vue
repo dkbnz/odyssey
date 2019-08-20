@@ -40,12 +40,41 @@
                 </ul>
             </div>
             <div :class="containerClassContent">
-                <quest-list :adminView="adminView"
-                            :profile="profile"
-                            :active-quests="true"
-                            :hide-side-bar="true"
-                            :class-container="'containerWithNav'">
-                </quest-list>
+                <div :class="'containerWithNav'">
+                    <h1 class="page-title">Quests</h1>
+                    <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
+                    <active-quest-list
+                            :quest-attempts="questAttempts"
+                            :loading-results="loadingResults"
+                            @quest-attempt-clicked="showAddQuestAttempt">
+                    </active-quest-list>
+                    <b-modal id="modal-selected-quest" centered ref="selected-quest-modal">
+                        <div v-if="selectedQuest" slot="modal-title" class="mb-1">
+                            {{selectedQuest.title}}
+                        </div>
+                        <div v-if="selectedQuest">
+
+                            <div class="d-flex w-100 justify-content-center">
+                                <p>{{new Date(selectedQuest.startDate).toLocaleDateString()}} &rarr;
+                                    {{new Date(selectedQuest.endDate).toLocaleDateString()}}</p>
+                            </div>
+                        </div>
+                        <template slot="modal-footer">
+                            <b-col>
+                                <b-button @click="$refs['selected-quest-modal'].hide()" block>
+                                    Close
+                                </b-button>
+                            </b-col>
+                            <b-col>
+                                <b-button variant="primary"
+                                          @click="addQuestToProfile" block>Add to Your Quests
+                                </b-button>
+                            </b-col>
+                        </template>
+
+                    </b-modal>
+                </div>
+
                 <!-- Displays the profile's photo gallery -->
                 <photo-gallery :key="refreshPhotos"
                                :profile="profile"
@@ -105,6 +134,7 @@
     import PhotoGallery from "../photos/photoGallery";
     import PhotoUploader from "../photos/photoUploader";
     import QuestList from "../quests/questList";
+    import ActiveQuestList from "../quests/activeQuestList";
 
     export default {
         name: "viewProfile",
@@ -150,7 +180,10 @@
                 newProfilePhoto: -1,
                 refreshPhotos: 0,
                 dismissSecs: 3,
-                dismissCountDown: 0
+                dismissCountDown: 0,
+                questAttempts: [],
+                loadingResults: false,
+                selectedQuest: null
             }
         },
 
@@ -158,12 +191,17 @@
             userProfile() {
                 this.checkAuth();
             },
+
+            profile() {
+                this.queryYourActiveQuests();
+            }
         },
 
         mounted() {
             this.checkAuth();
             this.getProfilePictureThumbnail();
             this.getProfilePictureFull();
+            this.queryYourActiveQuests();
         },
 
         methods: {
@@ -379,10 +417,39 @@
              */
             imageAlt(event) {
                 event.target.src = "../../../static/default_profile_picture.png"
+            },
+
+
+            /**
+             * Runs a query which searches through the quests in the database and returns only
+             * quests started by the profile.
+             *
+             * @returns {Promise<Response | never>}
+             */
+            queryYourActiveQuests() {
+                if (this.profile.id !== undefined) {
+                    this.loadingResults = true;
+                    return fetch(`/v1/quests/profiles/` + this.profile.id, {})
+                        .then(response => response.json())
+                        .then((data) => {
+                            this.questAttempts = data;
+                            this.loadingResults = false;
+                        })
+                }
+            },
+
+            showAddQuestAttempt(questAttempt) {
+                this.selectedQuest = questAttempt.questAttempted;
+                this.$refs['selected-quest-modal'].show();
+            },
+
+            addQuestToProfile() {
+                console.log(this.selectedQuest);
             }
         },
 
         components: {
+            ActiveQuestList,
             QuestList,
             YourTrips,
             PhotoGallery,

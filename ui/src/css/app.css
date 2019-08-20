@@ -217,3 +217,11 @@ a {
 .defaultCursor {
     cursor: default;
 }
+
+.mobile-text {
+    font-size: 15px;
+}
+
+.no-wrap-text {
+    white-space: nowrap;
+}
