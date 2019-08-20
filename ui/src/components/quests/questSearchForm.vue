@@ -77,7 +77,6 @@
                 <b-form-select id="country" trim v-model="searchCountry">
                     <template slot="first">
                         <option value="">-- Any --</option>
-                        <option value="International">-- International --</option>
                     </template>
                     <option :value="country.name" v-for="country in countryList"
                             :state="countryValidation">
@@ -194,22 +193,14 @@
              * Sets values for search.
              */
             searchQuests() {
-                // if (this.validateFields(this.destinationNameValidation)
-                //     && this.validateFields(this.destinationTypeValidation)
-                //     && this.validateFields(this.destinationDistrictValidation)
-                //     && this.validateFields(this.destinationLatitudeValidation)
-                //     && this.validateFields(this.destinationLongitudeValidation)
-                //     && this.validateFields(this.destinationCountryValidation)) {
-                //     this.$emit('searched-destination', {
-                //         name: this.searchName,
-                //         type: this.searchType,
-                //         district: this.searchDistrict,
-                //         latitude: this.searchLatitude,
-                //         longitude: this.searchLongitude,
-                //         country: this.searchCountry
-                //     });
-                // }
-
+                if (this.validateFields(this.questTitleValidation)
+                    && this.validateFields(this.operatorOptionsValidation)
+                    && this.validateFields(this.numberObjectiveValidation)
+                    && this.validateFields(this.createdFirstValidation)
+                    && this.validateFields(this.createdLastValidation)
+                    && this.validateFields(this.countryValidation)) {
+                    this.queryQuests();
+                }
             },
 
 
@@ -233,28 +224,22 @@
              * @returns {Promise<Response | never>}
              */
             queryQuests() {
-                // this.retrievingDestinations = true;
-                // let searchTypeLocal = this.searchType;
-                // if (searchTypeLocal === "Any") {
-                //     searchTypeLocal = "";
-                // }
-                // let searchQuery =
-                //     "?name=" + this.searchName +
-                //     "&type_id=" + this.searchType +
-                //     "&district=" + this.searchDistrict +
-                //     "&latitude=" + this.searchLatitude +
-                //     "&longitude=" + this.searchLongitude +
-                //     "&country=" + this.searchCountry;
-                //
-                // return fetch(`/v1/destinations` + searchQuery, {
-                //     dataType: 'html'
-                // })
-                //     .then(this.checkStatus)
-                //     .then(this.parseJSON)
-                //     .then((data) => {
-                //         this.$emit('searched-destinations', data);
-                //         this.retrievingDestinations = false;
-                //     })
+                let searchQuery =
+                    "?title=" + this.searchTitle +
+                    "&operator=" + this.searchOperator +
+                    "&objective=" + this.searchNumberObjective +
+                    "&first_name=" + this.searchCreatedFirst +
+                    "&last_name=" + this.searchCreatedLast +
+                    "&country=" + this.searchCountry;
+
+                return fetch(`/v1/quests` + searchQuery, {
+                    dataType: 'html'
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then((data) => {
+                        this.$emit('searched-quests', data);
+                    })
             },
 
 

@@ -13,6 +13,9 @@ import java.util.*;
 @Entity
 public class Quest extends BaseModel {
 
+    @ElementCollection
+    private Map<String, Integer> countryOccurrences;
+
     /**
      * List of objectives to be solved in this quest.
      */
@@ -152,4 +155,13 @@ public class Quest extends BaseModel {
     public Profile getOwner() {
         return owner;
     }
+    public Map<String, Integer> getCountryOccurrences() {
+        return countryOccurrences;
+    }
+
+    public void setCountryOccurrences(Map<String, Integer> countryOccurrences) {
+        this.countryOccurrences = countryOccurrences;
+    }
+
+
 }

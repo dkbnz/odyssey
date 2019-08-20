@@ -3,10 +3,12 @@ package controllers.quests;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import io.ebean.ExpressionList;
 import models.ApiError;
 import models.Profile;
 import models.objectives.Objective;
 import models.quests.Quest;
+import org.springframework.core.env.Profiles;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -17,18 +19,29 @@ import util.AuthenticationUtil;
 import util.Views;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static play.mvc.Results.*;
+import static util.QueryUtil.queryComparator;
 
 public class QuestController {
 
     private QuestRepository questRepository;
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
+
+    private static final String TITLE = "title";
+    private static final String OPERATOR = "operator";
+    private static final String OBJECTIVE = "objectives";
+    private static final String FIRST_NAME = "first_name";
+    private static final String LAST_NAME = "last_name";
+    private static final String COUNTRY = "country";
+    private static final String ID = "id";
+    private static final String OWNER_ID = "owner_id";
+    private static final String COUNTRY_OCCURRENCES = "countryOccurrences.key";
+    private static final String EQUAL_TO = "=";
+    private static final String GREATER_THAN = ">";
+    private static final String LESS_THAN = "<";
 
     @Inject
     public QuestController(QuestRepository questRepository,
@@ -96,12 +109,37 @@ public class QuestController {
         }
 
 
+        newQuest.setCountryOccurrences(calculateCountryOccurrences(newQuest));
+
+
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
 
         questRepository.refresh(newQuest);
 
         return created(Json.toJson(newQuest));
+    }
+
+
+    /**
+     * Calculates the country occurrences by retrieving them from the objectives and counting them.
+     * Used in create and edit.
+     *
+     * @param quest         the quest for counting the objectives.
+     * @return              Map of country occurrences.
+     */
+    private Map<String, Integer> calculateCountryOccurrences(Quest quest) {
+        Map<String, Integer> countryOccurrences = new HashMap<>();
+        for(Objective objective : quest.getObjectives()) {
+            if (countryOccurrences.get(objective.getDestination().getCountry()) != null){
+                Integer count = countryOccurrences.get(objective.getDestination().getCountry());
+                count += 1;
+                countryOccurrences.put(objective.getDestination().getCountry(), count);
+            } else {
+                countryOccurrences.put(objective.getDestination().getCountry(), 1);
+            }
+        }
+        return countryOccurrences;
     }
 
 
@@ -158,6 +196,8 @@ public class QuestController {
             }
             newObjective.setDestination(destinationRepository.findById(newObjective.getDestination().getId()));
         }
+
+        quest.setCountryOccurrences(calculateCountryOccurrences(quest));
 
         Collection<ApiError> questEditErrors = quest.getErrors();
 
@@ -228,19 +268,7 @@ public class QuestController {
             return unauthorized(ApiError.unauthorized());
         }
 
-        List<Quest> questQuery = questRepository.findAll();
-        Calendar now = Calendar.getInstance();
-
-        List<Quest> quests = new ArrayList<>();
-
-        for (Quest quest: questQuery) {
-            if ((quest.getStartDate().before(now.getTime())
-                    || quest.getStartDate().compareTo(now.getTime()) == 0)
-                    && (quest.getEndDate().after(now.getTime())
-                    || quest.getEndDate().compareTo(now.getTime()) == 0)) {
-                quests.add(quest);
-            }
-        }
+        Set<Quest> quests = getQuestsQuery(request);
 
         ObjectMapper mapper = new ObjectMapper();
         String result;
@@ -288,7 +316,7 @@ public class QuestController {
 
 
     /**
-     * Retrieves all the profiles that have the specified quest currently active
+     * Retrieves all the profiles that have the specified the quest currently active
      *
      * @param request   the request from the front end of the application containing login information.
      * @param questId   the id of the quest that the active profiles are being retrieved for
@@ -310,5 +338,98 @@ public class QuestController {
         List<Profile> activeProfiles = profileRepository.findAllUsing(requestQuest);
 
         return ok(Json.toJson(activeProfiles));
+    }
+
+
+    /**
+     * Fetches all destinations based on Http request query parameters. This also includes pagination, destination
+     * ownership and the public or private query.
+     *
+     * @param request   Http request containing query parameters to filter results.
+     * @return          ok() (Http 200) response containing the destinations found in the response body, forbidden()
+     *                  (Http 403) if the user has tried to access destinations they are not authorised for.
+     */
+    private Set<Quest> getQuestsQuery(Http.Request request) {
+
+        Set<Quest> quests;
+
+        ExpressionList<Quest> expressionList = questRepository.getExpressionList();
+
+        if (request.getQueryString(TITLE) != null && !request.getQueryString(TITLE).isEmpty()) {
+            expressionList.ilike(TITLE, queryComparator(request.getQueryString(TITLE)));
+        }
+
+        /*
+        Checks the first and last name fields and finds appropriate id's from those names.
+        Then checks those id's in the quest table owner id to gather the resulting quests.
+         */
+        ExpressionList<Profile> profileExpressionList = profileRepository.getExpressionList();
+        boolean findByOwner = false;
+
+        if (request.getQueryString(FIRST_NAME) != null && !request.getQueryString(FIRST_NAME).isEmpty()) {
+            profileExpressionList.ilike(FIRST_NAME, queryComparator(request.getQueryString(FIRST_NAME)));
+            findByOwner = true;
+        }
+
+        if (request.getQueryString(LAST_NAME) != null && !request.getQueryString(LAST_NAME).isEmpty()) {
+            profileExpressionList.ilike(LAST_NAME, queryComparator(request.getQueryString(LAST_NAME)));
+            findByOwner = true;
+        }
+
+        if (findByOwner) {
+            List<Long> profiles = profileExpressionList
+                    .select(ID)
+                    .findSingleAttributeList();
+            expressionList.in(OWNER_ID, profiles);
+        }
+
+        if (request.getQueryString(COUNTRY) != null && !request.getQueryString(COUNTRY).isEmpty()) {
+            expressionList.in(COUNTRY_OCCURRENCES, request.getQueryString(COUNTRY));
+        }
+
+        quests = expressionList.findSet();
+
+
+        /*
+        Gets the quests and check if they are within the current time windows.
+        Also checks if the amount of objectives is correct to the query search.
+         */
+        Calendar now = Calendar.getInstance();
+        Set<Quest> allQuests = new HashSet<>();
+
+        if (request.getQueryString(OPERATOR) != null &&
+                !request.getQueryString(OPERATOR).isEmpty() &&
+                request.getQueryString(OBJECTIVE) != null &&
+                !request.getQueryString(OBJECTIVE).isEmpty()) {
+
+            for (Quest quest: quests) {
+
+                int objectiveSize = quest.getObjectives().size();
+
+                if ((quest.getStartDate().before(now.getTime())
+                    || quest.getStartDate().compareTo(now.getTime()) == 0)
+                    && (quest.getEndDate().after(now.getTime())
+                    || quest.getEndDate().compareTo(now.getTime()) == 0) &&
+                    (request.getQueryString(OPERATOR).equals(EQUAL_TO) &&
+                    objectiveSize == Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
+                    request.getQueryString(OPERATOR).equals(LESS_THAN) &&
+                    objectiveSize < Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
+                    request.getQueryString(OPERATOR).equals(GREATER_THAN) &&
+                    objectiveSize > Double.parseDouble(request.getQueryString(OBJECTIVE)))) {
+                    allQuests.add(quest);
+                }
+            }
+        } else {
+            for (Quest quest: quests) {
+                if ((quest.getStartDate().before(now.getTime())
+                        || quest.getStartDate().compareTo(now.getTime()) == 0)
+                        && (quest.getEndDate().after(now.getTime())
+                        || quest.getEndDate().compareTo(now.getTime()) == 0)) {
+                    allQuests.add(quest);
+                }
+            }
+        }
+
+        return allQuests;
     }
 }
