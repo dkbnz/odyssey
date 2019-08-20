@@ -32,7 +32,7 @@ recent-artifacts:
   stage: deploy
   script:
   - git lfs pull
-  - gitlab-runner sbt dist
+  - sbt dist
   artifacts:
     paths:
     - target/universal/*.zip
