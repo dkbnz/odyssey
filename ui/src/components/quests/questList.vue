@@ -442,8 +442,16 @@
                 if (this.profile.id !== undefined) {
                     return fetch(`/v1/quests/` + questToAttempt.id + `/attempt/` + this.profile.id, {
                         method: 'POST'
-                    }).then(data => {
-                        this.getMore();
+                    }).then(response => {
+                        if (response.ok) {
+                            this.getMore();
+                            this.$bvToast.toast('Quest added to active', {
+                                title: `Quest Added`,
+                                variant: "default",
+                                autoHideDelay: "3000",
+                                solid: true
+                            });
+                        }
                     })
                 }
             },

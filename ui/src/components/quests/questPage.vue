@@ -11,7 +11,8 @@
                 <b-tabs content-class="mt-3">
                     <b-tab title="Active Quests" @click="refreshQuests = !refreshQuests" active>
                         <active-quest-page
-                                :profile="profile">
+                                :profile="profile"
+                                :refresh-quests="refreshQuests">
 
                         </active-quest-page>
                     </b-tab>
