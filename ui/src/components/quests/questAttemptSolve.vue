@@ -153,6 +153,9 @@
                     .then((data) => {
                         if (data.guessResult) {
                             self.showDestinationSearch = false;
+                            self.showDestinationSearchCollapse = true;
+                            self.showSelectedDestination = false;
+                            self.selectedDestination = {};
                             self.guessSuccess = true;
                             self.$emit('updated-quest-attempt', data.attempt);
                             setTimeout(function() {
