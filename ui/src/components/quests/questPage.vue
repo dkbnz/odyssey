@@ -45,18 +45,19 @@
     import UnauthorisedPromptPage from "../helperComponents/unauthorisedPromptPage";
     import FooterMain from "../helperComponents/footerMain";
     import QuestList from "./questList";
+
     export default {
         name: "questPage",
 
         props: {
             profile: Object,
             containerClass: {
-                default: function() {
+                default: function () {
                     return null;
                 }
             },
             adminView: {
-                default: function() {
+                default: function () {
                     return false;
                 }
             },
@@ -98,8 +99,6 @@
                 })
             }
         },
-
-
 
 
         components: {

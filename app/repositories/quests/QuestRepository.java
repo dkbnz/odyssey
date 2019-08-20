@@ -7,10 +7,12 @@ import io.ebean.ExpressionList;
 import models.quests.Quest;
 
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 
+/**
+ * Handles database interaction for quests.
+ * Extends the BeanRepository containing all CRUD methods.
+ */
 public class QuestRepository extends BeanRepository<Long, Quest> {
 
     @Inject

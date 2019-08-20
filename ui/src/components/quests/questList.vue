@@ -52,14 +52,15 @@
                                            v-if="!creatingQuest && !editingQuest"
                                            draggable="false">
                             <div class="d-flex justify-content-center">
-                                <b-button variant="success"  @click="addQuest" block>Add a New Quest</b-button>
+                                <b-button variant="success" @click="addQuest" block>Add a New Quest</b-button>
                             </div>
                         </b-list-group-item>
                     </div>
                     <b-list-group-item v-for="quest in (foundQuests)" href="#"
                                        class="flex-column align-items-start"
                                        :key="quest.id"
-                                       draggable="false" v-if="!creatingQuest && !editingQuest && !(activeId === quest.id)">
+                                       draggable="false"
+                                       v-if="!creatingQuest && !editingQuest && !(activeId === quest.id)">
                         <b-row class="buttonMarginsTop">
                             <b-col>
                                 <h4>Title</h4>
@@ -147,7 +148,7 @@
                 <!-- Confirmation modal for deleting a quest. -->
                 <b-modal hide-footer id="deleteQuestModal" ref="deleteQuestModal" title="Delete Quest">
                     <div v-if="activeUsers > 0"
-                            class="d-block">
+                         class="d-block">
                         This quest is used by {{activeUsers}} users.
                     </div>
                     <div class="d-block">
@@ -275,7 +276,7 @@
                     {value: 5, text: "5"},
                     {value: 10, text: "10"},
                     {value: 15, text: "15"},
-                    {value:Infinity, text:"All"}],
+                    {value: Infinity, text: "All"}],
                 activeUsers: null
 
             }
@@ -294,7 +295,7 @@
                 if (this.showLocations) {
                     return "Hide";
                 }
-                setTimeout(function() {
+                setTimeout(function () {
                     if (document.getElementById("display-" + quest.id).hidden) {
                         console.log("HERE");
                     }
@@ -402,7 +403,7 @@
 
             /**
              * Changes creatingQuest to true to show the create quest window, and calls function to close edit
-             * windows,             *
+             * windows.
              */
             addQuest() {
                 this.creatingQuest = true;
@@ -411,7 +412,7 @@
 
 
             /**
-             * Changes the active quest ID to the inputted one, and sets creatingQuest to false to hide creation
+             * Changes the active quest id to the inputted one, and sets creatingQuest to false to hide creation
              * box.
              * @param quest     the quest to be changed to.
              */
@@ -424,7 +425,7 @@
 
 
             /**
-             * Changes the quest ID to the currently selected quest id.
+             * Changes the quest id to the currently selected quest id.
              * Dismisses the delete quest modal.
              *
              */
@@ -450,7 +451,6 @@
                         this.activeUsers = data.length;
                     });
             },
-
 
 
             /**

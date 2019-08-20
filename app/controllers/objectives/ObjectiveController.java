@@ -327,7 +327,7 @@ public class ObjectiveController {
      * request body.
      *
      * @param request           the request from the front end of the application containing login information.
-     * @param objectiveId    the id of the objective the user is trying to edit.
+     * @param objectiveId       the id of the objective the user is trying to edit.
      * @return                  unauthorized() (Http 401) if the user is not logged in.
      *                          notFound() (Http 404) if the objective id does not exist in the database.
      *                          forbidden() (Http 403) if the user is not the owner of the objective or is not an
@@ -400,7 +400,6 @@ public class ObjectiveController {
      *
      * @param request           the request from the front end of the application containing login information.
      * @param objectiveId       the id of the objective the user is trying to delete.
-     *
      * @return                  unauthorized() (Http 401) if the user is not logged in.
      *                          notFound() (Http 404) if the objective id does not exist in the database.
      *                          forbidden() (Http 403) if the user is not the owner of the objective or is not an

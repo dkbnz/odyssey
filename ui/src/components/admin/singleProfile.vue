@@ -14,12 +14,23 @@
                                 </b-img>
                                 {{editProfile.firstName}}
                             </b-navbar-brand>
-                            <b-nav-item @click="currentDisplay = 1" :class="{boldText: currentDisplay === 1}">Edit Profile</b-nav-item>
-                            <b-nav-item @click="currentDisplay = 2" :class="{boldText: currentDisplay === 2}">View Trips</b-nav-item>
-                            <b-nav-item @click="currentDisplay = 3" :class="{boldText: currentDisplay === 3}">Add Trips</b-nav-item>
-                            <b-nav-item @click="currentDisplay = 4" :class="{boldText: currentDisplay === 4}">Destinations</b-nav-item>
-                            <b-nav-item @click="currentDisplay = 5" :class="{boldText: currentDisplay === 5}">Objectives</b-nav-item>
-                            <b-nav-item @click="currentDisplay = 6" :class="{boldText: currentDisplay === 6}">Quests</b-nav-item>
+                            <b-nav-item @click="currentDisplay = 1" :class="{boldText: currentDisplay === 1}">Edit
+                                Profile
+                            </b-nav-item>
+                            <b-nav-item @click="currentDisplay = 2" :class="{boldText: currentDisplay === 2}">View
+                                Trips
+                            </b-nav-item>
+                            <b-nav-item @click="currentDisplay = 3" :class="{boldText: currentDisplay === 3}">Add
+                                Trips
+                            </b-nav-item>
+                            <b-nav-item @click="currentDisplay = 4" :class="{boldText: currentDisplay === 4}">
+                                Destinations
+                            </b-nav-item>
+                            <b-nav-item @click="currentDisplay = 5" :class="{boldText: currentDisplay === 5}">
+                                Objectives
+                            </b-nav-item>
+                            <b-nav-item @click="currentDisplay = 6" :class="{boldText: currentDisplay === 6}">Quests
+                            </b-nav-item>
                         </b-nav>
                     </b-collapse>
                     <b-navbar-toggle target="nav-collapse-admin"></b-navbar-toggle>

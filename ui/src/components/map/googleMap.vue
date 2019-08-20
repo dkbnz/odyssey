@@ -120,7 +120,7 @@
             /**
              * Calls the create circle function.
              */
-            radius: function() {
+            radius: function () {
                 this.createCircle();
             },
 
@@ -128,7 +128,7 @@
             /**
              * Calls the create circle function.
              */
-            selectedRadiusDestination: function() {
+            selectedRadiusDestination: function () {
                 this.createCircle();
             },
 
@@ -136,7 +136,7 @@
             /**
              * When show radius is changed run create circle function.
              */
-            showRadius: function() {
+            showRadius: function () {
                 this.createCircle();
             }
         },
@@ -148,10 +148,16 @@
              */
             createCircle() {
                 if (this.radiusMarker !== null) {
-                    this.radiusMarker.setPosition({lat: this.selectedRadiusDestination.latitude, lng: this.selectedRadiusDestination.longitude})
+                    this.radiusMarker.setPosition({
+                        lat: this.selectedRadiusDestination.latitude,
+                        lng: this.selectedRadiusDestination.longitude
+                    })
                 } else {
                     this.radiusMarker = new google.maps.Marker({
-                        position: {lat: this.selectedRadiusDestination.latitude, lng: this.selectedRadiusDestination.longitude},
+                        position: {
+                            lat: this.selectedRadiusDestination.latitude,
+                            lng: this.selectedRadiusDestination.longitude
+                        },
                         map: this.$map,
                         icon: this.privateMarker
                     });
@@ -182,7 +188,10 @@
                 } else {
                     this.$map.setZoom(this.radius >= 0.5 ? 11 : 16);
                 }
-                this.$map.panTo({lat: this.selectedRadiusDestination.latitude, lng: this.selectedRadiusDestination.longitude});
+                this.$map.panTo({
+                    lat: this.selectedRadiusDestination.latitude,
+                    lng: this.selectedRadiusDestination.longitude
+                });
             },
 
             /**
@@ -193,17 +202,18 @@
 
                 if (this.showRadius) {
                     this.$map = new google.maps.Map(this.$refs['map'], {
-                        center: {lat: this.selectedRadiusDestination.latitude, lng: this.selectedRadiusDestination.longitude},
+                        center: {
+                            lat: this.selectedRadiusDestination.latitude,
+                            lng: this.selectedRadiusDestination.longitude
+                        },
                         zoom: this.initial.zoom
                     });
                 } else {
-                this.$map = new google.maps.Map(this.$refs['map'], {
-                    center: this.initial.view,
-                    zoom: this.initial.zoom
-                });
+                    this.$map = new google.maps.Map(this.$refs['map'], {
+                        center: this.initial.view,
+                        zoom: this.initial.zoom
+                    });
                 }
-
-
 
                 this.$map
                     .controls[google.maps.ControlPosition.LEFT_BOTTOM]
