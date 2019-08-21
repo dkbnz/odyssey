@@ -40,7 +40,7 @@ public class QuestController {
 
     private static final String TITLE = "title";
     private static final String OPERATOR = "operator";
-    private static final String OBJECTIVE = "objectives";
+    private static final String OBJECTIVE = "objective";
     private static final String FIRST_NAME = "first_name";
     private static final String FIRST_NAME_QUERY = "owner.firstName";
     private static final String LAST_NAME_QUERY = "owner.lastName";
@@ -502,13 +502,13 @@ public class QuestController {
         /*
         Joins all quest if the amount of objectives is correct to the query search.
          */
-        if (QueryingObjectiveAmount(request)) {
+        if (queryingObjectiveAmount(request)) {
 
             Set<Quest> allQuests = new HashSet<>();
 
             for (Quest quest: quests) {
 
-                if (QuestHasCorrectObjectiveAmount(request, quest)) {
+                if (questHasCorrectObjectiveAmount(request, quest)) {
                     allQuests.add(quest);
                 }
             }
@@ -526,7 +526,7 @@ public class QuestController {
      * @return              true if the user is searching for specific objective count.
      *                      false if the user is not searching got a specific objective count.
      */
-    private boolean QueryingObjectiveAmount(Http.Request request) {
+    private boolean queryingObjectiveAmount(Http.Request request) {
         return request.getQueryString(OPERATOR) != null &&
                 !request.getQueryString(OPERATOR).isEmpty() &&
                 request.getQueryString(OBJECTIVE) != null &&
@@ -542,15 +542,15 @@ public class QuestController {
      * @return              true if the quest passes criteria.
      *                      false if the quest fails the criteria.
      */
-    private boolean QuestHasCorrectObjectiveAmount(Http.Request request, Quest quest) {
+    private boolean questHasCorrectObjectiveAmount(Http.Request request, Quest quest) {
         int objectiveSize = quest.getObjectives().size();
 
-        return request.getQueryString(OPERATOR).equals(EQUAL_TO) &&
-                objectiveSize == Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
-                request.getQueryString(OPERATOR).equals(LESS_THAN) &&
-                        objectiveSize < Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
-                request.getQueryString(OPERATOR).equals(GREATER_THAN) &&
-                        objectiveSize > Double.parseDouble(request.getQueryString(OBJECTIVE));
+        return (request.getQueryString(OPERATOR).equals(EQUAL_TO) &&
+                objectiveSize == Double.parseDouble(request.getQueryString(OBJECTIVE))) ||
+                (request.getQueryString(OPERATOR).equals(LESS_THAN) &&
+                        objectiveSize < Double.parseDouble(request.getQueryString(OBJECTIVE))) ||
+                (request.getQueryString(OPERATOR).equals(GREATER_THAN) &&
+                        objectiveSize > Double.parseDouble(request.getQueryString(OBJECTIVE)));
     }
 
 
