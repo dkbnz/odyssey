@@ -89,5 +89,8 @@ POST    /v1/quests/attempt/:attemptId/guess/:destinationId     controllers.quest
 POST    /v1/quests/attempt/:attemptId/checkIn                  controllers.quests.QuestController.checkIn(request: Request, attemptId: Long)
 GET     /v1/quests/profiles/:userId                            controllers.quests.QuestController.getQuestAttemptsByProfile(request: Request, userId: Long)
 
-# Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
-GET     /*file                                  controllers.Assets.at(path="/public", file)
+# Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production, but above redirect.
+GET     /static/*file                                  controllers.Assets.at(path="/public/static", file)
+
+# Anything else not found, send to index.html, let vue handle 404. Must stay at bottom of Routes for production.
+GET     /*anyUrl                                     controllers.VueRedirect.matchAll(anyUrl)

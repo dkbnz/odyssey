@@ -397,7 +397,7 @@ Feature: Quest API Endpoint
     And the application is running
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 5 quests
+    And the response contains 4 quests
 
 
   Scenario: Retrieve all quests that are available with additional invalid quest dates
@@ -419,7 +419,7 @@ Feature: Quest API Endpoint
     And the status code received is 201
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 5 quests
+    And the response contains 4 quests
 
 
   Scenario: Retrieve all quests that are available with additional valid quest dates
@@ -441,7 +441,7 @@ Feature: Quest API Endpoint
     And the status code received is 201
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 6 quests
+    And the response contains 4 quests
 
 
   Scenario: Retrieve all quests that have the title 'Cool Quest'
@@ -475,6 +475,7 @@ Feature: Quest API Endpoint
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
     And I create the quest
     And the status code received is 201
+    And I am logged in as an alternate user
     When I attempt to retrieve all quests with title 'Cool Quest'
     Then the status code received is 200
     And the response contains 1 quests
@@ -505,6 +506,7 @@ Feature: Quest API Endpoint
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
     And I create the quest
     And the status code received is 201
+    And I am logged in as an alternate user
     When I attempt to retrieve all quests with exactly 3 objectives
     Then the status code received is 200
     And the response contains 2 quests
@@ -535,9 +537,10 @@ Feature: Quest API Endpoint
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
     And I create the quest
     And the status code received is 201
+    And I am logged in as an alternate user
     When I attempt to retrieve all quests with less than 3 objectives
     Then the status code received is 200
-    And the response contains 4 quests
+    And the response contains 3 quests
 
 
   Scenario: Retrieve all quests that have greater than 3 objectives
@@ -568,6 +571,7 @@ Feature: Quest API Endpoint
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
     And I create the quest
     And the status code received is 201
+    And I am logged in as an alternate user
     When I attempt to retrieve all quests with greater than 3 objectives
     Then the status code received is 200
     And the response contains 2 quests
@@ -599,9 +603,10 @@ Feature: Quest API Endpoint
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
     And I create the quest
     And the status code received is 201
+    And I am logged in as an alternate user
     When I attempt to retrieve all quests created by the user 'Dave' 'McInloch'
     Then the status code received is 200
-    And the response contains 6 quests
+    And the response contains 5 quests
 
 
   Scenario: Retrieve all quests that are contained the country of 'New Zealand'
@@ -630,6 +635,7 @@ Feature: Quest API Endpoint
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
     And I create the quest
     And the status code received is 201
+    And I am logged in as an alternate user
     When I attempt to retrieve all quests that contain the country 'New Zealand'
     Then the status code received is 200
     And the response contains 2 quests
@@ -913,3 +919,23 @@ Feature: Quest API Endpoint
     Then the status code received is 401
     And the following ApiErrors are returned
       | You are not logged in. |
+
+
+  Scenario: Completing a quest as a regular user
+    Given I am logged in
+    And the application is running
+    And a quest exists with id 3
+    And I have started a quest with id 3
+    When I check in to the quest with id 3
+    Then the status code received is 200
+    And the quest is completed
+
+
+  Scenario: Completing a quest as a regular user
+    Given I am logged in
+    And the application is running
+    And a quest exists with id 3
+    And I have started a quest with id 3
+    When I check in to the quest with id 3
+    Then the status code received is 200
+    And the quest is completed
