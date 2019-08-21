@@ -152,8 +152,7 @@ public class PhotoController extends Controller {
         personalPhoto.setPublic(isPublic);
         personalPhoto.setProfile(profileToAdd);
 
-        profileToAdd.addPhotoToGallery(personalPhoto);
-        profileRepository.update(profileToAdd);
+        personalPhotoRepository.save(personalPhoto);
     }
 
 
