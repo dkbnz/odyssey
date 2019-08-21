@@ -24,14 +24,23 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
     }
 
 
-
-
     /**
      * Retrieve a List of Quests that contain an Objective with the given country string as the Destination.
      *
      * @param country   the Country to find.
      * @return          a List of Quests that have the given country as an occurrence.
      */
+    public HashSet<Quest> findAllUsing(String country) {
+        return (HashSet<Quest>) query().where().in("countryOccurrences.key", country).findSet();
+    }
+
+
+    /**
+     * Gets the expression list to build the search query for quests.
+     * @return          an expression list with object type Quest.
+     */
+    public ExpressionList<Quest> getExpressionList() {
+        return query().where();
     public HashSet<Quest> findAllUsing(String country) {
         return (HashSet<Quest>) query().where().in("countryOccurrences.key", country).findSet();
     }
@@ -49,14 +58,5 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
                 .eq("attempts.attemptedBy", profile)
                 .eq("attempts.completed", true)
                 .findList();
-    }
-
-
-    /**
-     * Gets the expression list to build the search query for quests.
-     * @return          an expression list with object type Quest.
-     */
-    public ExpressionList<Quest> getExpressionList() {
-        return query().where();
     }
 }
