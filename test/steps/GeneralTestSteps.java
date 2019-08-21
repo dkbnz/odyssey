@@ -16,6 +16,7 @@ import play.test.Helpers;
 import repositories.profiles.ProfileRepository;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
