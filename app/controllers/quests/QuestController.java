@@ -322,16 +322,6 @@ public class QuestController {
         }
         List<Profile> activeProfiles = profileRepository.findAllUsing(requestQuest);
 
-        // TODO: Cam
-//        ObjectMapper mapper = new ObjectMapper();
-//        String result;
-//        try {
-//            result = mapper
-//                    .writerWithView(Views.Public.class)
-//                    .writeValueAsString(activeProfiles);
-//        } catch (JsonProcessingException e) {
-//            return badRequest(ApiError.invalidJson());
-//        }
         return ok(Json.toJson(activeProfiles));
     }
 
