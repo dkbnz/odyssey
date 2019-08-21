@@ -465,20 +465,14 @@
                             // Refresh quests
                             this.getMore();
 
-                            // Display 'created' toast
-                            this.$bvToast.toast('Quest added to active', {
-                                title: `Quest Added`,
-                                variant: "default",
-                                autoHideDelay: "3000",
-                                solid: true
-                            });
+                            this.showSuccess("Quest started");
 
                             // If 'start now' is clicked
                             if (viewActive) {
                                 this.changeToActiveTab(questToAttempt);
                             }
                         }
-                    })
+                    });
                 }
             },
 
