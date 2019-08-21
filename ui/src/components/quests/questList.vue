@@ -466,26 +466,21 @@
                         method: 'POST'
                     }).then(response => {
                         if (response.ok) {
-                            // Refresh quests
-                            this.getMore();
-
-                            this.showSuccess("Quest started");
-
+                        }
+                        return response;
+                    }).then(response => response.json())
+                        .then(data => {
                             // If 'start now' is clicked
                             if (viewActive) {
-                                this.changeToActiveTab(questToAttempt);
+                                this.$emit('start-quest-now', data);
+                            } else {
+                                // Refresh quests
+                                this.getMore();
+                                this.showSuccess("Quest started");
+                                this.$emit('start-quest-later', data);
                             }
-                        }
-                    });
+                        });
                 }
-            },
-
-
-            /**
-             * Emits and event to prompt the quest page to switch the current tab to the active quests tab.
-             */
-            changeToActiveTab(quest) {
-                this.$emit('change-to-active', quest);
             },
 
 

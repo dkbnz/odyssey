@@ -12,7 +12,7 @@
                 <b-card class="w-100 h-100">
                     <quest-attempt-solve
                             :quest-attempt="selectedQuestAttempt"
-                            @updated-quest-attempt="updateQuestAttempt">
+                            @updated-quest-attempt="updateQuestAttempts">
                     </quest-attempt-solve>
                 </b-card>
             </b-col>
@@ -29,7 +29,7 @@
         props: {
             profile: Object,
             refreshQuests: Boolean,
-            activeQuest: Object
+            newQuestAttempt: Object
         },
 
         mounted() {
@@ -45,8 +45,9 @@
                 this.queryYourActiveQuests();
             },
 
-            activeQuest() {
-                this.checkIfActiveSelected();
+            newQuestAttempt() {
+                //If new quest attempt changes, user has selected a new quest attempt, add to list and select it
+                this.updateQuestAttempts(this.newQuestAttempt)
             }
         },
 
@@ -88,30 +89,17 @@
              *
              * @param questAttempt  the quest attempt to update.
              */
-            updateQuestAttempt(questAttempt) {
+            updateQuestAttempts(questAttempt) {
                 let foundIndex = this.questAttempts.findIndex(x => x.id === questAttempt.id);
-                this.questAttempts.splice(foundIndex, 1, questAttempt);
-                this.selectedQuestAttempt = questAttempt;
-            },
 
-
-            /**
-             * Checks to see if a quest is being passed to this component. It finds the quest attempt relating to that quest,
-             * and sets it to the selectedQuestAttempt.
-             * This occurs when the user selects to set a quest to active.
-             */
-            checkIfActiveSelected() {
-                if (this.activeQuest !== null) {
-                    let self = this;
-                    this.queryYourActiveQuests().then(function() {
-                        for (let i = 0; i < self.questAttempts.length; i++) {
-                            let currentQuest = self.questAttempts[i].questAttempted;
-                            if (currentQuest.id === self.activeQuest.id) {
-                                self.selectedQuestAttempt = self.questAttempts[i];
-                            }
-                        }
-                    })
+                // If quest attempt found, replace it in the array, otherwise add to quest attempts.
+                if (foundIndex !== -1) {
+                    this.questAttempts.splice(foundIndex, 1, questAttempt);
+                } else {
+                    this.questAttempts.push(questAttempt);
                 }
+
+                this.selectedQuestAttempt = questAttempt;
             }
         }
     }
