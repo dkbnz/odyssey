@@ -60,9 +60,9 @@
             /**
              * Redirects the user to their home page when they log in.
              */
-            profile: function() {
+            profile: function () {
                 if (this.profile.id !== undefined) {
-                    if (this.profile.isAdmin) {
+                    if (this.profile.admin) {
                         this.$router.replace("/admin");
                     } else {
                         this.$router.replace("/dash");

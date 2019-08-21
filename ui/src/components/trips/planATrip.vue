@@ -177,7 +177,7 @@
                                 </b-button>
                                 <!--Removes destination from table-->
                                 <b-button size="sm"
-                                          @click="deleteDestination(row.index)"
+                                          @click="deleteDestination(row.item)"
                                           variant="danger"
                                           class="mr-2"
                                           block>Delete
@@ -469,9 +469,10 @@
             /**
              * Method to delete a destination from the list of trip destinations.
              *
-             * @param rowIndex      the index of the row in the table.
+             * @param destination      the destination that is to be deleted.
              */
-            deleteDestination(rowIndex) {
+            deleteDestination(destination) {
+                let rowIndex = this.inputTrip.destinations.indexOf(destination);
                 this.inputTrip.destinations.splice(rowIndex, 1);
             },
 

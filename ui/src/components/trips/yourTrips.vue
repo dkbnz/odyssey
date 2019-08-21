@@ -604,7 +604,7 @@
              */
             getPermissions() {
                 this.hasPermission = (this.userProfile.id === this.profile.id ||
-                    (this.userProfile.isAdmin && this.adminView));
+                    (this.userProfile.admin && this.adminView));
             },
 
 

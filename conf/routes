@@ -38,7 +38,7 @@ GET     /v1/destinations/:destinationId/checkDuplicates     controllers.destinat
 POST    /v1/destinationsCheckEdit               controllers.destinations.DestinationController.getDestinationUsageEdited(request: Request)
 DELETE  /v1/destinations/:destinationId         controllers.destinations.DestinationController.destroy(request: Request, destinationId: Long)
 
-POST    /v1/destinations/:destinationId/travellerTypes              controllers.destinations.DestinationTravellerTypeController.create(request: Request, destinationId: Long)
+POST    /v1/destinations/:destinationId/travellerTypes              controllers.destinations.DestinationTravellerTypeController.addTravellerTypes(request: Request, destinationId: Long)
 POST    /v1/destinations/:destinationId/travellerTypes/propose      controllers.destinations.DestinationTravellerTypeController.propose(request: Request, destinationId: Long)
 
 # Trips
@@ -63,13 +63,20 @@ DELETE  /v1/profilePhoto/:userId                controllers.photos.PhotoControll
 POST    /v1/destinationPhotos/:destinationId    controllers.photos.PhotoController.addDestinationPhoto(request: Request, destinationId: Long)
 DELETE  /v1/destinationPhotos/:destinationId    controllers.photos.PhotoController.removeDestinationPhoto(request: Request, destinationId: Long)
 
-# Treasure Hunts
-GET     /v1/treasureHunts                       controllers.treasureHunts.TreasureHuntController.fetchAll(request: Request)
-GET     /v1/treasureHunts/:userId               controllers.treasureHunts.TreasureHuntController.fetchByOwner(request: Request, userId: Long)
-GET     /v1/treasureHuntDest/:treasureHuntId    controllers.treasureHunts.TreasureHuntController.fetchDestination(request: Request, treasureHuntId: Long)
-POST    /v1/treasureHunts/:userId               controllers.treasureHunts.TreasureHuntController.create(request: Request, userId: Long)
-PUT     /v1/treasureHunts/:treasureHuntId       controllers.treasureHunts.TreasureHuntController.edit(request: Request, treasureHuntId: Long)
-DELETE  /v1/treasureHunts/:treasureHuntId       controllers.treasureHunts.TreasureHuntController.delete(request: Request, treasureHuntId: Long)
+# Objectives
+GET     /v1/objectives                                 controllers.objectives.ObjectiveController.fetchAll(request: Request)
+GET     /v1/objectives/:userId                         controllers.objectives.ObjectiveController.fetchByOwner(request: Request, userId: Long)
+POST    /v1/objectives/:userId                         controllers.objectives.ObjectiveController.create(request: Request, userId: Long)
+PUT     /v1/objectives/:objectiveId                    controllers.objectives.ObjectiveController.edit(request: Request, objectiveId: Long)
+DELETE  /v1/objectives/:objectiveId                    controllers.objectives.ObjectiveController.delete(request: Request, objectiveId: Long)
+
+# Quests
+GET     /v1/quests                              controllers.quests.QuestController.fetchAll(request: Request)
+GET     /v1/quests/:userId                      controllers.quests.QuestController.fetchByOwner(request: Request, userId: Long)
+POST    /v1/quests/:userId                      controllers.quests.QuestController.create(request: Request, userId: Long)
+PUT     /v1/quests/:userId                      controllers.quests.QuestController.edit(request: Request, userId: Long)
+DELETE  /v1/quests/:questId                     controllers.quests.QuestController.delete(request: Request, questId: Long)
+GET     /v1/quests/:questId/profiles            controllers.quests.QuestController.fetchActiveUsers(request: Request, questId: Long)
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production.
 GET     /*file                                  controllers.Assets.at(path="/public", file)
