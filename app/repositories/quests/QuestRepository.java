@@ -6,8 +6,6 @@ import io.ebean.Ebean;
 import models.profiles.Profile;
 import io.ebean.ExpressionList;
 import models.quests.Quest;
-
-import java.util.HashSet;
 import java.util.List;
 
 
@@ -17,20 +15,12 @@ import java.util.List;
  */
 public class QuestRepository extends BeanRepository<Long, Quest> {
 
+    private static final String ATTEMPTED_BY = "attempts.attemptedBy";
+    private static final String COMPLETED = "attempts.completed";
+
     @Inject
     public QuestRepository() {
         super(Quest.class, Ebean.getDefaultServer());
-    }
-
-
-    /**
-     * Retrieve a List of Quests that contain an Objective with the given country string as the Destination.
-     *
-     * @param country   the Country to find.
-     * @return          a List of Quests that have the given country as an occurrence.
-     */
-    public HashSet<Quest> findAllUsing(String country) {
-        return (HashSet<Quest>) query().where().in("countryOccurrences.key", country).findSet();
     }
 
 
@@ -52,8 +42,8 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
     public List<Quest> findAllCompleted(Profile profile) {
         return  query()
                 .where()
-                .eq("attempts.attemptedBy", profile)
-                .eq("attempts.completed", true)
+                .eq(ATTEMPTED_BY, profile)
+                .eq(COMPLETED, true)
                 .findList();
     }
 }

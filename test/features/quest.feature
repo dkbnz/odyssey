@@ -690,7 +690,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with exactly 3 objectives
     Then the status code received is 200
-    And the response contains 2 quests
+    And the response contains 6 quests
 
 
   Scenario: Retrieve all quests that have less than 3 objectives
@@ -721,7 +721,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with less than 3 objectives
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 6 quests
 
 
   Scenario: Retrieve all quests that have greater than 3 objectives
@@ -755,7 +755,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with greater than 3 objectives
     Then the status code received is 200
-    And the response contains 2 quests
+    And the response contains 6 quests
 
 
   Scenario: Retrieve all quests that were made by the owner

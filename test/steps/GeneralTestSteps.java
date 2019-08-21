@@ -84,8 +84,8 @@ public class GeneralTestSteps {
     /**
      * Date buffers to ensure the tests always pass.
      */
-    public static final int START_DATE_BUFFER = -10;
-    public static final int END_DATE_BUFFER = 10;
+    private static final int START_DATE_BUFFER = -10;
+    private static final int END_DATE_BUFFER = 10;
 
 
     /**

@@ -17,6 +17,11 @@ import java.util.List;
 public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
 
     private static final String ATTEMPTED_PROFILE = "attemptedBy";
+    private static final String START_DATE = "questAttempted.startDate";
+    private static final String END_DATE = "questAttempted.endDate";
+    private static final String QUEST_ATTEMPTED = "questAttempted";
+    private static final String COMPLETED = "completed";
+    private static final String QUEST_ATTEMPTED_ID = "questAttempted.id";
 
     @Inject
     public QuestAttemptRepository() {
@@ -32,10 +37,10 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
      */
     public boolean exists(QuestAttempt questAttempt) {
         return query().where()
-                .lt("questAttempted.startDate", new Date())
-                .gt("questAttempted.endDate", new Date())
+                .lt(START_DATE, new Date())
+                .gt(END_DATE, new Date())
                 .eq(ATTEMPTED_PROFILE, questAttempt.getAttemptedBy())
-                .eq("questAttempted", questAttempt.getQuestAttempted())
+                .eq(QUEST_ATTEMPTED, questAttempt.getQuestAttempted())
                 .exists();
     }
 
@@ -48,8 +53,8 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
     public List<QuestAttempt> findAllUsing(Profile requestedProfile) {
         return query().where()
                 .eq(ATTEMPTED_PROFILE, requestedProfile)
-                .lt("questAttempted.startDate", new Date())
-                .gt("questAttempted.endDate", new Date())
+                .lt(START_DATE, new Date())
+                .gt(END_DATE, new Date())
                 .findList();
     }
 
@@ -62,9 +67,9 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
     public List<QuestAttempt> findAllUsing(Profile requestedProfile, boolean allowCompleted) {
         return query().where()
                 .eq(ATTEMPTED_PROFILE, requestedProfile)
-                .lt("questAttempted.startDate", new Date())
-                .gt("questAttempted.endDate", new Date())
-                .eq("completed", allowCompleted)
+                .lt(START_DATE, new Date())
+                .gt(END_DATE, new Date())
+                .eq(COMPLETED, allowCompleted)
                 .findList();
     }
 
@@ -78,9 +83,9 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
     public List<QuestAttempt> findAllUsing(Profile requestedProfile, Long questId) {
         return query().where()
                 .eq(ATTEMPTED_PROFILE, requestedProfile)
-                .eq("questAttempted.id", questId)
-                .lt("questAttempted.startDate", new Date())
-                .gt("questAttempted.endDate", new Date())
+                .eq(QUEST_ATTEMPTED_ID, questId)
+                .lt(START_DATE, new Date())
+                .gt(END_DATE, new Date())
                 .findList();
     }
 }
