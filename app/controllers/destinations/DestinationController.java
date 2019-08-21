@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.ExpressionList;
-import models.TravellerType;
+import models.profiles.TravellerType;
 import models.destinations.Type;
 import models.photos.PersonalPhoto;
 import models.objectives.Objective;
@@ -16,14 +16,14 @@ import play.mvc.Result;
 import com.google.inject.Inject;
 import java.util.*;
 
-import models.Profile;
+import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
-import repositories.TripRepository;
+import repositories.trips.TripRepository;
 import repositories.destinations.DestinationRepository;
-import repositories.ProfileRepository;
-import repositories.TripDestinationRepository;
+import repositories.profiles.ProfileRepository;
+import repositories.trips.TripDestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.objectives.ObjectiveRepository;
 import util.AuthenticationUtil;
@@ -158,7 +158,7 @@ public class DestinationController extends Controller {
     /**
      * Return a Json object listing all destination types in the database.
      *
-     * @return ok() (Http 200) response containing all the different types of destinations.
+     * @return          ok() (Http 200) response containing all the different types of destinations.
      */
     public Result getTypes() {
         List<Type> destinationTypes = destinationTypeRepository.findAll();
@@ -170,7 +170,7 @@ public class DestinationController extends Controller {
      * Fetches all destinations based on Http request query parameters. This also includes pagination, destination
      * ownership and the public or private query.
      *
-     * @param request   Http request containing query parameters to filter results.
+     * @param request   an Http request containing query parameters to filter results.
      * @return          ok() (Http 200) response containing the destinations found in the response body, forbidden()
      *                  (Http 403) if the user has tried to access destinations they are not authorised for.
      */
@@ -259,7 +259,10 @@ public class DestinationController extends Controller {
     /**
      * Fetches all destinations by user.
      *
-     * @return ok() (Http 200) response containing the destinations found in the response body.
+     * @return          ok() (Http 200) response containing the destinations found in the response body.
+     *                  unauthorized() (Http 401) if the user is not logged in.
+     *                  badRequest() (Http 400) if the requested profile doesn't exist.
+     *                  forbidden() (Http 403) if the user is not allowed to complete this action.
      */
     public Result fetchByUser(Http.Request request, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -341,21 +344,13 @@ public class DestinationController extends Controller {
      * @return                  true if the destination does not exist in the appropriate database tables.
      */
     private boolean destinationDoesNotExist(JsonNode json, Profile profileToChange) {
-        String name = json.get(NAME).asText();
-        String district = json.get(DISTRICT).asText();
+        Destination destinationToAdd = Json.fromJson(json, Destination.class);
 
-        List<Destination> destinations = destinationRepository.getExpressionList()
-                .ilike(NAME, name)
-                .ilike(DISTRICT, district)
-                .disjunction()
-                    .eq(IS_PUBLIC, true)
-                    .conjunction()
-                        .eq(IS_PUBLIC, false)
-                        .eq(OWNER, profileToChange)
-                    .endJunction()
-                .endJunction()
-                .findList();
-        return (destinations.isEmpty());
+        destinationToAdd.setOwner(profileToChange);
+        destinationToAdd.setType(destinationTypeRepository.findById(json.get(TYPE).asLong()));
+        List<Destination> similarDestinations = destinationRepository.findEqualFromAvailable(destinationToAdd);
+
+        return similarDestinations.isEmpty();
     }
 
 
@@ -363,7 +358,7 @@ public class DestinationController extends Controller {
      * Saves a new destination. Checks the destination to be saved doesn't already exist in the database.
      *
      * @param request   Http request containing a Json body of the new destination details.
-     * @return          Http response created() (Http 201) when the destination is saved. If a destination with
+     * @return          created() (Http 201) when the destination is saved. If a destination with
      *                  the same name and district already exists in the database, returns badRequest() (Http 400).
      */
     public Result save(Http.Request request, Long userId) {
@@ -391,6 +386,7 @@ public class DestinationController extends Controller {
                     if (!validInput(json)) {
                         return badRequest("Invalid input.");
                     }
+
                     if (destinationDoesNotExist(json, profileToChange)) {
                         Destination destination = createNewDestination(json, profileToChange);
                         destinationRepository.save(destination);
@@ -437,7 +433,8 @@ public class DestinationController extends Controller {
      *
      * @param destinationId     the id of the destination.
      * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if
-     *                          successfully deleted.
+     *                          successfully deleted. unauthorized() (Http 401) if the user is not logged in.
+     *                          forbidden() (Http 403) if he user is not allowed to delete the specified destination.
      */
     public Result destroy(Http.Request request, Long destinationId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -466,6 +463,9 @@ public class DestinationController extends Controller {
      * @param id        the id of the destination.
      * @param request   Http request containing a Json body of fields to update in the destination.
      * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
+     *                  unauthorized() (Http 401) if the user is not logged in, forbidden() (Http 403) if the user
+     *                  is not allowed to edit the destination. badRequest() (Http 400) if the latitude or longitude
+     *                  values for the destination are invalid.
      */
     public Result edit(Http.Request request, Long id) throws IllegalAccessException {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);

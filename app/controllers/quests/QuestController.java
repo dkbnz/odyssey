@@ -4,10 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
-import io.ebean.Expr;
 import io.ebean.ExpressionList;
-import models.ApiError;
-import models.Profile;
+import models.util.ApiError;
+import models.profiles.Profile;
 import models.destinations.Destination;
 import models.objectives.Objective;
 import models.quests.Quest;
@@ -15,7 +14,7 @@ import models.quests.QuestAttempt;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
@@ -301,9 +300,8 @@ public class QuestController {
     }
 
 
-
     /**
-     * Retrieves all the profiles that have the specified quest currently active
+     * Retrieves all the profiles that have the specified quest as active.
      *
      * @param request   the request from the front end of the application containing login information.
      * @param questId   the id of the quest that the active profiles are being retrieved for
@@ -399,8 +397,7 @@ public class QuestController {
             return notFound(ApiError.notFound());
         }
 
-        List<QuestAttempt> questAttempts = questAttemptRepository.findAllUsing(requestedUser);
-
+        List<QuestAttempt> questAttempts = questAttemptRepository.findAllUsing(requestedUser, false);
 
         return getCorrectView(AuthenticationUtil.validUser(loggedInUser, requestedUser), questAttempts);
     }

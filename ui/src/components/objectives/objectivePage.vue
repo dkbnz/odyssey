@@ -61,18 +61,19 @@
     import FoundDestinations from "../destinations/destinationSearchList";
     import ObjectiveList from "./objectiveList";
     import FooterMain from "../helperComponents/footerMain";
+
     export default {
         name: "objectivePage",
 
         props: {
             profile: Object,
             containerClass: {
-                default: function() {
+                default: function () {
                     return null;
                 }
             },
             adminView: {
-                default: function() {
+                default: function () {
                     return false;
                 }
             },

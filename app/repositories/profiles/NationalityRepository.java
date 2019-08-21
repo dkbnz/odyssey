@@ -1,9 +1,9 @@
-package repositories;
+package repositories.profiles;
 
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
-import models.Nationality;
+import models.profiles.Nationality;
 
 
 /**

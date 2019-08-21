@@ -21,7 +21,6 @@ public class ObjectiveRepository extends BeanRepository<Long, Objective> {
     }
 
 
-
     /**
      * Retrieve all objectives that use the destination.
      *

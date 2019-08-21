@@ -3,30 +3,31 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.Assets;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import models.Profile;
+import models.profiles.Profile;
 import models.objectives.Objective;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
 import org.junit.Assert;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 import repositories.objectives.ObjectiveRepository;
 import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
-import static play.mvc.Http.HttpVerbs.OPTIONS;
 import static play.mvc.Http.HttpVerbs.PUT;
 import static play.test.Helpers.*;
 
@@ -36,6 +37,12 @@ public class QuestTestSteps {
      * Singleton class which stores generally used variables.
      */
     private TestContext testContext = TestContext.getInstance();
+
+
+    /**
+     * New instance of the general test steps.
+     */
+    private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
 
 
     /**
@@ -128,13 +135,6 @@ public class QuestTestSteps {
 
 
     /**
-     * Date buffers to ensure the tests always pass.
-     */
-    private static final int START_DATE_BUFFER = -10;
-    private static final int END_DATE_BUFFER = 10;
-
-
-    /**
      * Authorisation token for sessions
      */
     private static final String AUTHORIZED = "authorized";
@@ -150,6 +150,18 @@ public class QuestTestSteps {
      * The quest attempt URI endpoint.
      */
     private static final String QUEST_ATTEMPT_URI = "/attempt/";
+
+
+    /**
+     * The quest attempt guess URI endpoint.
+     */
+    private static final String GUESS_URI = "/guess/";
+
+
+    /**
+     * The quest attempt check in URI endpoint.
+     */
+    private static final String CHECK_IN_URI = "/checkIn";
 
 
     /**
@@ -173,7 +185,7 @@ public class QuestTestSteps {
     /**
      * The id of the newly created quest attempt.
      */
-    private Long questAttemptId;
+    private String questAttemptId;
 
 
     private ObjectNode questObjectJson;
@@ -219,11 +231,11 @@ public class QuestTestSteps {
         String endDate           = list.get(index).get(END_DATE_STRING);
 
         if (startDate.isEmpty()) {
-            startDate = getDateBuffer(true);
+            startDate = generalTestSteps.getDateBuffer(true);
         }
 
         if (endDate.isEmpty()) {
-            endDate = getDateBuffer(false);
+            endDate = generalTestSteps.getDateBuffer(false);
         }
 
         //Add values to a JsonNode
@@ -257,25 +269,6 @@ public class QuestTestSteps {
         json.put(OBJECTIVE_RIDDLE, riddle);
         json.put(OBJECTIVE_RADIUS, radius);
         questObjectivesJson.add(json);
-    }
-
-
-    /**
-     * Creates a new datetime object from today's date. This is then used to ensure our tests will always pass, as a
-     * buffer is used to make the start date before today and the end date after today.
-     *
-     * @param isStartDate   boolean value to determine if the date being changed is the start or the end date.
-     * @return              the start or end date, which is modified by the necessary date buffer.
-     */
-    private String getDateBuffer(boolean isStartDate) {
-        Calendar calendar = Calendar.getInstance();
-
-        if (isStartDate) {
-            calendar.add(Calendar.DATE, START_DATE_BUFFER);
-        }
-        calendar.add(Calendar.DATE, END_DATE_BUFFER);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:MM:ssZ");
-        return sdf.format(calendar.getTime());
     }
 
 
@@ -496,12 +489,57 @@ public class QuestTestSteps {
         if (testContext.getStatusCode() < 400) {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode actualObj = mapper.readTree(testContext.getResponseBody());
-            questAttemptId = Long.parseLong(actualObj.get(ID).toString());
+            questAttemptId = actualObj.get(ID).toString();
         } else {
             questAttemptId = null;
         }
     }
 
+
+    /**
+     * Send a request to guess the current destination for a quest attempt given by global questAttemptId.
+     *
+     * @param destinationId         the destination id to guess for the quest attempt.
+     */
+    private void guessDestinationForQuest(Integer destinationId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(QUEST_URI + QUEST_ATTEMPT_URI + questAttemptId + GUESS_URI + destinationId)
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    /**
+     * Test if a given quest attempt has the correct json schema.
+     *
+     * @param questAttempt the quest attempt to check.
+     */
+    private void validateQuestAttempt(JsonNode questAttempt) {
+        Assert.assertTrue(questAttempt.has("id"));
+        Assert.assertTrue(questAttempt.has("questAttempted"));
+        Assert.assertTrue(questAttempt.has("solved"));
+        Assert.assertTrue(questAttempt.has("toCheckIn"));
+        Assert.assertTrue(questAttempt.has("toSolve"));
+        Assert.assertTrue(questAttempt.has("unsolved"));
+        Assert.assertTrue(questAttempt.has("progress"));
+    }
+
+
+    /**
+     * Send a check in request for a quest attempt given by global questAttemptId.
+     */
+    private void sendCheckInRequest() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(QUEST_URI + QUEST_ATTEMPT_URI + questAttemptId + CHECK_IN_URI)
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
 
 
     @Given("a quest already exists with the following values")
@@ -742,6 +780,32 @@ public class QuestTestSteps {
     }
 
 
+    @When("^I guess destination id (\\d+)$")
+    public void iGuessDestinationIdForQuest(Integer destinationId) {
+        guessDestinationForQuest(destinationId);
+    }
+
+
+    @When("^I guess destination id (\\d+) for quest attempt (\\d+)$")
+    public void iGuessDestinationIdForQuestAttempt(Integer destinationId, Integer questAttemptId) {
+        this.questAttemptId = questAttemptId.toString();
+        guessDestinationForQuest(destinationId);
+    }
+
+
+    @When("I check in")
+    public void iCheckIn() {
+        sendCheckInRequest();
+    }
+
+
+    @When("^I check in for quest attempt (\\d+)$")
+    public void iCheckInForQuestAttempt(Integer questAttemptId) {
+        this.questAttemptId = questAttemptId.toString();
+        sendCheckInRequest();
+    }
+
+
     @Then("^the response contains (\\d+) quests$")
     public void theResponseContainsQuests(int numberOfQuests) throws IOException {
         int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
@@ -765,19 +829,47 @@ public class QuestTestSteps {
 
     @Then("the new quest attempt exists")
     public void theNewQuestAttemptExists() {
-        Assert.assertNotNull(questAttemptRepository.findById(questAttemptId));
+        Assert.assertNotNull(questAttemptRepository.findById(Long.valueOf(questAttemptId)));
     }
 
 
     @Then("the response has owner view")
     public void theResponseHasOwnerView() throws IOException {
-        JsonNode destinationField = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(OBJECTIVES).get(0).get(OBJECTIVE_DESTINATION);
+        JsonNode destinationField = new ObjectMapper()
+                .readTree(testContext.getResponseBody()).get(0)
+                .get(OBJECTIVES).get(0)
+                .get(OBJECTIVE_DESTINATION);
         Assert.assertNotNull(destinationField);
     }
 
+
     @Then("the response has public view")
     public void theResponseHasPublicView() throws IOException {
-        JsonNode destinationField = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(OBJECTIVES).get(0).get(OBJECTIVE_DESTINATION);
+        JsonNode destinationField = new ObjectMapper()
+                .readTree(testContext.getResponseBody()).get(0)
+                .get(OBJECTIVES).get(0)
+                .get(OBJECTIVE_DESTINATION);
         Assert.assertNull(destinationField);
+    }
+
+
+    @Then("^the guess result is (true|false)$")
+    public void theGuessResultIs(String guessResult) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode actualObj = mapper.readTree(testContext.getResponseBody());
+        Assert.assertEquals(guessResult, actualObj.get("guessResult").asText());
+    }
+
+
+    @Then("I receive a valid quest attempt in the response")
+    public void iReceiveAValidQuestAttemptInTheResponse() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode questAttempt = mapper.readTree(testContext.getResponseBody());
+
+        if (questAttempt.has("attempt")) {
+            questAttempt = questAttempt.get("attempt");
+        }
+
+        validateQuestAttempt(questAttempt);
     }
 }

@@ -1,4 +1,4 @@
-package models;
+package models.util;
 
 import io.ebean.Model;
 import javax.persistence.Id;

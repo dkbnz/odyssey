@@ -8,7 +8,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
-import models.TravellerType;
+import models.profiles.TravellerType;
 import models.destinations.Destination;
 import org.junit.Assert;
 import play.libs.Json;
@@ -29,11 +29,6 @@ public class DestinationTravellerTypeTestSteps {
      * Singleton class which stores generally used variables
      */
     private TestContext testContext = TestContext.getInstance();
-
-    /**
-     * Test file with test steps common over different scenarios
-     */
-    private GeneralTestSteps generalTestSteps;
 
 
     /**
@@ -75,13 +70,15 @@ public class DestinationTravellerTypeTestSteps {
     /**
      * Repository to access the destinations in the running application.
      */
-    private DestinationRepository destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
+    private DestinationRepository destinationRepository =
+            testContext.getApplication().injector().instanceOf(DestinationRepository.class);
 
 
     /**
      * Repository to access the destinations in the running application.
      */
-    private TravellerTypeRepository travellerTypeRepository = testContext.getApplication().injector().instanceOf(TravellerTypeRepository.class);
+    private TravellerTypeRepository travellerTypeRepository =
+            testContext.getApplication().injector().instanceOf(TravellerTypeRepository.class);
 
 
     @Given("There is a destination with one traveller type to add")
@@ -159,8 +156,8 @@ public class DestinationTravellerTypeTestSteps {
 
 
     @And("^I (.*)own destination with id (\\d+) and it is (.*)$")
-    public void iOwnDestinationWithIdAndItIs(String ownOrNot, int destinationId, String publicOrPrivate) {
-        Destination destinationOfInterest = destinationRepository.findById(Long.valueOf(destinationId));
+    public void iOwnDestinationWithIdAndItIs(String ownOrNot, long destinationId, String publicOrPrivate) {
+        Destination destinationOfInterest = destinationRepository.findById(destinationId);
 
         // Ensure we can find a destination
         Assert.assertNotNull(destinationOfInterest);
