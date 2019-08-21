@@ -32,6 +32,13 @@
                                 :refresh-quests="refreshQuests"
                         ></quest-list>
                     </b-tab>
+                    <b-tab title="Completed Quests" @click="refreshQuests = !refreshQuests">
+                        <quest-list
+                                :profile="profile"
+                                :completed-quests="true"
+                                :refresh-quests="refreshQuests"
+                        ></quest-list>
+                    </b-tab>
                 </b-tabs>
             </b-card>
             <footer-main></footer-main>
@@ -56,18 +63,19 @@
     import QuestsSolveMobile from "./activeQuestPageMobile";
     import QuestAttemptSolve from "./activeQuestSolve";
     import ActiveQuestPage from "./activeQuestPage";
+
     export default {
         name: "questPage",
 
         props: {
             profile: Object,
             containerClass: {
-                default: function() {
+                default: function () {
                     return null;
                 }
             },
             adminView: {
-                default: function() {
+                default: function () {
                     return false;
                 }
             }
@@ -87,9 +95,6 @@
                     default: null
                 }
             }
-        },
-
-        mounted() {
         },
 
         methods: {

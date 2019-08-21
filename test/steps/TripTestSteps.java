@@ -48,14 +48,18 @@ public class TripTestSteps {
      */
     private static final String TRIP_NAME_FIELD = "name";
 
-    private DestinationRepository destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
-    private TripRepository tripRepository = testContext.getApplication().injector().instanceOf(TripRepository.class);
+
+    private DestinationRepository destinationRepository =
+            testContext.getApplication().injector().instanceOf(DestinationRepository.class);
+    private TripRepository tripRepository =
+            testContext.getApplication().injector().instanceOf(TripRepository.class);
 
 
     /**
      * Sends a request to create a trip with the given trip data.
-     * @param docString     The string containing the trip data.
-     * @throws IOException  If the docString is formatted incorrectly.
+     *
+     * @param docString     the string containing the trip data.
+     * @throws IOException  if the docString is formatted incorrectly.
      */
     @When("the following json containing a trip is sent:")
     public void theFollowingJsonContainingATripIsSent(String docString) throws IOException {
@@ -69,6 +73,13 @@ public class TripTestSteps {
     }
 
 
+    /**
+     * Converts a string value of a trip to a Json format using an ObjectMapper.
+     *
+     * @param docString     the string value of the trip to be converted.
+     * @return              the Json string of a trip.
+     * @throws IOException  if an error happens in conversion.
+     */
     private JsonNode convertTripStringToJson(String docString) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readTree(docString);
@@ -77,8 +88,9 @@ public class TripTestSteps {
 
     /**
      * Gets the trip name from a given data table.
-     * @param dataTable     The data table containing the trip name.
-     * @return              A string of the trip name.
+     *
+     * @param dataTable     the data table containing the trip name.
+     * @return              a string of the trip name.
      */
     private String getTripNameFromDataTable(io.cucumber.datatable.DataTable dataTable) {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
@@ -88,8 +100,9 @@ public class TripTestSteps {
 
     /**
      * Creates a new trip with the data given for the currently logged in user.
-     * @param trip              The string containing the trip data.
-     * @throws IOException      If the trip is formatted incorrectly.
+     *
+     * @param trip              the string containing the trip data.
+     * @throws IOException      if the trip is formatted incorrectly.
      */
     @Given("I own the trip with the following data")
     public void iOwnTheTripWithTheFollowingData(String trip) throws IOException {
@@ -99,8 +112,9 @@ public class TripTestSteps {
 
     /**
      * Creates a new trip with the data given for another user.
-     * @param trip              The string containing the trip data.
-     * @throws IOException      If the trip is formatted incorrectly.
+     *
+     * @param trip              the string containing the trip data.
+     * @throws IOException      if the trip is formatted incorrectly.
      */
     @Given("I do not own the trip with the following data")
     public void iDoNotOwnTheTripWithTheFollowingName(String trip) throws IOException {
@@ -111,9 +125,10 @@ public class TripTestSteps {
 
     /**
      * Creates a trip with the given data and for the given user.
-     * @param tripData          The data for the new trip to create.
-     * @param ownerId           The id for the owner of the new trip.
-     * @throws IOException      If the trip is formatted incorrectly.
+     *
+     * @param tripData          the data for the new trip to create.
+     * @param ownerId           the id for the owner of the new trip.
+     * @throws IOException      if the trip is formatted incorrectly.
      */
     private void createTripGenericRequest(String tripData, String ownerId) throws IOException {
         Http.RequestBuilder request = fakeRequest()
@@ -127,7 +142,8 @@ public class TripTestSteps {
 
     /**
      * Sends a request to delete the trip with the name specified in the data table.
-     * @param dataTable     The data table containing the trip name to delete.
+     *
+     * @param dataTable     the data table containing the trip name to delete.
      */
     @When("I delete the trip with the following name")
     public void iDeleteTheTripWithTheFollowingName(io.cucumber.datatable.DataTable dataTable) {
@@ -139,8 +155,9 @@ public class TripTestSteps {
 
     /**
      * Gets the trip id for the trip with the given name.
-     * @param tripName  The name of the trip to get the id for.
-     * @return          The id of the trip.
+     *
+     * @param tripName  the name of the trip to get the id for.
+     * @return          the id of the trip.
      */
     private Long getTripIdFromTripName(String tripName) {
         return tripRepository
@@ -153,7 +170,8 @@ public class TripTestSteps {
 
     /**
      * Sends a delete trip request for a given trip id. The session is set to the currently logged in user.
-     * @param tripId    The id for the trip to be deleted.
+     *
+     * @param tripId    the id for the trip to be deleted.
      */
     private void deleteTripRequest(Integer tripId) {
         Http.RequestBuilder request = fakeRequest()
@@ -167,9 +185,10 @@ public class TripTestSteps {
 
     /**
      * Sends an edit trip request for a given trip id. The session is set to the currently logged in user.
-     * @param tripId        The id of the trip being edited.
-     * @param tripData      The json body of the edit request in the form of a string.
-     * @throws IOException  The exception thrown
+     *
+     * @param tripId        the id of the trip being edited.
+     * @param tripData      the Json body of the edit request in the form of a string.
+     * @throws IOException  the exception thrown.
      */
     private void editTripRequest(Integer tripId, String tripData) throws IOException {
         Http.RequestBuilder request = fakeRequest()
@@ -180,6 +199,7 @@ public class TripTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
     }
+
 
     @When("^I change the trip, \"(.*)\" to contain the following data$")
     public void iChangeTheTripToContainTheFollowingData(String tripName, String tripData) throws IOException {

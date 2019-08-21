@@ -103,6 +103,34 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
                 .findList();
     }
 
+
+    /**
+     * Determines if there are any destinations that match the specified destination. However, unlike the findEqual()
+     * method above, any destination found must either be private to the user or a public destination.
+     *
+     * @param destination   the destination to be checked for equal destinations.
+     * @return              a list of destinations that are equal.
+     */
+    public List<Destination> findEqualFromAvailable(Destination destination) {
+        return query()
+                .where()
+                .eq("name", destination.getName())
+                .eq("type", destination.getType())
+                .eq("district", destination.getDistrict())
+                .eq("latitude", destination.getLatitude())
+                .eq("longitude", destination.getLongitude())
+                .eq("country", destination.getCountry())
+                .disjunction()
+                    .eq("is_public", true)
+                    .conjunction()
+                        .eq("is_public", false)
+                        .eq("owner", destination.getOwner())
+                    .endJunction()
+                .endJunction()
+                .ne("id", destination.getId())
+                .findList();
+    }
+
     public ExpressionList<Destination> getExpressionList() {
         return query().where();
     }
