@@ -1,14 +1,11 @@
 package models.photos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import models.BaseModel;
-import models.Profile;
+import models.util.BaseModel;
+import models.profiles.Profile;
 import models.destinations.Destination;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,7 +25,9 @@ public class PersonalPhoto extends BaseModel {
      */
     @JsonIgnore
     @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name="profile_id")
     private Profile profile;
+
 
     /**
      * List of destinations that uses this photo

@@ -1,12 +1,12 @@
-package controllers;
+package controllers.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
-import models.Profile;
+import models.profiles.Profile;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;

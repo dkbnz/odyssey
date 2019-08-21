@@ -5,7 +5,7 @@ import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 
 import com.google.inject.Inject;
 import java.util.List;
