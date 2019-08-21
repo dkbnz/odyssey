@@ -95,13 +95,12 @@ public class PhotoController extends Controller {
 
 
         Path path = Paths.get(returnPath).toAbsolutePath();
+
         returnPath = path.toString();
 
         if (!path.toFile().exists() || !path.toFile().isDirectory()) {
             Files.createDirectory(path);
         }
-
-        System.out.println(returnPath);
 
         return returnPath;
     }

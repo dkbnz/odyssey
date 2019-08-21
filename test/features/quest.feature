@@ -787,7 +787,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests created by the user 'Dave' 'McInloch'
     Then the status code received is 200
-    And the response contains 5 quests
+    And the response contains 3 quests
 
 
   Scenario: Retrieve all quests that are contained the country of 'Japan'
