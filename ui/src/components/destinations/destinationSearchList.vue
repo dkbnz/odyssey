@@ -15,7 +15,7 @@
         <div v-else>
             <b-button variant="success" @click="showSearch = true" block>Search</b-button>
             <b-list-group class="scroll">
-                <b-list-group-item v-for="destination in (foundDestinations)" href="#"
+                <b-list-group-item v-for="destination in foundDestinations" href="#"
                                    class="flex-column align-items-start"
                                    @click="$emit('destination-click', destination)" :key="destination.id">
                     <div class="d-flex w-100 justify-content-between">
@@ -57,11 +57,19 @@
 <script>
     import SearchDestinations from "./searchDestinationForm";
     export default {
-        name: "foundDestinations",
+        name: "destinationSearchList",
 
         components: {SearchDestinations},
 
-        props: ['profile', 'destinationTypes', 'searchPublic'],
+        props: {
+            profile: {
+                default: function () {
+                    return null;
+                }
+            },
+            destinationTypes: Array,
+            searchPublic: Boolean
+        },
 
         data() {
            return {
@@ -93,7 +101,6 @@
                this.queryPage = 0;
                this.foundDestinations = [];
                this.destToSearch = destinationToSearch;
-               this.$emit('destination-reset');
                this.queryDestinations(this.destToSearch);
                this.loadingResults = false;
            },

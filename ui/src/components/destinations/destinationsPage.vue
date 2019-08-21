@@ -8,11 +8,12 @@
                 <i>Here you can add destinations, search destinations or view destinations on a map!</i>
             </p>
             <b-row>
-                <b-col cols="8">
+                <b-col :cols="adminView ? 7 : 8">
                     <b-card ref="maps">
                         <google-map :destinations="destinationsForMap" ref="map"
                                     v-if="showMap"
                                     :selected-destination="selectedDestination"
+                                    :destination-to-add="destinationToAdd"
                                     @destination-click="destination => this.selectedDestination = destination">
                         </google-map>
                     </b-card>
@@ -22,7 +23,7 @@
                             @dismissed="dismissCountDown=0"
                             dismissible
                             variant="success">
-                        <p>Destination Successfully Deleted</p>
+                        <p>Destination Successfully {{action}}!</p>
                         <b-progress
                                 :max="dismissSeconds"
                                 :value="dismissCountDown"
@@ -43,20 +44,31 @@
                                 :destination-types="destinationTypes"
                                 :profile="profile"
                                 @destination-saved="refreshDestinations"
-                                @destination-deleted="destinationDeleted">
+                                @destination-deleted="destinationDeleted"
+                                @destination-edit="destinationEdited">
                         </single-destination>
                     </b-card>
                 </b-col>
                 <b-col>
-                    <b-card>
+                    <b-card v-if="!destinationEdit">
                         <destination-sidebar
                                 :profile="profile"
                                 @destination-click="selectDestination"
-                                @destination-search="foundDestinations => this.destinationsForMap = foundDestinations"
-                                @destination-reset="clearMarkers"
+                                @destination-search="destinationSearch"
                                 :key="refreshDestinationData"
+                                :input-destination="destinationToAdd"
                                 @data-changed="$emit('data-changed')"
                         ></destination-sidebar>
+                    </b-card>
+                    <b-card v-else>
+                        <add-destinations
+                                :inputDestination="destinationToAdd"
+                                :profile="profile"
+                                :heading="'Edit'"
+                                :destination-types="destinationTypes"
+                                @destination-saved="destinationSaved">
+                        </add-destinations>
+                        <b-button @click="closeEditDestination" class="mr-3 buttonMarginsTop" block>Close</b-button>
                     </b-card>
                 </b-col>
             </b-row>
@@ -119,7 +131,35 @@
                 dismissSeconds: 3,
                 dismissCountDown: 0,
                 destinationsForMap: [],
-                showMap: false
+                showMap: false,
+                destinationToAdd: {
+                    id: null,
+                    name: "",
+                    type: {
+                        id: null,
+                        destinationType: ""
+                    },
+                    district: "",
+                    latitude: null,
+                    longitude: null,
+                    country: "",
+                    public: false
+                },
+                destinationEdit: false,
+                destinationTemplate: {
+                    id: null,
+                    name: "",
+                    type: {
+                        id: null,
+                        destinationType: ""
+                    },
+                    district: "",
+                    latitude: null,
+                    longitude: null,
+                    country: "",
+                    public: false
+                },
+                action: ""
             }
         },
 
@@ -131,7 +171,7 @@
             /**
              * Switches between tabs.
              *
-             * @param viewPage page to be displayed.
+             * @param viewPage      page to be displayed.
              */
             togglePage(viewPage) {
                 if (!viewPage) {
@@ -144,7 +184,7 @@
             /**
              * Re-renders the destination search side panel and displays the edited destination on the page.
              *
-             * @param refreshedDestination  the recently edited destination.
+             * @param refreshedDestination      the recently edited destination.
              */
             refreshDestinations(refreshedDestination) {
                 this.refreshDestinationData += 1;
@@ -158,6 +198,9 @@
             destinationDeleted() {
                 this.selectedDestination = {};
                 this.refreshSingleDestination += 1;
+                this.refreshDestinationData += 1;
+                this.closeEditDestination();
+                this.action = "Deleted";
                 this.showAlert();
             },
 
@@ -194,13 +237,70 @@
 
             /**
              * Changes the selected destination or focuses on current destination.
-             * @param destinationToSelect
+             *
+             * @param destinationToSelect   the destination that has been selected on the map.
              */
             selectDestination(destinationToSelect) {
                 if (destinationToSelect.id === this.selectedDestination.id) {
                     this.$refs['map'].focusOnSelectedDestination();
                 } else {
                     this.selectedDestination = destinationToSelect;
+                }
+            },
+
+
+            /**
+             * Displays the edit destination form for the given destination.
+             * Places the active marker on the map.
+             *
+             * @param destination   the destination that is being edited.
+             */
+            destinationEdited(destination) {
+                this.destinationToAdd = destination;
+                this.destinationEdit = true;
+                this.$refs['map'].placeMarkerToAdd();
+            },
+
+
+            /**
+             * Replaces the edit destination form with the destination side bar if the close button is clicked.
+             * Removes the active marker from the map and resets the destination to add values.
+             */
+            closeEditDestination() {
+                this.destinationEdit = false;
+                this.$refs['map'].removeMarkerToAdd();
+
+                // Clears the form for the add tab.
+                this.destinationToAdd = this.destinationTemplate;
+            },
+
+
+            /**
+             * Changes the selected destination on the page to be the newly edited destination, so changes can be seen
+             * straight away.
+             * Displays an alert to the user to indicate successful edit.
+             *
+             * @param destination   the recently saved destination.
+             */
+            destinationSaved(destination) {
+                this.selectedDestination = destination;
+                this.action = "Edited";
+                this.showAlert();
+                this.closeEditDestination();
+            },
+
+
+            /**
+             * Resets the destinations to be displayed on the map when destinations are being searched.
+             *
+             * @param foundDestinations     the list of destinations to display on the map.
+             */
+            destinationSearch(foundDestinations) {
+                this.destinationsForMap = foundDestinations;
+
+                // Clears the single destination information when moving to the add tab.
+                if (foundDestinations == null) {
+                    this.selectedDestination = {};
                 }
             }
         }

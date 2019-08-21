@@ -1,10 +1,8 @@
 package models.trips;
 
-import io.ebean.Finder;
 import io.ebean.annotation.JsonIgnore;
-import models.BaseModel;
-import models.Profile;
-import play.data.validation.Constraints;
+import models.util.BaseModel;
+import models.profiles.Profile;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -16,21 +14,16 @@ import java.util.List;
  */
 @Entity
 public class Trip extends BaseModel {
-    /**
-     * A finder used to search for a trip.
-     */
-    public static final Finder<Integer, Trip> find = new Finder<>(Trip.class);
 
     /**
      * The name of the trip.
      */
-    @Constraints.Required
     private String name;
 
     /**
      * The owner of the trip
      */
-    @ManyToOne()
+    @ManyToOne
     @JsonIgnore
     private Profile profile;
 
@@ -38,7 +31,6 @@ public class Trip extends BaseModel {
     public Profile getProfile() {
         return profile;
     }
-
 
     /**
      * The trips destinations for the trip.
@@ -88,8 +80,4 @@ public class Trip extends BaseModel {
         return destinations.remove(destination);
     }
 
-
-    public static Finder<Integer, Trip> getFind() {
-        return find;
-    }
 }

@@ -8,7 +8,7 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.destinations.DestinationRepository;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 import repositories.photos.PersonalPhotoRepository;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -24,16 +24,16 @@ public class PhotoControllerTest {
     private PhotoController testPhotoController;
     private ProfileRepository mockProfileRepo;
     private PersonalPhotoRepository mockPersonalPhotoRepo;
-    private DestinationRepository mockDestinationoRepo;
+    private DestinationRepository mockDestinationRepo;
     private Config mockConfig;
 
     @Before
     public void setUp() {
         mockProfileRepo = mock(ProfileRepository.class);
         mockPersonalPhotoRepo = mock(PersonalPhotoRepository.class);
-        mockDestinationoRepo = mock(DestinationRepository.class);
+        mockDestinationRepo = mock(DestinationRepository.class);
         mockConfig = mock(Config.class);
-        testPhotoController = new PhotoController(mockProfileRepo, mockPersonalPhotoRepo, mockDestinationoRepo, mockConfig);
+        testPhotoController = new PhotoController(mockProfileRepo, mockPersonalPhotoRepo, mockDestinationRepo, mockConfig);
     }
 
     @After
@@ -45,7 +45,7 @@ public class PhotoControllerTest {
     @Test
     public void fetchNonExistentPhoto() {
         // Mock
-        when(mockPersonalPhotoRepo.fetch(any(Long.class))).thenReturn(null);
+        when(mockPersonalPhotoRepo.findById(any(Long.class))).thenReturn(null);
 
         // Arrange
         Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID);
@@ -58,13 +58,13 @@ public class PhotoControllerTest {
         Assert.assertEquals(NOT_FOUND, result.status());
 
         // Verify Mocks
-        verify(mockPersonalPhotoRepo, times(1)).fetch(any(Long.class));
+        verify(mockPersonalPhotoRepo, times(1)).findById(any(Long.class));
     }
 
     @Test
     public void fetchNonExistentThumb() {
         // Mock
-        when(mockPersonalPhotoRepo.fetch(any(Long.class))).thenReturn(null);
+        when(mockPersonalPhotoRepo.findById(any(Long.class))).thenReturn(null);
 
         // Arrange
         Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID);
@@ -77,7 +77,7 @@ public class PhotoControllerTest {
         Assert.assertEquals(NOT_FOUND, result.status());
 
         // Verify Mocks
-        verify(mockPersonalPhotoRepo, times(1)).fetch(any(Long.class));
+        verify(mockPersonalPhotoRepo, times(1)).findById(any(Long.class));
     }
 
     @Test

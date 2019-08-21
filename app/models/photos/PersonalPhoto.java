@@ -1,13 +1,12 @@
 package models.photos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.ebean.Finder;
-import models.BaseModel;
-import models.Profile;
+import models.util.BaseModel;
+import models.profiles.Profile;
+import models.destinations.Destination;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -17,7 +16,7 @@ public class PersonalPhoto extends BaseModel {
      * The instance of the actual photo.
      */
     @JsonIgnore
-    @ManyToOne(cascade=CascadeType.REMOVE)
+    @ManyToOne(cascade=CascadeType.ALL)
     private Photo photo;
 
 
@@ -26,7 +25,16 @@ public class PersonalPhoto extends BaseModel {
      */
     @JsonIgnore
     @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "profile_id", referencedColumnName="id")
     private Profile profile;
+
+
+    /**
+     * List of destinations that uses this photo
+     */
+    @JsonIgnore
+    @ManyToMany(mappedBy = "photoGallery")
+    private List<Destination> destinations;
 
 
     /**
@@ -65,14 +73,6 @@ public class PersonalPhoto extends BaseModel {
     }
 
 
-    public static final Finder<Integer, PersonalPhoto> find = new Finder<>(PersonalPhoto.class);
-
-
-    public static Finder<Integer, PersonalPhoto> getFind() {
-        return find;
-    }
-
-
     /**
      * Checks if an Object is equal to this instance of PersonalPhoto.
      *
@@ -87,7 +87,7 @@ public class PersonalPhoto extends BaseModel {
 
         PersonalPhoto other = (PersonalPhoto) obj;
 
-        return other.getId() == this.getId();
+        return other.getId().equals(this.getId());
     }
 
 
@@ -99,5 +99,13 @@ public class PersonalPhoto extends BaseModel {
     @Override
     public int hashCode() {
         return Objects.hash(this.getId());
+    }
+
+    public List<Destination> getDestinations() {
+        return destinations;
+    }
+
+    public void setDestinations(List<Destination> destinations) {
+        this.destinations = destinations;
     }
 }

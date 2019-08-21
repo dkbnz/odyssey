@@ -1,13 +1,11 @@
 package models.destinations;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.ebean.Finder;
-import models.BaseModel;
-import models.Profile;
-import models.TravellerType;
+import models.util.BaseModel;
+import models.profiles.Profile;
+import models.profiles.TravellerType;
 import models.photos.PersonalPhoto;
 import models.trips.TripDestination;
-import play.data.validation.Constraints;
 import javax.persistence.*;
 import java.util.*;
 
@@ -17,63 +15,53 @@ import java.util.*;
 @Entity
 public class Destination extends BaseModel {
 
-    public static final Finder<Integer, Destination> find = new Finder<>(Destination.class);
-
     /**
      * The name of the destination.
      */
-    @Constraints.Required
     private String name;
 
     /**
      * The type of destination (monument, natural landmark, building, event, etc...).
      */
-    @Constraints.Required
     @ManyToOne
-    private DestinationType type;
+    private Type type;
 
     /**
      * The district(s) the destination belongs to.
      *
      */
-    @Constraints.Required
     private String district;
 
     /**
      * The latitude of the destination.
      */
-    @Constraints.Required
     private double latitude;
 
     /**
      * The longitude of the destination.
      */
-    @Constraints.Required
     private double longitude;
 
     /**
      * The country the destination belongs to.
      */
-    @Constraints.Required
     private String country;
 
     /**
      * The owner of the destination.
      */
-    @Constraints.Required
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.PERSIST)
     private Profile owner;
 
     /**
      * The destinations photo gallery.
      */
     @ManyToMany
-    private Set<PersonalPhoto> photoGallery = new TreeSet<>();
+    private Set<PersonalPhoto> photoGallery;
 
     /**
      * Stating the privacy of the destination if it is public or not.
      */
-    @Constraints.Required
     private Boolean isPublic;
 
     /**
@@ -105,12 +93,12 @@ public class Destination extends BaseModel {
     }
 
 
-    public DestinationType getType() {
+    public Type getType() {
         return type;
     }
 
 
-    public void setType(DestinationType type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
@@ -166,6 +154,11 @@ public class Destination extends BaseModel {
     }
 
 
+    public void setPhotoGallery(Set<PersonalPhoto> photoGallery) {
+        this.photoGallery = photoGallery;
+    }
+
+
     public void clearPhotoGallery() {
         photoGallery.clear();
     }
@@ -191,7 +184,7 @@ public class Destination extends BaseModel {
     }
 
     public void addTripDestinations(List<TripDestination> tripDestinations){
-        this.tripDestinations = tripDestinations;
+        this.tripDestinations.addAll(tripDestinations);
     }
 
     public void clearTripDestinations() {
@@ -246,6 +239,31 @@ public class Destination extends BaseModel {
         this.proposedTravellerTypesRemove = proposedTravellerTypesRemove;
     }
 
+    public boolean addTravellerTypes(Collection<TravellerType> travellerTypesToAdd) {
+        return this.travellerTypes.addAll(travellerTypesToAdd);
+    }
+
+    public boolean addProposeTravellerTypesAdd(Collection<TravellerType> travellerTypesToAdd) {
+        return this.proposedTravellerTypesAdd.addAll(travellerTypesToAdd);
+    }
+
+    public boolean addProposeTravellerTypesRemove(Collection<TravellerType> travellerTypesToAdd) {
+        return this.proposedTravellerTypesRemove.addAll(travellerTypesToAdd);
+    }
+
+    public void clearAllTravellerTypeSets() {
+        this.proposedTravellerTypesAdd.clear();
+        this.proposedTravellerTypesRemove.clear();
+        this.travellerTypes.clear();
+    }
+
+    public void setOwner(Profile owner) {
+        this.owner = owner;
+    }
+
+    public void setTripDestinations(List<TripDestination> tripDestinations) {
+        this.tripDestinations = tripDestinations;
+    }
 
     /**
      * Checks if an Object is equal to this instance of Destination.
@@ -287,20 +305,4 @@ public class Destination extends BaseModel {
                 this.latitude,
                 this.longitude);
     }
-
-
-//    public String toString() {
-//        return "{ " +
-//                "name: " + this.name + ", " +
-//                "type: " + this.type + ", " +
-//                "district: " + this.district + ", " +
-//                "latitude: " + this.latitude + ", " +
-//                "longitude: " + this.longitude + ", " +
-//                "country: " + this.country + ", " +
-//                "owner: " + this.owner + ", " +
-//                "photoGallery: List of size " + this.photoGallery.size() + ", " +
-//                "isPublic: " + this.isPublic + ", " +
-//                "tripDestinations: List of size " + this.tripDestinations.size() + "}";
-//    }
-
 }

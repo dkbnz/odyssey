@@ -3,7 +3,7 @@
         <h4 class="page-title" v-if="searchPublic">Search Public Destinations</h4>
         <h4 class="page-title" v-else>Search Your Destinations</h4>
         <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
-        <div>
+        <b-form @submit.prevent="searchDestinations">
             <!--Input fields for searching for destinations-->
             <b-form-group
                     id="name-field"
@@ -64,15 +64,20 @@
                     id="country-field"
                     label="Country:"
                     label-for="country">
-                <b-form-input id="country" trim v-model="searchCountry" :state="destinationCountryValidation">
-                </b-form-input>
-                <b-form-invalid-feedback :state="destinationCountryValidation">
-                    Country cannot have any numbers in it!
-                </b-form-invalid-feedback>
+                <!--Dropdown field for country types-->
+                <b-form-select id="country" trim v-model="searchCountry">
+                    <template slot="first">
+                        <option value="">-- Any --</option>
+                    </template>
+                    <option :value="country.name" v-for="country in countryList"
+                            :state="destinationCountryValidation">
+                        {{country.name}}
+                    </option>
+                </b-form-select>
             </b-form-group>
 
-            <b-button @click="searchDestinations" block variant="primary">Search</b-button>
-        </div>
+            <b-button @click="searchDestinations" block variant="primary" type="submit">Search</b-button>
+        </b-form>
     </div>
 </template>
 
@@ -91,6 +96,10 @@
                     return this.profile
                 }
             },
+        },
+
+        mounted() {
+            this.getCountries();
         },
 
         data() {
@@ -125,7 +134,8 @@
                 errorMessage: "",
                 retrievingDestinations: false,
                 longitudeErrorMessage: "",
-                latitudeErrorMessage: ""
+                latitudeErrorMessage: "",
+                countryList: Array
             }
         },
 
@@ -188,11 +198,10 @@
                 return true;
             },
             destinationCountryValidation() {
-                if (this.searchCountry.length === 0) {
+                if (this.searchCountry === null) {
                     return null;
                 }
-                let countryRegex = /\d/;
-                return !countryRegex.test(this.searchCountry);
+                return this.searchCountry.length > 0 || this.searchCountry !== null;
             }
         },
 
@@ -217,6 +226,21 @@
                     });
                 }
 
+            },
+
+
+            /**
+             * Sets the countries list to the list of countries from the country api
+             */
+            getCountries() {
+                return fetch("https://restcountries.eu/rest/v2/all", {
+                    dataType: 'html'
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then((data) => {
+                        this.countryList = data;
+                    })
             },
 
 
