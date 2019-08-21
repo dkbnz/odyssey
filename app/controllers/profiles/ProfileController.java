@@ -671,31 +671,6 @@ public class ProfileController {
         profileRepository.update(requestedUser);
 
         return ok(Json.toJson(requestedUser));
-
-
-        // TODO Matthew Remove commented code when confirmed working
-        /*return request.session()
-                .getOptional(AUTHORIZED)
-                .map(userId -> {
-                    // User is logged in
-                    Profile userProfile = profileRepository.findById(Long.valueOf(userId));
-                    if (userProfile == null) {
-                        return notFound(NO_PROFILE_FOUND);
-                    }
-                    // If profile logged in is admin, can make another user admin.
-                    if (userProfile.isAdmin()) {
-                        Profile updateProfile = profileRepository.findById(id);
-                        if (updateProfile == null) {
-                            return notFound(NO_PROFILE_FOUND);
-                        }
-                        updateProfile.setAdmin(true);
-                        profileRepository.update(updateProfile);
-                    } else {
-                        return forbidden();
-                    }
-                    return ok(UPDATED);
-                })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in*/
     }
 
 
@@ -731,38 +706,5 @@ public class ProfileController {
         profileRepository.update(requestedUser);
 
         return ok(Json.toJson(requestedUser));
-
-
-        // TODO Matthew remove commented code when confirmed working
-        /*
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(userId -> {
-                    // User is logged in
-                    Profile userProfile = profileRepository.findById(Long.valueOf(userId));
-                    if (userProfile == null) {
-                        return notFound(NO_PROFILE_FOUND);
-                    }
-                    // If the logged in user is admin
-                    if (userProfile.isAdmin()) {
-                        Profile updateProfile = profileRepository.findById(id);
-                        if (updateProfile == null) {
-                            return notFound(NO_PROFILE_FOUND);
-                        }
-                        // If the profile trying to be changed is not the global admin (id number one).
-                        if (!updateProfile.getId().equals(DEFAULT_ADMIN_ID)) {
-                            if (updateProfile.isAdmin()) {
-                                updateProfile.setAdmin(false);
-                                profileRepository.update(updateProfile);
-                            }
-                        } else {
-                            return forbidden();
-                        }
-                    } else {
-                        return forbidden();
-                    }
-                    return ok(UPDATED);
-                })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in*/
     }
 }
