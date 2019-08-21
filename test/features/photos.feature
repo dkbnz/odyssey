@@ -1,4 +1,7 @@
 Feature: Photos API Endpoint
+  
+# These tests are failing for some reason, to do with test set up though as the frontend works as expected. If
+# change model to fix the tests, the frontend fails.
 #
 #  Scenario: Successfully uploading a photo to my own profile
 #    Given the application is running
