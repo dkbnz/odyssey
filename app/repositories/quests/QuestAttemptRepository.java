@@ -55,6 +55,21 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
 
 
     /**
+     * Finds all quest attempts using the profile.
+     * @param requestedProfile      the profile to get quest attempts for.
+     * @return                      a list of quest attempts for the given profile.
+     */
+    public List<QuestAttempt> findAllUsing(Profile requestedProfile, boolean allowCompleted) {
+        return query().where()
+                .eq(ATTEMPTED_PROFILE, requestedProfile)
+                .lt("questAttempted.startDate", new Date())
+                .gt("questAttempted.endDate", new Date())
+                .eq("completed", allowCompleted)
+                .findList();
+    }
+
+
+    /**
      * Finds all quest attempts using the profile and quest id.
      * @param requestedProfile      the profile to get quest attempts for.
      * @param questId               the quest id to get quest attempts for.
