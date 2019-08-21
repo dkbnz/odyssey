@@ -69,7 +69,7 @@
                                        @click="selectedQuest = quest">
                         <template v-if="!editingQuest && !(activeId === quest.id)">
                             <b-row class="buttonMarginsTop">
-                                <b-col cols="5">
+                                <b-col :cols="availableQuests ? 5 : ''">
                                     <h4>Title</h4>
                                     <p>{{quest.title}}</p>
                                 </b-col>
@@ -468,20 +468,14 @@
                             // Refresh quests
                             this.getMore();
 
-                            // Display 'created' toast
-                            this.$bvToast.toast('Quest added to active', {
-                                title: `Quest Added`,
-                                variant: "default",
-                                autoHideDelay: "3000",
-                                solid: true
-                            });
+                            this.showSuccess("Quest started");
 
                             // If 'start now' is clicked
                             if (viewActive) {
                                 this.changeToActiveTab(questToAttempt);
                             }
                         }
-                    })
+                    });
                 }
             },
 

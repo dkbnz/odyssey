@@ -397,8 +397,7 @@ public class QuestController {
             return notFound(ApiError.notFound());
         }
 
-        List<QuestAttempt> questAttempts = questAttemptRepository.findAllUsing(requestedUser);
-
+        List<QuestAttempt> questAttempts = questAttemptRepository.findAllUsing(requestedUser, false);
 
         return getCorrectView(AuthenticationUtil.validUser(loggedInUser, requestedUser), questAttempts);
     }
