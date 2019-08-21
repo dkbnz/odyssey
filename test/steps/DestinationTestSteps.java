@@ -42,12 +42,6 @@ public class DestinationTestSteps {
 
 
     /**
-     * New instance of the general test steps.
-     */
-    private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
-
-
-    /**
      * The ID of the destination to be updated.
      */
     private Long destinationId;

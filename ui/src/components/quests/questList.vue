@@ -87,7 +87,7 @@
                                     <h4>End Date</h4>
                                     {{new Date(quest.endDate)}}
                                 </b-col>
-                                <!-- If looking at the available quests tab, show a 'set active' button -->
+                                <!-- If looking at the available quests tab, show a 'start now' button -->
                                 <b-col cols="2" v-if="availableQuests">
                                     <b-row>
                                         <b-button variant="primary" @click="createAttempt(quest, true)">Start Now</b-button>
@@ -102,7 +102,7 @@
                                     Show/Hide Locations
                                 </b-button>
                                 <b-container fluid style="margin-top: 20px; display: none" :id="'display-' + quest.id">
-                                    <!-- Table displaying all added destinations -->
+                                    <!-- Table displaying all quest objectives -->
                                     <b-table :current-page="currentPage" :fields="fields" :items="quest.objectives"
                                              :per-page="perPage"
                                              hover
