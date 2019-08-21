@@ -85,13 +85,9 @@ public class PhotoController extends Controller {
      * @param getThumbnail  whether thumbnail directory is being requested.
      * @return              filepath to save the photo to.
      */
-    private String getPhotoFilePath(Boolean getThumbnail) throws IOException {
+    private String getPhotoFilePath(boolean getThumbnail) throws IOException {
 
-        String photoEnvironmentName = config.getString("travelea.photos.path.env");
-
-        String mainPath = (photoEnvironmentName != null && System.getenv(photoEnvironmentName) != null
-                ? System.getenv(photoEnvironmentName)
-                : config.getString("travelea.photos.main"));
+        String mainPath = config.getString("travelea.photos.main");
 
         String returnPath = mainPath + (getThumbnail
                 ? config.getString("travelea.photos.thumbnail")
