@@ -16,6 +16,8 @@ import java.util.List;
  */
 public class ProfileRepository extends BeanRepository<Long, Profile> {
 
+    private static final String QUEST_ATTEMPTED = "questAttempts.questAttempted";
+
     @Inject
     public ProfileRepository() {
         super(Profile.class, Ebean.getDefaultServer());
@@ -34,6 +36,6 @@ public class ProfileRepository extends BeanRepository<Long, Profile> {
      */
     public List<Profile> findAllUsing(Quest usedQuest) {
 
-        return query().where().eq("questAttempts.questAttempted", usedQuest).findList();
+        return query().where().eq(QUEST_ATTEMPTED, usedQuest).findList();
     }
 }

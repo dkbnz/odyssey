@@ -15,6 +15,8 @@ import java.util.List;
  */
 public class ObjectiveRepository extends BeanRepository<Long, Objective> {
 
+    private static final String DESTINATION = "destination";
+
     @Inject
     public ObjectiveRepository() {
         super(Objective.class, Ebean.getDefaultServer());
@@ -30,7 +32,7 @@ public class ObjectiveRepository extends BeanRepository<Long, Objective> {
     public List<Objective> findAllUsing(Destination destination) {
         return query()
                 .where()
-                .eq("destination", destination)
+                .eq(DESTINATION, destination)
                 .findList();
     }
 }

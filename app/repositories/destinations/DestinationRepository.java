@@ -19,6 +19,18 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
 
     private static final Long DEFAULT_ADMIN_ID = 1L;
     private static final String PHOTO_FIELD = "photoGallery.photo";
+    private static final String PROPOSED_TRAVELLER_TYPES_ADD = "proposedTravellerTypesAdd";
+    private static final String PROPOSED_TRAVELLER_TYPES_REMOVE = "proposedTravellerTypesRemove";
+    private static final String NAME = "name";
+    private static final String TYPE = "type";
+    private static final String DISTRICT = "district";
+    private static final String LATITUDE = "latitude";
+    private static final String LONGITUDE = "longitude";
+    private static final String COUNTRY = "country";
+    private static final String ID = "id";
+    private static final String IS_PUBLIC = "is_public";
+    private static final String OWNER = "owner";
+
 
     private ProfileRepository profileRepository;
 
@@ -49,8 +61,8 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
         return query()
             .where()
             .disjunction()
-            .isNotEmpty("proposedTravellerTypesAdd")
-            .isNotEmpty("proposedTravellerTypesRemove")
+            .isNotEmpty(PROPOSED_TRAVELLER_TYPES_ADD)
+            .isNotEmpty(PROPOSED_TRAVELLER_TYPES_REMOVE)
             .endJunction()
             .findList();
     }
@@ -93,13 +105,13 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
     public List<Destination> findEqual(Destination destination) {
         return query()
                 .where()
-                .eq("name", destination.getName())
-                .eq("type", destination.getType())
-                .eq("district", destination.getDistrict())
-                .eq("latitude", destination.getLatitude())
-                .eq("longitude", destination.getLongitude())
-                .eq("country", destination.getCountry())
-                .ne("id", destination.getId())
+                .eq(NAME, destination.getName())
+                .eq(TYPE, destination.getType())
+                .eq(DISTRICT, destination.getDistrict())
+                .eq(LATITUDE, destination.getLatitude())
+                .eq(LONGITUDE, destination.getLongitude())
+                .eq(COUNTRY, destination.getCountry())
+                .ne(ID, destination.getId())
                 .findList();
     }
 
@@ -114,20 +126,20 @@ public class DestinationRepository extends BeanRepository<Long, Destination> {
     public List<Destination> findEqualFromAvailable(Destination destination) {
         return query()
                 .where()
-                .eq("name", destination.getName())
-                .eq("type", destination.getType())
-                .eq("district", destination.getDistrict())
-                .eq("latitude", destination.getLatitude())
-                .eq("longitude", destination.getLongitude())
-                .eq("country", destination.getCountry())
+                .eq(NAME, destination.getName())
+                .eq(TYPE, destination.getType())
+                .eq(DISTRICT, destination.getDistrict())
+                .eq(LATITUDE, destination.getLatitude())
+                .eq(LONGITUDE, destination.getLongitude())
+                .eq(COUNTRY, destination.getCountry())
                 .disjunction()
-                    .eq("is_public", true)
+                    .eq(IS_PUBLIC, true)
                     .conjunction()
-                        .eq("is_public", false)
-                        .eq("owner", destination.getOwner())
+                        .eq(IS_PUBLIC, false)
+                        .eq(OWNER, destination.getOwner())
                     .endJunction()
                 .endJunction()
-                .ne("id", destination.getId())
+                .ne(ID, destination.getId())
                 .findList();
     }
 
