@@ -605,7 +605,7 @@
                 }).then(function (response) {
                     if (response.status >= 400) {
                         // Ensures the start and end date fields are not wiped after an error occurs.
-                        this.splitDates();
+                        self.splitDates();
                         // Converts response to text, this is then displayed on the frontend.
                         response.text().then(data => {
                             let responseBody = JSON.parse(data);
@@ -652,6 +652,7 @@
                 }).then(function (response) {
                     if (response.status >= 400) {
                         // Ensures the start and end date fields are not wiped after an error occurs.
+                        self.splitDates();
                         // Converts response to text, this is then displayed on the frontend.
                         response.text().then(data => {
                             let responseBody = JSON.parse(data);
@@ -779,23 +780,33 @@
             splitDates() {
                 if (this.inputQuest.id !== null) {
                     this.inputQuest.startDate = new Date(this.inputQuest.startDate).toLocaleString();
+
+                    //Start date
                     let startDate = this.inputQuest.startDate;
-                    // The date is the values before the comma
+
+                    // The date is the value before the comma
                     this.inputQuest.startDate = this.inputQuest.startDate.split(", ")[0];
+
                     // Change format of dates from the backslash symbol, reverse the order, and join with hyphens.
                     this.inputQuest.startDate = this.inputQuest.startDate.split("/").reverse().join("-");
                     this.startTime = startDate.split(" ")[1];
+
                     // Splits by either the + or the - symbol. Removing the timezone.
                     this.startTime = this.startTime.split("+")[0];
                     this.startTime = this.startTime.split("-")[0];
 
                     this.inputQuest.endDate = new Date(this.inputQuest.endDate).toLocaleString();
+
+                    //End Date
                     let endDate = this.inputQuest.endDate;
+
                     // The date is the values before the comma
                     this.inputQuest.endDate = this.inputQuest.endDate.split(", ")[0];
+
                     // Change format of dates from the backslash symbol, reverse the order, and join with hyphens.
                     this.inputQuest.endDate = this.inputQuest.endDate.split("/").reverse().join("-");
                     this.endTime = endDate.split(" ")[1];
+
                     // Splits by either the + or the - symbol. Removing the timezone.
                     this.endTime = this.endTime.split("+")[0];
                     this.endTime = this.endTime.split("-")[0];
