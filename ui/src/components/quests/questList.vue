@@ -325,7 +325,8 @@
                     {value:Infinity, text:"All"}],
                 questAttempts: [],
                 selectedQuestAttempt: {},
-                selectedQuest: {}
+                selectedQuest: {},
+                activeUsers: 0
             }
         },
 
@@ -548,14 +549,14 @@
              * Gets all users that are currently using the given quest.
              */
             getActiveUsers() {
+                let self = this;
                 return fetch('/v1/quests/' + this.questId + '/profiles', {
                     accept: "application/json"
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(data => {
-                        console.log(data.length);
-                        this.activeUsers = data.length;
+                        self.activeUsers = data.length;
                     });
             },
 
