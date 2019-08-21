@@ -3,11 +3,11 @@
         <div v-if="showQuestAttempt">
             <active-quest-solve
                     :quest-attempt="selectedQuestAttempt"
-                    @updated-quest-attempt="updateQuestAttempt"
-                    @show-quest-attempt="showQuestAttempt => this.showQuestAttempt = showQuestAttempt">
+                    @updated-quest-attempt="updateQuestAttempts"
+                    @show-quest-attempt="showBoolean => this.showQuestAttempt = showBoolean">
             </active-quest-solve>
         </div>
-        <b-tabs content-class="mt-3" fill v-else>
+        <b-tabs content-class="mt-3" fill v-model="tabIndex" v-else>
             <b-tab title="Active Quests" @click="refreshQuests = !refreshQuests" active>
                 <active-quest-list
                         :quest-attempts="questAttempts"
@@ -20,6 +20,8 @@
                         :profile="profile"
                         :available-quests="true"
                         :refresh-quests="refreshQuests"
+                        @start-quest-now="questAttempt => changeToActiveTab(questAttempt)"
+                        @start-quest-later="updateQuestAttempts"
                 ></quest-list>
             </b-tab>
         </b-tabs>
@@ -54,8 +56,13 @@
                 refreshQuests: false,
                 showQuestAttempt: false,
                 selectedQuestAttempt: {},
+                tabIndex: 0,
                 questAttempts: [],
-                loadingResults: false
+                loadingResults: false,
+                activeQuest: {
+                    type: Object,
+                    default: null
+                }
             }
         },
 
@@ -84,9 +91,16 @@
              *
              * @param questAttempt  the quest attempt to update.
              */
-            updateQuestAttempt(questAttempt) {
+            updateQuestAttempts(questAttempt) {
                 let foundIndex = this.questAttempts.findIndex(x => x.id === questAttempt.id);
-                this.questAttempts.splice(foundIndex, 1, questAttempt);
+
+                // If quest attempt found, replace it in the array, otherwise add to quest attempts.
+                if (foundIndex !== -1) {
+                    this.questAttempts.splice(foundIndex, 1, questAttempt);
+                } else {
+                    this.questAttempts.push(questAttempt);
+                }
+
                 this.selectedQuestAttempt = questAttempt;
             },
 
@@ -99,6 +113,17 @@
             showQuestAttemptPage(questAttempt) {
                 this.showQuestAttempt = true;
                 this.selectedQuestAttempt = questAttempt;
+            },
+
+
+            /**
+             * Switches to the 'active' page and refreshes the quest list.
+             * The 'active' page has an index of 0.
+             */
+            changeToActiveTab(questAttempt) {
+                this.tabIndex = 0;
+                this.updateQuestAttempts(questAttempt);
+                this.showQuestAttemptPage(questAttempt);
             }
         },
 
