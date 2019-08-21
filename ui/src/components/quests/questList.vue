@@ -69,7 +69,7 @@
                                        @click="selectedQuest = quest">
                         <template v-if="!editingQuest && !(activeId === quest.id)">
                             <b-row class="buttonMarginsTop">
-                                <b-col cols="5">
+                                <b-col :cols="availableQuests ? 5 : ''">
                                     <h4>Title</h4>
                                     <p>{{quest.title}}</p>
                                 </b-col>
