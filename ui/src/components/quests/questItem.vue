@@ -398,13 +398,18 @@
              * For new quest, checks the start date is after the current date.
              * For all other quests, checks the start date is either the same as or before the end date.
              *
-             * @returns {boolean} true if start date is valid.
+             * @returns {boolean} true if start date is valid, or a null if entry length isn't big enough.
              */
             validateStartDate() {
                 // For a new hunt, the start date must be after today.
                 if ((this.inputQuest.startDate < this.getDateString() && !this.inputQuest.id)) {
                     return false;
                 }
+
+                if(this.inputQuest.startDate.length < 6) {
+                    return null;
+                }
+
                 // Otherwise, checks the start date is equal to or before the end date.
                 return this.inputQuest.startDate <= this.inputQuest.endDate;
             },
@@ -414,7 +419,7 @@
              * Checks that the start time is not after or the same as the end time if the dates are the same,
              * and that the start time is not before the current time if the current date is today.
              *
-             * @returns {boolean} true if start time is valid.
+             * @returns {boolean} true if start time is valid, null if entry length isn't big enough.
              */
             validateStartTime() {
                 // For new quests, check the start time is after the current time.
@@ -461,6 +466,9 @@
                 // For a new quests, the end date must be after today.
                 if (this.inputQuest.endDate < this.getDateString() && !this.inputQuest.id) {
                     return false;
+                }
+                if (this.inputQuest.endDate.length < 6) {
+                    return null;
                 }
                 // Otherwise, checks the end date is equal to or after the start date.
                 return this.inputQuest.endDate >= this.inputQuest.startDate;
