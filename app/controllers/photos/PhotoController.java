@@ -138,8 +138,8 @@ public class PhotoController extends Controller {
     private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic)
             throws IOException {
         Photo photoToAdd = new Photo();
-        photoToAdd.setMainFilename(getPhotoFilePath(false) + filename);
-        photoToAdd.setThumbnailFilename(getPhotoFilePath(true) + filename);
+        photoToAdd.setMainFilename(getPhotoFilePath(false) + "/" + filename);
+        photoToAdd.setThumbnailFilename(getPhotoFilePath(true) + "/" + filename);
         photoToAdd.setContentType(contentType);
         photoToAdd.setUploadDate(LocalDate.now());
         photoToAdd.setUploadProfile(profileToAdd);
@@ -434,11 +434,11 @@ public class PhotoController extends Controller {
      * @throws IOException  if there is an error with saving the thumbnail.
      */
     private void saveThumbnail(String filename) throws IOException {
-        BufferedImage photo = ImageIO.read(new File(getPhotoFilePath(false) + filename));
+        BufferedImage photo = ImageIO.read(new File(getPhotoFilePath(false) + "/" + filename));
         BufferedImage croppedImage = makeSquare(photo);
         BufferedImage thumbnail = scale(croppedImage);
         ImageIO.write(thumbnail, "jpg", new File(getPhotoFilePath(true)
-                + filename));
+                + "/" + filename));
     }
 
 
