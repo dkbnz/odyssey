@@ -186,7 +186,7 @@
 
                 <b-container fluid style="margin-top: 20px"
                              v-if="inputQuest.objectives.length > 0 && !editCurrentObjective">
-                    <!-- Table displaying all added destinations -->
+                    <!-- Table displaying all quest objectives -->
                     <b-table :current-page="currentPage" :fields="fields" :items="inputQuest.objectives"
                              :per-page="perPage"
                              hover
@@ -213,7 +213,7 @@
                             </b-button>
                         </template>
 
-                        <!-- Buttons to shift destinations up/down in table -->
+                        <!-- Buttons to shift objectives up/down in table -->
                         <template slot="order" slot-scope="row">
                             <b-button :disabled="inputQuest.objectives.length === 1 || row.index === 0 || heading === 'Edit'"
                                       @click="moveUp(row.index)"
@@ -636,6 +636,7 @@
                 });
             },
 
+
             /**
              * Gets all users that are currently using the given quest.
              */
@@ -649,6 +650,7 @@
                         this.activeUsers = data.length;
                     });
             },
+
 
             /**
              * PUT's the currently active quest to the quests endpoint in JSON format, for edited
@@ -877,6 +879,7 @@
             dismissModal(modal) {
                 this.$refs[modal].hide();
             },
+
 
             /**
              * Displays the countdown alert on the successful saving of a quest.

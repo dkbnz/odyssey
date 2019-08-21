@@ -105,6 +105,7 @@
                 this.showDestinations = true;
             },
 
+
             /**
              * Hides the destination searching sidebar.
              */
@@ -125,7 +126,7 @@
 
             /**
              * Switches to the 'active' page and refreshes the quest list.
-             * The 'active' page has an index of 0
+             * The 'active' page has an index of 0.
              */
             changeToActiveTab(quest) {
                 this.activeQuest = quest;
