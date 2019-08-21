@@ -91,6 +91,11 @@
             },
 
 
+            /**
+             * Displays the quest attempt page and sets the required quest attempt to the emitted one.
+             *
+             * @param questAttempt  the specified quest attempt.
+             */
             showQuestAttemptPage(questAttempt) {
                 this.showQuestAttempt = true;
                 this.selectedQuestAttempt = questAttempt;
