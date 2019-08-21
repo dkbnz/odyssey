@@ -1,7 +1,14 @@
 <template>
     <div>
         <div v-if="showDestinationSearch">
-            <b-button @click="goBack" class="buttonMarginsBottom" size="sm">Back</b-button>
+            <b-row>
+                <b-col cols="3">
+                    <b-button @click="goBack" class="buttonMarginsBottom" size="sm">Back</b-button>
+                </b-col>
+                <b-col cols="9">
+                    <div><strong>Riddle: "{{searchedRiddle}}"</strong></div>
+                </b-col>
+            </b-row>
             <b-button v-if="!showDestinationSearchCollapse" @click="showDestinationSearchCollapse = true;
             showSelectedDestination = false; foundDestinationsKey += 1" variant="primary" block>Search Again</b-button>
             <b-collapse v-model="showDestinationSearchCollapse" id="destinations-collapse">
@@ -84,7 +91,7 @@
                                    class="d-flex justify-content-between align-items-center"
                                    draggable="false" v-if="questAttempt.toSolve != null">
                     <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
-                    <b-button size="sm" variant="primary" @click="showDestinationSearch = true">Solve</b-button>
+                    <b-button size="sm" variant="primary" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
                 </b-list-group-item>
                 <!-- If we have an objective to check in to, display it -->
                 <b-list-group-item href="#"
@@ -140,7 +147,8 @@
                 foundLocation: false,
                 validCheckIn: false,
                 showNotValidCheckIn: false,
-                totalDistance: null
+                totalDistance: null,
+                searchedRiddle: null
             }
         },
 
@@ -295,6 +303,11 @@
                 this.selectedDestination = destination;
                 this.showDestinationSearchCollapse = false;
                 this.showSelectedDestination = true;
+            },
+
+            destinationSearch(riddle) {
+                this.showDestinationSearch = true;
+                this.searchedRiddle = riddle;
             },
 
 
