@@ -299,7 +299,7 @@
              */
             getHowClose() {
                 if (this.totalDistance >= 1) {
-                    return String(Number(Math.round(this.totalDistance+'e3')+'e-3')) + " km's";
+                    return String(Number(Math.round(this.totalDistance+'e3')+'e-3')) + " kms";
                 }
                 return String(Number(Math.round((this.totalDistance * 1000)+'e0')+'e-0')) + " metres";
 
