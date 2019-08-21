@@ -32,6 +32,13 @@
                                 :refresh-quests="refreshQuests"
                         ></quest-list>
                     </b-tab>
+                    <b-tab title="Completed Quests" @click="refreshQuests = !refreshQuests">
+                        <quest-list
+                                :profile="profile"
+                                :completed-quests="true"
+                                :refresh-quests="refreshQuests"
+                        ></quest-list>
+                    </b-tab>
                 </b-tabs>
             </b-card>
             <footer-main></footer-main>
