@@ -15,7 +15,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import com.google.inject.Inject;
 import java.util.*;
-
 import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
@@ -58,7 +57,6 @@ public class DestinationController extends Controller {
     private TripRepository tripRepository;
     private ObjectiveRepository objectiveRepository;
     private DestinationTypeRepository destinationTypeRepository;
-
 
     @Inject
     public DestinationController(
