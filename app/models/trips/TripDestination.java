@@ -99,6 +99,7 @@ public class TripDestination extends BaseModel {
     }
 
 
+    @Override
     public String toString() {
         return "{ " +
                 "startDate: " + this.startDate + ", " +
