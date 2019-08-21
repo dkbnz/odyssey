@@ -3,42 +3,42 @@
 # ~~~~
 
 # Redirect index to Vue frontend. Must stay at top of Routes for production.
-GET      /                                      controllers.Assets.at(path="/public", file="index.html")
+GET      /                       controllers.Assets.at(path="/public", file="index.html")
 
 # Get lists
-GET     /v1/travtypes                           controllers.TravellerTypeController.list()
-GET     /v1/nationalities                       controllers.NationalityController.list()
+GET     /v1/travtypes            controllers.profiles.TravellerTypeController.list()
+GET     /v1/nationalities        controllers.profiles.NationalityController.list()
 
 # Authentication
-POST    /v1/login                               controllers.AuthenticationController.login(request: Request)
-POST    /v1/logout                              controllers.AuthenticationController.logout()
-POST    /v1/checkUsername                       controllers.ProfileController.checkUsername(request: Request)
+POST    /v1/login                controllers.util.AuthenticationController.login(request: Request)
+POST    /v1/logout               controllers.util.AuthenticationController.logout()
+POST    /v1/checkUsername        controllers.profiles.ProfileController.checkUsername(request: Request)
 
 # Profile
-GET     /v1/profile                             controllers.ProfileController.fetch(request: Request)
-PUT     /v1/profile/:id                         controllers.ProfileController.update(request: Request, id: Long)
-DELETE  /v1/profile/:id                         controllers.ProfileController.delete(request: Request, id: Long)
+GET     /v1/profile              controllers.profiles.ProfileController.fetch(request: Request)
+PUT     /v1/profile/:id          controllers.profiles.ProfileController.update(request: Request, id: Long)
+DELETE  /v1/profile/:id          controllers.profiles.ProfileController.delete(request: Request, id: Long)
 
 # User Profiles
-GET     /v1/profiles                            controllers.ProfileController.list(request: Request)
-POST    /v1/profiles                            controllers.ProfileController.create(request: Request)
+GET     /v1/profiles             controllers.profiles.ProfileController.list(request: Request)
+POST    /v1/profiles                      controllers.profiles.ProfileController.create(request: Request)
 
 # Admin
-POST    /v1/makeAdmin/:id                       controllers.ProfileController.makeAdmin(request: Request, id: Long)
-POST    /v1/removeAdmin/:id                     controllers.ProfileController.removeAdmin(request: Request, id: Long)
+POST    /v1/makeAdmin/:id                 controllers.profiles.ProfileController.makeAdmin(request: Request, id: Long)
+POST    /v1/removeAdmin/:id               controllers.profiles.ProfileController.removeAdmin(request: Request, id: Long)
 
 # Destinations
-GET     /v1/destinations                        controllers.destinations.DestinationController.fetch(request: Request)
-GET     /v1/destinations/proposals              controllers.destinations.DestinationTravellerTypeController.fetchProposedDestinations(request: Request)
-POST    /v1/destinations/:userId                controllers.destinations.DestinationController.save(request: Request, userId: Long)
-GET     /v1/destinationTypes                    controllers.destinations.DestinationController.getTypes()
+GET     /v1/destinations                  controllers.destinations.DestinationController.fetch(request: Request)
+GET     /v1/destinations/proposals        controllers.destinations.DestinationTravellerTypeController.fetchProposedDestinations(request: Request)
+POST    /v1/destinations/:userId          controllers.destinations.DestinationController.save(request: Request, userId: Long)
+GET     /v1/destinationTypes              controllers.destinations.DestinationController.getTypes()
 GET     /v1/destinations/:userId                controllers.destinations.DestinationController.fetchByUser(request: Request, userId: Long)
 PUT     /v1/destinations/:destId                controllers.destinations.DestinationController.edit(request: Request, destId: Long)
 GET     /v1/destinations/:destinationId/checkDuplicates     controllers.destinations.DestinationController.getDestinationUsage(request: Request, destinationId: Long)
 POST    /v1/destinationsCheckEdit               controllers.destinations.DestinationController.getDestinationUsageEdited(request: Request)
 DELETE  /v1/destinations/:destinationId         controllers.destinations.DestinationController.destroy(request: Request, destinationId: Long)
 
-POST    /v1/destinations/:destinationId/travellerTypes              controllers.destinations.DestinationTravellerTypeController.create(request: Request, destinationId: Long)
+POST    /v1/destinations/:destinationId/travellerTypes              controllers.destinations.DestinationTravellerTypeController.addTravellerTypes(request: Request, destinationId: Long)
 POST    /v1/destinations/:destinationId/travellerTypes/propose      controllers.destinations.DestinationTravellerTypeController.propose(request: Request, destinationId: Long)
 
 # Trips
@@ -66,13 +66,9 @@ DELETE  /v1/destinationPhotos/:destinationId    controllers.photos.PhotoControll
 # Objectives
 GET     /v1/objectives                                 controllers.objectives.ObjectiveController.fetchAll(request: Request)
 GET     /v1/objectives/:userId                         controllers.objectives.ObjectiveController.fetchByOwner(request: Request, userId: Long)
-GET     /v1/objectiveDest/:objectiveId                 controllers.objectives.ObjectiveController.fetchDestination(request: Request, objectiveId: Long)
 POST    /v1/objectives/:userId                         controllers.objectives.ObjectiveController.create(request: Request, userId: Long)
 PUT     /v1/objectives/:objectiveId                    controllers.objectives.ObjectiveController.edit(request: Request, objectiveId: Long)
 DELETE  /v1/objectives/:objectiveId                    controllers.objectives.ObjectiveController.delete(request: Request, objectiveId: Long)
-#GET     /v1/objectives/:objectiveId/checkGuess        controllers.objectives.ObjectiveController.checkGuess(request: Request, objectiveId: Long)
-#GET     /v1/objectives/:objectiveId/checkIn           controllers.objectives.ObjectiveController.checkIn(request: Request, objectiveId: Long)
-#GET     /v1/objectives/:objectiveId/hasSolved/:userId controllers.objectives.ObjectiveController.hasSolved(request: Request, objectiveId: Long, userId: Long)
 
 # Quests
 GET     /v1/quests                              controllers.quests.QuestController.fetchAll(request: Request)
@@ -93,4 +89,4 @@ GET     /v1/quests/profiles/:userId                            controllers.quest
 GET     /static/*file                                  controllers.Assets.at(path="/public/static", file)
 
 # Anything else not found, send to index.html, let vue handle 404. Must stay at bottom of Routes for production.
-GET     /*anyUrl                                     controllers.VueRedirect.matchAll(anyUrl)
+GET     /*anyUrl                                     controllers.util.VueRedirect.matchAll(anyUrl)

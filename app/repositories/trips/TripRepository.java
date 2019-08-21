@@ -1,13 +1,14 @@
-package repositories;
+package repositories.trips;
 
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
-import models.Profile;
+import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
+import repositories.profiles.ProfileRepository;
 
 import java.util.HashSet;
 import java.util.List;

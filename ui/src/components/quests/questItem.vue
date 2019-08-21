@@ -23,9 +23,39 @@
             ></b-progress>
         </b-alert>
 
+        <!-- Confirmation modal for deleting a quest. -->
+        <b-modal hide-footer id="editQuestModal" ref="editQuestModal" title="Edit Quest">
+            <div v-if="activeUsers > 0"
+                 class="d-block">
+                This quest is used by {{activeUsers}} users.
+            </div>
+            <div class="d-block">
+                Are you sure that you want to edit this Quest?
+            </div>
+            <b-row>
+                <b-col cols="6">
+                    <b-button
+                            class="mr-2"
+                            variant="warning"
+                            @click="updateQuest"
+                            block>
+                        Edit
+                    </b-button>
+                </b-col>
+                <b-col cols="6">
+                    <b-button
+                            @click="dismissModal('editQuestModal')"
+                            class="mr-2"
+                            block>
+                        Cancel
+                    </b-button>
+                </b-col>
+            </b-row>
+        </b-modal>
+
         <b-row>
             <b-col>
-                <b-form>
+                <b-form v-if="!editCurrentObjective  && !addNewObjective">
 
                     <b-container fluid>
                         <b-form-group
@@ -125,15 +155,15 @@
                 <b-row v-if="addNewObjective">
                     <b-col cols="12">
                         <b-card>
-                        <add-objective
-                                :inputObjective="objectiveSelected"
-                                :profile="profile"
-                                :heading="'Add'"
-                                @addObjective="addObjective"
-                                @cancelCreate="cancelObjectiveCreate"
-                                @destination-select="$emit('destination-select')"
-                                :selectedDestination="destinationSelected">
-                        </add-objective>
+                            <add-objective
+                                    :inputObjective="objectiveSelected"
+                                    :profile="profile"
+                                    :heading="'Add'"
+                                    @addObjective="addObjective"
+                                    @cancelCreate="cancelObjectiveCreate"
+                                    @destination-select="$emit('destination-select')"
+                                    :selectedDestination="destinationSelected">
+                            </add-objective>
                         </b-card>
                     </b-col>
                 </b-row>
@@ -154,7 +184,8 @@
                     </b-col>
                 </b-row>
 
-                <b-container fluid style="margin-top: 20px" v-if="inputQuest.objectives.length > 0">
+                <b-container fluid style="margin-top: 20px"
+                             v-if="inputQuest.objectives.length > 0 && !editCurrentObjective">
                     <!-- Table displaying all added destinations -->
                     <b-table :current-page="currentPage" :fields="fields" :items="inputQuest.objectives"
                              :per-page="perPage"
@@ -164,7 +195,7 @@
                              ref="questObjective"
                              striped>
 
-                        <!-- Buttons that appear for each treasure hunt added to table -->
+                        <!-- Buttons that appear for each objective added to table -->
                         <template slot="actions" slot-scope="row">
                             <b-button size="sm"
                                       @click="editObjective(row.item)"
@@ -172,7 +203,7 @@
                                       class="mr-2"
                                       block>Edit
                             </b-button>
-                            <!--Removes treasure hunt from table-->
+                            <!--Removes objective from table-->
                             <b-button size="sm"
                                       @click="deleteObjective(row.item)"
                                       variant="danger"
@@ -230,7 +261,7 @@
                     </b-row>
                 </b-container>
 
-                <b-row class="buttonMarginsTop">
+                <b-row class="buttonMarginsTop" v-if="!editCurrentObjective && !addNewObjective">
                     <b-col>
                         <b-button @click="validateQuest" block variant="primary">
                             Save
@@ -319,7 +350,7 @@
                     {value: 5, text: "5"},
                     {value: 10, text: "10"},
                     {value: 15, text: "15"},
-                    {value:Infinity, text:"All"}],
+                    {value: Infinity, text: "All"}],
                 perPage: 5,
                 currentPage: 1,
                 editCurrentObjective: false,
@@ -336,7 +367,8 @@
                     destination: null,
                     riddle: "",
                     radius: null
-                }
+                },
+                activeUsers: null
             }
         },
 
@@ -462,7 +494,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @returns {number}    the number of rows required in the table based on number of treasure hunts to be
+             * @returns {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
             rows() {
@@ -530,7 +562,8 @@
                 if (this.validateStartDate && this.validateStartTime && this.validateEndDate && this.validateEndTime
                     && this.validateTitle && this.validateObjectives) {
                     if (this.inputQuest.id !== null) {
-                        this.updateQuest();
+                        this.getActiveUsers();
+                        this.$refs['editQuestModal'].show()
                     } else {
                         this.saveQuest();
                     }
@@ -577,7 +610,7 @@
                 }).then(function (response) {
                     if (response.status >= 400) {
                         // Ensures the start and end date fields are not wiped after an error occurs.
-                        this.splitDates();
+                        self.splitDates();
                         // Converts response to text, this is then displayed on the frontend.
                         response.text().then(data => {
                             let responseBody = JSON.parse(data);
@@ -595,6 +628,19 @@
                 });
             },
 
+            /**
+             * Gets all users that are currently using the given quest.
+             */
+            getActiveUsers() {
+                return fetch('/v1/quests/' + this.inputQuest.id + '/profiles', {
+                    accept: "application/json"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then(data => {
+                        this.activeUsers = data.length;
+                    });
+            },
 
             /**
              * PUT's the currently active quest to the quests endpoint in JSON format, for edited
@@ -611,7 +657,7 @@
                 }).then(function (response) {
                     if (response.status >= 400) {
                         // Ensures the start and end date fields are not wiped after an error occurs.
-                        //this.splitDates();
+                        self.splitDates();
                         // Converts response to text, this is then displayed on the frontend.
                         response.text().then(data => {
                             let responseBody = JSON.parse(data);
@@ -631,7 +677,7 @@
 
 
             /**
-             * Adds the specified treasure hunt to the list of quest treasure hunts and handles the appropriate actions.
+             * Adds the specified objective to the list of quest objectives and handles the appropriate actions.
              */
             addObjective(objective) {
                 this.inputQuest.objectives.push(JSON.parse(JSON.stringify(objective)));
@@ -648,7 +694,7 @@
 
 
             /**
-             * Replaces the treasure hunt in the quest treasure hunts array with the newly edited treasure hunt.
+             * Replaces the objective in the quest objectives array with the newly edited objective.
              */
             objectiveEdited(objective) {
                 this.inputQuest.objectives[this.objectiveIndex] = JSON.parse(JSON.stringify(objective));
@@ -665,7 +711,7 @@
 
 
             /**
-             * Displays the edit treasure hunt field and sets the current treasure hunt to the specified value.
+             * Displays the edit objective field and sets the current objective to the specified value.
              */
             editObjective(objective) {
                 this.objectiveIndex = this.inputQuest.objectives.indexOf(objective);
@@ -698,7 +744,7 @@
 
 
             /**
-             * Removes a treasure hunt from the list of quest's treasure hunts.
+             * Removes an objective from the list of quest's objectives.
              */
             deleteObjective(objective) {
                 let rowIndex = this.inputQuest.objectives.indexOf(objective);
@@ -722,7 +768,7 @@
 
 
             /**
-             * Cancels the current creation of a treasure hunt addition to a quest
+             * Cancels the current creation of an objective addition to a quest
              */
             cancelObjectiveCreate() {
                 this.addNewObjective = false;
@@ -741,23 +787,33 @@
             splitDates() {
                 if (this.inputQuest.id !== null) {
                     this.inputQuest.startDate = new Date(this.inputQuest.startDate).toLocaleString();
+
+                    //Start date
                     let startDate = this.inputQuest.startDate;
-                    // The date is the values before the comma
+
+                    // The date is the value before the comma
                     this.inputQuest.startDate = this.inputQuest.startDate.split(", ")[0];
+
                     // Change format of dates from the backslash symbol, reverse the order, and join with hyphens.
                     this.inputQuest.startDate = this.inputQuest.startDate.split("/").reverse().join("-");
                     this.startTime = startDate.split(" ")[1];
+
                     // Splits by either the + or the - symbol. Removing the timezone.
                     this.startTime = this.startTime.split("+")[0];
                     this.startTime = this.startTime.split("-")[0];
 
                     this.inputQuest.endDate = new Date(this.inputQuest.endDate).toLocaleString();
+
+                    //End Date
                     let endDate = this.inputQuest.endDate;
+
                     // The date is the values before the comma
                     this.inputQuest.endDate = this.inputQuest.endDate.split(", ")[0];
+
                     // Change format of dates from the backslash symbol, reverse the order, and join with hyphens.
                     this.inputQuest.endDate = this.inputQuest.endDate.split("/").reverse().join("-");
                     this.endTime = endDate.split(" ")[1];
+
                     // Splits by either the + or the - symbol. Removing the timezone.
                     this.endTime = this.endTime.split("+")[0];
                     this.endTime = this.endTime.split("-")[0];
@@ -771,11 +827,11 @@
             joinDates() {
                 let timeOffset = this.formatOffset();
 
-                if(this.startTime.length === 5) {
+                if (this.startTime.length === 5) {
                     this.startTime += ":00";
                 }
 
-                if(this.endTime.length === 5) {
+                if (this.endTime.length === 5) {
                     this.endTime += ":00";
                 }
 
@@ -806,6 +862,15 @@
 
 
             /**
+             * Used to dismiss the delete a quest confirmation modal.
+             *
+             * @param modal, the modal that is wanting to be dismissed.
+             */
+            dismissModal(modal) {
+                this.$refs[modal].hide();
+            },
+
+            /**
              * Displays the countdown alert on the successful saving of a quest.
              */
             showAlert() {
@@ -824,9 +889,9 @@
 
 
             /**
-             * Used to move a treasure hunt in the table up one place.
+             * Used to move an objective in the table up one place.
              *
-             * @param rowIndex      the row index of the treasure hunt in the table.
+             * @param rowIndex      the row index of the objective in the table.
              */
             moveUp(rowIndex) {
                 let upIndex = rowIndex - 1;
@@ -838,9 +903,9 @@
 
 
             /**
-             * Used to move a treasure hunt in the table down one place.
+             * Used to move an objective in the table down one place.
              *
-             * @param rowIndex      the row index of the treasure hunt in the table.
+             * @param rowIndex      the row index of the objective in the table.
              */
             moveDown(rowIndex) {
                 let downIndex = rowIndex + 1;
@@ -852,7 +917,7 @@
 
 
             /**
-             * Displays the add treasure hunt component and the search destinations side bar.
+             * Displays the add objective component and the search destinations side bar.
              */
             showObjectiveComponent() {
                 this.addNewObjective = !this.addNewObjective;
@@ -862,7 +927,7 @@
 
 
             /**
-             * Displays the add treasure hunt component and the your treasure hunts side bar.
+             * Displays the add objective component and the your objectives side bar.
              */
             showYourObjectivesComponent() {
                 this.addNewObjective = !this.addNewObjective;
@@ -881,7 +946,17 @@
                     return radius * 1000 + " Meters"
                 }
                 return radius + " Km";
-            }
+            },
+
+
+            /**
+             * Converts the Http response body to a Json.
+             * @param response  the received Http response.
+             * @returns {*}     the response body as a Json object.
+             */
+            parseJSON(response) {
+                return response.json();
+            },
         }
     }
 </script>

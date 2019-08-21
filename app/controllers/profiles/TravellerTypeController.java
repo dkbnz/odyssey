@@ -1,4 +1,4 @@
-package controllers;
+package controllers.profiles;
 
 import com.google.inject.Inject;
 import play.libs.Json;

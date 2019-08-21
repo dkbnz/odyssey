@@ -2,16 +2,25 @@ package models.quests;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import models.ApiError;
-import models.BaseModel;
-import models.Profile;
+import models.util.ApiError;
+import models.util.BaseModel;
+import models.profiles.Profile;
 import models.objectives.Objective;
 
 import javax.persistence.*;
 import java.util.*;
 
+
+/**
+ * Class for quest, is used to initialise a quest.
+ */
 @Entity
 public class Quest extends BaseModel {
+
+    @ElementCollection
+    private Map<String, Integer> countryOccurrences;
+
+    private static final int MAX_TITLE_SIZE = 255;
 
     /**
      * List of objectives to be solved in this quest.
@@ -56,7 +65,7 @@ public class Quest extends BaseModel {
 
         if (title == null || title.isEmpty()) {
             errors.add(new ApiError("A quest title must be provided."));
-        } else if (title.length() > 255) {
+        } else if (title.length() > MAX_TITLE_SIZE) {
             errors.add(new ApiError("Quest titles must not exceed 255 characters in length."));
         }
 
@@ -151,5 +160,6 @@ public class Quest extends BaseModel {
     }
 
     public Profile getOwner() {
-        return owner;}
+        return owner;
+    }
 }

@@ -3,13 +3,12 @@ package repositories.quests;
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
-import models.Profile;
+import models.profiles.Profile;
 import io.ebean.ExpressionList;
 import models.quests.Quest;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -24,8 +23,6 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
     }
 
 
-
-
     /**
      * Retrieve a List of Quests that contain an Objective with the given country string as the Destination.
      *
@@ -34,6 +31,15 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
      */
     public HashSet<Quest> findAllUsing(String country) {
         return (HashSet<Quest>) query().where().in("countryOccurrences.key", country).findSet();
+    }
+
+
+    /**
+     * Gets the expression list to build the search query for quests.
+     * @return          an expression list with object type Quest.
+     */
+    public ExpressionList<Quest> getExpressionList() {
+        return query().where();
     }
 
 
@@ -49,14 +55,5 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
                 .eq("attempts.attemptedBy", profile)
                 .eq("attempts.completed", true)
                 .findList();
-    }
-
-
-    /**
-     * Gets the expression list to build the search query for quests.
-     * @return          an expression list with object type Quest.
-     */
-    public ExpressionList<Quest> getExpressionList() {
-        return query().where();
     }
 }

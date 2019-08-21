@@ -1,8 +1,8 @@
 package models.photos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import models.BaseModel;
-import models.Profile;
+import models.util.BaseModel;
+import models.profiles.Profile;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;

@@ -13,60 +13,63 @@
 
             <p>Number of Objectives:</p>
             <b-card>
-            <b-row>
-                <b-col>
-                <b-form-group
-                        id="option-field"
-                        label="Operator:"
-                        label-for="option">
-                    <!--Dropdown field for comparision fields-->
-                    <b-form-select id="option" trim v-model="searchOperator">
-                        <template slot="first">
-                            <option value="=">Equal to</option>
-                        </template>
-                        <option :value="option.value" v-for="option in operatorOptions"
-                                :state="operatorOptionsValidation">
-                            {{option.text}}
-                        </option>
-                    </b-form-select>
-                </b-form-group>
-                </b-col>
+                <b-row>
+                    <b-col>
+                        <b-form-group
+                                id="option-field"
+                                label="Operator:"
+                                label-for="option">
+                            <!--Dropdown field for comparision fields-->
+                            <b-form-select id="option" trim v-model="searchOperator">
+                                <template slot="first">
+                                    <option value="=">Equal to</option>
+                                </template>
+                                <option :value="option.value" v-for="option in operatorOptions"
+                                        :state="operatorOptionsValidation">
+                                    {{option.text}}
+                                </option>
+                            </b-form-select>
+                        </b-form-group>
+                    </b-col>
 
-                <b-col>
-                <b-form-group
-                        id="number-objectives-field"
-                        label="Amount:"
-                        label-for="number-objectives">
-                    <b-form-input id="number-objectives" trim v-model="searchNumberObjective" :state="numberObjectiveValidation">
-                    </b-form-input>
-                </b-form-group>
-                </b-col>
-            </b-row>
+                    <b-col>
+                        <b-form-group
+                                id="number-objectives-field"
+                                label="Amount:"
+                                label-for="number-objectives">
+                            <b-form-input id="number-objectives" trim v-model="searchNumberObjective"
+                                          :state="numberObjectiveValidation">
+                            </b-form-input>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
             </b-card>
 
             <p>Created By:</p>
             <b-card>
-            <b-row>
-                <b-col>
-                <b-form-group
-                        id="created-first-field"
-                        label="First Name:"
-                        label-for="created-first">
-                    <b-form-input id="created-first" trim v-model="searchCreatedFirst" :state="createdFirstValidation">
-                    </b-form-input>
-                </b-form-group>
-                </b-col>
+                <b-row>
+                    <b-col>
+                        <b-form-group
+                                id="created-first-field"
+                                label="First Name:"
+                                label-for="created-first">
+                            <b-form-input id="created-first" trim v-model="searchCreatedFirst"
+                                          :state="createdFirstValidation">
+                            </b-form-input>
+                        </b-form-group>
+                    </b-col>
 
-                <b-col>
-                <b-form-group
-                        id="created-last-field"
-                        label="Last Name:"
-                        label-for="created-last">
-                    <b-form-input id="created-last" trim v-model="searchCreatedLast" :state="createdLastValidation">
-                    </b-form-input>
-                </b-form-group>
-                </b-col>
-            </b-row>
+                    <b-col>
+                        <b-form-group
+                                id="created-last-field"
+                                label="Last Name:"
+                                label-for="created-last">
+                            <b-form-input id="created-last" trim v-model="searchCreatedLast"
+                                          :state="createdLastValidation">
+                            </b-form-input>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
             </b-card>
 
             <b-form-group
@@ -123,7 +126,7 @@
         },
 
         mounted() {
-          this.getCountries()
+            this.getCountries()
         },
 
         computed: {

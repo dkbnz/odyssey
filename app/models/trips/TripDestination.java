@@ -2,7 +2,7 @@ package models.trips;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import models.BaseModel;
+import models.util.BaseModel;
 import models.destinations.Destination;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;

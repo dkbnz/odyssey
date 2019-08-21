@@ -3,18 +3,16 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
-import models.Profile;
+import models.profiles.Profile;
 import org.junit.Assert;
 import org.springframework.beans.BeansException;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 
 import java.io.IOException;
 import java.util.*;
@@ -98,11 +96,13 @@ public class ProfileTestSteps {
     private static final Logger LOGGER = Logger.getLogger( ProfileTestSteps.class.getName() );
 
 
-    private ProfileRepository profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
+    private ProfileRepository profileRepository =
+            testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
 
     /**
      * Gets the response as an iterator array Node from any fake request so that you can iterate over the response data.
+     *
      * @param content   the string of the result using helper content as string.
      * @return          an Array node iterator.
      */
@@ -119,6 +119,7 @@ public class ProfileTestSteps {
 
     /**
      * Converts given data table information and creates a profile json for creating a profile.
+     *
      * @param dataTable     the data table from cucumber.
      * @return              the json formatted string of the profile.
      */
@@ -160,8 +161,6 @@ public class ProfileTestSteps {
         json.putArray("passports").add(passportNode);
         return json;
     }
-
-
 
 
     @When("I send a GET request to the profiles endpoint")
