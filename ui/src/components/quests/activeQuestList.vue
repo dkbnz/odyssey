@@ -2,7 +2,6 @@
     <div>
         <b-list-group>
             <b-list-group-item v-for="questAttempt in questAttempts" href="#"
-                               v-if="questAttempt.completed === false"
                                class="flex-column align-items-start"
                                :key="questAttempt.id"
                                draggable="false"
