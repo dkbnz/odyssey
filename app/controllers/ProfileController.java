@@ -3,10 +3,7 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
-import models.Nationality;
-import models.Passport;
-import models.Profile;
-import models.TravellerType;
+import models.*;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.libs.Json;
@@ -645,7 +642,30 @@ public class ProfileController {
      * logged in, forbidden() (Http 403) if logged in user is not an admin.
      */
     public Result makeAdmin(Http.Request request, Long id) {
-        return request.session()
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        if (!loggedInUser.isAdmin()) {
+            return forbidden(ApiError.forbidden());
+        }
+
+        Profile requestedUser = profileRepository.findById(id);
+
+        if (requestedUser == null) {
+            return notFound(ApiError.notFound());
+        }
+
+        requestedUser.setAdmin(true);
+        profileRepository.update(requestedUser);
+
+        return ok(Json.toJson(requestedUser));
+
+
+        // TODO Matthew Remove commented code when confirmed working
+        /*return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
                     // User is logged in
@@ -666,7 +686,7 @@ public class ProfileController {
                     }
                     return ok(UPDATED);
                 })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in*/
     }
 
 
@@ -681,6 +701,30 @@ public class ProfileController {
      * successfully updating the admin property of a profile.
      */
     public Result removeAdmin(Http.Request request, Long id) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        if (!loggedInUser.isAdmin()) {
+            return forbidden(ApiError.forbidden());
+        }
+
+        Profile requestedUser = profileRepository.findById(id);
+
+        if (requestedUser == null) {
+            return notFound(ApiError.notFound());
+        }
+
+        requestedUser.setAdmin(false);
+        profileRepository.update(requestedUser);
+
+        return ok(Json.toJson(requestedUser));
+
+
+        // TODO Matthew remove commented code when confirmed working
+        /*
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
@@ -709,6 +753,6 @@ public class ProfileController {
                     }
                     return ok(UPDATED);
                 })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in*/
     }
 }
