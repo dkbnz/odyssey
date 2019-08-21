@@ -7,6 +7,7 @@ import models.profiles.Nationality;
 import models.profiles.Passport;
 import models.profiles.Profile;
 import models.profiles.TravellerType;
+import models.util.ApiError;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.libs.Json;
@@ -650,28 +651,26 @@ public class ProfileController {
      *                      forbidden() (Http 403) if logged in user is not an admin.
      */
     public Result makeAdmin(Http.Request request, Long id) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(userId -> {
-                    // User is logged in
-                    Profile userProfile = profileRepository.findById(Long.valueOf(userId));
-                    if (userProfile == null) {
-                        return notFound(NO_PROFILE_FOUND);
-                    }
-                    // If profile logged in is admin, can make another user admin.
-                    if (userProfile.isAdmin()) {
-                        Profile updateProfile = profileRepository.findById(id);
-                        if (updateProfile == null) {
-                            return notFound(NO_PROFILE_FOUND);
-                        }
-                        updateProfile.setAdmin(true);
-                        profileRepository.update(updateProfile);
-                    } else {
-                        return forbidden();
-                    }
-                    return ok(UPDATED);
-                })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        if (!loggedInUser.isAdmin()) {
+            return forbidden(ApiError.forbidden());
+        }
+
+        Profile requestedUser = profileRepository.findById(id);
+
+        if (requestedUser == null) {
+            return notFound(ApiError.notFound());
+        }
+
+        requestedUser.setAdmin(true);
+        profileRepository.update(requestedUser);
+
+        return ok(Json.toJson(requestedUser));
     }
 
 
@@ -687,34 +686,25 @@ public class ProfileController {
      *                      ok() (Http 200) if successfully updating the admin property of a profile.
      */
     public Result removeAdmin(Http.Request request, Long id) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(userId -> {
-                    // User is logged in
-                    Profile userProfile = profileRepository.findById(Long.valueOf(userId));
-                    if (userProfile == null) {
-                        return notFound(NO_PROFILE_FOUND);
-                    }
-                    // If the logged in user is admin
-                    if (userProfile.isAdmin()) {
-                        Profile updateProfile = profileRepository.findById(id);
-                        if (updateProfile == null) {
-                            return notFound(NO_PROFILE_FOUND);
-                        }
-                        // If the profile trying to be changed is not the global admin (id number one).
-                        if (!updateProfile.getId().equals(DEFAULT_ADMIN_ID)) {
-                            if (updateProfile.isAdmin()) {
-                                updateProfile.setAdmin(false);
-                                profileRepository.update(updateProfile);
-                            }
-                        } else {
-                            return forbidden();
-                        }
-                    } else {
-                        return forbidden();
-                    }
-                    return ok(UPDATED);
-                })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        if (!loggedInUser.isAdmin()) {
+            return forbidden(ApiError.forbidden());
+        }
+
+        Profile requestedUser = profileRepository.findById(id);
+
+        if (requestedUser == null) {
+            return notFound(ApiError.notFound());
+        }
+
+        requestedUser.setAdmin(false);
+        profileRepository.update(requestedUser);
+
+        return ok(Json.toJson(requestedUser));
     }
 }
