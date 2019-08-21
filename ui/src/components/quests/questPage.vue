@@ -14,7 +14,7 @@
                         <active-quest-page
                                 :profile="profile"
                                 :refresh-quests="refreshQuests"
-                                :active-quest="activeQuest">
+                                :new-quest-attempt="newQuestAttempt">
                         </active-quest-page>
                     </b-tab>
                     <b-tab title="Available Quests" @click="refreshQuests = !refreshQuests">
@@ -22,7 +22,7 @@
                                 :profile="profile"
                                 :available-quests="true"
                                 :refresh-quests="refreshQuests"
-                                @change-to-active="quest => changeToActiveTab(quest)"
+                                @start-quest-now="questAttempt => changeToActiveTab(questAttempt)"
                         ></quest-list>
                     </b-tab>
                     <b-tab title="Your Quests" @click="refreshQuests = !refreshQuests">
@@ -87,52 +87,20 @@
                 showDestinations: false,
                 refreshObjectives: false,
                 refreshQuests: false,
-                showQuestAttemptSolve: false,
-                selectedQuestAttempt: {},
                 tabIndex: 0,
-                activeQuest: {
-                    type: Object,
-                    default: null
-                }
+                newQuestAttempt: null
             }
         },
 
         methods: {
             /**
-             * Shows the destination searching sidebar.
-             */
-            showDestinationsSidebar() {
-                this.showDestinations = true;
-            },
-
-
-            /**
-             * Hides the destination searching sidebar.
-             */
-            hideDestinationsSidebar() {
-                this.showDestinations = false;
-                this.selectedDestination = {};
-            },
-
-
-            /**
-             * Displays the quest solve page.
-             */
-            showQuestAttemptPage(questAttempt) {
-                this.showQuestAttemptSolve = true;
-                this.selectedQuestAttempt = questAttempt;
-            },
-
-
-            /**
              * Switches to the 'active' page and refreshes the quest list.
              * The 'active' page has an index of 0.
              */
-            changeToActiveTab(quest) {
-                this.activeQuest = quest;
+            changeToActiveTab(questAttempt) {
                 this.tabIndex = 0;
+                this.newQuestAttempt = questAttempt;
                 this.refreshQuests = !this.refreshQuests;
-
             }
         },
 
