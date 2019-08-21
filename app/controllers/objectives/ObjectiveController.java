@@ -123,34 +123,7 @@ public class ObjectiveController {
 
         return created(Json.toJson(objective.getId()));
     }
-
-
-    /**
-     * Retrieves the destination solution to the objective.
-     * @param request           the request from the front end of the application containing login information.
-     * @param objectiveId       the id of the objective for which the destination is needed.
-     * @return                  the destination solution for the objective.
-     */
-    public Result fetchDestination(Http.Request request, Long objectiveId) {
-        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
-        if (loggedInUser == null) {
-            return unauthorized();
-        }
-
-        Objective objective = objectiveRepository.findById(objectiveId);
-
-        if (objective == null) {
-            return notFound(TREASURE_HUNT_NOT_FOUND);
-        }
-
-        Destination destinationResult = objective.getDestination();
-        if (destinationResult == null) {
-            return notFound();
-        }
-
-        return ok(Json.toJson(destinationResult));
-    }
-
+    
 
     /**
      * Edits the objective specified by the given id. Changed values are stored in the request body. Validates
