@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import models.destinations.Destination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import models.Profile;
+import models.profiles.Profile;
 import models.photos.PersonalPhoto;
 import models.photos.Photo;
 import play.libs.Files.TemporaryFile;
@@ -14,7 +14,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repositories.destinations.DestinationRepository;
 import repositories.photos.PersonalPhotoRepository;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 import com.typesafe.config.Config;
 
@@ -85,21 +85,20 @@ public class PhotoController extends Controller {
      * @param getThumbnail  whether thumbnail directory is being requested.
      * @return              filepath to save the photo to.
      */
-    private String getPhotoFilePath(Boolean getThumbnail) throws IOException {
+    private String getPhotoFilePath(boolean getThumbnail) throws IOException {
 
-        String photoEnvironmentName = config.getString("travelea.photos.path.env");
-
-        String mainPath = (photoEnvironmentName != null && System.getenv(photoEnvironmentName) != null
-                ? System.getenv(photoEnvironmentName)
-                : config.getString("travelea.photos.main"));
+        String mainPath = config.getString("travelea.photos.main");
 
         String returnPath = mainPath + (getThumbnail
                 ? config.getString("travelea.photos.thumbnail")
                 : "");
 
-        Path path = Paths.get(returnPath);
 
-        if (!path.toFile().isDirectory()) {
+        Path path = Paths.get(returnPath).toAbsolutePath();
+
+        returnPath = path.toString();
+
+        if (!path.toFile().exists() || !path.toFile().isDirectory()) {
             Files.createDirectory(path);
         }
 
@@ -142,8 +141,8 @@ public class PhotoController extends Controller {
     private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic)
             throws IOException {
         Photo photoToAdd = new Photo();
-        photoToAdd.setMainFilename(getPhotoFilePath(false) + filename);
-        photoToAdd.setThumbnailFilename(getPhotoFilePath(true) + filename);
+        photoToAdd.setMainFilename(getPhotoFilePath(false) + "/" + filename);
+        photoToAdd.setThumbnailFilename(getPhotoFilePath(true) + "/" + filename);
         photoToAdd.setContentType(contentType);
         photoToAdd.setUploadDate(LocalDate.now());
         photoToAdd.setUploadProfile(profileToAdd);
@@ -153,8 +152,7 @@ public class PhotoController extends Controller {
         personalPhoto.setPublic(isPublic);
         personalPhoto.setProfile(profileToAdd);
 
-        profileToAdd.addPhotoToGallery(personalPhoto);
-        profileRepository.save(profileToAdd);
+        personalPhotoRepository.save(personalPhoto);
     }
 
 
@@ -348,7 +346,7 @@ public class PhotoController extends Controller {
                 addImageToProfile(profileToAdd, filename, photo.getContentType(), false);
             } catch (IOException e) {
                 log.error("Unable to convert image to thumbnail", e);
-                return internalServerError("Unable to save image");
+                return internalServerError(Json.toJson(e));
             }
         }
         return created(Json.toJson(profileToAdd.getPhotoGallery()));
@@ -438,11 +436,11 @@ public class PhotoController extends Controller {
      * @throws IOException  if there is an error with saving the thumbnail.
      */
     private void saveThumbnail(String filename) throws IOException {
-        BufferedImage photo = ImageIO.read(new File(getPhotoFilePath(false) + filename));
+        BufferedImage photo = ImageIO.read(new File(getPhotoFilePath(false) + "/" + filename));
         BufferedImage croppedImage = makeSquare(photo);
         BufferedImage thumbnail = scale(croppedImage);
         ImageIO.write(thumbnail, "jpg", new File(getPhotoFilePath(true)
-                + filename));
+                + "/" + filename));
     }
 
 

@@ -2,9 +2,9 @@ package models.quests;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import models.ApiError;
-import models.BaseModel;
-import models.Profile;
+import models.util.ApiError;
+import models.util.BaseModel;
+import models.profiles.Profile;
 import models.objectives.Objective;
 
 import javax.persistence.*;
@@ -29,7 +29,8 @@ public class Quest extends BaseModel {
     /**
      * List of attempts that have been had on this quest.
      */
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "questAttempted")
+    @JsonIgnore
     private List<QuestAttempt> attempts;
 
     /**
@@ -158,5 +159,4 @@ public class Quest extends BaseModel {
     public Profile getOwner() {
         return owner;
     }
-
 }

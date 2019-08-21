@@ -3,16 +3,22 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.Assets;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import models.profiles.Profile;
 import models.objectives.Objective;
 import models.quests.Quest;
+import models.quests.QuestAttempt;
 import org.junit.Assert;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.profiles.ProfileRepository;
 import repositories.objectives.ObjectiveRepository;
+import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
 
 import java.io.IOException;
@@ -20,8 +26,8 @@ import java.util.*;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
-import static play.mvc.Http.HttpVerbs.OPTIONS;
 import static play.mvc.Http.HttpVerbs.PUT;
 import static play.test.Helpers.*;
 
@@ -141,9 +147,45 @@ public class QuestTestSteps {
 
 
     /**
+     * The quest attempt URI endpoint.
+     */
+    private static final String QUEST_ATTEMPT_URI = "/attempt/";
+
+
+    /**
+     * The quest attempt guess URI endpoint.
+     */
+    private static final String GUESS_URI = "/guess/";
+
+
+    /**
+     * The quest attempt check in URI endpoint.
+     */
+    private static final String CHECK_IN_URI = "/checkIn";
+
+
+    /**
+     * The quest attempt URI endpoint.
+     */
+    private static final String QUEST_COMPLETE_URI = "/complete";
+
+
+    /**
+     * The profiles quest URI endpoint.
+     */
+    private static final String PROFILES_URI = "/profiles/";
+
+
+    /**
      * The id of the newly created quest.
      */
     private Long questId;
+
+
+    /**
+     * The id of the newly created quest attempt.
+     */
+    private String questAttemptId;
 
 
     private ObjectNode questObjectJson;
@@ -154,6 +196,19 @@ public class QuestTestSteps {
      * Repository to access the quests in the running application.
      */
     private QuestRepository questRepository = testContext.getApplication().injector().instanceOf(QuestRepository.class);
+
+
+    /**
+     * Repository to access the profiles in the running application.
+     */
+    private ProfileRepository profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
+
+
+    /**
+     * Repository to access the quest attempts in the running application.
+     */
+    private QuestAttemptRepository questAttemptRepository =
+            testContext.getApplication().injector().instanceOf(QuestAttemptRepository.class);
 
 
     /**
@@ -347,6 +402,35 @@ public class QuestTestSteps {
 
 
     /**
+     * Sends a request to get all quest attempts.
+     */
+    private void retrieveQuestAttempts() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(QUEST_URI + PROFILES_URI + testContext.getTargetId())
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    /**
+     * Sends a request to get all completed quests for a given user.
+
+     */
+    private void retrieveCompleteQuests() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(QUEST_URI + "/" + testContext.getTargetId() + QUEST_COMPLETE_URI)
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    /**
      * Sends a request to edit a quest with values from the given Json node.
      *
      * @param json      a JsonNode containing the values for a new quest object.
@@ -377,6 +461,87 @@ public class QuestTestSteps {
     }
 
 
+    /**
+     * Sends a request to start a quest with the given id.
+     *
+     * @param questId           the id of the quest to start.
+     * @throws IOException      thrown if there is an error reading the response body following the request.
+     */
+    private void startQuestRequest(Integer questId) throws IOException {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(QUEST_URI + "/" + questId + QUEST_ATTEMPT_URI + testContext.getTargetId())
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+
+        setQuestAttemptId();
+    }
+
+
+    /**
+     * Sets the quest attempt id attribute after sending a request.
+     *
+     * @throws IOException      thrown if there is an error reading the response body following the request.
+     */
+    private void setQuestAttemptId() throws IOException {
+        if (testContext.getStatusCode() < 400) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode actualObj = mapper.readTree(testContext.getResponseBody());
+            questAttemptId = actualObj.get(ID).toString();
+        } else {
+            questAttemptId = null;
+        }
+    }
+
+
+    /**
+     * Send a request to guess the current destination for a quest attempt given by global questAttemptId.
+     *
+     * @param destinationId         the destination id to guess for the quest attempt.
+     */
+    private void guessDestinationForQuest(Integer destinationId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(QUEST_URI + QUEST_ATTEMPT_URI + questAttemptId + GUESS_URI + destinationId)
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    /**
+     * Test if a given quest attempt has the correct json schema.
+     *
+     * @param questAttempt the quest attempt to check.
+     */
+    private void validateQuestAttempt(JsonNode questAttempt) {
+        Assert.assertTrue(questAttempt.has("id"));
+        Assert.assertTrue(questAttempt.has("questAttempted"));
+        Assert.assertTrue(questAttempt.has("solved"));
+        Assert.assertTrue(questAttempt.has("toCheckIn"));
+        Assert.assertTrue(questAttempt.has("toSolve"));
+        Assert.assertTrue(questAttempt.has("unsolved"));
+        Assert.assertTrue(questAttempt.has("progress"));
+    }
+
+
+    /**
+     * Send a check in request for a quest attempt given by global questAttemptId.
+     */
+    private void sendCheckInRequest() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(QUEST_URI + QUEST_ATTEMPT_URI + questAttemptId + CHECK_IN_URI)
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
     @Given("a quest already exists with the following values")
     public void aQuestAlreadyExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(testContext.getLoggedInId());
@@ -392,6 +557,42 @@ public class QuestTestSteps {
             convertDataTableToObjectiveJson(dataTable, i);
             questObjectJson.putArray(OBJECTIVES).addAll(questObjectivesJson);
         }
+    }
+
+
+    @Given("^a quest exists with id (\\d+)$")
+    public void aQuestExistsWithId(Integer questId) {
+        Assert.assertNotNull(questRepository.findById(Long.valueOf(questId)));
+    }
+
+
+    @Given("^a quest does not exist with id (\\d+)$")
+    public void aQuestDoesNotExistWithId(Integer questId) {
+        Assert.assertNull(questRepository.findById(Long.valueOf(questId)));
+    }
+
+
+    @Given("^an objective exists with id (\\d+)$")
+    public void anObjectiveExistsWithId(Integer objectiveId) {
+        Assert.assertNotNull(objectiveRepository.findById(Long.valueOf(objectiveId)));
+    }
+
+
+    @Given("^the quest with id (\\d+) has been completed$")
+    public void theQuestWithIdHasBeenCompleted(Integer questId) {
+        Profile profile = profileRepository.findById(Long.valueOf(testContext.getLoggedInId()));
+        List<QuestAttempt> questAttempts= questAttemptRepository.findAllUsing(profile, Long.valueOf(questId));
+        Assert.assertFalse(questAttempts.isEmpty());
+        Assert.assertTrue(questAttempts.get(0).isCompleted());
+    }
+
+
+    @Given("^the quest with id (\\d+) has been completed by user (\\d+)$")
+    public void theQuestWithIdHasBeenCompletedByUser(Integer questId, Integer userId) {
+        Profile profile = profileRepository.findById(Long.valueOf(userId));
+        List<QuestAttempt> questAttempts= questAttemptRepository.findAllUsing(profile, Long.valueOf(questId));
+        Assert.assertFalse(questAttempts.isEmpty());
+        Assert.assertTrue(questAttempts.get(0).isCompleted());
     }
 
 
@@ -544,6 +745,67 @@ public class QuestTestSteps {
     }
 
 
+    @When("^I start a quest with id (\\d+)$")
+    public void iStartAQuestWithId(Integer questId) throws IOException {
+        testContext.setTargetId(testContext.getLoggedInId());
+        startQuestRequest(questId);
+    }
+
+
+    @When("^I start a quest with id (\\d+) for user (\\d+)$")
+    public void iStartAQuestWithIdForUser(Integer questId, Integer userId) throws IOException {
+        testContext.setTargetId(userId.toString());
+        startQuestRequest(questId);
+    }
+
+
+    @When("^I retrieve all active quests for user (\\d+)$")
+    public void iRetrieveAllActiveQuestsForUser(Integer userId) {
+        testContext.setTargetId(userId.toString());
+        retrieveQuestAttempts();
+    }
+
+
+    @When("I retrieve all my complete quests")
+    public void iRetrieveAllMyCompleteQuests() {
+        testContext.setTargetId(testContext.getLoggedInId());
+        retrieveCompleteQuests();
+    }
+
+
+    @When("^I retrieve all complete quests for user (\\d+)$")
+    public void iRetrieveAllCompleteQuestsForUser(Integer userId) {
+        testContext.setTargetId(userId.toString());
+        retrieveCompleteQuests();
+    }
+
+
+    @When("^I guess destination id (\\d+)$")
+    public void iGuessDestinationIdForQuest(Integer destinationId) {
+        guessDestinationForQuest(destinationId);
+    }
+
+
+    @When("^I guess destination id (\\d+) for quest attempt (\\d+)$")
+    public void iGuessDestinationIdForQuestAttempt(Integer destinationId, Integer questAttemptId) {
+        this.questAttemptId = questAttemptId.toString();
+        guessDestinationForQuest(destinationId);
+    }
+
+
+    @When("I check in")
+    public void iCheckIn() {
+        sendCheckInRequest();
+    }
+
+
+    @When("^I check in for quest attempt (\\d+)$")
+    public void iCheckInForQuestAttempt(Integer questAttemptId) {
+        this.questAttemptId = questAttemptId.toString();
+        sendCheckInRequest();
+    }
+
+
     @Then("^the response contains (\\d+) quests$")
     public void theResponseContainsQuests(int numberOfQuests) throws IOException {
         int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
@@ -562,5 +824,52 @@ public class QuestTestSteps {
     public void theObjectiveWithIdStillExists(Integer objectiveId) {
         Objective objective = objectiveRepository.findById(objectiveId.longValue());
         Assert.assertNotNull(objective);
+    }
+
+
+    @Then("the new quest attempt exists")
+    public void theNewQuestAttemptExists() {
+        Assert.assertNotNull(questAttemptRepository.findById(Long.valueOf(questAttemptId)));
+    }
+
+
+    @Then("the response has owner view")
+    public void theResponseHasOwnerView() throws IOException {
+        JsonNode destinationField = new ObjectMapper()
+                .readTree(testContext.getResponseBody()).get(0)
+                .get(OBJECTIVES).get(0)
+                .get(OBJECTIVE_DESTINATION);
+        Assert.assertNotNull(destinationField);
+    }
+
+
+    @Then("the response has public view")
+    public void theResponseHasPublicView() throws IOException {
+        JsonNode destinationField = new ObjectMapper()
+                .readTree(testContext.getResponseBody()).get(0)
+                .get(OBJECTIVES).get(0)
+                .get(OBJECTIVE_DESTINATION);
+        Assert.assertNull(destinationField);
+    }
+
+
+    @Then("^the guess result is (true|false)$")
+    public void theGuessResultIs(String guessResult) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode actualObj = mapper.readTree(testContext.getResponseBody());
+        Assert.assertEquals(guessResult, actualObj.get("guessResult").asText());
+    }
+
+
+    @Then("I receive a valid quest attempt in the response")
+    public void iReceiveAValidQuestAttemptInTheResponse() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode questAttempt = mapper.readTree(testContext.getResponseBody());
+
+        if (questAttempt.has("attempt")) {
+            questAttempt = questAttempt.get("attempt");
+        }
+
+        validateQuestAttempt(questAttempt);
     }
 }

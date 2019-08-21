@@ -1,10 +1,10 @@
-package repositories;
+package repositories.profiles;
 
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
-import models.Profile;
+import models.profiles.Profile;
 import models.quests.Quest;
 
 import java.util.List;
@@ -15,6 +15,8 @@ import java.util.List;
  * Extends the BeanRepository containing all CRUD methods.
  */
 public class ProfileRepository extends BeanRepository<Long, Profile> {
+
+    private static final String QUEST_ATTEMPTED = "questAttempts.questAttempted";
 
     @Inject
     public ProfileRepository() {
@@ -34,6 +36,6 @@ public class ProfileRepository extends BeanRepository<Long, Profile> {
      */
     public List<Profile> findAllUsing(Quest usedQuest) {
 
-        return query().where().eq("questAttempts.questAttempted", usedQuest).findList();
+        return query().where().eq(QUEST_ATTEMPTED, usedQuest).findList();
     }
 }

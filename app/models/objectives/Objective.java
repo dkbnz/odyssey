@@ -2,9 +2,9 @@ package models.objectives;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import models.ApiError;
-import models.BaseModel;
-import models.Profile;
+import models.util.ApiError;
+import models.util.BaseModel;
+import models.profiles.Profile;
 import models.destinations.Destination;
 import util.Views;
 

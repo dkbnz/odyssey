@@ -1,4 +1,4 @@
-package models;
+package models.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import play.libs.Json;
@@ -44,7 +44,15 @@ public class ApiError {
         return Json.toJson(Arrays.asList(new ApiError("You are not authorized to access this resource.")));
     }
 
+    public static JsonNode forbidden(String message) {
+        return Json.toJson(Arrays.asList(new ApiError(message)));
+    }
+
     public static JsonNode invalidJson() {
         return Json.toJson(Arrays.asList(new ApiError("The JSON body received in the request was invalid.")));
+    }
+
+    public static JsonNode badRequest(String message) {
+        return Json.toJson(Arrays.asList(new ApiError(message)));
     }
 }

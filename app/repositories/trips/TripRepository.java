@@ -1,13 +1,14 @@
-package repositories;
+package repositories.trips;
 
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
-import models.Profile;
+import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
+import repositories.profiles.ProfileRepository;
 
 import java.util.HashSet;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.Set;
  */
 public class TripRepository extends BeanRepository<Long, Trip> {
 
-    private static final String PROFILE_ID = "profile_id";
+    private static final String PROFILE_ID = "profile.id";
     private static final String TRIP_ID = "id";
 
     private ProfileRepository profileRepository;
@@ -115,7 +116,7 @@ public class TripRepository extends BeanRepository<Long, Trip> {
      * @return              the profile id of the owner of the trip.
      */
     public Long fetchTripOwner(Long tripId) {
-        return query().select("profile.id").where().eq(TRIP_ID, tripId).findSingleAttribute();
+        return query().select(PROFILE_ID).where().eq(TRIP_ID, tripId).findSingleAttribute();
     }
 
 
