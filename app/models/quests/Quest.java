@@ -17,9 +17,6 @@ import java.util.*;
 @Entity
 public class Quest extends BaseModel {
 
-    @ElementCollection
-    private Map<String, Integer> countryOccurrences;
-
     private static final int MAX_TITLE_SIZE = 255;
 
     /**
