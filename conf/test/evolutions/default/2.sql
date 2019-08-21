@@ -450,7 +450,7 @@ INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `lon
 (9000, 'Japan', 39, 'Japan', -44.1625, 170.993056, 'Japan', true, 1),
 (10000, 'Canterbury University', 3, 'Christchurch', -43.523434, 172.581681, 'New Zealand', false, 3);
 
-INSERT INTO `profile_nationality` (`profile_id`, `nationality_id`) VALUES
+INSERT INTO `nationality_profile` (`profile_id`, `nationality_id`) VALUES
 (1, 67),
 (2, 4),
 (2, 5),
@@ -460,7 +460,7 @@ INSERT INTO `profile_nationality` (`profile_id`, `nationality_id`) VALUES
 (5, 23),
 (6, 49);
 
-INSERT INTO `profile_traveller_type` (`profile_id`, `traveller_type_id`) VALUES
+INSERT INTO `traveller_type_profile` (`profile_id`, `traveller_type_id`) VALUES
 (1, 6),
 (2, 1),
 (2, 2),
@@ -473,7 +473,7 @@ INSERT INTO `profile_traveller_type` (`profile_id`, `traveller_type_id`) VALUES
 (6, 2),
 (6, 4);
 
-INSERT INTO `profile_passport` (`profile_id`, `passport_id`) VALUES
+INSERT INTO `passport_profile` (`profile_id`, `passport_id`) VALUES
 (2, 3),
 (2, 4),
 (2, 5),
@@ -525,11 +525,11 @@ INSERT INTO `objective` (`id`, `destination_id`, `riddle`, `radius`, `owner_id`)
 
 
 INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
-(1, 'Journey to the centre of the Earth', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 2),
-(2, 'My new quest', '2019-08-15 22:47:00', '9999-08-16 11:59:00', 2),
+(1, 'Journey to the centre of the Earth', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 1),
+(2, 'My new quest', '2019-08-15 22:47:00', '9999-08-16 11:59:00', 6),
 (3, 'I am your father', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 2),
 (4, 'Use the force Luke', '2019-08-16 04:04:00', '9999-08-16 11:59:00', 2),
-(5, 'Energise', '2019-08-16 04:09:00', '9999-08-16 11:59:00', 2);
+(5, 'Energise', '2019-08-16 04:09:00', '9999-08-16 11:59:00', 1);
 
 INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
 (1, 1),

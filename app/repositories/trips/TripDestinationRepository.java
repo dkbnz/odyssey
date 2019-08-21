@@ -1,4 +1,4 @@
-package repositories;
+package repositories.trips;
 
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;

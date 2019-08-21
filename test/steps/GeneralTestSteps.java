@@ -13,7 +13,7 @@ import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;

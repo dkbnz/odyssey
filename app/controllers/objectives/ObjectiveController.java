@@ -3,21 +3,22 @@ package controllers.objectives;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
-import models.ApiError;
-import models.Profile;
+import models.util.ApiError;
+import models.profiles.Profile;
 import models.destinations.Destination;
 import models.objectives.Objective;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.objectives.ObjectiveRepository;
 import util.AuthenticationUtil;
 import util.Views;
-import java.util.*;
-import static play.mvc.Results.*;
 
+import java.util.*;
+
+import static play.mvc.Results.*;
 
 public class ObjectiveController {
 

@@ -68,16 +68,22 @@
                                         v-if="!activeQuests"
                                        @click="selectedQuest = quest">
                         <template v-if="!editingQuest && !(activeId === quest.id)">
-                            <h4>Title</h4>
-                            <p>{{quest.title}}</p>
+                            <b-row class="buttonMarginsTop">
+                                <b-col :cols="availableQuests ? 5 : ''">
+                                    <h4>Title</h4>
+                                    <p>{{quest.title}}</p>
+                                </b-col>
+                                <b-col>
+                                    <h4>Countries</h4>
+                                    <p>{{getQuestCountries(quest)}}</p>
+                                </b-col>
+                            </b-row>
                             <b-row class="buttonMarginsTop">
                                 <b-col>
                                     <h4>Start Date</h4>
                                     {{new Date(quest.startDate)}}
                                 </b-col>
                                 <b-col>
-                                    <h4>Countries</h4>
-                                    <p>{{getQuestCountries(quest)}}</p>
                                     <h4>End Date</h4>
                                     {{new Date(quest.endDate)}}
                                 </b-col>

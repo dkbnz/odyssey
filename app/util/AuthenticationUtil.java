@@ -1,8 +1,8 @@
 package util;
 
-import models.Profile;
+import models.profiles.Profile;
 import play.mvc.Http;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
