@@ -447,9 +447,10 @@ INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `lon
 (9490, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', false, 5),
 (9491, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', false, 6),
 (9001, 'Private Glade', 39, 'Canterbury', -44.1625, 170.993056, 'New Zealand', false, 3),
+(9000, 'Japan', 39, 'Japan', -44.1625, 170.993056, 'Japan', true, 1),
 (10000, 'Canterbury University', 3, 'Christchurch', -43.523434, 172.581681, 'New Zealand', false, 3);
 
-INSERT INTO `profile_nationality` (`profile_id`, `nationality_id`) VALUES
+INSERT INTO `nationality_profile` (`profile_id`, `nationality_id`) VALUES
 (1, 67),
 (2, 4),
 (2, 5),
@@ -459,7 +460,7 @@ INSERT INTO `profile_nationality` (`profile_id`, `nationality_id`) VALUES
 (5, 23),
 (6, 49);
 
-INSERT INTO `profile_traveller_type` (`profile_id`, `traveller_type_id`) VALUES
+INSERT INTO `traveller_type_profile` (`profile_id`, `traveller_type_id`) VALUES
 (1, 6),
 (2, 1),
 (2, 2),
@@ -472,7 +473,7 @@ INSERT INTO `profile_traveller_type` (`profile_id`, `traveller_type_id`) VALUES
 (6, 2),
 (6, 4);
 
-INSERT INTO `profile_passport` (`profile_id`, `passport_id`) VALUES
+INSERT INTO `passport_profile` (`profile_id`, `passport_id`) VALUES
 (2, 3),
 (2, 4),
 (2, 5),
@@ -524,16 +525,18 @@ INSERT INTO `objective` (`id`, `destination_id`, `riddle`, `radius`, `owner_id`)
 
 
 INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
-(1, 'Journey to the centre of the Earth', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 2),
-(2, 'My new quest', '2019-08-15 22:47:00', '9999-08-16 11:59:00', 2),
+(1, 'Journey to the centre of the Earth', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 1),
+(2, 'My new quest', '2019-08-15 22:47:00', '9999-08-16 11:59:00', 6),
 (3, 'I am your father', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 2),
 (4, 'Use the force Luke', '2019-08-16 04:04:00', '9999-08-16 11:59:00', 2),
-(5, 'Energise', '2019-08-16 04:09:00', '9999-08-16 11:59:00', 2);
+(5, 'Energise', '2019-08-16 04:09:00', '9999-08-16 11:59:00', 1);
 
 INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
 (1, 1),
+(1, 12),
 (1, 2),
 (2, 3),
+(2, 13),
 (3, 4),
 (3, 5),
 (3, 6),
@@ -541,8 +544,14 @@ INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
 (4, 8),
 (4, 9),
 (5, 10),
-(5, 11),
-(1, 12),
-(2, 13);
+(5, 11);
+
+INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `solved_current`, `checked_in_index`, `completed`) VALUES
+(1, 1, 1, 0, 0, 0),
+(2, 1, 3, 1, 3, 0),
+(3, 2, 3, 1, 1, 0),
+(4, 2, 4, 0, 1, 0),
+(5, 3, 5, 0, 2, 1),
+(6, 4, 2, 0, 2, 1);
 
 # --- !Downs

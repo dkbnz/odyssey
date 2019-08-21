@@ -1,10 +1,10 @@
-package controllers;
+package controllers.profiles;
 
-import models.Nationality;
+import models.profiles.Nationality;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
-import repositories.NationalityRepository;
+import repositories.profiles.NationalityRepository;
 
 import com.google.inject.Inject;
 import java.util.List;

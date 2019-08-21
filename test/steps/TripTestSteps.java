@@ -8,7 +8,7 @@ import cucumber.api.java.en.When;
 import models.destinations.Destination;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.TripRepository;
+import repositories.trips.TripRepository;
 import repositories.destinations.DestinationRepository;
 import java.io.IOException;
 import java.util.List;

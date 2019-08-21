@@ -1,10 +1,10 @@
 package controllers;
 
-import models.Profile;
+import models.profiles.Profile;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 
 import play.mvc.Http;

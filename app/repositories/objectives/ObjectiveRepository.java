@@ -15,6 +15,8 @@ import java.util.List;
  */
 public class ObjectiveRepository extends BeanRepository<Long, Objective> {
 
+    private static final String DESTINATION = "destination";
+
     @Inject
     public ObjectiveRepository() {
         super(Objective.class, Ebean.getDefaultServer());
@@ -27,10 +29,10 @@ public class ObjectiveRepository extends BeanRepository<Long, Objective> {
      * @param destination   the destination being checked for usage within objectives.
      * @return              a potentially empty list of objectives that contain contain the destination parameter.
      */
-    public List<Objective> getObjectivesWithDestination(Destination destination) {
+    public List<Objective> findAllUsing(Destination destination) {
         return query()
                 .where()
-                .eq("destination", destination)
+                .eq(DESTINATION, destination)
                 .findList();
     }
 }

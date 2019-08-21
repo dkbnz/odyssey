@@ -35,9 +35,6 @@ body {
 .wrapper {
     margin-top: 0.5vh;
 }
-.content {
-    width: 80%;
-}
 .sidebar {
     padding: 20px;
     background-color: white;
@@ -66,6 +63,27 @@ body {
         padding: 50px;
         background-color: white;
         border-radius: 5px;
+    }
+}
+
+
+@media only screen and (max-device-width: 480px) {
+    p {
+        font-size: 15px;
+    }
+
+    h1 {
+        font-size: 30px;
+    }
+
+    h2 {
+        font-size: 25px;
+    }
+}
+
+@media only screen and (min-device-width: 992px) {
+    .show-only-mobile {
+        visibility: hidden;
     }
 }
 
@@ -198,4 +216,12 @@ a {
 
 .defaultCursor {
     cursor: default;
+}
+
+.mobile-text {
+    font-size: 15px;
+}
+
+.no-wrap-text {
+    white-space: nowrap;
 }

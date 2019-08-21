@@ -3,7 +3,7 @@ package repositories.destinations;
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
-import models.TravellerType;
+import models.profiles.TravellerType;
 
 
 /**

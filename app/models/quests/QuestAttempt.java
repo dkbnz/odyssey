@@ -3,11 +3,12 @@ package models.quests;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import models.BaseModel;
-import models.Profile;
+import models.util.BaseModel;
+import models.profiles.Profile;
 import models.destinations.Destination;
 import models.objectives.Objective;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import java.util.List;
@@ -23,7 +24,7 @@ public class QuestAttempt extends BaseModel {
     /**
      * Profile that has attempted the Quest.
      */
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JsonIgnore
     private Profile attemptedBy;
 
@@ -31,8 +32,8 @@ public class QuestAttempt extends BaseModel {
     /**
      * The Quest to be attempted.
      */
-    @ManyToOne
-    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JsonIgnoreProperties({"objectives", "owner"})
     private Quest questAttempted;
 
 
@@ -70,7 +71,8 @@ public class QuestAttempt extends BaseModel {
 
 
     /**
-     * Get a list of Objectives that the user has correctly guessed the destination for.
+     * Get a list of Objectives that the user has correctly guessed the destination for
+     * and they have checked in to.
      *
      * @return  list of objectives the user has solved for this particular quest attempt.
      */
@@ -78,7 +80,26 @@ public class QuestAttempt extends BaseModel {
     public List<Objective> getSolved() {
         return questAttempted
                 .getObjectives()
-                .subList(0, checkedInIndex + (solvedCurrent ? 1 : 0));
+                .subList(0, checkedInIndex);
+    }
+
+
+    /**
+     * Returns the current Objective the user needs to check in to.
+     * Will return null if there is no current objective to check in to.
+     * This means that an objective needs to be solved first, or the quest is complete.
+     *
+     * @return  current Objective to check in to.
+     */
+    @JsonProperty("toCheckIn")
+    public Objective getCurrentToCheckIn() {
+        if (solvedCurrent && !completed) {
+            return questAttempted
+                    .getObjectives()
+                    .get(checkedInIndex);
+        } else {
+            return null;
+        }
     }
 
 
@@ -90,9 +111,9 @@ public class QuestAttempt extends BaseModel {
      *
      * @return  current Objective to solve.
      */
-    @JsonProperty("current")
+    @JsonProperty("toSolve")
     @JsonIgnoreProperties({"destination", "radius"})
-    public Objective getCurrent() {
+    public Objective getCurrentToSolve() {
         if (!solvedCurrent && !completed) {
             return questAttempted
                     .getObjectives()
@@ -107,14 +128,14 @@ public class QuestAttempt extends BaseModel {
      * Returns a list of Objectives that the user is yet to solve.
      * When serialized using Json.toJson destinations will not show in the list of objectives.
      *
-     * @return  a list of unsolved objectives
+     * @return  a list of unsolved objectives.
      */
     @JsonProperty("unsolved")
     @JsonIgnoreProperties({"destination", "radius"})
     public List<Objective> getUnsolved() {
         return questAttempted
                 .getObjectives()
-                .subList(checkedInIndex + (solvedCurrent ? 1 : 0),
+                .subList(checkedInIndex + (completed ? 0 : 1),
                         questAttempted.getObjectives().size()
                 );
     }
@@ -144,15 +165,17 @@ public class QuestAttempt extends BaseModel {
      * Check in to the most recently solved Objective.
      * Will make the next Objective available to solve.
      * If the user checks in to the last Objective, Quest will be complete.
+     * @return true if the user successfully checks in to the current destination.
      */
-    public void checkIn() {
-        if(solvedCurrent && !completed && (checkedInIndex < questAttempted.getObjectives().size())) {
+    public boolean checkIn() {
+        if(solvedCurrent && !completed) {
             checkedInIndex += 1;
             solvedCurrent = false;
+            // If we have checked in to the last objective, quest is complete.
+            completed = checkedInIndex == questAttempted.getObjectives().size();
+            return true;
         }
-
-        // If we have checked in to the last objective, quest is complete.
-        completed = checkedInIndex == questAttempted.getObjectives().size();
+        return false;
     }
 
 
@@ -164,5 +187,25 @@ public class QuestAttempt extends BaseModel {
      */
     public boolean isCompleted() {
         return completed;
+    }
+
+
+    /**
+     * Calculate the percentage of the quest that is completed.
+     *
+     * @return  a percentage indicating the progress.
+     */
+    @JsonProperty("progress")
+    public int getProgress() {
+        return (checkedInIndex*100)/questAttempted.getObjectives().size();
+    }
+
+
+    public Profile getAttemptedBy() {
+        return attemptedBy;
+    }
+
+    public Quest getQuestAttempted() {
+        return questAttempted;
     }
 }

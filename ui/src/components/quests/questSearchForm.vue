@@ -6,7 +6,7 @@
             <!--Input fields for searching for quests-->
             <b-form-group
                     id="title-field"
-                    label="Quest Title's:"
+                    label="Quest Title:"
                     label-for="title">
                 <b-form-input id="title" v-model="searchTitle" :state="questTitleValidation"></b-form-input>
             </b-form-group>
@@ -88,7 +88,7 @@
                 </b-form-select>
             </b-form-group>
 
-            <b-button @click="searchQuests" block variant="primary">Search</b-button>
+            <b-button @click="searchQuests" block :disabled="!allFieldValidation" variant="primary">Search</b-button>
         </div>
     </div>
 </template>
@@ -141,12 +141,16 @@
                 }
                 return this.searchTitle.length > 0;
             },
+
+
             operatorOptionsValidation() {
                 if (this.searchOperator === null) {
                     return null;
                 }
                 return this.searchOperator.length > 0 || this.searchOperator !== null;
             },
+
+
             numberObjectiveValidation() {
                 if (this.searchNumberObjective.length === 0) {
                     return null;
@@ -154,6 +158,8 @@
                 return (!isNaN(this.searchNumberObjective) &&
                     !(this.searchNumberObjective < 1 || this.searchNumberObjective.includes(".")))
             },
+
+
             createdFirstValidation() {
                 if (this.searchCreatedFirst.length === 0) {
                     return null;
@@ -161,6 +167,8 @@
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.searchCreatedFirst);
             },
+
+
             createdLastValidation() {
                 if (this.searchCreatedLast.length === 0) {
                     return null;
@@ -168,11 +176,23 @@
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.searchCreatedLast);
             },
+
+
             countryValidation() {
                 if (this.searchCountry === null) {
                     return null;
                 }
                 return this.searchCountry.length > 0 || this.searchCountry !== null;
+            },
+
+
+            allFieldValidation() {
+                return (this.validateFields(this.questTitleValidation)
+                && this.validateFields(this.operatorOptionsValidation)
+                && this.validateFields(this.numberObjectiveValidation)
+                && this.validateFields(this.createdFirstValidation)
+                && this.validateFields(this.createdLastValidation)
+                && this.validateFields(this.countryValidation))
             }
         },
 
@@ -196,12 +216,7 @@
              * Sets values for search.
              */
             searchQuests() {
-                if (this.validateFields(this.questTitleValidation)
-                    && this.validateFields(this.operatorOptionsValidation)
-                    && this.validateFields(this.numberObjectiveValidation)
-                    && this.validateFields(this.createdFirstValidation)
-                    && this.validateFields(this.createdLastValidation)
-                    && this.validateFields(this.countryValidation)) {
+                if (this.allFieldValidation) {
                     this.queryQuests();
                 }
             },

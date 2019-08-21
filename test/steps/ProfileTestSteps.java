@@ -6,13 +6,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
-import models.Profile;
+import models.profiles.Profile;
 import org.junit.Assert;
 import org.springframework.beans.BeansException;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 
 import java.io.IOException;
 import java.util.*;

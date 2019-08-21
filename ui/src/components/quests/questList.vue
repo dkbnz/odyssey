@@ -1,8 +1,13 @@
 <template>
-    <div>
+    <div :class="classContainer">
+        <div v-if="classContainer" >
+            <h1 class="page-title">Quests</h1>
+            <p class="page-title"><i>Here are all this profile's currently active quests!</i></p>
+        </div>
+
         <b-row>
-            <b-col cols="8">
-                <b-list-group class="scroll">
+            <b-col cols="12" md="8">
+                <b-list-group>
                     <!--Successful quest alert -->
                     <b-alert
                             :show="dismissCountDown"
@@ -56,39 +61,55 @@
                             </div>
                         </b-list-group-item>
                     </div>
-                    <b-list-group-item v-for="quest in (foundQuests)" href="#"
+                    <b-list-group-item v-for="quest in foundQuests" href="#"
                                        class="flex-column align-items-start"
                                        :key="quest.id"
                                        draggable="false"
-                                       v-if="!creatingQuest && !editingQuest && !(activeId === quest.id)">
-                        <b-row class="buttonMarginsTop">
-                            <b-col>
-                                <h4>Title</h4>
-                                <p>{{quest.title}}</p>
-                                <h4>Start Date</h4>
-                                {{new Date(quest.startDate)}}
-                            </b-col>
-                            <b-col>
-                                <h4>Countries</h4>
-                                <p>{{getQuestCountries(quest)}}</p>
-                                <h4>End Date</h4>
-                                {{new Date(quest.endDate)}}
-                            </b-col>
-                        </b-row>
-
-                        <div v-if="yourQuests" class="buttonMarginsTop">
-                            <b-button @click="showHideLocations(quest)" variant="primary" class="buttonMarginsBottom">
-                                Show/Hide Locations
-                            </b-button>
-                            <b-container fluid style="margin-top: 20px; display: none" :id="'display-' + quest.id">
-                                <!-- Table displaying all added destinations -->
-                                <b-table :current-page="currentPage" :fields="fields" :items="quest.objectives"
-                                         :per-page="perPage"
-                                         hover
-                                         id="myTrips"
-                                         outlined
-                                         ref="questObjective"
-                                         striped>
+                                        v-if="!activeQuests"
+                                       @click="selectedQuest = quest">
+                        <template v-if="!editingQuest && !(activeId === quest.id)">
+                            <b-row class="buttonMarginsTop">
+                                <b-col :cols="availableQuests ? 5 : ''">
+                                    <h4>Title</h4>
+                                    <p>{{quest.title}}</p>
+                                </b-col>
+                                <b-col>
+                                    <h4>Countries</h4>
+                                    <p>{{getQuestCountries(quest)}}</p>
+                                </b-col>
+                            </b-row>
+                            <b-row class="buttonMarginsTop">
+                                <b-col>
+                                    <h4>Start Date</h4>
+                                    {{new Date(quest.startDate)}}
+                                </b-col>
+                                <b-col>
+                                    <h4>End Date</h4>
+                                    {{new Date(quest.endDate)}}
+                                </b-col>
+                                <!-- If looking at the available quests tab, show a 'start now' button -->
+                                <b-col cols="2" v-if="availableQuests">
+                                    <b-row>
+                                        <b-button variant="primary" @click="createAttempt(quest, true)">Start Now</b-button>
+                                    </b-row>
+                                    <b-row class="mt-4">
+                                        <b-button variant="secondary" @click="createAttempt(quest, false)">Start Later</b-button>
+                                    </b-row>
+                                </b-col>
+                            </b-row>
+                            <div v-if="yourQuests" class="buttonMarginsTop">
+                                <b-button @click="showHideLocations(quest)" variant="primary" class="buttonMarginsBottom">
+                                    Show/Hide Locations
+                                </b-button>
+                                <b-container fluid style="margin-top: 20px; display: none" :id="'display-' + quest.id">
+                                    <!-- Table displaying all quest objectives -->
+                                    <b-table :current-page="currentPage" :fields="fields" :items="quest.objectives"
+                                             :per-page="perPage"
+                                             hover
+                                             id="myTrips"
+                                             outlined
+                                             ref="questObjective"
+                                             striped>
 
                                     <template slot="radius" slot-scope="row">
                                         {{getRadiusValue(row.item.radius)}}
@@ -123,29 +144,18 @@
                             </b-container>
                         </div>
 
-                        <b-row v-if="yourQuests">
-                            <b-col>
-                                <b-button variant="warning" @click="setActiveId(quest)" block>Edit</b-button>
-                            </b-col>
-                            <b-col>
-                                <b-button variant="danger" @click="setQuest(quest)" block>Delete
-                                </b-button>
-                            </b-col>
-                        </b-row>
+                            <b-row v-if="yourQuests">
+                                <b-col>
+                                    <b-button variant="warning" @click="setActiveId(quest)" block>Edit</b-button>
+                                </b-col>
+                                <b-col>
+                                    <b-button variant="danger" @click="setQuest(quest)" block>Delete
+                                    </b-button>
+                                </b-col>
+                            </b-row>
+                        </template>
                         <!--Quest component-->
                     </b-list-group-item>
-                    <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
-                        <div class="d-flex justify-content-center">
-                            <b-spinner></b-spinner>
-                        </div>
-                    </b-list-group-item>
-                    <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="!loadingResults && foundQuests.length === 0">
-                        <div class="d-flex justify-content-center">
-                            <strong>No Quests</strong>
-                        </div>
-                    </b-list-group-item>
-
                 </b-list-group>
                 <!-- Confirmation modal for deleting a quest. -->
                 <b-modal hide-footer id="deleteQuestModal" ref="deleteQuestModal" title="Delete Quest">
@@ -173,9 +183,20 @@
                             class="mr-2 float-right">Cancel
                     </b-button>
                 </b-modal>
+                <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
+                    <div class="d-flex justify-content-center">
+                        <b-spinner></b-spinner>
+                    </div>
+                </b-list-group-item>
+                <b-list-group-item href="#" class="flex-column justify-content-center"
+                                   v-if="!loadingResults && foundQuests.length === 0">
+                    <div class="d-flex justify-content-center">
+                        <strong>No Quests Found</strong>
+                    </div>
+                </b-list-group-item>
             </b-col>
-            <b-col>
-                <b-card>
+            <b-col cols="12" md="4">
+                <b-card class="d-none d-lg-block" v-if="!hideSideBar">
                     <found-destinations
                             v-if="showDestinations"
                             :search-public="true"
@@ -194,6 +215,10 @@
                             :profile="profile"
                             @searched-quests="quests => this.foundQuests = quests">
                     </quest-search-form>
+                    <completed-quest-details
+                            v-if="completedQuests"
+                            :quest="selectedQuest">
+                    </completed-quest-details>
                 </b-card>
             </b-col>
         </b-row>
@@ -205,6 +230,9 @@
     import FoundDestinations from "../destinations/destinationSearchList";
     import ObjectiveList from "../objectives/objectiveList";
     import QuestSearchForm from "./questSearchForm";
+    import QuestAttemptSolve from "./activeQuestSolve";
+    import ActiveQuestList from "./activeQuestPage";
+    import CompletedQuestDetails from "./completedQuestDetails";
 
     export default {
         name: "questList",
@@ -221,6 +249,11 @@
                     return false;
                 }
             },
+            completedQuests: {
+                default: function () {
+                    return false;
+                }
+            },
             availableQuests: {
                 default: function () {
                     return false;
@@ -232,7 +265,17 @@
                 }
             },
             selectedDestination: {},
-            refreshQuests: Boolean
+            refreshQuests: Boolean,
+            hideSideBar: {
+                default: function () {
+                    return false;
+                }
+            },
+            classContainer: {
+                default: function () {
+                    return "";
+                }
+            }
         },
 
         data() {
@@ -252,6 +295,7 @@
                 deleteAlertMessage: "",
                 showDestinations: false,
                 showYourObjectives: false,
+                showQuestAttemptSolve: false,
                 selectedObjectiveTemplate: {
                     id: null,
                     destination: null,
@@ -278,9 +322,11 @@
                     {value: 5, text: "5"},
                     {value: 10, text: "10"},
                     {value: 15, text: "15"},
-                    {value: Infinity, text: "All"}],
-                activeUsers: null
-
+                    {value:Infinity, text:"All"}],
+                questAttempts: [],
+                selectedQuestAttempt: {},
+                selectedQuest: {},
+                activeUsers: 0
             }
         },
 
@@ -314,6 +360,8 @@
                 this.foundQuests = [];
                 if (this.yourQuests) {
                     this.queryYourQuests();
+                } else if(this.completedQuests) {
+                    this.queryCompletedQuests();
                 } else {
                     this.queryQuests();
                 }
@@ -354,6 +402,7 @@
              * @returns {Promise<Response | never>}
              */
             queryQuests() {
+                this.loadingResults = true;
                 return fetch('/v1/quests', {
                     accept: "application/json"
                 })
@@ -374,7 +423,82 @@
              */
             queryYourQuests() {
                 if (this.profile.id !== undefined) {
+                    this.loadingResults = true;
                     return fetch(`/v1/quests/` + this.profile.id, {})
+                        .then(this.parseJSON)
+                        .then((data) => {
+                            this.foundQuests = data;
+                            this.loadingResults = false;
+                        })
+                }
+
+            },
+
+
+            /**
+             * Runs a query which searches through the quests in the database and returns only
+             * quests started by the profile.
+             *
+             * @returns {Promise<Response | never>}
+             */
+            queryYourActiveQuests() {
+                if (this.profile.id !== undefined) {
+                    this.loadingResults = true;
+                    return fetch(`/v1/quests/profiles/` + this.profile.id, {})
+                        .then(this.parseJSON)
+                        .then((data) => {
+                            this.questAttempts = data;
+                            this.loadingResults = false;
+                        })
+                }
+
+            },
+
+
+            /**
+             * Creates a new quest attempt for the selected quest and current user.
+             *
+             * @returns {Promise<Response | never>}
+             */
+            createAttempt(questToAttempt, viewActive) {
+                if (this.profile.id !== undefined) {
+                    return fetch(`/v1/quests/` + questToAttempt.id + `/attempt/` + this.profile.id, {
+                        method: 'POST'
+                    }).then(response => {
+                        if (response.ok) {
+                            // Refresh quests
+                            this.getMore();
+
+                            this.showSuccess("Quest started");
+
+                            // If 'start now' is clicked
+                            if (viewActive) {
+                                this.changeToActiveTab(questToAttempt);
+                            }
+                        }
+                    });
+                }
+            },
+
+
+            /**
+             * Emits and event to prompt the quest page to switch the current tab to the active quests tab.
+             */
+            changeToActiveTab(quest) {
+                this.$emit('change-to-active', quest);
+            },
+
+
+            /**
+             * Runs a query which searches through the quests in the database and returns only
+             * quests created by the profile.
+             *
+             * @returns {Promise<Response | never>}
+             */
+            queryCompletedQuests() {
+                if (this.profile.id !== undefined) {
+                    this.loadingResults = true;
+                    return fetch(`/v1/quests/` + this.profile.id + `/complete`, {})
                         .then(this.parseJSON)
                         .then((data) => {
                             this.foundQuests = data;
@@ -425,14 +549,14 @@
              * Gets all users that are currently using the given quest.
              */
             getActiveUsers() {
+                let self = this;
                 return fetch('/v1/quests/' + this.questId + '/profiles', {
                     accept: "application/json"
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(data => {
-                        console.log(data.length);
-                        this.activeUsers = data.length;
+                        self.activeUsers = data.length;
                     });
             },
 
@@ -612,6 +736,9 @@
         },
 
         components: {
+            CompletedQuestDetails,
+            ActiveQuestList,
+            QuestAttemptSolve,
             ObjectiveList,
             QuestItem,
             FoundDestinations,
@@ -619,7 +746,3 @@
         }
     }
 </script>
-
-<style scoped>
-    @import "../../css/quests.css";
-</style>

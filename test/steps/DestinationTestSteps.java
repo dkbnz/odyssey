@@ -9,7 +9,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.ebean.ExpressionList;
-import models.TravellerType;
+import models.profiles.TravellerType;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
 import models.objectives.Objective;
@@ -19,7 +19,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.TripRepository;
+import repositories.trips.TripRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.destinations.TravellerTypeRepository;
@@ -39,12 +39,6 @@ public class DestinationTestSteps {
      * Singleton class which stores generally used variables
      */
     private TestContext testContext = TestContext.getInstance();
-
-
-    /**
-     * New instance of the general test steps.
-     */
-    private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
 
 
     /**
@@ -1064,7 +1058,7 @@ public class DestinationTestSteps {
     public void theDestinationWillHaveTheFollowingNumberOfObjectives(Integer expectedSize) {
         Destination destination = destinationRepository.findById(destinationId);
 
-        List<Objective> objectives = objectiveRepository.getObjectivesWithDestination(destination);
+        List<Objective> objectives = objectiveRepository.findAllUsing(destination);
 
         assertEquals(expectedSize.longValue(), objectives.size());
     }

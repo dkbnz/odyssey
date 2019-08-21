@@ -139,13 +139,13 @@
                 <div v-if="!editCurrentObjective">
                     <b-row>
                         <b-col>
-                            <b-button v-if="!addNewObjective" variant="success"
+                            <b-button v-if="!addNewObjective" variant="success" :disabled="heading === 'Edit'"
                                       @click="showObjectiveComponent" block>
                                 Add a New Objective
                             </b-button>
                         </b-col>
                         <b-col>
-                            <b-button v-if="!addNewObjective" variant="primary"
+                            <b-button v-if="!addNewObjective" variant="primary" :disabled="heading === 'Edit'"
                                       @click="showYourObjectivesComponent" block>
                                 Select an Objective
                             </b-button>
@@ -186,7 +186,7 @@
 
                 <b-container fluid style="margin-top: 20px"
                              v-if="inputQuest.objectives.length > 0 && !editCurrentObjective">
-                    <!-- Table displaying all added destinations -->
+                    <!-- Table displaying all quest objectives -->
                     <b-table :current-page="currentPage" :fields="fields" :items="inputQuest.objectives"
                              :per-page="perPage"
                              hover
@@ -208,20 +208,21 @@
                                       @click="deleteObjective(row.item)"
                                       variant="danger"
                                       class="mr-2"
+                                      :disabled="heading === 'Edit'"
                                       block>Delete
                             </b-button>
                         </template>
 
-                        <!-- Buttons to shift destinations up/down in table -->
+                        <!-- Buttons to shift objectives up/down in table -->
                         <template slot="order" slot-scope="row">
-                            <b-button :disabled="inputQuest.objectives.length === 1 || row.index === 0"
+                            <b-button :disabled="inputQuest.objectives.length === 1 || row.index === 0 || heading === 'Edit'"
                                       @click="moveUp(row.index)"
                                       class="mr-2"
                                       size="sm"
                                       variant="success">&uarr;
                             </b-button>
                             <b-button :disabled="inputQuest.objectives.length === 1 ||
-                           row.index === inputQuest.objectives.length-1"
+                           row.index === inputQuest.objectives.length-1 || heading === 'Edit'"
                                       @click="moveDown(row.index)"
                                       class="mr-2"
                                       size="sm"
@@ -373,13 +374,17 @@
 
         watch: {
             selectedDestination() {
-                this.destinationSelected = this.selectedDestination;
-                this.inputQuest.destination = this.selectedDestination;
-                this.displayedDestination = this.selectedDestination;
+                if (this.heading !== "Edit") {
+                    this.destinationSelected = this.selectedDestination;
+                    this.inputQuest.destination = this.selectedDestination;
+                    this.displayedDestination = this.selectedDestination;
+                }
             },
 
             selectedObjective() {
-                this.objectiveSelected = this.selectedObjective;
+                if (this.heading !== "Edit") {
+                    this.objectiveSelected = this.selectedObjective;
+                }
             }
         },
 
@@ -393,13 +398,18 @@
              * For new quest, checks the start date is after the current date.
              * For all other quests, checks the start date is either the same as or before the end date.
              *
-             * @returns {boolean} true if start date is valid.
+             * @returns {boolean} true if start date is valid, or a null if entry length isn't big enough.
              */
             validateStartDate() {
                 // For a new hunt, the start date must be after today.
                 if ((this.inputQuest.startDate < this.getDateString() && !this.inputQuest.id)) {
                     return false;
                 }
+
+                if(this.inputQuest.startDate.length < 6) {
+                    return null;
+                }
+
                 // Otherwise, checks the start date is equal to or before the end date.
                 return this.inputQuest.startDate <= this.inputQuest.endDate;
             },
@@ -409,7 +419,7 @@
              * Checks that the start time is not after or the same as the end time if the dates are the same,
              * and that the start time is not before the current time if the current date is today.
              *
-             * @returns {boolean} true if start time is valid.
+             * @returns {boolean} true if start time is valid, null if entry length isn't big enough.
              */
             validateStartTime() {
                 // For new quests, check the start time is after the current time.
@@ -456,6 +466,9 @@
                 // For a new quests, the end date must be after today.
                 if (this.inputQuest.endDate < this.getDateString() && !this.inputQuest.id) {
                     return false;
+                }
+                if (this.inputQuest.endDate.length < 6) {
+                    return null;
                 }
                 // Otherwise, checks the end date is equal to or after the start date.
                 return this.inputQuest.endDate >= this.inputQuest.startDate;
@@ -623,6 +636,7 @@
                 });
             },
 
+
             /**
              * Gets all users that are currently using the given quest.
              */
@@ -636,6 +650,7 @@
                         this.activeUsers = data.length;
                     });
             },
+
 
             /**
              * PUT's the currently active quest to the quests endpoint in JSON format, for edited
@@ -732,7 +747,9 @@
                 this.objectiveSelected.radius = radiusValue;
                 this.destinationSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[this.objectiveIndex].destination));
                 this.editCurrentObjective = true;
-                this.$emit('OBJ-side-bar', true);
+                if (this.heading !== "Edit") {
+                    this.$emit('OBJ-side-bar', true);
+                }
             },
 
 
@@ -862,6 +879,7 @@
             dismissModal(modal) {
                 this.$refs[modal].hide();
             },
+
 
             /**
              * Displays the countdown alert on the successful saving of a quest.

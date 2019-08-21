@@ -13,6 +13,7 @@ import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.profiles.ProfileRepository;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -83,8 +84,14 @@ public class GeneralTestSteps {
     /**
      * Date buffers to ensure the tests always pass.
      */
-    public static final int START_DATE_BUFFER = -10;
-    public static final int END_DATE_BUFFER = 10;
+    private static final int START_DATE_BUFFER = -10;
+    private static final int END_DATE_BUFFER = 10;
+
+
+    /**
+     * Repository to access the profiles in the running application.
+     */
+    private ProfileRepository profileRepository;
 
 
     @Before
@@ -106,6 +113,8 @@ public class GeneralTestSteps {
         applyEvolutions();
 
         Helpers.start(testContext.getApplication());
+
+        profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
     }
 
 
@@ -263,6 +272,18 @@ public class GeneralTestSteps {
     }
 
 
+    @Given("^a user exists with id (\\d+)$")
+    public void aUserExistsWithId(Integer userId) {
+        Assert.assertNotNull(profileRepository.findById(Long.valueOf(userId)));
+    }
+
+
+    @Given("^a user does not exist with id (\\d+)$")
+    public void aUserDoesNotExistWithId(Integer userId) {
+        Assert.assertNull(profileRepository.findById(Long.valueOf(userId)));
+    }
+
+
     @Then("^the status code received is (\\d+)$")
     public void theStatusCodeReceivedIs(int expectedStatusCode) {
         Assert.assertEquals(expectedStatusCode, testContext.getStatusCode());
@@ -278,5 +299,4 @@ public class GeneralTestSteps {
             Assert.assertTrue(expectedApiErrors.contains(error.get("message").asText()));
         }
     }
-
 }
