@@ -162,12 +162,4 @@ public class Quest extends BaseModel {
     public Profile getOwner() {
         return owner;
     }
-
-    public Map<String, Integer> getCountryOccurrences() {
-        return countryOccurrences;
-    }
-
-    public void setCountryOccurrences(Map<String, Integer> countryOccurrences) {
-        this.countryOccurrences = countryOccurrences;
-    }
 }
