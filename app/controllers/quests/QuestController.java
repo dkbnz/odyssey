@@ -55,9 +55,7 @@ public class QuestController {
     private static final String EQUAL_TO = "=";
     private static final String GREATER_THAN = ">";
     private static final String LESS_THAN = "<";
-    private static final String ID = "id";
-    private static final String OWNER_ID = "owner_id";
-    private static final String COUNTRY_OCCURRENCES = "countryOccurrences.key";
+    //private static final String OWNER_ID = "owner_id";
 
     @Inject
     public QuestController(QuestRepository questRepository,
@@ -619,11 +617,11 @@ public class QuestController {
                 int objectiveSize = quest.getObjectives().size();
 
                 if (request.getQueryString(OPERATOR).equals(EQUAL_TO) &&
-                    objectiveSize == Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
-                    request.getQueryString(OPERATOR).equals(LESS_THAN) &&
-                    objectiveSize < Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
-                    request.getQueryString(OPERATOR).equals(GREATER_THAN) &&
-                    objectiveSize > Double.parseDouble(request.getQueryString(OBJECTIVE))) {
+                        objectiveSize == Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
+                        request.getQueryString(OPERATOR).equals(LESS_THAN) &&
+                                objectiveSize < Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
+                        request.getQueryString(OPERATOR).equals(GREATER_THAN) &&
+                                objectiveSize > Double.parseDouble(request.getQueryString(OBJECTIVE))) {
                     allQuests.add(quest);
                 }
             }

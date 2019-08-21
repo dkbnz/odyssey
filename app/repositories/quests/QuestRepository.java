@@ -41,8 +41,6 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
      */
     public ExpressionList<Quest> getExpressionList() {
         return query().where();
-    public HashSet<Quest> findAllUsing(String country) {
-        return (HashSet<Quest>) query().where().in("countryOccurrences.key", country).findSet();
     }
 
 

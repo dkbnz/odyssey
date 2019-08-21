@@ -150,17 +150,6 @@
                         </template>
                         <!--Quest component-->
                     </b-list-group-item>
-                    <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
-                        <div class="d-flex justify-content-center">
-                            <b-spinner></b-spinner>
-                        </div>
-                    </b-list-group-item>
-                    <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="!loadingResults && foundQuests.length === 0">
-                        <div class="d-flex justify-content-center">
-                            <strong>No Quests</strong>
-                        </div>
-                    </b-list-group-item>
                 </b-list-group>
                 <!-- Confirmation modal for deleting a quest. -->
                 <b-modal hide-footer id="deleteQuestModal" ref="deleteQuestModal" title="Delete Quest">
@@ -406,7 +395,7 @@
              * @returns {Promise<Response | never>}
              */
             queryQuests() {
-                this.loadingResults = true;\
+                this.loadingResults = true;
                 return fetch('/v1/quests', {
                     accept: "application/json"
                 })
