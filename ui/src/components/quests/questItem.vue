@@ -139,13 +139,13 @@
                 <div v-if="!editCurrentObjective">
                     <b-row>
                         <b-col>
-                            <b-button v-if="!addNewObjective" variant="success"
+                            <b-button v-if="!addNewObjective" variant="success" :disabled="heading === 'Edit'"
                                       @click="showObjectiveComponent" block>
                                 Add a New Objective
                             </b-button>
                         </b-col>
                         <b-col>
-                            <b-button v-if="!addNewObjective" variant="primary"
+                            <b-button v-if="!addNewObjective" variant="primary" :disabled="heading === 'Edit'"
                                       @click="showYourObjectivesComponent" block>
                                 Select an Objective
                             </b-button>
@@ -208,20 +208,21 @@
                                       @click="deleteObjective(row.item)"
                                       variant="danger"
                                       class="mr-2"
+                                      :disabled="heading === 'Edit'"
                                       block>Delete
                             </b-button>
                         </template>
 
                         <!-- Buttons to shift destinations up/down in table -->
                         <template slot="order" slot-scope="row">
-                            <b-button :disabled="inputQuest.objectives.length === 1 || row.index === 0"
+                            <b-button :disabled="inputQuest.objectives.length === 1 || row.index === 0 || heading === 'Edit'"
                                       @click="moveUp(row.index)"
                                       class="mr-2"
                                       size="sm"
                                       variant="success">&uarr;
                             </b-button>
                             <b-button :disabled="inputQuest.objectives.length === 1 ||
-                           row.index === inputQuest.objectives.length-1"
+                           row.index === inputQuest.objectives.length-1 || heading === 'Edit'"
                                       @click="moveDown(row.index)"
                                       class="mr-2"
                                       size="sm"
@@ -373,13 +374,17 @@
 
         watch: {
             selectedDestination() {
-                this.destinationSelected = this.selectedDestination;
-                this.inputQuest.destination = this.selectedDestination;
-                this.displayedDestination = this.selectedDestination;
+                if (this.heading !== "Edit") {
+                    this.destinationSelected = this.selectedDestination;
+                    this.inputQuest.destination = this.selectedDestination;
+                    this.displayedDestination = this.selectedDestination;
+                }
             },
 
             selectedObjective() {
-                this.objectiveSelected = this.selectedObjective;
+                if (this.heading !== "Edit") {
+                    this.objectiveSelected = this.selectedObjective;
+                }
             }
         },
 
@@ -732,7 +737,9 @@
                 this.objectiveSelected.radius = radiusValue;
                 this.destinationSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[this.objectiveIndex].destination));
                 this.editCurrentObjective = true;
-                this.$emit('OBJ-side-bar', true);
+                if (this.heading !== "Edit") {
+                    this.$emit('OBJ-side-bar', true);
+                }
             },
 
 

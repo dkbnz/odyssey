@@ -88,7 +88,7 @@
                 </b-form-select>
             </b-form-group>
 
-            <b-button @click="searchQuests" :disabled="!allFieldValidation" block variant="primary">Search</b-button>
+            <b-button @click="searchQuests" block :disabled="!allFieldValidation" variant="primary">Search</b-button>
         </div>
     </div>
 </template>
