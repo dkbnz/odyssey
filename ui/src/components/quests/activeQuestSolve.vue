@@ -90,7 +90,12 @@
                 <b-list-group-item href="#"
                                    class="d-flex justify-content-between align-items-center"
                                    draggable="false" v-if="questAttempt.toCheckIn != null">
+                    <div>
                     <span class="mobile-text font-weight-bold">{{questAttempt.toCheckIn.riddle}}</span>
+                        <p class="mb-1 mobile-text">
+                            {{questAttempt.toCheckIn.destination.name}}
+                        </p>
+                    </div>
                     <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
                 </b-list-group-item>
                 <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop">
