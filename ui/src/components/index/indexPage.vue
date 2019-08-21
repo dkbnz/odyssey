@@ -45,10 +45,6 @@
 
         props: ['assets', 'nationalityOptions', 'travTypeOptions', 'profile'],
 
-        created() {
-            document.title = "Welcome to TravelEA";
-        },
-
         data: function () {
             return {
                 username: '',
