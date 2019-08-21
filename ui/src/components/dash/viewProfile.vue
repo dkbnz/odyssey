@@ -100,8 +100,8 @@
                         <b-button
                                 block class="mr-2"
                                 size="sm" style="margin-top: 10px"
-                                v-if="auth" variant="info"
-                                @click="showUploader" >Change my profile picture
+                                v-if="authentication" variant="info"
+                                @click="showUploader">Change my profile picture
                         </b-button>
                         <b-modal ref="profilePhotoUploader" id="profilePhotoUploader" hide-footer centered
                                  title="Change Profile Photo">
@@ -117,7 +117,7 @@
                                 @click="deleteProfilePhoto"
                                 block class="mr-2"
                                 size="sm" style="margin-top: 10px"
-                                v-if="auth && profile.profilePicture !== null"
+                                v-if="authentication && profile.profilePicture !== null"
                                 variant="danger">Remove as Profile Photo
                         </b-button>
                     </b-col>
@@ -142,7 +142,7 @@
         props: {
             profile: Object,
             userProfile: {
-                default: function() {
+                default: function () {
                     return this.profile;
                 }
             },
@@ -157,12 +157,12 @@
                 }
             },
             containerClass: {
-                default: function() {
+                default: function () {
                     return 'sidebar'
                 }
             },
             containerClassContent: {
-                default: function() {
+                default: function () {
                     return 'content'
                 }
             }
@@ -170,7 +170,7 @@
 
         data() {
             return {
-                auth: false,
+                authentication: false,
                 showSuccess: false,
                 showError: false,
                 alertMessage: "",
@@ -189,7 +189,7 @@
 
         watch: {
             userProfile() {
-                this.checkAuth();
+                this.checkAuthentication();
             },
 
             profile() {
@@ -198,7 +198,7 @@
         },
 
         mounted() {
-            this.checkAuth();
+            this.checkAuthentication();
             this.getProfilePictureThumbnail();
             this.getProfilePictureFull();
             this.queryYourActiveQuests();
@@ -252,7 +252,7 @@
                 }).then(function (response) {
                     if (response.status === 201) {
                         response.clone().json().then(text => {
-                            self.newProfilePhoto = text[text.length -1];
+                            self.newProfilePhoto = text[text.length - 1];
                             self.makeProfileImage();
                         });
                     }
@@ -304,8 +304,8 @@
              * Checks the authorization of the user profile that is logged in to see if they can
              * view the users private photos and can add or delete images from the media.
              */
-            checkAuth() {
-                this.auth = (this.userProfile.id !== undefined) && (this.userProfile.id === this.profile.id) || (this.userProfile.admin && this.adminView);
+            checkAuthentication() {
+                this.authentication = (this.userProfile.id !== undefined) && (this.userProfile.id === this.profile.id) || (this.userProfile.admin && this.adminView);
             },
 
 
@@ -351,8 +351,8 @@
                 let self = this;
                 fetch('/v1/profilePhoto/' + this.profile.id, {
                     method: 'DELETE'
-                }).then(function(response) {
-                    if(response.status === 200) {
+                }).then(function (response) {
+                    if (response.status === 200) {
                         self.profileImageThumb = "../../../static/default_profile_picture.png";
                         self.profileImageFull = "../../../static/default_profile_picture.png";
                         self.profile.profilePicture = null;
@@ -375,12 +375,12 @@
              * @param photoId the id number of the photo that was deleted.
              */
             refreshProfilePicture(photoId) {
-                for(let i=0; i < this.profile.photoGallery.length; i++) {
-                    if(this.profile.photoGallery[i].id === photoId) {
-                        if (i+1 === this.profile.photoGallery.length) {
+                for (let i = 0; i < this.profile.photoGallery.length; i++) {
+                    if (this.profile.photoGallery[i].id === photoId) {
+                        if (i + 1 === this.profile.photoGallery.length) {
                             this.profile.photoGallery.pop();
                         } else {
-                            this.profile.photoGallery[i] = this.profile.photoGallery[i+1];
+                            this.profile.photoGallery[i] = this.profile.photoGallery[i + 1];
                         }
                     }
                 }

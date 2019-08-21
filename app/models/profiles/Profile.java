@@ -17,6 +17,7 @@ import java.time.Period;
 import java.util.Date;
 import java.util.List;
 
+
 /**
  * Profile entity managed by Ebean.
  */
@@ -250,11 +251,6 @@ public class Profile extends BaseModel {
     }
 
 
-    public void addObjective(Objective newObjective) {
-        this.myObjectives.add(newObjective);
-    }
-
-
     public boolean removeObjective(Objective objective) {
         return myObjectives.remove(objective);
     }
@@ -265,64 +261,43 @@ public class Profile extends BaseModel {
     }
 
 
-    public void removeDestination(Destination toRemove) {
-        this.myDestinations.remove(toRemove);
-    }
-
-
-    public List<Destination> getMyDestinations() {
-        return this.myDestinations;
-    }
-
     public void setAdmin(Boolean admin) {
         isAdmin = admin;
     }
+
 
     public void setNationalities(List<Nationality> nationalities) {
         this.nationalities = nationalities;
     }
 
+
     public void setTravellerTypes(List<TravellerType> travellerTypes) {
         this.travellerTypes = travellerTypes;
     }
+
 
     public void setPassports(List<Passport> passports) {
         this.passports = passports;
     }
 
+
     public void setTrips(List<Trip> trips) {
         this.trips = trips;
     }
 
-    public void setMyDestinations(List<Destination> myDestinations) {
-        this.myDestinations = myDestinations;
-    }
-
-    public void setMyObjectives(List<Objective> myObjectives) {
-        this.myObjectives = myObjectives;
-    }
 
     public boolean isAdmin() {
         return isAdmin;
     }
 
+
     public void setAdmin(boolean admin) {
         isAdmin = admin;
     }
 
-    public List<QuestAttempt> getQuestAttempts() {
-        return questAttempts;
-    }
-
-    public void setQuestAttempts(List<QuestAttempt> questAttempts) {
-        this.questAttempts = questAttempts;
-    }
 
     public List<Quest> getMyQuests() {
         return myQuests;
     }
 
-    public void setMyQuests(List<Quest> myQuests) {
-        this.myQuests = myQuests;
-    }
 }

@@ -22,7 +22,6 @@ import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +37,12 @@ public class QuestTestSteps {
      * Singleton class which stores generally used variables.
      */
     private TestContext testContext = TestContext.getInstance();
+
+
+    /**
+     * New instance of the general test steps.
+     */
+    private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
 
 
     /**
@@ -127,13 +132,6 @@ public class QuestTestSteps {
     private static final String OBJECTIVE_DESTINATION = "destination";
     private static final String OBJECTIVE_RIDDLE = "riddle";
     private static final String OBJECTIVE_RADIUS = "radius";
-
-
-    /**
-     * Date buffers to ensure the tests always pass.
-     */
-    private static final int START_DATE_BUFFER = -10;
-    private static final int END_DATE_BUFFER = 10;
 
 
     /**
@@ -233,11 +231,11 @@ public class QuestTestSteps {
         String endDate           = list.get(index).get(END_DATE_STRING);
 
         if (startDate.isEmpty()) {
-            startDate = getDateBuffer(true);
+            startDate = generalTestSteps.getDateBuffer(true);
         }
 
         if (endDate.isEmpty()) {
-            endDate = getDateBuffer(false);
+            endDate = generalTestSteps.getDateBuffer(false);
         }
 
         //Add values to a JsonNode
@@ -271,25 +269,6 @@ public class QuestTestSteps {
         json.put(OBJECTIVE_RIDDLE, riddle);
         json.put(OBJECTIVE_RADIUS, radius);
         questObjectivesJson.add(json);
-    }
-
-
-    /**
-     * Creates a new datetime object from today's date. This is then used to ensure our tests will always pass, as a
-     * buffer is used to make the start date before today and the end date after today.
-     *
-     * @param isStartDate   boolean value to determine if the date being changed is the start or the end date.
-     * @return              the start or end date, which is modified by the necessary date buffer.
-     */
-    private String getDateBuffer(boolean isStartDate) {
-        Calendar calendar = Calendar.getInstance();
-
-        if (isStartDate) {
-            calendar.add(Calendar.DATE, START_DATE_BUFFER);
-        }
-        calendar.add(Calendar.DATE, END_DATE_BUFFER);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:MM:ssZ");
-        return sdf.format(calendar.getTime());
     }
 
 

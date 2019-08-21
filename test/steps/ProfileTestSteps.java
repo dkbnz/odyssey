@@ -96,11 +96,13 @@ public class ProfileTestSteps {
     private static final Logger LOGGER = Logger.getLogger( ProfileTestSteps.class.getName() );
 
 
-    private ProfileRepository profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
+    private ProfileRepository profileRepository =
+            testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
 
     /**
      * Gets the response as an iterator array Node from any fake request so that you can iterate over the response data.
+     *
      * @param content   the string of the result using helper content as string.
      * @return          an Array node iterator.
      */
@@ -117,6 +119,7 @@ public class ProfileTestSteps {
 
     /**
      * Converts given data table information and creates a profile json for creating a profile.
+     *
      * @param dataTable     the data table from cucumber.
      * @return              the json formatted string of the profile.
      */
@@ -158,8 +161,6 @@ public class ProfileTestSteps {
         json.putArray("passports").add(passportNode);
         return json;
     }
-
-
 
 
     @When("I send a GET request to the profiles endpoint")

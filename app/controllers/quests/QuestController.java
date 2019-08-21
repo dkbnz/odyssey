@@ -48,9 +48,9 @@ public class QuestController {
     private static final String COUNTRY = "country";
     private static final String START_DATE = "startDate";
     private static final String END_DATE = "endDate";
-    private static final String OWNER_ID = "owner.id";
+    private static final String OWNER = "owner";
     private static final String ATTEMPTS = "attempts";
-    private static final String COUNTRY_OCCURRENCES = "countryOccurrences.key";
+    private static final String COUNTRY_OCCURRENCES = "objectives.destination.country";
     private static final String EQUAL_TO = "=";
     private static final String GREATER_THAN = ">";
     private static final String LESS_THAN = "<";
@@ -122,38 +122,12 @@ public class QuestController {
             objective.setDestination(destinationRepository.findById(objective.getDestination().getId()));
         }
 
-
-        newQuest.setCountryOccurrences(calculateCountryOccurrences(newQuest));
-
-
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
 
         questRepository.refresh(newQuest);
 
         return created(Json.toJson(newQuest));
-    }
-
-
-    /**
-     * Calculates the country occurrences by retrieving them from the objectives and counting them.
-     * Used in create and edit.
-     *
-     * @param quest         the quest for counting the objectives.
-     * @return              Map of country occurrences.
-     */
-    private Map<String, Integer> calculateCountryOccurrences(Quest quest) {
-        Map<String, Integer> countryOccurrences = new HashMap<>();
-        for(Objective objective : quest.getObjectives()) {
-            if (countryOccurrences.get(objective.getDestination().getCountry()) != null){
-                Integer count = countryOccurrences.get(objective.getDestination().getCountry());
-                count += 1;
-                countryOccurrences.put(objective.getDestination().getCountry(), count);
-            } else {
-                countryOccurrences.put(objective.getDestination().getCountry(), 1);
-            }
-        }
-        return countryOccurrences;
     }
 
 
@@ -211,7 +185,6 @@ public class QuestController {
             newObjective.setDestination(destinationRepository.findById(newObjective.getDestination().getId()));
         }
 
-        quest.setCountryOccurrences(calculateCountryOccurrences(quest));
 
         Collection<ApiError> questEditErrors = quest.getErrors();
 
@@ -327,9 +300,8 @@ public class QuestController {
     }
 
 
-
     /**
-     * Retrieves all the profiles that have the specified quest currently active
+     * Retrieves all the profiles that have the specified quest as active.
      *
      * @param request   the request from the front end of the application containing login information.
      * @param questId   the id of the quest that the active profiles are being retrieved for
@@ -476,27 +448,48 @@ public class QuestController {
 
         ExpressionList<Quest> expressionList = questRepository.getExpressionList();
 
-        expressionList.ne(OWNER_ID, profile.getId());
+        /*
+        Does not include quest that the profile has created
+         */
+        expressionList.ne(OWNER, profile);
 
+        /*
+        Joins all similar quest titles
+         */
         if (request.getQueryString(TITLE) != null && !request.getQueryString(TITLE).isEmpty()) {
             expressionList.ilike(TITLE, queryComparator(request.getQueryString(TITLE)));
         }
 
+        /*
+        Joins all similar first name owners of quests
+         */
         if (request.getQueryString(FIRST_NAME) != null && !request.getQueryString(FIRST_NAME).isEmpty()) {
             expressionList.ilike(FIRST_NAME_QUERY, queryComparator(request.getQueryString(FIRST_NAME)));
         }
 
+        /*
+        Joins all similar first name owners of quests
+         */
         if (request.getQueryString(LAST_NAME) != null && !request.getQueryString(LAST_NAME).isEmpty()) {
             expressionList.ilike(LAST_NAME_QUERY, queryComparator(request.getQueryString(LAST_NAME)));
         }
 
+        /*
+        Joins all quests with countries in specified country
+         */
         if (request.getQueryString(COUNTRY) != null && !request.getQueryString(COUNTRY).isEmpty()) {
             expressionList.in(COUNTRY_OCCURRENCES, request.getQueryString(COUNTRY));
         }
 
+        /*
+        Joins all quests within valid start and end dates
+         */
         expressionList.lt(START_DATE, new Date());
         expressionList.gt(END_DATE, new Date());
 
+        /*
+        Removes all quests that the profile has an attempt for
+         */
         ExpressionList<Quest> expressionListActiveQuests = questRepository.getExpressionList();
 
         expressionListActiveQuests.in(ATTEMPTS, questAttemptRepository.findAllUsing(profile));
@@ -507,27 +500,16 @@ public class QuestController {
 
         quests.removeAll(profilesActiveQuests);
 
-
         /*
-        Gets the quests and checks if the amount of objectives is correct to the query search.
+        Joins all quest if the amount of objectives is correct to the query search.
          */
-        if (request.getQueryString(OPERATOR) != null &&
-                !request.getQueryString(OPERATOR).isEmpty() &&
-                request.getQueryString(OBJECTIVE) != null &&
-                !request.getQueryString(OBJECTIVE).isEmpty()) {
+        if (QueryingObjectiveAmount(request)) {
 
             Set<Quest> allQuests = new HashSet<>();
 
             for (Quest quest: quests) {
 
-                int objectiveSize = quest.getObjectives().size();
-
-                if (request.getQueryString(OPERATOR).equals(EQUAL_TO) &&
-                    objectiveSize == Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
-                    request.getQueryString(OPERATOR).equals(LESS_THAN) &&
-                    objectiveSize < Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
-                    request.getQueryString(OPERATOR).equals(GREATER_THAN) &&
-                    objectiveSize > Double.parseDouble(request.getQueryString(OBJECTIVE))) {
+                if (QuestHasCorrectObjectiveAmount(request, quest)) {
                     allQuests.add(quest);
                 }
             }
@@ -535,6 +517,41 @@ public class QuestController {
         } else {
             return quests;
         }
+    }
+
+
+    /**
+     * Checks if the user is querying on the amount of objectives.
+     *
+     * @param request       the request sent from the front end user.
+     * @return              true if the user is searching for specific objective count.
+     *                      false if the user is not searching got a specific objective count.
+     */
+    private boolean QueryingObjectiveAmount(Http.Request request) {
+        return request.getQueryString(OPERATOR) != null &&
+                !request.getQueryString(OPERATOR).isEmpty() &&
+                request.getQueryString(OBJECTIVE) != null &&
+                !request.getQueryString(OBJECTIVE).isEmpty();
+    }
+
+
+    /**
+     * Checks if the specified quest has the correct amount of objectives based on the request query string.
+     *
+     * @param request       the request sent from the front end user.
+     * @param quest         the current quest to check for specific quests objective count.
+     * @return              true if the quest passes criteria.
+     *                      false if the quest fails the criteria.
+     */
+    private boolean QuestHasCorrectObjectiveAmount(Http.Request request, Quest quest) {
+        int objectiveSize = quest.getObjectives().size();
+
+        return request.getQueryString(OPERATOR).equals(EQUAL_TO) &&
+                objectiveSize == Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
+                request.getQueryString(OPERATOR).equals(LESS_THAN) &&
+                        objectiveSize < Double.parseDouble(request.getQueryString(OBJECTIVE)) ||
+                request.getQueryString(OPERATOR).equals(GREATER_THAN) &&
+                        objectiveSize > Double.parseDouble(request.getQueryString(OBJECTIVE));
     }
 
 

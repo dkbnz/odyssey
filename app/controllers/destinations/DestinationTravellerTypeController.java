@@ -65,12 +65,14 @@ public class DestinationTravellerTypeController {
      * recommended traveller types for a destination.
      * All proposed traveller types will be cleared.
      *
-     * @param request           Http request containing a Json body of traveller types.
+     * @param request           an Http request containing a Json body of traveller types.
      * @param destinationId     id of the destination for which the traveller types are set.
-     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully
-     *                          updated.
+     * @return                  ok() (Http 200) if successfully created.
+     *                          unauthorised() (Http 401) if the user is not logged in.
+     *                          notFound() (Http 404) if destination could not found.
+     *                          forbidden() (Http 403) if the logged in user cannot access the resource.
      */
-    public Result create(Http.Request request, Long destinationId) {
+    public Result addTravellerTypes(Http.Request request, Long destinationId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized();
@@ -113,10 +115,12 @@ public class DestinationTravellerTypeController {
      * If method executes successfully, given traveller types will be split between
      * proposed to add or proposed to remove depending on their presence in the current set.
      *
-     * @param request           Http request containing a Json body of traveller types.
+     * @param request           an Http request containing a Json body of traveller types.
      * @param destinationId     id of the destination for which the traveller types are proposed.
-     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully
-     *                          updated.
+     * @return                  ok() (Http 200) if successfully proposed.
+     *                          unauthorised() (Http 401) if the user is not logged in.
+     *                          notFound() (Http 404) if destination could not found.
+     *                          badRequest() (Http 400) if the Json body is formatted incorrectly or not provided.
      */
     public Result propose(Http.Request request, Long destinationId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -164,8 +168,10 @@ public class DestinationTravellerTypeController {
     /**
      * Gets all the destinations that have traveller type proposals that are not currently accepted or rejected.
      *
-     * @param request   the request from the front end that contains login info.
-     * @return          a json result of all the destinations with proposals.
+     * @param request           the request from the front end that contains login info.
+     * @return                  ok() (Http 200) containing all destinations with proposals.
+     *                          unauthorised() (Http 401) if the user is not logged in.
+     *                          forbidden() (Http 403) if the logged in user cannot access the resource.
      */
     public Result fetchProposedDestinations(Http.Request request) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -179,5 +185,4 @@ public class DestinationTravellerTypeController {
 
         return ok(Json.toJson(destinationRepository.fetchProposed()));
     }
-
 }

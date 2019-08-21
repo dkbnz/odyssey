@@ -447,6 +447,7 @@ INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `lon
 (9490, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', false, 5),
 (9491, 'Station Creek Scenic Reserve', 79, 'Nelson', -42.211389, 172.2625, 'New Zealand', false, 6),
 (9001, 'Private Glade', 39, 'Canterbury', -44.1625, 170.993056, 'New Zealand', false, 3),
+(9000, 'Japan', 39, 'Japan', -44.1625, 170.993056, 'Japan', true, 1),
 (10000, 'Canterbury University', 3, 'Christchurch', -43.523434, 172.581681, 'New Zealand', false, 3);
 
 INSERT INTO `nationality_profile` (`profile_id`, `nationality_id`) VALUES

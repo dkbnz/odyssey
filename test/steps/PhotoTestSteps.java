@@ -52,9 +52,12 @@ public class PhotoTestSteps {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 
-    private PersonalPhotoRepository personalPhotoRepository = testContext.getApplication().injector().instanceOf(PersonalPhotoRepository.class);
-    private DestinationRepository destinationRepository = testContext.getApplication().injector().instanceOf(DestinationRepository.class);
-    private ProfileRepository profileRepository = testContext.getApplication().injector().instanceOf(ProfileRepository.class);
+    private PersonalPhotoRepository personalPhotoRepository =
+            testContext.getApplication().injector().instanceOf(PersonalPhotoRepository.class);
+    private DestinationRepository destinationRepository =
+            testContext.getApplication().injector().instanceOf(DestinationRepository.class);
+    private ProfileRepository profileRepository =
+            testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
 
     /**
@@ -218,6 +221,7 @@ public class PhotoTestSteps {
         Result changeProfilePhotoResult = route(testContext.getApplication(), request);
         testContext.setStatusCode(changeProfilePhotoResult.status());
     }
+
 
     @When("^I add a photo with id (\\d+) to a destination with id (\\d+)$")
     public void iAddAPhotoWithIdToADestinationWithId(Integer photoId, Integer destinationId) {
