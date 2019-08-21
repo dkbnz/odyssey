@@ -149,12 +149,15 @@
                         id="country-field"
                         label="Country:"
                         label-for="country">
-                    <b-form-input id="country" v-model="inputDestination.country" type="text" trim required
-                                  :state="destinationCountryValidation"></b-form-input>
-                    <b-form-invalid-feedback :state="destinationCountryValidation">
-                        Country cannot have any numbers in it!
-                    </b-form-invalid-feedback>
+                    <!--Dropdown field for country types-->
+                    <b-form-select id="country" trim v-model="inputDestination.country" required>
+                        <option :value="country.name" v-for="country in countryList"
+                                :state="destinationCountryValidation">
+                            {{country.name}}
+                        </option>
+                    </b-form-select>
                 </b-form-group>
+
                 <b-form-checkbox
                         v-if="inputDestination.id !== null"
                         switch
@@ -212,8 +215,13 @@
                 latitudeErrorMessage: "",
                 longitudeErrorMessage: "",
                 destinationConflicts: [],
-                editDestinationConflicts: []
+                editDestinationConflicts: [],
+                countryList: Array
             }
+        },
+
+        mounted() {
+            this.getCountries();
         },
 
         computed: {
@@ -308,11 +316,10 @@
              * @returns {*}     true if input is valid.
              */
             destinationCountryValidation() {
-                if (this.inputDestination.country.length === 0) {
+                if (this.inputDestination.country === null) {
                     return null;
                 }
-                let countryRegex = /\d/;
-                return !countryRegex.test(this.inputDestination.country);
+                return this.inputDestination.country.length > 0 || this.inputDestination.country !== null;
             },
 
 
@@ -330,6 +337,21 @@
         },
 
         methods: {
+            /**
+             * Sets the countries list to the list of countries from the country api
+             */
+            getCountries() {
+                return fetch("https://restcountries.eu/rest/v2/all", {
+                    dataType: 'html'
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then((data) => {
+                        this.countryList = data;
+                    })
+            },
+
+
             /**
              * Checks all of the input fields for valid input
              */
@@ -436,10 +458,10 @@
                 let self = this;
                 fetch(`/v1/destinationsCheckEdit`, {
                     method: 'POST',
-                        headers: {'content-type': 'application/json'},
-                        body: (JSON.stringify(this.inputDestination))
+                    headers: {'content-type': 'application/json'},
+                    body: (JSON.stringify(this.inputDestination))
                 })
-                    .then(function(response) {
+                    .then(function (response) {
                         response.json().then(data => {
                             self.editDestinationConflicts = data;
                         })

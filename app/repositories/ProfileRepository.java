@@ -5,6 +5,9 @@ import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Profile;
+import models.quests.Quest;
+
+import java.util.List;
 
 
 /**
@@ -20,5 +23,17 @@ public class ProfileRepository extends BeanRepository<Long, Profile> {
 
     public ExpressionList<Profile> getExpressionList() {
         return query().where();
+    }
+
+
+    /**
+     * Fetches all the profiles that have the specified quest active
+     *
+     * @param usedQuest   the quest selected to be queried for associated profiles.
+     * @return                  a list of all the profiles found.
+     */
+    public List<Profile> findAllUsing(Quest usedQuest) {
+
+        return query().where().eq("questAttempts.questAttempted", usedQuest).findList();
     }
 }
