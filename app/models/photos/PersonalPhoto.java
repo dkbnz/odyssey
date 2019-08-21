@@ -25,7 +25,7 @@ public class PersonalPhoto extends BaseModel {
      */
     @JsonIgnore
     @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name="profile_id")
+    @JoinColumn(name = "profile_id", referencedColumnName="id")
     private Profile profile;
 
 
