@@ -561,47 +561,47 @@ Feature: Destination API Endpoint
       | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | true      |
 
 
-#  Scenario: Merging two destinations that have objectives
-#    Given the application is running
-#    And I am logged in
-#    And a destination already exists with the following values
-#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-#    And I am not logged in
-#    And I am logged in as an admin user
-#    And a destination already exists with the following values
-#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-#    And the destination exists in a objective with the following values
-#      | Riddle                                 | Start Date | End Date | Owner |
-#      | What rhymes with It's mean Kyle fleek? |            |          | 2     |
-#    When I attempt to edit the destination using the following values
-#      | is_public |
-#      | true      |
-#    Then the destination will have the following number of objectives 1
-#
-#
-#  Scenario: Merging two destinations that both have objectives
-#    Given the application is running
-#    And I am logged in
-#    And a destination already exists with the following values
-#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-#    And the destination exists in a objective with the following values
-#      | Riddle                                | Start Date | End Date | Owner |
-#      | What rhymes with It's mean Kyle Reek? |            |          | 2     |
-#    And I am not logged in
-#    And I am logged in as an admin user
-#    And a destination already exists with the following values
-#      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
-#      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
-#    And the destination exists in a objective with the following values
-#      | Riddle                                 | Start Date | End Date | Owner |
-#      | What rhymes with It's mean Kyle fleek? |            |          | 2     |
-#    When I attempt to edit the destination using the following values
-#      | is_public |
-#      | true      |
-#    Then the destination will have the following number of objectives 2
+  Scenario: Merging two destinations that have objectives
+    Given the application is running
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And I am not logged in
+    And I am logged in as an admin user
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And the destination exists in a objective with the following values
+      | Riddle                                 | Owner | Radius |
+      | What rhymes with It's mean Kyle fleek? | 2     | 0.005  |
+    When I attempt to edit the destination using the following values
+      | is_public |
+      | true      |
+    Then the destination will have the following number of objectives 1
+
+
+  Scenario: Merging two destinations that both have objectives
+    Given the application is running
+    And I am logged in
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And the destination exists in a objective with the following values
+      | Riddle                          | Owner | Radius |
+      | What rhymes with Lit File Meek? | 2     | 0.005  |
+    And I am not logged in
+    And I am logged in as an admin user
+    And a destination already exists with the following values
+      | Name       | Type | District     | Latitude | Longitude | Country     | is_public |
+      | University | 4    | Christchurch | 24.5     | 34.6      | New Zealand | false     |
+    And the destination exists in a objective with the following values
+      | Riddle                                 | Owner | Radius |
+      | What rhymes with It's mean Kyle fleek? | 2     | 0.005  |
+    When I attempt to edit the destination using the following values
+      | is_public |
+      | true      |
+    Then the destination will have the following number of objectives 2
 
 
   Scenario: Retrieving destination usage for 1 trip

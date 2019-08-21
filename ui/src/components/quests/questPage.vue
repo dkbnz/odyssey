@@ -63,18 +63,19 @@
     import QuestsSolveMobile from "./activeQuestPageMobile";
     import QuestAttemptSolve from "./activeQuestSolve";
     import ActiveQuestPage from "./activeQuestPage";
+
     export default {
         name: "questPage",
 
         props: {
             profile: Object,
             containerClass: {
-                default: function() {
+                default: function () {
                     return null;
                 }
             },
             adminView: {
-                default: function() {
+                default: function () {
                     return false;
                 }
             }
@@ -94,9 +95,6 @@
                     default: null
                 }
             }
-        },
-
-        mounted() {
         },
 
         methods: {

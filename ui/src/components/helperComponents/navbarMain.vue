@@ -4,19 +4,24 @@
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
             <b-navbar-brand class="nav-bar-brand" @click="goToProfile()"><img :src="assets.appLogo"></b-navbar-brand>
 
-
-
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/profiles'}" @click="goToPeople()">People
+                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/profiles'}"
+                                @click="goToPeople()">People
                     </b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/trips'}" @click="goToTrips()">Trips</b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/destinations'}" @click="goToDestinations()">
+                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/trips'}"
+                                @click="goToTrips()">Trips
+                    </b-nav-item>
+                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/destinations'}"
+                                @click="goToDestinations()">
                         Destinations
+                    </b-nav-item>
+                    <b-nav-item :class="{active: currentPage==='/objectives'}" @click="goToObjectives()">Objectives
                     </b-nav-item>
                     <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/objectives'}" @click="goToObjectives()">Objectives</b-nav-item>
                     <b-nav-item :class="{active: currentPage==='/quests'}" @click="goToQuests()">Quests</b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/admin'}" @click="goToAdminPanel()"
+                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/admin'}"
+                                @click="goToAdminPanel()"
                                 v-if="profile.admin">
                         Admin
                     </b-nav-item>

@@ -56,7 +56,7 @@
             /**
              * Redirects the user to their home page when they log in.
              */
-            profile: function() {
+            profile: function () {
                 if (this.profile.id !== undefined) {
                     if (this.profile.admin) {
                         this.$router.replace("/admin");
