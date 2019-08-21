@@ -251,22 +251,22 @@ alter table photo add constraint fk_photo_upload_profile_id foreign key (upload_
 alter table profile add constraint fk_profile_profile_picture_id foreign key (profile_picture_id) references personal_photo (id) on delete restrict on update restrict;
 
 create index ix_profile_nationality_profile on profile_nationality (profile_id);
-alter table profile_nationality add constraint fk_profile_nationality_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
+alter table nationality_profile add constraint fk_profile_nationality_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
 
 create index ix_profile_nationality_nationality on profile_nationality (nationality_id);
-alter table profile_nationality add constraint fk_profile_nationality_nationality foreign key (nationality_id) references nationality (id) on delete restrict on update restrict;
+alter table nationality_profile add constraint fk_profile_nationality_nationality foreign key (nationality_id) references nationality (id) on delete restrict on update restrict;
 
 create index ix_profile_traveller_type_profile on profile_traveller_type (profile_id);
-alter table profile_traveller_type add constraint fk_profile_traveller_type_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
+alter table traveller_type_profile add constraint fk_profile_traveller_type_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
 
 create index ix_profile_traveller_type_traveller_type on profile_traveller_type (traveller_type_id);
-alter table profile_traveller_type add constraint fk_profile_traveller_type_traveller_type foreign key (traveller_type_id) references traveller_type (id) on delete restrict on update restrict;
+alter table traveller_type_profile add constraint fk_profile_traveller_type_traveller_type foreign key (traveller_type_id) references traveller_type (id) on delete restrict on update restrict;
 
 create index ix_profile_passport_profile on profile_passport (profile_id);
-alter table profile_passport add constraint fk_profile_passport_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
+alter table passport_profile add constraint fk_profile_passport_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
 
 create index ix_profile_passport_passport on profile_passport (passport_id);
-alter table profile_passport add constraint fk_profile_passport_passport foreign key (passport_id) references passport (id) on delete restrict on update restrict;
+alter table passport_profile add constraint fk_profile_passport_passport foreign key (passport_id) references passport (id) on delete restrict on update restrict;
 
 create index ix_quest_owner_id on quest (owner_id);
 alter table quest add constraint fk_quest_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
@@ -363,22 +363,22 @@ drop index if exists ix_photo_upload_profile_id;
 
 alter table profile drop constraint if exists fk_profile_profile_picture_id;
 
-alter table profile_nationality drop constraint if exists fk_profile_nationality_profile;
+alter table nationality_profile drop constraint if exists fk_profile_nationality_profile;
 drop index if exists ix_profile_nationality_profile;
 
-alter table profile_nationality drop constraint if exists fk_profile_nationality_nationality;
+alter table nationality_profile drop constraint if exists fk_profile_nationality_nationality;
 drop index if exists ix_profile_nationality_nationality;
 
-alter table profile_traveller_type drop constraint if exists fk_profile_traveller_type_profile;
+alter table traveller_type_profile drop constraint if exists fk_profile_traveller_type_profile;
 drop index if exists ix_profile_traveller_type_profile;
 
-alter table profile_traveller_type drop constraint if exists fk_profile_traveller_type_traveller_type;
+alter table traveller_type_profile drop constraint if exists fk_profile_traveller_type_traveller_type;
 drop index if exists ix_profile_traveller_type_traveller_type;
 
-alter table profile_passport drop constraint if exists fk_profile_passport_profile;
+alter table passport_profile drop constraint if exists fk_profile_passport_profile;
 drop index if exists ix_profile_passport_profile;
 
-alter table profile_passport drop constraint if exists fk_profile_passport_passport;
+alter table passport_profile drop constraint if exists fk_profile_passport_passport;
 drop index if exists ix_profile_passport_passport;
 
 alter table quest drop constraint if exists fk_quest_owner_id;
