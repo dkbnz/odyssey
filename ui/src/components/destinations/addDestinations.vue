@@ -44,26 +44,28 @@
                         </b-list-group-item>
                     </b-list-group>
                 </div>
-                <div v-if="destinationConflicts.matching_destinations !== undefined
-                        && destinationConflicts.matching_destinations.length > 0">
-                    <p v-if="destinationConflicts.matching_destinations.length === 1">
-                        This will merge the following 1 private destination:
+                <div v-if="editDestinationConflicts !== undefined && editDestinationConflicts.destination_count > 0">
+                    <p v-if="editDestinationConflicts.destination_count === 1">
+                        This will merge the following destination:
                     </p>
+
                     <p v-else>
-                        This will merge the following {{destinationConflicts.matching_destinations.length}} private
-                        destinations:
+                        This will merge the following {{editDestinationConflicts.destination_count}} destinations:
                     </p>
                     <b-list-group
                             style="overflow-y: scroll; height: 30vh;">
                         <b-list-group-item class="flex-column align-items-start"
-                                           v-for="destination in destinationConflicts.matching_destinations"
+                                           v-for="destination in editDestinationConflicts.matching_destinations"
                                            :key="destination.id">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">Name: {{destination.name}}</h5>
                             </div>
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">Created by: {{destination.owner.firstName}}
-                                    {{destination.owner.firstName}}</h5>
+                                    {{destination.owner.lastName}}</h5>
+                            </div>
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{convertToPublicString(destination.public)}} Destination</h6>
                             </div>
                         </b-list-group-item>
                     </b-list-group>
@@ -139,16 +141,23 @@
                     </b-form-invalid-feedback>
                 </b-form-group>
 
+                <get-location-button
+                        @get-current-location="currentCoordinates => setCurrentLocation(currentCoordinates)">
+                </get-location-button>
+
                 <b-form-group
                         id="country-field"
                         label="Country:"
                         label-for="country">
-                    <b-form-input id="country" v-model="inputDestination.country" type="text" trim required
-                                  :state="destinationCountryValidation"></b-form-input>
-                    <b-form-invalid-feedback :state="destinationCountryValidation">
-                        Country cannot have any numbers in it!
-                    </b-form-invalid-feedback>
+                    <!--Dropdown field for country types-->
+                    <b-form-select id="country" trim v-model="inputDestination.country" required>
+                        <option :value="country.name" v-for="country in countryList"
+                                :state="destinationCountryValidation">
+                            {{country.name}}
+                        </option>
+                    </b-form-select>
                 </b-form-group>
+
                 <b-form-checkbox
                         v-if="inputDestination.id !== null"
                         switch
@@ -165,8 +174,14 @@
 </template>
 
 <script>
+    import GetLocationButton from "../map/getLocationButton";
+
     export default {
         name: "addDestinations",
+
+        components: {
+            GetLocationButton
+        },
 
         props: {
             profile: Object,
@@ -199,15 +214,21 @@
                 dismissCountDown: 0,
                 latitudeErrorMessage: "",
                 longitudeErrorMessage: "",
-                destinationConflicts: []
+                destinationConflicts: [],
+                editDestinationConflicts: [],
+                countryList: Array
             }
+        },
+
+        mounted() {
+            this.getCountries();
         },
 
         computed: {
             /**
-             * Validates the input fields based on regex.
+             * Validates the name input field. Name is valid when it contains more than one character.
              *
-             * @returns {*} true if input is valid.
+             * @returns {*}     true if input is valid.
              */
             destinationNameValidation() {
                 if (this.inputDestination.name.length === 0) {
@@ -215,18 +236,40 @@
                 }
                 return this.inputDestination.name.length > 0;
             },
+
+
+            /**
+             * Validates the type input field. Type is valid when the type has been selected.
+             *
+             * @returns {*}     true if input is valid.
+             */
             destinationTypeValidation() {
                 if (this.inputDestination.type.id == null) {
                     return null;
                 }
                 return this.inputDestination.type.length > 0 || this.inputDestination.type !== null;
             },
+
+
+            /**
+             * Validates the district input field. District is valid when the district has been selected.
+             *
+             * @returns {*}     true if input is valid.
+             */
             destinationDistrictValidation() {
                 if (this.inputDestination.district.length === 0) {
                     return null;
                 }
                 return this.inputDestination.district.length > 0;
             },
+
+
+            /**
+             * Validates the latitude input field. Latitude is valid when it contains only numeric characters, is not
+             * empty, and is within the range -90 to 90.
+             *
+             * @returns {*}     true if input is valid.
+             */
             destinationLatitudeValidation() {
                 if (this.inputDestination.latitude === null || this.inputDestination.latitude.length === 0) {
                     return null;
@@ -242,6 +285,14 @@
                 }
 
             },
+
+
+            /**
+             * Validates the longitude input field. Longitude is valid when it contains only numeric characters, is not
+             * empty, and is within the range -180 to 180.
+             *
+             * @returns {*}     true if input is valid.
+             */
             destinationLongitudeValidation() {
                 if (this.inputDestination.longitude === null || this.inputDestination.longitude.length === 0) {
                     return null;
@@ -256,16 +307,28 @@
                     return true;
                 }
             },
+
+
+            /**
+             * Validates the country input field. Country is valid when it contains more than one character, and is not
+             * a number.
+             *
+             * @returns {*}     true if input is valid.
+             */
             destinationCountryValidation() {
-                if (this.inputDestination.country.length === 0) {
+                if (this.inputDestination.country === null) {
                     return null;
                 }
-                let countryRegex = /\d/;
-                return !countryRegex.test(this.inputDestination.country);
+                return this.inputDestination.country.length > 0 || this.inputDestination.country !== null;
             },
 
+
+            /**
+             * Tells users editing a destination whether they've made the destination public or private.
+             *
+             * @returns {string}    public or private depending on the input destination privacy.
+             */
             isPublic() {
-                // Tells users editing a destination whether they've made the destination public or private.
                 if (this.inputDestination.public) {
                     return "Public";
                 }
@@ -274,6 +337,21 @@
         },
 
         methods: {
+            /**
+             * Sets the countries list to the list of countries from the country api
+             */
+            getCountries() {
+                return fetch("https://restcountries.eu/rest/v2/all", {
+                    dataType: 'html'
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then((data) => {
+                        this.countryList = data;
+                    })
+            },
+
+
             /**
              * Checks all of the input fields for valid input
              */
@@ -357,21 +435,37 @@
 
 
             /**
-             * Checks whether the destination being edited is present in any trips. This is to display a confirmation
-             * message to the user.
+             * Checks whether the destination being edited is present in any other parts of the application.
+             * This is to display a confirmation message to the user.
              *
              */
             validateEdit() {
                 let self = this;
-                fetch(`/v1/destinationCheck/` + this.inputDestination.id, {
+                fetch(`/v1/destinations/` + this.inputDestination.id + `/checkDuplicates`, {
                     accept: "application/json"
                 })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
                     .then(function (response) {
+                        self.getMatchingEditedDestination();
                         self.displayConfirmation();
                     });
+            },
+
+
+            getMatchingEditedDestination() {
+                let self = this;
+                fetch(`/v1/destinationsCheckEdit`, {
+                    method: 'POST',
+                    headers: {'content-type': 'application/json'},
+                    body: (JSON.stringify(this.inputDestination))
+                })
+                    .then(function (response) {
+                        response.json().then(data => {
+                            self.editDestinationConflicts = data;
+                        })
+                    })
             },
 
 
@@ -398,8 +492,9 @@
                     if (response.ok) {
                         self.showAlert();
                         self.dismissModal('confirmEditModal');
-                        self.$emit('destination-saved', self.inputDestination);
-                        return JSON.parse(JSON.stringify(response));
+                        response.json().then(data => {
+                            self.$emit('destination-saved', data);
+                        });
                     } else {
                         self.errorMessage = "";
                         self.showError = true;
@@ -408,6 +503,15 @@
                         });
                     }
                 });
+            },
+
+
+            /**
+             * Updates the latitude & longitude when emitted from the button that gets current location
+             */
+            setCurrentLocation(currentCoordinates) {
+                this.inputDestination.latitude = currentCoordinates.latitude;
+                this.inputDestination.longitude = currentCoordinates.longitude;
             },
 
 
@@ -472,6 +576,20 @@
             parseJSON(response) {
                 return response.json();
             },
+
+
+            /**
+             * Converts the given boolean value to a readable string.
+             *
+             * @param isPublic      boolean value false if the destination is not public, true otherwise.
+             * @returns {string}    returns a string 'Public' or 'Private' depending on the given parameter.
+             */
+            convertToPublicString(isPublic) {
+                if (isPublic) {
+                    return "Public";
+                }
+                return "Private";
+            }
         }
     }
 </script>

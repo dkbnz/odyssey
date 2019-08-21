@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import models.destinations.Destination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import models.Profile;
+import models.profiles.Profile;
 import models.photos.PersonalPhoto;
 import models.photos.Photo;
 import play.libs.Files.TemporaryFile;
@@ -14,7 +14,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repositories.destinations.DestinationRepository;
 import repositories.photos.PersonalPhotoRepository;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 import com.typesafe.config.Config;
 
@@ -24,7 +24,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import javax.inject.Inject;
+import com.google.inject.Inject;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,6 +43,7 @@ public class PhotoController extends Controller {
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String PHOTO_ID = "id";
     private static final String IS_PUBLIC = "public";
+    private static final String IMAGE_NOT_FOUND = "Image could not be found.";
     private static final int IMAGE_DIMENSION = 200;
 
     private ProfileRepository profileRepository;
@@ -83,21 +85,20 @@ public class PhotoController extends Controller {
      * @param getThumbnail  whether thumbnail directory is being requested.
      * @return              filepath to save the photo to.
      */
-    private String getPhotoFilePath(Boolean getThumbnail) throws IOException {
+    private String getPhotoFilePath(boolean getThumbnail) throws IOException {
 
-        String photoEnvironmentName = config.getString("travelea.photos.path.env");
-
-        String mainPath = (photoEnvironmentName != null && System.getenv(photoEnvironmentName) != null
-                ? System.getenv(photoEnvironmentName)
-                : config.getString("travelea.photos.main"));
+        String mainPath = config.getString("travelea.photos.main");
 
         String returnPath = mainPath + (getThumbnail
                 ? config.getString("travelea.photos.thumbnail")
                 : "");
 
-        Path path = Paths.get(returnPath);
 
-        if (!path.toFile().isDirectory()) {
+        Path path = Paths.get(returnPath).toAbsolutePath();
+
+        returnPath = path.toString();
+
+        if (!path.toFile().exists() || !path.toFile().isDirectory()) {
             Files.createDirectory(path);
         }
 
@@ -140,8 +141,8 @@ public class PhotoController extends Controller {
     private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic)
             throws IOException {
         Photo photoToAdd = new Photo();
-        photoToAdd.setMainFilename(getPhotoFilePath(false) + filename);
-        photoToAdd.setThumbnailFilename(getPhotoFilePath(true) + filename);
+        photoToAdd.setMainFilename(getPhotoFilePath(false) + "/" + filename);
+        photoToAdd.setThumbnailFilename(getPhotoFilePath(true) + "/" + filename);
         photoToAdd.setContentType(contentType);
         photoToAdd.setUploadDate(LocalDate.now());
         photoToAdd.setUploadProfile(profileToAdd);
@@ -151,8 +152,7 @@ public class PhotoController extends Controller {
         personalPhoto.setPublic(isPublic);
         personalPhoto.setProfile(profileToAdd);
 
-        profileToAdd.addPhotoToGallery(personalPhoto);
-        profileRepository.save(profileToAdd);
+        personalPhotoRepository.save(personalPhoto);
     }
 
 
@@ -166,21 +166,18 @@ public class PhotoController extends Controller {
      *                  badRequest (Http 400).
      */
     public Result destroy(Http.Request request, Long photoId) {
-
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        PersonalPhoto photo = personalPhotoRepository.fetch(photoId);
+        PersonalPhoto photo = personalPhotoRepository.findById(photoId);
 
         if (photo == null) {
             return notFound();
         }
 
         Profile photoOwner = photo.getProfile();
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
             return forbidden();
@@ -210,14 +207,12 @@ public class PhotoController extends Controller {
      *                profile picture.
      */
     public Result destroyProfilePhoto(Http.Request request, Long userId) {
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
-
-        Profile profileToChange = profileRepository.fetchSingleProfile(userId.intValue());
+        Profile profileToChange = profileRepository.findById(userId);
 
         if (profileToChange == null) {
             return badRequest();
@@ -227,7 +222,8 @@ public class PhotoController extends Controller {
             return forbidden();
         }
 
-        profileRepository.deleteProfilePhoto(profileToChange);
+        profileToChange.setProfilePicture(null);
+        profileRepository.update(profileToChange);
         return ok();
     }
 
@@ -243,37 +239,34 @@ public class PhotoController extends Controller {
      *                      owners profile photo, ok() (Http 200) if successful change of profile photo.
      */
     public Result updateProfilePhoto(Http.Request request, Long photoId) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(loggedInUserId -> {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized();
+        }
 
-                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(photoId);
+        PersonalPhoto personalPhoto = personalPhotoRepository.findById(photoId);
 
-                    if (personalPhoto == null) {
-                        return badRequest();
-                    }
+        if (personalPhoto == null) {
+            return badRequest();
+        }
 
-                    Profile owner = personalPhoto.getProfile();
+        Profile owner = personalPhoto.getProfile();
 
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
+        if (owner == null) {
+            return notFound();
+        }
 
-                    if (owner == null) {
-                        return notFound();
-                    }
+        if(!AuthenticationUtil.validUser(loggedInUser, owner)) {
+            return forbidden();
+        }
 
-                    if(!AuthenticationUtil.validUser(loggedInUser, owner)) {
-                        return forbidden();
-                    }
+        // Now used as a profile photo so must be public
+        personalPhoto.setPublic(true);
 
-                    if (personalPhoto.getPublic()) {
-                        profileRepository.setProfilePhoto(personalPhoto, owner);
-                        return ok();
-                    } else {
-                        personalPhotoRepository.updatePrivacy(owner, personalPhoto, "true");
-                        profileRepository.setProfilePhoto(personalPhoto, owner);
-                        return ok();
-                    }
-                }).orElseGet(() -> unauthorized());
+        owner.setProfilePicture(personalPhoto);
+        personalPhotoRepository.update(personalPhoto);
+        profileRepository.update(owner);
+        return ok();
     }
 
 
@@ -290,50 +283,47 @@ public class PhotoController extends Controller {
      *                  internalServerError() (Http 500) if for some reason the photo couldn't be changed.
      */
     public Result changePrivacy(Http.Request request) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(loggedInUserId -> {
-                    JsonNode json = request.body().asJson();
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(NOT_SIGNED_IN);
+        }
 
-                    if (!(json.has(PHOTO_ID) && json.has(IS_PUBLIC))) {
-                        return badRequest();
-                    }
+        JsonNode json = request.body().asJson();
 
-                    Long personalPhotoId = json.get(PHOTO_ID).asLong();
-                    String isPublic = json.get(IS_PUBLIC).asText();
+        if (!(json.has(PHOTO_ID) && json.has(IS_PUBLIC))) {
+            return badRequest();
+        }
 
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
-                    Profile profileToChange;
+        Long personalPhotoId = json.get(PHOTO_ID).asLong();
+        Boolean isPublic = json.get(IS_PUBLIC).asBoolean();
 
-                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
+        Profile profileToChange;
 
-                    if (personalPhoto == null) {
-                        return notFound();
-                    }
+        PersonalPhoto personalPhoto = personalPhotoRepository.findById(personalPhotoId);
 
-                    Profile owner = personalPhoto.getProfile();
+        if (personalPhoto == null) {
+            return notFound();
+        }
 
-                    if (owner == null) {
-                        return notFound();
-                    }
+        Profile owner = personalPhoto.getProfile();
 
-                    if(owner.getProfilePicture() != null && owner.getProfilePicture().getId().equals(personalPhotoId)) {
-                        return badRequest();
-                    }
+        if (owner == null) {
+            return notFound();
+        }
 
-                    if(AuthenticationUtil.validUser(loggedInUser, owner)) {
-                        profileToChange = profileRepository.fetchSingleProfile(owner.getId().intValue());
-                    } else {
-                        return forbidden();
-                    }
+        if(owner.getProfilePicture() != null && owner.getProfilePicture().getId().equals(personalPhotoId)) {
+            return badRequest();
+        }
 
-                    if (profileToChange != null) {
-                        personalPhotoRepository.updatePrivacy(profileToChange, personalPhoto, isPublic);
-                        return ok(Json.toJson(profileToChange.getPhotoGallery()));
-                    }
-                    return internalServerError("Can't change privacy of photo");
-                })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+        if(AuthenticationUtil.validUser(loggedInUser, owner)) {
+            profileToChange = owner;
+        } else {
+            return forbidden();
+        }
+
+        personalPhoto.setPublic(isPublic);
+        personalPhotoRepository.update(personalPhoto);
+        return ok(Json.toJson(profileToChange.getPhotoGallery()));
     }
 
 
@@ -348,15 +338,15 @@ public class PhotoController extends Controller {
      */
     private Result savePhotos(Profile profileToAdd, Collection<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
         for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
-            TemporaryFile tempFile = photo.getRef();
+            TemporaryFile temporaryFile = photo.getRef();
             String filename = generateFilename();
             try {
-                tempFile.copyTo(Paths.get(getPhotoFilePath(false), filename),true);
+                temporaryFile.copyTo(Paths.get(getPhotoFilePath(false), filename),true);
                 saveThumbnail(filename);
                 addImageToProfile(profileToAdd, filename, photo.getContentType(), false);
             } catch (IOException e) {
                 log.error("Unable to convert image to thumbnail", e);
-                return internalServerError("Unable to save image");
+                return internalServerError(Json.toJson(e));
             }
         }
         return created(Json.toJson(profileToAdd.getPhotoGallery()));
@@ -375,16 +365,13 @@ public class PhotoController extends Controller {
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
 
-                    Profile user = profileRepository.fetchSingleProfile(userId.intValue());
+                    Profile user = profileRepository.findById(userId);
 
-                    JsonNode userJson = (Json.toJson(user));
-
-                    if (userJson.has("photoGallery")) {
-                        return ok(userJson.get("photoGallery"));
+                    if (user != null && user.getPhotoGallery() != null) {
+                        return ok(Json.toJson(user.getPhotoGallery()));
                     }
 
                     return badRequest();
-
                 })
                 .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
     }
@@ -405,11 +392,15 @@ public class PhotoController extends Controller {
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(loggedInUserId -> {
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(loggedInUserId));
-                    Profile profileToAdd = profileRepository.fetchSingleProfile(userId.intValue());
+                    Profile loggedInUser = profileRepository.findById(Long.valueOf(loggedInUserId));
+                    Profile profileToAdd = profileRepository.findById(userId);
 
                     if (profileToAdd == null) {
                         return badRequest(); // User does not exist in the system.
+                    }
+
+                    if(loggedInUser == null) {
+                        return notFound();
                     }
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
@@ -445,18 +436,18 @@ public class PhotoController extends Controller {
      * @throws IOException  if there is an error with saving the thumbnail.
      */
     private void saveThumbnail(String filename) throws IOException {
-        BufferedImage photo = ImageIO.read(new File(getPhotoFilePath(false) + filename));
+        BufferedImage photo = ImageIO.read(new File(getPhotoFilePath(false) + "/" + filename));
         BufferedImage croppedImage = makeSquare(photo);
         BufferedImage thumbnail = scale(croppedImage);
         ImageIO.write(thumbnail, "jpg", new File(getPhotoFilePath(true)
-                + filename));
+                + "/" + filename));
     }
 
 
     /**
      * Gets a middle section of the image and makes it into a square.
      *
-     * @param photo the BufferedImage object of the uploaded image
+     * @param photo the BufferedImage object of the uploaded image.
      * @return      a new BufferedImage subImage object of the square section of the image.
      */
     private BufferedImage makeSquare(BufferedImage photo) {
@@ -532,17 +523,20 @@ public class PhotoController extends Controller {
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
 
-                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
+                    PersonalPhoto personalPhoto = personalPhotoRepository.findById(personalPhotoId);
 
                     if (personalPhoto == null)
-                        return notFound("Image could not be found.");
+                        return notFound(IMAGE_NOT_FOUND);
 
                     if (personalPhoto.getPublic())
                         return getImageResult(personalPhoto.getPhoto(), getThumbnail);
 
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(userId));
+                    Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
                     Profile owner = personalPhoto.getProfile();
 
+                    if (loggedInUser == null) {
+                        return notFound();
+                    }
                     if(AuthenticationUtil.validUser(loggedInUser, owner))
                         return getImageResult(personalPhoto.getPhoto(), getThumbnail);
 
@@ -574,28 +568,36 @@ public class PhotoController extends Controller {
                         return badRequest();
                     }
 
-                    Long personalPhotoId = json.get(PHOTO_ID).asLong();
+                    PersonalPhoto personalPhoto = personalPhotoRepository.findById(
+                            json.get(PHOTO_ID).asLong()
+                    );
 
-                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
+                    Destination destination = destinationRepository.findById(destinationId);
 
                     if (personalPhoto == null) {
-                        return notFound("Image could not be found.");
+                        return notFound(IMAGE_NOT_FOUND);
+                    }
+
+                    if (destination == null) {
+                        return notFound();
                     }
 
                     Profile photoOwner = personalPhoto.getProfile();
+                    Profile destinationOwner = destination.getOwner();
+                    Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
 
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(userId));
+                    if (loggedInUser == null) {
+                        return notFound();
+                    }
 
-                    if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
-                        Destination destination = destinationRepository.fetch(destinationId);
-                        if (destination != null) {
-                            destination.addPhotoToGallery(personalPhoto);
-                            destinationRepository.update(destination);
-                            changeOwnership(photoOwner, destination);
-                            return created(Json.toJson(destination.getPhotoGallery()));
-                        } else {
-                            return notFound();
-                        }
+                    if(AuthenticationUtil.validUser(loggedInUser, photoOwner) &&
+                            (AuthenticationUtil.validUser(loggedInUser, destinationOwner)
+                                    || destination.getPublic())) {
+
+                        destination.addPhotoToGallery(personalPhoto);
+                        changeOwnership(photoOwner, destination);
+                        destinationRepository.update(destination);
+                        return created(Json.toJson(destination.getPhotoGallery()));
                     }
 
                     return forbidden();
@@ -612,7 +614,7 @@ public class PhotoController extends Controller {
      */
     private void changeOwnership(Profile profileAddingPhoto, Destination destination) {
         if (destination.getPublic() && !profileAddingPhoto.equals(destination.getOwner())) {
-            destinationRepository.transferDestinationOwnership(destination);
+            destinationRepository.transferToAdmin(destination);
         }
     }
 
@@ -642,18 +644,22 @@ public class PhotoController extends Controller {
 
                     Long personalPhotoId = json.get(PHOTO_ID).asLong();
 
-                    PersonalPhoto personalPhoto = personalPhotoRepository.fetch(personalPhotoId);
+                    PersonalPhoto personalPhoto = personalPhotoRepository.findById(personalPhotoId);
 
                     if (personalPhoto == null) {
-                        return notFound("Image could not be found.");
+                        return notFound(IMAGE_NOT_FOUND);
                     }
 
                     Profile photoOwner = personalPhoto.getProfile();
 
-                    Profile loggedInUser = profileRepository.fetchSingleProfile(Integer.valueOf(userId));
+                    Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
+
+                    if (loggedInUser == null) {
+                        return notFound();
+                    }
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
-                        Destination destination = destinationRepository.fetch(destinationId);
+                        Destination destination = destinationRepository.findById(destinationId);
                         if (destination != null) {
                             destination.removePhotoFromGallery(personalPhoto);
                             destinationRepository.update(destination);

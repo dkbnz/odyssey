@@ -2,17 +2,17 @@ image: java:8
 
 stages:
 - clean
-- build
 - test
+- build
 - deploy
 - deploy-server
 
 clean-build:
   stage: clean
   script:
-  - if [ -d "target" ]; then sudo rm -r target; fi
-  - if [ -d "project/project" ]; then sudo rm -r project/project; fi
-  - if [ -d "project/target" ]; then sudo rm -r project/target; fi
+  - if [ -d "target" ]; then rm -r target; fi
+  - if [ -d "project/project" ]; then rm -r project/project; fi
+  - if [ -d "project/target" ]; then rm -r project/target; fi
   only:
   - master@seng302-2019/team-100
 
@@ -26,13 +26,13 @@ tag_checker:
 junit:
   stage: test
   script:
-    - xvfb-run -a sbt test
+    - xvfb-run -a sbt jacoco
 
 recent-artifacts:
   stage: deploy
   script:
-  - sudo git lfs pull
-  - sudo -u gitlab-runner sbt dist
+  - git lfs pull
+  - sbt dist
   artifacts:
     paths:
     - target/universal/*.zip
@@ -43,8 +43,8 @@ recent-artifacts:
 release-artifacts:
   stage: deploy
   script:
-  - sudo git lfs pull
-  - sudo -u gitlab-runner sbt dist
+  - git lfs pull
+  - sbt dist
   artifacts:
     paths:
     - target/universal/*.zip
@@ -63,15 +63,15 @@ update-sonar:
 deploy-master:
   stage: deploy-server
   script:
-  - sudo mv target/universal/*.zip ${DEPLOY_DIR}/build/
-  - sudo bash scripts/deploy production
+  - mv target/universal/*.zip ${DEPLOY_DIR}/build/
+  - bash scripts/deploy production
   only:
   - master@seng302-2019/team-100
 
 deploy-dev:
   stage: deploy-server
   script:
-  - sudo mv target/universal/*.zip ${DEPLOY_DIR}/build/
-  - sudo bash scripts/deploy development
+  - mv target/universal/*.zip ${DEPLOY_DIR}/build/
+  - bash scripts/deploy development
   only:
   - dev_branch@seng302-2019/team-100

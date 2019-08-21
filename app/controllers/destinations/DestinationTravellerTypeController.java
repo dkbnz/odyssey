@@ -3,13 +3,13 @@ package controllers.destinations;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.inject.Inject;
-import models.Profile;
-import models.TravellerType;
+import models.profiles.Profile;
+import models.profiles.TravellerType;
 import models.destinations.Destination;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.ProfileRepository;
+import repositories.profiles.ProfileRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.destinations.TravellerTypeRepository;
 import util.AuthenticationUtil;
@@ -26,9 +26,6 @@ public class DestinationTravellerTypeController {
     private DestinationRepository destinationRepository;
     private TravellerTypeRepository travellerTypeRepository;
     private ProfileRepository profileRepository;
-
-    private static final String AUTHORIZED = "authorized";
-    private static final String NOT_SIGNED_IN = "You are not logged in.";
 
     @Inject
     public DestinationTravellerTypeController(DestinationRepository destinationRepository,
@@ -68,25 +65,25 @@ public class DestinationTravellerTypeController {
      * recommended traveller types for a destination.
      * All proposed traveller types will be cleared.
      *
-     * @param request           Http request containing a Json body of traveller types.
+     * @param request           an Http request containing a Json body of traveller types.
      * @param destinationId     id of the destination for which the traveller types are set.
-     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully
-     *                          updated.
+     * @return                  ok() (Http 200) if successfully created.
+     *                          unauthorised() (Http 401) if the user is not logged in.
+     *                          notFound() (Http 404) if destination could not found.
+     *                          forbidden() (Http 403) if the logged in user cannot access the resource.
      */
-    public Result create(Http.Request request, Long destinationId) {
-
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+    public Result addTravellerTypes(Http.Request request, Long destinationId) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        Destination destinationToMutate = destinationRepository.fetch(destinationId);
+        Destination destinationToMutate = destinationRepository.findById(destinationId);
 
         if (destinationToMutate == null) {
             return notFound();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, destinationToMutate.getOwner())) {
             return forbidden();
@@ -118,19 +115,20 @@ public class DestinationTravellerTypeController {
      * If method executes successfully, given traveller types will be split between
      * proposed to add or proposed to remove depending on their presence in the current set.
      *
-     * @param request           Http request containing a Json body of traveller types.
+     * @param request           an Http request containing a Json body of traveller types.
      * @param destinationId     id of the destination for which the traveller types are proposed.
-     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully
-     *                          updated.
+     * @return                  ok() (Http 200) if successfully proposed.
+     *                          unauthorised() (Http 401) if the user is not logged in.
+     *                          notFound() (Http 404) if destination could not found.
+     *                          badRequest() (Http 400) if the Json body is formatted incorrectly or not provided.
      */
     public Result propose(Http.Request request, Long destinationId) {
-
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        Destination destinationToMutate = destinationRepository.fetch(destinationId);
+        Destination destinationToMutate = destinationRepository.findById(destinationId);
 
         if (destinationToMutate == null) {
             return notFound();
@@ -170,23 +168,21 @@ public class DestinationTravellerTypeController {
     /**
      * Gets all the destinations that have traveller type proposals that are not currently accepted or rejected.
      *
-     * @param request   the request from the front end that contains login info.
-     * @return          a json result of all the destinations with proposals.
+     * @param request           the request from the front end that contains login info.
+     * @return                  ok() (Http 200) containing all destinations with proposals.
+     *                          unauthorised() (Http 401) if the user is not logged in.
+     *                          forbidden() (Http 403) if the logged in user cannot access the resource.
      */
     public Result fetchProposedDestinations(Http.Request request) {
-
-        Integer loggedInUserId = AuthenticationUtil.getLoggedInUserId(request);
-        if (loggedInUserId == null) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
             return unauthorized();
         }
 
-        Profile loggedInUser = profileRepository.fetchSingleProfile(loggedInUserId);
-
-        if (!loggedInUser.getIsAdmin()) {
+        if (!loggedInUser.isAdmin()) {
             return forbidden();
         }
 
         return ok(Json.toJson(destinationRepository.fetchProposed()));
     }
-
 }

@@ -150,16 +150,16 @@
                     <!--Shows more details about any profile-->
                     <template slot="actions" slot-scope="row">
                         <!-- If user is admin, can delete, make/remove admin rights and delete other users -->
-                        <b-row class="text-center" v-if="profile.isAdmin && adminView">
+                        <b-row class="text-center" v-if="profile.admin && adminView">
                             <b-button @click="makeAdmin(row.item)" block
                                       class="mr-2" size="sm"
-                                      v-if="profile.isAdmin && !(row.item.isAdmin) && row.item.id !== 1"
+                                      v-if="profile.admin && !(row.item.admin) && row.item.id !== 1"
                                       variant="success">
                                 Make Admin
                             </b-button>
                             <b-button :disabled="row.item.id===1"
                                       @click="removeAdmin(row.item)" block class="mr-2"
-                                      size="sm" v-if="profile.isAdmin && row.item.isAdmin && row.item.id !== 1"
+                                      size="sm" v-if="profile.admin && row.item.admin && row.item.id !== 1"
                                       variant="danger">
                                 Remove Admin
                             </b-button>
@@ -168,7 +168,7 @@
                             </b-button>
                             <b-button :disabled="row.item.id===1" @click="sendProfileToModal(row.item)"
                                       block class="mr-2" size="sm"
-                                      v-b-modal.deleteProfileModal v-if="profile.isAdmin && row.item.id !== 1"
+                                      v-b-modal.deleteProfileModal v-if="profile.admin && row.item.id !== 1"
                                       variant="danger">
                                 Delete
                             </b-button>
@@ -253,7 +253,7 @@
                 }
             },
             containerClass: {
-                default: function() {
+                default: function () {
                     return 'containerMain';
                 }
             },
@@ -401,7 +401,7 @@
                     method: 'POST',
                 }).then(function () {
                     self.searchProfiles();
-                }).then(function() {
+                }).then(function () {
                     if (self.profile.id === makeAdminProfile.id) {
                         self.$router.push("/dash");
                         self.$router.go();

@@ -1,11 +1,15 @@
 package controllers;
 
-import models.Profile;
+import models.profiles.Profile;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 
 import play.mvc.Http;
+
+import static org.mockito.Mockito.mock;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.GET;
 
@@ -19,12 +23,20 @@ public class AuthenticationUtilTest {
     private static final String PROFILES_URI = "/v1/profiles";
 
 
+    private ProfileRepository mockProfileRepository;
+
+    @Before
+    public void setUp() {
+        mockProfileRepository = mock(ProfileRepository.class);
+    }
+
+
     @Test
     public void validUserTestIsAdmin() {
         //Arrange
         Profile admin = new Profile();
         admin.setId(ADMIN_ID);
-        admin.setIsAdmin(true);
+        admin.setAdmin(true);
 
         Profile owner = new Profile();
         owner.setId(OWNER_ID);
@@ -41,7 +53,7 @@ public class AuthenticationUtilTest {
         //Arrange
         Profile notAdmin = new Profile();
         notAdmin.setId(ADMIN_ID);
-        notAdmin.setIsAdmin(false);
+        notAdmin.setAdmin(false);
 
         Profile owner = new Profile();
         owner.setId(OWNER_ID);
@@ -58,7 +70,7 @@ public class AuthenticationUtilTest {
         //Arrange
         Profile user = new Profile();
         user.setId(ADMIN_ID);
-        user.setIsAdmin(false);
+        user.setAdmin(false);
 
         Profile owner = new Profile();
         owner.setId(ADMIN_ID);
@@ -79,7 +91,7 @@ public class AuthenticationUtilTest {
         owner.setId(ADMIN_ID);
 
         notOwner.setId(OWNER_ID);
-        notOwner.setIsAdmin(false);
+        notOwner.setAdmin(false);
 
         //Act
         boolean result = AuthenticationUtil.validUser(notOwner, owner);
@@ -95,12 +107,14 @@ public class AuthenticationUtilTest {
                 .method(GET)
                 .session(AUTHORIZED, LOGGED_IN_ID)
                 .uri(PROFILES_URI);
+
         //Act
-        Integer userId = AuthenticationUtil.getLoggedInUserId(request.build());
+        Long userId = AuthenticationUtil.getLoggedInUserId(request.build());
+        Long parsedId = Long.parseLong(LOGGED_IN_ID);
 
         //Assert
         Assert.assertNotNull(userId);
-        Assert.assertEquals(userId.longValue(), Long.parseLong(LOGGED_IN_ID));
+        Assert.assertEquals(userId, parsedId);
     }
 
 
@@ -110,11 +124,26 @@ public class AuthenticationUtilTest {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .uri(PROFILES_URI);
+
         //Act
-        Integer userId = AuthenticationUtil.getLoggedInUserId(request.build());
+        Long userId = AuthenticationUtil.getLoggedInUserId(request.build());
 
         //Assert
         Assert.assertNull(userId);
     }
 
+
+    @Test
+    public void noAuthenticationTest() {
+        //Arrange
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(PROFILES_URI);
+
+        //Act
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(mockProfileRepository, request.build());
+
+        //Assert
+        Assert.assertNull(loggedInUser);
+    }
 }
