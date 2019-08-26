@@ -146,11 +146,27 @@
                     return this.profile;
                 }
             },
-            nationalityOptions: Array,
-            travTypeOptions: Array,
-            trips: Array,
+            nationalityOptions: {
+                default: function () {
+                    return [];
+                }
+            },
+            travTypeOptions: {
+                default: function () {
+                    return [];
+                }
+            },
+            trips: {
+                default: function () {
+                    return [];
+                }
+            },
             adminView: Boolean,
-            destinations: Array,
+            destinations: {
+                default: function () {
+                    return [];
+                }
+            },
             showSaved: {
                 default: function () {
                     return false;

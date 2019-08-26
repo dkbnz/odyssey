@@ -118,6 +118,8 @@
         computed: {
             fields() {
                 return [
+                    {key: 'achievements.ranking', label: "Rank", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'achievements.points', label: "Points", sortable: true, class: 'tableWidthSmall'},
                     {key: 'profilePhoto', label: "Photo", sortable: true, class: 'tableWidthSmall'},
                     {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
                     {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},

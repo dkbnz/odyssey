@@ -1,16 +1,11 @@
 <template>
-    <div v-if="profile.length !== 0">
-        <nav-bar-main v-bind:profile="profile" v-if="!minimalInfo"></nav-bar-main>
-
+    <div>
         <div :class="containerClass">
 
             <h1 class="page-title" v-if="!minimalInfo">Find Profiles</h1>
             <p class="page-title" v-if="!minimalInfo"><i>Search for other travellers using any of the fields in the form
                 below</i>
             </p>
-
-            <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
-
 
             <!-- Confirmation modal for deleting a profile. -->
             <b-modal ref="deleteProfileModal" id="deleteProfileModal" hide-footer title="Delete Profile">
@@ -29,7 +24,7 @@
                 </b-button>
             </b-modal>
 
-            <profile-search-form @search="searchProfiles"></profile-search-form>
+            <profile-search-form @search="queryProfiles"></profile-search-form>
 
             <!--Displays results from profile search in a table format-->
             <div style="margin-top: 40px">
@@ -48,9 +43,6 @@
         </div>
         <footer-main></footer-main>
     </div>
-    <div v-else>
-        <unauthorised-prompt></unauthorised-prompt>
-    </div>
 </template>
 
 <script>
@@ -63,23 +55,16 @@
     import ProfileSearchForm from "./profileSearchForm";
 
     export default {
-        name: "profilesPage",
+        name: "desktopLeaderboard",
 
         props: {
             profile: Object,
-            nationalityOptions: Array,
-            travTypeOptions: Array,
             minimalInfo: {
                 default: function() {
                     return false;
                 }
             },
             destinations: Array,
-            perPage: {
-                default: function () {
-                    return 10;
-                }
-            },
             containerClass: {
                 default: function () {
                     return 'containerMain';
@@ -253,26 +238,6 @@
                 }).then(function () {
                     self.searchProfiles();
                 })
-            },
-
-
-            /**
-             * Changes fields so that they can be used in searching.
-             * Runs validation on range fields.
-             */
-            searchProfiles(searchParameters) {
-                searchParameters.minAge = parseInt(searchParameters.minAge);
-                searchParameters.maxAge = parseInt(searchParameters.maxAge);
-                if (isNaN(searchParameters.minAge) || isNaN(searchParameters.maxAge)) {
-                    this.showError = true;
-                    this.alertMessage = "Min or Max Age are not numbers";
-                } else if (searchParameters.minAge > searchParameters.maxAge) {
-                    this.showError = true;
-                    this.alertMessage = "Min age is greater than max age";
-                } else {
-                    this.showError = false;
-                    this.queryProfiles(searchParameters);
-                }
             },
 
 
