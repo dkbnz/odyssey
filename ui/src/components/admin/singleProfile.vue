@@ -123,7 +123,6 @@
             travTypeOptions: Array,
             destinations: Array,
             destinationTypes: Array
-
         },
 
         data() {

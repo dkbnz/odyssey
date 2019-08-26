@@ -1,5 +1,7 @@
 <template>
     <div>
+        <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
+
         <!--Input fields for searching profiles-->
         <b-row>
             <b-col>
@@ -78,7 +80,7 @@
             </b-form-select>
         </b-form-group>
 
-        <b-button @click="$emit('search', searchParameters)" block variant="primary">Search</b-button>
+        <b-button @click="searchProfiles" block variant="primary">Search</b-button>
     </div>
 </template>
 
@@ -94,11 +96,10 @@
                     maxAge: 120,
                     travellerType: ""
                 },
-
                 travellerTypeOptions: [],
-
                 nationalityOptions: [],
-
+                showError: false,
+                alertMessage: "",
                 genderOptions: [
                     {value: 'Male', text: 'Male'},
                     {value: 'Female', text: 'Female'},
@@ -113,6 +114,25 @@
         },
 
         methods: {
+            /**
+             * Changes fields so that they can be used in searching.
+             * Runs validation on range fields.
+             */
+            searchProfiles() {
+                this.searchParameters.minAge = parseInt(this.searchParameters.minAge);
+                this.searchParameters.maxAge = parseInt(this.searchParameters.maxAge);
+                if (isNaN(this.searchParameters.minAge) || isNaN(this.searchParameters.maxAge)) {
+                    this.showError = true;
+                    this.alertMessage = "Min or Max Age are not numbers";
+                } else if (this.searchParameters.minAge > this.searchParameters.maxAge) {
+                    this.showError = true;
+                    this.alertMessage = "Min age is greater than max age";
+                } else {
+                    this.showError = false;
+                    this.$emit('search', this.searchParameters);
+                }
+            },
+
 
             /**
              * Retrieves all the traveller types.

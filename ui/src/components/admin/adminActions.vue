@@ -131,7 +131,7 @@
 </template>
 
 <script>
-    import ProfilesPage from '../profiles/profilesPage.vue'
+    import ProfilesPage from '../profiles/leaderboardPage.vue'
     import SignUp from '../index/signup.vue'
 
     export default {
