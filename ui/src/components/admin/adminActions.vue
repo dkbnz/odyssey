@@ -11,7 +11,7 @@
                             header="Search for Profiles"
                             header-tag="header">
                             <!-- Display the search profiles component -->
-                            <profiles-page :adminView="true"
+                            <profiles-page :minimal-info="true"
                                            :containerClass="'adminProfilesContainer'"
                                            :destinations="destinations"
                                            :destinationTypes="destinationTypes"

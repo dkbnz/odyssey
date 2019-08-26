@@ -1,0 +1,146 @@
+<template>
+    <div>
+        <!--Input fields for searching profiles-->
+        <b-row>
+            <b-col>
+                <b-form-group
+                        id="nationalities-field"
+                        label="Nationality:"
+                        label-for="nationality">
+                    <b-form-select id="nationality" trim v-model="searchParameters.nationality">
+                        <template slot="first">
+                            <option :value="null">-- Any --</option>
+                        </template>
+                        <option :value="nationality.nationality"
+                                v-for="nationality in nationalityOptions">
+                            {{nationality.nationality}}
+                        </option>
+                    </b-form-select>
+                </b-form-group>
+            </b-col>
+            <b-col>
+                <b-form-group
+                        id="gender-field"
+                        label="Gender:"
+                        label-for="gender">
+                    <b-form-select :options="genderOptions" id="gender" trim v-model="searchParameters.gender">
+                        <template slot="first">
+                            <option :value="null">-- Any --</option>
+                        </template>
+                    </b-form-select>
+                </b-form-group>
+            </b-col>
+        </b-row>
+        <b-row>
+            <b-col>
+                <b-form-group
+                        id="minAge-field"
+                        label="Min Age: "
+                        label-for="minAge">
+                    <div class="mt-2">{{ searchParameters.minAge }}</div>
+
+                    <!--Range slider from 0 to 110-->
+                    <b-form-input :type="'range'" id="minAge"
+                                  max="110"
+                                  min="0"
+                                  trim
+                                  v-model="searchParameters.minAge"></b-form-input>
+                </b-form-group>
+            </b-col>
+            <b-col>
+                <b-form-group
+                        id="maxAge-field"
+                        label="Max Age:"
+                        label-for="maxAge">
+                    <div class="mt-2">{{ searchParameters.maxAge }}</div>
+                    <!--Range slider from 0 to 110-->
+                    <b-form-input :type="'range'" id="maxAge"
+                                  max="120"
+                                  min="0"
+                                  trim
+                                  v-model="searchParameters.maxAge"></b-form-input>
+                </b-form-group>
+            </b-col>
+        </b-row>
+
+        <b-form-group
+                id="travType-field"
+                label="Traveller Type:"
+                label-for="travType">
+            <b-form-select id="travType" trim v-model="searchParameters.travellerType">
+                <template>
+                    <option :value="null" selected="selected">-- Any --</option>
+                </template>
+                <option :value="travType.travellerType"
+                        v-for="travType in travellerTypeOptions">
+                    {{travType.travellerType}}
+                </option>
+            </b-form-select>
+        </b-form-group>
+
+        <b-button @click="$emit('search', searchParameters)" block variant="primary">Search</b-button>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "profileSearchForm",
+        data() {
+            return {
+                searchParameters: {
+                    nationality: "",
+                    gender: "",
+                    minAge: 0,
+                    maxAge: 120,
+                    travellerType: ""
+                },
+
+                travellerTypeOptions: [],
+
+                nationalityOptions: [],
+
+                genderOptions: [
+                    {value: 'Male', text: 'Male'},
+                    {value: 'Female', text: 'Female'},
+                    {value: 'Other', text: 'Other'}
+                ]
+            }
+        },
+
+        mounted() {
+            this.getTravellerTypes();
+            this.getNationalities();
+        },
+
+        methods: {
+
+            /**
+             * Retrieves all the traveller types.
+             */
+            getTravellerTypes() {
+                return fetch(`/v1/travtypes`, {
+                    accept: "application/json"
+                })
+                    .then(response => response.json())
+                    .then(travellerTypes => this.travellerTypeOptions = travellerTypes);
+            },
+
+
+            /**
+             * Retrieves all the nationalities.
+             */
+            getNationalities() {
+                return fetch(`/v1/nationalities`, {
+                    accept: "application/json"
+                })
+                    .then(response => response.json())
+                    .then(nationalities => this.nationalityOptions = nationalities);
+            },
+        }
+
+    }
+</script>
+
+<style scoped>
+
+</style>
