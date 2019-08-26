@@ -1,11 +1,11 @@
 <template>
     <div v-if="profile.length !== 0">
-        <nav-bar-main v-bind:profile="profile" v-if="!adminView"></nav-bar-main>
+        <nav-bar-main v-bind:profile="profile" v-if="!minimalInfo"></nav-bar-main>
 
         <div :class="containerClass">
 
-            <h1 class="page-title" v-if="!adminView">Find Profiles</h1>
-            <p class="page-title" v-if="!adminView"><i>Search for other travellers using any of the fields in the form
+            <h1 class="page-title" v-if="!minimalInfo">Find Profiles</h1>
+            <p class="page-title" v-if="!minimalInfo"><i>Search for other travellers using any of the fields in the form
                 below</i>
             </p>
 
@@ -29,199 +29,21 @@
                 </b-button>
             </b-modal>
 
-
-            <div>
-                <!--Input fields for searching profiles-->
-                <b-row>
-                    <b-col>
-                        <b-form-group
-                                id="nationalities-field"
-                                label="Nationality:"
-                                label-for="nationality">
-                            <b-form-select id="nationality" trim v-model="searchNationality">
-                                <template slot="first">
-                                    <option :value="null">-- Any --</option>
-                                </template>
-                                <option :value="nationality.nationality"
-                                        v-for="nationality in nationalityOptions">
-                                    {{nationality.nationality}}
-                                </option>
-                            </b-form-select>
-                        </b-form-group>
-                    </b-col>
-                    <b-col>
-                        <b-form-group
-                                id="gender-field"
-                                label="Gender:"
-                                label-for="gender">
-                            <b-form-select :options="genderOptions" id="gender" trim v-model="searchGender">
-                                <template slot="first">
-                                    <option :value="null">-- Any --</option>
-                                </template>
-                            </b-form-select>
-                        </b-form-group>
-                    </b-col>
-                </b-row>
-                <b-row>
-                    <b-col>
-                        <b-form-group
-                                id="minAge-field"
-                                label="Min Age: "
-                                label-for="minAge">
-                            <div class="mt-2">{{ searchMinAge }}</div>
-
-                            <!--Range slider from 0 to 110-->
-                            <b-form-input :type="'range'" id="minAge"
-                                          max="110"
-                                          min="0"
-                                          trim
-                                          v-model="searchMinAge"></b-form-input>
-                        </b-form-group>
-                    </b-col>
-                    <b-col>
-                        <b-form-group
-                                id="maxAge-field"
-                                label="Max Age:"
-                                label-for="maxAge">
-                            <div class="mt-2">{{ searchMaxAge }}</div>
-                            <!--Range slider from 0 to 110-->
-                            <b-form-input :type="'range'" id="maxAge"
-                                          max="120"
-                                          min="0"
-                                          trim
-                                          v-model="searchMaxAge"></b-form-input>
-                        </b-form-group>
-                    </b-col>
-                </b-row>
-
-                <b-form-group
-                        id="travType-field"
-                        label="Traveller Type:"
-                        label-for="travType">
-                    <b-form-select id="travType" trim v-model="searchTravType">
-                        <template>
-                            <option :value="null" selected="selected">-- Any --</option>
-                        </template>
-                        <option :value="travType.travellerType"
-                                v-for="travType in travTypeOptions">
-                            {{travType.travellerType}}
-                        </option>
-                    </b-form-select>
-                </b-form-group>
-
-                <b-button @click="searchProfiles" block variant="primary">Search</b-button>
-            </div>
+            <profile-search-form @search="searchProfiles"></profile-search-form>
 
             <!--Displays results from profile search in a table format-->
             <div style="margin-top: 40px">
-                <b-table :busy="this.profiles.length === 0"
-                         :current-page="currentPage"
-                         :fields="fields"
-                         :items="profiles"
-                         :per-page="perPage"
-                         :sort-by.sync="sortBy"
-                         :sort-desc.sync="sortDesc"
-                         responsive
-                         hover
-                         id="profiles"
-                         outlined
-                         ref="profilesTable"
-                         striped>
-                    <div class="text-center my-2" slot="table-busy">
-                        <b-spinner class="align-middle" v-if="retrievingProfiles"></b-spinner>
-                        <strong>Can't find any profiles!</strong>
-                    </div>
-                    <template slot="profilePhoto" slot-scope="row">
-                        <b-img :src="getProfilePictureThumbnail(row.item.profilePicture)"
-                               fluid
-                               rounded="circle"
-                               thumbnail
-                               @error="imageAlt">
-                        </b-img>
-                    </template>
-                    <template slot="nationalities" slot-scope="row">
-                        {{calculateNationalities(row.item.nationalities)}}
-                    </template>
-
-                    <template slot="travellerType" slot-scope="row">
-                        {{calculateTravTypes(row.item.travellerTypes)}}
-                    </template>
-
-                    <!--Shows more details about any profile-->
-                    <template slot="actions" slot-scope="row">
-                        <!-- If user is admin, can delete, make/remove admin rights and delete other users -->
-                        <b-row class="text-center" v-if="profile.admin && adminView">
-                            <b-button @click="makeAdmin(row.item)" block
-                                      class="mr-2" size="sm"
-                                      v-if="profile.admin && !(row.item.admin) && row.item.id !== 1"
-                                      variant="success">
-                                Make Admin
-                            </b-button>
-                            <b-button :disabled="row.item.id===1"
-                                      @click="removeAdmin(row.item)" block class="mr-2"
-                                      size="sm" v-if="profile.admin && row.item.admin && row.item.id !== 1"
-                                      variant="danger">
-                                Remove Admin
-                            </b-button>
-                            <b-button @click="emitAdminEdit(row.item)" block class="mr-2" size="sm" variant="warning">
-                                Show More Details
-                            </b-button>
-                            <b-button :disabled="row.item.id===1" @click="sendProfileToModal(row.item)"
-                                      block class="mr-2" size="sm"
-                                      v-b-modal.deleteProfileModal v-if="profile.admin && row.item.id !== 1"
-                                      variant="danger">
-                                Delete
-                            </b-button>
-                        </b-row>
-                        <!-- If user is not admin, can only see other profiles -->
-                        <b-row class="text-center" v-else>
-                            <b-button @click="row.toggleDetails" block class="mr-2" size="sm" variant="warning">
-                                {{ row.detailsShowing ? 'Hide' : 'Show'}} More Details
-                            </b-button>
-
-                        </b-row>
-                    </template>
-                    <template slot="row-details" slot-scope="row">
-                        <b-card bg-variant="secondary">
-                            <view-profile
-                                    :containerClass="'profilesSubSectionProfile'"
-                                    :containerClassContent="'profilesSubSectionContent'"
-                                    :admin-view="adminView"
-                                    :destinations="destinations"
-                                    :profile="row.item"
-                                    :userProfile="profile">
-                            </view-profile>
-                        </b-card>
-                    </template>
-
-                </b-table>
-
-                <!--Pagination and results per page settings-->
-                <b-row>
-                    <b-col cols="1">
-                        <b-form-group
-                                id="profiles-field"
-                                label-for="perPage">
-                            <b-form-select :options="optionViews" id="perPage"
-                                           size="sm"
-                                           trim
-                                           v-model="perPage"></b-form-select>
-                        </b-form-group>
-                    </b-col>
-                    <b-col cols="8">
-                        <b-pagination
-                                :per-page="perPage"
-                                :total-rows="rows"
-                                align="center"
-                                aria-controls="my-table"
-                                first-text="First"
-                                last-text="Last"
-                                size="sm"
-                                v-model="currentPage"
-                        ></b-pagination>
-                    </b-col>
-                </b-row>
-
+                <profile-list
+                        :profile-list="profiles"
+                        :profile="profile"
+                        :loading="retrievingProfiles"
+                        :admin-view="minimalInfo"
+                        @make-admin="makeAdmin"
+                        @remove-admin="removeAdmin"
+                        @admin-edit="profileEdited => $emit('admin-edit', profileEdited)"
+                        @profile-delete="sendProfileToModal"
+                >
+                </profile-list>
             </div>
         </div>
         <footer-main></footer-main>
@@ -237,6 +59,8 @@
     import NavBarMain from '../helperComponents/navbarMain.vue'
     import FooterMain from '../helperComponents/footerMain.vue'
     import UnauthorisedPrompt from '../helperComponents/unauthorisedPromptPage'
+    import ProfileList from "./profileList";
+    import ProfileSearchForm from "./profileSearchForm";
 
     export default {
         name: "profilesPage",
@@ -245,7 +69,11 @@
             profile: Object,
             nationalityOptions: Array,
             travTypeOptions: Array,
-            adminView: Boolean,
+            minimalInfo: {
+                default: function() {
+                    return false;
+                }
+            },
             destinations: Array,
             perPage: {
                 default: function () {
@@ -261,6 +89,8 @@
         },
 
         components: {
+            ProfileSearchForm,
+            ProfileList,
             ViewProfile,
             NavBarMain,
             FooterMain,
@@ -313,7 +143,7 @@
              * at the page or not.
              */
             fields() {
-                if (!this.adminView) {
+                if (!this.minimalInfo) {
                     return [
                         {key: 'profilePhoto', label: "Photo", sortable: true, class: 'tableWidthSmall'},
                         {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
@@ -430,27 +260,18 @@
              * Changes fields so that they can be used in searching.
              * Runs validation on range fields.
              */
-            searchProfiles() {
-                this.searchMinAge = parseInt(this.searchMinAge);
-                this.searchMaxAge = parseInt(this.searchMaxAge);
-                if (isNaN(this.searchMinAge) || isNaN(this.searchMaxAge)) {
+            searchProfiles(searchParameters) {
+                searchParameters.minAge = parseInt(searchParameters.minAge);
+                searchParameters.maxAge = parseInt(searchParameters.maxAge);
+                if (isNaN(searchParameters.minAge) || isNaN(searchParameters.maxAge)) {
                     this.showError = true;
                     this.alertMessage = "Min or Max Age are not numbers";
-                } else if (this.searchMinAge > this.searchMaxAge) {
+                } else if (searchParameters.minAge > searchParameters.maxAge) {
                     this.showError = true;
                     this.alertMessage = "Min age is greater than max age";
                 } else {
-                    if (this.searchTravType === null) {
-                        this.searchTravType = "";
-                    }
-                    if (this.searchNationality === null) {
-                        this.searchNationality = "";
-                    }
-                    if (this.searchGender === null) {
-                        this.searchGender = "";
-                    }
                     this.showError = false;
-                    this.queryProfiles();
+                    this.queryProfiles(searchParameters);
                 }
             },
 
@@ -458,14 +279,14 @@
             /**
              * Queries database for profiles which fit search criteria.
              */
-            queryProfiles() {
+            queryProfiles(searchParameters) {
                 this.retrievingProfiles = true;
                 let searchQuery =
-                    "?nationalities=" + this.searchNationality +
-                    "&gender=" + this.searchGender +
-                    "&min_age=" + this.searchMinAge +
-                    "&max_age=" + this.searchMaxAge +
-                    "&travellerTypes=" + this.searchTravType;
+                    "?nationalities=" + searchParameters.nationality +
+                    "&gender=" + searchParameters.gender +
+                    "&min_age=" + searchParameters.minAge +
+                    "&max_age=" + searchParameters.maxAge +
+                    "&travellerTypes=" + searchParameters.travellerType;
                 return fetch(`/v1/profiles` + searchQuery, {})
                     .then(this.checkStatus)
                     .then(this.parseJSON)
@@ -473,20 +294,6 @@
                         this.retrievingProfiles = false;
                         this.profiles = data;
                     })
-            },
-
-
-            /**
-             * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
-             * @param photo         returns a url of which photo should be displayed as the profile picture for the user.
-             */
-            getProfilePictureThumbnail(photo) {
-                if (photo !== null) {
-                    let photoId = photo.id;
-                    return `/v1/photos/thumb/` + photoId;
-                } else {
-                    return "../../../static/default_profile_picture.png";
-                }
             },
 
 
