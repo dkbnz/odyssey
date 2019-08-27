@@ -1,5 +1,13 @@
 # --- !Ups
 
+create table achievement_tracker (
+  id                            bigint auto_increment not null,
+  points                        integer not null,
+  owner_id                      bigint,
+  constraint uq_achievement_tracker_owner_id unique (owner_id),
+  constraint pk_achievement_tracker primary key (id)
+);
+
 create table destination (
   id                            bigint auto_increment not null,
   name                          varchar(255),
@@ -73,8 +81,8 @@ create table passport_profile (
 
 create table personal_photo (
   id                            bigint auto_increment not null,
-  profile_id                    bigint not null,
   photo_id                      bigint,
+  profile_id                    bigint,
   is_public                     boolean,
   constraint pk_personal_photo primary key (id)
 );
@@ -103,24 +111,6 @@ create table profile (
   profile_picture_id            bigint,
   constraint uq_profile_profile_picture_id unique (profile_picture_id),
   constraint pk_profile primary key (id)
-);
-
-create table profile_nationality (
-  profile_id                    bigint not null,
-  nationality_id                bigint not null,
-  constraint pk_profile_nationality primary key (profile_id,nationality_id)
-);
-
-create table profile_traveller_type (
-  profile_id                    bigint not null,
-  traveller_type_id             bigint not null,
-  constraint pk_profile_traveller_type primary key (profile_id,traveller_type_id)
-);
-
-create table profile_passport (
-  profile_id                    bigint not null,
-  passport_id                   bigint not null,
-  constraint pk_profile_passport primary key (profile_id,passport_id)
 );
 
 create table quest (
@@ -185,6 +175,8 @@ create table destination_type (
   constraint pk_destination_type primary key (id)
 );
 
+alter table achievement_tracker add constraint fk_achievement_tracker_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
+
 create index ix_destination_type_id on destination (type_id);
 alter table destination add constraint fk_destination_type_id foreign key (type_id) references destination_type (id) on delete restrict on update restrict;
 
@@ -233,34 +225,16 @@ alter table passport_profile add constraint fk_passport_profile_passport foreign
 create index ix_passport_profile_profile on passport_profile (profile_id);
 alter table passport_profile add constraint fk_passport_profile_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
 
-create index ix_personal_photo_profile_id on personal_photo (profile_id);
-alter table personal_photo add constraint fk_personal_photo_profile_id foreign key (profile_id) references profile (id) on delete restrict on update restrict;
-
 create index ix_personal_photo_photo_id on personal_photo (photo_id);
 alter table personal_photo add constraint fk_personal_photo_photo_id foreign key (photo_id) references photo (id) on delete restrict on update restrict;
+
+create index ix_personal_photo_profile_id on personal_photo (profile_id);
+alter table personal_photo add constraint fk_personal_photo_profile_id foreign key (profile_id) references profile (id) on delete restrict on update restrict;
 
 create index ix_photo_upload_profile_id on photo (upload_profile_id);
 alter table photo add constraint fk_photo_upload_profile_id foreign key (upload_profile_id) references profile (id) on delete restrict on update restrict;
 
 alter table profile add constraint fk_profile_profile_picture_id foreign key (profile_picture_id) references personal_photo (id) on delete restrict on update restrict;
-
-create index ix_profile_nationality_profile on profile_nationality (profile_id);
-alter table profile_nationality add constraint fk_profile_nationality_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
-
-create index ix_profile_nationality_nationality on profile_nationality (nationality_id);
-alter table profile_nationality add constraint fk_profile_nationality_nationality foreign key (nationality_id) references nationality (id) on delete restrict on update restrict;
-
-create index ix_profile_traveller_type_profile on profile_traveller_type (profile_id);
-alter table profile_traveller_type add constraint fk_profile_traveller_type_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
-
-create index ix_profile_traveller_type_traveller_type on profile_traveller_type (traveller_type_id);
-alter table profile_traveller_type add constraint fk_profile_traveller_type_traveller_type foreign key (traveller_type_id) references traveller_type (id) on delete restrict on update restrict;
-
-create index ix_profile_passport_profile on profile_passport (profile_id);
-alter table profile_passport add constraint fk_profile_passport_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
-
-create index ix_profile_passport_passport on profile_passport (passport_id);
-alter table profile_passport add constraint fk_profile_passport_passport foreign key (passport_id) references passport (id) on delete restrict on update restrict;
 
 create index ix_quest_owner_id on quest (owner_id);
 alter table quest add constraint fk_quest_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
@@ -294,6 +268,8 @@ alter table trip_destination add constraint fk_trip_destination_destination_id f
 
 
 # --- !Downs
+
+alter table achievement_tracker drop constraint if exists fk_achievement_tracker_owner_id;
 
 alter table destination drop constraint if exists fk_destination_type_id;
 drop index if exists ix_destination_type_id;
@@ -343,34 +319,16 @@ drop index if exists ix_passport_profile_passport;
 alter table passport_profile drop constraint if exists fk_passport_profile_profile;
 drop index if exists ix_passport_profile_profile;
 
-alter table personal_photo drop constraint if exists fk_personal_photo_profile_id;
-drop index if exists ix_personal_photo_profile_id;
-
 alter table personal_photo drop constraint if exists fk_personal_photo_photo_id;
 drop index if exists ix_personal_photo_photo_id;
+
+alter table personal_photo drop constraint if exists fk_personal_photo_profile_id;
+drop index if exists ix_personal_photo_profile_id;
 
 alter table photo drop constraint if exists fk_photo_upload_profile_id;
 drop index if exists ix_photo_upload_profile_id;
 
 alter table profile drop constraint if exists fk_profile_profile_picture_id;
-
-alter table profile_nationality drop constraint if exists fk_profile_nationality_profile;
-drop index if exists ix_profile_nationality_profile;
-
-alter table profile_nationality drop constraint if exists fk_profile_nationality_nationality;
-drop index if exists ix_profile_nationality_nationality;
-
-alter table profile_traveller_type drop constraint if exists fk_profile_traveller_type_profile;
-drop index if exists ix_profile_traveller_type_profile;
-
-alter table profile_traveller_type drop constraint if exists fk_profile_traveller_type_traveller_type;
-drop index if exists ix_profile_traveller_type_traveller_type;
-
-alter table profile_passport drop constraint if exists fk_profile_passport_profile;
-drop index if exists ix_profile_passport_profile;
-
-alter table profile_passport drop constraint if exists fk_profile_passport_passport;
-drop index if exists ix_profile_passport_passport;
 
 alter table quest drop constraint if exists fk_quest_owner_id;
 drop index if exists ix_quest_owner_id;
@@ -402,6 +360,8 @@ drop index if exists ix_trip_destination_trip_id;
 alter table trip_destination drop constraint if exists fk_trip_destination_destination_id;
 drop index if exists ix_trip_destination_destination_id;
 
+drop table if exists achievement_tracker;
+
 drop table if exists destination;
 
 drop table if exists destination_personal_photo;
@@ -427,12 +387,6 @@ drop table if exists personal_photo;
 drop table if exists photo;
 
 drop table if exists profile;
-
-drop table if exists profile_nationality;
-
-drop table if exists profile_traveller_type;
-
-drop table if exists profile_passport;
 
 drop table if exists quest;
 
