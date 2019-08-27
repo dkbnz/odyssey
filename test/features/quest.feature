@@ -397,7 +397,7 @@ Feature: Quest API Endpoint
     And the application is running
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 4 quests
+    And the response contains 5 quests
 
 
   Scenario: Retrieve all quests that are available with additional invalid quest dates
@@ -419,7 +419,7 @@ Feature: Quest API Endpoint
     And the status code received is 201
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 4 quests
+    And the response contains 5 quests
 
 
   Scenario: Retrieve all quests that are available with additional valid quest dates
@@ -441,108 +441,108 @@ Feature: Quest API Endpoint
     And the status code received is 201
     When I attempt to retrieve all quests
     Then the status code received is 200
+    And the response contains 5 quests
+
+
+  Scenario: Retrieve all quests that have the title 'Cool Quest'
+    Given I am logged in
+    And the application is running
+    And a quest already exists with the following values
+      | Title       | Start Date               | End Date                 |
+      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    And the status code received is 201
+    And a quest already exists with the following values
+      | Title       | Start Date               | End Date                 |
+      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    And the status code received is 201
+    And I am logged in as an alternate user
+    When I attempt to retrieve all quests with title 'Cool Quest'
+    Then the status code received is 200
+    And the response contains 1 quests
+
+
+  Scenario: Retrieve all quests that have exactly 3 objectives
+    Given I am logged in
+    And the application is running
+    And a quest already exists with the following values
+      | Title       | Start Date               | End Date                 |
+      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    And the status code received is 201
+    And a quest already exists with the following values
+      | Title       | Start Date               | End Date                 |
+      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    And the status code received is 201
+    And I am logged in as an alternate user
+    When I attempt to retrieve all quests with exactly 3 objectives
+    Then the status code received is 200
+    And the response contains 2 quests
+
+
+  Scenario: Retrieve all quests that have less than 3 objectives
+    Given I am logged in
+    And the application is running
+    And a quest already exists with the following values
+      | Title       | Start Date               | End Date                 |
+      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    And the status code received is 201
+    And a quest already exists with the following values
+      | Title       | Start Date               | End Date                 |
+      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    And the status code received is 201
+    And I am logged in as an alternate user
+    When I attempt to retrieve all quests with less than 3 objectives
+    Then the status code received is 200
     And the response contains 4 quests
 
 
-  Scenario: Retrieve all quests that have the title 'Cool Quest'
-    Given I am logged in
-    And the application is running
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And I am logged in as an alternate user
-    When I attempt to retrieve all quests with title 'Cool Quest'
-    Then the status code received is 200
-    And the response contains 1 quests
-
-
-  Scenario: Retrieve all quests that have exactly 3 objectives
-    Given I am logged in
-    And the application is running
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And I am logged in as an alternate user
-    When I attempt to retrieve all quests with exactly 3 objectives
-    Then the status code received is 200
-    And the response contains 6 quests
-
-
-  Scenario: Retrieve all quests that have less than 3 objectives
-    Given I am logged in
-    And the application is running
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And I am logged in as an alternate user
-    When I attempt to retrieve all quests with less than 3 objectives
-    Then the status code received is 200
-    And the response contains 6 quests
-
-
   Scenario: Retrieve all quests that have greater than 3 objectives
     Given I am logged in
     And the application is running
@@ -574,188 +574,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with greater than 3 objectives
     Then the status code received is 200
-    And the response contains 6 quests
-
-
-  Scenario: Retrieve all quests that were made by the owner
-    Given I am logged in
-    And the application is running
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And I am logged in as an admin user
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And I am logged in as an alternate user
-    When I attempt to retrieve all quests created by the user 'Dave' 'McInloch'
-    Then the status code received is 200
-    And the response contains 3 quests
-
-
-  Scenario: Retrieve all quests that are contained the country of 'Japan'
-    And I am logged in as an admin user
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                  | Radius |
-      | 9000        | Where do I go to eat sushi              | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And I am logged in as an alternate user
-    When I attempt to retrieve all quests that contain the country 'Japan'
-    Then the status code received is 200
-    And the response contains 1 quests
-
-
-  Scenario: Retrieve all quests that have the title 'Cool Quest'
-    Given I am logged in
-    And the application is running
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And I am logged in as an alternate user
-    When I attempt to retrieve all quests with title 'Cool Quest'
-    Then the status code received is 200
-    And the response contains 1 quests
-
-
-  Scenario: Retrieve all quests that have exactly 3 objectives
-    Given I am logged in
-    And the application is running
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And I am logged in as an alternate user
-    When I attempt to retrieve all quests with exactly 3 objectives
-    Then the status code received is 200
-    And the response contains 6 quests
-
-
-  Scenario: Retrieve all quests that have less than 3 objectives
-    Given I am logged in
-    And the application is running
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And I am logged in as an alternate user
-    When I attempt to retrieve all quests with less than 3 objectives
-    Then the status code received is 200
-    And the response contains 6 quests
-
-
-  Scenario: Retrieve all quests that have greater than 3 objectives
-    Given I am logged in
-    And the application is running
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
-    And I am logged in as an alternate user
-    When I attempt to retrieve all quests with greater than 3 objectives
-    Then the status code received is 200
-    And the response contains 6 quests
+    And the response contains 2 quests
 
 
   Scenario: Retrieve all quests that were made by the owner
@@ -823,6 +642,7 @@ Feature: Quest API Endpoint
 
   Scenario: Retrieve all quests when I have none created
     Given I am logged in as an alternate user
+    Given I am logged in as an alternate user
     And the application is running
     When I attempt to retrieve my quests
     Then the status code received is 200
@@ -846,7 +666,7 @@ Feature: Quest API Endpoint
     Then the status code received is 403
 
 
-  Scenario: Retrieve all quests when I am not logged in
+  Scenario: Retrieve all quests made by a particular user when I am not logged in
     Given I am not logged in
     And the application is running
     And a user exists with id 2
