@@ -372,6 +372,7 @@ INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `lon
 (3338, 'Maungawhiorangi', 93, 'Gisborne', -38.174833, 177.243242, 'New Zealand', true, 1),
 (3360, 'McCallum Stream', 89, 'Marlborough', -41.797334, 173.260076, 'New Zealand', true, 1),
 (3558, 'Morgan Stream', 89, 'Canterbury', -43.59628, 171.339142, 'New Zealand', true, 1),
+(3577, 'Bern', 18, 'Bern', 46.947832, 7.447618, 'Switzerland', true, 1),
 (3580, 'Mother Millers Spring', 87, 'Canterbury', -43.358825, 171.288873, 'New Zealand', true, 1),
 (3594, 'Motukauatirahi/Cass Bay', 6, 'Canterbury', -43.607459, 172.692363, 'New Zealand', true, 1),
 (3607, 'Motuoapa Peninsula', 55, 'South Auckland', -38.924214, 175.859163, 'New Zealand', true, 1),
@@ -528,8 +529,9 @@ INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
 (1, 'Journey to the centre of the Earth', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 1),
 (2, 'My new quest', '2019-08-15 22:47:00', '9999-08-16 11:59:00', 6),
 (3, 'I am your father', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 2),
-(4, 'Use the force Luke', '2019-08-16 04:04:00', '9999-08-16 11:59:00', 2),
-(5, 'Energise', '2019-08-16 04:09:00', '9999-08-16 11:59:00', 1);
+(4, 'Use the force Luke', '2019-08-15 04:04:00', '9999-08-16 11:59:00', 2),
+(5, 'Energise', '2019-08-15 04:09:00', '9999-08-16 11:59:00', 1),
+(6, 'Urlaub in Europa', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 1);
 
 INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
 (1, 1),
@@ -544,7 +546,8 @@ INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
 (4, 8),
 (4, 9),
 (5, 10),
-(5, 11);
+(5, 11),
+(6, 11);
 
 INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `solved_current`, `checked_in_index`, `completed`) VALUES
 (1, 1, 1, 0, 0, 0),
