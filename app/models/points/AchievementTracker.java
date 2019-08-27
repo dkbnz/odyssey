@@ -2,7 +2,6 @@ package models.points;
 
 import io.ebean.annotation.JsonIgnore;
 import models.profiles.Profile;
-import models.quests.Quest;
 import models.util.BaseModel;
 
 import javax.persistence.Entity;
@@ -30,12 +29,17 @@ public class AchievementTracker extends BaseModel {
     public int getPoints() {
         return points;
     }
-
-    /**
-     * TODO Matthew: Look at limiting how points are set, maybe even an 'add points' method.
-     */
+    
     public void setPoints(int points) {
         this.points = points;
+    }
+
+    /**
+     * Adds the provided number of points to the points value.
+     * @param pointsToAdd the points to be added.
+     */
+    public void addPoints(int pointsToAdd) {
+        this.points += pointsToAdd;
     }
 
     public Profile getOwner() {
