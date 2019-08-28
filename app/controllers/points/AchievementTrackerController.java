@@ -36,10 +36,56 @@ public class AchievementTrackerController extends Controller {
         this.objectMapper = objectMapper;
     }
 
-    public Result completeAction(Http.Request request) {
-        return internalServerError();
+
+    /**
+     * Retrieves the achievement tracker for the given profile. If the profile currently does not have a tracker,
+     * then one is created for the profile.
+     * @param owner the profile who's achievement tracker is to be retrieved.
+     * @return the profile's achievement tracker.
+     */
+    private AchievementTracker retrieveTracker(Profile owner) {
+        AchievementTracker achievementTracker = achievementTrackerRepository.findUsing(owner);
+
+        // As every profile should have a tracker, if they do not have one currently, make it.
+        if (achievementTracker == null) {
+            achievementTracker = new AchievementTracker();
+
+            achievementTracker.setOwner(owner);
+            achievementTrackerRepository.save(achievementTracker);
+
+            owner.setAchievementTracker(achievementTracker);
+            profileRepository.update(owner);
+        }
+        return achievementTracker;
     }
 
+
+    /**
+     * Adds the given amount of points to the given profile's AchievementTracker.
+     * @param actingProfile the profile receiving points.
+     * @param pointsToAdd the amount of points being added.
+     * @return the Result indicating the success of the operation.
+     */
+    public Result completeAction(Profile actingProfile, int pointsToAdd) {
+        AchievementTracker achievementTracker = achievementTrackerRepository.findUsing(actingProfile);
+
+        achievementTracker.addPoints(pointsToAdd);
+        achievementTrackerRepository.update(achievementTracker);
+
+        return ok();
+
+
+    }
+
+    /**
+     * Retrieves the requested user's current points value.
+     * @param request       the http request sent.
+     * @param userId        the user whose points have been requested.
+     * @return              ok() (Http 200) containing the user's points if successfully attained.
+     *                      unauthorised() (Http 401) if the one sending the request is not logged in.
+     *                      notFound() (Http 404) if the requested user is not found.
+     *
+     */
     public Result fetchPoints(Http.Request request, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
@@ -52,11 +98,7 @@ public class AchievementTrackerController extends Controller {
             return notFound(ApiError.notFound());
         }
 
-        AchievementTracker tracker = achievementTrackerRepository.findUsing(requestedUser);
-
-        if (tracker == null) {
-            return notFound(ApiError.notFound());
-        }
+        AchievementTracker tracker = retrieveTracker(requestedUser);
 
         ObjectNode pointsJson = objectMapper.createObjectNode();
         pointsJson.put("userPoints", tracker.getPoints());

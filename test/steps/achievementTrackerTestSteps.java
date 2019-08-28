@@ -135,7 +135,7 @@ public class achievementTrackerTestSteps {
 
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         currentPoints = responseBody.get("userPoints").asInt();
-        Assert.assertTrue(currentPoints > startingPoints);
+        Assert.assertTrue("Current points is not greater than starting points",currentPoints > startingPoints);
     }
 
     private void getPointsRequest(String userId) {
