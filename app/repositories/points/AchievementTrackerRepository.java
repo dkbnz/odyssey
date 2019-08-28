@@ -8,8 +8,9 @@ import models.profiles.Profile;
 
 public class AchievementTrackerRepository extends BeanRepository<Long, AchievementTracker> {
 
-    private static final String PROFILE_ID = "profile_id";
-    private static final String ACHIEVEMENT_TRACKER_ID = "id";
+    /**
+     * The owner field name in the database.
+     */
     private static final String OWNER_QUERY = "owner";
 
     @Inject
@@ -27,12 +28,6 @@ public class AchievementTrackerRepository extends BeanRepository<Long, Achieveme
         return query().where()
                 .eq(OWNER_QUERY, requestedProfile)
                 .findOne();
-    }
-
-    public Long fetchAchievementTrackerOwner(Long achievementTrackerId) {
-        //return query().select()
-        return null;
-        // TODO Matthew Implement
     }
 
 }
