@@ -557,7 +557,4 @@ INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `sol
 (5, 3, 5, 0, 2, 1),
 (6, 4, 2, 0, 2, 1);
 
-INSERT INTO `achievement_tracker` (`id`, `points`, `owner_id`) VALUES
-(1, 30, 2);
-
 # --- !Downs

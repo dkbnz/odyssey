@@ -304,4 +304,11 @@ public class Profile extends BaseModel {
         return myQuests;
     }
 
+    public AchievementTracker getAchievementTracker() {
+        return achievementTracker;
+    }
+
+    public void setAchievementTracker(AchievementTracker achievementTracker) {
+        this.achievementTracker = achievementTracker;
+    }
 }

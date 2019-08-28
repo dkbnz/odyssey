@@ -4,6 +4,7 @@ import io.ebean.annotation.JsonIgnore;
 import models.profiles.Profile;
 import models.util.BaseModel;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
@@ -17,6 +18,7 @@ public class AchievementTracker extends BaseModel {
     /**
      * The points attained for the user.
      */
+
     private int points;
 
     /**
@@ -25,6 +27,13 @@ public class AchievementTracker extends BaseModel {
     @OneToOne
     @JsonIgnore
     private Profile owner;
+
+    /**
+     * Default constructor to set the points to a not-null default value.
+     */
+    public AchievementTracker() {
+        this.points = 0;
+    }
 
     public int getPoints() {
         return points;
