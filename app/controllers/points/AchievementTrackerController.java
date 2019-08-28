@@ -10,10 +10,14 @@ import play.mvc.Result;
 public class AchievementTrackerController extends Controller {
 
     private static final String AUTHORISED = "authorized";
-    private static final int DEFAULT_ADMON_ID = 1;
+    private static final int DEFAULT_ADMIN_ID = 1;
 
     public Result completeAction(Http.Request request) {
         return internalServerError();
+    }
+
+    public Result fetchPoints(Http.Request request, Long userId) {
+        return internalServerError("Not yet implemented");
     }
 
     public boolean completed(Quest quest) {
