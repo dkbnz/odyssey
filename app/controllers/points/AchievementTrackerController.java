@@ -104,21 +104,6 @@ public class AchievementTrackerController extends Controller {
         return ok(pointsJson);
     }
 
-    public boolean completed(Quest quest) {
-        return false;
-        // TODO Matthew Implement
-    }
-
-    public boolean completed(Objective objective) {
-        return false;
-        // TODO Matthew Implement
-    }
-
-    public boolean created(Destination destination) {
-        return false;
-        // TODO Matthew Implement
-    }
-
     /**
      * Invoker for the completion commands. Takes the profile that completed some activity and returns the points gained.
      * @return the number of points gained. Null if something goes wrong.
