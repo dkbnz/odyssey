@@ -4,18 +4,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
+import controllers.points.AchievementTrackerController;
 import io.ebean.ExpressionList;
-import models.util.ApiError;
-import models.profiles.Profile;
 import models.destinations.Destination;
 import models.objectives.Objective;
+import models.points.gaincommands.CompleteObjectiveCommand;
+import models.points.gaincommands.SolveRiddleCommand;
+import models.profiles.Profile;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
+import models.util.ApiError;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.profiles.ProfileRepository;
 import repositories.destinations.DestinationRepository;
+import repositories.profiles.ProfileRepository;
 import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
 import util.AuthenticationUtil;
@@ -37,6 +40,7 @@ public class QuestController {
     private QuestAttemptRepository questAttemptRepository;
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
+    private AchievementTrackerController achievementTrackerController;
 
     private static final String TITLE = "title";
     private static final String OPERATOR = "operator";
@@ -59,11 +63,13 @@ public class QuestController {
     public QuestController(QuestRepository questRepository,
                            QuestAttemptRepository questAttemptRepository,
                            ProfileRepository profileRepository,
-                           DestinationRepository destinationRepository) {
+                           DestinationRepository destinationRepository,
+                           AchievementTrackerController achievementTrackerController) {
         this.questRepository = questRepository;
         this.questAttemptRepository = questAttemptRepository;
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
+        this.achievementTrackerController = achievementTrackerController;
     }
 
 
@@ -612,10 +618,21 @@ public class QuestController {
         returnJson.put("guessResult",
                 questAttempt.solveCurrent(destinationGuess));
 
+
+        // Set a new command to be used to gain points
+        CompleteObjectiveCommand command = new SolveRiddleCommand(achievementTrackerController, attemptedBy);
+        achievementTrackerController.setCompletionCommand(command);
+
+        // Execute the command and put the points gained into its own Json field.
+        returnJson.put("pointsGained",
+                achievementTrackerController.executeCompletionCommand());
+
         // Serialize quest attempt regardless of result.
         returnJson.set("attempt", Json.toJson(questAttempt));
 
         questAttemptRepository.update(questAttempt);
+
+        achievementTrackerController.completeAction(attemptedBy, 5);
 
         return ok(returnJson);
     }

@@ -6,10 +6,10 @@ import com.google.inject.Inject;
 import models.destinations.Destination;
 import models.objectives.Objective;
 import models.points.AchievementTracker;
+import models.points.gaincommands.CompleteObjectiveCommand;
 import models.profiles.Profile;
 import models.quests.Quest;
 import models.util.ApiError;
-import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -25,6 +25,8 @@ public class AchievementTrackerController extends Controller {
     private AchievementTrackerRepository achievementTrackerRepository;
     private ProfileRepository profileRepository;
     private ObjectMapper objectMapper;
+
+    private CompleteObjectiveCommand completionCommand;
 
 
     @Inject
@@ -64,15 +66,11 @@ public class AchievementTrackerController extends Controller {
      * Adds the given amount of points to the given profile's AchievementTracker.
      * @param actingProfile the profile receiving points.
      * @param pointsToAdd the amount of points being added.
-     * @return the Result indicating the success of the operation.
      */
-    public Result completeAction(Profile actingProfile, int pointsToAdd) {
-        AchievementTracker achievementTracker = achievementTrackerRepository.findUsing(actingProfile);
-
+    public void completeAction(Profile actingProfile, int pointsToAdd) {
+        AchievementTracker achievementTracker = retrieveTracker(actingProfile);
         achievementTracker.addPoints(pointsToAdd);
         achievementTrackerRepository.update(achievementTracker);
-
-        return ok();
 
 
     }
@@ -121,4 +119,18 @@ public class AchievementTrackerController extends Controller {
         // TODO Matthew Implement
     }
 
+    /**
+     * Invoker for the completion commands. Takes the profile that completed some activity and returns the points gained.
+     * @return the number of points gained. Null if something goes wrong.
+     */
+    public Integer executeCompletionCommand() {
+        if (completionCommand == null) {
+            return null;
+        }
+        return completionCommand.execute();
+    }
+
+    public void setCompletionCommand(CompleteObjectiveCommand completionCommand) {
+        this.completionCommand = completionCommand;
+    }
 }
