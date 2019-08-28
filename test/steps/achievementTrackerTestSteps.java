@@ -72,6 +72,11 @@ public class achievementTrackerTestSteps {
     private static final boolean SUCCESSFUL_GUESS = true;
 
 
+    private static final long QUEST_ATTEMPT_ID = 4;
+    private static final long DESTINATION_TO_GUESS = 1834;
+
+
+
     /**
      * And object mapper used during tests.
      */
@@ -118,14 +123,9 @@ public class achievementTrackerTestSteps {
 
     @When("I solve the current riddle for a Quest")
     public void iSolveTheFirstRiddleOfTheQuestWithID() throws IOException {
-        int attemptToSolve = 4;     // The id of the quest attempt to make a guess on
-        int destinationToGuess = 1834;  // The if relating to the destination being guessed.
-        sendRiddleGuessRequest(attemptToSolve, destinationToGuess);
+        sendRiddleGuessRequest(QUEST_ATTEMPT_ID, DESTINATION_TO_GUESS);
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         Assert.assertEquals(SUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
-
-
-
     }
 
     @Then("I have gained points.")
@@ -148,7 +148,7 @@ public class achievementTrackerTestSteps {
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
-    private void sendRiddleGuessRequest(int attemptId, int destinationId) {
+    private void sendRiddleGuessRequest(long attemptId, long destinationId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .uri(QUEST_URI + QUEST_ATTEMPT_URI + attemptId + GUESS_URI + destinationId)
