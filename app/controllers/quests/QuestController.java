@@ -8,8 +8,8 @@ import controllers.points.AchievementTrackerController;
 import io.ebean.ExpressionList;
 import models.destinations.Destination;
 import models.objectives.Objective;
-import models.points.gaincommands.CompleteObjectiveCommand;
-import models.points.gaincommands.SolveRiddleCommand;
+import models.points.AchievementTracker;
+import models.points.PointReward;
 import models.profiles.Profile;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
@@ -18,6 +18,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.destinations.DestinationRepository;
+import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
@@ -41,6 +42,13 @@ public class QuestController {
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
     private AchievementTrackerController achievementTrackerController;
+    private PointRewardRepository pointRewardRepository;
+
+    /**
+     * Object mapper to be used throughout the class. Handled via the Guice injector instead of us instantiating
+     * it ourselves.
+     */
+    private ObjectMapper objectMapper;
 
     private static final String TITLE = "title";
     private static final String OPERATOR = "operator";
@@ -59,17 +67,23 @@ public class QuestController {
     private static final String GREATER_THAN = ">";
     private static final String LESS_THAN = "<";
 
+    private static final String RIDDLE_SOLVED = "RIDDLE_SOLVED";
+
     @Inject
     public QuestController(QuestRepository questRepository,
                            QuestAttemptRepository questAttemptRepository,
                            ProfileRepository profileRepository,
                            DestinationRepository destinationRepository,
-                           AchievementTrackerController achievementTrackerController) {
+                           AchievementTrackerController achievementTrackerController,
+                           PointRewardRepository pointRewardRepository,
+                           ObjectMapper objectMapper) {
         this.questRepository = questRepository;
         this.questAttemptRepository = questAttemptRepository;
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
         this.achievementTrackerController = achievementTrackerController;
+        this.pointRewardRepository = pointRewardRepository;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -102,12 +116,10 @@ public class QuestController {
             return forbidden(ApiError.forbidden());
         }
 
-        ObjectMapper mapper = new ObjectMapper();
-
         Quest newQuest;
 
         try {
-            newQuest = mapper.readerWithView(Views.Owner.class)
+            newQuest = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Quest.class)
                     .readValue(request.body().asJson());
         } catch (IOException e) {
@@ -169,11 +181,10 @@ public class QuestController {
         if (questOwner == null) {
             return badRequest(ApiError.notFound());
         }
-        ObjectMapper mapper = new ObjectMapper();
 
         try {
             // Attempt to turn json body into a objective object.
-            quest = mapper.readerWithView(Views.Owner.class)
+            quest = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Quest.class)
                     .readValue(request.body().asJson());
         } catch (Exception e) {
@@ -261,11 +272,9 @@ public class QuestController {
         }
 
         Set<Quest> quests = getQuestsQuery(request, loggedInUser);
-
-        ObjectMapper mapper = new ObjectMapper();
         String result;
         try {
-            result = mapper
+            result = objectMapper
                     .writerWithView(Views.Public.class)
                     .writeValueAsString(quests);
         } catch (JsonProcessingException e) {
@@ -559,11 +568,10 @@ public class QuestController {
      *                           ok() (Http 200) containing matching data that is requested by the logged in user.
      */
     private Result getCorrectView(boolean validAccess, List requestedData) {
-        ObjectMapper mapper = new ObjectMapper();
         String result;
         if (validAccess) {
             try {
-                result = mapper
+                result = objectMapper
                         .writerWithView(Views.Owner.class)
                         .writeValueAsString(requestedData);
             } catch (JsonProcessingException e) {
@@ -571,7 +579,7 @@ public class QuestController {
             }
         } else {
             try {
-                result = mapper
+                result = objectMapper
                         .writerWithView(Views.Public.class)
                         .writeValueAsString(requestedData);
             } catch (JsonProcessingException e) {
@@ -612,30 +620,29 @@ public class QuestController {
             return forbidden(ApiError.forbidden());
         }
 
-        ObjectNode returnJson = new ObjectMapper().createObjectNode();
+        ObjectNode returnJson = objectMapper.createObjectNode();
+
+        boolean solveSuccess = questAttempt.solveCurrent(destinationGuess);
 
         // Attempt to solve the current objective in the quest attempt, serialize the result.
-        returnJson.put("guessResult",
-                questAttempt.solveCurrent(destinationGuess));
+        returnJson.put("guessResult", solveSuccess);
 
 
-        // Set a new command to be used to gain points
-        CompleteObjectiveCommand command = new SolveRiddleCommand(achievementTrackerController, attemptedBy);
-        achievementTrackerController.setCompletionCommand(command);
-
-        // Execute the command and put the points gained into its own Json field.
-        returnJson.put("pointsGained",
-                achievementTrackerController.executeCompletionCommand());
+        // Add points based on the action
+        if (solveSuccess) {
+            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, RIDDLE_SOLVED);
+            returnJson.put("pointsRewarded", pointsAdded);
+        }
 
         // Serialize quest attempt regardless of result.
         returnJson.set("attempt", Json.toJson(questAttempt));
 
         questAttemptRepository.update(questAttempt);
 
-        achievementTrackerController.completeAction(attemptedBy, 5);
-
         return ok(returnJson);
     }
+
+
 
 
     /**
