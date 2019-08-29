@@ -3,38 +3,34 @@ package controllers.points;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
-import models.destinations.Destination;
-import models.objectives.Objective;
 import models.points.AchievementTracker;
-import models.points.gaincommands.CompleteObjectiveCommand;
+import models.points.PointReward;
 import models.profiles.Profile;
-import models.quests.Quest;
 import models.util.ApiError;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.points.AchievementTrackerRepository;
+import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 
 public class AchievementTrackerController extends Controller {
 
-    private static final String AUTHORISED = "authorized";
-    private static final int DEFAULT_ADMIN_ID = 1;
-
     private AchievementTrackerRepository achievementTrackerRepository;
     private ProfileRepository profileRepository;
+    private PointRewardRepository pointRewardRepository;
     private ObjectMapper objectMapper;
-
-    private CompleteObjectiveCommand completionCommand;
 
 
     @Inject
     public AchievementTrackerController(AchievementTrackerRepository achievementTrackerRepository,
                                         ProfileRepository profileRepository,
+                                        PointRewardRepository pointRewardRepository,
                                         ObjectMapper objectMapper) {
         this.achievementTrackerRepository = achievementTrackerRepository;
         this.profileRepository = profileRepository;
+        this.pointRewardRepository = pointRewardRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -65,14 +61,17 @@ public class AchievementTrackerController extends Controller {
     /**
      * Adds the given amount of points to the given profile's AchievementTracker.
      * @param actingProfile the profile receiving points.
-     * @param pointsToAdd the amount of points being added.
+     * @param rewardName the name of action that the user performed to gain points.
+     * @return the points added rewarded to the profile.
      */
-    public void completeAction(Profile actingProfile, int pointsToAdd) {
-        AchievementTracker achievementTracker = retrieveTracker(actingProfile);
-        achievementTracker.addPoints(pointsToAdd);
-        achievementTrackerRepository.update(achievementTracker);
+    public int rewardAction(Profile actingProfile, String rewardName) {
+        AchievementTracker achievementTracker = retrieveTracker(actingProfile);  // Get the tracker for the user.
 
+        PointReward reward = pointRewardRepository.fetchPointReward(rewardName);    // Get the reward to add.
+        achievementTracker.addPoints(reward.getValue());
+        achievementTrackerRepository.update(achievementTracker);    // Update the tracker stored in the database.
 
+        return reward.getValue();
     }
 
     /**
@@ -102,20 +101,5 @@ public class AchievementTrackerController extends Controller {
         pointsJson.put("userPoints", tracker.getPoints());
 
         return ok(pointsJson);
-    }
-
-    /**
-     * Invoker for the completion commands. Takes the profile that completed some activity and returns the points gained.
-     * @return the number of points gained. Null if something goes wrong.
-     */
-    public Integer executeCompletionCommand() {
-        if (completionCommand == null) {
-            return null;
-        }
-        return completionCommand.execute();
-    }
-
-    public void setCompletionCommand(CompleteObjectiveCommand completionCommand) {
-        this.completionCommand = completionCommand;
     }
 }
