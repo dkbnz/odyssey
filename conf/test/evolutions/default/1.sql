@@ -97,6 +97,14 @@ create table photo (
   constraint pk_photo primary key (id)
 );
 
+create table point_reward (
+  id                            bigint auto_increment not null,
+  name                          varchar(255) not null,
+  value                         integer not null,
+  constraint uq_point_reward_name unique (name),
+  constraint pk_point_reward primary key (id)
+);
+
 create table profile (
   id                            bigint auto_increment not null,
   username                      varchar(255),
