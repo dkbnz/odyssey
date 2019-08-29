@@ -45,7 +45,7 @@ public class AchievementTracker extends BaseModel {
 
     /**
      * Adds the provided number of points to the points value.
-     * @param pointsToAdd the points to be added.
+     * @param pointsToAdd the points to be added to the tracker's total score.
      */
     public void addPoints(int pointsToAdd) {
         this.points += pointsToAdd;
