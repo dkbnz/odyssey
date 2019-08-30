@@ -24,7 +24,7 @@ Feature: Achievement Tracker API Endpoint
     And I am logged in
     And I have some starting points
     When I solve the current riddle for a Quest
-    Then I have gained points.
+    Then I have gained points
 
   Scenario: Incorrectly solving a quest riddle
     Given the application is running
@@ -32,3 +32,18 @@ Feature: Achievement Tracker API Endpoint
     And I have some starting points
     When I incorrectly guess the answer to a quest riddle
     Then I have not gained points
+
+  Scenario: Checking in to a quest objective
+    Given the application is running
+    And I am logged in
+    And I have some starting points
+    When I check into a destination
+    Then I have gained points
+
+  Scenario: Checking in to an objective that hasn't been solved
+    Given the application is running
+    And I am logged in
+    And I have some starting points
+    When I check in for quest attempt 4
+    Then the status code received is 403
+    And I have not gained points

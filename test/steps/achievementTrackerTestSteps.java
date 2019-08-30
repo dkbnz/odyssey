@@ -73,7 +73,8 @@ public class achievementTrackerTestSteps {
     private static final boolean UNSUCCESSFUL_GUESS = false;
 
 
-    private static final long QUEST_ATTEMPT_ID = 4L;
+    private static final long TO_CHECK_IN_RIDDLE_ID = 3L;
+    private static final long TO_GUESS_RIDDLE_ID = 4L;
     private static final long DESTINATION_TO_GUESS = 1834L;
     private static final long INCORRECT_DESTINATION_GUESS = 6024L;
 
@@ -132,12 +133,12 @@ public class achievementTrackerTestSteps {
 
     @When("I solve the current riddle for a Quest")
     public void iSolveTheFirstRiddleOfTheQuestWithID() throws IOException {
-        sendRiddleGuessRequest(QUEST_ATTEMPT_ID, DESTINATION_TO_GUESS);
+        sendRiddleGuessRequest(TO_GUESS_RIDDLE_ID, DESTINATION_TO_GUESS);
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         Assert.assertEquals(SUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
     }
 
-    @Then("I have gained points.")
+    @Then("I have gained points")
     public void iHaveGainedPoints() throws IOException {
         String userToView = testContext.getLoggedInId();
         getPointsRequest(userToView);
@@ -206,9 +207,27 @@ public class achievementTrackerTestSteps {
 
     @When("I incorrectly guess the answer to a quest riddle")
     public void iIncorrectlyGuessTheAnswerToAQuestRiddle() throws IOException {
-        sendRiddleGuessRequest(QUEST_ATTEMPT_ID, INCORRECT_DESTINATION_GUESS);
+        sendRiddleGuessRequest(TO_GUESS_RIDDLE_ID, INCORRECT_DESTINATION_GUESS);
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         Assert.assertEquals(UNSUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
+    }
+
+    @When("I check into a destination")
+    public void iCheckIntoADestination() {
+        sendCheckInRequest(TO_CHECK_IN_RIDDLE_ID);
+
+        Assert.assertEquals(200, testContext.getStatusCode());
+
+    }
+
+    private void sendCheckInRequest(long attemptId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(QUEST_URI + QUEST_ATTEMPT_URI + attemptId + CHECK_IN_URI)
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
     @Then("I have not gained points")
