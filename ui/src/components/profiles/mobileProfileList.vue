@@ -18,7 +18,7 @@
                     <b-col>
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">{{profile.firstName}} {{profile.lastName}}</h5>
-                            <small>#{{profile.id}} ({{ profile.id * 12}})</small>
+                            <small>#{{profile.achievementTracker.rank}} ({{ profile.achievementTracker.points}})</small>
                         </div>
 
                         <p class="mb-1">

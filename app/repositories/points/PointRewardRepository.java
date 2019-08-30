@@ -20,7 +20,7 @@ public class PointRewardRepository extends BeanRepository<Long, PointReward> {
      * @param action the action that the points are being awarded for.
      * @return the PointReward object relating to that action.
      */
-    public PointReward fetchPointReward(Action action) {
+    public PointReward findUsing(Action action) {
         return query().where()
                 .eq(NAME, action)
                 .findOne();
