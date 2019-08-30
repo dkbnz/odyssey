@@ -1,12 +1,6 @@
 <template>
     <div>
         <div :class="containerClass">
-
-            <h1 class="page-title" v-if="!minimalInfo">Find Profiles</h1>
-            <p class="page-title" v-if="!minimalInfo"><i>Search for other travellers using any of the fields in the form
-                below</i>
-            </p>
-
             <!-- Confirmation modal for deleting a profile. -->
             <b-modal ref="deleteProfileModal" id="deleteProfileModal" hide-footer title="Delete Profile">
                 <div class="d-block">
@@ -24,22 +18,28 @@
                 </b-button>
             </b-modal>
 
-            <profile-search-form @search="queryProfiles"></profile-search-form>
+            <h1 class="page-title">Leaderboard</h1>
+            <p class="page-title"><i>Find other players using any of the fields below</i></p>
 
-            <!--Displays results from profile search in a table format-->
-            <div style="margin-top: 40px">
-                <profile-list
-                        :profile-list="profiles"
-                        :profile="profile"
-                        :loading="retrievingProfiles"
-                        :admin-view="minimalInfo"
-                        @make-admin="makeAdmin"
-                        @remove-admin="removeAdmin"
-                        @admin-edit="profileEdited => $emit('admin-edit', profileEdited)"
-                        @profile-delete="sendProfileToModal"
-                >
-                </profile-list>
-            </div>
+            <b-row style="margin-top: 40px">
+                <b-col sm="4">
+                    <profile-search-form @search="queryProfiles"></profile-search-form>
+                </b-col>
+                <b-col sm="8">
+                    <!--Displays results from profile search in a table format-->
+                    <profile-list
+                            :profile-list="profiles"
+                            :profile="profile"
+                            :loading="retrievingProfiles"
+                            :admin-view="minimalInfo"
+                            @make-admin="makeAdmin"
+                            @remove-admin="removeAdmin"
+                            @admin-edit="profileEdited => $emit('admin-edit', profileEdited)"
+                            @profile-delete="sendProfileToModal"
+                    >
+                    </profile-list>
+                </b-col>
+            </b-row>
         </div>
         <footer-main></footer-main>
     </div>
@@ -60,7 +60,7 @@
         props: {
             profile: Object,
             minimalInfo: {
-                default: function() {
+                default: function () {
                     return false;
                 }
             },

@@ -1,7 +1,11 @@
 <template>
     <div>
         <b-list-group class="scroll">
-            <b-list-group-item href="#" class="flex-column align-items-start" v-for="profile in profileList" @click="$emit('profile-click', profile)">
+            <b-list-group-item href="#"
+                               class="flex-column align-items-start"
+                               v-for="profile in profileList"
+                               :key="profile.id"
+                               @click="$emit('profile-click', profile)">
                 <b-row>
                     <b-col cols="4">
                         <b-img src="/static/default_profile_picture.png"
