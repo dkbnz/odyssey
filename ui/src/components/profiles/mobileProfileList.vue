@@ -1,7 +1,8 @@
 <template>
     <div>
         <b-list-group class="scroll">
-            <b-list-group-item href="#" class="flex-column align-items-start" v-for="profile in profileList" @click="$emit('profile-click', profile)">
+            <b-list-group-item href="#" class="flex-column align-items-start" v-for="profile in profileList"
+                               @click="$emit('profile-click', profile)">
                 <b-row>
                     <b-col cols="4">
                         <b-img src="/static/default_profile_picture.png"
@@ -23,6 +24,10 @@
                     </b-col>
                 </b-row>
             </b-list-group-item>
+            <div class="text-center my-2" v-if="profileList.length === 0">
+                <b-spinner v-if="loading"></b-spinner>
+                <strong v-if="profileList.length === 0 && !loading">Can't find any profiles!</strong>
+            </div>
         </b-list-group>
     </div>
 </template>
@@ -31,7 +36,12 @@
     export default {
         name: "mobileProfileList",
         props: {
-            profileList: Array
+            profileList: Array,
+            loading: {
+                default: function() {
+                    return false;
+                }
+            }
         },
         methods: {
             /**

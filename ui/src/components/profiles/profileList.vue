@@ -15,10 +15,11 @@
             <!--:sort-desc.sync="sortDesc"-->
 
             <div class="text-center my-2" slot="table-busy">
-                <strong>Can't find any profiles!</strong>
+                <b-spinner v-if="loading"></b-spinner>
             </div>
             <template slot="profilePhoto" slot-scope="row">
                 <b-img :src="getProfilePictureThumbnail(row.item.profilePicture)"
+                       onerror="this.src = '../../../static/default_profile_picture.png'"
                        fluid
                        rounded="circle"
                        thumbnail
@@ -73,6 +74,9 @@
             </template>
 
         </b-table>
+        <div class="text-center my-2" v-if="profileList.length === 0 && !loading">
+            <strong>Can't find any profiles!</strong>
+        </div>
 
 
         <!--Pagination and results per page settings-->
@@ -113,7 +117,11 @@
             profileList: Array, // List of profiles to display
             adminView: Boolean,
             profile: Object, // Profile viewing the list
-            loading: Boolean
+            loading: {
+                default: function() {
+                    return false;
+                }
+            }
         },
         computed: {
             fields() {
@@ -138,13 +146,9 @@
                     let photoId = photo.id;
                     return `/v1/photos/thumb/` + photoId;
                 } else {
-                    return "/static/default_profile_picture.png";
+                    return "../../../static/default_profile_picture.png";
                 }
             }
         }
     }
 </script>
-
-<style scoped>
-
-</style>

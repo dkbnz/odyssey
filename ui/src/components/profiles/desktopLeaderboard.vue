@@ -246,28 +246,25 @@
              */
             queryProfiles(searchParameters) {
                 this.retrievingProfiles = true;
-                let searchQuery =
-                    "?nationalities=" + searchParameters.nationality +
-                    "&gender=" + searchParameters.gender +
-                    "&min_age=" + searchParameters.minAge +
-                    "&max_age=" + searchParameters.maxAge +
-                    "&travellerTypes=" + searchParameters.travellerType;
-                return fetch(`/v1/profiles` + searchQuery, {})
+                let searchQuery = "";
+                if (searchParameters !== undefined) {
+                    searchQuery =
+                        "?nationalities=" + searchParameters.nationality +
+                        "&gender=" + searchParameters.gender +
+                        "&min_age=" + searchParameters.minAge +
+                        "&max_age=" + searchParameters.maxAge +
+                        "&travellerTypes=" + searchParameters.travellerType;
+                }
+
+                return fetch(`/v1/profiles` + searchQuery, {
+                    method: "GET"
+                })
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
                         this.retrievingProfiles = false;
                         this.profiles = data;
                     })
-            },
-
-
-            /**
-             * Displays default image when no image is found.
-             * @param event     image error event.
-             */
-            imageAlt(event) {
-                event.target.src = "../../../static/default_profile_picture.png"
             },
 
 
@@ -289,7 +286,6 @@
                 response.clone().text().then(text => {
                     this.alertMessage = text;
                 });
-                console.log(error); // eslint-disable-line no-console
                 throw error;
             },
 
