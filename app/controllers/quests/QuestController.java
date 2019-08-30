@@ -68,6 +68,7 @@ public class QuestController {
     private static final String LESS_THAN = "<";
 
     private static final String RIDDLE_SOLVED = "RIDDLE_SOLVED";
+    private static final String CHECKED_IN = "CHECKED_IN";
 
     @Inject
     public QuestController(QuestRepository questRepository,
@@ -673,6 +674,11 @@ public class QuestController {
         }
 
         if (questAttempt.checkIn()) {
+            ObjectNode returnJson = objectMapper.createObjectNode();
+            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, CHECKED_IN);
+            returnJson.put("pointsRewarded", pointsAdded);
+            returnJson.set("attempt", Json.toJson(questAttempt));
+
             questAttemptRepository.update(questAttempt);
             return ok(Json.toJson(questAttempt));
         }
