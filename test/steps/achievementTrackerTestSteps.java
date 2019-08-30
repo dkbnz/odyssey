@@ -70,10 +70,19 @@ public class achievementTrackerTestSteps {
      * Boolean to evaluate against the response body of a riddle guess.
      */
     private static final boolean SUCCESSFUL_GUESS = true;
+    private static final boolean UNSUCCESSFUL_GUESS = false;
 
 
-    private static final long QUEST_ATTEMPT_ID = 4;
-    private static final long DESTINATION_TO_GUESS = 1834;
+    private static final long QUEST_ATTEMPT_ID = 4L;
+    private static final long DESTINATION_TO_GUESS = 1834L;
+    private static final long INCORRECT_DESTINATION_GUESS = 6024L;
+
+
+    // -------------------------- IDs of users used for tests ---------------------------
+
+    private static final long REG_USER_ID = 2L;
+    private static final long OTHER_USER_ID = 3L;
+    private static final long GLOBAL_ADMIN_ID = 1L;
 
 
 
@@ -156,6 +165,60 @@ public class achievementTrackerTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+    @When("I try to view my points")
+    public void iTryToViewMyPoints() {
+        String userToView = testContext.getLoggedInId();
+        getPointsRequest(userToView);
+    }
+
+    @Then("I am given my point total")
+    public void iAmGivenMyPointTotal() throws IOException {
+        // Get the userPoints value from the JSON, convert it to an int and store it under current points if not null.
+
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        Assert.assertNotNull("No userPoints JSON value", responseBody.get("userPoints"));
+
+        currentPoints =  responseBody.get("userPoints").asInt();
+
+        // Points should never be negative, so something has gone wrong.
+        Assert.assertTrue("Points value is negative", currentPoints >= 0);
+
+    }
+
+    @When("I try to view another user's points value")
+    public void iTryToViewAnotherUserSPointsValue() {
+        String userToView = Long.toString(OTHER_USER_ID);
+        getPointsRequest(userToView);
+    }
+
+    @Then("I am given their total number of points")
+    public void iAmGivenTheirTotalNumberOfPoints() throws IOException {
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        Assert.assertNotNull("No userPoints JSON value", responseBody.get("userPoints"));
+
+        currentPoints =  responseBody.get("userPoints").asInt();
+
+        // Points should never be negative, so something has gone wrong.
+        Assert.assertTrue("Points value is negative", currentPoints >= 0);
+    }
+
+    @When("I incorrectly guess the answer to a quest riddle")
+    public void iIncorrectlyGuessTheAnswerToAQuestRiddle() throws IOException {
+        sendRiddleGuessRequest(QUEST_ATTEMPT_ID, INCORRECT_DESTINATION_GUESS);
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        Assert.assertEquals(UNSUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
+    }
+
+    @Then("I have not gained points")
+    public void iHaveNotGainedPoints() throws IOException {
+        String userToView = testContext.getLoggedInId();
+        getPointsRequest(userToView);
+
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        currentPoints = responseBody.get("userPoints").asInt();
+        Assert.assertEquals("Starting and end point values are not equal", currentPoints, startingPoints);
     }
 
 }
