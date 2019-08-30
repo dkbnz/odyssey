@@ -63,9 +63,9 @@
                     <b-form-group
                             label="Rank:">
                         <b-input-group>
-                            <b-form-input type="number"></b-form-input>
+                            <b-form-input v-model="searchParameters.rank" type="number"></b-form-input>
                             <b-input-group-append>
-                                <b-button variant="outline-info">My Rank</b-button>
+                                <b-button variant="outline-info" @click="searchParameters.rank = userProfile.achievementTracker.rank">My Rank</b-button>
                             </b-input-group-append>
                         </b-input-group>
                     </b-form-group>
@@ -110,6 +110,11 @@
 <script>
     export default {
         name: "profileSearchForm",
+
+        props: {
+            userProfile: Object
+        },
+
         data() {
             return {
                 searchParameters: {
@@ -117,7 +122,8 @@
                     gender: "",
                     minAge: 0,
                     maxAge: 120,
-                    travellerType: ""
+                    travellerType: "",
+                    rank: null
                 },
                 travellerTypeOptions: [],
                 nationalityOptions: [],
