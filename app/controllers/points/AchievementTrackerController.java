@@ -3,32 +3,30 @@ package controllers.points;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
+import models.destinations.Destination;
+import models.objectives.Objective;
 import models.points.AchievementTracker;
+import models.points.Action;
 import models.points.PointReward;
 import models.profiles.Profile;
 import models.util.ApiError;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.points.AchievementTrackerRepository;
 import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 
 public class AchievementTrackerController extends Controller {
-
-    private AchievementTrackerRepository achievementTrackerRepository;
     private ProfileRepository profileRepository;
     private PointRewardRepository pointRewardRepository;
     private ObjectMapper objectMapper;
 
 
     @Inject
-    public AchievementTrackerController(AchievementTrackerRepository achievementTrackerRepository,
-                                        ProfileRepository profileRepository,
+    public AchievementTrackerController(ProfileRepository profileRepository,
                                         PointRewardRepository pointRewardRepository,
                                         ObjectMapper objectMapper) {
-        this.achievementTrackerRepository = achievementTrackerRepository;
         this.profileRepository = profileRepository;
         this.pointRewardRepository = pointRewardRepository;
         this.objectMapper = objectMapper;
@@ -36,40 +34,37 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
-     * Retrieves the achievement tracker for the given profile. If the profile currently does not have a tracker,
-     * then one is created for the profile.
-     * @param owner the profile who's achievement tracker is to be retrieved.
-     * @return the profile's achievement tracker.
+     * Adds the given amount of points to the given profile's AchievementTracker.
+     * @param actingProfile the profile receiving points.
+     * @param destinationCreated the destination that was created.
+     * @return the points added rewarded to the profile.
      */
-    private AchievementTracker retrieveTracker(Profile owner) {
-        AchievementTracker achievementTracker = achievementTrackerRepository.findUsing(owner);
+    public int rewardAction(Profile actingProfile, Destination destinationCreated) {
+        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
 
-        // As every profile should have a tracker, if they do not have one currently, make it.
-        if (achievementTracker == null) {
-            achievementTracker = new AchievementTracker();
+        PointReward reward = pointRewardRepository.fetchPointReward(Action.DESTINATION_CREATED);    // Get the reward to add.
+        achievementTracker.addPoints(reward.getValue());
+        profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
-            achievementTracker.setOwner(owner);
-            achievementTrackerRepository.save(achievementTracker);
-
-            owner.setAchievementTracker(achievementTracker);
-            profileRepository.update(owner);
-        }
-        return achievementTracker;
+        return reward.getValue();
     }
 
 
     /**
      * Adds the given amount of points to the given profile's AchievementTracker.
      * @param actingProfile the profile receiving points.
-     * @param rewardName the name of action that the user performed to gain points.
+     * @param objectiveSolved the objective which the action was performed on.
      * @return the points added rewarded to the profile.
      */
-    public int rewardAction(Profile actingProfile, String rewardName) {
-        AchievementTracker achievementTracker = retrieveTracker(actingProfile);  // Get the tracker for the user.
+    public int rewardAction(Profile actingProfile, Objective objectiveSolved, boolean checkedIn) {
+        Action completedAction = checkedIn ? Action.CHECKED_IN : Action.RIDDLE_SOLVED;
 
-        PointReward reward = pointRewardRepository.fetchPointReward(rewardName);    // Get the reward to add.
+        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
+
+        PointReward reward = pointRewardRepository.fetchPointReward(completedAction);    // Get the reward to add.
+
         achievementTracker.addPoints(reward.getValue());
-        achievementTrackerRepository.update(achievementTracker);    // Update the tracker stored in the database.
+        profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
         return reward.getValue();
     }
@@ -95,7 +90,7 @@ public class AchievementTrackerController extends Controller {
             return notFound(ApiError.notFound());
         }
 
-        AchievementTracker tracker = retrieveTracker(requestedUser);
+        AchievementTracker tracker = requestedUser.getAchievementTracker();
 
         ObjectNode pointsJson = objectMapper.createObjectNode();
         pointsJson.put("userPoints", tracker.getPoints());

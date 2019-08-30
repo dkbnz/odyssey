@@ -3,6 +3,7 @@ package controllers.profiles;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
+import models.points.AchievementTracker;
 import models.profiles.Nationality;
 import models.profiles.Passport;
 import models.profiles.Profile;
@@ -110,6 +111,7 @@ public class ProfileController {
         }
 
         Profile newUser = new Profile();
+        AchievementTracker achievementTracker = new AchievementTracker();
 
         // Uses the hashProfilePassword() method to hash the given password.
         try {
@@ -126,6 +128,7 @@ public class ProfileController {
         newUser.setDateOfBirth(LocalDate.parse(json.get(DATE_OF_BIRTH).asText()));
         newUser.setDateOfCreation(new Date());
         newUser.setAdmin(false);
+        newUser.setAchievementTracker(achievementTracker);
 
         profileRepository.save(newUser);
 

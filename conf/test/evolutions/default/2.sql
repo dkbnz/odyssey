@@ -345,6 +345,15 @@ INSERT INTO `profile` (`id`, `username`, `password`, `first_name`, `middle_name`
 (5, 'testuser3@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserThree', 'Other', '1971-01-23', '2019-03-03 15:31:19.579000', 0, NULL),
 (6, 'testuser4@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', 0, NULL);
 
+INSERT INTO `achievement_tracker` (`id`, `points`, `owner_id`) VALUES
+(1, 0, 1),
+(2, 0, 2),
+(3, 0, 3),
+(4, 0, 4),
+(5, 0, 5),
+(6, 0, 6);
+
+
 
 INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `longitude`, `country`, `is_public`, `owner_id`) VALUES
 (119, 'Angus Flat', 31, 'Canterbury', -43.65598, 170.48378, 'New Zealand', true, 5),

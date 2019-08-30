@@ -1,6 +1,6 @@
 package models.points;
 
-import io.ebean.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import models.profiles.Profile;
 import models.util.BaseModel;
 

@@ -631,7 +631,9 @@ public class QuestController {
 
         // Add points based on the action
         if (solveSuccess) {
-            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, RIDDLE_SOLVED);
+
+            // TODO Matthew/Doug look into possibility of passing the objective through
+            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, null, false);
             returnJson.put("pointsRewarded", pointsAdded);
         }
 
@@ -675,7 +677,9 @@ public class QuestController {
 
         if (questAttempt.checkIn()) {
             ObjectNode returnJson = objectMapper.createObjectNode();
-            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, CHECKED_IN);
+
+            // TODO Matthew/Doug look into possibility of passing the objective through
+            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, null, true);
             returnJson.put("pointsRewarded", pointsAdded);
             returnJson.set("attempt", Json.toJson(questAttempt));
 

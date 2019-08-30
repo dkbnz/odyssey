@@ -9,14 +9,13 @@ import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.points.AchievementTrackerRepository;
 import repositories.quests.QuestRepository;
 
 import java.io.IOException;
 
 import static play.test.Helpers.*;
 
-public class achievementTrackerTestSteps {
+public class AchievementTrackerTestSteps {
 
     /**
      * Singleton class which stores generally used variables
@@ -106,19 +105,6 @@ public class achievementTrackerTestSteps {
      * Points the profile has after an action.
      */
     private int currentPoints;
-
-
-    /**
-     * Repository to access the profiles' achievement trackers during runtime.
-     */
-    private AchievementTrackerRepository achievementTrackerRepository =
-            testContext.getApplication().injector().instanceOf(AchievementTrackerRepository.class);
-
-    /**
-     * Repository to access quests during test runtime.
-     */
-    private QuestRepository questRepository =
-            testContext.getApplication().injector().instanceOf(QuestRepository.class);
 
 
     @Given("I have some starting points")
