@@ -1,86 +1,104 @@
 <template>
     <div>
+
         <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
 
-        <!--Input fields for searching profiles-->
-        <b-row>
-            <b-col>
-                <b-form-group
-                        id="nationalities-field"
-                        label="Nationality:"
-                        label-for="nationality">
-                    <b-form-select id="nationality" trim v-model="searchParameters.nationality">
-                        <template slot="first">
-                            <option :value="null">-- Any --</option>
-                        </template>
-                        <option :value="nationality.nationality"
-                                v-for="nationality in nationalityOptions">
-                            {{nationality.nationality}}
-                        </option>
-                    </b-form-select>
-                </b-form-group>
-            </b-col>
-            <b-col>
-                <b-form-group
-                        id="gender-field"
-                        label="Gender:"
-                        label-for="gender">
-                    <b-form-select :options="genderOptions" id="gender" trim v-model="searchParameters.gender">
-                        <template slot="first">
-                            <option :value="null">-- Any --</option>
-                        </template>
-                    </b-form-select>
-                </b-form-group>
-            </b-col>
-        </b-row>
-        <b-row>
-            <b-col>
-                <b-form-group
-                        id="minAge-field"
-                        label="Min Age: "
-                        label-for="minAge">
-                    <div class="mt-2">{{ searchParameters.minAge }}</div>
+        <b-form @submit.prevent="searchProfiles">
+            <!--Input fields for searching for destinations-->
+            <b-form-group
+                    id="name-field"
+                    label="Name:"
+                    label-for="name">
+                <b-form-input id="name"></b-form-input>
+            </b-form-group>
+            <b-form-row>
+                <b-col>
+                    <b-form-group
+                            id="nationalities-field"
+                            label="Nationality:"
+                            label-for="nationality">
+                        <b-form-select id="nationality" trim v-model="searchParameters.nationality">
+                            <template slot="first">
+                                <option :value="null">-- Any --</option>
+                            </template>
+                            <option :value="nationality.nationality"
+                                    v-for="nationality in nationalityOptions">
+                                {{nationality.nationality}}
+                            </option>
+                        </b-form-select>
+                    </b-form-group>
+                </b-col>
+                <b-col>
+                    <b-form-group
+                            id="gender-field"
+                            label="Gender:"
+                            label-for="gender">
+                        <b-form-select :options="genderOptions" id="gender" trim v-model="searchParameters.gender">
+                            <template slot="first">
+                                <option :value="null">-- Any --</option>
+                            </template>
+                        </b-form-select>
+                    </b-form-group>
+                </b-col>
+            </b-form-row>
+            <b-form-row>
+                <b-col>
 
-                    <!--Range slider from 0 to 110-->
-                    <b-form-input :type="'range'" id="minAge"
-                                  max="110"
-                                  min="0"
-                                  trim
-                                  v-model="searchParameters.minAge"></b-form-input>
-                </b-form-group>
-            </b-col>
-            <b-col>
-                <b-form-group
-                        id="maxAge-field"
-                        label="Max Age:"
-                        label-for="maxAge">
-                    <div class="mt-2">{{ searchParameters.maxAge }}</div>
-                    <!--Range slider from 0 to 110-->
-                    <b-form-input :type="'range'" id="maxAge"
-                                  max="120"
-                                  min="0"
-                                  trim
-                                  v-model="searchParameters.maxAge"></b-form-input>
-                </b-form-group>
-            </b-col>
-        </b-row>
+                    <b-form-group
+                            id="travType-field"
+                            label="Traveller Type:"
+                            label-for="travType">
+                        <b-form-select id="travType" trim v-model="searchParameters.travellerType">
+                            <template>
+                                <option :value="null" selected="selected">-- Any --</option>
+                            </template>
+                            <option :value="travType.travellerType"
+                                    v-for="travType in travellerTypeOptions">
+                                {{travType.travellerType}}
+                            </option>
+                        </b-form-select>
+                    </b-form-group>
+                </b-col>
+                <b-col>
+                    <b-form-group
+                            label="Rank:">
+                        <b-form-input></b-form-input>
+                    </b-form-group>
+                </b-col>
+            </b-form-row>
+            <b-form-row>
+                <b-col>
+                    <b-form-group
+                            id="minAge-field"
+                            label="Min Age: "
+                            label-for="minAge">
+                        <div class="mt-2">{{ searchParameters.minAge }}</div>
 
-        <b-form-group
-                id="travType-field"
-                label="Traveller Type:"
-                label-for="travType">
-            <b-form-select id="travType" trim v-model="searchParameters.travellerType">
-                <template>
-                    <option :value="null" selected="selected">-- Any --</option>
-                </template>
-                <option :value="travType.travellerType"
-                        v-for="travType in travellerTypeOptions">
-                    {{travType.travellerType}}
-                </option>
-            </b-form-select>
-        </b-form-group>
-
-        <b-button @click="searchProfiles" block variant="primary">Search</b-button>
+                        <!--Range slider from 0 to 110-->
+                        <b-form-input :type="'range'" id="minAge"
+                                      max="110"
+                                      min="0"
+                                      trim
+                                      v-model="searchParameters.minAge"></b-form-input>
+                    </b-form-group>
+                </b-col>
+                <b-col>
+                    <b-form-group
+                            id="maxAge-field"
+                            label="Max Age:"
+                            label-for="maxAge">
+                        <div class="mt-2">{{ searchParameters.maxAge }}</div>
+                        <!--Range slider from 0 to 110-->
+                        <b-form-input :type="'range'" id="maxAge"
+                                      max="120"
+                                      min="0"
+                                      trim
+                                      v-model="searchParameters.maxAge"></b-form-input>
+                    </b-form-group>
+                </b-col>
+            </b-form-row>
+            <b-button @click="searchProfiles" block variant="primary" type="submit">Search</b-button>
+        </b-form>
     </div>
 </template>
 
@@ -160,7 +178,3 @@
 
     }
 </script>
-
-<style scoped>
-
-</style>

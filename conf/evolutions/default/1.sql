@@ -52,6 +52,14 @@ BEGIN
   EXECUTE stmt;
 END
 $$
+create table achievement_tracker (
+  id                            bigint auto_increment not null,
+  points                        integer not null,
+  owner_id                      bigint,
+  constraint uq_achievement_tracker_owner_id unique (owner_id),
+  constraint pk_achievement_tracker primary key (id)
+);
+
 create table destination (
   id                            bigint auto_increment not null,
   name                          varchar(255),
@@ -141,6 +149,15 @@ create table photo (
   constraint pk_photo primary key (id)
 );
 
+create table point_reward (
+  id                            bigint auto_increment not null,
+  name                          varchar(19) not null,
+  value                         integer not null,
+  constraint ck_point_reward_name check ( name in ('DESTINATION_CREATED','RIDDLE_SOLVED','CHECKED_IN')),
+  constraint uq_point_reward_name unique (name),
+  constraint pk_point_reward primary key (id)
+);
+
 create table profile (
   id                            bigint auto_increment not null,
   username                      varchar(255),
@@ -218,6 +235,8 @@ create table destination_type (
   destination_type              varchar(255),
   constraint pk_destination_type primary key (id)
 );
+
+alter table achievement_tracker add constraint fk_achievement_tracker_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
 
 create index ix_destination_type_id on destination (type_id);
 alter table destination add constraint fk_destination_type_id foreign key (type_id) references destination_type (id) on delete restrict on update restrict;
@@ -311,6 +330,8 @@ alter table trip_destination add constraint fk_trip_destination_destination_id f
 
 # --- !Downs
 
+alter table achievement_tracker drop foreign key fk_achievement_tracker_owner_id;
+
 alter table destination drop foreign key fk_destination_type_id;
 drop index ix_destination_type_id on destination;
 
@@ -400,6 +421,8 @@ drop index ix_trip_destination_trip_id on trip_destination;
 alter table trip_destination drop foreign key fk_trip_destination_destination_id;
 drop index ix_trip_destination_destination_id on trip_destination;
 
+drop table if exists achievement_tracker;
+
 drop table if exists destination;
 
 drop table if exists destination_personal_photo;
@@ -423,6 +446,8 @@ drop table if exists passport_profile;
 drop table if exists personal_photo;
 
 drop table if exists photo;
+
+drop table if exists point_reward;
 
 drop table if exists profile;
 
