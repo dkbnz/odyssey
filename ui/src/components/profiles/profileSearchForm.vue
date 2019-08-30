@@ -62,7 +62,12 @@
                 <b-col>
                     <b-form-group
                             label="Rank:">
-                        <b-form-input></b-form-input>
+                        <b-input-group>
+                            <b-form-input type="number"></b-form-input>
+                            <b-input-group-append>
+                                <b-button variant="outline-info">My Rank</b-button>
+                            </b-input-group-append>
+                        </b-input-group>
                     </b-form-group>
                 </b-col>
             </b-form-row>

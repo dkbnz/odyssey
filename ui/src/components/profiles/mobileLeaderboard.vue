@@ -3,8 +3,7 @@
         <div v-if="page === 0">
             <b-jumbotron class="search">
                 <h1 class="page-title">Leaderboard</h1>
-                <p class="page-title"><i>Find other players using any of the fields below</i>
-                </p>
+                <p class="page-title"><i>Find other players using any of the fields below</i></p>
                 <profile-search-form @search="queryProfiles"></profile-search-form>
             </b-jumbotron>
         </div>
