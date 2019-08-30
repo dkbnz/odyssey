@@ -99,8 +99,9 @@ create table photo (
 
 create table point_reward (
   id                            bigint auto_increment not null,
-  name                          varchar(255) not null,
+  name                          varchar(19) not null,
   value                         integer not null,
+  constraint ck_point_reward_name check ( name in ('DESTINATION_CREATED','RIDDLE_SOLVED','CHECKED_IN')),
   constraint uq_point_reward_name unique (name),
   constraint pk_point_reward primary key (id)
 );
@@ -393,6 +394,8 @@ drop table if exists passport_profile;
 drop table if exists personal_photo;
 
 drop table if exists photo;
+
+drop table if exists point_reward;
 
 drop table if exists profile;
 

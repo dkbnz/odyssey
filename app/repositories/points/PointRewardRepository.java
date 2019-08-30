@@ -3,6 +3,7 @@ package repositories.points;
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
+import models.points.Action;
 import models.points.PointReward;
 
 public class PointRewardRepository extends BeanRepository<Long, PointReward> {
@@ -19,7 +20,7 @@ public class PointRewardRepository extends BeanRepository<Long, PointReward> {
      * @param action the action that the points are being awarded for.
      * @return the PointReward object relating to that action.
      */
-    public PointReward fetchPointReward(String action) {
+    public PointReward fetchPointReward(Action action) {
         return query().where()
                 .eq(NAME, action)
                 .findOne();

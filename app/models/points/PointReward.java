@@ -3,9 +3,7 @@ package models.points;
 
 import models.util.BaseModel;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
@@ -14,8 +12,9 @@ public class PointReward extends BaseModel {
     /**
      * The name of the point reward.
      */
-    @Column(unique = true, nullable = false)    // Declares that the name needs to be unique through the database.
-    private String name;
+    @Column(unique = true, nullable = false, name = "name")    // Declares that the name needs to be unique through the database.
+    @Enumerated(EnumType.STRING)
+    private Action name;
 
     /**
      * The points value of the reward.
@@ -28,16 +27,8 @@ public class PointReward extends BaseModel {
         return value;
     }
 
-    public void setValue(int value) {
-        this.value = value;
-    }
-
-    public String getName() {
+    public Action getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     /**
@@ -66,6 +57,6 @@ public class PointReward extends BaseModel {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.name + this.value);
+        return Objects.hash(this.id + this.value);
     }
 }
