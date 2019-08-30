@@ -19,7 +19,7 @@
                 </b-alert>
                 <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
                 <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
-                <h5>Rank: {{profile.achievementTracker.rank}} Points: {{profile.achievementTracker.points}}</h5>
+                <h6>Rank: #{{profile.achievementTracker.rank}} Points: ({{profile.achievementTracker.points}})</h6>
                 <p v-if="profile.admin"><i>Administrator</i></p>
                 <p v-else><i>Regular User</i></p>
                 <h2>Personal Details</h2>
@@ -74,7 +74,6 @@
                                 </b-button>
                             </b-col>
                         </template>
-
                     </b-modal>
                 </div>
 

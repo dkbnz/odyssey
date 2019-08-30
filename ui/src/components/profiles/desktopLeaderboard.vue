@@ -23,7 +23,10 @@
 
             <b-row style="margin-top: 40px">
                 <b-col sm="4">
-                    <profile-search-form @search="queryProfiles"></profile-search-form>
+                    <profile-search-form
+                            :userProfile="profile"
+                            @search="queryProfiles">
+                    </profile-search-form>
                 </b-col>
                 <b-col sm="8">
                     <!--Displays results from profile search in a table format-->
