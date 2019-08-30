@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="smallMarginsContainer">
         <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
 
         <!--Input fields for searching profiles-->

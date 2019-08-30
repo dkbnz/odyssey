@@ -6,6 +6,7 @@
         <div v-if="page === 1">
             <b-button @click="page = 0" block variant="primary">Search</b-button>
             <mobile-profile-list
+                    :loading="retrievingProfiles"
                     :profile-list="profiles"
                     @profile-click="selectProfile"
             >
@@ -71,12 +72,16 @@
             queryProfiles(searchParameters) {
                 this.retrievingProfiles = true;
                 this.page = 1;
-                let searchQuery =
-                    "?nationalities=" + searchParameters.nationality +
-                    "&gender=" + searchParameters.gender +
-                    "&min_age=" + searchParameters.minAge +
-                    "&max_age=" + searchParameters.maxAge +
-                    "&travellerTypes=" + searchParameters.travellerType;
+                let searchQuery = "";
+                if (searchParameters !== undefined) {
+                    searchQuery =
+                        "?nationalities=" + searchParameters.nationality +
+                        "&gender=" + searchParameters.gender +
+                        "&min_age=" + searchParameters.minAge +
+                        "&max_age=" + searchParameters.maxAge +
+                        "&travellerTypes=" + searchParameters.travellerType;
+                }
+
                 return fetch(`/v1/profiles` + searchQuery, {})
                     .then(this.checkStatus)
                     .then(response => response.json())
