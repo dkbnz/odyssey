@@ -124,6 +124,13 @@ body {
     border-radius: 5px;
 }
 
+.smallMarginsContainer {
+    margin: 1vh 1vw 1vh 1vw;
+    padding: 1vh 3vw 3vw 3vw;
+    background-color: white;
+    border-radius: 5px;
+}
+
 .noBordersContainer {
     margin: 0 1vw 0 0 ;
     padding: 0;

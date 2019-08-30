@@ -135,7 +135,8 @@
         },
 
         mounted() {
-            this.getPhotosList()
+            self = this;
+            setTimeout(self.getPhotosList, 500);
         },
 
         methods: {
@@ -253,22 +254,20 @@
             getPhotosList() {
                 let self = this;
                 this.retrievingPhotos = true;
-                setTimeout(function() {
-                    let selfe = self;
-                    fetch(`/v1/photos/user/` + self.profile.id, {
-                        accept: "application/json",
-                    })
-                        .then(response => response.json())
-                        .then(photos => {
-                            for (let i in photos) {
-                                if (photos[i].public || selfe.adminView) {
-                                    selfe.photos.push(photos[i]);
-                                    selfe.reloadPhotoTable += 1;
-                                    selfe.retrievingPhotos = false;
-                                }
+                fetch(`/v1/photos/user/` + self.profile.id, {
+                    accept: "application/json",
+                    method: "GET"
+                })
+                    .then(response => response.json())
+                    .then(photos => {
+                        for (let i in photos) {
+                            if (this.authentication || photos[i].public || self.adminView) {
+                                self.photos.push(photos[i]);
+                                self.reloadPhotoTable += 1;
+                                self.retrievingPhotos = false;
                             }
-                        })
-                }, 500)
+                        }
+                    })
             },
 
 
