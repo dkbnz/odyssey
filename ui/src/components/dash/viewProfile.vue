@@ -6,6 +6,8 @@
                 <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
                        @click="showImage" onerror="this.src = '../../../static/default_profile_picture.png'">
                 </b-img>
+
+
                 <b-alert
                         class="m-1"
                         :show="dismissCountDown"
@@ -17,6 +19,7 @@
                 </b-alert>
                 <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
                 <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
+                <h5>Rank: {{profile.achievementTracker.rank}} Points: {{profile.achievementTracker.points}}</h5>
                 <p v-if="profile.admin"><i>Administrator</i></p>
                 <p v-else><i>Regular User</i></p>
                 <h2>Personal Details</h2>
