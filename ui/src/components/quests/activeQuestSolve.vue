@@ -274,7 +274,8 @@
                 })
                     .then(response => response.json())
                     .then((data) => {
-                        self.$emit('updated-quest-attempt', data);
+                        // Response has points gained and attempt, get attempt
+                        self.$emit('updated-quest-attempt', data.attempt);
                     })
             },
 
