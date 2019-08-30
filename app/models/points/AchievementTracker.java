@@ -1,8 +1,10 @@
 package models.points;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import models.profiles.Profile;
 import models.util.BaseModel;
+import util.PointUtil;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,11 +42,24 @@ public class AchievementTracker extends BaseModel {
         return points;
     }
 
+
     /**
      * Adds the provided number of points to the points value.
      * @param pointsToAdd the points to be added to the tracker's total score.
      */
     public void addPoints(int pointsToAdd) {
         this.points += pointsToAdd;
+    }
+
+
+    /**
+     * Returns the rank of the profile associated with this achievement tracker.
+     * Will be evaluated when serialized with toJson or any object mappers.
+     *
+     * @return an int defining the rank of the profile associated to this achievement tracker.
+     */
+    @JsonProperty("rank")
+    public int getRank() {
+        return PointUtil.getRank(this.owner);
     }
 }

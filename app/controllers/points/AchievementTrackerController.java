@@ -42,7 +42,7 @@ public class AchievementTrackerController extends Controller {
     public int rewardAction(Profile actingProfile, Destination destinationCreated) {
         AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
 
-        PointReward reward = pointRewardRepository.fetchPointReward(Action.DESTINATION_CREATED);    // Get the reward to add.
+        PointReward reward = pointRewardRepository.findUsing(Action.DESTINATION_CREATED);    // Get the reward to add.
         achievementTracker.addPoints(reward.getValue());
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
@@ -61,7 +61,7 @@ public class AchievementTrackerController extends Controller {
 
         AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
 
-        PointReward reward = pointRewardRepository.fetchPointReward(completedAction);    // Get the reward to add.
+        PointReward reward = pointRewardRepository.findUsing(completedAction);    // Get the reward to add.
 
         achievementTracker.addPoints(reward.getValue());
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
