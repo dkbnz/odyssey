@@ -1,5 +1,5 @@
 <template>
-    <div class="containerWithNav">
+    <div class="bg-white mt-5 pl-3 pr-3 pb-3">
         <h1 class="page-title">Personal Media</h1>
         <p v-if="authentication" class="page-title"><i>Here are your photos</i></p>
 

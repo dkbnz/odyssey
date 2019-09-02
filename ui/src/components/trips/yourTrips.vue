@@ -1,6 +1,5 @@
 <template>
-    <div :class="containerClass">
-
+    <div class="bg-white mt-5 pl-3 pr-3 pb-3">
         <!-- Div for all the user's future trips -->
         <div id="upcomingTrips">
             <h1 class="page-title">Upcoming Trips</h1>
