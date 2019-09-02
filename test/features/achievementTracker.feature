@@ -47,3 +47,12 @@ Feature: Achievement Tracker API Endpoint
     When I check in for quest attempt 4
     Then the status code received is 403
     And I have not gained points
+
+  Scenario: Creating a destination
+    Given the application is running
+    And I am logged in
+    And I have some starting points
+    When I create a new destination with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    Then I have gained points

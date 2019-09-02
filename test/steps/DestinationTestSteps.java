@@ -173,6 +173,10 @@ public class DestinationTestSteps {
             testContext.getApplication().injector().instanceOf(TripRepository.class);
 
 
+    private ObjectMapper objectMapper =
+            testContext.getApplication().injector().instanceOf(ObjectMapper.class);
+
+
     /**
      * Sends a request to create a destination with values from the given json node.
      *
@@ -188,7 +192,12 @@ public class DestinationTestSteps {
         testContext.setStatusCode(result.status());
 
         if (testContext.getStatusCode() < 400) {
-            createdDestinationId = Long.parseLong(Helpers.contentAsString(result));
+            try {
+                JsonNode response = objectMapper.readTree(Helpers.contentAsString(result));
+                createdDestinationId = Long.parseLong(response.get("destinationId").asText());
+            } catch (IOException exception) {
+                fail("Error in response parsing");
+            }
         }
     }
 
@@ -978,7 +987,8 @@ public class DestinationTestSteps {
     @Then("the response contains at least one destination with name")
     public void theResponseContainsAtLeastOneDestinationWithName(io.cucumber.datatable.DataTable dataTable) throws IOException {
         String value = getValueFromDataTable(NAME_STRING, dataTable);
-        String arrNode = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(NAME).asText();
+
+        String arrNode = objectMapper.readTree(testContext.getResponseBody()).get(0).get(NAME).asText();
 
         Assert.assertEquals(value, arrNode);
     }
