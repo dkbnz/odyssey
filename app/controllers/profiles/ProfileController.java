@@ -61,6 +61,8 @@ public class ProfileController {
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String UPDATED = "UPDATED";
     private static final String ID = "id";
+    private static final String PAGE = "page";
+    private static final String RANK = "rank";
 
     private ProfileRepository profileRepository;
     private NationalityRepository nationalityRepository;
@@ -547,26 +549,29 @@ public class ProfileController {
      *                          ok() (Http 200) if the search is successful.
      */
     public Result list(Http.Request request) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(userId -> {
-                    List<Profile> profiles;
+        int pageNumber = 0;
+        int pageSize = 10;
 
-                    if (request.queryString().isEmpty()) {
-                        // No query string given. retrieve all profiles
-                        profiles = profileRepository.findAll();
-                    } else {
-                        String getError = validQueryString(request.queryString());
-                        if (getError == null) {
-                            profiles = searchProfiles(request.queryString());
-                        } else {
-                            return badRequest(getError);
-                        }
-                    }
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(NOT_SIGNED_IN);
+        }
 
-                    return ok(Json.toJson(profiles));
-                })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+        List<Profile> profiles;
+        ExpressionList<Profile> expressionList = profileRepository.getExpressionList();
+
+        if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
+            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
+        }
+
+
+        profiles = expressionList
+                .setFirstRow(pageNumber*pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
+
+        return ok(Json.toJson(profiles));
     }
 
 

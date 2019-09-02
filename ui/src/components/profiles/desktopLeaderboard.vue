@@ -41,6 +41,20 @@
                             @profile-delete="sendProfileToModal"
                     >
                     </profile-list>
+                    <b-list-group-item href="#" class="flex-column justify-content-center">
+                        <div class="d-flex justify-content-center" v-if="retrievingProfiles">
+                            <b-spinner label="Loading..."></b-spinner>
+                        </div>
+                        <div class="d-flex justify-content-center" v-else>
+                            <div v-if="moreResults">
+                                <b-button variant="success" @click="getMore" block>More</b-button>
+                            </div>
+                            <div v-else>
+                                <h5 class="mb-1">No More Results</h5>
+                            </div>
+                        </div>
+
+                    </b-list-group-item>
                 </b-col>
             </b-row>
         </div>
@@ -109,7 +123,9 @@
                 profiles: [],
                 retrievingProfiles: false,
                 selectedProfile: "",
-                alertMessage: ""
+                alertMessage: "",
+                queryPage: 0,
+                moreResults: true
             }
         },
 
@@ -118,14 +134,6 @@
         },
 
         computed: {
-            /**
-             * @returns the number of rows required in the table based on number of profiles to be displayed.
-             */
-            rows() {
-                return this.profiles.length;
-            },
-
-
             /**
              * Returns the fields that will be displayed on the table of profiles, depending on if the admin is looking
              * at the page or not.
@@ -245,18 +253,31 @@
 
 
             /**
+             * Function to retrieve more destinations when a user reaches the bottom of the list.
+             */
+            getMore() {
+                this.queryPage += 1;
+                this.queryProfiles({"page": this.queryPage});
+            },
+
+
+            /**
              * Queries database for profiles which fit search criteria.
              */
             queryProfiles(searchParameters) {
                 this.retrievingProfiles = true;
                 let searchQuery = "";
                 if (searchParameters !== undefined) {
+                    if (!searchParameters.page) {
+                        searchParameters.page = 0;
+                    }
                     searchQuery =
                         "?nationalities=" + searchParameters.nationality +
                         "&gender=" + searchParameters.gender +
                         "&min_age=" + searchParameters.minAge +
                         "&max_age=" + searchParameters.maxAge +
-                        "&travellerTypes=" + searchParameters.travellerType;
+                        "&travellerTypes=" + searchParameters.travellerType +
+                        "&page=" + searchParameters.page;
                 }
 
                 return fetch(`/v1/profiles` + searchQuery, {
@@ -265,8 +286,15 @@
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
+                        if (data === undefined || data.length < 10) {
+                            this.moreResults = false;
+                        } else {
+                            this.moreResults = true;
+                        }
+                        for (var i = 0; i < data.length; i++) {
+                            this.profiles.push(data[i]);
+                        }
                         this.retrievingProfiles = false;
-                        this.profiles = data;
                     })
             },
 

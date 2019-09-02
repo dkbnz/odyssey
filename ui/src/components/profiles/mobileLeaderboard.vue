@@ -12,12 +12,32 @@
         </div>
         <div v-if="page === 1">
             <b-button @click="page = 0" block variant="primary">Search</b-button>
+            <div class="d-flex justify-content-center mb-3 buttonMarginsTop">
+                <b-spinner v-if="retrievingProfiles && initialLoad"></b-spinner>
+            </div>
             <mobile-profile-list
                     :loading="retrievingProfiles"
                     :profile-list="profiles"
                     @profile-click="selectProfile"
             >
             </mobile-profile-list>
+
+            <div class="text-center my-2" v-if="profiles.length === 0 && !retrievingProfiles">
+                <strong>Can't find any profiles!</strong>
+            </div>
+            <div class="flex-column justify-content-center">
+                <div class="d-flex justify-content-center" v-if="retrievingProfiles">
+                    <b-spinner label="Loading..."></b-spinner>
+                </div>
+                <div v-else>
+                    <div v-if="moreResults">
+                        <b-button variant="success" @click="getMore" block>More</b-button>
+                    </div>
+                    <div v-else class="d-flex justify-content-center">
+                        <h5 class="mb-1">No More Results</h5>
+                    </div>
+                </div>
+            </div>
         </div>
         <div v-if="page === 2">
             <b-button @click="page = 1" block variant="primary">Return to List</b-button>
@@ -37,18 +57,31 @@
     import ViewProfile from "../dash/viewProfile";
     export default {
         name: "mobileLeaderboard",
-        components: {ViewProfile, SingleProfile, MobileProfileList, ProfileList, ProfileSearchForm},
+
+        components: {
+            ViewProfile,
+            SingleProfile,
+            MobileProfileList,
+            ProfileList,
+            ProfileSearchForm
+        },
+
         props: {
             profile: Object
         },
+
         data() {
             return {
                 page: 0,
                 retrievingProfiles: false,
                 profiles: [],
-                selectedProfile: {}
+                selectedProfile: {},
+                moreResults: true,
+                initialLoad: true,
+                queryPage: 0
             }
         },
+
         methods: {
             /**
              * Used to check the response of a fetch method. If there is an error code, the code is printed to the
@@ -74,27 +107,49 @@
 
 
             /**
+             * Function to retrieve more destinations when a user reaches the bottom of the list.
+             */
+            getMore() {
+                this.queryPage += 1;
+                this.queryProfiles({"page": this.queryPage});
+            },
+
+
+            /**
              * Queries database for profiles which fit search criteria.
              */
             queryProfiles(searchParameters) {
                 this.retrievingProfiles = true;
-                this.page = 1;
                 let searchQuery = "";
-                if (searchParameters !== undefined) {
+                this.page = 1;
+                if (searchParameters) {
+                    if (!searchParameters.page) {
+                        searchParameters.page = 0;
+                    }
                     searchQuery =
                         "?nationalities=" + searchParameters.nationality +
                         "&gender=" + searchParameters.gender +
                         "&min_age=" + searchParameters.minAge +
                         "&max_age=" + searchParameters.maxAge +
-                        "&travellerTypes=" + searchParameters.travellerType;
+                        "&travellerTypes=" + searchParameters.travellerType +
+                        "&page=" + searchParameters.page;
                 }
 
                 return fetch(`/v1/profiles` + searchQuery, {})
                     .then(this.checkStatus)
                     .then(response => response.json())
                     .then((data) => {
+                        if (data === undefined || data.length < 10) {
+                            this.moreResults = false;
+                            this.initialLoad = false;
+                        } else {
+                            this.moreResults = true;
+                            this.initialLoad = false;
+                        }
+                        for (var i = 0; i < data.length; i++) {
+                            this.profiles.push(data[i]);
+                        }
                         this.retrievingProfiles = false;
-                        this.profiles = data;
                     })
             },
 
