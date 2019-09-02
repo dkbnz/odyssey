@@ -35,7 +35,12 @@
     export default {
         name: "mobileProfileList",
         props: {
-            profileList: Array
+            profileList: Array,
+            loading: {
+                default: function() {
+                    return false;
+                }
+            }
         },
         methods: {
             /**

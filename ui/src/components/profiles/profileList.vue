@@ -1,7 +1,9 @@
 <template>
     <div>
         <b-table :busy="loading"
+                 :per-page="perPage"
                  :fields="fields"
+                 :current-page="currentPage"
                  :items="profileList"
                  responsive
                  hover
@@ -77,34 +79,32 @@
         <div class="text-center my-2" v-if="profileList.length === 0 && !loading">
             <strong>Can't find any profiles!</strong>
         </div>
-
-
-        <!--Pagination and results per page settings-->
-        <!--<b-row>-->
-            <!--<b-col cols="1">-->
-                <!--<b-form-group-->
-                        <!--id="profiles-field"-->
-                        <!--label-for="perPage">-->
-                    <!--<b-form-select :options="optionViews" id="perPage"-->
-                                   <!--size="sm"-->
-                                   <!--trim-->
-                                   <!--v-model="perPage"></b-form-select>-->
-                <!--</b-form-group>-->
-            <!--</b-col>-->
-            <!--<b-col cols="8">-->
-                <!--<b-pagination-->
-                        <!--:per-page="perPage"-->
-                        <!--:total-rows="rows"-->
-                        <!--align="center"-->
-                        <!--aria-controls="my-table"-->
-                        <!--first-text="First"-->
-                        <!--last-text="Last"-->
-                        <!--size="sm"-->
-                        <!--v-model="currentPage"-->
-                <!--&gt;</b-pagination>-->
-            <!--</b-col>-->
-        <!--</b-row>-->
-
+        <b-row>
+            <b-col cols="2">
+                <b-form-group
+                        id="numItems-field"
+                        label-for="perPage">
+                    <b-form-select :options="optionViews"
+                                   id="perPage"
+                                   size="sm"
+                                   trim v-model="perPage">
+                    </b-form-select>
+                </b-form-group>
+            </b-col>
+            <b-col>
+                <b-pagination
+                        ref="pagination"
+                        :per-page="perPage"
+                        :total-rows="rows"
+                        align="center"
+                        aria-controls="profiles"
+                        first-text="First"
+                        last-text="Last"
+                        size="sm"
+                        v-model="currentPage">
+                </b-pagination>
+            </b-col>
+        </b-row>
     </div>
 </template>
 
@@ -112,7 +112,11 @@
     import ViewProfile from "../dash/viewProfile";
     export default {
         name: "profileList",
-        components: {ViewProfile},
+
+        components: {
+            ViewProfile
+        },
+
         props: {
             profileList: Array, // List of profiles to display
             adminView: Boolean,
@@ -123,6 +127,34 @@
                 }
             }
         },
+
+        watch: {
+            profileList() {
+                this.getRows();
+                if (this.perPage === Infinity) {
+                    this.currentPage = 1;
+                }
+            },
+
+            perPage() {
+                this.getRows();
+            }
+        },
+
+        data() {
+            return {
+                optionViews: [
+                {value: 1, text: "1"},
+                {value: 5, text: "5"},
+                {value: 10, text: "10"},
+                {value: 15, text: "15"},
+                {value: Infinity, text: "All"}],
+                perPage: 5,
+                currentPage: 1,
+                rows: null
+            }
+        },
+
         computed: {
             fields() {
                 return [
@@ -148,6 +180,22 @@
                 } else {
                     return "../../../static/default_profile_picture.png";
                 }
+            },
+
+
+            /**
+             * Computed function used for the pagination of the table.
+             *
+             * @returns {number}    the number of rows required in the table based on number of profiles to be
+             *                      displayed.
+             */
+            getRows() {
+                if (this.perPage === Infinity) {
+                    this.rows = Infinity;
+                } else {
+                    this.rows = this.profileList.length
+                }
+
             }
         }
     }
