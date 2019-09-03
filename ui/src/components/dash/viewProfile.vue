@@ -1,134 +1,144 @@
 <template>
-    <div class="scroll">
-        <div class="wrapper cf">
-            <div :class="containerClass">
-                <!-- The profile picture of the current profile being viewed. -->
-                <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
-                       @click="showImage" onerror="this.src = '../../../static/default_profile_picture.png'">
-                </b-img>
+    <b-container fluid class="pt-2">
+        <b-row>
+            <b-col md="4" class="p-0 pl-2">
+
+                <div class="p-3 bg-white">
+                    <!-- The profile picture of the current profile being viewed. -->
+
+                    <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
+                           @click="showImage" onerror="this.src = '../../../static/default_profile_picture.png'">
+                    </b-img>
 
 
-                <b-alert
-                        class="m-1"
-                        :show="dismissCountDown"
-                        dismissible
-                        variant="success"
-                        @dismissed="dismissCountDown=0"
-                        @dismiss-count-down="countDownChanged"
-                > {{alertMessage}}
-                </b-alert>
-                <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
-                <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
-                <h6>Rank: #{{profile.achievementTracker.rank}} Points: ({{profile.achievementTracker.points}})</h6>
-                <p v-if="profile.admin"><i>Administrator</i></p>
-                <p v-else><i>Regular User</i></p>
-                <h2>Personal Details</h2>
-                <p> Username: {{ profile.username }}</p>
-                <p> Date of Creation: {{ new Date(profile.dateOfCreation).toUTCString()}}</p>
-                <p> Date of Birth: {{new Date(profile.dateOfBirth).toLocaleDateString()}}</p>
-                <p> Gender: {{ profile.gender }}</p>
-                <h2> Nationalities </h2>
-                <ul>
-                    <li v-for="nationality in profile.nationalities">{{ nationality.nationality }}</li>
-                </ul>
+                    <b-alert
+                            class="m-1"
+                            :show="dismissCountDown"
+                            dismissible
+                            variant="success"
+                            @dismissed="dismissCountDown=0"
+                            @dismiss-count-down="countDownChanged"
+                    > {{alertMessage}}
+                    </b-alert>
+                    <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
+                    <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
+                    <h6>Rank: #{{profile.achievementTracker.rank}} Points: ({{profile.achievementTracker.points}})</h6>
+                    <p v-if="profile.admin"><i>Administrator</i></p>
+                    <p v-else><i>Regular User</i></p>
+                    <h2>Personal Details</h2>
+                    <p> Username: {{ profile.username }}</p>
+                    <p> Date of Creation: {{ new Date(profile.dateOfCreation).toUTCString()}}</p>
+                    <p> Date of Birth: {{new Date(profile.dateOfBirth).toLocaleDateString()}}</p>
+                    <p> Gender: {{ profile.gender }}</p>
+                    <h2> Nationalities </h2>
+                    <ul>
+                        <li v-for="nationality in profile.nationalities">{{ nationality.nationality }}</li>
+                    </ul>
 
-                <h2> Passports </h2>
-                <ul>
-                    <li v-for="passport in profile.passports">{{ passport.country }}</li>
-                </ul>
+                    <h2> Passports </h2>
+                    <ul>
+                        <li v-for="passport in profile.passports">{{ passport.country }}</li>
+                    </ul>
 
-                <h2> Traveller Types </h2>
-                <ul>
-                    <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
-                </ul>
-            </div>
-            <div :class="containerClassContent">
-                <div :class="'containerWithNav'">
-                    <h1 class="page-title">Quests</h1>
-                    <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
-                    <active-quest-list
-                            :quest-attempts="questAttempts"
-                            :loading-results="loadingResults"
-                            @quest-attempt-clicked="showAddQuestAttempt">
-                    </active-quest-list>
-                    <b-modal id="modal-selected-quest" centered ref="selected-quest-modal">
-                        <div v-if="selectedQuest" slot="modal-title" class="mb-1">
-                            {{selectedQuest.title}}
-                        </div>
-                        <div v-if="selectedQuest">
-
-                            <div class="d-flex w-100 justify-content-center">
-                                <p>{{new Date(selectedQuest.startDate).toLocaleDateString()}} &rarr;
-                                    {{new Date(selectedQuest.endDate).toLocaleDateString()}}</p>
-                            </div>
-                        </div>
-                        <template slot="modal-footer">
-                            <b-col>
-                                <b-button @click="$refs['selected-quest-modal'].hide()" block>
-                                    Close
-                                </b-button>
-                            </b-col>
-                            <b-col>
-                                <b-button variant="primary"
-                                          @click="addQuestToProfile" block>Add to Your Quests
-                                </b-button>
-                            </b-col>
-                        </template>
-                    </b-modal>
+                    <h2> Traveller Types </h2>
+                    <ul>
+                        <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
+                    </ul>
                 </div>
+                <!-- END OF THE PROFILE SECTION -->
 
-                <!-- Displays the profile's photo gallery -->
-                <photo-gallery :key="refreshPhotos"
-                               :profile="profile"
-                               :userProfile="userProfile"
-                               :adminView="adminView"
-                               @makeProfilePhoto="setProfilePhoto"
-                               @removePhoto="refreshProfilePicture"
-                               class="d-none d-lg-block">
-                </photo-gallery>
-                <!-- Displays a profile's trips -->
-                <your-trips :adminView="adminView"
-                            :destinations="destinations"
-                            :profile="profile"
-                            :userProfile="userProfile"
-                            class="d-none d-lg-block">
-                </your-trips>
-            </div>
-            <b-modal hide-footer centered ref="profilePictureModal" title="Profile Picture" size="xl">
-                <b-img-lazy :src="profileImageFull" onerror="this.src = '../../../static/default_profile_picture.png'"
-                            center fluid></b-img-lazy>
-                <b-row>
-                    <b-col>
-                        <b-button
-                                block class="mr-2"
-                                size="sm" style="margin-top: 10px"
-                                v-if="authentication" variant="info"
-                                @click="showUploader">Change my profile picture
-                        </b-button>
-                        <b-modal ref="profilePhotoUploader" id="profilePhotoUploader" hide-footer centered
-                                 title="Change Profile Photo">
-                            <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
-                            <photoUploader @save-photos="uploadProfilePhoto"
-                                           :acceptTypes="'image/jpeg, image/jpg, image/png'"
-                                           :multipleFiles="false">
-                            </photoUploader>
-                        </b-modal>
-                    </b-col>
-                    <b-col>
-                        <b-button
-                                @click="deleteProfilePhoto"
-                                block class="mr-2"
-                                size="sm" style="margin-top: 10px"
-                                v-if="authentication && profile.profilePicture !== null"
-                                variant="danger">Remove as Profile Photo
-                        </b-button>
-                    </b-col>
-                </b-row>
-            </b-modal>
+            </b-col>
+            <b-col md="8">
+                <div>
+                    <div class="bg-white pl-3 pr-3 pb-3">
+                        <div class="upperPadding">
+                            <h1 class="page-title">Quests</h1>
+                            <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
+                            <active-quest-list
+                                    :quest-attempts="questAttempts"
+                                    :loading-results="loadingResults"
+                                    @quest-attempt-clicked="showAddQuestAttempt">
+                            </active-quest-list>
+                            <b-modal id="modal-selected-quest" centered ref="selected-quest-modal">
+                                <div v-if="selectedQuest" slot="modal-title" class="mb-1">
+                                    {{selectedQuest.title}}
+                                </div>
+                                <div v-if="selectedQuest">
 
-        </div>
-    </div>
+                                    <div class="d-flex w-100 justify-content-center">
+                                        <p>{{new Date(selectedQuest.startDate).toLocaleDateString()}} &rarr;
+                                            {{new Date(selectedQuest.endDate).toLocaleDateString()}}</p>
+                                    </div>
+                                </div>
+                                <template slot="modal-footer">
+                                    <b-col>
+                                        <b-button @click="$refs['selected-quest-modal'].hide()" block>
+                                            Close
+                                        </b-button>
+                                    </b-col>
+                                    <b-col>
+                                        <b-button variant="primary"
+                                                  @click="addQuestToProfile" block>Add to Your Quests
+                                        </b-button>
+                                    </b-col>
+                                </template>
+                            </b-modal>
+                        </div>
+                    </div>
 
+                    <!-- Displays the profile's photo gallery -->
+                    <photo-gallery :key="refreshPhotos"
+                                   :profile="profile"
+                                   :userProfile="userProfile"
+                                   :adminView="adminView"
+                                   @makeProfilePhoto="setProfilePhoto"
+                                   @removePhoto="refreshProfilePicture"
+                                   class="d-none d-lg-block">
+                    </photo-gallery>
+
+                    <!-- Displays a profile's trips -->
+                    <your-trips :adminView="adminView"
+                                :destinations="destinations"
+                                :profile="profile"
+                                :userProfile="userProfile"
+                                class="d-none d-lg-block">
+                    </your-trips>
+                </div>
+                <b-modal hide-footer centered ref="profilePictureModal" title="Profile Picture" size="xl">
+                    <b-img-lazy :src="profileImageFull"
+                                onerror="this.src = '../../../static/default_profile_picture.png'"
+                                center fluid></b-img-lazy>
+                    <b-row>
+                        <b-col>
+                            <b-button
+                                    block class="mr-2"
+                                    size="sm" style="margin-top: 10px"
+                                    v-if="authentication" variant="info"
+                                    @click="showUploader">Change my profile picture
+                            </b-button>
+                            <b-modal ref="profilePhotoUploader" id="profilePhotoUploader" hide-footer centered
+                                     title="Change Profile Photo">
+                                <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+                                <photoUploader @save-photos="uploadProfilePhoto"
+                                               :acceptTypes="'image/jpeg, image/jpg, image/png'"
+                                               :multipleFiles="false">
+                                </photoUploader>
+                            </b-modal>
+                        </b-col>
+                        <b-col>
+                            <b-button
+                                    @click="deleteProfilePhoto"
+                                    block class="mr-2"
+                                    size="sm" style="margin-top: 10px"
+                                    v-if="authentication && profile.profilePicture !== null"
+                                    variant="danger">Remove as Profile Photo
+                            </b-button>
+                        </b-col>
+                    </b-row>
+                </b-modal>
+            </b-col>
+        </b-row>
+    </b-container>
 </template>
 
 <script>
@@ -511,3 +521,6 @@
         }
     }
 </script>
+<style scoped>
+    @import "../../css/dash.css";
+</style>

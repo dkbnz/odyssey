@@ -2,6 +2,7 @@ html {
     /* The html and body elements cannot have any padding or margin. */
     box-sizing: border-box;
     overflow: auto;
+    overflow-y: scroll;
 }
 
 body {
@@ -9,85 +10,6 @@ body {
     padding-bottom: 50px;
     z-index: 1;
 }
-
-/* Styling for your profile page with fixed side bar */
-*, *:before, *:after {
-    box-sizing: inherit;
-}
-
-.cf:before, .cf:after {
-    content: " "; /* 1 */
-    display: table; /* 2 */
-}
-
-.cf:after {
-    clear: both;
-}
-
-.scroll {
-    height: 80vh;
-    overflow-y: scroll;
-    padding: 0 10px;
-    width: 100%;
-    margin: 1vh auto 1vh auto;
-}
-
-.wrapper {
-    margin-top: 0.5vh;
-}
-.sidebar {
-    padding: 20px;
-    background-color: white;
-    border-radius: 5px;
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
-}
-.sidebar h3 {
-    margin: 0;
-}
-.content,
-.sidebar {
-    float: left;
-}
-
-/* When the screen is of max-width 2415px, change the layout of the page */
-@media screen and (max-width: 2415px) {
-    .cf:after {
-        clear: initial;
-        display: block;
-    }
-    .sidebar {
-        float: none;
-        margin: 5vh 10vw 0 10vw;
-        padding: 50px;
-        background-color: white;
-        border-radius: 5px;
-    }
-}
-
-
-@media only screen and (max-device-width: 480px) {
-    p {
-        font-size: 15px;
-    }
-
-    h1 {
-        font-size: 30px;
-    }
-
-    h2 {
-        font-size: 25px;
-    }
-}
-
-@media only screen and (min-device-width: 992px) {
-    .show-only-mobile {
-        visibility: hidden;
-    }
-}
-
-/* Styling for other pages */
 
 .containerMain {
     margin: 5vh 5vw 0 5vw;
