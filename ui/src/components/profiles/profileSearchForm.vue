@@ -65,7 +65,7 @@
                         <b-input-group>
                             <b-form-input v-model="searchParameters.rank" type="number"></b-form-input>
                             <b-input-group-append>
-                                <b-button variant="outline-info" @click="searchParameters.rank = userProfile.achievementTracker.rank">My Rank</b-button>
+                                <b-button variant="outline-info" @click="searchParameters.rank = userProfile.achievementTracker.rank" size="sm">My Rank</b-button>
                             </b-input-group-append>
                         </b-input-group>
                     </b-form-group>

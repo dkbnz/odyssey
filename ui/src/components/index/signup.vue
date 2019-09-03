@@ -236,8 +236,8 @@
                     {value: 'Female', text: 'Female'},
                     {value: 'Other', text: 'Other'}
                 ],
-                showFirst: false,
-                showSecond: true,
+                showFirst: true,
+                showSecond: false,
                 nationalities: [],
                 passports: [],
                 travellerTypes: [],
