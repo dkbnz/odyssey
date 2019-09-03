@@ -131,7 +131,6 @@
 </template>
 
 <script>
-    import ProfilesPage from '../profiles/leaderboardPage.vue'
     import SignUp from '../index/signup.vue'
     import DesktopLeaderboard from "../profiles/desktopLeaderboard";
 
@@ -279,7 +278,6 @@
         },
         components: {
             DesktopLeaderboard,
-            ProfilesPage,
             SignUp
         }
     }

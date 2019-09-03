@@ -21,7 +21,7 @@
             <h1 class="page-title">Leaderboard</h1>
             <p class="page-title"><i>Find other players using any of the fields below</i></p>
 
-            <b-row style="margin-top: 40px">
+            <b-row style="margin-top: 40px" v-if="!minimalInfo">
                 <b-col sm="4">
                     <profile-search-form
                             :userProfile="profile"
@@ -58,6 +58,24 @@
                     </div>
                 </b-col>
             </b-row>
+            <div v-else>
+                <profile-search-form
+                        :userProfile="profile"
+                        @search="searchProfiles">
+                </profile-search-form>
+                <profile-list
+                        :profile-list="profiles"
+                        :profile="profile"
+                        :userProfile="profile"
+                        :loading="retrievingProfiles"
+                        :admin-view="minimalInfo"
+                        @make-admin="makeAdmin"
+                        @remove-admin="removeAdmin"
+                        @admin-edit="profileEdited => $emit('admin-edit', profileEdited)"
+                        @profile-delete="sendProfileToModal"
+                >
+                </profile-list>
+            </div>
         </div>
         <footer-main></footer-main>
     </div>
