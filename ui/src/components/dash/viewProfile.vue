@@ -51,37 +51,39 @@
             <b-col md="8">
                 <div>
                     <div class="bg-white pl-3 pr-3 pb-3">
-                        <h1 class="page-title">Quests</h1>
-                        <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
-                        <active-quest-list
-                                :quest-attempts="questAttempts"
-                                :loading-results="loadingResults"
-                                @quest-attempt-clicked="showAddQuestAttempt">
-                        </active-quest-list>
-                        <b-modal id="modal-selected-quest" centered ref="selected-quest-modal">
-                            <div v-if="selectedQuest" slot="modal-title" class="mb-1">
-                                {{selectedQuest.title}}
-                            </div>
-                            <div v-if="selectedQuest">
-
-                                <div class="d-flex w-100 justify-content-center">
-                                    <p>{{new Date(selectedQuest.startDate).toLocaleDateString()}} &rarr;
-                                        {{new Date(selectedQuest.endDate).toLocaleDateString()}}</p>
+                        <div class="upperPadding">
+                            <h1 class="page-title">Quests</h1>
+                            <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
+                            <active-quest-list
+                                    :quest-attempts="questAttempts"
+                                    :loading-results="loadingResults"
+                                    @quest-attempt-clicked="showAddQuestAttempt">
+                            </active-quest-list>
+                            <b-modal id="modal-selected-quest" centered ref="selected-quest-modal">
+                                <div v-if="selectedQuest" slot="modal-title" class="mb-1">
+                                    {{selectedQuest.title}}
                                 </div>
-                            </div>
-                            <template slot="modal-footer">
-                                <b-col>
-                                    <b-button @click="$refs['selected-quest-modal'].hide()" block>
-                                        Close
-                                    </b-button>
-                                </b-col>
-                                <b-col>
-                                    <b-button variant="primary"
-                                              @click="addQuestToProfile" block>Add to Your Quests
-                                    </b-button>
-                                </b-col>
-                            </template>
-                        </b-modal>
+                                <div v-if="selectedQuest">
+
+                                    <div class="d-flex w-100 justify-content-center">
+                                        <p>{{new Date(selectedQuest.startDate).toLocaleDateString()}} &rarr;
+                                            {{new Date(selectedQuest.endDate).toLocaleDateString()}}</p>
+                                    </div>
+                                </div>
+                                <template slot="modal-footer">
+                                    <b-col>
+                                        <b-button @click="$refs['selected-quest-modal'].hide()" block>
+                                            Close
+                                        </b-button>
+                                    </b-col>
+                                    <b-col>
+                                        <b-button variant="primary"
+                                                  @click="addQuestToProfile" block>Add to Your Quests
+                                        </b-button>
+                                    </b-col>
+                                </template>
+                            </b-modal>
+                        </div>
                     </div>
 
                     <!-- Displays the profile's photo gallery -->
@@ -93,6 +95,7 @@
                                    @removePhoto="refreshProfilePicture"
                                    class="d-none d-lg-block">
                     </photo-gallery>
+
                     <!-- Displays a profile's trips -->
                     <your-trips :adminView="adminView"
                                 :destinations="destinations"
@@ -518,3 +521,6 @@
         }
     }
 </script>
+<style scoped>
+    @import "../../css/dash.css";
+</style>

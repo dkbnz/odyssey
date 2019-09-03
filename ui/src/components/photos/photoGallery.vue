@@ -1,6 +1,8 @@
 <template>
     <div class="bg-white mt-5 pl-3 pr-3 pb-3">
-        <h1 class="page-title">Personal Media</h1>
+        <div class="upperPadding">
+            <h1 class="page-title">Personal Media</h1>
+        </div>
         <p v-if="authentication" class="page-title"><i>Here are your photos</i></p>
 
         <b-alert
@@ -371,3 +373,6 @@
         }
     }
 </script>
+<style scoped>
+    @import "../../css/dash.css";
+</style>
