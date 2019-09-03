@@ -67,9 +67,6 @@ public class QuestController {
     private static final String GREATER_THAN = ">";
     private static final String LESS_THAN = "<";
 
-    private static final String RIDDLE_SOLVED = "RIDDLE_SOLVED";
-    private static final String CHECKED_IN = "CHECKED_IN";
-
     @Inject
     public QuestController(QuestRepository questRepository,
                            QuestAttemptRepository questAttemptRepository,
