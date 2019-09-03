@@ -42,20 +42,20 @@
                             @profile-delete="sendProfileToModal"
                     >
                     </profile-list>
-                    <b-list-group-item href="#" class="flex-column justify-content-center">
+                    <div class="flex-column justify-content-center">
                         <div class="d-flex justify-content-center" v-if="retrievingProfiles">
                             <b-spinner label="Loading..."></b-spinner>
                         </div>
-                        <div class="d-flex justify-content-center" v-else>
+                        <div v-else>
                             <div v-if="moreResults">
-                                <b-button variant="success" @click="getMore" block>More</b-button>
+                                <b-button variant="success" @click="getMore" block>Get More Profiles</b-button>
                             </div>
                             <div v-else>
                                 <h5 class="mb-1">No More Results</h5>
                             </div>
                         </div>
 
-                    </b-list-group-item>
+                    </div>
                 </b-col>
             </b-row>
         </div>
