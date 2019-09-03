@@ -46,7 +46,7 @@
                         <div class="d-flex justify-content-center" v-if="retrievingProfiles">
                             <b-spinner label="Loading..."></b-spinner>
                         </div>
-                        <div v-else>
+                        <div align="center" v-else>
                             <div v-if="moreResults">
                                 <b-button variant="success" @click="getMore" block>Get More Profiles</b-button>
                             </div>

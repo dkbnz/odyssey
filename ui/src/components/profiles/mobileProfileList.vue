@@ -8,11 +8,12 @@
                                @click="$emit('profile-click', profile)">
                 <b-row>
                     <b-col cols="4">
-                        <b-img src="/static/default_profile_picture.png"
-                                  fluid
-                                  rounded="circle"
-                                  thumbnail
-                                  alt="Profile Image">
+                        <b-img :src="getProfilePictureThumbnail(profile.profilePicture)"
+                               onerror="this.src = '../../../static/default_profile_picture.png'"
+                               fluid
+                               rounded="circle"
+                               thumbnail
+                               alt="Profile Image">
                         </b-img>
                     </b-col>
                     <b-col>
