@@ -1,6 +1,6 @@
 body {
     background-color: #e2e6ea;
-    padding-top: 0px;
+    padding-top: 0;
 
 }
 
@@ -32,15 +32,13 @@ body {
     color: black;
 }
 
-/* Styling for Traveller Type checkbox */
-.carousel-caption input[type='checkbox'] {
-    width: 30px;
-    height: 30px;
-    background: white;
-    border-radius: 5px;
-    border: 2px solid #555;
-}
+@media only screen and (max-device-width: 480px) {
+    .carousel-caption p {
+        font-size: 3vw;
+        margin-bottom: 0;
+    }
 
-.carousel-caption input[type='checkbox']:checked {
-    background: #abd;
+    .carousel-caption h3 {
+        font-size: 5vw;
+    }
 }

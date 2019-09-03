@@ -1,9 +1,8 @@
 <template>
     <div>
         <div class="bg">
-            <div style="padding-top: 10%">
+            <div class="centerAlignDiv">
                 <div>
-
                     <div align="center">
                         <img alt="TravelEA Logo" src="../../../static/full_logo_lg.png" width="50%">
                         <h3 align="center" id="subtitle">Your personal Travel Executive Assistant!</h3>
@@ -16,7 +15,8 @@
                                 <template slot="modal-title"><h2>Sign Up</h2></template>
                                 <signup :createdByAdmin="false"
                                         v-bind:nationalityOptions="nationalityOptions"
-                                        v-bind:travTypeOptions="travTypeOptions"></signup>
+                                        v-bind:travTypeOptions="travTypeOptions">
+                                </signup>
                             </b-modal>
                         </b-col>
 

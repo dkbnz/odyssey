@@ -103,6 +103,7 @@
                 </b-col>
             </b-form-row>
             <b-button @click="searchProfiles" block variant="primary" type="submit">Search</b-button>
+            <b-button @click="clearForm" block variant="outline-primary" size="sm">Clear Form</b-button>
         </b-form>
     </div>
 </template>
@@ -185,6 +186,22 @@
                     .then(response => response.json())
                     .then(nationalities => this.nationalityOptions = nationalities);
             },
+
+
+            /**
+             * Clears the search profile form and researches for profiles.
+             */
+            clearForm() {
+                this.searchParameters = {
+                    nationality: "",
+                    gender: "",
+                    minAge: 0,
+                    maxAge: 120,
+                    travellerType: "",
+                    rank: null
+                };
+                this.searchProfiles();
+            }
         }
 
     }
