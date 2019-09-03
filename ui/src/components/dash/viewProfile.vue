@@ -50,7 +50,7 @@
             <b-col md="8">
                 <div>
                     <div class="bg-white pl-3 pr-3 pb-3">
-                        <div class="upperPadding">
+                        <div class="upperPadding mobileMargins">
                             <h1 class="page-title">Quests</h1>
                             <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
                             <active-quest-list
@@ -217,10 +217,14 @@
         watch: {
             userProfile() {
                 this.checkAuthentication();
+                this.getProfilePictureThumbnail();
+                this.getProfilePictureFull();
             },
 
             profile() {
                 this.queryYourActiveQuests();
+                this.getProfilePictureThumbnail();
+                this.getProfilePictureFull();
             }
         },
 
@@ -340,11 +344,7 @@
              * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
              */
             getProfilePictureThumbnail() {
-                if (this.profile.profilePicture !== null && this.profile.profilePicture !== undefined) {
-                    this.profileImageThumb = `/v1/photos/thumb/` + this.profile.profilePicture.id;
-                } else {
-                    this.profileImageThumb = "../../../static/default_profile_picture.png";
-                }
+                this.profileImageThumb = `/v1/photos/thumb/` + this.profile.profilePicture.id;
             },
 
 
