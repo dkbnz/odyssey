@@ -631,6 +631,15 @@ public class ProfileController {
         LocalDate minDate = LocalDate.of(1000, 1, 1);
         LocalDate maxDate = LocalDate.of(3000, 12, 30);
 
+        if(!request.getQueryString(NAME).equals("null") && !request.getQueryString(NAME).isEmpty()) {
+            // Uses the name part of the query to search for profiles by their first, middle or last names.
+            expressionList.disjunction()
+                    .eq(FIRST_NAME, request.getQueryString(NAME))
+                    .eq(MIDDLE_NAME, request.getQueryString(NAME))
+                    .eq(LAST_NAME, request.getQueryString(NAME))
+            .endJunction();
+        }
+
         if(!request.getQueryString(GENDER).equals("null") && !request.getQueryString(GENDER).isEmpty()) {
             expressionList.eq(GENDER, request.getQueryString(GENDER));
         }
