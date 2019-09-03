@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
 import models.profiles.Profile;
@@ -90,6 +91,31 @@ public class ProfileTestSteps {
      */
     private static final int NUMBER_OF_PROFILES = 6;
 
+    private static final String NAME = "name";
+    private static final String NATIONALITY = "nationalities";
+    private static final String GENDER = "gender";
+    private static final String TRAVELLER_TYPE = "travellerTypes";
+    private static final String RANK = "rank";
+    private static final String MIN_AGE = "min_age";
+    private static final String MAX_AGE = "max_age";
+
+    /**
+     * String to add the equals character (=) to build a query string.
+     */
+    private static final String EQUALS = "=";
+
+
+    /**
+     * String to add the ampersand character (&) to build a query string.
+     */
+    private static final String AND = "&";
+
+
+    /**
+     * String to add the question mark character (?) to build a query string.
+     */
+    private static final String QUESTION_MARK = "?";
+
     /**
      * Logs any errors in the tests.
      */
@@ -160,6 +186,60 @@ public class ProfileTestSteps {
         json.putArray("travellerTypes").add(travellerTypeNode);
         json.putArray("passports").add(passportNode);
         return json;
+    }
+
+
+    /**
+     * Returns a string that is either empty or containing the given value.
+     * Checks if the given field matches the search field. If so, returns the given value to search.
+     *
+     * @param searchField       the search field name as defined by the application.
+     * @param givenField        the field name given to the test.
+     * @param givenValue        the value to search for if the search and given fields match.
+     * @return                  a string that contains the given value or an empty string.
+     */
+    private String getValue(String searchField, String givenField, String givenValue) {
+        if (searchField.equals(MIN_AGE) && givenField.equals(MIN_AGE) && givenValue.isEmpty()) {
+            return "0";
+        } else if (searchField.equals(MAX_AGE) && givenField.equals(MAX_AGE) && givenValue.isEmpty()) {
+            return "120";
+        }
+        return searchField.equals(givenField) ? givenValue : "";
+    }
+
+
+    /**
+     * Creates a query string for the search destination request.
+     * Builds this query string with empty values except for the given search value associated
+     * with the given search field.
+     *
+     * @param searchField       the search field name for the given value.
+     * @param searchValue       the given search value for associated field.
+     * @return                  the complete query string.
+     */
+    private String createSearchProfileQueryString(String searchField, String searchValue) {
+        String name = getValue(NAME, searchField, searchValue);
+        String nationality = getValue(NATIONALITY, searchField, searchValue);
+        String gender = getValue(GENDER, searchField, searchValue);
+        String travellerType = getValue(TRAVELLER_TYPE, searchField, searchValue);
+        String rank = getValue(RANK, searchField, searchValue);
+        String minAge = getValue(MIN_AGE, searchField, searchValue);
+        String maxAge = getValue(MAX_AGE, searchField, searchValue);
+
+
+        return QUESTION_MARK
+                + NATIONALITY + EQUALS + nationality
+                + AND
+                + GENDER + EQUALS + gender
+                + AND
+                + MIN_AGE + EQUALS + minAge
+                + AND
+                + MAX_AGE + EQUALS + maxAge
+                + AND
+                + TRAVELLER_TYPE + EQUALS + travellerType
+                + AND
+                + NAME + EQUALS + name;
+
     }
 
 
@@ -352,6 +432,20 @@ public class ProfileTestSteps {
     }
 
 
+    @When("^I search for profiles by \"(.*)\" with value \"(.*)\"$")
+    public void iSearchForProfilesByFieldWithValue(String searchField, String searchValue) {
+        searchValue = searchValue.replace(" ", "%20");
+        String searchQuery = createSearchProfileQueryString(searchField, searchValue);
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, TestContext.getInstance().getLoggedInId())
+                .uri(PROFILES_URI + searchQuery);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
     @Given("^a user exists in the database with the id (\\d+) and username \"(.*)\"$")
     public void aUserExistsInTheDatabaseWithTheIdAndUsername(Integer id, String username) {
         Profile profile = profileRepository.findById(id.longValue());
@@ -400,5 +494,12 @@ public class ProfileTestSteps {
 
         result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
+    }
+
+
+
+    @Then("^the response contains the profile with username \"(.*)\"$")
+    public void theResponseContainsProfile(String username) {
+        Assert.assertTrue(testContext.getResponseBody().contains(username));
     }
 }

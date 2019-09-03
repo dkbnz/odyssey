@@ -565,7 +565,7 @@ public class ProfileController {
             pageNumber = Integer.parseInt(request.getQueryString(PAGE));
         }
 
-        String getError = validQueryString(request.queryString());
+        String getError = validQueryString(request);
 
         if (getError != null) {
             return badRequest(getError);
@@ -588,17 +588,19 @@ public class ProfileController {
     /**
      * Validates the search query string for profiles.
      *
-     * @param queryString           the query string from the request body, given by the user.
-     * @return                      string message of error in query string, empty if no error present.
+     * @param request          the Http request containing the query string, given by the user.
+     * @return                 string message of error in query string, empty if no error present.
      */
-    private String validQueryString(Map<String, String[]> queryString) {
+    private String validQueryString(Http.Request request) {
         Integer minAge = 0;
         Integer maxAge = 120;
-
+        if (request.getQueryString(MIN_AGE) == null || request.getQueryString(MAX_AGE) == null) {
+            return null;
+        }
         try {
-            if (!queryString.get(MIN_AGE)[0].isEmpty() && !queryString.get(MAX_AGE)[0].isEmpty()) {
-                minAge = Integer.valueOf(queryString.get(MIN_AGE)[0]);
-                maxAge = Integer.valueOf(queryString.get(MAX_AGE)[0]);
+            if (!request.getQueryString(MIN_AGE).isEmpty() && !request.getQueryString(MAX_AGE).isEmpty()) {
+                minAge = Integer.valueOf(request.getQueryString(MIN_AGE));
+                maxAge = Integer.valueOf(request.getQueryString(MAX_AGE));
             }
         } catch (Exception e) {
             return "Ages cannot be converted to Integers";
@@ -631,7 +633,7 @@ public class ProfileController {
         LocalDate minDate = LocalDate.of(1000, 1, 1);
         LocalDate maxDate = LocalDate.of(3000, 12, 30);
 
-        if(!request.getQueryString(NAME).equals("null") && !request.getQueryString(NAME).isEmpty()) {
+        if(request.getQueryString(NAME) != null && !request.getQueryString(NAME).isEmpty()) {
             // Uses the name part of the query to search for profiles by their first, middle or last names.
             expressionList.disjunction()
                     .eq(FIRST_NAME, request.getQueryString(NAME))
@@ -640,24 +642,24 @@ public class ProfileController {
             .endJunction();
         }
 
-        if(!request.getQueryString(GENDER).equals("null") && !request.getQueryString(GENDER).isEmpty()) {
+        if(request.getQueryString(GENDER) != null && !request.getQueryString(GENDER).isEmpty()) {
             expressionList.eq(GENDER, request.getQueryString(GENDER));
         }
 
-        if(!request.getQueryString(MIN_AGE).equals("null") && !request.getQueryString(MIN_AGE).isEmpty()) {
+        if(request.getQueryString(MIN_AGE) != null && !request.getQueryString(MIN_AGE).isEmpty()) {
             maxDate = LocalDate.now().minusYears(Integer.parseInt(request.getQueryString(MIN_AGE)));
         }
 
-        if(!request.getQueryString(MAX_AGE).equals("null") && !request.getQueryString(MAX_AGE).isEmpty()) {
+        if(request.getQueryString(MAX_AGE) != null && !request.getQueryString(MAX_AGE).isEmpty()) {
             minDate = LocalDate.now().minusYears(Integer.parseInt(request.getQueryString(MAX_AGE)) + AGE_SEARCH_OFFSET);
         }
         expressionList.between(DATE_OF_BIRTH, minDate, maxDate);
 
-        if(!request.getQueryString(NATIONALITY).equals("null") && !request.getQueryString(NATIONALITY).isEmpty()) {
+        if(request.getQueryString(NATIONALITY) != null && !request.getQueryString(NATIONALITY).isEmpty()) {
             expressionList.eq(NATIONALITY_FIELD, request.getQueryString(NATIONALITY));
         }
 
-        if(!request.getQueryString(TRAVELLER_TYPE).equals("null") && !request.getQueryString(TRAVELLER_TYPE).isEmpty()) {
+        if(request.getQueryString(TRAVELLER_TYPE) != null && !request.getQueryString(TRAVELLER_TYPE).isEmpty()) {
             expressionList.eq(TRAVELLER_TYPE_FIELD, request.getQueryString(TRAVELLER_TYPE));
         }
     }
