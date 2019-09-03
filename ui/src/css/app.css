@@ -167,8 +167,11 @@ a {
     }
 }
 
-@media only screen and (max-device-width: 992px) {
+@media only screen and (max-device-width: 991px) {
     .mobileMargins {
         margin-top: 10px;
+    }
+    .show-only-desktop {
+        visibility: hidden;
     }
 }

@@ -71,45 +71,13 @@
                     </b-form-group>
                 </b-col>
             </b-form-row>
-            <b-form-row>
-                <!--<b-col>-->
-                    <!--<b-form-group-->
-                            <!--id="minAge-field"-->
-                            <!--label="Min Age: "-->
-                            <!--label-for="minAge">-->
-                        <!--<div class="mt-2">{{ searchParameters.minAge }}</div>-->
-
-                        <!--&lt;!&ndash;Range slider from 0 to 110&ndash;&gt;-->
-                        <!--<b-form-input :type="'range'" id="minAge"-->
-                                      <!--max="110"-->
-                                      <!--min="0"-->
-                                      <!--trim-->
-                                      <!--v-model="searchParameters.minAge"></b-form-input>-->
-                    <!--</b-form-group>-->
-                <!--</b-col>-->
-                <!--<b-col>-->
-                    <!--<b-form-group-->
-                            <!--id="maxAge-field"-->
-                            <!--label="Max Age:"-->
-                            <!--label-for="maxAge">-->
-                        <!--<div class="mt-2">{{ searchParameters.maxAge }}</div>-->
-                        <!--&lt;!&ndash;Range slider from 0 to 110&ndash;&gt;-->
-                        <!--<b-form-input :type="'range'" id="maxAge"-->
-                                      <!--max="120"-->
-                                      <!--min="0"-->
-                                      <!--trim-->
-                                      <!--v-model="searchParameters.maxAge"></b-form-input>-->
-                    <!--</b-form-group>-->
-                <!--</b-col>-->
-
-            </b-form-row>
             <b-form-group id="age-field" label="Age Range:" label-for="age-slider">
                 <small>{{searchParameters.age[0]}} - {{searchParameters.age[1]}}</small>
                 <vue-slider id="age-slider" max=120 v-model="searchParameters.age"></vue-slider>
             </b-form-group>
 
             <b-button @click="searchProfiles" block variant="primary" type="submit">Search</b-button>
-            <b-button @click="clearForm" block variant="outline-primary" size="sm">Clear Form</b-button>
+            <b-button class="show-only-desktop" @click="clearForm" block variant="outline-primary" size="sm">Clear Form</b-button>
         </b-form>
     </div>
 </template>
