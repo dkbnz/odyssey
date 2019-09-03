@@ -677,11 +677,12 @@ public class QuestController {
 
             // TODO Matthew/Doug look into possibility of passing the objective through
             int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, null, true);
+
             returnJson.put("pointsRewarded", pointsAdded);
             returnJson.set("attempt", Json.toJson(questAttempt));
 
             questAttemptRepository.update(questAttempt);
-            return ok(Json.toJson(questAttempt));
+            return ok(returnJson);
         }
 
         // User cannot check-in for this current attempt as they have
