@@ -278,7 +278,8 @@
                 if (searchParameters !== undefined) {
                     this.gettingMore = false;
                     searchQuery =
-                        "?nationalities=" + searchParameters.nationality +
+                        "?name=" + searchParameters.name +
+                        "&nationalities=" + searchParameters.nationality +
                         "&gender=" + searchParameters.gender +
                         "&min_age=" + searchParameters.minAge +
                         "&max_age=" + searchParameters.maxAge +
@@ -286,7 +287,8 @@
                         "&page=" + this.queryPage;
                 } else {
                     searchQuery =
-                        "?nationalities=" + "" +
+                        "?name=" + "" +
+                        "&nationalities=" + "" +
                         "&gender=" + "" +
                         "&min_age=" + "" +
                         "&max_age=" + "" +

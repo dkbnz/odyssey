@@ -9,7 +9,7 @@
                     id="name-field"
                     label="Name:"
                     label-for="name">
-                <b-form-input id="name"></b-form-input>
+                <b-form-input id="name" v-model="searchParameters.name"></b-form-input>
             </b-form-group>
             <b-form-row>
                 <b-col>
@@ -119,6 +119,7 @@
         data() {
             return {
                 searchParameters: {
+                    name: "",
                     nationality: "",
                     gender: "",
                     minAge: 0,
@@ -193,6 +194,7 @@
              */
             clearForm() {
                 this.searchParameters = {
+                    name: "",
                     nationality: "",
                     gender: "",
                     minAge: 0,
