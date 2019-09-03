@@ -17,6 +17,10 @@ body {
     height: 100vh;
 }
 
+.centerAlignDiv {
+    padding-top: 10%;
+}
+
 #subtitle {
     font-family: Arial, sans-serif;
     font-style: italic;
