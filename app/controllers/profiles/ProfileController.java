@@ -45,6 +45,7 @@ public class ProfileController {
     private static final String FIRST_NAME = "firstName";
     private static final String MIDDLE_NAME = "middleName";
     private static final String LAST_NAME = "lastName";
+    private static final String NAME = "name";
     private static final String PASSPORT = "passports";
     private static final String NATIONALITY = "nationalities";
     private static final String GENDER = "gender";
@@ -54,6 +55,7 @@ public class ProfileController {
     private static final String DATE_OF_BIRTH = "dateOfBirth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
+    private static final String RANK = "rank";
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String NO_PROFILE_FOUND = "No profile found.";
@@ -62,7 +64,6 @@ public class ProfileController {
     private static final String UPDATED = "UPDATED";
     private static final String ID = "id";
     private static final String PAGE = "page";
-    private static final String RANK = "rank";
 
     private ProfileRepository profileRepository;
     private NationalityRepository nationalityRepository;
@@ -564,12 +565,21 @@ public class ProfileController {
             pageNumber = Integer.parseInt(request.getQueryString(PAGE));
         }
 
+        String getError = validQueryString(request.queryString());
+
+        if (getError != null) {
+            return badRequest(getError);
+        }
+
+        searchProfiles(expressionList, request);
 
         profiles = expressionList
                 .setFirstRow(pageNumber*pageSize)
                 .setMaxRows(pageSize)
                 .findPagedList()
                 .getList();
+
+
 
         return ok(Json.toJson(profiles));
     }
@@ -582,12 +592,14 @@ public class ProfileController {
      * @return                      string message of error in query string, empty if no error present.
      */
     private String validQueryString(Map<String, String[]> queryString) {
-        Integer minAge;
-        Integer maxAge;
+        Integer minAge = 0;
+        Integer maxAge = 120;
 
         try {
-            minAge = Integer.valueOf(queryString.get(MIN_AGE)[0]);
-            maxAge = Integer.valueOf(queryString.get(MAX_AGE)[0]);
+            if (!queryString.get(MIN_AGE)[0].isEmpty() && !queryString.get(MAX_AGE)[0].isEmpty()) {
+                minAge = Integer.valueOf(queryString.get(MIN_AGE)[0]);
+                maxAge = Integer.valueOf(queryString.get(MAX_AGE)[0]);
+            }
         } catch (Exception e) {
             return "Ages cannot be converted to Integers";
         }
@@ -610,40 +622,35 @@ public class ProfileController {
 
     /**
      * Function to validate a query string and return a list of profiles based on the query string.
-     * If no profiles are found, return an empty list. This is used on the Search Profiles page.
+     * If no profiles are found, return an empty list. This is used on the leader board page for searching for profiles.
      *
-     * @param queryString       the query string of the search parameters that are used for searching for profiles.
-     * @return                  the list of profiles found from the resulting query string (can be empty).
+     * @param expressionList    the ExpressionList containing the relevant search queries.
+     * @param request           the Http request containing the specified query string.
      */
-    private List<Profile> searchProfiles(Map<String, String[]> queryString) {
-        ExpressionList<Profile> profileExpressionList = Ebean.find(Profile.class).where();
-        String nationality = queryString.get(NATIONALITY)[0];
-        String gender = queryString.get(GENDER)[0];
-        String minAge = queryString.get(MIN_AGE)[0];
-        String maxAge = queryString.get(MAX_AGE)[0];
-        String travellerType = queryString.get(TRAVELLER_TYPE)[0];
+    private void searchProfiles(ExpressionList<Profile> expressionList, Http.Request request) {
         LocalDate minDate = LocalDate.of(1000, 1, 1);
         LocalDate maxDate = LocalDate.of(3000, 12, 30);
 
-        if (gender.length() != 0) {
-            profileExpressionList.eq(GENDER, gender);
-        }
-        if ((maxAge.length() != 0)) {
-            minDate = LocalDate.now().minusYears(Integer.parseInt(maxAge) + AGE_SEARCH_OFFSET);
-        }
-        if ((minAge.length() != 0)) {
-            maxDate = LocalDate.now().minusYears(Integer.parseInt(minAge));
-        }
-        profileExpressionList.between(DATE_OF_BIRTH, minDate, maxDate);
-
-        if (nationality.length() != 0) {
-            profileExpressionList.eq(NATIONALITY_FIELD, nationality);
-        }
-        if (travellerType.length() != 0) {
-            profileExpressionList.eq(TRAVELLER_TYPE_FIELD, travellerType);
+        if(!request.getQueryString(GENDER).equals("null") && !request.getQueryString(GENDER).isEmpty()) {
+            expressionList.eq(GENDER, request.getQueryString(GENDER));
         }
 
-        return profileExpressionList.findList();
+        if(!request.getQueryString(MIN_AGE).equals("null") && !request.getQueryString(MIN_AGE).isEmpty()) {
+            maxDate = LocalDate.now().minusYears(Integer.parseInt(request.getQueryString(MIN_AGE)));
+        }
+
+        if(!request.getQueryString(MAX_AGE).equals("null") && !request.getQueryString(MAX_AGE).isEmpty()) {
+            minDate = LocalDate.now().minusYears(Integer.parseInt(request.getQueryString(MAX_AGE)) + AGE_SEARCH_OFFSET);
+        }
+        expressionList.between(DATE_OF_BIRTH, minDate, maxDate);
+
+        if(!request.getQueryString(NATIONALITY).equals("null") && !request.getQueryString(NATIONALITY).isEmpty()) {
+            expressionList.eq(NATIONALITY_FIELD, request.getQueryString(NATIONALITY));
+        }
+
+        if(!request.getQueryString(TRAVELLER_TYPE).equals("null") && !request.getQueryString(TRAVELLER_TYPE).isEmpty()) {
+            expressionList.eq(TRAVELLER_TYPE_FIELD, request.getQueryString(TRAVELLER_TYPE));
+        }
     }
 
 

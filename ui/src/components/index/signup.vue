@@ -116,7 +116,9 @@
                     </b-form-invalid-feedback>
                 </b-form-group>
 
-                <b-alert dismissible v-model="showError" variant="danger">The form contains errors! Please ensure that all fields are green</b-alert>
+                <b-alert dismissible v-model="showError" variant="danger">The form contains errors! Please ensure that
+                    all fields are green
+                </b-alert>
                 <b-button @click="checkPersonalForm" block variant="primary">Next</b-button>
 
             </b-form>
@@ -154,9 +156,9 @@
                                 label="Passport Country:"
                                 label-for="passports">
                             <b-form-select
-                                           id="passports"
-                                           multiple
-                                           trim v-model="passports">
+                                    id="passports"
+                                    multiple
+                                    trim v-model="passports">
                                 <option :value="{id: nationality.id, country: nationality.country}"
                                         v-for="nationality in nationalityOptions">
                                     {{nationality.country}}
@@ -186,7 +188,7 @@
                                           :state="travTypeValidation"
                                           :text="travType.description"
                                           v-for="travType in travTypeOptions">
-                            <b-form-checkbox :value="{id: travType.id, travellerType: travType.travellerType}"
+                            <b-form-checkbox size="lg" :value="{id: travType.id, travellerType: travType.travellerType}"
                                              v-model="travellerTypes">
                             </b-form-checkbox>
                         </b-carousel-slide>
@@ -234,8 +236,8 @@
                     {value: 'Female', text: 'Female'},
                     {value: 'Other', text: 'Other'}
                 ],
-                showFirst: true,
-                showSecond: false,
+                showFirst: false,
+                showSecond: true,
                 nationalities: [],
                 passports: [],
                 travellerTypes: [],
@@ -417,7 +419,7 @@
                     this.showError = false;
                     this.nextPage();
                 } else {
-                        this.showError = true;
+                    this.showError = true;
                     return false
                 }
             },

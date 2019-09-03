@@ -25,7 +25,7 @@
                 <b-col sm="4">
                     <profile-search-form
                             :userProfile="profile"
-                            @search="queryProfiles">
+                            @search="searchProfiles">
                     </profile-search-form>
                 </b-col>
                 <b-col sm="8">
@@ -125,7 +125,8 @@
                 selectedProfile: "",
                 alertMessage: "",
                 queryPage: 0,
-                moreResults: true
+                moreResults: true,
+                gettingMore: false
             }
         },
 
@@ -257,7 +258,14 @@
              */
             getMore() {
                 this.queryPage += 1;
-                this.queryProfiles({"page": this.queryPage});
+                this.queryProfiles();
+                this.gettingMore = true;
+            },
+
+
+            searchProfiles(searchParameters) {
+                this.queryPage = 0;
+                this.queryProfiles(searchParameters);
             },
 
 
@@ -268,16 +276,22 @@
                 this.retrievingProfiles = true;
                 let searchQuery = "";
                 if (searchParameters !== undefined) {
-                    if (!searchParameters.page) {
-                        searchParameters.page = 0;
-                    }
+                    this.gettingMore = false;
                     searchQuery =
                         "?nationalities=" + searchParameters.nationality +
                         "&gender=" + searchParameters.gender +
                         "&min_age=" + searchParameters.minAge +
                         "&max_age=" + searchParameters.maxAge +
                         "&travellerTypes=" + searchParameters.travellerType +
-                        "&page=" + searchParameters.page;
+                        "&page=" + this.queryPage;
+                } else {
+                    searchQuery =
+                        "?nationalities=" + "" +
+                        "&gender=" + "" +
+                        "&min_age=" + "" +
+                        "&max_age=" + "" +
+                        "&travellerTypes=" + "" +
+                        "&page=" + this.queryPage;
                 }
 
                 return fetch(`/v1/profiles` + searchQuery, {
@@ -291,8 +305,16 @@
                         } else {
                             this.moreResults = true;
                         }
-                        for (var i = 0; i < data.length; i++) {
-                            this.profiles.push(data[i]);
+                        if (!this.gettingMore && data.length === 0) {
+                            this.profiles = [];
+                        }
+                        for (let i = 0; i < data.length; i++) {
+                            if (this.gettingMore) {
+                                this.profiles.push(data[i]);
+                            } else {
+                                this.gettingMore = false;
+                                this.profiles = data;
+                            }
                         }
                         this.retrievingProfiles = false;
                     })
