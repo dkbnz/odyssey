@@ -592,7 +592,7 @@ public class ProfileController {
 
 
     /**
-     * Performs an Ebean find query on the database to search for profiles.
+     * Performs an Ebean find query on the database to search for all profiles.
      * If no query is specified in the Http request, it will return a list of all profiles. If a query is specified,
      * uses the searchProfiles() method to execute a search based on the search query parameters. This is used on the
      * Search Profiles page.
