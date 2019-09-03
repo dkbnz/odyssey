@@ -78,7 +78,8 @@
                 selectedProfile: {},
                 moreResults: true,
                 initialLoad: true,
-                queryPage: 0
+                queryPage: 0,
+                gettingMore: false
             }
         },
 
@@ -111,7 +112,8 @@
              */
             getMore() {
                 this.queryPage += 1;
-                this.queryProfiles({"page": this.queryPage});
+                this.queryProfiles();
+                this.gettingMore = true;
             },
 
 
@@ -122,17 +124,23 @@
                 this.retrievingProfiles = true;
                 let searchQuery = "";
                 this.page = 1;
-                if (searchParameters) {
-                    if (!searchParameters.page) {
-                        searchParameters.page = 0;
-                    }
+                if (searchParameters !== undefined) {
                     searchQuery =
                         "?nationalities=" + searchParameters.nationality +
                         "&gender=" + searchParameters.gender +
                         "&min_age=" + searchParameters.age[0] +
                         "&max_age=" + searchParameters.age[1] +
                         "&travellerTypes=" + searchParameters.travellerType +
-                        "&page=" + searchParameters.page;
+                        "&page=" + this.queryPage;
+                } else {
+                    searchQuery =
+                        "?name=" + "" +
+                        "&nationalities=" + "" +
+                        "&gender=" + "" +
+                        "&min_age=" + "" +
+                        "&max_age=" + "" +
+                        "&travellerTypes=" + "" +
+                        "&page=" + this.queryPage;
                 }
 
                 return fetch(`/v1/profiles` + searchQuery, {})
@@ -146,8 +154,16 @@
                             this.moreResults = true;
                             this.initialLoad = false;
                         }
+                        if (!this.gettingMore && data.length === 0) {
+                            this.profiles = [];
+                        }
                         for (var i = 0; i < data.length; i++) {
-                            this.profiles.push(data[i]);
+                            if (this.gettingMore) {
+                                this.profiles.push(data[i]);
+                            } else {
+                                this.gettingMore = false;
+                                this.profiles = data;
+                            }
                         }
                         this.retrievingProfiles = false;
                     })
