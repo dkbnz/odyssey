@@ -267,9 +267,9 @@
                             if (this.authentication || photos[i].public || self.adminView) {
                                 self.photos.push(photos[i]);
                                 self.reloadPhotoTable += 1;
-                                self.retrievingPhotos = false;
                             }
                         }
+                        self.retrievingPhotos = false;
                     })
             },
 

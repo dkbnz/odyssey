@@ -108,4 +108,8 @@ public class PersonalPhoto extends BaseModel {
     public void setDestinations(List<Destination> destinations) {
         this.destinations = destinations;
     }
+
+    public void clearDestinations() {
+        this.destinations.clear();
+    }
 }
