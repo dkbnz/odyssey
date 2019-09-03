@@ -12,6 +12,7 @@
                 dismissible
                 variant="success">
             <p>Destination Successfully {{heading}}ed</p>
+            <p>Your points have been increased by {{pointsGained}}</p>
             <b-progress
                     :max="dismissSecs"
                     :value="dismissCountDown"
@@ -216,7 +217,8 @@
                 longitudeErrorMessage: "",
                 destinationConflicts: [],
                 editDestinationConflicts: [],
-                countryList: Array
+                countryList: Array,
+                pointsGained: Number
             }
         },
 
@@ -424,12 +426,17 @@
                         "is_public": this.inputDestination.public
                     }))
                 })
-                    .then(this.checkStatus)
-                    .then(function (response) {
+                    .then(response => {
+                        self.checkStatus(response);
+                        return self.parseJSON(response);
+                    })
+                    .then(responseBody => {
                         self.resetDestForm();
                         self.showAlert();
                         self.$emit('data-changed');
-                        return JSON.parse(JSON.stringify(response));
+                        self.pointsGained = responseBody.pointsRewarded;
+                        console.log(self.pointsGained);
+                        return responseBody;
                     });
             },
 
