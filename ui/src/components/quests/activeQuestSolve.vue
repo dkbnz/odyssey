@@ -277,9 +277,18 @@
                     method: "POST",
                     accept: "application/json"
                 })
-                    .then(response => response.json())
+                    .then(response => {
+                        return response.json();
+                    })
                     .then((data) => {
+                        console.log("DATA ACTUAL = " + data);
                         // Response has points gained and attempt, get attempt
+                        self.pointsGained = data.pointsRewarded;
+                        self.guessSuccess = true;
+                        setTimeout(function() {
+                            self.guessSuccess = false;
+                        }, 3000);
+                        console.log("Data attempt = " + data.attempt);
                         self.$emit('updated-quest-attempt', data.attempt);
                     })
             },
