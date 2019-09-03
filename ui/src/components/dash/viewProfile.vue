@@ -2,8 +2,7 @@
     <b-container fluid class="pt-2">
         <b-row>
             <b-col md="4" class="p-0 pl-2">
-
-                <div class="p-3 bg-white">
+                <div class="p-3 bg-white fixedElement">
                     <!-- The profile picture of the current profile being viewed. -->
 
                     <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail

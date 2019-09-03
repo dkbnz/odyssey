@@ -11,7 +11,7 @@
                             header="Search for Profiles"
                             header-tag="header">
                             <!-- Display the search profiles component -->
-                            <profiles-page :minimal-info="true"
+                            <desktop-leaderboard :minimal-info="true"
                                            :containerClass="'adminProfilesContainer'"
                                            :destinations="destinations"
                                            :destinationTypes="destinationTypes"
@@ -21,7 +21,7 @@
                                            :profile="profile"
                                            :travTypeOptions="travTypeOptions"
                                            @admin-edit="getSingleProfile">
-                            </profiles-page>
+                            </desktop-leaderboard>
                     </b-card>
                 </b-col>
                 <b-col cols="6">
@@ -133,6 +133,7 @@
 <script>
     import ProfilesPage from '../profiles/leaderboardPage.vue'
     import SignUp from '../index/signup.vue'
+    import DesktopLeaderboard from "../profiles/desktopLeaderboard";
 
     export default {
         name: "adminActions",
@@ -277,6 +278,7 @@
             }
         },
         components: {
+            DesktopLeaderboard,
             ProfilesPage,
             SignUp
         }
