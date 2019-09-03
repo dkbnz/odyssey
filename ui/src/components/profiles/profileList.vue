@@ -199,12 +199,15 @@
              *                      displayed.
              */
             getRows() {
-                fetch('/v1/profiles/count',  {
-                    accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(data => this.rows = data);
-
+                if (this.perPage === Infinity) {
+                    this.rows = 10;
+                } else {
+                    fetch('/v1/profiles/count',  {
+                        accept: "application/json"
+                    })
+                        .then(response => response.json())
+                        .then(data => this.rows = data);
+                }
             }
         }
     }
