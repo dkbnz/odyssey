@@ -110,7 +110,7 @@ public class ProfileController {
         }
 
         if (profileExists(json.get(USERNAME).asText())) {
-            return badRequest();
+            return badRequest("Profile Exists");
         }
 
         Profile newUser = new Profile();
@@ -281,6 +281,12 @@ public class ProfileController {
         if (LocalDate.now().isBefore(dateOfBirthValue)) {
             return "Date of birth must be before today";
         }
+
+        if (LocalDate.of(1900, 1, 1).isAfter(dateOfBirthValue)) {
+            return "Date of birth must be after 01/01/1900";
+        }
+
+
         return null;
     }
 
@@ -542,8 +548,8 @@ public class ProfileController {
     /**
      * Performs an Ebean find query on the database to search for profiles.
      * If no query is specified in the Http request, it will return a list of all profiles. If a query is specified,
-     * uses the searchProfiles() method to execute a search based on the search query parameters. This is used on the
-     * Search Profiles page.
+     * uses the searchProfiles() method to execute a search based on the search query parameters, also includes
+     * pagination. This is used on the Search Profiles page.
      *
      * @param request           an Http Request containing Json Body.
      * @return                  unauthorized() (Http 401) if the user is not logged in.
@@ -580,6 +586,40 @@ public class ProfileController {
                 .getList();
 
 
+
+        return ok(Json.toJson(profiles));
+    }
+
+
+    /**
+     * Performs an Ebean find query on the database to search for profiles.
+     * If no query is specified in the Http request, it will return a list of all profiles. If a query is specified,
+     * uses the searchProfiles() method to execute a search based on the search query parameters. This is used on the
+     * Search Profiles page.
+     *
+     * @param request           an Http Request containing Json Body.
+     * @return                  unauthorized() (Http 401) if the user is not logged in.
+     *                          ok() (Http 200) if the search is successful.
+     */
+    public Result listAll(Http.Request request) {
+
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(NOT_SIGNED_IN);
+        }
+
+        List<Profile> profiles;
+        ExpressionList<Profile> expressionList = profileRepository.getExpressionList();
+
+        String getError = validQueryString(request);
+
+        if (getError != null) {
+            return badRequest(getError);
+        }
+
+        searchProfiles(expressionList, request);
+
+        profiles = expressionList.findList();
 
         return ok(Json.toJson(profiles));
     }
@@ -662,6 +702,25 @@ public class ProfileController {
         if(request.getQueryString(TRAVELLER_TYPE) != null && !request.getQueryString(TRAVELLER_TYPE).isEmpty()) {
             expressionList.eq(TRAVELLER_TYPE_FIELD, request.getQueryString(TRAVELLER_TYPE));
         }
+    }
+
+
+    /**
+     * Retrieves the total number of profiles stored in the database. This is so the pagination can display the total
+     * number of profiles in the database.
+     *
+     * @param request   an Http request containing the login information and authentication data.
+     * @return          unauthorized() (Http 401) if the user is not logged in.
+     *                  ok() (Http 200) containing the total number of profiles stored in the database.
+     */
+    public Result getTotalNumberOfProfiles(Http.Request request) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        return ok(Json.toJson(profileRepository.findCount()));
     }
 
 

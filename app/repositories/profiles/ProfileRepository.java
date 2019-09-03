@@ -38,4 +38,9 @@ public class ProfileRepository extends BeanRepository<Long, Profile> {
 
         return query().where().eq(QUEST_ATTEMPTED, usedQuest).findList();
     }
+
+
+    public int findCount() {
+        return query().where().findCount();
+    }
 }

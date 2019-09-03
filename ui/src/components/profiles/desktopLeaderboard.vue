@@ -40,6 +40,8 @@
                             @remove-admin="removeAdmin"
                             @admin-edit="profileEdited => $emit('admin-edit', profileEdited)"
                             @profile-delete="sendProfileToModal"
+                            @get-more="getMore"
+                            @get-all="getAll"
                     >
                     </profile-list>
                     <div class="flex-column justify-content-center">
@@ -73,6 +75,8 @@
                         @remove-admin="removeAdmin"
                         @admin-edit="profileEdited => $emit('admin-edit', profileEdited)"
                         @profile-delete="sendProfileToModal"
+                        @get-more="getMore"
+                        @get-all="getAll"
                 >
                 </profile-list>
             </div>
@@ -145,7 +149,8 @@
                 alertMessage: "",
                 queryPage: 0,
                 moreResults: true,
-                gettingMore: false
+                gettingMore: false,
+                gettingAll: false
             }
         },
 
@@ -282,9 +287,18 @@
             },
 
 
+            getAll() {
+                this.gettingAll = true;
+                this.queryAllProfiles();
+            },
+
+
             searchProfiles(searchParameters) {
                 this.queryPage = 0;
                 this.queryProfiles(searchParameters);
+                if (this.gettingAll) {
+                    this.queryAllProfiles();
+                }
             },
 
 
@@ -338,6 +352,44 @@
                             }
                         }
                         this.retrievingProfiles = false;
+                    })
+            },
+
+
+            /**
+             * Queries database for all profiles which fit search criteria.
+             */
+            queryAllProfiles(searchParameters) {
+                this.retrievingProfiles = true;
+                let searchQuery = "";
+                if (searchParameters !== undefined) {
+                    this.gettingMore = false;
+                    searchQuery =
+                        "?name=" + searchParameters.name +
+                        "&nationalities=" + searchParameters.nationality +
+                        "&gender=" + searchParameters.gender +
+                        "&min_age=" + searchParameters.age[0] +
+                        "&max_age=" + searchParameters.age[1] +
+                        "&travellerTypes=" + searchParameters.travellerType
+                } else {
+                    searchQuery =
+                        "?name=" + "" +
+                        "&nationalities=" + "" +
+                        "&gender=" + "" +
+                        "&min_age=" + "" +
+                        "&max_age=" + "" +
+                        "&travellerTypes=" + ""
+                }
+
+                return fetch(`/v1/profiles/all` + searchQuery, {
+                    method: "GET"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then((data) => {
+                        this.profiles = data;
+                        this.retrievingProfiles = false;
+                        this.moreResults = false;
                     })
             },
 

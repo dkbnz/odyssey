@@ -94,11 +94,12 @@
                         label-for="dateOfBirth">
                     <b-form-input :state="dateOfBirthValidation"
                                   id="dateOfBirth"
+                                  min="1900-01-01"
                                   required
                                   trim
                                   type="date" v-model="dateOfBirth"></b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
-                        You need a date of birth before today.
+                        You need a date of birth before today and after 01/01/1900.
                     </b-form-invalid-feedback>
                 </b-form-group>
 
@@ -342,7 +343,8 @@
                 if (this.dateOfBirth.length === 0) {
                     return null;
                 }
-                return this.dateOfBirth.length > 0 && this.dateOfBirth < this.todaysDate;
+                let minDate = "1900-01-01";
+                return this.dateOfBirth.length > 0 && this.dateOfBirth < this.todaysDate && this.dateOfBirth >= minDate;
             },
 
 
