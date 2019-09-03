@@ -72,36 +72,42 @@
                 </b-col>
             </b-form-row>
             <b-form-row>
-                <b-col>
-                    <b-form-group
-                            id="minAge-field"
-                            label="Min Age: "
-                            label-for="minAge">
-                        <div class="mt-2">{{ searchParameters.minAge }}</div>
+                <!--<b-col>-->
+                    <!--<b-form-group-->
+                            <!--id="minAge-field"-->
+                            <!--label="Min Age: "-->
+                            <!--label-for="minAge">-->
+                        <!--<div class="mt-2">{{ searchParameters.minAge }}</div>-->
 
-                        <!--Range slider from 0 to 110-->
-                        <b-form-input :type="'range'" id="minAge"
-                                      max="110"
-                                      min="0"
-                                      trim
-                                      v-model="searchParameters.minAge"></b-form-input>
-                    </b-form-group>
-                </b-col>
-                <b-col>
-                    <b-form-group
-                            id="maxAge-field"
-                            label="Max Age:"
-                            label-for="maxAge">
-                        <div class="mt-2">{{ searchParameters.maxAge }}</div>
-                        <!--Range slider from 0 to 110-->
-                        <b-form-input :type="'range'" id="maxAge"
-                                      max="120"
-                                      min="0"
-                                      trim
-                                      v-model="searchParameters.maxAge"></b-form-input>
-                    </b-form-group>
-                </b-col>
+                        <!--&lt;!&ndash;Range slider from 0 to 110&ndash;&gt;-->
+                        <!--<b-form-input :type="'range'" id="minAge"-->
+                                      <!--max="110"-->
+                                      <!--min="0"-->
+                                      <!--trim-->
+                                      <!--v-model="searchParameters.minAge"></b-form-input>-->
+                    <!--</b-form-group>-->
+                <!--</b-col>-->
+                <!--<b-col>-->
+                    <!--<b-form-group-->
+                            <!--id="maxAge-field"-->
+                            <!--label="Max Age:"-->
+                            <!--label-for="maxAge">-->
+                        <!--<div class="mt-2">{{ searchParameters.maxAge }}</div>-->
+                        <!--&lt;!&ndash;Range slider from 0 to 110&ndash;&gt;-->
+                        <!--<b-form-input :type="'range'" id="maxAge"-->
+                                      <!--max="120"-->
+                                      <!--min="0"-->
+                                      <!--trim-->
+                                      <!--v-model="searchParameters.maxAge"></b-form-input>-->
+                    <!--</b-form-group>-->
+                <!--</b-col>-->
+
             </b-form-row>
+            <b-form-group id="age-field" label="Age Range:" label-for="age-slider">
+                <small>{{searchParameters.age[0]}} - {{searchParameters.age[1]}}</small>
+                <vue-slider id="age-slider" max=120 v-model="searchParameters.age"></vue-slider>
+            </b-form-group>
+
             <b-button @click="searchProfiles" block variant="primary" type="submit">Search</b-button>
             <b-button @click="clearForm" block variant="outline-primary" size="sm">Clear Form</b-button>
         </b-form>
@@ -122,8 +128,7 @@
                     name: "",
                     nationality: "",
                     gender: "",
-                    minAge: 0,
-                    maxAge: 120,
+                    age: [0, 120],
                     travellerType: "",
                     rank: null
                 },
@@ -150,12 +155,12 @@
              * Runs validation on range fields.
              */
             searchProfiles() {
-                this.searchParameters.minAge = parseInt(this.searchParameters.minAge);
-                this.searchParameters.maxAge = parseInt(this.searchParameters.maxAge);
-                if (isNaN(this.searchParameters.minAge) || isNaN(this.searchParameters.maxAge)) {
+                this.searchParameters.age[0] = parseInt(this.searchParameters.age[0]);
+                this.searchParameters.age[1] = parseInt(this.searchParameters.age[1]);
+                if (isNaN(this.searchParameters.age[0]) || isNaN(this.searchParameters.age[1])) {
                     this.showError = true;
                     this.alertMessage = "Min or Max Age are not numbers";
-                } else if (this.searchParameters.minAge > this.searchParameters.maxAge) {
+                } else if (this.searchParameters.age[0] > this.searchParameters.age[1]) {
                     this.showError = true;
                     this.alertMessage = "Min age is greater than max age";
                 } else {
@@ -197,8 +202,7 @@
                     name: "",
                     nationality: "",
                     gender: "",
-                    minAge: 0,
-                    maxAge: 120,
+                    age: [0, 120],
                     travellerType: "",
                     rank: null
                 };

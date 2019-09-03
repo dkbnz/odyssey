@@ -129,8 +129,8 @@
                     searchQuery =
                         "?nationalities=" + searchParameters.nationality +
                         "&gender=" + searchParameters.gender +
-                        "&min_age=" + searchParameters.minAge +
-                        "&max_age=" + searchParameters.maxAge +
+                        "&min_age=" + searchParameters.age[0] +
+                        "&max_age=" + searchParameters.age[1] +
                         "&travellerTypes=" + searchParameters.travellerType +
                         "&page=" + searchParameters.page;
                 }
