@@ -287,12 +287,18 @@
             },
 
 
+            /**
+             * Retrieves all the profiles stored in the database on the handles emit event.
+             */
             getAll() {
                 this.gettingAll = true;
                 this.queryAllProfiles();
             },
 
 
+            /**
+             * Used to initialise the appropriate parameters for searching for profiles.
+             */
             searchProfiles(searchParameters) {
                 this.queryPage = 0;
                 this.queryProfiles(searchParameters);
