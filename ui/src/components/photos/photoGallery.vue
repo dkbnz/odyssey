@@ -40,12 +40,12 @@
                      :userProfile="userProfile"
                      :adminView="adminView"
                      :privacy-update="updatePhotoPrivacy"
-                     :photo-click="photoClicked"
+                     @photo-click="photoClicked"
         >
         </photo-table>
         <b-modal centered hide-footer ref="modalImage" size="xl">
             <b-img-lazy v-if="photoToView !== null" :src="getFullPhoto()" alt="Image couldn't be retrieved"
-                        @error="imageAlt" center fluid>
+                        onerror="this.src = '../../../static/default_image.png'" center fluid>
             </b-img-lazy>
             <b-row>
                 <b-col>
@@ -169,8 +169,9 @@
              *
              * @param photo     photo object being clicked on.
              */
-            photoClicked: function (photo) {
+            photoClicked(photo) {
                 this.photoToView = photo;
+                console.log(this.photoToView);
                 this.$refs['modalImage'].show();
             },
 

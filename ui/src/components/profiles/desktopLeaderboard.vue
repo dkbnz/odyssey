@@ -33,6 +33,7 @@
                     <profile-list
                             :profile-list="profiles"
                             :profile="profile"
+                            :userProfile="profile"
                             :loading="retrievingProfiles"
                             :admin-view="minimalInfo"
                             @make-admin="makeAdmin"
