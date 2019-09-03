@@ -59,6 +59,7 @@
 
             <b-alert v-model="guessSuccess" variant="success" dismissible>
                 Success!
+                <p>Your points have increased by {{pointsGained}}</p>
             </b-alert>
 
             <b-progress
@@ -148,7 +149,8 @@
                 validCheckIn: false,
                 showNotValidCheckIn: false,
                 totalDistance: null,
-                searchedRiddle: null
+                searchedRiddle: null,
+                pointsGained: Number
             }
         },
 
@@ -190,7 +192,9 @@
                 })
                     .then(response => response.json())
                     .then((data) => {
+                        // If successful guess
                         if (data.guessResult) {
+                            self.pointsGained = data.pointsRewarded;
                             self.goBack();
                             self.guessSuccess = true;
                             self.$emit('updated-quest-attempt', data.attempt);
@@ -198,6 +202,7 @@
                                 self.guessSuccess = false;
                             }, 3000)
                         } else {
+                            // If unsuccessful guess
                             self.showError = true;
                             setTimeout(function() {
                                 self.showError = false;
