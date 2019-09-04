@@ -14,6 +14,7 @@ import play.test.Helpers;
 import java.io.IOException;
 import java.util.*;
 
+import static org.junit.Assert.fail;
 import static play.test.Helpers.*;
 
 public class ObjectiveTestSteps {
@@ -51,6 +52,14 @@ public class ObjectiveTestSteps {
     private static final String RIDDLE = "riddle";
     private static final String RADIUS = "radius";
     private static final String ID = "id";
+
+    /**
+     * Static variable to call the related value from the creation return JSON.
+     */
+    private static final String RESULT_OBJECTIVE_ID = "newObjectiveId";
+
+    private ObjectMapper objectMapper =
+            testContext.getApplication().injector().instanceOf(ObjectMapper.class);
 
 
     /**
@@ -100,7 +109,12 @@ public class ObjectiveTestSteps {
 
         if (testContext.getStatusCode() == 200 || testContext.getStatusCode() == 201) {
             testContext.setResponseBody(Helpers.contentAsString(result));
-            objectiveId = Long.valueOf(testContext.getResponseBody());
+            try {
+                JsonNode returnJson = objectMapper.readTree(Helpers.contentAsString(result));
+                objectiveId = returnJson.get(RESULT_OBJECTIVE_ID).asLong();
+            } catch (IOException exception) {
+                fail(exception.getMessage());
+            }
         }
     }
 

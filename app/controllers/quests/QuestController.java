@@ -67,6 +67,8 @@ public class QuestController {
     private static final String GREATER_THAN = ">";
     private static final String LESS_THAN = "<";
 
+    private static final String REWARD = "pointsRewarded";
+
     @Inject
     public QuestController(QuestRepository questRepository,
                            QuestAttemptRepository questAttemptRepository,
@@ -140,8 +142,8 @@ public class QuestController {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
-        int pointsAdded = achievementTrackerController.rewardAction(questOwner, newQuest);
-        returnJson.put("pointsRewarded", pointsAdded);
+        int pointsAdded = achievementTrackerController.rewardAction(questOwner, newQuest, false);   // Points for creating quest
+        returnJson.put(REWARD, pointsAdded);
 
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
@@ -636,8 +638,8 @@ public class QuestController {
         if (solveSuccess) {
 
             // TODO Matthew/Doug look into possibility of passing the objective through
-            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, null, false);
-            returnJson.put("pointsRewarded", pointsAdded);
+            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), false);
+            returnJson.put(REWARD, pointsAdded);
         }
 
         // Serialize quest attempt regardless of result.
@@ -678,13 +680,19 @@ public class QuestController {
             return forbidden(ApiError.forbidden());
         }
 
+        Objective toCheckInTo = questAttempt.getCurrentToCheckIn(); // Used to call check in 'rewardAction' method.
         if (questAttempt.checkIn()) {
             ObjectNode returnJson = objectMapper.createObjectNode();
 
-            // TODO Matthew/Doug look into possibility of passing the objective through
-            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, null, true);
+            Quest questAttempted = questAttempt.getQuestAttempted();
+            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, toCheckInTo, true); // Points for checking in
 
-            returnJson.put("pointsRewarded", pointsAdded);
+            // If quest was completed
+            if (questAttempt.isCompleted()) {
+                int questCompletedPoints = achievementTrackerController.rewardAction(attemptedBy, questAttempted, true); // Points for completing quest
+                returnJson.put("completedPoints", questCompletedPoints);
+            }
+            returnJson.put(REWARD, pointsAdded);
             returnJson.set("attempt", Json.toJson(questAttempt));
 
             questAttemptRepository.update(questAttempt);

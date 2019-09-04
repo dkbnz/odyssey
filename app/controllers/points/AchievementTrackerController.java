@@ -35,7 +35,7 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
-     * Adds the given amount of points to the given profile's AchievementTracker.
+     * Adds points to the user's AchievementTracker for creating a destination.
      * @param actingProfile the profile receiving points.
      * @param destinationCreated the destination that was created.
      * @return the points added rewarded to the profile.
@@ -50,10 +50,40 @@ public class AchievementTrackerController extends Controller {
         return reward.getValue();
     }
 
-    public int rewardAction(Profile actingProfile, Quest createdQuest) {
-        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();
 
-        PointReward reward = pointRewardRepository.findUsing(Action.QUEST_CREATED);
+    /**
+     * Adds points to the user's AchievementTracker for creating an objective.
+     * @param actingProfile the profile that performed the action.
+     * @param objectiveCreated the objective that was created.
+     * @return the number of points that the user was rewarded.
+     */
+    public int rewardAction(Profile actingProfile, Objective objectiveCreated) {
+        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
+
+        PointReward reward = pointRewardRepository.findUsing(Action.OBJECTIVE_CREATED);    // Get the reward to add.
+        achievementTracker.addPoints(reward.getValue());
+        profileRepository.update(actingProfile);    // Update the tracker stored in the database.
+
+        return reward.getValue();
+    }
+
+
+    /**
+     * Rewards the acting profile with points based on their action on the questWorkedOn. If completed is false, then
+     * the user created the quest, otherwise they completed the quest.
+     * @param actingProfile the profile that completed the action.
+     * @param questWorkedOn the quest that was either created or completed
+     * @param completed a boolean indicating if the action was completing the quest.
+     * @return the points rewarded to the user.
+     */
+    public int rewardAction(Profile actingProfile, Quest questWorkedOn, boolean completed) {
+        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();
+        PointReward reward;
+        if (completed) {
+            reward = pointRewardRepository.findUsing(Action.QUEST_COMPLETED);
+        } else {
+            reward = pointRewardRepository.findUsing(Action.QUEST_CREATED);
+        }
         achievementTracker.addPoints(reward.getValue());
         profileRepository.update(actingProfile);
         return reward.getValue();

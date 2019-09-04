@@ -73,7 +73,7 @@
             </b-form-row>
             <b-form-group id="age-field" label="Age Range:" label-for="age-slider">
                 <small>{{searchParameters.age[0]}} - {{searchParameters.age[1]}}</small>
-                <vue-slider id="age-slider" max=120 v-model="searchParameters.age"></vue-slider>
+                <vue-slider id="age-slider" :max=120 v-model="searchParameters.age"></vue-slider>
             </b-form-group>
 
             <b-button @click="searchProfiles" block variant="primary" type="submit">Search</b-button>
@@ -174,7 +174,7 @@
                     travellerType: "",
                     rank: null
                 };
-                this.searchProfiles();
+                this.$emit('cleared-form');
             }
         }
 
