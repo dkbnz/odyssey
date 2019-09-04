@@ -16,6 +16,7 @@
                             dismissible
                             variant="success">
                         <p>{{alertText}}</p>
+                        <p v-if="pointsRewarded > 0">Your points have increased by {{pointsRewarded}}</p>
                         <b-progress
                                 :max="dismissSeconds"
                                 :value="dismissCountDown"
@@ -326,7 +327,8 @@
                 questAttempts: [],
                 selectedQuestAttempt: {},
                 selectedQuest: {},
-                activeUsers: 0
+                activeUsers: 0,
+                pointsRewarded: 0
             }
         },
 
@@ -476,7 +478,7 @@
                             } else {
                                 // Refresh quests
                                 this.getMore();
-                                this.showSuccess("Quest started");
+                                this.showSuccess({message: "Quest started"});
                                 this.$emit('start-quest-later', data);
                             }
                         });
@@ -593,12 +595,19 @@
             /**
              * Sets the message for the success alert to the inputted message and runs showAlert to show the success
              * message.
-             * @param message to be set as the alert message.
+             * @param messageObject the object to display
              */
-            showSuccess(message) {
+            showSuccess(messageObject) {
                 this.getMore();
                 this.queryYourQuests();
-                this.alertText = message;
+                this.alertText = messageObject.message;
+
+                // If points were given, also set the data value, otherwise make sure it's the default of 0 to hide it.
+                if (messageObject.pointsRewarded != null) {
+                    this.pointsRewarded = messageObject.pointsRewarded;
+                } else {
+                    this.pointsRewarded = 0;
+                }
                 this.showAlert();
             },
 
