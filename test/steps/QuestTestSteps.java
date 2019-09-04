@@ -295,7 +295,7 @@ public class QuestTestSteps {
         if (testContext.getStatusCode() < 400) {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode actualObj = mapper.readTree(Helpers.contentAsString(result));
-            questId = Long.parseLong(actualObj.get(ID).toString());
+            questId = Long.parseLong(actualObj.get("newQuest").get(ID).toString());
         }
 
         testContext.setResponseBody(Helpers.contentAsString(result));

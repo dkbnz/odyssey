@@ -101,7 +101,7 @@ create table point_reward (
   id                            bigint auto_increment not null,
   name                          varchar(19) not null,
   value                         integer not null,
-  constraint ck_point_reward_name check ( name in ('DESTINATION_CREATED','RIDDLE_SOLVED','CHECKED_IN')),
+  constraint ck_point_reward_name check ( name in ('DESTINATION_CREATED','QUEST_CREATED','OBJECTIVE_CREATED','RIDDLE_SOLVED','CHECKED_IN','QUEST_COMPLETED')),
   constraint uq_point_reward_name unique (name),
   constraint pk_point_reward primary key (id)
 );

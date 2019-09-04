@@ -9,6 +9,7 @@ import models.points.AchievementTracker;
 import models.points.Action;
 import models.points.PointReward;
 import models.profiles.Profile;
+import models.quests.Quest;
 import models.util.ApiError;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -46,6 +47,15 @@ public class AchievementTrackerController extends Controller {
         achievementTracker.addPoints(reward.getValue());
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
+        return reward.getValue();
+    }
+
+    public int rewardAction(Profile actingProfile, Quest createdQuest) {
+        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();
+
+        PointReward reward = pointRewardRepository.findUsing(Action.QUEST_CREATED);
+        achievementTracker.addPoints(reward.getValue());
+        profileRepository.update(actingProfile);
         return reward.getValue();
     }
 
