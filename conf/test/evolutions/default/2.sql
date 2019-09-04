@@ -335,7 +335,10 @@ INSERT INTO passport (`id`, `country`) VALUES
 INSERT INTO `point_reward`(`id`, `name`, `value`) VALUES
 (1, 'RIDDLE_SOLVED', 5),
 (2, 'CHECKED_IN', 10),
-(3, 'DESTINATION_CREATED', 1);
+(3, 'DESTINATION_CREATED', 1),
+(4, 'QUEST_CREATED', 3),
+(5, 'OBJECTIVE_CREATED', 2),
+(6, 'QUEST_COMPLETED', 20);
 
 INSERT INTO `profile` (`id`, `username`, `password`, `first_name`, `middle_name`, `last_name`, `gender`, `date_of_birth`, `date_of_creation`, `is_admin`, `profile_picture_id`) VALUES
 (1, 'admin@travelea.com', '25F43B1486AD95A1398E3EEB3D83BC4010015FCC9BEDB35B432E00298D5021F7', 'Default', '', 'Admin', 'Male', '2018-01-01', '2019-01-01 13:00:00.000000', 1, NULL),
