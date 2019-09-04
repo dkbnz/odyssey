@@ -2,7 +2,9 @@ package controllers.objectives;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
+import controllers.points.AchievementTrackerController;
 import models.util.ApiError;
 import models.profiles.Profile;
 import models.destinations.Destination;
@@ -25,6 +27,8 @@ public class ObjectiveController {
     private ObjectiveRepository objectiveRepository;
     private DestinationRepository destinationRepository;
     private ProfileRepository profileRepository;
+    private AchievementTrackerController achievementTrackerController;
+    private ObjectMapper objectMapper;
 
     private static final Long GLOBAL_ADMIN_ID = 1L;
     private static final String DESTINATION_ERROR = "Provided Destination not found.";
@@ -33,11 +37,15 @@ public class ObjectiveController {
 
     @Inject
     public ObjectiveController(ObjectiveRepository objectiveRepository,
-                                  DestinationRepository destinationRepository,
-                                  ProfileRepository profileRepository) {
+                               DestinationRepository destinationRepository,
+                               ProfileRepository profileRepository,
+                               AchievementTrackerController achievementTrackerController,
+                               ObjectMapper objectMapper) {
         this.objectiveRepository = objectiveRepository;
         this.destinationRepository = destinationRepository;
         this.profileRepository = profileRepository;
+        this.achievementTrackerController = achievementTrackerController;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -72,13 +80,11 @@ public class ObjectiveController {
         // Create list to hold objective errors
         List<ApiError> objectiveErrors = new ArrayList<>();
 
-        ObjectMapper mapper = new ObjectMapper();
-
         Objective objective;
 
         try {
             // Attempt to turn json body into a objective object.
-            objective = mapper.readerWithView(Views.Owner.class)
+            objective = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Objective.class)
                     .readValue(request.body().asJson());
         } catch (Exception e) {
@@ -116,12 +122,19 @@ public class ObjectiveController {
             return badRequest(Json.toJson(objectiveErrors));
         }
 
+        ObjectNode returnJson = objectMapper.createObjectNode();
+
         objectiveRepository.save(objective);
+
+        int pointsAdded = achievementTrackerController.rewardAction(objectiveOwner, objective);
+        returnJson.put("pointsRewarded", pointsAdded);
+        returnJson.set("newObjectiveId", Json.toJson(objective.getId()));
+
         profileRepository.update(objectiveOwner);
         destinationRepository.update(objectiveDestination);
         profileRepository.update(globalAdmin);
 
-        return created(Json.toJson(objective.getId()));
+        return created(returnJson);
     }
     
 
@@ -159,11 +172,9 @@ public class ObjectiveController {
         // Create list to hold objective errors
         List<ApiError> objectiveErrors = new ArrayList<>();
 
-        ObjectMapper mapper = new ObjectMapper();
-
         try {
             // Attempt to turn json body into a objective object.
-            objective = mapper.readerWithView(Views.Owner.class)
+            objective = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Objective.class)
                     .readValue(request.body().asJson());
         } catch (Exception e) {
@@ -254,11 +265,10 @@ public class ObjectiveController {
 
         List<Objective> objectivesQuery = objectiveRepository.findAll();
 
-        ObjectMapper mapper = new ObjectMapper();
         String result;
 
         try {
-            result = mapper
+            result = objectMapper
                     .writerWithView(Views.Public.class)
                     .writeValueAsString(objectivesQuery);
         } catch (JsonProcessingException e) {
