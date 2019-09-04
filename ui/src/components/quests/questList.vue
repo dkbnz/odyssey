@@ -16,7 +16,6 @@
                             dismissible
                             variant="success">
                         <p>{{alertText}}</p>
-                        <p v-if="pointsRewarded > 0">Your points have increased by {{pointsRewarded}}</p>
                         <b-progress
                                 :max="dismissSeconds"
                                 :value="dismissCountDown"
@@ -327,13 +326,13 @@
                 questAttempts: [],
                 selectedQuestAttempt: {},
                 selectedQuest: {},
-                activeUsers: 0,
-                pointsRewarded: 0
+                activeUsers: 0
             }
         },
 
         mounted() {
             this.getMore();
+            this.$bvToast.show('example-toast');
         },
 
         watch: {
@@ -604,13 +603,24 @@
 
                 // If points were given, also set the data value, otherwise make sure it's the default of 0 to hide it.
                 if (messageObject.pointsRewarded != null) {
-                    this.pointsRewarded = messageObject.pointsRewarded;
-                } else {
-                    this.pointsRewarded = 0;
+                    this.createPointToast(messageObject.pointsRewarded);
                 }
                 this.showAlert();
             },
 
+
+            /**
+             * Displays a toast saying they've gained a certain amount of points.
+             * @param points the points to display.
+             */
+            createPointToast(points) {
+                let message = "Your points have increased by " + points;
+                this.$bvToast.toast(message, {
+                    title: 'Points Increased',
+                    autoHideDelay: 3000,
+                    appendToast: true
+                })
+            },
 
             /**
              * Converts the Http response body to a Json.

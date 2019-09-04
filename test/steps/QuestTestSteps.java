@@ -133,6 +133,7 @@ public class QuestTestSteps {
     /**
      * The static Json variable keys for a objective.
      */
+    private static final String QUEST_TITLE = "newQuest";
     private static final String ID = "id";
     private static final String OBJECTIVE_DESTINATION = "destination";
     private static final String OBJECTIVE_RIDDLE = "riddle";
@@ -295,7 +296,7 @@ public class QuestTestSteps {
         if (testContext.getStatusCode() < 400) {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode actualObj = mapper.readTree(Helpers.contentAsString(result));
-            questId = Long.parseLong(actualObj.get("newQuest").get(ID).toString());
+            questId = Long.parseLong(actualObj.get(QUEST_TITLE).get(ID).toString());
         }
 
         testContext.setResponseBody(Helpers.contentAsString(result));
