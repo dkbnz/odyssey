@@ -136,7 +136,8 @@
                 queryPage: 0,
                 moreResults: true,
                 gettingMore: false,
-                gettingAll: false
+                gettingAll: false,
+                searchParameters: {}
             }
         },
 
@@ -268,7 +269,7 @@
              */
             getMore() {
                 this.queryPage += 1;
-                this.queryProfiles();
+                this.queryProfiles(this.searchParameters);
                 this.gettingMore = true;
             },
 
@@ -287,6 +288,7 @@
              */
             searchProfiles(searchParameters) {
                 this.queryPage = 0;
+                this.searchParameters = searchParameters;
                 this.queryProfiles(searchParameters);
                 if (this.gettingAll) {
                     this.queryAllProfiles();
