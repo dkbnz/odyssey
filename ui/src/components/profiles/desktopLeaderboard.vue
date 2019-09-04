@@ -25,12 +25,16 @@
                 <b-col sm="4">
                     <profile-search-form
                             :userProfile="profile"
-                            @search="searchProfiles">
+                            @search="searchProfiles"
+                            @cleared-form="clearForm">
                     </profile-search-form>
                 </b-col>
                 <b-col sm="8">
                     <!--Displays results from profile search in a table format-->
                     <profile-list
+                            :more-results="moreResults"
+                            :searching-profiles="searchingProfiles"
+                            :search-parameters="searchParameters"
                             :profile-list="profiles"
                             :profile="profile"
                             :userProfile="profile"
@@ -49,9 +53,13 @@
             <div v-else>
                 <profile-search-form
                         :userProfile="profile"
-                        @search="searchProfiles">
+                        @search="searchProfiles"
+                        @cleared-form="clearForm">
                 </profile-search-form>
                 <profile-list
+                        :more-results="moreResults"
+                        :searching-profiles="searchingProfiles"
+                        :search-parameters="searchParameters"
                         :profile-list="profiles"
                         :profile="profile"
                         :userProfile="profile"
@@ -137,7 +145,8 @@
                 moreResults: true,
                 gettingMore: false,
                 gettingAll: false,
-                searchParameters: {}
+                searchParameters: null,
+                searchingProfiles: false
             }
         },
 
@@ -269,7 +278,7 @@
              */
             getMore() {
                 this.queryPage += 1;
-                this.queryProfiles(this.searchParameters);
+                this.queryProfiles();
                 this.gettingMore = true;
             },
 
@@ -289,7 +298,7 @@
             searchProfiles(searchParameters) {
                 this.queryPage = 0;
                 this.searchParameters = searchParameters;
-                this.queryProfiles(searchParameters);
+                this.queryProfiles();
                 if (this.gettingAll) {
                     this.queryAllProfiles();
                 }
@@ -299,20 +308,10 @@
             /**
              * Queries database for profiles which fit search criteria.
              */
-            queryProfiles(searchParameters) {
+            queryProfiles() {
                 this.retrievingProfiles = true;
                 let searchQuery = "";
-                if (searchParameters !== undefined) {
-                    this.gettingMore = false;
-                    searchQuery =
-                        "?name=" + searchParameters.name +
-                        "&nationalities=" + searchParameters.nationality +
-                        "&gender=" + searchParameters.gender +
-                        "&min_age=" + searchParameters.age[0] +
-                        "&max_age=" + searchParameters.age[1] +
-                        "&travellerTypes=" + searchParameters.travellerType +
-                        "&page=" + this.queryPage;
-                } else {
+                if (!this.searchParameters) {
                     searchQuery =
                         "?name=" + "" +
                         "&nationalities=" + "" +
@@ -321,9 +320,20 @@
                         "&max_age=" + "" +
                         "&travellerTypes=" + "" +
                         "&page=" + this.queryPage;
+                    this.searchingProfiles = false;
+                } else {
+                    this.gettingMore = false;
+                    searchQuery =
+                        "?name=" + this.searchParameters.name +
+                        "&nationalities=" + this.searchParameters.nationality +
+                        "&gender=" + this.searchParameters.gender +
+                        "&min_age=" + this.searchParameters.age[0] +
+                        "&max_age=" + this.searchParameters.age[1] +
+                        "&travellerTypes=" + this.searchParameters.travellerType +
+                        "&page=" + this.queryPage;
+                    this.searchingProfiles = true;
                 }
-
-                return fetch(`/v1/profiles` + searchQuery, {
+                return fetch(`/v1/profiles` +  searchQuery, {
                     method: "GET"
                 })
                     .then(this.checkStatus)
@@ -335,6 +345,9 @@
                             this.moreResults = true;
                         }
                         if (!this.gettingMore && data.length === 0) {
+                            this.profiles = [];
+                        }
+                        if (this.queryPage === 0 && !this.searchingProfiles && !this.searchParameters) {
                             this.profiles = [];
                         }
                         for (let i = 0; i < data.length; i++) {
@@ -353,26 +366,28 @@
             /**
              * Queries database for all profiles which fit search criteria.
              */
-            queryAllProfiles(searchParameters) {
+            queryAllProfiles() {
                 this.retrievingProfiles = true;
                 let searchQuery = "";
-                if (searchParameters !== undefined) {
-                    this.gettingMore = false;
-                    searchQuery =
-                        "?name=" + searchParameters.name +
-                        "&nationalities=" + searchParameters.nationality +
-                        "&gender=" + searchParameters.gender +
-                        "&min_age=" + searchParameters.age[0] +
-                        "&max_age=" + searchParameters.age[1] +
-                        "&travellerTypes=" + searchParameters.travellerType
-                } else {
+                if (!this.searchParameters) {
                     searchQuery =
                         "?name=" + "" +
                         "&nationalities=" + "" +
                         "&gender=" + "" +
                         "&min_age=" + "" +
                         "&max_age=" + "" +
-                        "&travellerTypes=" + ""
+                        "&travellerTypes=" + "";
+                    this.searchingProfiles = false;
+                } else {
+                    this.gettingMore = false;
+                    searchQuery =
+                        "?name=" + this.searchParameters.name +
+                        "&nationalities=" + this.searchParameters.nationality +
+                        "&gender=" + this.searchParameters.gender +
+                        "&min_age=" + this.searchParameters.age[0] +
+                        "&max_age=" + this.searchParameters.age[1] +
+                        "&travellerTypes=" + this.searchParameters.travellerType;
+                    this.searchingProfiles = true;
                 }
 
                 return fetch(`/v1/profiles/all` + searchQuery, {
@@ -445,6 +460,17 @@
              */
             emitAdminEdit(profile) {
                 this.$emit('admin-edit', profile);
+            },
+
+
+            /**
+             * Clears the relevant fields when the clear form button is clicked.
+             */
+            clearForm() {
+                this.queryPage = 0;
+                this.searchingProfiles = false;
+                this.searchParameters = null;
+                this.queryProfiles();
             }
 
         }
