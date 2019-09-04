@@ -44,20 +44,6 @@
                             @get-all="getAll"
                     >
                     </profile-list>
-                    <div class="flex-column justify-content-center">
-                        <div class="d-flex justify-content-center" v-if="retrievingProfiles">
-                            <b-spinner label="Loading..."></b-spinner>
-                        </div>
-                        <div align="center" v-else>
-                            <div v-if="moreResults">
-                                <b-button variant="success" @click="getMore" block>Get More Profiles</b-button>
-                            </div>
-                            <div v-else>
-                                <h5 class="mb-1">No More Results</h5>
-                            </div>
-                        </div>
-
-                    </div>
                 </b-col>
             </b-row>
             <div v-else>
@@ -150,7 +136,8 @@
                 queryPage: 0,
                 moreResults: true,
                 gettingMore: false,
-                gettingAll: false
+                gettingAll: false,
+                searchParameters: {}
             }
         },
 
@@ -282,7 +269,7 @@
              */
             getMore() {
                 this.queryPage += 1;
-                this.queryProfiles();
+                this.queryProfiles(this.searchParameters);
                 this.gettingMore = true;
             },
 
@@ -301,6 +288,7 @@
              */
             searchProfiles(searchParameters) {
                 this.queryPage = 0;
+                this.searchParameters = searchParameters;
                 this.queryProfiles(searchParameters);
                 if (this.gettingAll) {
                     this.queryAllProfiles();
