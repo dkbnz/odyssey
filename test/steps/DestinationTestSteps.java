@@ -1012,14 +1012,6 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("the response is empty")
-    public void theResponseIsEmpty() throws IOException {
-        JsonNode arrNode = new ObjectMapper().readTree(testContext.getResponseBody());
-
-        Assert.assertEquals(0, arrNode.size());
-    }
-
-
     @Then("the response contains only own or public destinations")
     public void theResponseContainsOnlyOwnOrPublicDestinations() throws IOException {
         JsonNode arrNode = new ObjectMapper().readTree(testContext.getResponseBody());
