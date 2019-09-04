@@ -368,7 +368,8 @@
                     riddle: "",
                     radius: null
                 },
-                activeUsers: null
+                activeUsers: null,
+                pointsRewarded: Number
             }
         },
 
@@ -615,7 +616,8 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputQuest)
-                }).then(function (response) {
+                }).then(response => {
+                    // If an error occurred, the process it.
                     if (response.status >= 400) {
                         // Ensures the start and end date fields are not wiped after an error occurs.
                         self.splitDates();
@@ -630,8 +632,12 @@
                             self.showError = true;
                         });
                     } else {
-                        self.$emit('successCreate', "Quest Successfully Created");
-                        self.$emit('cancelCreate')
+                        self.parseJSON(response).then(body => {
+                            self.pointsRewarded = body.pointsRewarded;
+                            self.$emit('successCreate', {message: "Quest Successfully Created", pointsRewarded: self.pointsRewarded});
+                            self.$emit('cancelCreate');
+                        });
+
                     }
                 });
             },
