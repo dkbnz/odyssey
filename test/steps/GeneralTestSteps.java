@@ -299,4 +299,13 @@ public class GeneralTestSteps {
             Assert.assertTrue(expectedApiErrors.contains(error.get("message").asText()));
         }
     }
+
+
+    @Then("the response is empty")
+    public void theResponseIsEmpty() throws IOException {
+        JsonNode arrNode = new ObjectMapper().readTree(testContext.getResponseBody());
+
+        Assert.assertEquals(0, arrNode.size());
+    }
+
 }
