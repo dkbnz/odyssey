@@ -138,12 +138,18 @@ public class QuestController {
             objective.setDestination(destinationRepository.findById(objective.getDestination().getId()));
         }
 
+        ObjectNode returnJson = objectMapper.createObjectNode();
+
+        int pointsAdded = achievementTrackerController.rewardAction(questOwner, newQuest);
+        returnJson.put("pointsRewarded", pointsAdded);
+
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
 
         questRepository.refresh(newQuest);
 
-        return created(Json.toJson(newQuest));
+        returnJson.set("newQuest", Json.toJson(newQuest));
+        return created(returnJson);
     }
 
 
