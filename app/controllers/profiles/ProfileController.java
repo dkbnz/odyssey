@@ -720,7 +720,16 @@ public class ProfileController {
             return unauthorized(ApiError.unauthorized());
         }
 
-        return ok(Json.toJson(profileRepository.findCount()));
+        ExpressionList<Profile> expressionList = profileRepository.getExpressionList();
+
+        String getError = validQueryString(request);
+
+        if (getError != null) {
+            return badRequest(getError);
+        }
+
+        searchProfiles(expressionList, request);
+        return ok(Json.toJson(expressionList.findCount()));
     }
 
 

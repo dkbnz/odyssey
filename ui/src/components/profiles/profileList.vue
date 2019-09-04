@@ -125,13 +125,23 @@
                 default: function() {
                     return false;
                 }
+            },
+            searchingProfiles: {
+                default: function () {
+                    return false;
+                }
+            },
+            moreResults: {
+                default: function() {
+                    return false;
+                }
             }
         },
 
         watch: {
             profileList() {
                 this.getRows();
-                if (this.perPage * this.currentPage > this.profileList.length) {
+                if (this.perPage * this.currentPage > this.profileList.length && this.moreResults) {
                     this.$emit('get-more');
                 }
             },
@@ -204,8 +214,11 @@
             getRows() {
                 if (this.perPage === Infinity) {
                     this.rows = 10;
+                } else if (this.searchingProfiles) {
+                    this.rows = this.profileList.length;
                 } else {
-                    fetch('/v1/profiles/count',  {
+                    fetch(`/v1/profiles/count`, {
+                        method: "GET",
                         accept: "application/json"
                     })
                         .then(response => response.json())
