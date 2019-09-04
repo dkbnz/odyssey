@@ -12,7 +12,6 @@
                 dismissible
                 variant="success">
             <p>Destination Successfully {{heading}}ed</p>
-            <p>Your points have been increased by {{pointsGained}}</p>
             <b-progress
                     :max="dismissSecs"
                     :value="dismissCountDown"
@@ -217,8 +216,7 @@
                 longitudeErrorMessage: "",
                 destinationConflicts: [],
                 editDestinationConflicts: [],
-                countryList: Array,
-                pointsGained: Number
+                countryList: Array
             }
         },
 
@@ -434,8 +432,7 @@
                         self.resetDestForm();
                         self.showAlert();
                         self.$emit('data-changed');
-                        self.pointsGained = responseBody.pointsRewarded;
-                        console.log(self.pointsGained);
+                        self.createPointToast(responseBody.pointsRewarded);
                         return responseBody;
                     });
             },
@@ -510,6 +507,20 @@
                         });
                     }
                 });
+            },
+
+
+            /**
+             * Displays a toast saying they've gained a certain amount of points.
+             * @param points the points to display.
+             */
+            createPointToast(points) {
+                let message = "Your points have increased by " + points;
+                this.$bvToast.toast(message, {
+                    title: 'Points Increased',
+                    autoHideDelay: 3000,
+                    appendToast: true
+                })
             },
 
 

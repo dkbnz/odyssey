@@ -346,10 +346,27 @@
                     body: JSON.stringify(this.inputObjective)
                 })
                     .then(this.checkStatus)
-                    .then(function () {
+                    .then(function (response) {
+                        self.parseJSON(response).then(data => {
+                            self.createPointToast(data.pointsRewarded);
+                        });
                         self.$emit('successCreate', "Objective Successfully Created");
                         self.$emit('cancelCreate')
                     })
+            },
+
+
+            /**
+             * Displays a toast saying they've gained a certain amount of points.
+             * @param points the points to display.
+             */
+            createPointToast(points) {
+                let message = "Your points have increased by " + points;
+                this.$bvToast.toast(message, {
+                    title: 'Points Increased',
+                    autoHideDelay: 3000,
+                    appendToast: true
+                })
             },
 
 
