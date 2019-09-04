@@ -1,7 +1,6 @@
 package controllers.profiles;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.points.AchievementTracker;
 import models.profiles.Nationality;
@@ -17,7 +16,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import com.google.inject.Inject;
@@ -55,7 +53,9 @@ public class ProfileController {
     private static final String DATE_OF_BIRTH = "dateOfBirth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
-    private static final String RANK = "rank";
+    private static final String POINTS = "points";
+    private static final String SORT_BY = "sortBy";
+    private static final String SORT_ORDER = "sortOrder";
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String NO_PROFILE_FOUND = "No profile found.";
@@ -579,13 +579,32 @@ public class ProfileController {
 
         searchProfiles(expressionList, request);
 
-        profiles = expressionList
-                .setFirstRow(pageNumber*pageSize)
-                .setMaxRows(pageSize)
-                .findPagedList()
-                .getList();
-
-
+        if (request.getQueryString(SORT_BY) != null && request.getQueryString(SORT_BY).length() > 0
+                && Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
+            profiles = expressionList
+                    .where()
+                    .orderBy().asc(request.getQueryString(SORT_BY))
+                    .setFirstRow(pageNumber*pageSize)
+                    .setMaxRows(pageSize)
+                    .findPagedList()
+                    .getList();
+        } else if (request.getQueryString(SORT_BY) != null && request.getQueryString(SORT_BY).length() > 0
+                && !Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
+            profiles = expressionList
+                    .where()
+                    .orderBy().desc(request.getQueryString(SORT_BY))
+                    .setFirstRow(pageNumber*pageSize)
+                    .setMaxRows(pageSize)
+                    .findPagedList()
+                    .getList();
+        } else {
+            profiles = expressionList
+                    .orderBy().desc(POINTS)
+                    .setFirstRow(pageNumber*pageSize)
+                    .setMaxRows(pageSize)
+                    .findPagedList()
+                    .getList();
+        }
 
         return ok(Json.toJson(profiles));
     }
@@ -619,7 +638,23 @@ public class ProfileController {
 
         searchProfiles(expressionList, request);
 
-        profiles = expressionList.findList();
+        if (request.getQueryString(SORT_BY) != null && request.getQueryString(SORT_BY).length() > 0
+                && Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
+            profiles = expressionList
+                    .where()
+                    .orderBy().asc(request.getQueryString(SORT_BY))
+                    .findList();
+        } else if (request.getQueryString(SORT_BY) != null && request.getQueryString(SORT_BY).length() > 0
+                && !Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
+            profiles = expressionList
+                    .where()
+                    .orderBy().desc(request.getQueryString(SORT_BY))
+                    .findList();
+        } else {
+            profiles = expressionList
+                    .orderBy().desc(POINTS)
+                    .findList();
+        }
 
         return ok(Json.toJson(profiles));
     }
@@ -720,7 +755,16 @@ public class ProfileController {
             return unauthorized(ApiError.unauthorized());
         }
 
-        return ok(Json.toJson(profileRepository.findCount()));
+        ExpressionList<Profile> expressionList = profileRepository.getExpressionList();
+
+        String getError = validQueryString(request);
+
+        if (getError != null) {
+            return badRequest(getError);
+        }
+
+        searchProfiles(expressionList, request);
+        return ok(Json.toJson(expressionList.findCount()));
     }
 
 

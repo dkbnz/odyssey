@@ -59,7 +59,6 @@
 
             <b-alert v-model="guessSuccess" variant="success" dismissible>
                 Success!
-                <p>Your points have increased by {{pointsGained}}</p>
             </b-alert>
 
             <b-progress
@@ -194,13 +193,13 @@
                     .then((data) => {
                         // If successful guess
                         if (data.guessResult) {
-                            self.pointsGained = data.pointsRewarded;
                             self.goBack();
                             self.guessSuccess = true;
                             self.$emit('updated-quest-attempt', data.attempt);
                             setTimeout(function() {
                                 self.guessSuccess = false;
-                            }, 3000)
+                            }, 3000);
+                            self.createPointToast(data.pointsRewarded, "Riddle Solved")
                         } else {
                             // If unsuccessful guess
                             self.showError = true;
@@ -209,6 +208,21 @@
                             }, 3000)
                         }
                     })
+            },
+
+
+            /**
+             * Displays a toast saying they've gained a certain amount of points.
+             * @param points the points to display.
+             * @param title the title of the toast, indicating the context of the point gain.
+             */
+            createPointToast(points, title) {
+                let message = "Your points have increased by " + points;
+                this.$bvToast.toast(message, {
+                    title: title,
+                    autoHideDelay: 3000,
+                    appendToast: true
+                })
             },
 
 
@@ -281,15 +295,12 @@
                         return response.json();
                     })
                     .then((data) => {
-                        console.log("DATA ACTUAL = " + data);
-                        // Response has points gained and attempt, get attempt
-                        self.pointsGained = data.pointsRewarded;
-                        self.guessSuccess = true;
-                        setTimeout(function() {
-                            self.guessSuccess = false;
-                        }, 3000);
-                        console.log("Data attempt = " + data.attempt);
-                        self.$emit('updated-quest-attempt', data.attempt);
+                        self.createPointToast(data.pointsRewarded, "Checked In");
+                        if (data.completedPoints != null) {
+                            setTimeout(points => {
+                                self.createPointToast(points, "Quest Complete")
+                            }, 500, data.completedPoints);
+                        }
                     })
             },
 
