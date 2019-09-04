@@ -26,10 +26,10 @@
                 <strong>Can't find any profiles!</strong>
             </div>
             <div class="flex-column justify-content-center">
-                <div class="d-flex justify-content-center" v-if="retrievingProfiles">
-                    <b-spinner label="Loading..."></b-spinner>
+                <div class="d-flex justify-content-center" v-if="retrievingProfiles && !initialLoad">
+                    <b-spinner></b-spinner>
                 </div>
-                <div v-else>
+                <div v-if="!retrievingProfiles && profiles.length > 0">
                     <div v-if="moreResults">
                         <b-button variant="success" @click="getMore" block>More</b-button>
                     </div>
@@ -70,6 +70,16 @@
             profile: Object
         },
 
+        watch: {
+            page() {
+                if (this.page === 0) {
+                    this.queryPage = 0;
+                    this.profiles = [];
+                }
+
+            }
+        },
+
         data() {
             return {
                 page: 0,
@@ -79,7 +89,8 @@
                 moreResults: true,
                 initialLoad: true,
                 queryPage: 0,
-                gettingMore: false
+                gettingMore: false,
+                searchParameters: {}
             }
         },
 
@@ -112,7 +123,7 @@
              */
             getMore() {
                 this.queryPage += 1;
-                this.queryProfiles();
+                this.queryProfiles(this.searchParameters);
                 this.gettingMore = true;
             },
 
@@ -122,6 +133,7 @@
              */
             queryProfiles(searchParameters) {
                 this.retrievingProfiles = true;
+                this.searchParameters = searchParameters;
                 let searchQuery = "";
                 this.page = 1;
                 if (searchParameters !== undefined) {
