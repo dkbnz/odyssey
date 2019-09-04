@@ -34,6 +34,7 @@
                     <profile-list
                             :more-results="moreResults"
                             :searching-profiles="searchingProfiles"
+                            :search-parameters="searchParameters"
                             :profile-list="profiles"
                             :profile="profile"
                             :userProfile="profile"
@@ -58,6 +59,7 @@
                 <profile-list
                         :more-results="moreResults"
                         :searching-profiles="searchingProfiles"
+                        :search-parameters="searchParameters"
                         :profile-list="profiles"
                         :profile="profile"
                         :userProfile="profile"
@@ -345,6 +347,9 @@
                         if (!this.gettingMore && data.length === 0) {
                             this.profiles = [];
                         }
+                        if (this.queryPage === 0 && !this.searchingProfiles && !this.searchParameters) {
+                            this.profiles = [];
+                        }
                         for (let i = 0; i < data.length; i++) {
                             if (this.gettingMore) {
                                 this.profiles.push(data[i]);
@@ -462,6 +467,7 @@
              * Clears the relevant fields when the clear form button is clicked.
              */
             clearForm() {
+                this.queryPage = 0;
                 this.searchingProfiles = false;
                 this.searchParameters = null;
                 this.queryProfiles();
