@@ -1,7 +1,6 @@
 package controllers.profiles;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.points.AchievementTracker;
 import models.profiles.Nationality;
@@ -580,7 +579,8 @@ public class ProfileController {
 
         searchProfiles(expressionList, request);
 
-        if (request.getQueryString(SORT_BY).length() > 0 && Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
+        if (request.getQueryString(SORT_BY) != null && request.getQueryString(SORT_BY).length() > 0
+                && Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
             profiles = expressionList
                     .where()
                     .orderBy().asc(request.getQueryString(SORT_BY))
@@ -588,7 +588,8 @@ public class ProfileController {
                     .setMaxRows(pageSize)
                     .findPagedList()
                     .getList();
-        } else if (request.getQueryString(SORT_BY).length() > 0 && !Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
+        } else if (request.getQueryString(SORT_BY) != null && request.getQueryString(SORT_BY).length() > 0
+                && !Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
             profiles = expressionList
                     .where()
                     .orderBy().desc(request.getQueryString(SORT_BY))
@@ -637,12 +638,14 @@ public class ProfileController {
 
         searchProfiles(expressionList, request);
 
-        if (request.getQueryString(SORT_BY).length() > 0 && Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
+        if (request.getQueryString(SORT_BY) != null && request.getQueryString(SORT_BY).length() > 0
+                && Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
             profiles = expressionList
                     .where()
                     .orderBy().asc(request.getQueryString(SORT_BY))
                     .findList();
-        } else if (request.getQueryString(SORT_BY).length() > 0 && !Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
+        } else if (request.getQueryString(SORT_BY) != null && request.getQueryString(SORT_BY).length() > 0
+                && !Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
             profiles = expressionList
                     .where()
                     .orderBy().desc(request.getQueryString(SORT_BY))
