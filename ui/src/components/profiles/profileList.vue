@@ -10,6 +10,8 @@
                  id="profiles"
                  outlined
                  ref="profilesTable"
+                 :no-local-sorting= 'true'
+                 @sort-changed="sortingChanged"
                  striped>
 
             <!--:per-page="perPage"-->
@@ -136,15 +138,16 @@
                     return false;
                 }
             },
-            searchParameters: Object
+            searchParameters: Object,
+            firstPage: Boolean
         },
 
         watch: {
             profileList() {
                 this.getRows();
-                if (this.perPage * this.currentPage > this.profileList.length && this.moreResults) {
-                    this.$emit('get-more');
-                }
+                // if (this.perPage * this.currentPage > this.profileList.length && this.moreResults) {
+                //     this.$emit('get-more');
+                // }
             },
 
             perPage() {
@@ -161,6 +164,10 @@
                 if (this.perPage * this.currentPage > this.profileList.length) {
                     this.$emit('get-more');
                 }
+            },
+
+            firstPage() {
+                this.currentPage = 0;
             }
         },
 
@@ -183,7 +190,7 @@
                 return [
                     {key: 'achievementTracker.rank', label: "Rank", sortable: true, class: 'tableWidthSmall'},
                     {key: 'achievementTracker.points', label: "Points", sortable: true, class: 'tableWidthSmall'},
-                    {key: 'profilePhoto', label: "Photo", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'profilePhoto', label: "Photo", sortable: false, class: 'tableWidthSmall'},
                     {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
                     {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
                     {key: 'actions', class: 'tableWidthMedium'}
@@ -194,6 +201,7 @@
         methods: {
             /**
              * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
+             *
              * @param photo         returns a url of which photo should be displayed as the profile picture for the user.
              */
             getProfilePictureThumbnail(photo) {
@@ -207,6 +215,20 @@
 
 
             /**
+             * Emits an event on the table being sorted to the parent component containing the column to sort by and
+             * order.
+             *
+             * @param columnSortBy  the column containing the value to sort by and the order.
+             */
+            sortingChanged(columnSortBy) {
+                if (columnSortBy.sortBy === "achievementTracker.rank") {
+                    columnSortBy.sortBy = "achievementTracker.points";
+                }
+                this.$emit('sort-table', {"sortBy": columnSortBy.sortBy, "order": columnSortBy.sortDesc});
+            },
+
+
+            /**
              * Computed function used for the pagination of the table.
              *
              * @returns {number}    the number of rows required in the table based on number of profiles to be
@@ -214,7 +236,6 @@
              */
             getRows() {
                 let searchQuery = "";
-                console.log(this.searchParameters);
                 if (!this.searchParameters) {
                     searchQuery =
                         "?name=" + "" +
