@@ -125,13 +125,24 @@
                 default: function() {
                     return false;
                 }
-            }
+            },
+            searchingProfiles: {
+                default: function () {
+                    return false;
+                }
+            },
+            moreResults: {
+                default: function() {
+                    return false;
+                }
+            },
+            searchParameters: Object
         },
 
         watch: {
             profileList() {
                 this.getRows();
-                if (this.perPage * this.currentPage > this.profileList.length) {
+                if (this.perPage * this.currentPage > this.profileList.length && this.moreResults) {
                     this.$emit('get-more');
                 }
             },
@@ -202,10 +213,34 @@
              *                      displayed.
              */
             getRows() {
+                let searchQuery = "";
+                console.log(this.searchParameters);
+                if (!this.searchParameters) {
+                    searchQuery =
+                        "?name=" + "" +
+                        "&nationalities=" + "" +
+                        "&gender=" + "" +
+                        "&min_age=" + "" +
+                        "&max_age=" + "" +
+                        "&travellerTypes=" + "" +
+                        "&page=" + this.queryPage;
+                    this.searchingProfiles = false;
+                } else {
+                    searchQuery =
+                        "?name=" + this.searchParameters.name +
+                        "&nationalities=" + this.searchParameters.nationality +
+                        "&gender=" + this.searchParameters.gender +
+                        "&min_age=" + this.searchParameters.age[0] +
+                        "&max_age=" + this.searchParameters.age[1] +
+                        "&travellerTypes=" + this.searchParameters.travellerType +
+                        "&page=" + this.queryPage;
+                    this.searchingProfiles = true;
+                }
                 if (this.perPage === Infinity) {
                     this.rows = 10;
                 } else {
-                    fetch('/v1/profiles/count',  {
+                    fetch(`/v1/profiles/count` + searchQuery, {
+                        method: "GET",
                         accept: "application/json"
                     })
                         .then(response => response.json())

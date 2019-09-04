@@ -174,7 +174,7 @@
                     travellerType: "",
                     rank: null
                 };
-                this.searchProfiles();
+                this.$emit('cleared-form');
             }
         }
 
