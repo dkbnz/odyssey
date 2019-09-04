@@ -15,6 +15,7 @@
                 :destinations="destinations"
                 :nationalityOptions="nationalityOptions"
                 :profile="profile"
+                :userProfile="profile"
                 :travTypeOptions="travTypeOptions"
                 :trips="trips"
                 v-if="viewProfile">

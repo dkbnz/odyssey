@@ -45,6 +45,7 @@ public class ProfileController {
     private static final String FIRST_NAME = "firstName";
     private static final String MIDDLE_NAME = "middleName";
     private static final String LAST_NAME = "lastName";
+    private static final String NAME = "name";
     private static final String PASSPORT = "passports";
     private static final String NATIONALITY = "nationalities";
     private static final String GENDER = "gender";
@@ -54,6 +55,7 @@ public class ProfileController {
     private static final String DATE_OF_BIRTH = "dateOfBirth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
+    private static final String RANK = "rank";
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String NO_PROFILE_FOUND = "No profile found.";
@@ -62,7 +64,6 @@ public class ProfileController {
     private static final String UPDATED = "UPDATED";
     private static final String ID = "id";
     private static final String PAGE = "page";
-    private static final String RANK = "rank";
 
     private ProfileRepository profileRepository;
     private NationalityRepository nationalityRepository;
@@ -109,7 +110,7 @@ public class ProfileController {
         }
 
         if (profileExists(json.get(USERNAME).asText())) {
-            return badRequest();
+            return badRequest("Profile Exists");
         }
 
         Profile newUser = new Profile();
@@ -280,6 +281,12 @@ public class ProfileController {
         if (LocalDate.now().isBefore(dateOfBirthValue)) {
             return "Date of birth must be before today";
         }
+
+        if (LocalDate.of(1900, 1, 1).isAfter(dateOfBirthValue)) {
+            return "Date of birth must be after 01/01/1900";
+        }
+
+
         return null;
     }
 
@@ -541,8 +548,8 @@ public class ProfileController {
     /**
      * Performs an Ebean find query on the database to search for profiles.
      * If no query is specified in the Http request, it will return a list of all profiles. If a query is specified,
-     * uses the searchProfiles() method to execute a search based on the search query parameters. This is used on the
-     * Search Profiles page.
+     * uses the searchProfiles() method to execute a search based on the search query parameters, also includes
+     * pagination. This is used on the Search Profiles page.
      *
      * @param request           an Http Request containing Json Body.
      * @return                  unauthorized() (Http 401) if the user is not logged in.
@@ -564,12 +571,55 @@ public class ProfileController {
             pageNumber = Integer.parseInt(request.getQueryString(PAGE));
         }
 
+        String getError = validQueryString(request);
+
+        if (getError != null) {
+            return badRequest(getError);
+        }
+
+        searchProfiles(expressionList, request);
 
         profiles = expressionList
                 .setFirstRow(pageNumber*pageSize)
                 .setMaxRows(pageSize)
                 .findPagedList()
                 .getList();
+
+
+
+        return ok(Json.toJson(profiles));
+    }
+
+
+    /**
+     * Performs an Ebean find query on the database to search for all profiles.
+     * If no query is specified in the Http request, it will return a list of all profiles. If a query is specified,
+     * uses the searchProfiles() method to execute a search based on the search query parameters. This is used on the
+     * Search Profiles page.
+     *
+     * @param request           an Http Request containing Json Body.
+     * @return                  unauthorized() (Http 401) if the user is not logged in.
+     *                          ok() (Http 200) if the search is successful.
+     */
+    public Result listAll(Http.Request request) {
+
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(NOT_SIGNED_IN);
+        }
+
+        List<Profile> profiles;
+        ExpressionList<Profile> expressionList = profileRepository.getExpressionList();
+
+        String getError = validQueryString(request);
+
+        if (getError != null) {
+            return badRequest(getError);
+        }
+
+        searchProfiles(expressionList, request);
+
+        profiles = expressionList.findList();
 
         return ok(Json.toJson(profiles));
     }
@@ -578,16 +628,20 @@ public class ProfileController {
     /**
      * Validates the search query string for profiles.
      *
-     * @param queryString           the query string from the request body, given by the user.
-     * @return                      string message of error in query string, empty if no error present.
+     * @param request          the Http request containing the query string, given by the user.
+     * @return                 string message of error in query string, empty if no error present.
      */
-    private String validQueryString(Map<String, String[]> queryString) {
-        Integer minAge;
-        Integer maxAge;
-
+    private String validQueryString(Http.Request request) {
+        Integer minAge = 0;
+        Integer maxAge = 120;
+        if (request.getQueryString(MIN_AGE) == null || request.getQueryString(MAX_AGE) == null) {
+            return null;
+        }
         try {
-            minAge = Integer.valueOf(queryString.get(MIN_AGE)[0]);
-            maxAge = Integer.valueOf(queryString.get(MAX_AGE)[0]);
+            if (!request.getQueryString(MIN_AGE).isEmpty() && !request.getQueryString(MAX_AGE).isEmpty()) {
+                minAge = Integer.valueOf(request.getQueryString(MIN_AGE));
+                maxAge = Integer.valueOf(request.getQueryString(MAX_AGE));
+            }
         } catch (Exception e) {
             return "Ages cannot be converted to Integers";
         }
@@ -610,40 +664,63 @@ public class ProfileController {
 
     /**
      * Function to validate a query string and return a list of profiles based on the query string.
-     * If no profiles are found, return an empty list. This is used on the Search Profiles page.
+     * If no profiles are found, return an empty list. This is used on the leader board page for searching for profiles.
      *
-     * @param queryString       the query string of the search parameters that are used for searching for profiles.
-     * @return                  the list of profiles found from the resulting query string (can be empty).
+     * @param expressionList    the ExpressionList containing the relevant search queries.
+     * @param request           the Http request containing the specified query string.
      */
-    private List<Profile> searchProfiles(Map<String, String[]> queryString) {
-        ExpressionList<Profile> profileExpressionList = Ebean.find(Profile.class).where();
-        String nationality = queryString.get(NATIONALITY)[0];
-        String gender = queryString.get(GENDER)[0];
-        String minAge = queryString.get(MIN_AGE)[0];
-        String maxAge = queryString.get(MAX_AGE)[0];
-        String travellerType = queryString.get(TRAVELLER_TYPE)[0];
+    private void searchProfiles(ExpressionList<Profile> expressionList, Http.Request request) {
         LocalDate minDate = LocalDate.of(1000, 1, 1);
         LocalDate maxDate = LocalDate.of(3000, 12, 30);
 
-        if (gender.length() != 0) {
-            profileExpressionList.eq(GENDER, gender);
-        }
-        if ((maxAge.length() != 0)) {
-            minDate = LocalDate.now().minusYears(Integer.parseInt(maxAge) + AGE_SEARCH_OFFSET);
-        }
-        if ((minAge.length() != 0)) {
-            maxDate = LocalDate.now().minusYears(Integer.parseInt(minAge));
-        }
-        profileExpressionList.between(DATE_OF_BIRTH, minDate, maxDate);
-
-        if (nationality.length() != 0) {
-            profileExpressionList.eq(NATIONALITY_FIELD, nationality);
-        }
-        if (travellerType.length() != 0) {
-            profileExpressionList.eq(TRAVELLER_TYPE_FIELD, travellerType);
+        if(request.getQueryString(NAME) != null && !request.getQueryString(NAME).isEmpty()) {
+            // Uses the name part of the query to search for profiles by their first, middle or last names.
+            expressionList.disjunction()
+                    .eq(FIRST_NAME, request.getQueryString(NAME))
+                    .eq(MIDDLE_NAME, request.getQueryString(NAME))
+                    .eq(LAST_NAME, request.getQueryString(NAME))
+            .endJunction();
         }
 
-        return profileExpressionList.findList();
+        if(request.getQueryString(GENDER) != null && !request.getQueryString(GENDER).isEmpty()) {
+            expressionList.eq(GENDER, request.getQueryString(GENDER));
+        }
+
+        if(request.getQueryString(MIN_AGE) != null && !request.getQueryString(MIN_AGE).isEmpty()) {
+            maxDate = LocalDate.now().minusYears(Integer.parseInt(request.getQueryString(MIN_AGE)));
+        }
+
+        if(request.getQueryString(MAX_AGE) != null && !request.getQueryString(MAX_AGE).isEmpty()) {
+            minDate = LocalDate.now().minusYears(Integer.parseInt(request.getQueryString(MAX_AGE)) + AGE_SEARCH_OFFSET);
+        }
+        expressionList.between(DATE_OF_BIRTH, minDate, maxDate);
+
+        if(request.getQueryString(NATIONALITY) != null && !request.getQueryString(NATIONALITY).isEmpty()) {
+            expressionList.eq(NATIONALITY_FIELD, request.getQueryString(NATIONALITY));
+        }
+
+        if(request.getQueryString(TRAVELLER_TYPE) != null && !request.getQueryString(TRAVELLER_TYPE).isEmpty()) {
+            expressionList.eq(TRAVELLER_TYPE_FIELD, request.getQueryString(TRAVELLER_TYPE));
+        }
+    }
+
+
+    /**
+     * Retrieves the total number of profiles stored in the database. This is so the pagination can display the total
+     * number of profiles in the database.
+     *
+     * @param request   an Http request containing the login information and authentication data.
+     * @return          unauthorized() (Http 401) if the user is not logged in.
+     *                  ok() (Http 200) containing the total number of profiles stored in the database.
+     */
+    public Result getTotalNumberOfProfiles(Http.Request request) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        return ok(Json.toJson(profileRepository.findCount()));
     }
 
 

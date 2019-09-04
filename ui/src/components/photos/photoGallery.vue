@@ -1,6 +1,8 @@
 <template>
     <div class="bg-white mt-5 pl-3 pr-3 pb-3">
-        <h1 class="page-title">Personal Media</h1>
+        <div class="upperPadding">
+            <h1 class="page-title">Personal Media</h1>
+        </div>
         <p v-if="authentication" class="page-title"><i>Here are your photos</i></p>
 
         <b-alert
@@ -38,12 +40,12 @@
                      :userProfile="userProfile"
                      :adminView="adminView"
                      :privacy-update="updatePhotoPrivacy"
-                     :photo-click="photoClicked"
+                     @photo-click="photoClicked"
         >
         </photo-table>
         <b-modal centered hide-footer ref="modalImage" size="xl">
             <b-img-lazy v-if="photoToView !== null" :src="getFullPhoto()" alt="Image couldn't be retrieved"
-                        @error="imageAlt" center fluid>
+                        onerror="this.src = '../../../static/default_image.png'" center fluid>
             </b-img-lazy>
             <b-row>
                 <b-col>
@@ -167,8 +169,9 @@
              *
              * @param photo     photo object being clicked on.
              */
-            photoClicked: function (photo) {
+            photoClicked(photo) {
                 this.photoToView = photo;
+                console.log(this.photoToView);
                 this.$refs['modalImage'].show();
             },
 
@@ -264,9 +267,9 @@
                             if (this.authentication || photos[i].public || self.adminView) {
                                 self.photos.push(photos[i]);
                                 self.reloadPhotoTable += 1;
-                                self.retrievingPhotos = false;
                             }
                         }
+                        self.retrievingPhotos = false;
                     })
             },
 
@@ -371,3 +374,6 @@
         }
     }
 </script>
+<style scoped>
+    @import "../../css/dash.css";
+</style>
