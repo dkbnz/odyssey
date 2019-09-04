@@ -432,7 +432,7 @@
                         self.resetDestForm();
                         self.showAlert();
                         self.$emit('data-changed');
-                        self.createPointToast(responseBody.pointsRewarded);
+                        self.createPointToast(responseBody.pointsRewarded, "Destination Created");
                         return responseBody;
                     });
             },
@@ -513,11 +513,12 @@
             /**
              * Displays a toast saying they've gained a certain amount of points.
              * @param points the points to display.
+             * @param title the title of the toast, indicating the context of the point gain.
              */
-            createPointToast(points) {
+            createPointToast(points, title) {
                 let message = "Your points have increased by " + points;
                 this.$bvToast.toast(message, {
-                    title: 'Points Increased',
+                    title: title,
                     autoHideDelay: 3000,
                     appendToast: true
                 })
