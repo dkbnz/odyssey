@@ -432,7 +432,7 @@ public class ProfileTestSteps {
     }
 
 
-    @When("^I search for profiles by \"(.*)\" with value \"(.*)\"$")
+    @When("^I search for profiles by \"((?!.*\").*)\" with value \"(.*)\"$")
     public void iSearchForProfilesByFieldWithValue(String searchField, String searchValue) {
         searchValue = searchValue.replace(" ", "%20");
         String searchQuery = createSearchProfileQueryString(searchField, searchValue);
