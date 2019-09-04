@@ -131,6 +131,9 @@
         watch: {
             profileList() {
                 this.getRows();
+                if (this.perPage * this.currentPage > this.profileList.length) {
+                    this.$emit('get-more');
+                }
             },
 
             perPage() {
