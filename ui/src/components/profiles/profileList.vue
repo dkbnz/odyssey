@@ -131,13 +131,22 @@
         watch: {
             profileList() {
                 this.getRows();
-                if (this.perPage === Infinity) {
-                    this.currentPage = 1;
-                }
             },
 
             perPage() {
                 this.getRows();
+                if (this.perPage * this.currentPage > this.profileList.length) {
+                    this.$emit('get-more');
+                }
+                if (this.perPage === Infinity && this.profileList.length <= this.rows) {
+                    this.$emit('get-all');
+                }
+            },
+
+            currentPage() {
+                if (this.perPage * this.currentPage > this.profileList.length) {
+                    this.$emit('get-more');
+                }
             }
         },
 
@@ -191,11 +200,14 @@
              */
             getRows() {
                 if (this.perPage === Infinity) {
-                    this.rows = Infinity;
+                    this.rows = 10;
                 } else {
-                    this.rows = this.profileList.length
+                    fetch('/v1/profiles/count',  {
+                        accept: "application/json"
+                    })
+                        .then(response => response.json())
+                        .then(data => this.rows = data);
                 }
-
             }
         }
     }

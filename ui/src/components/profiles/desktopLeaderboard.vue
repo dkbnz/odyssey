@@ -21,11 +21,11 @@
             <h1 class="page-title">Leaderboard</h1>
             <p class="page-title"><i>Find other players using any of the fields below</i></p>
 
-            <b-row style="margin-top: 40px">
+            <b-row style="margin-top: 40px" v-if="!minimalInfo">
                 <b-col sm="4">
                     <profile-search-form
                             :userProfile="profile"
-                            @search="queryProfiles">
+                            @search="searchProfiles">
                     </profile-search-form>
                 </b-col>
                 <b-col sm="8">
@@ -33,30 +33,53 @@
                     <profile-list
                             :profile-list="profiles"
                             :profile="profile"
+                            :userProfile="profile"
                             :loading="retrievingProfiles"
                             :admin-view="minimalInfo"
                             @make-admin="makeAdmin"
                             @remove-admin="removeAdmin"
                             @admin-edit="profileEdited => $emit('admin-edit', profileEdited)"
                             @profile-delete="sendProfileToModal"
+                            @get-more="getMore"
+                            @get-all="getAll"
                     >
                     </profile-list>
-                    <b-list-group-item href="#" class="flex-column justify-content-center">
+                    <div class="flex-column justify-content-center">
                         <div class="d-flex justify-content-center" v-if="retrievingProfiles">
                             <b-spinner label="Loading..."></b-spinner>
                         </div>
-                        <div class="d-flex justify-content-center" v-else>
+                        <div align="center" v-else>
                             <div v-if="moreResults">
-                                <b-button variant="success" @click="getMore" block>More</b-button>
+                                <b-button variant="success" @click="getMore" block>Get More Profiles</b-button>
                             </div>
                             <div v-else>
                                 <h5 class="mb-1">No More Results</h5>
                             </div>
                         </div>
 
-                    </b-list-group-item>
+                    </div>
                 </b-col>
             </b-row>
+            <div v-else>
+                <profile-search-form
+                        :userProfile="profile"
+                        @search="searchProfiles">
+                </profile-search-form>
+                <profile-list
+                        :profile-list="profiles"
+                        :profile="profile"
+                        :userProfile="profile"
+                        :loading="retrievingProfiles"
+                        :admin-view="minimalInfo"
+                        @make-admin="makeAdmin"
+                        @remove-admin="removeAdmin"
+                        @admin-edit="profileEdited => $emit('admin-edit', profileEdited)"
+                        @profile-delete="sendProfileToModal"
+                        @get-more="getMore"
+                        @get-all="getAll"
+                >
+                </profile-list>
+            </div>
         </div>
         <footer-main></footer-main>
     </div>
@@ -125,7 +148,9 @@
                 selectedProfile: "",
                 alertMessage: "",
                 queryPage: 0,
-                moreResults: true
+                moreResults: true,
+                gettingMore: false,
+                gettingAll: false
             }
         },
 
@@ -257,7 +282,29 @@
              */
             getMore() {
                 this.queryPage += 1;
-                this.queryProfiles({"page": this.queryPage});
+                this.queryProfiles();
+                this.gettingMore = true;
+            },
+
+
+            /**
+             * Retrieves all the profiles stored in the database on the handles emit event.
+             */
+            getAll() {
+                this.gettingAll = true;
+                this.queryAllProfiles();
+            },
+
+
+            /**
+             * Used to initialise the appropriate parameters for searching for profiles.
+             */
+            searchProfiles(searchParameters) {
+                this.queryPage = 0;
+                this.queryProfiles(searchParameters);
+                if (this.gettingAll) {
+                    this.queryAllProfiles();
+                }
             },
 
 
@@ -268,16 +315,24 @@
                 this.retrievingProfiles = true;
                 let searchQuery = "";
                 if (searchParameters !== undefined) {
-                    if (!searchParameters.page) {
-                        searchParameters.page = 0;
-                    }
+                    this.gettingMore = false;
                     searchQuery =
-                        "?nationalities=" + searchParameters.nationality +
+                        "?name=" + searchParameters.name +
+                        "&nationalities=" + searchParameters.nationality +
                         "&gender=" + searchParameters.gender +
-                        "&min_age=" + searchParameters.minAge +
-                        "&max_age=" + searchParameters.maxAge +
+                        "&min_age=" + searchParameters.age[0] +
+                        "&max_age=" + searchParameters.age[1] +
                         "&travellerTypes=" + searchParameters.travellerType +
-                        "&page=" + searchParameters.page;
+                        "&page=" + this.queryPage;
+                } else {
+                    searchQuery =
+                        "?name=" + "" +
+                        "&nationalities=" + "" +
+                        "&gender=" + "" +
+                        "&min_age=" + "" +
+                        "&max_age=" + "" +
+                        "&travellerTypes=" + "" +
+                        "&page=" + this.queryPage;
                 }
 
                 return fetch(`/v1/profiles` + searchQuery, {
@@ -291,10 +346,56 @@
                         } else {
                             this.moreResults = true;
                         }
-                        for (var i = 0; i < data.length; i++) {
-                            this.profiles.push(data[i]);
+                        if (!this.gettingMore && data.length === 0) {
+                            this.profiles = [];
+                        }
+                        for (let i = 0; i < data.length; i++) {
+                            if (this.gettingMore) {
+                                this.profiles.push(data[i]);
+                            } else {
+                                this.gettingMore = false;
+                                this.profiles = data;
+                            }
                         }
                         this.retrievingProfiles = false;
+                    })
+            },
+
+
+            /**
+             * Queries database for all profiles which fit search criteria.
+             */
+            queryAllProfiles(searchParameters) {
+                this.retrievingProfiles = true;
+                let searchQuery = "";
+                if (searchParameters !== undefined) {
+                    this.gettingMore = false;
+                    searchQuery =
+                        "?name=" + searchParameters.name +
+                        "&nationalities=" + searchParameters.nationality +
+                        "&gender=" + searchParameters.gender +
+                        "&min_age=" + searchParameters.age[0] +
+                        "&max_age=" + searchParameters.age[1] +
+                        "&travellerTypes=" + searchParameters.travellerType
+                } else {
+                    searchQuery =
+                        "?name=" + "" +
+                        "&nationalities=" + "" +
+                        "&gender=" + "" +
+                        "&min_age=" + "" +
+                        "&max_age=" + "" +
+                        "&travellerTypes=" + ""
+                }
+
+                return fetch(`/v1/profiles/all` + searchQuery, {
+                    method: "GET"
+                })
+                    .then(this.checkStatus)
+                    .then(this.parseJSON)
+                    .then((data) => {
+                        this.profiles = data;
+                        this.retrievingProfiles = false;
+                        this.moreResults = false;
                     })
             },
 

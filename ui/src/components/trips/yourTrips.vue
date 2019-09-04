@@ -1,7 +1,7 @@
 <template>
     <div class="bg-white mt-5 pl-3 pr-3 pb-3">
         <!-- Div for all the user's future trips -->
-        <div id="upcomingTrips">
+        <div id="upcomingTrips" class="upperPadding">
             <h1 class="page-title">Upcoming Trips</h1>
             <p class="page-title"><i>Here are your upcoming trips!</i></p>
             <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
@@ -649,4 +649,5 @@
 
 <style scoped>
     @import "../../css/yourTrips.css";
+    @import "../../css/dash.css";
 </style>

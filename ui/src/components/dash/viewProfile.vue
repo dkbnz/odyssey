@@ -2,8 +2,7 @@
     <b-container fluid class="pt-2">
         <b-row>
             <b-col md="4" class="p-0 pl-2">
-
-                <div class="p-3 bg-white">
+                <div class="p-3 bg-white fixedElement">
                     <!-- The profile picture of the current profile being viewed. -->
 
                     <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
@@ -51,37 +50,39 @@
             <b-col md="8">
                 <div>
                     <div class="bg-white pl-3 pr-3 pb-3">
-                        <h1 class="page-title">Quests</h1>
-                        <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
-                        <active-quest-list
-                                :quest-attempts="questAttempts"
-                                :loading-results="loadingResults"
-                                @quest-attempt-clicked="showAddQuestAttempt">
-                        </active-quest-list>
-                        <b-modal id="modal-selected-quest" centered ref="selected-quest-modal">
-                            <div v-if="selectedQuest" slot="modal-title" class="mb-1">
-                                {{selectedQuest.title}}
-                            </div>
-                            <div v-if="selectedQuest">
-
-                                <div class="d-flex w-100 justify-content-center">
-                                    <p>{{new Date(selectedQuest.startDate).toLocaleDateString()}} &rarr;
-                                        {{new Date(selectedQuest.endDate).toLocaleDateString()}}</p>
+                        <div class="upperPadding mobileMargins">
+                            <h1 class="page-title">Quests</h1>
+                            <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
+                            <active-quest-list
+                                    :quest-attempts="questAttempts"
+                                    :loading-results="loadingResults"
+                                    @quest-attempt-clicked="showAddQuestAttempt">
+                            </active-quest-list>
+                            <b-modal id="modal-selected-quest" centered ref="selected-quest-modal">
+                                <div v-if="selectedQuest" slot="modal-title" class="mb-1">
+                                    {{selectedQuest.title}}
                                 </div>
-                            </div>
-                            <template slot="modal-footer">
-                                <b-col>
-                                    <b-button @click="$refs['selected-quest-modal'].hide()" block>
-                                        Close
-                                    </b-button>
-                                </b-col>
-                                <b-col>
-                                    <b-button variant="primary"
-                                              @click="addQuestToProfile" block>Add to Your Quests
-                                    </b-button>
-                                </b-col>
-                            </template>
-                        </b-modal>
+                                <div v-if="selectedQuest">
+
+                                    <div class="d-flex w-100 justify-content-center">
+                                        <p>{{new Date(selectedQuest.startDate).toLocaleDateString()}} &rarr;
+                                            {{new Date(selectedQuest.endDate).toLocaleDateString()}}</p>
+                                    </div>
+                                </div>
+                                <template slot="modal-footer">
+                                    <b-col>
+                                        <b-button @click="$refs['selected-quest-modal'].hide()" block>
+                                            Close
+                                        </b-button>
+                                    </b-col>
+                                    <b-col>
+                                        <b-button variant="primary"
+                                                  @click="addQuestToProfile" block>Add to Your Quests
+                                        </b-button>
+                                    </b-col>
+                                </template>
+                            </b-modal>
+                        </div>
                     </div>
 
                     <!-- Displays the profile's photo gallery -->
@@ -93,6 +94,7 @@
                                    @removePhoto="refreshProfilePicture"
                                    class="d-none d-lg-block">
                     </photo-gallery>
+
                     <!-- Displays a profile's trips -->
                     <your-trips :adminView="adminView"
                                 :destinations="destinations"
@@ -215,10 +217,14 @@
         watch: {
             userProfile() {
                 this.checkAuthentication();
+                this.getProfilePictureThumbnail();
+                this.getProfilePictureFull();
             },
 
             profile() {
                 this.queryYourActiveQuests();
+                this.getProfilePictureThumbnail();
+                this.getProfilePictureFull();
             }
         },
 
@@ -338,11 +344,7 @@
              * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
              */
             getProfilePictureThumbnail() {
-                if (this.profile.profilePicture !== null && this.profile.profilePicture !== undefined) {
-                    this.profileImageThumb = `/v1/photos/thumb/` + this.profile.profilePicture.id;
-                } else {
-                    this.profileImageThumb = "../../../static/default_profile_picture.png";
-                }
+                this.profileImageThumb = `/v1/photos/thumb/` + this.profile.profilePicture.id;
             },
 
 
@@ -518,3 +520,6 @@
         }
     }
 </script>
+<style scoped>
+    @import "../../css/dash.css";
+</style>

@@ -89,7 +89,7 @@
                                   trim v-model="saveProfile.dateOfBirth">
                     </b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
-                        You need a date of birth.
+                        You need a date of birth before today and after 01/01/1900.
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="dateOfBirthValidation">
                         Looks Good
@@ -357,7 +357,8 @@
                 if (this.saveProfile.dateOfBirth.length === 0) {
                     return false;
                 }
-                return this.saveProfile.dateOfBirth.length > 0;
+                let minDate = "1900-01-01";
+                return this.saveProfile.dateOfBirth.length > 0 && this.saveProfile.dateOfBirth < this.todaysDate && this.saveProfile.dateOfBirth >= minDate;
             },
             genderValidation() {
                 if (this.saveProfile.gender.length === 0) {
@@ -382,6 +383,28 @@
                     return false;
                 }
                 return this.saveProfileTravellerTypes.length > 0;
+            },
+
+
+            /**
+             * Get the current date and return it in the format.
+             * yyyy-mm-dd.
+             *
+             * @returns Current date in format yyyy-mm-dd
+             */
+            todaysDate() {
+                let today = new Date();
+                let dd = today.getDate();
+                let mm = today.getMonth() + 1; //January is 0!
+                let yyyy = today.getFullYear();
+                if (dd < 10) {
+                    dd = '0' + dd
+                }
+                if (mm < 10) {
+                    mm = '0' + mm
+                }
+                today = yyyy + '-' + mm + '-' + dd;
+                return today
             },
 
 

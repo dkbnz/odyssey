@@ -177,6 +177,7 @@ public class PhotoController extends Controller {
             return notFound();
         }
 
+
         Profile photoOwner = photo.getProfile();
 
         if (!AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
@@ -188,6 +189,8 @@ public class PhotoController extends Controller {
                 destinationRepository.update(destination);
             }
             photoOwner.removePhotoFromGallery(photo);
+            photo.clearDestinations();
+            personalPhotoRepository.update(photo);
             personalPhotoRepository.delete(photo);
             profileRepository.update(photoOwner);
             return ok();

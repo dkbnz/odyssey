@@ -88,3 +88,67 @@ Feature: Profile API Endpoint
     And a user does not exist with the username "testuser10@email.com"
     When I change the username of the user with id 3 to "testuser10@email.com"
     Then the status code received is 403
+
+
+  Scenario: Searching for all profiles by nationality
+    Given I am logged in
+    And a user exists in the database with the id 1 and username "admin@travelea.com"
+    When I search for profiles by "nationalities" with value "New Zealand"
+    Then the status code received is 200
+    And the response contains the profile with username "admin@travelea.com"
+
+
+  Scenario: Searching for all profiles by first name
+    Given I am logged in
+    And a user exists in the database with the id 1 and username "admin@travelea.com"
+    When I search for profiles by "name" with value "Default"
+    Then the status code received is 200
+    And the response contains the profile with username "admin@travelea.com"
+
+
+  Scenario: Searching for all profiles by middle name
+    Given I am logged in
+    And a user exists in the database with the id 2 and username "guestUser@travelea.com"
+    When I search for profiles by "name" with value "John"
+    Then the status code received is 200
+    And the response contains the profile with username "guestUser@travelea.com"
+
+
+  Scenario: Searching for all profiles by last name
+    Given I am logged in
+    And a user exists in the database with the id 1 and username "admin@travelea.com"
+    When I search for profiles by "name" with value "Admin"
+    Then the status code received is 200
+    And the response contains the profile with username "admin@travelea.com"
+
+
+  Scenario: Searching for all profiles by traveller type
+    Given I am logged in
+    And a user exists in the database with the id 1 and username "admin@travelea.com"
+    When I search for profiles by "travellerTypes" with value "Functional/Business"
+    Then the status code received is 200
+    And the response contains the profile with username "admin@travelea.com"
+
+
+  Scenario: Searching for all profiles by gender
+    Given I am logged in
+    And a user exists in the database with the id 1 and username "admin@travelea.com"
+    When I search for profiles by "gender" with value "Male"
+    Then the status code received is 200
+    And the response contains the profile with username "admin@travelea.com"
+
+
+  Scenario: Searching for all profiles by min age
+    Given I am logged in
+    And a user exists in the database with the id 1 and username "admin@travelea.com"
+    When I search for profiles by "min_age" with value "1"
+    Then the status code received is 200
+    And the response contains the profile with username "admin@travelea.com"
+
+
+  Scenario: Searching for all profiles by max age
+    Given I am logged in
+    And a user exists in the database with the id 1 and username "admin@travelea.com"
+    When I search for profiles by "max_age" with value "200"
+    Then the status code received is 200
+    And the response contains the profile with username "admin@travelea.com"

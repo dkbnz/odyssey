@@ -94,11 +94,12 @@
                         label-for="dateOfBirth">
                     <b-form-input :state="dateOfBirthValidation"
                                   id="dateOfBirth"
+                                  min="1900-01-01"
                                   required
                                   trim
                                   type="date" v-model="dateOfBirth"></b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
-                        You need a date of birth before today.
+                        You need a date of birth before today and after 01/01/1900.
                     </b-form-invalid-feedback>
                 </b-form-group>
 
@@ -116,7 +117,9 @@
                     </b-form-invalid-feedback>
                 </b-form-group>
 
-                <b-alert dismissible v-model="showError" variant="danger">The form contains errors! Please ensure that all fields are green</b-alert>
+                <b-alert dismissible v-model="showError" variant="danger">The form contains errors! Please ensure that
+                    all fields are green
+                </b-alert>
                 <b-button @click="checkPersonalForm" block variant="primary">Next</b-button>
 
             </b-form>
@@ -154,9 +157,9 @@
                                 label="Passport Country:"
                                 label-for="passports">
                             <b-form-select
-                                           id="passports"
-                                           multiple
-                                           trim v-model="passports">
+                                    id="passports"
+                                    multiple
+                                    trim v-model="passports">
                                 <option :value="{id: nationality.id, country: nationality.country}"
                                         v-for="nationality in nationalityOptions">
                                     {{nationality.country}}
@@ -186,7 +189,7 @@
                                           :state="travTypeValidation"
                                           :text="travType.description"
                                           v-for="travType in travTypeOptions">
-                            <b-form-checkbox :value="{id: travType.id, travellerType: travType.travellerType}"
+                            <b-form-checkbox size="lg" :value="{id: travType.id, travellerType: travType.travellerType}"
                                              v-model="travellerTypes">
                             </b-form-checkbox>
                         </b-carousel-slide>
@@ -340,7 +343,8 @@
                 if (this.dateOfBirth.length === 0) {
                     return null;
                 }
-                return this.dateOfBirth.length > 0 && this.dateOfBirth < this.todaysDate;
+                let minDate = "1900-01-01";
+                return this.dateOfBirth.length > 0 && this.dateOfBirth < this.todaysDate && this.dateOfBirth >= minDate;
             },
 
 
@@ -417,7 +421,7 @@
                     this.showError = false;
                     this.nextPage();
                 } else {
-                        this.showError = true;
+                    this.showError = true;
                     return false
                 }
             },

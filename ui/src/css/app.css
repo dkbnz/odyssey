@@ -154,3 +154,24 @@ a {
 .no-wrap-text {
     white-space: nowrap;
 }
+
+.fixedElement {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+}
+
+@media only screen and (min-device-width: 992px) {
+    .show-only-mobile {
+        visibility: hidden;
+    }
+}
+
+@media only screen and (max-device-width: 991px) {
+    .mobileMargins {
+        margin-top: 10px;
+    }
+    .show-only-desktop {
+        visibility: hidden;
+    }
+}
