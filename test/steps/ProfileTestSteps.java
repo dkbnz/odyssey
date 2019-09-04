@@ -98,6 +98,8 @@ public class ProfileTestSteps {
     private static final String RANK = "rank";
     private static final String MIN_AGE = "min_age";
     private static final String MAX_AGE = "max_age";
+    private static final String SORT_BY = "sortBy";
+    private static final String SORT_ORDER = "sortOrder";
 
     /**
      * String to add the equals character (=) to build a query string.
@@ -222,7 +224,6 @@ public class ProfileTestSteps {
         String nationality = getValue(NATIONALITY, searchField, searchValue);
         String gender = getValue(GENDER, searchField, searchValue);
         String travellerType = getValue(TRAVELLER_TYPE, searchField, searchValue);
-        String rank = getValue(RANK, searchField, searchValue);
         String minAge = getValue(MIN_AGE, searchField, searchValue);
         String maxAge = getValue(MAX_AGE, searchField, searchValue);
 
@@ -238,7 +239,11 @@ public class ProfileTestSteps {
                 + AND
                 + TRAVELLER_TYPE + EQUALS + travellerType
                 + AND
-                + NAME + EQUALS + name;
+                + NAME + EQUALS + name
+                + AND
+                + SORT_BY + EQUALS + ""
+                + AND
+                + SORT_ORDER + EQUALS + "";
 
     }
 
@@ -436,6 +441,7 @@ public class ProfileTestSteps {
     public void iSearchForProfilesByFieldWithValue(String searchField, String searchValue) {
         searchValue = searchValue.replace(" ", "%20");
         String searchQuery = createSearchProfileQueryString(searchField, searchValue);
+        System.out.println(searchQuery);
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .session(AUTHORIZED, TestContext.getInstance().getLoggedInId())
