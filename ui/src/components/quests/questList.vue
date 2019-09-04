@@ -603,7 +603,7 @@
 
                 // If points were given, also set the data value, otherwise make sure it's the default of 0 to hide it.
                 if (messageObject.pointsRewarded != null) {
-                    this.createPointToast(messageObject.pointsRewarded);
+                    this.createPointToast(messageObject.pointsRewarded, "Quest Created");
                 }
                 this.showAlert();
             },
@@ -612,11 +612,12 @@
             /**
              * Displays a toast saying they've gained a certain amount of points.
              * @param points the points to display.
+             * @param title the title of the toast, indicating the context of the point gain.
              */
-            createPointToast(points) {
+            createPointToast(points, title) {
                 let message = "Your points have increased by " + points;
                 this.$bvToast.toast(message, {
-                    title: 'Points Increased',
+                    title: title,
                     autoHideDelay: 3000,
                     appendToast: true
                 })
