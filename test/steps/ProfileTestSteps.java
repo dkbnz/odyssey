@@ -7,6 +7,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
+import models.points.AchievementTracker;
 import models.profiles.Profile;
 import org.junit.Assert;
 import org.springframework.beans.BeansException;
@@ -98,6 +99,8 @@ public class ProfileTestSteps {
     private static final String RANK = "rank";
     private static final String MIN_AGE = "min_age";
     private static final String MAX_AGE = "max_age";
+    private static final String MIN_POINTS = "min_points";
+    private static final String MAX_POINTS = "max_points";
     private static final String SORT_BY = "sortBy";
     private static final String SORT_ORDER = "sortOrder";
     private static final String PAGE = "page";
@@ -209,17 +212,19 @@ public class ProfileTestSteps {
      * Checks if the given field matches the search field. If so, returns the given value to search.
      *
      * @param searchField       the search field name as defined by the application.
-     * @param givenField        the field name given to the test.
-     * @param givenValue        the value to search for if the search and given fields match.
+     * @param givenFields       the field name given to the test.
+     * @param givenValues       the value to search for if the search and given fields match.
      * @return                  a string that contains the given value or an empty string.
      */
-    private String getValue(String searchField, String givenField, String givenValue) {
-        if (searchField.equals(MIN_AGE) && givenField.equals(MIN_AGE) && givenValue.isEmpty()) {
-            return "0";
-        } else if (searchField.equals(MAX_AGE) && givenField.equals(MAX_AGE) && givenValue.isEmpty()) {
-            return "120";
+    private String getValue(String searchField, List<String> givenFields, List<String> givenValues) {
+        int index = 0;
+        for (String givenField : givenFields) {
+            if (searchField.equals(givenField)){
+                return givenValues.get(index);
+            }
+            index += 1;
         }
-        return searchField.equals(givenField) ? givenValue : "";
+        return "";
     }
 
 
@@ -232,14 +237,18 @@ public class ProfileTestSteps {
      * @param searchValue       the given search value for associated field.
      * @return                  the complete query string.
      */
-    private String createSearchProfileQueryString(String searchField, String searchValue) {
-        String name = getValue(NAME, searchField, searchValue);
-        String nationality = getValue(NATIONALITY, searchField, searchValue);
-        String gender = getValue(GENDER, searchField, searchValue);
-        String travellerType = getValue(TRAVELLER_TYPE, searchField, searchValue);
-        String minAge = getValue(MIN_AGE, searchField, searchValue);
-        String maxAge = getValue(MAX_AGE, searchField, searchValue);
+    private String createSearchProfileQueryString(List<String> givenFields, List<String> givenValues) {
+        String name = getValue(NAME, givenFields, givenValues);
+        String nationality = getValue(NATIONALITY, givenFields, givenValues);
+        String gender = getValue(GENDER, givenFields, givenValues);
+        String travellerType = getValue(TRAVELLER_TYPE, givenFields, givenValues);
+        String minAge = getValue(MIN_AGE, givenFields, givenValues);
+        String maxAge = getValue(MAX_AGE, givenFields, givenValues);
+        String minPoints = getValue(MIN_POINTS, givenFields, givenValues);
+        String maxPoints = getValue(MAX_POINTS, givenFields, givenValues);
 
+        minAge = minAge.equals("") ? "0"    : minAge;
+        maxAge = maxAge.equals("") ? "120"  : maxAge;
 
         return QUESTION_MARK
                 + NATIONALITY + EQUALS + nationality
@@ -254,6 +263,10 @@ public class ProfileTestSteps {
                 + AND
                 + NAME + EQUALS + name
                 + AND
+                + MIN_POINTS + EQUALS + minPoints
+                + AND
+                + MAX_POINTS + EQUALS + maxPoints
+                + AND
                 + SORT_BY + EQUALS + ""
                 + AND
                 + SORT_ORDER + EQUALS + ""
@@ -262,6 +275,84 @@ public class ProfileTestSteps {
                 + AND
                 + PAGE_SIZE + EQUALS + DEFAULT_PAGE_SIZE;
 
+    }
+
+
+    @Given("^The following profile exists with username \"(.*)\" within the TravelEA database:$")
+    public void theFollowingProfileExistsWithUsernameWithinTheTravelEADatabase(String username) {
+        // Sends the fake request
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, "1")
+                .uri(PROFILES_URI);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+
+        // Gets the response
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+
+        // Finds profile from the iterator
+        boolean foundProfile = false;
+        while (iterator.hasNext() && !foundProfile) {
+            JsonNode jsonProfile = iterator.next();
+            if (jsonProfile.get(USERNAME).asText().equals(username)) {
+                foundProfile = true;
+            }
+        }
+
+        Assert.assertTrue(foundProfile);
+    }
+
+
+    @Given("^The following profile does not exist with the username \"(.*)\" within the TravelEA database$")
+    public void theFollowingProfileDoesNotExistWithTheUsernameWithinTheTravelEADatabase(String username) {
+        // Sends the fake request
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, "1")
+                .uri(PROFILES_URI);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+
+        // Gets the response
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+
+        // Finds profile from the iterator
+        boolean foundProfile = false;
+        while (iterator.hasNext() && !foundProfile) {
+            JsonNode jsonProfile = iterator.next();
+            if (jsonProfile.get(USERNAME).asText().equals(username)) {
+                foundProfile = true;
+            }
+        }
+
+        Assert.assertFalse(foundProfile);
+    }
+
+
+    @Given("^a user exists in the database with the id (\\d+) and username \"(.*)\"$")
+    public void aUserExistsInTheDatabaseWithTheIdAndUsername(Integer id, String username) {
+        Profile profile = profileRepository.findById(id.longValue());
+        Assert.assertNotNull(profile);
+        Assert.assertEquals(profile.getUsername(), username);
+    }
+
+
+    @Given("^a user does not exist with the username \"(.*)\"$")
+    public void aUserDoesNotExistWithTheUsername(String username) {
+        Assert.assertNull(profileRepository.getExpressionList()
+                .like(USERNAME, username)
+                .findOne());
+    }
+
+
+    @Given("^the user (\\d+) has (\\d+) points$")
+    public void theUserHasPoints(Integer userId, Integer points) {
+        Profile profile = profileRepository.findById(userId.longValue());
+        AchievementTracker achievementTracker = profile.getAchievementTracker(); //Null profile fails test, which is fine
+        achievementTracker.addPoints(points);
+        profileRepository.update(profile);
+        Assert.assertEquals(points.longValue(), achievementTracker.getPoints());
     }
 
 
@@ -355,32 +446,6 @@ public class ProfileTestSteps {
     }
 
 
-    @Given("^The following profile exists with username \"(.*)\" within the TravelEA database:$")
-    public void theFollowingProfileExistsWithUsernameWithinTheTravelEADatabase(String username) {
-        // Sends the fake request
-        Http.RequestBuilder request = fakeRequest()
-                .method(GET)
-                .session(AUTHORIZED, "1")
-                .uri(PROFILES_URI);
-        Result result = route(testContext.getApplication(), request);
-        testContext.setStatusCode(result.status());
-
-        // Gets the response
-        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
-
-        // Finds profile from the iterator
-        boolean foundProfile = false;
-        while (iterator.hasNext() && !foundProfile) {
-            JsonNode jsonProfile = iterator.next();
-            if (jsonProfile.get(USERNAME).asText().equals(username)) {
-                foundProfile = true;
-            }
-        }
-
-        Assert.assertTrue(foundProfile);
-    }
-
-
     @When("A user attempts to create a profile with the following fields:")
     public void aUserAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) {
         // Creates the json for the profile
@@ -393,32 +458,6 @@ public class ProfileTestSteps {
                 .uri(PROFILES_URI);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
-    }
-
-
-    @Given("^The following profile does not exist with the username \"(.*)\" within the TravelEA database$")
-    public void theFollowingProfileDoesNotExistWithTheUsernameWithinTheTravelEADatabase(String username) {
-        // Sends the fake request
-        Http.RequestBuilder request = fakeRequest()
-                .method(GET)
-                .session(AUTHORIZED, "1")
-                .uri(PROFILES_URI);
-        Result result = route(testContext.getApplication(), request);
-        testContext.setStatusCode(result.status());
-
-        // Gets the response
-        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
-
-        // Finds profile from the iterator
-        boolean foundProfile = false;
-        while (iterator.hasNext() && !foundProfile) {
-            JsonNode jsonProfile = iterator.next();
-            if (jsonProfile.get(USERNAME).asText().equals(username)) {
-                foundProfile = true;
-            }
-        }
-
-        Assert.assertFalse(foundProfile);
     }
 
 
@@ -454,13 +493,10 @@ public class ProfileTestSteps {
     }
 
 
-    @When("^I search for profiles by \"(.*)\" with value \"(.*)\"$")
-    public void iSearchForProfilesByFieldWithValue(String searchField, String searchValue) {
-        searchValue = searchValue.replace(" ", "%20");
-        String searchQuery = createSearchProfileQueryString(searchField, searchValue);
+    private void retrieveProfiles(String searchQuery) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, TestContext.getInstance().getLoggedInId())
+                .session(AUTHORIZED, testContext.getLoggedInId())
                 .uri(PROFILES_URI + searchQuery);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
@@ -468,19 +504,36 @@ public class ProfileTestSteps {
     }
 
 
-    @Given("^a user exists in the database with the id (\\d+) and username \"(.*)\"$")
-    public void aUserExistsInTheDatabaseWithTheIdAndUsername(Integer id, String username) {
-        Profile profile = profileRepository.findById(id.longValue());
-        Assert.assertNotNull(profile);
-        Assert.assertEquals(profile.getUsername(), username);
+    @When("^I search for profiles by \"([^\"]*)\" with value \"([^\"]*)\"$")
+    public void iSearchForProfilesByFieldWithValue(String searchField, String searchValue) {
+        searchValue = searchValue.replace(" ", "%20");
+        List<String> searchFields = new ArrayList<>();
+        List<String> searchValues = new ArrayList<>();
+
+        searchFields.add(searchField);
+        searchValues.add(searchValue);
+
+        String searchQuery = createSearchProfileQueryString(searchFields, searchValues);
+
+        retrieveProfiles(searchQuery);
     }
 
 
-    @Given("^a user does not exist with the username \"(.*)\"$")
-    public void aUserDoesNotExistWithTheUsername(String username) {
-        Assert.assertNull(profileRepository.getExpressionList()
-                .like(USERNAME, username)
-                .findOne());
+    @When("^I search for profiles by \"(.*)\" with value \"(.*)\" and by \"(.*)\" with value \"(.*)\"$")
+    public void iSearchForProfilesByWithValueAndByWithValue(String searchField1, String searchValue1, String searchField2, String searchValue2) {
+        searchValue1 = searchValue1.replace(" ", "%20");
+        searchValue2 = searchValue2.replace(" ", "%20");
+        List<String> searchFields = new ArrayList<>();
+        List<String> searchValues = new ArrayList<>();
+
+        searchFields.add(searchField1);
+        searchFields.add(searchField2);
+        searchValues.add(searchValue1);
+        searchValues.add(searchValue2);
+
+        String searchQuery = createSearchProfileQueryString(searchFields, searchValues);
+
+        retrieveProfiles(searchQuery);
     }
 
 
@@ -519,9 +572,14 @@ public class ProfileTestSteps {
     }
 
 
-
     @Then("^the response contains the profile with username \"(.*)\"$")
     public void theResponseContainsProfile(String username) {
         Assert.assertTrue(testContext.getResponseBody().contains(username));
+    }
+
+
+    @Then("^the response does not contain the profile with username \"(.*)\"$")
+    public void theResponseDoesNotContainProfile(String username) {
+        Assert.assertFalse(testContext.getResponseBody().contains(username));
     }
 }
