@@ -203,13 +203,15 @@ public class ProfileTestSteps {
      * @param givenValue        the value to search for if the search and given fields match.
      * @return                  a string that contains the given value or an empty string.
      */
-    private String getValue(String searchField, String givenField, String givenValue) {
-        if (searchField.equals(MIN_AGE) && givenField.equals(MIN_AGE) && givenValue.isEmpty()) {
-            return "0";
-        } else if (searchField.equals(MAX_AGE) && givenField.equals(MAX_AGE) && givenValue.isEmpty()) {
-            return "120";
+    private String getValue(String searchField, List<String> givenFields, List<String> givenValues) {
+        int index = 0;
+        for (String givenField : givenFields) {
+            if (searchField.equals(givenField)){
+                return givenValues.get(index);
+            }
+            index += 1;
         }
-        return searchField.equals(givenField) ? givenValue : "";
+        return "";
     }
 
 
@@ -222,16 +224,18 @@ public class ProfileTestSteps {
      * @param searchValue       the given search value for associated field.
      * @return                  the complete query string.
      */
-    private String createSearchProfileQueryString(String searchField, String searchValue) {
-        String name = getValue(NAME, searchField, searchValue);
-        String nationality = getValue(NATIONALITY, searchField, searchValue);
-        String gender = getValue(GENDER, searchField, searchValue);
-        String travellerType = getValue(TRAVELLER_TYPE, searchField, searchValue);
-        String minAge = getValue(MIN_AGE, searchField, searchValue);
-        String maxAge = getValue(MAX_AGE, searchField, searchValue);
-        String minPoints = getValue(MIN_POINTS, searchField, searchValue);
-        String maxPoints = getValue(MAX_POINTS, searchField, searchValue);
+    private String createSearchProfileQueryString(List<String> givenFields, List<String> givenValues) {
+        String name = getValue(NAME, givenFields, givenValues);
+        String nationality = getValue(NATIONALITY, givenFields, givenValues);
+        String gender = getValue(GENDER, givenFields, givenValues);
+        String travellerType = getValue(TRAVELLER_TYPE, givenFields, givenValues);
+        String minAge = getValue(MIN_AGE, givenFields, givenValues);
+        String maxAge = getValue(MAX_AGE, givenFields, givenValues);
+        String minPoints = getValue(MIN_POINTS, givenFields, givenValues);
+        String maxPoints = getValue(MAX_POINTS, givenFields, givenValues);
 
+        minAge = minAge.equals("") ? "0"    : minAge;
+        maxAge = maxAge.equals("") ? "120"  : maxAge;
 
         return QUESTION_MARK
                 + NATIONALITY + EQUALS + nationality
@@ -332,8 +336,6 @@ public class ProfileTestSteps {
         achievementTracker.addPoints(points);
         profileRepository.update(profile);
         Assert.assertEquals(points.longValue(), achievementTracker.getPoints());
-        System.out.println(profile.getAchievementTracker());
-        System.out.println(profile.getAchievementTracker().getPoints());
     }
 
 
@@ -477,7 +479,14 @@ public class ProfileTestSteps {
     @When("^I search for profiles by \"([^\"]*)\" with value \"([^\"]*)\"$")
     public void iSearchForProfilesByFieldWithValue(String searchField, String searchValue) {
         searchValue = searchValue.replace(" ", "%20");
-        String searchQuery = createSearchProfileQueryString(searchField, searchValue);
+        List<String> searchFields = new ArrayList<>();
+        List<String> searchValues = new ArrayList<>();
+
+        searchFields.add(searchField);
+        searchValues.add(searchValue);
+
+        String searchQuery = createSearchProfileQueryString(searchFields, searchValues);
+
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .session(AUTHORIZED, TestContext.getInstance().getLoggedInId())

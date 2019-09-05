@@ -149,9 +149,16 @@ Feature: Profile API Endpoint
   Scenario: Searching for all profiles by max age
     Given I am logged in
     And a user exists in the database with the id 1 and username "admin@travelea.com"
-    When I search for profiles by "max_age" with value "200"
+    When I search for profiles by "max_age" with value "120"
     Then the status code received is 200
     And the response contains the profile with username "admin@travelea.com"
+
+
+  Scenario: Searching for all profiles by max age which is too high
+    Given I am logged in
+    And a user exists in the database with the id 1 and username "admin@travelea.com"
+    When I search for profiles by "max_age" with value "200"
+    Then the status code received is 400
 
 
   Scenario: Searching for profiles by min number of points
@@ -206,19 +213,19 @@ Feature: Profile API Endpoint
     When I search for profiles by "min_points" with value "5000" and by "max_points" with value "5000"
     Then the status code received is 200
     And the response contains the profile with username "admin@travelea.com"
-
-
-  Scenario: Searching for profiles by country
-    Given I am logged in
-    And a user exists in the database with the id 1 and username "admin@travelea.com"
-    When I search for profiles by "nationality" with value "New Zealand"
-    Then the status code received is 200
-    And the response contains the profile with username "admin@travelea.com"
-
-
-  Scenario: Searching unsuccessfully for profiles by country
-    Given I am logged in
-    And a user exists in the database with the id 1 and username "admin@travelea.com"
-    When I search for profiles by "nationality" with value "Australia"
-    Then the status code received is 200
-    And the response is empty
+#
+#
+#  Scenario: Searching for profiles by country
+#    Given I am logged in
+#    And a user exists in the database with the id 1 and username "admin@travelea.com"
+#    When I search for profiles by "nationality" with value "New Zealand"
+#    Then the status code received is 200
+#    And the response contains the profile with username "admin@travelea.com"
+#
+#
+#  Scenario: Searching unsuccessfully for profiles by country
+#    Given I am logged in
+#    And a user exists in the database with the id 1 and username "admin@travelea.com"
+#    When I search for profiles by "nationality" with value "Australia"
+#    Then the status code received is 200
+#    And the response is empty
