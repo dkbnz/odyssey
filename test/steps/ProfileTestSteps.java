@@ -7,6 +7,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
+import models.points.AchievementTracker;
 import models.profiles.Profile;
 import org.junit.Assert;
 import org.springframework.beans.BeansException;
@@ -98,6 +99,8 @@ public class ProfileTestSteps {
     private static final String RANK = "rank";
     private static final String MIN_AGE = "min_age";
     private static final String MAX_AGE = "max_age";
+    private static final String MIN_POINTS = "min_points";
+    private static final String MAX_POINTS = "max_points";
     private static final String SORT_BY = "sortBy";
     private static final String SORT_ORDER = "sortOrder";
 
@@ -226,6 +229,8 @@ public class ProfileTestSteps {
         String travellerType = getValue(TRAVELLER_TYPE, searchField, searchValue);
         String minAge = getValue(MIN_AGE, searchField, searchValue);
         String maxAge = getValue(MAX_AGE, searchField, searchValue);
+        String minPoints = getValue(MIN_POINTS, searchField, searchValue);
+        String maxPoints = getValue(MAX_POINTS, searchField, searchValue);
 
 
         return QUESTION_MARK
@@ -241,10 +246,94 @@ public class ProfileTestSteps {
                 + AND
                 + NAME + EQUALS + name
                 + AND
+                + MIN_POINTS + EQUALS + minPoints
+                + AND
+                + MAX_POINTS + EQUALS + maxPoints
+                + AND
                 + SORT_BY + EQUALS + ""
                 + AND
                 + SORT_ORDER + EQUALS + "";
 
+    }
+
+
+    @Given("^The following profile exists with username \"(.*)\" within the TravelEA database:$")
+    public void theFollowingProfileExistsWithUsernameWithinTheTravelEADatabase(String username) {
+        // Sends the fake request
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, "1")
+                .uri(PROFILES_URI);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+
+        // Gets the response
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+
+        // Finds profile from the iterator
+        boolean foundProfile = false;
+        while (iterator.hasNext() && !foundProfile) {
+            JsonNode jsonProfile = iterator.next();
+            if (jsonProfile.get(USERNAME).asText().equals(username)) {
+                foundProfile = true;
+            }
+        }
+
+        Assert.assertTrue(foundProfile);
+    }
+
+
+    @Given("^The following profile does not exist with the username \"(.*)\" within the TravelEA database$")
+    public void theFollowingProfileDoesNotExistWithTheUsernameWithinTheTravelEADatabase(String username) {
+        // Sends the fake request
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, "1")
+                .uri(PROFILES_URI);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+
+        // Gets the response
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+
+        // Finds profile from the iterator
+        boolean foundProfile = false;
+        while (iterator.hasNext() && !foundProfile) {
+            JsonNode jsonProfile = iterator.next();
+            if (jsonProfile.get(USERNAME).asText().equals(username)) {
+                foundProfile = true;
+            }
+        }
+
+        Assert.assertFalse(foundProfile);
+    }
+
+
+    @Given("^a user exists in the database with the id (\\d+) and username \"(.*)\"$")
+    public void aUserExistsInTheDatabaseWithTheIdAndUsername(Integer id, String username) {
+        Profile profile = profileRepository.findById(id.longValue());
+        Assert.assertNotNull(profile);
+        Assert.assertEquals(profile.getUsername(), username);
+    }
+
+
+    @Given("^a user does not exist with the username \"(.*)\"$")
+    public void aUserDoesNotExistWithTheUsername(String username) {
+        Assert.assertNull(profileRepository.getExpressionList()
+                .like(USERNAME, username)
+                .findOne());
+    }
+
+
+    @Given("^the user (\\d+) has (\\d+) points$")
+    public void theUserHasPoints(Integer userId, Integer points) {
+        Profile profile = profileRepository.findById(userId.longValue());
+        AchievementTracker achievementTracker = profile.getAchievementTracker(); //Null profile fails test, which is fine
+        achievementTracker.addPoints(points);
+        profileRepository.update(profile);
+        Assert.assertEquals(points.longValue(), achievementTracker.getPoints());
+        System.out.println(profile.getAchievementTracker());
+        System.out.println(profile.getAchievementTracker().getPoints());
     }
 
 
@@ -338,32 +427,6 @@ public class ProfileTestSteps {
     }
 
 
-    @Given("^The following profile exists with username \"(.*)\" within the TravelEA database:$")
-    public void theFollowingProfileExistsWithUsernameWithinTheTravelEADatabase(String username) {
-        // Sends the fake request
-        Http.RequestBuilder request = fakeRequest()
-                .method(GET)
-                .session(AUTHORIZED, "1")
-                .uri(PROFILES_URI);
-        Result result = route(testContext.getApplication(), request);
-        testContext.setStatusCode(result.status());
-
-        // Gets the response
-        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
-
-        // Finds profile from the iterator
-        boolean foundProfile = false;
-        while (iterator.hasNext() && !foundProfile) {
-            JsonNode jsonProfile = iterator.next();
-            if (jsonProfile.get(USERNAME).asText().equals(username)) {
-                foundProfile = true;
-            }
-        }
-
-        Assert.assertTrue(foundProfile);
-    }
-
-
     @When("A user attempts to create a profile with the following fields:")
     public void aUserAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) {
         // Creates the json for the profile
@@ -376,32 +439,6 @@ public class ProfileTestSteps {
                 .uri(PROFILES_URI);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
-    }
-
-
-    @Given("^The following profile does not exist with the username \"(.*)\" within the TravelEA database$")
-    public void theFollowingProfileDoesNotExistWithTheUsernameWithinTheTravelEADatabase(String username) {
-        // Sends the fake request
-        Http.RequestBuilder request = fakeRequest()
-                .method(GET)
-                .session(AUTHORIZED, "1")
-                .uri(PROFILES_URI);
-        Result result = route(testContext.getApplication(), request);
-        testContext.setStatusCode(result.status());
-
-        // Gets the response
-        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
-
-        // Finds profile from the iterator
-        boolean foundProfile = false;
-        while (iterator.hasNext() && !foundProfile) {
-            JsonNode jsonProfile = iterator.next();
-            if (jsonProfile.get(USERNAME).asText().equals(username)) {
-                foundProfile = true;
-            }
-        }
-
-        Assert.assertFalse(foundProfile);
     }
 
 
@@ -441,7 +478,6 @@ public class ProfileTestSteps {
     public void iSearchForProfilesByFieldWithValue(String searchField, String searchValue) {
         searchValue = searchValue.replace(" ", "%20");
         String searchQuery = createSearchProfileQueryString(searchField, searchValue);
-        System.out.println(searchQuery);
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .session(AUTHORIZED, TestContext.getInstance().getLoggedInId())
@@ -452,19 +488,10 @@ public class ProfileTestSteps {
     }
 
 
-    @Given("^a user exists in the database with the id (\\d+) and username \"(.*)\"$")
-    public void aUserExistsInTheDatabaseWithTheIdAndUsername(Integer id, String username) {
-        Profile profile = profileRepository.findById(id.longValue());
-        Assert.assertNotNull(profile);
-        Assert.assertEquals(profile.getUsername(), username);
-    }
-
-
-    @Given("^a user does not exist with the username \"(.*)\"$")
-    public void aUserDoesNotExistWithTheUsername(String username) {
-        Assert.assertNull(profileRepository.getExpressionList()
-                .like(USERNAME, username)
-                .findOne());
+    @When("^I search for profiles by \"(.*)\" with value \"(.*)\" and by \"(.*)\" with value \"(.*)\"$")
+    public void iSearchForProfilesByWithValueAndByWithValue(String searchField1, String searchValue1, String searchField2, String searchValue2) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
     }
 
 
@@ -503,9 +530,14 @@ public class ProfileTestSteps {
     }
 
 
-
     @Then("^the response contains the profile with username \"(.*)\"$")
     public void theResponseContainsProfile(String username) {
         Assert.assertTrue(testContext.getResponseBody().contains(username));
+    }
+
+
+    @Then("^the response does not contain the profile with username \"(.*)\"$")
+    public void theResponseDoesNotContainProfile(String username) {
+        Assert.assertFalse(testContext.getResponseBody().contains(username));
     }
 }
