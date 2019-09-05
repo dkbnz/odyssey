@@ -213,3 +213,31 @@ Feature: Profile API Endpoint
     When I search for profiles by "min_points" with value "5000" and by "max_points" with value "5000"
     Then the status code received is 200
     And the response contains the profile with username "admin@travelea.com"
+
+
+  Scenario: Searching for profiles by rank
+    Given I am logged in
+    And the following users exist in the database:
+      | id  | username                |
+      | 1   | admin@travelea.com      |
+      | 2   | guestUser@travelea.com  |
+      | 3   | testuser1@email.com     |
+      | 4   | testuser2@email.com     |
+      | 5   | testuser3@email.com     |
+      | 6   | testuser4@email.com     |
+    And the users have the following points
+      | id  | points  |
+      | 1   | 10      |
+      | 2   | 20      |
+      | 3   | 30      |
+      | 4   | 40      |
+      | 5   | 50      |
+      | 6   | 60      |
+    When I search for profiles by "rank" with value "4"
+    Then the status code received is 200
+    And the response contains only the following profiles:
+      | username            |
+      | testuser1@email.com |
+      | testuser2@email.com |
+      | testuser3@email.com |
+      | testuser4@email.com |
