@@ -742,11 +742,11 @@ public class ProfileController {
         }
 
         if(request.getQueryString(MIN_POINTS) != null && !request.getQueryString(MIN_POINTS).isEmpty()) {
-            expressionList.gt("achievementTracker.points", request.getQueryString(MIN_POINTS));
+            expressionList.ge("achievementTracker.points", request.getQueryString(MIN_POINTS));
         }
 
         if(request.getQueryString(MAX_POINTS) != null && !request.getQueryString(MAX_POINTS).isEmpty()) {
-            expressionList.lt("achievementTracker.points", request.getQueryString(MAX_POINTS));
+            expressionList.le("achievementTracker.points", request.getQueryString(MAX_POINTS));
         }
     }
 

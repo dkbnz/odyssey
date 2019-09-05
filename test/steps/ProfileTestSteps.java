@@ -476,6 +476,17 @@ public class ProfileTestSteps {
     }
 
 
+    private void retrieveProfiles(String searchQuery) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(PROFILES_URI + searchQuery);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
     @When("^I search for profiles by \"([^\"]*)\" with value \"([^\"]*)\"$")
     public void iSearchForProfilesByFieldWithValue(String searchField, String searchValue) {
         searchValue = searchValue.replace(" ", "%20");
@@ -487,20 +498,25 @@ public class ProfileTestSteps {
 
         String searchQuery = createSearchProfileQueryString(searchFields, searchValues);
 
-        Http.RequestBuilder request = fakeRequest()
-                .method(GET)
-                .session(AUTHORIZED, TestContext.getInstance().getLoggedInId())
-                .uri(PROFILES_URI + searchQuery);
-        Result result = route(testContext.getApplication(), request);
-        testContext.setStatusCode(result.status());
-        testContext.setResponseBody(Helpers.contentAsString(result));
+        retrieveProfiles(searchQuery);
     }
 
 
     @When("^I search for profiles by \"(.*)\" with value \"(.*)\" and by \"(.*)\" with value \"(.*)\"$")
     public void iSearchForProfilesByWithValueAndByWithValue(String searchField1, String searchValue1, String searchField2, String searchValue2) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+        searchValue1 = searchValue1.replace(" ", "%20");
+        searchValue2 = searchValue2.replace(" ", "%20");
+        List<String> searchFields = new ArrayList<>();
+        List<String> searchValues = new ArrayList<>();
+
+        searchFields.add(searchField1);
+        searchFields.add(searchField2);
+        searchValues.add(searchValue1);
+        searchValues.add(searchValue2);
+
+        String searchQuery = createSearchProfileQueryString(searchFields, searchValues);
+
+        retrieveProfiles(searchQuery);
     }
 
 
