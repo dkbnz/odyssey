@@ -21,7 +21,6 @@ DELETE  /v1/profile/:id          controllers.profiles.ProfileController.delete(r
 
 # User Profiles
 GET     /v1/profiles             controllers.profiles.ProfileController.list(request: Request)
-GET     /v1/profiles/all         controllers.profiles.ProfileController.listAll(request: Request)
 GET     /v1/profiles/count       controllers.profiles.ProfileController.getTotalNumberOfProfiles(request: Request)
 POST    /v1/profiles             controllers.profiles.ProfileController.create(request: Request)
 

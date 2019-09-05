@@ -100,6 +100,19 @@ public class ProfileTestSteps {
     private static final String MAX_AGE = "max_age";
     private static final String SORT_BY = "sortBy";
     private static final String SORT_ORDER = "sortOrder";
+    private static final String PAGE = "page";
+    private static final String PAGE_SIZE = "pageSize";
+
+
+    /**
+     * Default page for profile searching pagination.
+     */
+    private static final String DEFAULT_PAGE = "0";
+
+    /**
+     * Default page size for profile searching pagination.
+     */
+    private static final String DEFAULT_PAGE_SIZE = "100";
 
     /**
      * String to add the equals character (=) to build a query string.
@@ -243,7 +256,11 @@ public class ProfileTestSteps {
                 + AND
                 + SORT_BY + EQUALS + ""
                 + AND
-                + SORT_ORDER + EQUALS + "";
+                + SORT_ORDER + EQUALS + ""
+                + AND
+                + PAGE + EQUALS + DEFAULT_PAGE
+                + AND
+                + PAGE_SIZE + EQUALS + DEFAULT_PAGE_SIZE;
 
     }
 
@@ -441,7 +458,6 @@ public class ProfileTestSteps {
     public void iSearchForProfilesByFieldWithValue(String searchField, String searchValue) {
         searchValue = searchValue.replace(" ", "%20");
         String searchQuery = createSearchProfileQueryString(searchField, searchValue);
-        System.out.println(searchQuery);
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .session(AUTHORIZED, TestContext.getInstance().getLoggedInId())
