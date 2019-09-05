@@ -14,10 +14,6 @@
                  @sort-changed="sortingChanged"
                  striped>
 
-            <!--:per-page="perPage"-->
-            <!--:sort-by.sync="sortBy"-->
-            <!--:sort-desc.sync="sortDesc"-->
-
             <div class="text-center my-2" slot="table-busy">
                 <b-spinner v-if="loading"></b-spinner>
             </div>
@@ -143,31 +139,21 @@
         },
 
         watch: {
-            profileList() {
+            loading() {
                 this.getRows();
-                // if (this.perPage * this.currentPage > this.profileList.length && this.moreResults) {
-                //     this.$emit('get-more');
-                // }
             },
 
             perPage() {
-                this.getRows();
-                if (this.perPage * this.currentPage > this.profileList.length) {
-                    this.$emit('get-more');
-                }
-                if (this.perPage === Infinity && this.profileList.length <= this.rows) {
-                    this.$emit('get-all');
-                }
+                this.$emit('get-more', this.currentPage-1, this.perPage);
+
             },
 
             currentPage() {
-                if (this.perPage * this.currentPage > this.profileList.length) {
-                    this.$emit('get-more');
-                }
+                this.$emit('get-more', this.currentPage-1, this.perPage);
             },
 
             firstPage() {
-                this.currentPage = 0;
+                this.currentPage = 1;
             }
         },
 
@@ -243,8 +229,7 @@
                         "&gender=" + "" +
                         "&min_age=" + "" +
                         "&max_age=" + "" +
-                        "&travellerTypes=" + "" +
-                        "&page=" + this.queryPage;
+                        "&travellerTypes=" + "";
                     this.searchingProfiles = false;
                 } else {
                     searchQuery =
@@ -253,8 +238,7 @@
                         "&gender=" + this.searchParameters.gender +
                         "&min_age=" + this.searchParameters.age[0] +
                         "&max_age=" + this.searchParameters.age[1] +
-                        "&travellerTypes=" + this.searchParameters.travellerType +
-                        "&page=" + this.queryPage;
+                        "&travellerTypes=" + this.searchParameters.travellerType;
                     this.searchingProfiles = true;
                 }
                 if (this.perPage === Infinity) {

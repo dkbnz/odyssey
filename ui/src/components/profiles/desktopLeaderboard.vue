@@ -46,7 +46,7 @@
                             @admin-edit="profileEdited => $emit('admin-edit', profileEdited)"
                             @profile-delete="sendProfileToModal"
                             @get-more="getMore"
-                            @get-all="getAll"
+                            @clear-profiles="clearProfiles"
                             @sort-table="sortTable"
                     >
                     </profile-list>
@@ -73,7 +73,7 @@
                         @admin-edit="profileEdited => $emit('admin-edit', profileEdited)"
                         @profile-delete="sendProfileToModal"
                         @get-more="getMore"
-                        @get-all="getAll"
+                        @clear-profiles="this.profiles = []"
                         @sort-table="sortTable"
                 >
                 </profile-list>
@@ -146,13 +146,16 @@
                 selectedProfile: "",
                 alertMessage: "",
                 queryPage: 0,
+                pageSize: 5,
                 moreResults: true,
                 gettingMore: false,
                 gettingAll: false,
                 searchParameters: null,
                 searchingProfiles: false,
                 columnSortBy: {sortBy: "", order: ""},
-                firstPage: false
+                firstPage: false,
+                refreshTable1: 0,
+                refreshTable2: 0
             }
         },
 
@@ -257,19 +260,25 @@
             /**
              * Function to retrieve more destinations when a user reaches the bottom of the list.
              */
-            getMore() {
-                this.queryPage += 1;
-                this.queryProfiles();
+            getMore(queryPage, pageSize) {
+                //TODO: Isaac - Still some bugs in this section.
+                let newQueryPage = queryPage;
+                if (pageSize !== this.pageSize) {
+                    this.profiles = [];
+                    this.pageSize = pageSize;
+                    this.queryProfiles();
+                } else {
+                    while (this.queryPage <= newQueryPage) {
+                        this.queryPage += 1;
+                        this.queryProfiles();
+                    }
+                }
+                if (this.pageSize === Infinity) {
+                    this.queryPage = 0;
+                    this.queryProfiles();
+                }
+
                 this.gettingMore = true;
-            },
-
-
-            /**
-             * Retrieves all the profiles stored in the database on the handles emit event.
-             */
-            getAll() {
-                this.gettingAll = true;
-                this.queryAllProfiles();
             },
 
 
@@ -280,9 +289,6 @@
                 this.queryPage = 0;
                 this.searchParameters = searchParameters;
                 this.queryProfiles();
-                if (this.gettingAll) {
-                    this.queryAllProfiles();
-                }
             },
 
 
@@ -290,13 +296,8 @@
                 this.columnSortBy = columnSortBy;
                 this.profiles = [];
                 this.queryPage = 0;
-                if (this.gettingAll) {
-                    this.queryAllProfiles()
-                } else {
-                    this.queryProfiles();
-                }
+                this.queryProfiles();
                 this.firstPage = !this.firstPage;
-
             },
 
 
@@ -306,6 +307,7 @@
             queryProfiles() {
                 this.retrievingProfiles = true;
                 let searchQuery = "";
+                console.log("HERE");
                 if (!this.searchParameters) {
                     searchQuery =
                         "?name=" + "" +
@@ -315,6 +317,7 @@
                         "&max_age=" + "" +
                         "&travellerTypes=" + "" +
                         "&page=" + this.queryPage +
+                        "&pageSize=" + this.pageSize +
                         "&sortBy=" + this.columnSortBy.sortBy +
                         "&sortOrder=" + this.columnSortBy.order;
                     this.searchingProfiles = false;
@@ -328,6 +331,7 @@
                         "&max_age=" + this.searchParameters.age[1] +
                         "&travellerTypes=" + this.searchParameters.travellerType +
                         "&page=" + this.queryPage +
+                        "&pageSize=" + this.pageSize +
                         "&sortBy=" + this.columnSortBy.sortBy +
                         "&sortOrder=" + this.columnSortBy.order;
                     this.searchingProfiles = true;
@@ -338,70 +342,13 @@
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
-                        if (data === undefined || data.length < 10) {
-                            this.moreResults = false;
-                        } else {
-                            this.moreResults = true;
-                        }
-                        if (!this.gettingMore && data.length === 0) {
-                            this.profiles = [];
-                        }
-                        if (this.queryPage === 0 && !this.searchingProfiles && !this.searchParameters && !this.gettingMore) {
+                        if (this.searchingProfiles && !this.gettingMore) {
                             this.profiles = [];
                         }
                         for (let i = 0; i < data.length; i++) {
-                            if (this.gettingMore && !this.profiles.includes(data[i])) {
-                                this.profiles.push(data[i]);
-                            } else {
-                                this.gettingMore = false;
-                                this.profiles = data;
-                            }
+                            this.profiles.push(data[i]);
                         }
                         this.retrievingProfiles = false;
-                    })
-            },
-
-
-            /**
-             * Queries database for all profiles which fit search criteria.
-             */
-            queryAllProfiles() {
-                this.retrievingProfiles = true;
-                let searchQuery = "";
-                if (!this.searchParameters) {
-                    searchQuery =
-                        "?name=" + "" +
-                        "&nationalities=" + "" +
-                        "&gender=" + "" +
-                        "&min_age=" + "" +
-                        "&max_age=" + "" +
-                        "&travellerTypes=" + ""+
-                        "&sortBy=" + this.columnSortBy.sortBy +
-                        "&sortOrder=" + this.columnSortBy.order;
-                    this.searchingProfiles = false;
-                } else {
-                    this.gettingMore = false;
-                    searchQuery =
-                        "?name=" + this.searchParameters.name +
-                        "&nationalities=" + this.searchParameters.nationality +
-                        "&gender=" + this.searchParameters.gender +
-                        "&min_age=" + this.searchParameters.age[0] +
-                        "&max_age=" + this.searchParameters.age[1] +
-                        "&travellerTypes=" + this.searchParameters.travellerType +
-                        "&sortBy=" + this.columnSortBy.sortBy +
-                        "&sortOrder=" + this.columnSortBy.order;
-                    this.searchingProfiles = true;
-                }
-
-                return fetch(`/v1/profiles/all` + searchQuery, {
-                    method: "GET"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.profiles = data;
-                        this.retrievingProfiles = false;
-                        this.moreResults = false;
                     })
             },
 
@@ -474,7 +421,16 @@
                 this.columnSortBy = {sortBy: "", order: ""};
                 this.searchingProfiles = false;
                 this.searchParameters = null;
+                this.profiles = [];
                 this.queryProfiles();
+            },
+
+
+            /**
+             * Clears the list of profiles, this only occurs when the per page value is changed in the profiles table.
+             */
+            clearProfiles() {
+                this.profiles = [];
             }
 
         }

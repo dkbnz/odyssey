@@ -54,6 +54,8 @@ public class ProfileController {
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
     private static final String POINTS = "points";
+    private static final String PAGE = "page";
+    private static final String PAGE_SIZE = "pageSize";
     private static final String SORT_BY = "sortBy";
     private static final String SORT_ORDER = "sortOrder";
     private static final String AUTHORIZED = "authorized";
@@ -63,7 +65,6 @@ public class ProfileController {
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String UPDATED = "UPDATED";
     private static final String ID = "id";
-    private static final String PAGE = "page";
 
     private ProfileRepository profileRepository;
     private NationalityRepository nationalityRepository;
@@ -557,7 +558,7 @@ public class ProfileController {
      */
     public Result list(Http.Request request) {
         int pageNumber = 0;
-        int pageSize = 10;
+        int pageSize = 100;
 
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
@@ -571,6 +572,15 @@ public class ProfileController {
             pageNumber = Integer.parseInt(request.getQueryString(PAGE));
         }
 
+        if (request.getQueryString(PAGE_SIZE) != null && !request.getQueryString(PAGE_SIZE).isEmpty()) {
+            if (request.getQueryString(PAGE_SIZE).equals("Infinity")) {
+                pageSize = Integer.MAX_VALUE;
+            } else {
+                pageSize = Integer.parseInt(request.getQueryString(PAGE_SIZE));
+            }
+        }
+
+
         String getError = validQueryString(request);
 
         if (getError != null) {
@@ -604,56 +614,6 @@ public class ProfileController {
                     .setMaxRows(pageSize)
                     .findPagedList()
                     .getList();
-        }
-
-        return ok(Json.toJson(profiles));
-    }
-
-
-    /**
-     * Performs an Ebean find query on the database to search for all profiles.
-     * If no query is specified in the Http request, it will return a list of all profiles. If a query is specified,
-     * uses the searchProfiles() method to execute a search based on the search query parameters. This is used on the
-     * Search Profiles page.
-     *
-     * @param request           an Http Request containing Json Body.
-     * @return                  unauthorized() (Http 401) if the user is not logged in.
-     *                          ok() (Http 200) if the search is successful.
-     */
-    public Result listAll(Http.Request request) {
-
-        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
-        if (loggedInUser == null) {
-            return unauthorized(NOT_SIGNED_IN);
-        }
-
-        List<Profile> profiles;
-        ExpressionList<Profile> expressionList = profileRepository.getExpressionList();
-
-        String getError = validQueryString(request);
-
-        if (getError != null) {
-            return badRequest(getError);
-        }
-
-        searchProfiles(expressionList, request);
-
-        if (request.getQueryString(SORT_BY) != null && request.getQueryString(SORT_BY).length() > 0
-                && Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
-            profiles = expressionList
-                    .where()
-                    .orderBy().asc(request.getQueryString(SORT_BY))
-                    .findList();
-        } else if (request.getQueryString(SORT_BY) != null && request.getQueryString(SORT_BY).length() > 0
-                && !Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
-            profiles = expressionList
-                    .where()
-                    .orderBy().desc(request.getQueryString(SORT_BY))
-                    .findList();
-        } else {
-            profiles = expressionList
-                    .orderBy().desc(POINTS)
-                    .findList();
         }
 
         return ok(Json.toJson(profiles));
