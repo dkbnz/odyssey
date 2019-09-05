@@ -233,8 +233,8 @@ public class ProfileTestSteps {
      * Builds this query string with empty values except for the given search value associated
      * with the given search field.
      *
-     * @param searchField       the search field name for the given value.
-     * @param searchValue       the given search value for associated field.
+     * @param givenFields       the search field names for the given values.
+     * @param givenValues       the given search values for associated fields.
      * @return                  the complete query string.
      */
     private String createSearchProfileQueryString(List<String> givenFields, List<String> givenValues) {
@@ -275,6 +275,22 @@ public class ProfileTestSteps {
                 + AND
                 + PAGE_SIZE + EQUALS + DEFAULT_PAGE_SIZE;
 
+    }
+
+
+    /**
+     * Sends the backend request to retrieve the profiles that match the given search query.
+     *
+     * @param searchQuery   the search query that will determine which profiles to receive.
+     */
+    private void retrieveProfiles(String searchQuery) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(PROFILES_URI + searchQuery);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 
@@ -490,17 +506,6 @@ public class ProfileTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
 
-    }
-
-
-    private void retrieveProfiles(String searchQuery) {
-        Http.RequestBuilder request = fakeRequest()
-                .method(GET)
-                .session(AUTHORIZED, testContext.getLoggedInId())
-                .uri(PROFILES_URI + searchQuery);
-        Result result = route(testContext.getApplication(), request);
-        testContext.setStatusCode(result.status());
-        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 
