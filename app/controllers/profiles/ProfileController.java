@@ -53,12 +53,12 @@ public class ProfileController {
     private static final String DATE_OF_BIRTH = "dateOfBirth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
+    private static final String ACHIEVEMENT_POINTS = "achievementTracker.points";
     private static final String POINTS = "points";
     private static final String PAGE = "page";
     private static final String PAGE_SIZE = "pageSize";
     private static final String SORT_BY = "sortBy";
     private static final String SORT_ORDER = "sortOrder";
-    private static final String RANK = "rank";
     private static final String MIN_POINTS = "min_points";
     private static final String MAX_POINTS = "max_points";
     private static final String AUTHORIZED = "authorized";
@@ -702,11 +702,11 @@ public class ProfileController {
         }
 
         if(request.getQueryString(MIN_POINTS) != null && !request.getQueryString(MIN_POINTS).isEmpty()) {
-            expressionList.ge("achievementTracker.points", request.getQueryString(MIN_POINTS));
+            expressionList.ge(ACHIEVEMENT_POINTS, request.getQueryString(MIN_POINTS));
         }
 
         if(request.getQueryString(MAX_POINTS) != null && !request.getQueryString(MAX_POINTS).isEmpty()) {
-            expressionList.le("achievementTracker.points", request.getQueryString(MAX_POINTS));
+            expressionList.le(ACHIEVEMENT_POINTS, request.getQueryString(MAX_POINTS));
         }
     }
 
