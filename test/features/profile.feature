@@ -154,28 +154,10 @@ Feature: Profile API Endpoint
     And the response contains the profile with username "admin@travelea.com"
 
 
-  Scenario: Searching for profiles by max number of points
-    Given I am logged in
-    And a user exists in the database with the id 1 and username "admin@travelea.com"
-    And the user has 5000 points
-    When I search for profiles by "max_points" with value "5001"
-    Then the status code received is 200
-    And the response contains the profile with username "admin@travelea.com"
-
-
-  Scenario: Searching unsuccessfully for profiles by max number of points
-    Given I am logged in
-    And a user exists in the database with the id 1 and username "admin@travelea.com"
-    And the user has 5000 points
-    When I search for profiles by "max_points" with value "4999"
-    Then the status code received is 200
-    And the response is empty
-
-
   Scenario: Searching for profiles by min number of points
     Given I am logged in
     And a user exists in the database with the id 1 and username "admin@travelea.com"
-    And the user has 5000 points
+    And the user 1 has 5000 points
     When I search for profiles by "min_points" with value "4800"
     Then the status code received is 200
     And the response contains the profile with username "admin@travelea.com"
@@ -184,16 +166,34 @@ Feature: Profile API Endpoint
   Scenario: Searching unsuccessfully for profiles by min number of points
     Given I am logged in
     And a user exists in the database with the id 1 and username "admin@travelea.com"
-    And the user has 5000 points
+    And the user 1 has 5000 points
     When I search for profiles by "min_points" with value "7000"
     Then the status code received is 200
-    And the response is empty
+    And the response does not contain the profile with username "admin@travelea.com"
+
+
+  Scenario: Searching for profiles by max number of points
+    Given I am logged in
+    And a user exists in the database with the id 1 and username "admin@travelea.com"
+    And the user 1 has 5000 points
+    When I search for profiles by "max_points" with value "5001"
+    Then the status code received is 200
+    And the response contains the profile with username "admin@travelea.com"
+
+
+  Scenario: Searching unsuccessfully for profiles by max number of points
+    Given I am logged in
+    And a user exists in the database with the id 1 and username "admin@travelea.com"
+    And the user 1 has 5000 points
+    When I search for profiles by "max_points" with value "4999"
+    Then the status code received is 200
+    And the response does not contain the profile with username "admin@travelea.com"
 
 
   Scenario: Searching for profiles by min and max number of points
     Given I am logged in
     And a user exists in the database with the id 1 and username "admin@travelea.com"
-    And the user has 5000 points
+    And the user 1 has 5000 points
     When I search for profiles by "min_points" with value "3000" and by "max_points" with value "7000"
     Then the status code received is 200
     And the response contains the profile with username "admin@travelea.com"
@@ -202,7 +202,7 @@ Feature: Profile API Endpoint
   Scenario: Searching for profiles by exact number of points
     Given I am logged in
     And a user exists in the database with the id 1 and username "admin@travelea.com"
-    And the user has 5000 points
+    And the user 1 has 5000 points
     When I search for profiles by "min_points" with value "5000" and by "max_points" with value "5000"
     Then the status code received is 200
     And the response contains the profile with username "admin@travelea.com"
@@ -219,7 +219,6 @@ Feature: Profile API Endpoint
   Scenario: Searching unsuccessfully for profiles by country
     Given I am logged in
     And a user exists in the database with the id 1 and username "admin@travelea.com"
-    And the user has 5000 points
     When I search for profiles by "nationality" with value "Australia"
     Then the status code received is 200
     And the response is empty

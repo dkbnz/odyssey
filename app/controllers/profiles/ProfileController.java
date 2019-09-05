@@ -741,10 +741,21 @@ public class ProfileController {
             expressionList.eq(TRAVELLER_TYPE_FIELD, request.getQueryString(TRAVELLER_TYPE));
         }
 
-        if(request.getQueryString(MIN_POINTS) != null && !request.getQueryString(MIN_POINTS).isEmpty() &&
-            request.getQueryString(MAX_POINTS) != null && !request.getQueryString(MAX_POINTS).isEmpty()) {
-            expressionList.between("achievementTracker.points", request.getQueryString(MIN_POINTS), request.getQueryString(MAX_POINTS));
+        if(request.getQueryString(MIN_POINTS) != null && !request.getQueryString(MIN_POINTS).isEmpty()) {
+            System.out.println("--------------------------------------------------Here------------------------------------------");
+            System.out.println("--------------------------------------------------Here------------------------------------------");
+            System.out.println("--------------------------------------------------" + request.getQueryString(MIN_POINTS) + "------------------------------------------");
+            expressionList.gt("achievementTracker.points", request.getQueryString(MIN_POINTS));
         }
+
+        if(request.getQueryString(MAX_POINTS) != null && !request.getQueryString(MAX_POINTS).isEmpty()) {
+            System.out.println("--------------------------------------------------WQOOOT------------------------------------------");
+            System.out.println("--------------------------------------------------WQOOOT------------------------------------------");
+            System.out.println("--------------------------------------------------" + request.getQueryString(MAX_POINTS) + "------------------------------------------");
+            expressionList.lt("achievementTracker.points", request.getQueryString(MAX_POINTS));
+        }
+
+        //expressionList.eq("achievementTracker.id", 1);
     }
 
 
