@@ -56,6 +56,9 @@ public class ProfileController {
     private static final String POINTS = "points";
     private static final String SORT_BY = "sortBy";
     private static final String SORT_ORDER = "sortOrder";
+    private static final String RANK = "rank";
+    private static final String MIN_POINTS = "min_points";
+    private static final String MAX_POINTS = "max_points";
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String NO_PROFILE_FOUND = "No profile found.";
@@ -736,6 +739,11 @@ public class ProfileController {
 
         if(request.getQueryString(TRAVELLER_TYPE) != null && !request.getQueryString(TRAVELLER_TYPE).isEmpty()) {
             expressionList.eq(TRAVELLER_TYPE_FIELD, request.getQueryString(TRAVELLER_TYPE));
+        }
+
+        if(request.getQueryString(MIN_POINTS) != null && !request.getQueryString(MIN_POINTS).isEmpty() &&
+            request.getQueryString(MAX_POINTS) != null && !request.getQueryString(MAX_POINTS).isEmpty()) {
+            expressionList.between("achievementTracker.points", request.getQueryString(MIN_POINTS), request.getQueryString(MAX_POINTS));
         }
     }
 
