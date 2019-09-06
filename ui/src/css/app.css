@@ -175,3 +175,11 @@ a {
         visibility: hidden;
     }
 }
+
+.loading {
+    animation: rotate 3s infinite;
+}
+
+@keyframes rotate {
+    100% {transform: rotate(350deg);}
+}

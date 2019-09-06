@@ -37,11 +37,11 @@
                 </b-list-group-item>
                 <b-list-group-item href="#" class="flex-column justify-content-center">
                     <div class="d-flex justify-content-center" v-if="loadingResults">
-                        <b-spinner label="Loading..."></b-spinner>
+                        <b-img alt="Loading" class="align-middle loading" src="../../../static/logo.png" width="50%"></b-img>
                     </div>
-                    <div class="d-flex justify-content-center" v-else>
+                    <div>
                         <div v-if="moreResults">
-                            <b-button variant="success" @click="getMore" block>More</b-button>
+                            <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>More</b-button>
                         </div>
                         <div v-else>
                             <h5 class="mb-1">No More Results</h5>
@@ -75,7 +75,7 @@
            return {
                foundDestinations: [],
                showSearch: true,
-               loadingResults: true,
+               loadingResults: false,
                moreResults: true,
                destToSearch: {},
                queryPage: 0
@@ -96,13 +96,11 @@
              * Resets the data fields and performs the initial search query when a user clicks search
              */
            initialQuery(destinationToSearch) {
-               this.loadingResults = true;
                this.showSearch = false;
                this.queryPage = 0;
                this.foundDestinations = [];
                this.destToSearch = destinationToSearch;
                this.queryDestinations(this.destToSearch);
-               this.loadingResults = false;
            },
 
 
@@ -113,6 +111,7 @@
              * @returns {Promise<Response | never>}
              */
             queryDestinations(destinationToSearch) {
+                this.loadingResults = true;
                 let searchQuery =
                     "?name=" + destinationToSearch.name +
                     "&type_id=" + destinationToSearch.type +
@@ -138,6 +137,7 @@
                             this.foundDestinations.push(data[i]);
                         }
                         this.$emit('destination-search', this.foundDestinations);
+                        this.loadingResults = false;
                     })
             },
 

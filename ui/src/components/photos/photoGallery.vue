@@ -30,8 +30,8 @@
         </b-modal>
 
         <div class="d-flex justify-content-center mb-3">
-            <b-spinner v-if="retrievingPhotos"></b-spinner>
-            <p v-if="photos.length === 0"><b>No photos found.</b></p>
+            <b-img alt="Loading" class="align-middle loading" v-if="retrievingPhotos" src="../../../static/logo.png" width="50%"></b-img>
+            <p v-if="photos.length === 0 && !retrievingPhotos"><b>No photos found.</b></p>
         </div>
 
         <photo-table :photos="photos"
