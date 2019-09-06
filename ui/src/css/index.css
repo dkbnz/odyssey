@@ -6,7 +6,7 @@ body {
 
 
 .bg {
-    /* Background image used */
+    /* Background image used. */
     background: url("../../static/background_image.jpg");
     /* Center and scale the image nicely */
     position: fixed;
@@ -20,7 +20,9 @@ body {
 
 
 .centerAlignDiv {
-    padding-top: 25vh;
+    padding-top: 30vh;
+    height: 100vh;
+    position: relative;
 }
 
 
@@ -33,7 +35,7 @@ body {
 }
 
 
-/* Adds background box to Traveller Type selection */
+/* Adds background box to Traveller Type selection. */
 .carousel-caption {
     background: #e5e5e5e5;
     border-radius: 10px;
@@ -52,11 +54,11 @@ body {
     }
 }
 
-/* Main section containing the logo and logo icon. Slides up after logos are brought in.*/
+/* Main section containing the logo and logo icon. Slides up after logos are brought in. */
 .animation {
     position: absolute;
+    z-index: -1;
     margin: auto;
-    top: 40%;
     left: 28%;
     animation: moveUp 2s;
     animation-delay: 3.15s;
@@ -71,30 +73,35 @@ body {
 }
 
 
-/* Contains the subtitle and the buttons to login and sign up. Slides in as the logos slide up. */
+/* Contains the subtitle and the buttons to login and sign up. Fades in as the logos slide up. */
 .subtitleSection {
-    top: 55%;
-    left: 1vw;
-    position: absolute;
-    height: 0;
+    top: 23%;
+    width: 100vw;
+    position: relative;
     overflow: hidden;
-    animation: slideIn 3s;
+    opacity: 0;
+    animation: fadeIn 3s;
     animation-delay: 3.5s;
     animation-fill-mode:forwards;
     animation-iteration-count: 1;
+    text-align: center;
 }
 
+.subtitleSection h3 {
+    font-size: 2vw;
+}
 
-@keyframes slideIn {
+@keyframes fadeIn {
     0% {
-        height: 0;
+        opacity: 0;
     }
     100% {
-        height: 100vh;
+        opacity: 100;
     }
 }
 
-/* Translates the logo icon */
+
+/* Translates the logo icon. */
 .logoTranslate {
     position: absolute;
     z-index: 1;
@@ -113,7 +120,7 @@ body {
 }
 
 
-/* Translates the text from the logo */
+/* Translates the text from the logo. */
 .logoTextAppear {
     white-space: nowrap;
     overflow: hidden;
@@ -133,10 +140,52 @@ body {
     100% {width: 100%;}
 }
 
-
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 1000px) {
     .animation {
-        top: 40%;
+        left: 15%;
+    }
+
+    .logoTextAppear {
+        font-size: 15vw;
+    }
+
+    .logoTranslate {
+        width: 15vw;
+    }
+    .subtitleSection h3 {
+        font-size: 4vw;
+    }
+}
+
+@media screen and (max-width: 780px) {
+    .animation {
+        left: 15%;
+    }
+
+    .logoTextAppear {
+        font-size: 15vw;
+    }
+
+    .logoTranslate {
+        width: 15vw;
+    }
+
+    .subtitleSection {
+        top: 15%;
+    }
+    .subtitleSection h3 {
+        font-size: 4vw;
+    }
+}
+
+
+/* Handles appropriate responsiveness on small screens. */
+@media screen and (max-width: 480px) {
+    .centerAlignDiv {
+        padding-top: 60%;
+    }
+
+    .animation {
         left: 2.5%;
     }
 
@@ -148,14 +197,24 @@ body {
         width: 20vw;
     }
 
-    h3 {
-        font-size: 5vw;
-    }
-
     .btn-lg {
         padding: 0.5rem 0.75rem;
         font-size: 1rem;
         line-height: 1;
         border-radius: 0.3rem;
+    }
+
+    .subtitleSection {
+        top: 10%;
+    }
+
+    .subtitleSection h3 {
+        font-size: 6vw;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .centerAlignDiv {
+        padding-top: 80%;
     }
 }
