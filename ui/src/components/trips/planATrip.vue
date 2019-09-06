@@ -260,12 +260,8 @@
                         <b-button @click="validateTrip"
                                   block class="mr-2 float-right"
                                   variant="primary">
-                            <b-spinner label="Spinning"
-                                       small
-                                       v-if="savingTrip"
-                                       variant="dark">
-                                Saving...
-                            </b-spinner>
+                            <b-img alt="Loading" class="align-middle loading" v-if="savingTrip" src="../../../static/logo.png" width="25%">
+                            </b-img>
                             Save Trip
                         </b-button>
                     </b-container>

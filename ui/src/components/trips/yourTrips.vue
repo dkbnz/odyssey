@@ -67,7 +67,8 @@
                     striped
                     responsive>
                 <div class="text-center my-2" slot="table-busy">
-                    <b-spinner class="align-middle" v-if="retrievingTrips"></b-spinner>
+                    <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" src="../../../static/logo.png" width="50%">
+                    </b-img>
                     <strong>Can't find any trips!</strong>
                 </div>
                 <template slot="more_details" slot-scope="row">
@@ -185,6 +186,8 @@
                          responsive>
 
                     <div slot="table-busy" class="text-center my-2">
+                        <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" src="../../../static/logo.png" width="50%">
+                        </b-img>
                         <strong>Can't find any trips!</strong>
                     </div>
                     <template slot="more_details" slot-scope="row">

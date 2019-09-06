@@ -15,7 +15,7 @@
                  striped>
 
             <div class="text-center my-2" slot="table-busy">
-                <b-spinner v-if="loading"></b-spinner>
+                <b-img alt="Loading" class="loading" v-if="loading" src="../../../static/logo.png" width="50%"></b-img>
             </div>
             <template slot="profilePhoto" slot-scope="row">
                 <b-img :src="getProfilePictureThumbnail(row.item.profilePicture)"
