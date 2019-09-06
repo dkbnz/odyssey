@@ -307,7 +307,6 @@
             queryProfiles() {
                 this.retrievingProfiles = true;
                 let searchQuery = "";
-                console.log("HERE");
                 if (!this.searchParameters) {
                     searchQuery =
                         "?name=" + "" +
