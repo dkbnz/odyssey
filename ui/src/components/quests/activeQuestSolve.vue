@@ -291,16 +291,15 @@
                     method: "POST",
                     accept: "application/json"
                 })
-                    .then(response => {
-                        return response.json();
-                    })
-                    .then((data) => {
+                    .then(response => response.json())
+                    .then(data => {
                         self.createPointToast(data.pointsRewarded, "Checked In");
                         if (data.completedPoints != null) {
                             setTimeout(points => {
                                 self.createPointToast(points, "Quest Complete")
                             }, 500, data.completedPoints);
                         }
+                        self.$emit('updated-quest-attempt', data.attempt);
                     })
             },
 

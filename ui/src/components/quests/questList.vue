@@ -466,8 +466,6 @@
                     return fetch(`/v1/quests/` + questToAttempt.id + `/attempt/` + this.profile.id, {
                         method: 'POST'
                     }).then(response => {
-                        if (response.ok) {
-                        }
                         return response;
                     }).then(response => response.json())
                         .then(data => {
