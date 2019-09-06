@@ -90,8 +90,6 @@
              * @param questAttempt  the quest attempt to update.
              */
             updateQuestAttempts(questAttempt) {
-
-                console.log("ATTEMPT = " + questAttempt);
                 let foundIndex = this.questAttempts.findIndex(item => {
                     return item.id === questAttempt.id;
                 });
