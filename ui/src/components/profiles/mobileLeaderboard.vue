@@ -26,8 +26,10 @@
                 <strong>Can't find any profiles!</strong>
             </div>
             <div class="flex-column justify-content-center">
-                <div class="d-flex justify-content-center" v-if="retrievingProfiles && !initialLoad">
-                    <b-img alt="Loading" class="align-middle loading" src="../../../static/logo.png" width="50%"></b-img>
+                <div class="d-flex justify-content-center">
+                    <b-img alt="Loading" v-if="retrievingProfiles && !initialLoad" class="loading"
+                           src="../../../static/logo.png" width="50%">
+                    </b-img>
                 </div>
                 <div v-if="!retrievingProfiles && profiles.length > 0">
                     <div v-if="moreResults">
@@ -89,8 +91,9 @@
                 moreResults: true,
                 initialLoad: true,
                 queryPage: 0,
+                pageSize: 10,
                 gettingMore: false,
-                searchParameters: {}
+                searchParameters: null
             }
         },
 
@@ -136,23 +139,27 @@
                 this.searchParameters = searchParameters;
                 let searchQuery = "";
                 this.page = 1;
-                if (searchParameters !== undefined) {
+                if (!this.searchParameters) {
                     searchQuery =
-                        "?nationalities=" + searchParameters.nationality +
-                        "&gender=" + searchParameters.gender +
-                        "&min_age=" + searchParameters.age[0] +
-                        "&max_age=" + searchParameters.age[1] +
-                        "&travellerTypes=" + searchParameters.travellerType +
-                        "&page=" + this.queryPage;
+                        searchQuery =
+                            "?name=" + "" +
+                            "&nationalities=" + "" +
+                            "&gender=" + "" +
+                            "&min_age=" + "" +
+                            "&max_age=" + "" +
+                            "&travellerTypes=" + "" +
+                            "&page=" + this.queryPage +
+                            "&pageSize=" + this.pageSize;
                 } else {
                     searchQuery =
-                        "?name=" + "" +
-                        "&nationalities=" + "" +
-                        "&gender=" + "" +
-                        "&min_age=" + "" +
-                        "&max_age=" + "" +
-                        "&travellerTypes=" + "" +
-                        "&page=" + this.queryPage;
+                        "?name=" + this.searchParameters.name +
+                        "&nationalities=" + this.searchParameters.nationality +
+                        "&gender=" + this.searchParameters.gender +
+                        "&min_age=" + this.searchParameters.age[0] +
+                        "&max_age=" + this.searchParameters.age[1] +
+                        "&travellerTypes=" + this.searchParameters.travellerType +
+                        "&page=" + this.queryPage +
+                        "&pageSize=" + this.pageSize;
                 }
 
                 return fetch(`/v1/profiles` + searchQuery, {})
