@@ -27,7 +27,7 @@
 
                 </add-objective>
             </b-list-group-item>
-            <div v-if="!sideBarView">
+            <div v-if="!sideBarView && yourObjectives">
                 <b-list-group-item href="#" class="flex-column justify-content-center"
                                    v-if="!creatingObjective" draggable="false">
                     <div class="d-flex justify-content-center">
@@ -224,6 +224,7 @@
              * @returns {Promise<Response | never>}
              */
             queryObjectives() {
+                this.loadingResults = true;
                 return fetch(`/v1/objectives`, {
                     accept: "application/json"
                 })
@@ -243,6 +244,7 @@
              * @returns {Promise<Response | never>}
              */
             queryYourObjectives() {
+                this.loadingResults = true;
                 if (this.profile.id !== undefined) {
                     return fetch(`/v1/objectives/` + this.profile.id, {})
                         .then(this.parseJSON)
