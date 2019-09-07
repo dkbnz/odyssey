@@ -55,7 +55,7 @@
         </div>
         <div v-else>
             <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom show-only-mobile" size="sm">Back</b-button>
-            <h2 class="page-title">{{questAttempt.questAttempted.title}}</h2>
+            <h2 class="page-title" v-if="questAttempt.questAttempted">{{questAttempt.questAttempted.title}}</h2>
 
             <b-alert v-model="guessSuccess" variant="success" dismissible>
                 Success!
@@ -341,11 +341,13 @@
              * objective destination.
              */
             getHowClose() {
-                if (this.totalDistance >= 1) {
-                    return String(Number(Math.round(this.totalDistance+'e3')+'e-3')) + " kms";
+                if (this.totalDistance) {
+                    if (this.totalDistance >= 1) {
+                        return String(this.totalDistance.toFixed(3)) + " kms";
+                    }
+                    console.log(this.totalDistance.toFixed(5));
+                    return String(this.totalDistance.toFixed(5)*1000) + " metres";
                 }
-                return String(Number(Math.round((this.totalDistance * 1000)+'e0')+'e-0')) + " metres";
-
             }
         }
 

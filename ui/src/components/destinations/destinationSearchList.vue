@@ -128,16 +128,15 @@
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
-                        if (data === undefined || data.length < 50) {
-                            this.moreResults = false;
-                        } else {
-                            this.moreResults = true;
+                        if (data !== null && data !== undefined) {
+                            this.moreResults = data.length >= 50;
+                            for (let i = 0; i < data.length; i++) {
+                                this.foundDestinations.push(data[i]);
+                            }
+                            this.$emit('destination-search', this.foundDestinations);
+                            this.loadingResults = false;
                         }
-                        for (var i = 0; i < data.length; i++) {
-                            this.foundDestinations.push(data[i]);
-                        }
-                        this.$emit('destination-search', this.foundDestinations);
-                        this.loadingResults = false;
+
                     })
             },
 

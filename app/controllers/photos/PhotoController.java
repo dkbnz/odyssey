@@ -439,11 +439,10 @@ public class PhotoController extends Controller {
      * @throws IOException  if there is an error with saving the thumbnail.
      */
     private void saveThumbnail(String filename) throws IOException {
-        BufferedImage photo = ImageIO.read(new File(getPhotoFilePath(false) + "/" + filename));
+        BufferedImage photo = ImageIO.read(new File(String.format("%s/%s", getPhotoFilePath(false), filename)));
         BufferedImage croppedImage = makeSquare(photo);
         BufferedImage thumbnail = scale(croppedImage);
-        ImageIO.write(thumbnail, "jpg", new File(getPhotoFilePath(true)
-                + "/" + filename));
+        ImageIO.write(thumbnail, "jpg", new File(String.format("%s/%s", getPhotoFilePath(true), filename)));
     }
 
 
@@ -499,7 +498,7 @@ public class PhotoController extends Controller {
      * @param getThumbnail      boolean to specify if a thumbnail version is required.
      * @return                  result containing an image file.
      */
-    private Result getImageResult(Photo photoToRetrieve, Boolean getThumbnail) {
+    private Result getImageResult(Photo photoToRetrieve, boolean getThumbnail) {
 
         String contentType = photoToRetrieve.getContentType();
         // If get thumbnail is true, set filename to thumbnail filename, otherwise set it to main filename

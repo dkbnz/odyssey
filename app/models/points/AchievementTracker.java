@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import models.profiles.Profile;
 import models.util.BaseModel;
 import util.PointUtil;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
