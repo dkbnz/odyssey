@@ -146,54 +146,56 @@
              * Creates the circle for the map to show radius of the margin of error
              */
             createCircle() {
-                if (this.radiusMarker !== null) {
-                    this.radiusMarker.setPosition({
-                        lat: this.selectedRadiusDestination.latitude,
-                        lng: this.selectedRadiusDestination.longitude
-                    })
-                } else {
-                    this.radiusMarker = new google.maps.Marker({
-                        position: {
+                if (this.selectedRadiusDestination) {
+                    if (this.radiusMarker !== null) {
+                        this.radiusMarker.setPosition({
                             lat: this.selectedRadiusDestination.latitude,
                             lng: this.selectedRadiusDestination.longitude
-                        },
-                        map: this.$map,
-                        icon: this.privateMarker
-                    });
-                }
+                        })
+                    } else {
+                        this.radiusMarker = new google.maps.Marker({
+                            position: {
+                                lat: this.selectedRadiusDestination.latitude,
+                                lng: this.selectedRadiusDestination.longitude
+                            },
+                            map: this.$map,
+                            icon: this.privateMarker
+                        });
+                    }
 
-                if (this.circle !== null) {
-                    this.circle.setRadius(this.radius * 1000);
-                    this.circle.setCenter({
-                        lat: this.selectedRadiusDestination.latitude,
-                        lng: this.selectedRadiusDestination.longitude
-                    })
-                } else {
-                    this.circle = new google.maps.Circle({
-                        strokeColor: '#0000ff',
-                        strokeOpacity: 0.8,
-                        strokeWeight: 2,
-                        fillColor: '#0000ff',
-                        fillOpacity: 0.1,
-                        map: this.$map,
-                        center: {
+                    if (this.circle !== null) {
+                        this.circle.setRadius(this.radius * 1000);
+                        this.circle.setCenter({
                             lat: this.selectedRadiusDestination.latitude,
                             lng: this.selectedRadiusDestination.longitude
-                        },
-                        radius: this.radius * 1000
+                        })
+                    } else {
+                        this.circle = new google.maps.Circle({
+                            strokeColor: '#0000ff',
+                            strokeOpacity: 0.8,
+                            strokeWeight: 2,
+                            fillColor: '#0000ff',
+                            fillOpacity: 0.1,
+                            map: this.$map,
+                            center: {
+                                lat: this.selectedRadiusDestination.latitude,
+                                lng: this.selectedRadiusDestination.longitude
+                            },
+                            radius: this.radius * 1000
+                        });
+                    }
+
+                    if (!this.showRadius) {
+                        this.$map.setZoom(10);
+                    } else {
+                        this.$map.setZoom(this.radius >= 0.5 ? 11 : 16);
+                    }
+
+                    this.$map.panTo({
+                        lat: this.selectedRadiusDestination.latitude,
+                        lng: this.selectedRadiusDestination.longitude
                     });
                 }
-
-                if (!this.showRadius) {
-                    this.$map.setZoom(10);
-                } else {
-                    this.$map.setZoom(this.radius >= 0.5 ? 11 : 16);
-                }
-
-                this.$map.panTo({
-                    lat: this.selectedRadiusDestination.latitude,
-                    lng: this.selectedRadiusDestination.longitude
-                });
             },
 
             /**
