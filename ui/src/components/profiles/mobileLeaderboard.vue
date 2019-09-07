@@ -116,7 +116,6 @@
                 response.clone().text().then(text => {
                     this.alertMessage = text;
                 });
-                console.log(error); // eslint-disable-line no-console
                 throw error;
             },
 

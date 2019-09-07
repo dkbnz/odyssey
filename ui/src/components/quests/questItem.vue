@@ -802,8 +802,7 @@
              */
             splitDates() {
                 if (this.inputQuest.id !== null) {
-                    this.inputQuest.startDate = new Date(this.inputQuest.startDate).toLocaleString();
-
+                    this.inputQuest.startDate = new Date(this.inputQuest.startDate).toLocaleString('en-GB');
                     //Start date
                     let startDate = this.inputQuest.startDate;
 
@@ -818,7 +817,7 @@
                     this.startTime = this.startTime.split("+")[0];
                     this.startTime = this.startTime.split("-")[0];
 
-                    this.inputQuest.endDate = new Date(this.inputQuest.endDate).toLocaleString();
+                    this.inputQuest.endDate = new Date(this.inputQuest.endDate).toLocaleString('en-GB');
 
                     //End Date
                     let endDate = this.inputQuest.endDate;

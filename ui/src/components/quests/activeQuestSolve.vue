@@ -345,7 +345,6 @@
                     if (this.totalDistance >= 1) {
                         return String(this.totalDistance.toFixed(3)) + " kms";
                     }
-                    console.log(this.totalDistance.toFixed(5));
                     return String(this.totalDistance.toFixed(5)*1000) + " metres";
                 }
             }
