@@ -19,6 +19,7 @@ Feature: Objective API Endpoint
       | Destination | Riddle                                 | Owner | Radius |
       | 119         | What rhymes with It's mean Kyle fleek? | 2     | 0.005  |
     Then the status code received is 201
+    And the objective is successfully created
 
 
   Scenario: Successfully creating a new Objective as an admin for another user
@@ -28,6 +29,7 @@ Feature: Objective API Endpoint
       | Destination | Riddle                                 | Owner | Radius |
       | 119         | What rhymes with It's mean Kyle fleek? | 2     | 0.005  |
     Then the status code received is 201
+    And the objective is successfully created
 
 
   Scenario: Unsuccessfully creating a new Objective with no destination
