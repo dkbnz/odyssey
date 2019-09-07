@@ -40,10 +40,10 @@
                         <b-img alt="Loading" class="align-middle loading" src="../../../static/logo.png" width="50%"></b-img>
                     </div>
                     <div>
-                        <div v-if="moreResults">
+                        <div v-if="moreResults && !loadingResults">
                             <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>More</b-button>
                         </div>
-                        <div v-else>
+                        <div class="d-flex justify-content-center" v-else-if="!moreResults && !loadingResults">
                             <h5 class="mb-1">No More Results</h5>
                         </div>
                     </div>

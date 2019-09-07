@@ -658,14 +658,19 @@
                 let radius = newObjective.radius;
                 let radiusValue;
                 let radiusList = [
-                    {value: 0.005, text: "5 Meters"},
-                    {value: 0.01, text: "10 Meters"},
-                    {value: 0.02, text: "20 Meters"},
-                    {value: 0.05, text: "50 Meters"},
-                    {value: 0.1, text: "100 Meters"},
-                    {value: 0.5, text: "500 Meters"},
+                    {value: 0.005, text: "5 Metres"},
+                    {value: 0.01, text: "10 Metres"},
+                    {value: 0.02, text: "20 Metres"},
+                    {value: 0.03, text: "30 Metres"},
+                    {value: 0.04, text: "40 Metres"},
+                    {value: 0.05, text: "50 Metres"},
+                    {value: 0.1, text: "100 Metres"},
+                    {value: 0.25, text: "250 Metres"},
+                    {value: 0.5, text: "500 Metres"},
                     {value: 1, text: "1 Km"},
+                    {value: 2.5, text: "2.5 Km"},
                     {value: 5, text: "5 Km"},
+                    {value: 7.5, text: "7.5 Km"},
                     {value: 10, text: "10 Km"},
                 ];
                 for (let i = 0; i < radiusList.length; i++) {
