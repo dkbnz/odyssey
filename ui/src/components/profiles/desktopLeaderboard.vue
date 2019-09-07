@@ -19,10 +19,11 @@
             </b-modal>
 
             <h1 class="page-title">Leaderboard</h1>
-            <p class="page-title"><i>Find other players using any of the fields below</i></p>
+            <p class="page-title"><i>Find other players using any of the fields below!</i></p>
 
             <b-row style="margin-top: 40px" v-if="!minimalInfo">
                 <b-col sm="4">
+                    <h3 class="page-title show-only-desktop">Search for Players</h3>
                     <profile-search-form
                             :userProfile="profile"
                             @search="searchProfiles"

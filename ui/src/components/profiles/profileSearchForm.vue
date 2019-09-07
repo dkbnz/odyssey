@@ -1,6 +1,5 @@
 <template>
     <div>
-        <h3 class="page-title show-only-desktop">Search for Players</h3>
         <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
 
         <b-form @submit.prevent="searchProfiles">
