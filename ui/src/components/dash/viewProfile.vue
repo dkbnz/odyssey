@@ -1,8 +1,8 @@
 <template>
-    <b-container fluid class="pt-2">
+    <b-container fluid>
         <b-row>
-            <b-col md="4" class="p-0 pl-2">
-                <div class="p-3 bg-white fixedElement">
+            <b-col md="3" class="bg-white p-1 pl-3 mt-2 rounded-lg">
+                <div class="fixedElement">
                     <!-- The profile picture of the current profile being viewed. -->
 
                     <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
@@ -47,9 +47,9 @@
                 <!-- END OF THE PROFILE SECTION -->
 
             </b-col>
-            <b-col md="8">
+            <b-col md="9">
                 <div>
-                    <div class="bg-white pl-3 pr-3 pb-3">
+                    <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-3 rounded-lg">
                         <div class="upperPadding mobileMargins">
                             <h1 class="page-title">Quests</h1>
                             <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
@@ -104,9 +104,10 @@
                     </your-trips>
                 </div>
                 <b-modal hide-footer centered ref="profilePictureModal" title="Profile Picture" size="xl">
-                    <b-img-lazy :src="profileImageFull"
+                    <b-img v-if="profile.profilePicture" :src="getProfilePictureFull()"
                                 onerror="this.src = '../../../static/default_profile_picture.png'"
-                                center fluid></b-img-lazy>
+                                center fluid>
+                    </b-img>
                     <b-row>
                         <b-col>
                             <b-button
@@ -182,16 +183,6 @@
                 default: function () {
                     return false;
                 }
-            },
-            containerClass: {
-                default: function () {
-                    return 'sidebar'
-                }
-            },
-            containerClassContent: {
-                default: function () {
-                    return 'content'
-                }
             }
         },
 
@@ -218,20 +209,17 @@
             userProfile() {
                 this.checkAuthentication();
                 this.getProfilePictureThumbnail();
-                this.getProfilePictureFull();
             },
 
             profile() {
                 this.queryYourActiveQuests();
                 this.getProfilePictureThumbnail();
-                this.getProfilePictureFull();
             }
         },
 
         mounted() {
             this.checkAuthentication();
             this.getProfilePictureThumbnail();
-            this.getProfilePictureFull();
             this.queryYourActiveQuests();
         },
 
@@ -344,7 +332,9 @@
              * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
              */
             getProfilePictureThumbnail() {
-                this.profileImageThumb = `/v1/photos/thumb/` + this.profile.profilePicture.id;
+                if (this.profile.profilePicture) {
+                    this.profileImageThumb = `/v1/photos/thumb/` + this.profile.profilePicture.id;
+                }
             },
 
 
@@ -352,10 +342,8 @@
              * Retrieves the user's primary photo, if none is found set to the default image.
              */
             getProfilePictureFull() {
-                if (this.profile.profilePicture !== null && this.profile.profilePicture !== undefined) {
-                    this.profileImageFull = `/v1/photos/` + this.profile.profilePicture.id;
-                } else {
-                    this.profileImageFull = "../../../static/default_profile_picture.png";
+                if (this.profile.profilePicture) {
+                    return `/v1/photos/` + this.profile.profilePicture.id;
                 }
             },
 

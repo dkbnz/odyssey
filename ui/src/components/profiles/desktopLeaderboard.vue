@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div :class="containerClass">
+        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
             <!-- Confirmation modal for deleting a profile. -->
             <b-modal ref="deleteProfileModal" id="deleteProfileModal" hide-footer title="Delete Profile">
                 <div class="d-block">
@@ -103,11 +103,6 @@
                 }
             },
             destinations: Array,
-            containerClass: {
-                default: function () {
-                    return 'containerMain';
-                }
-            },
             destinationTypes: Array
         },
 
@@ -435,23 +430,3 @@
         }
     }
 </script>
-
-<style>
-    .tableWidthSmall {
-        max-width: 8%;
-        width: 8%;
-        text-align: center;
-    }
-
-    .tableWidthMedium {
-        max-width: 8%;
-        width: 15%;
-        text-align: center;
-    }
-
-    .tableWidthLarge {
-        max-width: 8%;
-        width: 25%;
-        text-align: center;
-    }
-</style>

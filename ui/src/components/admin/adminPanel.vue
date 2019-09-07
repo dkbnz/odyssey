@@ -30,7 +30,7 @@
         </div>
 
         <!-- If logged in user is not an admin, then display an error -->
-        <div v-else>
+        <div v-else class="d-flex justify-content-center">
             You do not have permission to access this page!
         </div>
 

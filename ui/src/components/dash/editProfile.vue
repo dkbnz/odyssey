@@ -1,5 +1,5 @@
 <template>
-    <div :class="containerClass">
+    <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <h1 class="page-title">Edit Profile</h1>
         <p class="page-title"><i>Edit your profile using the form below!</i></p>
         <b-alert variant="success" v-model="showSuccess">Profile successfully saved!</b-alert>
@@ -266,11 +266,6 @@
             adminView: {
                 default: function () {
                     return false;
-                }
-            },
-            containerClass: {
-                default: function() {
-                    return 'containerWithNav';
                 }
             }
         },

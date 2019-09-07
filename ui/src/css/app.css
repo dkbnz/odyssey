@@ -11,68 +11,6 @@ body {
     z-index: 1;
 }
 
-.containerMain {
-    margin: 5vh 5vw 0 5vw;
-    padding: 50px;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.containerAdminMain {
-    margin: 2vh 2vw 0 2vw;
-    padding: 30px;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.containerWithNav {
-    margin: 7vh 5vw 0 5vw;
-    padding: 50px 3vw 3vw 3vw;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.adminContainer {
-    margin: 10vh 10vw 0 2vw;
-    padding: 1vh 3vw 3vw 3vw;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.noMarginsContainer {
-    margin: 0;
-    padding: 1vh 3vw 3vw 3vw;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.smallMarginsContainer {
-    margin: 1vh 1vw 1vh 1vw;
-    padding: 1vh 3vw 3vw 3vw;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.noBordersContainer {
-    margin: 0 1vw 0 0 ;
-    padding: 0;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.adminProfilesContainer {
-    padding: 1vh 1vw 1vw 0;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.adminTripsContainer {
-    margin: 3vh 1vw 0 0;
-    padding: 1vh 1vw 1vw 1vw;
-    background-color: white;
-    border-radius: 5px;
-}
-
 /* Imports the Bauman's Regular Font */
 @font-face
 {
@@ -109,19 +47,6 @@ h1, h2, h3, h4 {
     z-index: 3;
 }
 
-/* Profile information in collapsible */
-.profilesSubSectionProfile {
-    background-color: white;
-    border-radius: 5px;
-    padding: 10px;
-}
-
-/* Profile page content in collapsible */
-.profilesSubSectionContent {
-    background-color: white;
-    border-radius: 5px;
-}
-
 a {
     color: grey;
 }
@@ -141,6 +66,24 @@ a {
 .descriptionText {
     font-size: 12px;
     color: grey;
+}
+
+.tableWidthSmall {
+    max-width: 8%;
+    width: 8%;
+    text-align: center;
+}
+
+.tableWidthMedium {
+    max-width: 8%;
+    width: 15%;
+    text-align: center;
+}
+
+.tableWidthLarge {
+    max-width: 8%;
+    width: 25%;
+    text-align: center;
 }
 
 .defaultCursor {

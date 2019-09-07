@@ -46,6 +46,7 @@
         methods: {
             /**
              * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
+             *
              * @param photo         returns a url of which photo should be displayed as the profile picture for the user.
              */
             getProfilePictureThumbnail(photo) {
@@ -59,7 +60,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>

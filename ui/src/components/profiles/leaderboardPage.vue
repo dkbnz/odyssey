@@ -42,16 +42,7 @@
                     return false;
                 }
             },
-            destinations: Array,
-            containerClass: {
-                default: function () {
-                    return 'containerMain';
-                }
-            }
+            destinations: Array
         }
     }
 </script>
-
-<style scoped>
-
-</style>

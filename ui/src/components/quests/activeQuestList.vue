@@ -45,7 +45,12 @@
 
         props: {
             questAttempts: Array,
-            loadingResults: Boolean
+            loadingResults: Boolean,
+            viewingFromProfilePage: {
+                default() {
+                    return false;
+                }
+            }
         }
     }
 </script>
