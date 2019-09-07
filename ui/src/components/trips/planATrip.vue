@@ -1,6 +1,5 @@
 <template>
-    <div :class="containerClass">
-
+    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <h1 class="page-title">{{ heading }}</h1>
         <p class="page-title"><i>{{ subHeading }}</i></p>
 
@@ -309,11 +308,6 @@
             },
             heading: String,
             subHeading: String,
-            containerClass: {
-                default: function () {
-                    return 'containerWithNav';
-                }
-            },
             adminView: false
         },
 

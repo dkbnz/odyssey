@@ -311,11 +311,6 @@
                 }
             },
             heading: String,
-            containerClass: {
-                default: function () {
-                    return 'containerWithNav';
-                }
-            },
             selectedObjective: {
                 default: function () {
                     return {}

@@ -1,8 +1,8 @@
 <template>
-    <div v-if="profile.length !== 0" :class="containerClass">
+    <div v-if="profile.length !== 0">
         <!--Shows tabs for destination page-->
         <nav-bar-main :profile="profile" v-if="!adminView"></nav-bar-main>
-        <div class="containerMain">
+        <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-3 rounded-lg">
             <h1 class="page-title">Destinations</h1>
             <p class="page-title">
                 <i>Here you can add destinations, search destinations or view destinations on a map!</i>
@@ -97,11 +97,6 @@
             profile: Object,
             destinations: Array,
             destinationTypes: Array,
-            containerClass: {
-                default: function () {
-                    return null;
-                }
-            },
             adminView: {
                 default: function () {
                     return false;

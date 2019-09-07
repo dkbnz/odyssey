@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white mt-5 pl-3 pr-3 pb-3">
+    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <!-- Div for all the user's future trips -->
         <div id="upcomingTrips" class="upperPadding">
             <h1 class="page-title">Upcoming Trips</h1>
@@ -39,7 +39,6 @@
             <!-- Modal that uses the plan a trip page to edit a selected trip -->
             <b-modal hide-footer id="editTripModal" ref="editTripModal" size="xl" title="Edit Trip">
                 <plan-a-trip
-                        :containerClass="'noMarginsContainer'"
                         :destinations="destinations"
                         :heading="'Edit a Trip'"
                         :inputTrip="selectedTrip"
@@ -299,12 +298,7 @@
                 }
             },
             destinations: Array,
-            adminView: Boolean,
-            containerClass: {
-                default: function () {
-                    return 'containerWithNav';
-                }
-            }
+            adminView: Boolean
         },
 
         watch: {

@@ -63,9 +63,7 @@
             <template slot="row-details" slot-scope="row">
                 <b-card bg-variant="secondary">
                     <view-profile
-                            :containerClass="'profilesSubSectionProfile'"
-                            :containerClassContent="'profilesSubSectionContent'"
-                            :admin-view="profile.admin"
+                            :admin-view="false"
                             :destinations="destinations"
                             :profile="row.item"
                             :userProfile="profile">
@@ -180,7 +178,7 @@
                     {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
                     {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
                     {key: 'actions', class: 'tableWidthMedium'}
-                    ]
+                ]
             }
         },
 

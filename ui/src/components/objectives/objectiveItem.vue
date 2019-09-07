@@ -141,12 +141,7 @@
             },
             newDestination: Object,
             selectedDestination: {},
-            heading: String,
-            containerClass: {
-                default: function () {
-                    return 'containerWithNav';
-                }
-            }
+            heading: String
         },
 
         data() {
