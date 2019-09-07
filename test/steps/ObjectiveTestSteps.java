@@ -6,15 +6,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import models.objectives.Objective;
 import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.objectives.ObjectiveRepository;
 
 import java.io.IOException;
 import java.util.*;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static play.test.Helpers.*;
 
 public class ObjectiveTestSteps {
@@ -60,6 +62,9 @@ public class ObjectiveTestSteps {
 
     private ObjectMapper objectMapper =
             testContext.getApplication().injector().instanceOf(ObjectMapper.class);
+
+    private ObjectiveRepository objectiveRepository =
+            testContext.getApplication().injector().instanceOf(ObjectiveRepository.class);
 
 
     /**
@@ -199,5 +204,10 @@ public class ObjectiveTestSteps {
     public void theResponseContainsNoObjectives() throws IOException {
         int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
         Assert.assertEquals(0, responseSize);
+    }
+
+    @Then("the objective is successfully created")
+    public void theObjectiveIsSuccessfullyCreated() {
+        assertNotNull(objectiveRepository.findById(objectiveId));
     }
 }
