@@ -95,6 +95,7 @@
                     <b-form-input :state="dateOfBirthValidation"
                                   id="dateOfBirth"
                                   min="1900-01-01"
+                                  max="1999-12-31"
                                   required
                                   trim
                                   type="date" v-model="dateOfBirth"></b-form-input>

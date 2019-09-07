@@ -1,8 +1,5 @@
 <template>
     <div>
-        <h1 class="page-title">Quests</h1>
-        <p class="page-title"><i>Here are all this profile's currently active quests!</i></p>
-
         <b-row>
             <b-col cols="12" md="8">
                 <b-list-group>
