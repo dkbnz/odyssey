@@ -18,6 +18,7 @@
             </b-alert>
             <b-list-group-item href="#" class="flex-column justify-content-center"
                                v-if="creatingObjective" draggable="false">
+                <!-- Adding objective component -->
                 <add-objective :profile="profile" :heading="'Create'"
                                @cancelCreate="cancelCreate"
                                :selectedDestination="selectedDestination"
@@ -67,11 +68,13 @@
                         </b-col>
                     </b-row>
                 </template>
+                <!-- Editing objective component -->
                 <add-objective v-else
                                :profile="profile"
                                :heading="'Edit'"
                                :input-objective="copiedObjective"
                                @cancelCreate="cancelEdit"
+                               @successCreate="showSuccess"
                                @destination-select="$emit('destination-select')"
                                :selectedDestination="selectedDestination">
 

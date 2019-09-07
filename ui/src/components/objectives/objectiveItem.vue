@@ -40,12 +40,12 @@
 
                     <b-form>
                         <b-container fluid>
-                            <h6 class="mb-1">Selected Destination:</h6>
+                            <p class="mb-1">Selected Destination:</p>
                             <b-list-group @click="$emit('destination-select')">
                                 <b-list-group-item href="#" class="flex-column align-items-start"
                                                    v-if="destinationSelected"
                                                    id="selectedDestination"
-                                                   :disabled="destinationSelected.length === '{}'"
+                                                   :disabled="destinationSelected === '{}'"
                                                    :variant="checkDestinationState"
                                                    draggable="false">
                                     <div class="d-flex w-100 justify-content-between">
@@ -65,26 +65,29 @@
                                 </b-list-group-item>
                             </b-list-group>
                             <b-form-group
+                                    class="mb-5"
                                     id="radius-field"
-                                    label="Selected Destination check in radius:"
+                                    label="Selected Destination check in radius"
                                     label-for="radius">
-                                <!--Dropdown field for destination check in values-->
-                                <b-form-select id="radius" trim v-model="inputObjective.radius">
-                                    <option :value="radius" v-for="radius in radiusList"
-                                            :state="validateCheckIn">
-                                        {{radius.text}}
-                                    </option>
-                                </b-form-select>
+                                    <vue-slider
+                                            class="ml-3 mr-3"
+                                            id="radius"
+                                            v-model="radiusSelected"
+                                            :marks="true"
+                                            :data="radiusList"
+                                            :max=10>
+                                    </vue-slider>
                             </b-form-group>
 
-                            <div ref="map" v-if="inputObjective.radius !== null && destinationSelected.name">
+
+                            <div ref="map" v-if="radiusSelected !== null && destinationSelected.name">
                                 <google-map ref="map"
                                             :showRadius="true"
-                                            :radius="inputObjective.radius.value"
+                                            :radius="radiusSelected.value"
                                             :selectedRadiusDestination="destinationSelected">
                                 </google-map>
                             </div>
-                            <div ref="map" v-else-if="inputObjective.radius == null && destinationSelected.name">
+                            <div ref="map" v-else-if="radiusSelected == null && destinationSelected.name">
                                 <google-map ref="map"
                                             :showRadius="false"
                                             :selectedRadiusDestination="destinationSelected"
@@ -155,14 +158,19 @@
                 savingObjective: false,
                 letObjectiveSaved: false,
                 radiusList: [
-                    {value: 0.005, text: "5 Meters"},
-                    {value: 0.01, text: "10 Meters"},
-                    {value: 0.02, text: "20 Meters"},
-                    {value: 0.05, text: "50 Meters"},
-                    {value: 0.1, text: "100 Meters"},
-                    {value: 0.5, text: "500 Meters"},
+                    {value: 0.005, text: "5 Metres"},
+                    {value: 0.01, text: "10 Metres"},
+                    {value: 0.02, text: "20 Metres"},
+                    {value: 0.03, text: "30 Metres"},
+                    {value: 0.04, text: "40 Metres"},
+                    {value: 0.05, text: "50 Metres"},
+                    {value: 0.1, text: "100 Metres"},
+                    {value: 0.25, text: "250 Metres"},
+                    {value: 0.5, text: "500 Metres"},
                     {value: 1, text: "1 Km"},
+                    {value: 2.5, text: "2.5 Km"},
                     {value: 5, text: "5 Km"},
+                    {value: 7.5, text: "7.5 Km"},
                     {value: 10, text: "10 Km"},
                 ],
                 initial: {
@@ -172,7 +180,8 @@
                         lng: 173.299565
                     }
                 },
-                destinationSelected: {}
+                destinationSelected: {},
+                radiusSelected: {value: 0.005, text: "5 Metres"}
             }
         },
 
@@ -208,13 +217,13 @@
             /**
              * Returns true if the user has selected a check in radius
              *
-             * @returns true if validated.
+             * @returns {boolean} true if validated.
              */
             validateCheckIn() {
-                if (this.inputObjective.radius === null) {
+                if (this.radiusSelected.value === null) {
                     return false;
                 }
-                return this.inputObjective.radius.length > 0 || this.inputObjective.radius !== null;
+                return this.radiusSelected.value > 0;
             },
 
 
@@ -251,7 +260,21 @@
             editingObjective() {
                 if (this.inputObjective.id !== null) {
                     this.destinationSelected = this.inputObjective.destination;
+                    this.radiusSelected = this.radiusList[this.findIndexInArray()];
                 }
+            },
+
+
+            /**
+             * Locates the given objectives radius in the list of radius values.
+             */
+            findIndexInArray() {
+                for (let i = 0; i < this.radiusList.length; i += 1) {
+                    if (this.radiusList[i]['value'] === this.inputObjective.radius) {
+                        return i;
+                    }
+                }
+                return -1;
             },
 
 
@@ -261,16 +284,10 @@
              */
             validateObjective() {
                 if (this.validateDestination && this.validateRiddle && this.validateCheckIn) {
-                    if (this.heading === "Add") {
+                    if (this.heading === "Create") {
                         this.addObjective();
                     } else if (this.heading === "Edit") {
                         this.editObjective();
-                    } else {
-                        if (this.inputObjective.id !== null) {
-                            this.updateObjective();
-                        } else {
-                            this.saveObjective();
-                        }
                     }
                 } else {
                     this.errorMessage = "Not all fields have valid information!";
@@ -292,13 +309,12 @@
              * component.
              */
             addObjective() {
-                this.inputObjective.radius = this.inputObjective.radius.value;
+                this.inputObjective.radius = this.radiusSelected.value;
                 delete this.inputObjective.startTime;
                 delete this.inputObjective.endTime;
                 delete this.inputObjective.startDate;
                 delete this.inputObjective.endDate;
-                this.$emit('addObjective', this.inputObjective);
-                this.$emit('cancelCreate')
+                this.saveObjective();
             },
 
 
@@ -307,13 +323,12 @@
              * component.
              */
             editObjective() {
-                this.inputObjective.radius = this.inputObjective.radius.value;
+                this.inputObjective.radius = this.radiusSelected.value;
                 delete this.inputObjective.startTime;
                 delete this.inputObjective.endTime;
                 delete this.inputObjective.startDate;
                 delete this.inputObjective.endDate;
-                this.$emit('editObjective', this.inputObjective);
-                this.$emit('cancelCreate')
+                this.updateObjective();
             },
 
 
@@ -324,7 +339,6 @@
              */
             assembleObjective() {
                 this.inputObjective.destination = {"id": this.inputObjective.destination.id};
-                this.inputObjective.radius = this.inputObjective.radius.value;
             },
 
 
@@ -380,6 +394,7 @@
                 })
                     .then(this.checkStatus)
                     .then(function () {
+                        self.$emit('successCreate', "Objective Successfully Edited");
                         self.$emit('cancelCreate')
                     })
             },
