@@ -277,7 +277,6 @@
              * Sends a GET request to get the full sized image from the backend.
              */
             getFullPhoto() {
-                console.log("HERE");
                 return 'v1/photos/' + this.photoToView.id;
             },
 
