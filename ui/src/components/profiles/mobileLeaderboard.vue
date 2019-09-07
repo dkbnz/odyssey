@@ -141,15 +141,14 @@
                 this.page = 1;
                 if (!this.searchParameters) {
                     searchQuery =
-                        searchQuery =
-                            "?name=" + "" +
-                            "&nationalities=" + "" +
-                            "&gender=" + "" +
-                            "&min_age=" + "" +
-                            "&max_age=" + "" +
-                            "&travellerTypes=" + "" +
-                            "&page=" + this.queryPage +
-                            "&pageSize=" + this.pageSize;
+                        "?name=" + "" +
+                        "&nationalities=" + "" +
+                        "&gender=" + "" +
+                        "&min_age=" + "" +
+                        "&max_age=" + "" +
+                        "&travellerTypes=" + "" +
+                        "&page=" + this.queryPage +
+                        "&pageSize=" + this.pageSize;
                 } else {
                     searchQuery =
                         "?name=" + this.searchParameters.name +
@@ -166,25 +165,27 @@
                     .then(this.checkStatus)
                     .then(response => response.json())
                     .then((data) => {
-                        if (data === undefined || data.length < 10) {
-                            this.moreResults = false;
-                            this.initialLoad = false;
-                        } else {
-                            this.moreResults = true;
-                            this.initialLoad = false;
-                        }
-                        if (!this.gettingMore && data.length === 0) {
-                            this.profiles = [];
-                        }
-                        for (var i = 0; i < data.length; i++) {
-                            if (this.gettingMore) {
-                                this.profiles.push(data[i]);
+                        if (data !== null && data !== undefined) {
+                            if (data.length < 10) {
+                                this.moreResults = false;
+                                this.initialLoad = false;
                             } else {
-                                this.gettingMore = false;
-                                this.profiles = data;
+                                this.moreResults = true;
+                                this.initialLoad = false;
                             }
+                            if (!this.gettingMore && data.length === 0) {
+                                this.profiles = [];
+                            }
+                            for (let i = 0; i < data.length; i++) {
+                                if (this.gettingMore) {
+                                    this.profiles.push(data[i]);
+                                } else {
+                                    this.gettingMore = false;
+                                    this.profiles = data;
+                                }
+                            }
+                            this.retrievingProfiles = false;
                         }
-                        this.retrievingProfiles = false;
                     })
             },
 

@@ -671,7 +671,7 @@ public class ProfileController {
         LocalDate minDate = LocalDate.of(1000, 1, 1);
         LocalDate maxDate = LocalDate.of(3000, 12, 30);
 
-        if(request.getQueryString(NAME) != null && !request.getQueryString(NAME).isEmpty()) {
+        if (checkQueryFieldExists(request, NAME)) {
             // Uses the name part of the query to search for profiles by their first, middle or last names.
             expressionList.disjunction()
                     .eq(FIRST_NAME, request.getQueryString(NAME))
@@ -680,34 +680,47 @@ public class ProfileController {
             .endJunction();
         }
 
-        if(request.getQueryString(GENDER) != null && !request.getQueryString(GENDER).isEmpty()) {
+        if (checkQueryFieldExists(request, GENDER)) {
             expressionList.eq(GENDER, request.getQueryString(GENDER));
         }
 
-        if(request.getQueryString(MIN_AGE) != null && !request.getQueryString(MIN_AGE).isEmpty()) {
+        if (checkQueryFieldExists(request, MIN_AGE)) {
             maxDate = LocalDate.now().minusYears(Integer.parseInt(request.getQueryString(MIN_AGE)));
         }
 
-        if(request.getQueryString(MAX_AGE) != null && !request.getQueryString(MAX_AGE).isEmpty()) {
+        if (checkQueryFieldExists(request, MAX_AGE)) {
             minDate = LocalDate.now().minusYears(Integer.parseInt(request.getQueryString(MAX_AGE)) + AGE_SEARCH_OFFSET);
         }
         expressionList.between(DATE_OF_BIRTH, minDate, maxDate);
 
-        if(request.getQueryString(NATIONALITY) != null && !request.getQueryString(NATIONALITY).isEmpty()) {
+        if (checkQueryFieldExists(request, NATIONALITY)) {
             expressionList.eq(NATIONALITY_FIELD, request.getQueryString(NATIONALITY));
         }
 
-        if(request.getQueryString(TRAVELLER_TYPE) != null && !request.getQueryString(TRAVELLER_TYPE).isEmpty()) {
+        if (checkQueryFieldExists(request, TRAVELLER_TYPE)) {
             expressionList.eq(TRAVELLER_TYPE_FIELD, request.getQueryString(TRAVELLER_TYPE));
         }
 
-        if(request.getQueryString(MIN_POINTS) != null && !request.getQueryString(MIN_POINTS).isEmpty()) {
+        if (checkQueryFieldExists(request, MIN_POINTS)) {
             expressionList.ge(ACHIEVEMENT_POINTS, request.getQueryString(MIN_POINTS));
         }
 
-        if(request.getQueryString(MAX_POINTS) != null && !request.getQueryString(MAX_POINTS).isEmpty()) {
+        if (checkQueryFieldExists(request, MAX_POINTS)) {
             expressionList.le(ACHIEVEMENT_POINTS, request.getQueryString(MAX_POINTS));
         }
+    }
+
+
+    /**
+     * Helper function for searching for profiles. Checks if the query string contains the given field and the field
+     * is not empty.
+     *
+     * @param request   the Http request containing the query string.
+     * @param field     the field to be checked for in the query.
+     * @return          boolean true if the given field exists in the query, false otherwise.
+     */
+    private boolean checkQueryFieldExists(Http.Request request, String field) {
+        return request.getQueryString(field) != null && !request.getQueryString(field).isEmpty();
     }
 
 

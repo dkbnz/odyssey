@@ -13,7 +13,7 @@ import java.util.Optional;
 public final class AuthenticationUtil {
 
     private static final String AUTHORIZED = "authorized";
-    private static final String HASH_PASSWORD_TYPE = "SHA-256";
+    private static final String HASH_PASS_TYPE = "SHA-256";
 
     /**
      * Private constructor for the class to prevent instantiation.
@@ -63,7 +63,7 @@ public final class AuthenticationUtil {
      * @throws NoSuchAlgorithmException if the algorithm specified does not exist for the MessageDigest library.
      */
     public static String hashProfilePassword(String password) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance(HASH_PASSWORD_TYPE);
+        MessageDigest digest = MessageDigest.getInstance(HASH_PASS_TYPE);
         return DatatypeConverter.printHexBinary(digest.digest(password.getBytes(StandardCharsets.UTF_8)));
     }
 

@@ -265,9 +265,8 @@
              */
             queryDestinations() {
                 this.retrievingDestinations = true;
-                let searchTypeLocal = this.searchType;
-                if (searchTypeLocal === "Any") {
-                    searchTypeLocal = "";
+                if (this.searchType === "Any") {
+                    this.searchType = "";
                 }
                 let searchQuery =
                     "?name=" + this.searchName +

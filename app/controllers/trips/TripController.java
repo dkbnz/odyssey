@@ -237,16 +237,9 @@ public class TripController extends Controller {
                 // Parse the values contained in the current node of the array
                 Long parsedDestinationId = destinationJson.get(DESTINATION_ID).asLong();
 
-                LocalDate parsedStartDate = null;
-                if (!(destinationJson.get(START_DATE).asText().equals("null")
-                        || destinationJson.get(START_DATE).asText().equals(""))) {
-                    parsedStartDate = LocalDate.parse(destinationJson.get(START_DATE).asText());
-                }
-                LocalDate parsedEndDate = null;
-                if (!(destinationJson.get(END_DATE).asText().equals("null")
-                        || destinationJson.get(END_DATE).asText().equals(""))) {
-                    parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
-                }
+                LocalDate parsedStartDate = parseDestinationDates(destinationJson, START_DATE);
+                LocalDate parsedEndDate = parseDestinationDates(destinationJson, END_DATE);
+
                 Destination parsedDestination = destinationRepository.findById(parsedDestinationId);
 
                 // Create a new TripDestination object and set the values to be those parsed.
@@ -264,6 +257,23 @@ public class TripController extends Controller {
             }
         }
         return result;
+    }
+
+
+    /**
+     * Checks if each date for a destination in a quest is valid. If valid parses it into a LocalDate object.
+     *
+     * @param destinationJson   the Json object containing the destination dates.
+     * @param field             the specified field, either start date or end date, that will be retrieved from the
+     *                          destinationJson.
+     * @return                  a LocalDate variable containing the requested date field, if none found returns null.
+     */
+    private LocalDate parseDestinationDates(JsonNode destinationJson, String field) {
+        if (!(destinationJson.get(field).asText().equals("null")
+                || destinationJson.get(field).asText().equals(""))) {
+           return LocalDate.parse(destinationJson.get(field).asText());
+        }
+        return null;
     }
 
 

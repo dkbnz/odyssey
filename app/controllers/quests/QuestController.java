@@ -8,8 +8,6 @@ import controllers.points.AchievementTrackerController;
 import io.ebean.ExpressionList;
 import models.destinations.Destination;
 import models.objectives.Objective;
-import models.points.AchievementTracker;
-import models.points.PointReward;
 import models.profiles.Profile;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
@@ -42,7 +40,6 @@ public class QuestController {
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
     private AchievementTrackerController achievementTrackerController;
-    private PointRewardRepository pointRewardRepository;
 
     /**
      * Object mapper to be used throughout the class. Handled via the Guice injector instead of us instantiating
@@ -82,7 +79,6 @@ public class QuestController {
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
         this.achievementTrackerController = achievementTrackerController;
-        this.pointRewardRepository = pointRewardRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -622,7 +618,7 @@ public class QuestController {
         }
 
         Profile attemptedBy = questAttempt.getAttemptedBy();
-        if (attemptedBy != null && !AuthenticationUtil.validUser(loggedInUser, attemptedBy)) {
+        if (attemptedBy == null || !AuthenticationUtil.validUser(loggedInUser, attemptedBy)) {
             return forbidden(ApiError.forbidden());
         }
 
