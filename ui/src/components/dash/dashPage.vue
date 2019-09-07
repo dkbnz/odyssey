@@ -47,15 +47,20 @@
     export default {
         name: "dashPage",
 
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'adminView', 'destinations'],
+        props: ['nationalityOptions', 'travTypeOptions', 'trips', 'adminView', 'destinations'],
 
         data: function () {
             return {
                 viewProfile: true,
                 editProfile: false,
                 photoGallery: false,
-                showSaved: false
+                showSaved: false,
+                profile: {}
             }
+        },
+
+        mounted() {
+            this.getProfile(profile => this.profile = profile);
         },
 
         methods: {
@@ -78,7 +83,29 @@
             showSavedProfile() {
                 this.showSaved = true;
                 this.togglePage(this.viewProfile);
+            },
+
+
+            /**
+             * Retrieves the current profile in case any changes have been made.
+             */
+            getProfile(updateProfile) {
+                return fetch(`/v1/profile`, {
+                    accept: "application/json"
+                })
+                    .then(this.parseJSON)
+                    .then(updateProfile);
+            },
+
+
+            /**
+             * Converts the response body to a Json.
+             */
+            parseJSON(response) {
+                return response.json();
             }
+
+
         },
 
         components: {

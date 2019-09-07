@@ -85,6 +85,8 @@
                         label-for="dateOfBirth">
                     <b-form-input :state="dateOfBirthValidation"
                                   :type="'date'"
+                                  min="1900-01-01"
+                                  max="1999-12-31"
                                   id="dateOfBirth"
                                   trim v-model="saveProfile.dateOfBirth">
                     </b-form-input>
