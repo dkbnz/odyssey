@@ -79,7 +79,6 @@
                 this.showSaved = true;
                 this.togglePage(this.viewProfile);
             }
-
         },
 
         components: {
