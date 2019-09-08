@@ -228,7 +228,8 @@
                         "&gender=" + "" +
                         "&min_age=" + "" +
                         "&max_age=" + "" +
-                        "&travellerTypes=" + "";
+                        "&travellerTypes=" + "" +
+                        "&rank=" + "";
                     this.searchingProfiles = false;
                 } else {
                     searchQuery =
@@ -237,7 +238,8 @@
                         "&gender=" + this.searchParameters.gender +
                         "&min_age=" + this.searchParameters.age[0] +
                         "&max_age=" + this.searchParameters.age[1] +
-                        "&travellerTypes=" + this.searchParameters.travellerType;
+                        "&travellerTypes=" + this.searchParameters.travellerType +
+                        "&rank=" + this.searchParameters.rank;
                     this.searchingProfiles = true;
                 }
                 if (this.perPage === Infinity) {

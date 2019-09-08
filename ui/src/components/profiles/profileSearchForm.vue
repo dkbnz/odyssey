@@ -171,7 +171,7 @@
                     gender: "",
                     age: [0, 120],
                     travellerType: "",
-                    rank: null
+                    rank: ""
                 };
                 this.$emit('cleared-form');
             }
