@@ -119,7 +119,7 @@ public class AchievementTrackerController extends Controller {
     /**
      * Retrieves the requested user's current points value.
      *
-     * @param request       the http request sent.
+     * @param request       the Http request sent.
      * @param userId        the user whose points have been requested.
      * @return              ok() (Http 200) containing the user's points if successfully attained.
      *                      unauthorised() (Http 401) if the one sending the request is not logged in.
