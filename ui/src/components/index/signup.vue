@@ -162,7 +162,7 @@
                                     multiple
                                     trim v-model="passports">
                                 <option :value="{id: nationality.id, country: nationality.country}"
-                                        v-for="nationality in nationalityOptions">
+                                        v-for="nationality in passportsSorted">
                                     {{nationality.country}}
                                 </option>
                             </b-form-select>
@@ -392,7 +392,7 @@
              * Get the current date and return it in the format.
              * yyyy-mm-dd.
              *
-             * @returns Current date in format yyyy-mm-dd
+             * @return the current date in format yyyy-mm-dd
              */
             todaysDate() {
                 let today = new Date();
@@ -407,6 +407,28 @@
                 }
                 today = yyyy + '-' + mm + '-' + dd;
                 return today
+            },
+
+
+            /**
+             * Sorts nationality options by their nationality value.
+             *
+             * @return a list of sorted nationalities.
+             */
+            nationalitiesSorted() {
+                let nationalityOptions = JSON.parse(JSON.stringify(this.nationalityOptions));
+                return nationalityOptions.sort((a, b) => (a.country > b.country) ? 1 : -1)
+            },
+
+
+            /**
+             * Sorts nationality options by their country value for passports.
+             *
+             * @return a list of sorted nationalities.
+             */
+            passportsSorted() {
+                let passportOptions = JSON.parse(JSON.stringify(this.nationalityOptions));
+                return passportOptions.sort((a, b) => (a.country > b.country) ? 1 : -1)
             }
 
         },
