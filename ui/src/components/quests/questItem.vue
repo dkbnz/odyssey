@@ -583,9 +583,7 @@
 
 
             /**
-             * Creates formatted JSON of the currently active quest.
-             *
-             * @returns JSON string with fields 'title', 'objectives', 'startDate', 'endDate'.
+             * Creates formatted Json of the currently active quest.
              */
             assembleQuest() {
                 this.joinDates();
@@ -600,7 +598,7 @@
 
 
             /**
-             * POST's the currently active quest to the quests endpoint in JSON format, for newly creating
+             * POST's the currently active quest to the quests endpoint in Json format, for newly creating
              * quests.
              */
             saveQuest() {
@@ -654,7 +652,7 @@
 
 
             /**
-             * PUT's the currently active quest to the quests endpoint in JSON format, for edited
+             * PUT's the currently active quest to the quests endpoint in Json format, for edited
              * quests.
              */
             updateQuest() {
