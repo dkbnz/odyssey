@@ -259,7 +259,7 @@
                         <b-button @click="validateTrip"
                                   block class="mr-2 float-right"
                                   variant="primary">
-                            <b-img alt="Loading" class="align-middle loading" v-if="savingTrip" src="../../../static/logo.png" width="25%">
+                            <b-img alt="Loading" class="align-middle loading" v-if="savingTrip" src="..//../../static/tab_favicon.png" width="25%">
                             </b-img>
                             Save Trip
                         </b-button>

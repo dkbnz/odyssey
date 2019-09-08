@@ -1,6 +1,7 @@
 <template>
     <div>
         <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
+            <b-alert v-model="showError">{{alertMessage}}</b-alert>
             <!-- Confirmation modal for deleting a profile. -->
             <b-modal ref="deleteProfileModal" id="deleteProfileModal" hide-footer title="Delete Profile">
                 <div class="d-block">
@@ -119,39 +120,19 @@
 
         data: function () {
             return {
-                sortBy: 'firstName',
-                sortDesc: false,
                 showError: false,
-                searchNationality: "",
-                searchGender: "",
-                searchMinAge: 0,
-                searchMaxAge: 120,
-                searchTravType: "",
-                optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
-                    value: 15,
-                    text: "15"
-                }],
-                currentPage: 1,
-                genderOptions: [
-                    {value: 'Male', text: 'Male'},
-                    {value: 'Female', text: 'Female'},
-                    {value: 'Other', text: 'Other'}
-                ],
+                alertMessage: "",
                 profiles: [],
                 retrievingProfiles: false,
                 selectedProfile: "",
-                alertMessage: "",
                 queryPage: 0,
                 pageSize: 5,
                 moreResults: true,
                 gettingMore: false,
-                gettingAll: false,
                 searchParameters: null,
                 searchingProfiles: false,
                 columnSortBy: {sortBy: "", order: ""},
-                firstPage: false,
-                refreshTable1: 0,
-                refreshTable2: 0
+                firstPage: false
             }
         },
 
@@ -258,18 +239,20 @@
              */
             getMore(queryPage, pageSize) {
                 //TODO: Isaac - Still some bugs in this section.
-                let newQueryPage = queryPage;
                 if (pageSize !== this.pageSize) {
+                    console.log("PAGE SIZE");
                     this.profiles = [];
                     this.pageSize = pageSize;
                     this.queryProfiles();
                 } else {
-                    while (this.queryPage < newQueryPage) {
+                    console.log("QUERY PAGE CATCHUP");
+                    while (this.queryPage < queryPage) {
                         this.queryPage += 1;
                         this.queryProfiles();
                     }
                 }
                 if (this.pageSize === Infinity) {
+                    console.log("INFINITY");
                     this.queryPage = 0;
                     this.queryProfiles();
                 }
