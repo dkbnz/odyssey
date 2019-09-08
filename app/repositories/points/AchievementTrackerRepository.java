@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import models.points.AchievementTracker;
+import models.profiles.Profile;
 
 
 /**
@@ -41,5 +42,24 @@ public class AchievementTrackerRepository extends BeanRepository<Long, Achieveme
         }
 
         return achievementTracker.getPoints();
+    }
+
+
+    /**
+     * Finds the rank of a given profile based on the points in their AchievementTracker
+     *
+     * @param profileToFind the profile to find the rank of.
+     * @return  an integer representing the rank of a profile.
+     */
+    public static int getRank(Profile profileToFind) {
+        return Ebean.getDefaultServer()
+                .find(AchievementTracker.class)
+                .setDistinct(true)
+                .select("points")
+                .where()
+                .ge("points", profileToFind
+                        .getAchievementTracker()
+                        .getPoints())
+                .findCount();
     }
 }
