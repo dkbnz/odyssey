@@ -19,6 +19,8 @@ import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 
 public class AchievementTrackerController extends Controller {
+    private static final String USER_POINTS = "userPoints";
+
     private ProfileRepository profileRepository;
     private PointRewardRepository pointRewardRepository;
     private ObjectMapper objectMapper;
@@ -36,9 +38,10 @@ public class AchievementTrackerController extends Controller {
 
     /**
      * Adds points to the user's AchievementTracker for creating a destination.
-     * @param actingProfile the profile receiving points.
-     * @param destinationCreated the destination that was created.
-     * @return the points added rewarded to the profile.
+     *
+     * @param actingProfile         the profile receiving points.
+     * @param destinationCreated    the destination that was created.
+     * @return                      the points added rewarded to the profile.
      */
     public int rewardAction(Profile actingProfile, Destination destinationCreated) {
         AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
@@ -53,9 +56,10 @@ public class AchievementTrackerController extends Controller {
 
     /**
      * Adds points to the user's AchievementTracker for creating an objective.
-     * @param actingProfile the profile that performed the action.
-     * @param objectiveCreated the objective that was created.
-     * @return the number of points that the user was rewarded.
+     *
+     * @param actingProfile     the profile that performed the action.
+     * @param objectiveCreated  the objective that was created.
+     * @return                  the number of points that the user was rewarded.
      */
     public int rewardAction(Profile actingProfile, Objective objectiveCreated) {
         AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
@@ -71,10 +75,11 @@ public class AchievementTrackerController extends Controller {
     /**
      * Rewards the acting profile with points based on their action on the questWorkedOn. If completed is false, then
      * the user created the quest, otherwise they completed the quest.
-     * @param actingProfile the profile that completed the action.
-     * @param questWorkedOn the quest that was either created or completed
-     * @param completed a boolean indicating if the action was completing the quest.
-     * @return the points rewarded to the user.
+     *
+     * @param actingProfile     the profile that completed the action.
+     * @param questWorkedOn     the quest that was either created or completed
+     * @param completed         a boolean indicating if the action was completing the quest.
+     * @return                  the points rewarded to the user.
      */
     public int rewardAction(Profile actingProfile, Quest questWorkedOn, boolean completed) {
         AchievementTracker achievementTracker = actingProfile.getAchievementTracker();
@@ -92,9 +97,10 @@ public class AchievementTrackerController extends Controller {
 
     /**
      * Adds the given amount of points to the given profile's AchievementTracker.
-     * @param actingProfile the profile receiving points.
-     * @param objectiveSolved the objective which the action was performed on.
-     * @return the points added rewarded to the profile.
+     *
+     * @param actingProfile     the profile receiving points.
+     * @param objectiveSolved   the objective which the action was performed on.
+     * @return                  the points added rewarded to the profile.
      */
     public int rewardAction(Profile actingProfile, Objective objectiveSolved, boolean checkedIn) {
         Action completedAction = checkedIn ? Action.CHECKED_IN : Action.RIDDLE_SOLVED;
@@ -109,8 +115,10 @@ public class AchievementTrackerController extends Controller {
         return reward.getValue();
     }
 
+
     /**
      * Retrieves the requested user's current points value.
+     *
      * @param request       the http request sent.
      * @param userId        the user whose points have been requested.
      * @return              ok() (Http 200) containing the user's points if successfully attained.
@@ -133,7 +141,7 @@ public class AchievementTrackerController extends Controller {
         AchievementTracker tracker = requestedUser.getAchievementTracker();
 
         ObjectNode pointsJson = objectMapper.createObjectNode();
-        pointsJson.put("userPoints", tracker.getPoints());
+        pointsJson.put(USER_POINTS, tracker.getPoints());
 
         return ok(pointsJson);
     }
