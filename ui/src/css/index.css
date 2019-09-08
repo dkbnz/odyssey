@@ -42,6 +42,11 @@ body {
     color: black;
 }
 
+.loginSignUpButtons {
+    position: relative;
+    top: 23%;
+}
+
 
 @media only screen and (max-device-width: 480px) {
     .carousel-caption p {
@@ -173,8 +178,13 @@ body {
     .subtitleSection {
         top: 15%;
     }
+
     .subtitleSection h3 {
         font-size: 4vw;
+    }
+
+    .loginSignUpButtons {
+        top: 15%;
     }
 }
 
@@ -202,10 +212,6 @@ body {
         font-size: 1rem;
         line-height: 1;
         border-radius: 0.3rem;
-    }
-
-    .subtitleSection {
-        top: 10%;
     }
 
     .subtitleSection h3 {
