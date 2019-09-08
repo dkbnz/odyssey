@@ -207,7 +207,7 @@
                                    trim
                                    v-model="saveProfilePassports">
                         <option
-                                v-for="passport in nationalityOptions"
+                                v-for="passport in passportsSorted"
                                 :value="{id: passport.id, country: passport.country}">
                             {{passport.country}}
                         </option>
@@ -449,6 +449,17 @@
                 set(travellerTypes) {
                     this.travellerTypesSelected = travellerTypes;
                 }
+            },
+
+
+            /**
+             * Sorts nationality options by their country value for passports.
+             *
+             * @return a list of sorted nationalities.
+             */
+            passportsSorted() {
+                let passportOptions = JSON.parse(JSON.stringify(this.nationalityOptions));
+                return passportOptions.sort((a, b) => (a.country > b.country) ? 1 : -1)
             }
         },
 
