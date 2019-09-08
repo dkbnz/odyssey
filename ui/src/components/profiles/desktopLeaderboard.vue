@@ -264,7 +264,7 @@
                     this.pageSize = pageSize;
                     this.queryProfiles();
                 } else {
-                    while (this.queryPage <= newQueryPage) {
+                    while (this.queryPage < newQueryPage) {
                         this.queryPage += 1;
                         this.queryProfiles();
                     }
