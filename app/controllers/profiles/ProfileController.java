@@ -31,6 +31,7 @@ import repositories.destinations.TravellerTypeRepository;
 import util.AuthenticationUtil;
 
 import static play.mvc.Results.*;
+import static util.QueryUtil.queryComparator;
 
 
 /**
@@ -679,10 +680,11 @@ public class ProfileController {
 
         if (checkQueryFieldExists(request, NAME)) {
             // Uses the name part of the query to search for profiles by their first, middle or last names.
+            String queryString = queryComparator(request.getQueryString(NAME));
             expressionList.disjunction()
-                    .eq(FIRST_NAME, request.getQueryString(NAME))
-                    .eq(MIDDLE_NAME, request.getQueryString(NAME))
-                    .eq(LAST_NAME, request.getQueryString(NAME))
+                    .ilike(FIRST_NAME, queryString)
+                    .ilike(MIDDLE_NAME, queryString)
+                    .ilike(LAST_NAME, queryString)
             .endJunction();
         }
 
