@@ -1,9 +1,7 @@
 <template>
     <div>
         <b-table :busy="loading"
-                 :per-page="perPage"
                  :fields="fields"
-                 :current-page="currentPage"
                  :items="profileList"
                  responsive
                  hover
@@ -138,19 +136,22 @@
 
         watch: {
             loading() {
+                // Retrieve the total number of rows to display in the table for the pagination.
                 this.getRows();
             },
 
             perPage() {
+                // Request more profiles.
                 this.$emit('get-more', this.currentPage-1, this.perPage);
-
             },
 
             currentPage() {
+                // Request more profiles.
                 this.$emit('get-more', this.currentPage-1, this.perPage);
             },
 
             firstPage() {
+                // Reset the pagination to the first page.
                 this.currentPage = 1;
             }
         },

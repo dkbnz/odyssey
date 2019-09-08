@@ -240,16 +240,16 @@
             getMore(queryPage, pageSize) {
                 //TODO: Isaac - Still some bugs in this section.
                 if (pageSize !== this.pageSize) {
-                    console.log("PAGE SIZE");
                     this.profiles = [];
                     this.pageSize = pageSize;
                     this.queryProfiles();
                 } else {
                     console.log("QUERY PAGE CATCHUP");
-                    while (this.queryPage < queryPage) {
-                        this.queryPage += 1;
+                    this.queryPage = queryPage;
+                    // while (this.queryPage < queryPage) {
+                    //     this.queryPage += 1;
                         this.queryProfiles();
-                    }
+                    // }
                 }
                 if (this.pageSize === Infinity) {
                     console.log("INFINITY");
@@ -273,7 +273,6 @@
 
             sortTable(columnSortBy) {
                 this.columnSortBy = columnSortBy;
-                this.profiles = [];
                 this.queryPage = 0;
                 this.queryProfiles();
                 this.firstPage = !this.firstPage;
@@ -320,12 +319,7 @@
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
-                        if (this.searchingProfiles && !this.gettingMore) {
-                            this.profiles = [];
-                        }
-                        for (let i = 0; i < data.length; i++) {
-                            this.profiles.push(data[i]);
-                        }
+                        this.profiles = data;
                         this.retrievingProfiles = false;
                     })
             },
@@ -396,6 +390,7 @@
              */
             clearForm() {
                 this.queryPage = 0;
+                this.firstPage = !this.firstPage;
                 this.columnSortBy = {sortBy: "", order: ""};
                 this.searchingProfiles = false;
                 this.searchParameters = null;
