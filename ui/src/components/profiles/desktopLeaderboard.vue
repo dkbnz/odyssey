@@ -293,6 +293,7 @@
                         "&min_age=" + "" +
                         "&max_age=" + "" +
                         "&travellerTypes=" + "" +
+                        "&rank=" +
                         "&page=" + this.queryPage +
                         "&pageSize=" + this.pageSize +
                         "&sortBy=" + this.columnSortBy.sortBy +
@@ -307,6 +308,7 @@
                         "&min_age=" + this.searchParameters.age[0] +
                         "&max_age=" + this.searchParameters.age[1] +
                         "&travellerTypes=" + this.searchParameters.travellerType +
+                        "&rank=" + this.searchParameters.rank +
                         "&page=" + this.queryPage +
                         "&pageSize=" + this.pageSize +
                         "&sortBy=" + this.columnSortBy.sortBy +
