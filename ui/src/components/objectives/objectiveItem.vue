@@ -336,9 +336,7 @@
 
 
             /**
-             * Creates formatted JSON of the currently active objective.
-             *
-             * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
+             * Creates formatted Json of the currently active objective.
              */
             assembleObjective() {
                 this.inputObjective.destination = {"id": this.inputObjective.destination.id};
@@ -346,7 +344,7 @@
 
 
             /**
-             * POST's the currently active destination to the objectives endpoint in JSON format, for newly creating
+             * POST's the currently active destination to the objectives endpoint in Json format, for newly creating
              * destinations.
              */
             saveObjective() {
@@ -384,7 +382,7 @@
 
 
             /**
-             * PUT's the currently active destination to the objectives endpoint in JSON format, for edited
+             * PUT's the currently active destination to the objectives endpoint in Json format, for edited
              * destinations.
              */
             updateObjective() {

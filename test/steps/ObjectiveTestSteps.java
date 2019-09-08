@@ -56,7 +56,7 @@ public class ObjectiveTestSteps {
     private static final String ID = "id";
 
     /**
-     * Static variable to call the related value from the creation return JSON.
+     * Static variable to call the related value from the creation return Json.
      */
     private static final String RESULT_OBJECTIVE_ID = "newObjectiveId";
 
