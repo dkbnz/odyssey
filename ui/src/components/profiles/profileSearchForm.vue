@@ -18,7 +18,7 @@
                             label-for="nationality">
                         <b-form-select id="nationality" trim v-model="searchParameters.nationality">
                             <template slot="first">
-                                <option :value="null">-- Any --</option>
+                                <option :value="''">-- Any --</option>
                             </template>
                             <option :value="nationality.nationality"
                                     v-for="nationality in nationalityOptions">
@@ -34,7 +34,7 @@
                             label-for="gender">
                         <b-form-select :options="genderOptions" id="gender" trim v-model="searchParameters.gender">
                             <template slot="first">
-                                <option :value="null">-- Any --</option>
+                                <option :value="''">-- Any --</option>
                             </template>
                         </b-form-select>
                     </b-form-group>
@@ -49,7 +49,7 @@
                             label-for="travType">
                         <b-form-select id="travType" trim v-model="searchParameters.travellerType">
                             <template>
-                                <option :value="null" selected="selected">-- Any --</option>
+                                <option :value="''" selected="selected">-- Any --</option>
                             </template>
                             <option :value="travType.travellerType"
                                     v-for="travType in travellerTypeOptions">
@@ -97,7 +97,7 @@
                     gender: "",
                     age: [0, 120],
                     travellerType: "",
-                    rank: null
+                    rank: ""
                 },
                 travellerTypeOptions: [],
                 nationalityOptions: [],
