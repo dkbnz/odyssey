@@ -30,7 +30,7 @@
         </b-modal>
 
         <div class="d-flex justify-content-center mb-3">
-            <b-img alt="Loading" class="align-middle loading" v-if="retrievingPhotos" src="../../../static/logo.png" width="50%"></b-img>
+            <b-img alt="Loading" class="align-middle loading" v-if="retrievingPhotos" src="../../../static/logo_sm.png"></b-img>
             <p v-if="photos.length === 0 && !retrievingPhotos"><b>No photos found.</b></p>
         </div>
 

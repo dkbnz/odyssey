@@ -26,7 +26,7 @@
 
             <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
                 <div class="d-flex justify-content-center">
-                    <b-img alt="Loading" class="align-middle loading" src="../../../static/logo.png" width="50%"></b-img>
+                    <b-img alt="Loading" class="align-middle loading" src="../../../static/logo_sm.png"></b-img>
                 </div>
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center"

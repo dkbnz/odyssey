@@ -285,10 +285,18 @@
              */
             validateObjective() {
                 if (this.validateDestination && this.validateRiddle && this.validateCheckIn) {
-                    if (this.heading === "Create") {
+                    if (this.heading === "Create" || this.heading === "Add") {
                         this.addObjective();
                     } else if (this.heading === "Edit") {
                         this.editObjective();
+                    } else {
+                        // These fields are necessary as when editing or creating objectives in a quest behaviour needs
+                        // to work differently.
+                        if (this.inputObjective.id) {
+                            this.updateObjective();
+                        } else {
+                            this.saveObjective()
+                        }
                     }
                 } else {
                     this.errorMessage = "Not all fields have valid information!";
@@ -315,7 +323,8 @@
                 delete this.inputObjective.endTime;
                 delete this.inputObjective.startDate;
                 delete this.inputObjective.endDate;
-                this.saveObjective();
+                this.$emit('addObjective', this.inputObjective);
+                this.$emit('cancelCreate')
             },
 
 
@@ -331,7 +340,7 @@
                 delete this.inputObjective.endDate;
                 // Emits here for editing an objective in a quest, as later the destination value is changed.
                 this.$emit('editObjective', this.inputObjective);
-                this.updateObjective();
+                this.$emit('cancelCreate')
             },
 
 

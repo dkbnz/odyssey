@@ -66,7 +66,7 @@
                     striped
                     responsive>
                 <div class="text-center my-2" slot="table-busy">
-                    <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" src="../../../static/logo.png" width="50%">
+                    <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" src="../../../static/logo_sm.png">
                     </b-img>
                     <strong>Can't find any trips!</strong>
                 </div>
@@ -185,7 +185,7 @@
                          responsive>
 
                     <div slot="table-busy" class="text-center my-2">
-                        <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" src="../../../static/logo.png" width="50%">
+                        <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" src="../../../static/logo_sm.png">
                         </b-img>
                         <strong>Can't find any trips!</strong>
                     </div>
