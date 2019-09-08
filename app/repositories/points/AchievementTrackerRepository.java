@@ -31,7 +31,7 @@ public class AchievementTrackerRepository extends BeanRepository<Long, Achieveme
                 .select(POINTS) // Only selecting points field in the achievement tracker
                 .where()
                 .orderBy()
-                .asc(POINTS) // Order by points in ascending order
+                .desc(POINTS) // Order by points in ascending order
                 .setFirstRow(rank - 1) // Set the first row to be returned to be rank - 1 (due to zero indexing)
                 .setMaxRows(1) // We only want one row, no need for others
                 .findOne();

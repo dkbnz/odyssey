@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import repositories.points.AchievementTrackerRepository;
 import repositories.profiles.NationalityRepository;
 import repositories.profiles.PassportRepository;
 import repositories.profiles.ProfileRepository;
@@ -61,6 +62,8 @@ public class ProfileController {
     private static final String SORT_ORDER = "sortOrder";
     private static final String MIN_POINTS = "min_points";
     private static final String MAX_POINTS = "max_points";
+    private static final String RANK = "rank";
+    private static final String ACHIEVEMENT_RANK = "achievementTracker.rank";
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String NO_PROFILE_FOUND = "No profile found.";
@@ -73,16 +76,19 @@ public class ProfileController {
     private NationalityRepository nationalityRepository;
     private PassportRepository passportRepository;
     private TravellerTypeRepository travellerTypeRepository;
+    private AchievementTrackerRepository achievementTrackerRepository;
 
     @Inject
     public ProfileController(ProfileRepository profileRepository,
                              NationalityRepository nationalityRepository,
                              PassportRepository passportRepository,
-                             TravellerTypeRepository travellerTypeRepository) {
+                             TravellerTypeRepository travellerTypeRepository,
+                             AchievementTrackerRepository achievementTrackerRepository) {
         this.profileRepository = profileRepository;
         this.passportRepository = passportRepository;
         this.nationalityRepository = nationalityRepository;
         this.travellerTypeRepository = travellerTypeRepository;
+        this.achievementTrackerRepository = achievementTrackerRepository;
     }
 
 
@@ -707,6 +713,13 @@ public class ProfileController {
 
         if (checkQueryFieldExists(request, MAX_POINTS)) {
             expressionList.le(ACHIEVEMENT_POINTS, request.getQueryString(MAX_POINTS));
+        }
+
+        if(request.getQueryString(RANK) != null && !request.getQueryString(RANK).isEmpty()) {
+            Integer rank = Integer.parseInt(request.getQueryString(RANK)) - 1;
+
+            int pointsFromRank = achievementTrackerRepository.getPointsFromRank(rank);
+            expressionList.le(ACHIEVEMENT_POINTS, pointsFromRank);
         }
     }
 
