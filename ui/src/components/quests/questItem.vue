@@ -746,7 +746,7 @@
                 ];
                 for (let i = 0; i < radiusList.length; i++) {
                     if (radius === radiusList[i].value) {
-                        radiusValue = radiusList[i];
+                        radiusValue = radiusList[i].value;
                     }
                 }
                 this.objectiveSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[this.objectiveIndex]));

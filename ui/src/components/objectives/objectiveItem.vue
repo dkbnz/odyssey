@@ -70,6 +70,7 @@
                                     label="Selected Destination check in radius"
                                     label-for="radius">
                                     <vue-slider
+                                            :disabled="destinationSelected === '{}'"
                                             class="ml-3 mr-3"
                                             id="radius"
                                             v-model="radiusSelected"
@@ -328,6 +329,8 @@
                 delete this.inputObjective.endTime;
                 delete this.inputObjective.startDate;
                 delete this.inputObjective.endDate;
+                // Emits here for editing an objective in a quest, as later the destination value is changed.
+                this.$emit('editObjective', this.inputObjective);
                 this.updateObjective();
             },
 
