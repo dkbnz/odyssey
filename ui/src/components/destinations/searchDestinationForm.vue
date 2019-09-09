@@ -9,7 +9,11 @@
                     id="name-field"
                     label="Destination Name:"
                     label-for="name">
-                <b-form-input id="name" v-model="searchName" :state="destinationNameValidation"></b-form-input>
+                <b-form-input id="name"
+                              v-model="searchName"
+                              :state="destinationNameValidation"
+                              maxlength="200">
+                </b-form-input>
             </b-form-group>
 
             <b-form-group
@@ -32,7 +36,10 @@
                     id="district-field"
                     label="District:"
                     label-for="district">
-                <b-form-input id="district" trim v-model="searchDistrict" :state="destinationDistrictValidation">
+                <b-form-input id="district"
+                              trim
+                              v-model="searchDistrict"
+                              :state="destinationDistrictValidation">
                 </b-form-input>
             </b-form-group>
 
@@ -40,7 +47,10 @@
                     id="latitude-field"
                     label="Latitude:"
                     label-for="latitude">
-                <b-form-input id="latitude" trim v-model="searchLatitude" :state="destinationLatitudeValidation">
+                <b-form-input id="latitude"
+                              trim
+                              v-model="searchLatitude"
+                              :state="destinationLatitudeValidation">
                 </b-form-input>
                 <b-form-invalid-feedback :state="destinationLatitudeValidation">
                     {{latitudeErrorMessage}}
@@ -52,7 +62,10 @@
                     id="longitude-field"
                     label="Longitude:"
                     label-for="longitude">
-                <b-form-input id="longitude" trim v-model="searchLongitude" :state="destinationLongitudeValidation">
+                <b-form-input id="longitude"
+                              trim
+                              v-model="searchLongitude"
+                              :state="destinationLongitudeValidation">
                 </b-form-input>
                 <b-form-invalid-feedback :state="destinationLongitudeValidation">
                     {{longitudeErrorMessage}}

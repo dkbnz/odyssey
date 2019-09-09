@@ -8,7 +8,9 @@
                     id="name-field"
                     label="Name:"
                     label-for="name">
-                <b-form-input id="name" v-model="searchParameters.name"></b-form-input>
+                <b-form-input id="name"
+                              v-model="searchParameters.name">
+                </b-form-input>
             </b-form-group>
             <b-form-row>
                 <b-col>
@@ -18,7 +20,7 @@
                             label-for="nationality">
                         <b-form-select id="nationality" trim v-model="searchParameters.nationality">
                             <template slot="first">
-                                <option :value="null">-- Any --</option>
+                                <option :value="''">-- Any --</option>
                             </template>
                             <option :value="nationality.nationality"
                                     v-for="nationality in nationalityOptions">
@@ -34,7 +36,7 @@
                             label-for="gender">
                         <b-form-select :options="genderOptions" id="gender" trim v-model="searchParameters.gender">
                             <template slot="first">
-                                <option :value="null">-- Any --</option>
+                                <option :value="''">-- Any --</option>
                             </template>
                         </b-form-select>
                     </b-form-group>
@@ -49,7 +51,7 @@
                             label-for="travType">
                         <b-form-select id="travType" trim v-model="searchParameters.travellerType">
                             <template>
-                                <option :value="null" selected="selected">-- Any --</option>
+                                <option :value="''" selected="selected">-- Any --</option>
                             </template>
                             <option :value="travType.travellerType"
                                     v-for="travType in travellerTypeOptions">
@@ -62,7 +64,9 @@
                     <b-form-group
                             label="Rank:">
                         <b-input-group>
-                            <b-form-input v-model="searchParameters.rank" type="number"></b-form-input>
+                            <b-form-input v-model="searchParameters.rank"
+                                          type="number">
+                            </b-form-input>
                             <b-input-group-append>
                                 <b-button variant="outline-info" @click="searchParameters.rank = userProfile.achievementTracker.rank" size="sm">My Rank</b-button>
                             </b-input-group-append>
@@ -97,7 +101,7 @@
                     gender: "",
                     age: [0, 120],
                     travellerType: "",
-                    rank: null
+                    rank: ""
                 },
                 travellerTypeOptions: [],
                 nationalityOptions: [],
@@ -130,6 +134,12 @@
                 } else if (this.searchParameters.age[0] > this.searchParameters.age[1]) {
                     this.showError = true;
                     this.alertMessage = "Min age is greater than max age";
+                }  else if (this.searchParameters.name.length > 100) {
+                    this.showError = true;
+                    this.alertMessage = "Input length must be less than 100 characters";
+                }   else if (this.searchParameters.rank.length > 9) {
+                    this.showError = true;
+                    this.alertMessage = "Rank cannot be greater than 999,999,999";
                 } else {
                     this.showError = false;
                     this.$emit('search', this.searchParameters);
