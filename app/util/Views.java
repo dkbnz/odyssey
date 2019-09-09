@@ -1,12 +1,12 @@
 package util;
 
 public class Views {
-    public static class Public {
+    public interface Public {
     }
 
-    public static class Owner extends Public {
+    public interface Owner extends Public {
     }
 
-    public static class Admin extends Owner {
+    public interface Admin extends Owner {
     }
 }

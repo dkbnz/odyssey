@@ -103,6 +103,19 @@ public class ProfileTestSteps {
     private static final String MAX_POINTS = "max_points";
     private static final String SORT_BY = "sortBy";
     private static final String SORT_ORDER = "sortOrder";
+    private static final String PAGE = "page";
+    private static final String PAGE_SIZE = "pageSize";
+
+
+    /**
+     * Default page for profile searching pagination.
+     */
+    private static final String DEFAULT_PAGE = "0";
+
+    /**
+     * Default page size for profile searching pagination.
+     */
+    private static final String DEFAULT_PAGE_SIZE = "100";
 
     /**
      * String to add the equals character (=) to build a query string.
@@ -199,8 +212,8 @@ public class ProfileTestSteps {
      * Checks if the given field matches the search field. If so, returns the given value to search.
      *
      * @param searchField       the search field name as defined by the application.
-     * @param givenField        the field name given to the test.
-     * @param givenValue        the value to search for if the search and given fields match.
+     * @param givenFields       the field name given to the test.
+     * @param givenValues       the value to search for if the search and given fields match.
      * @return                  a string that contains the given value or an empty string.
      */
     private String getValue(String searchField, List<String> givenFields, List<String> givenValues) {
@@ -220,8 +233,8 @@ public class ProfileTestSteps {
      * Builds this query string with empty values except for the given search value associated
      * with the given search field.
      *
-     * @param searchField       the search field name for the given value.
-     * @param searchValue       the given search value for associated field.
+     * @param givenFields       the search field names for the given values.
+     * @param givenValues       the given search values for associated fields.
      * @return                  the complete query string.
      */
     private String createSearchProfileQueryString(List<String> givenFields, List<String> givenValues) {
@@ -256,8 +269,28 @@ public class ProfileTestSteps {
                 + AND
                 + SORT_BY + EQUALS + ""
                 + AND
-                + SORT_ORDER + EQUALS + "";
+                + SORT_ORDER + EQUALS + ""
+                + AND
+                + PAGE + EQUALS + DEFAULT_PAGE
+                + AND
+                + PAGE_SIZE + EQUALS + DEFAULT_PAGE_SIZE;
 
+    }
+
+
+    /**
+     * Sends the backend request to retrieve the profiles that match the given search query.
+     *
+     * @param searchQuery   the search query that will determine which profiles to receive.
+     */
+    private void retrieveProfiles(String searchQuery) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(PROFILES_URI + searchQuery);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 
@@ -506,17 +539,6 @@ public class ProfileTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
 
-    }
-
-
-    private void retrieveProfiles(String searchQuery) {
-        Http.RequestBuilder request = fakeRequest()
-                .method(GET)
-                .session(AUTHORIZED, testContext.getLoggedInId())
-                .uri(PROFILES_URI + searchQuery);
-        Result result = route(testContext.getApplication(), request);
-        testContext.setStatusCode(result.status());
-        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 

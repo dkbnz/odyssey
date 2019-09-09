@@ -1,9 +1,7 @@
 <template>
     <div>
         <b-table :busy="loading"
-                 :per-page="perPage"
                  :fields="fields"
-                 :current-page="currentPage"
                  :items="profileList"
                  responsive
                  hover
@@ -14,12 +12,8 @@
                  @sort-changed="sortingChanged"
                  striped>
 
-            <!--:per-page="perPage"-->
-            <!--:sort-by.sync="sortBy"-->
-            <!--:sort-desc.sync="sortDesc"-->
-
             <div class="text-center my-2" slot="table-busy">
-                <b-spinner v-if="loading"></b-spinner>
+                <b-img alt="Loading" class="loading" v-if="loading" src="../../../static/logo_sm.png"></b-img>
             </div>
             <template slot="profilePhoto" slot-scope="row">
                 <b-img :src="getProfilePictureThumbnail(row.item.profilePicture)"
@@ -67,9 +61,7 @@
             <template slot="row-details" slot-scope="row">
                 <b-card bg-variant="secondary">
                     <view-profile
-                            :containerClass="'profilesSubSectionProfile'"
-                            :containerClassContent="'profilesSubSectionContent'"
-                            :admin-view="profile.admin"
+                            :admin-view="false"
                             :destinations="destinations"
                             :profile="row.item"
                             :userProfile="profile">
@@ -143,31 +135,24 @@
         },
 
         watch: {
-            profileList() {
+            loading() {
+                // Retrieve the total number of rows to display in the table for the pagination.
                 this.getRows();
-                // if (this.perPage * this.currentPage > this.profileList.length && this.moreResults) {
-                //     this.$emit('get-more');
-                // }
             },
 
             perPage() {
-                this.getRows();
-                if (this.perPage * this.currentPage > this.profileList.length) {
-                    this.$emit('get-more');
-                }
-                if (this.perPage === Infinity && this.profileList.length <= this.rows) {
-                    this.$emit('get-all');
-                }
+                // Request more profiles.
+                this.$emit('get-more', this.currentPage-1, this.perPage);
             },
 
             currentPage() {
-                if (this.perPage * this.currentPage > this.profileList.length) {
-                    this.$emit('get-more');
-                }
+                // Request more profiles.
+                this.$emit('get-more', this.currentPage-1, this.perPage);
             },
 
             firstPage() {
-                this.currentPage = 0;
+                // Reset the pagination to the first page.
+                this.currentPage = 1;
             }
         },
 
@@ -194,7 +179,7 @@
                     {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
                     {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
                     {key: 'actions', class: 'tableWidthMedium'}
-                    ]
+                ]
             }
         },
 
@@ -244,7 +229,7 @@
                         "&min_age=" + "" +
                         "&max_age=" + "" +
                         "&travellerTypes=" + "" +
-                        "&page=" + this.queryPage;
+                        "&rank=" + "";
                     this.searchingProfiles = false;
                 } else {
                     searchQuery =
@@ -254,7 +239,7 @@
                         "&min_age=" + this.searchParameters.age[0] +
                         "&max_age=" + this.searchParameters.age[1] +
                         "&travellerTypes=" + this.searchParameters.travellerType +
-                        "&page=" + this.queryPage;
+                        "&rank=" + this.searchParameters.rank;
                     this.searchingProfiles = true;
                 }
                 if (this.perPage === Infinity) {

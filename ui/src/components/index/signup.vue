@@ -11,7 +11,9 @@
                     <b-form-input :state="fNameValidation"
                                   autofocus id="first_name"
                                   required
-                                  trim type="text" v-model="firstName"></b-form-input>
+                                  trim type="text"
+                                  v-model="firstName">
+                    </b-form-input>
                     <b-form-invalid-feedback :state="fNameValidation">
                         Your first name must be between 1-100 characters and contain no numbers.
                     </b-form-invalid-feedback>
@@ -21,8 +23,12 @@
                         id="mname-field"
                         label="Middle Name(s):"
                         label-for="middle_name">
-                    <b-form-input :state="mNameValidation" id="middle_name" placeholder="Optional"
-                                  trim type="text" v-model="middleName"></b-form-input>
+                    <b-form-input :state="mNameValidation"
+                                  id="middle_name"
+                                  placeholder="Optional"
+                                  trim
+                                  type="text" v-model="middleName">
+                    </b-form-input>
                     <b-form-invalid-feedback :state="mNameValidation">
                         Your middle name must be less than 100 characters and contain no numbers.
                     </b-form-invalid-feedback>
@@ -53,7 +59,7 @@
                                   trim
                                   type="text" v-model="username"></b-form-input>
                     <b-form-invalid-feedback :state="emailValidation">
-                        Your email must be valid and unique!
+                        Your email must be valid and unique, and also contain no more than 100 characters.
                     </b-form-invalid-feedback>
                 </b-form-group>
 
@@ -95,6 +101,7 @@
                     <b-form-input :state="dateOfBirthValidation"
                                   id="dateOfBirth"
                                   min="1900-01-01"
+                                  max="1999-12-31"
                                   required
                                   trim
                                   type="date" v-model="dateOfBirth"></b-form-input>
@@ -161,7 +168,7 @@
                                     multiple
                                     trim v-model="passports">
                                 <option :value="{id: nationality.id, country: nationality.country}"
-                                        v-for="nationality in nationalityOptions">
+                                        v-for="nationality in passportsSorted">
                                     {{nationality.country}}
                                 </option>
                             </b-form-select>
@@ -258,6 +265,8 @@
             fNameValidation() {
                 if (this.firstName.length === 0) {
                     return null;
+                } else if (this.firstName.length > 100) {
+                    return false;
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.firstName);
@@ -270,6 +279,9 @@
              * @returns {*} true if input is valid.
              */
             mNameValidation() {
+                if (this.middleName.length > 100) {
+                    return false;
+                }
                 let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.middleName) || this.middleName.length === 0;
             },
@@ -283,6 +295,8 @@
             lNameValidation() {
                 if (this.lastName.length === 0) {
                     return null;
+                } else if (this.lastName.length > 100) {
+                    return false;
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.lastName);
@@ -297,6 +311,8 @@
             emailValidation() {
                 if (this.username.length === 0) {
                     return null;
+                } else if (this.username.length > 100) {
+                    return false;
                 }
                 let emailRegex = new RegExp("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$");
                 this.checkUsername();
@@ -312,6 +328,8 @@
             passwordValidation() {
                 if (this.password.length === 0) {
                     return null;
+                } else if (this.password.length > 15) {
+                    return false;
                 }
                 let passwordRegex =
                     new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
@@ -327,6 +345,8 @@
             rePasswordValidation() {
                 if (this.rePassword.length === 0) {
                     return null;
+                } else if (this.rePassword.length > 15) {
+                    return false;
                 }
                 let passwordRegex =
                     new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
@@ -391,7 +411,7 @@
              * Get the current date and return it in the format.
              * yyyy-mm-dd.
              *
-             * @returns Current date in format yyyy-mm-dd
+             * @return the current date in format yyyy-mm-dd
              */
             todaysDate() {
                 let today = new Date();
@@ -406,6 +426,17 @@
                 }
                 today = yyyy + '-' + mm + '-' + dd;
                 return today
+            },
+
+
+            /**
+             * Sorts nationality options by their country value for passports.
+             *
+             * @return a list of sorted nationalities.
+             */
+            passportsSorted() {
+                let passportOptions = JSON.parse(JSON.stringify(this.nationalityOptions));
+                return passportOptions.sort((a, b) => (a.country > b.country) ? 1 : -1)
             }
 
         },

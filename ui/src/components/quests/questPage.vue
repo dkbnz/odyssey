@@ -1,8 +1,8 @@
 <template>
-    <div v-if="profile.length !== 0" :class="containerClass">
+    <div v-if="profile.length !== 0">
         <!--Shows tabs for the quest page-->
         <navbar-main v-bind:profile="profile" v-if="!adminView"></navbar-main>
-        <div class="containerMain d-none d-lg-block">
+        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg d-none d-lg-block">
             <h1 class="page-title">Quests</h1>
             <p class="page-title">
                 <i>Here you can view and create Quests!</i>
@@ -69,11 +69,6 @@
 
         props: {
             profile: Object,
-            containerClass: {
-                default: function () {
-                    return null;
-                }
-            },
             adminView: {
                 default: function () {
                     return false;

@@ -40,12 +40,12 @@
 
                     <b-form>
                         <b-container fluid>
-                            <h6 class="mb-1">Selected Destination:</h6>
+                            <p class="mb-1">Selected Destination:</p>
                             <b-list-group @click="$emit('destination-select')">
                                 <b-list-group-item href="#" class="flex-column align-items-start"
                                                    v-if="destinationSelected"
                                                    id="selectedDestination"
-                                                   :disabled="destinationSelected.length === '{}'"
+                                                   :disabled="destinationSelected === '{}'"
                                                    :variant="checkDestinationState"
                                                    draggable="false">
                                     <div class="d-flex w-100 justify-content-between">
@@ -65,26 +65,30 @@
                                 </b-list-group-item>
                             </b-list-group>
                             <b-form-group
+                                    class="mb-5"
                                     id="radius-field"
-                                    label="Selected Destination check in radius:"
+                                    label="Selected Destination check in radius"
                                     label-for="radius">
-                                <!--Dropdown field for destination check in values-->
-                                <b-form-select id="radius" trim v-model="inputObjective.radius">
-                                    <option :value="radius" v-for="radius in radiusList"
-                                            :state="validateCheckIn">
-                                        {{radius.text}}
-                                    </option>
-                                </b-form-select>
+                                    <vue-slider
+                                            :disabled="destinationSelected === '{}'"
+                                            class="ml-3 mr-3"
+                                            id="radius"
+                                            v-model="radiusSelected"
+                                            :marks="true"
+                                            :data="radiusList"
+                                            :max=10>
+                                    </vue-slider>
                             </b-form-group>
 
-                            <div ref="map" v-if="inputObjective.radius !== null && destinationSelected.name">
+
+                            <div ref="map" v-if="radiusSelected !== null && destinationSelected.name">
                                 <google-map ref="map"
                                             :showRadius="true"
-                                            :radius="inputObjective.radius.value"
+                                            :radius="radiusSelected.value"
                                             :selectedRadiusDestination="destinationSelected">
                                 </google-map>
                             </div>
-                            <div ref="map" v-else-if="inputObjective.radius == null && destinationSelected.name">
+                            <div ref="map" v-else-if="radiusSelected == null && destinationSelected.name">
                                 <google-map ref="map"
                                             :showRadius="false"
                                             :selectedRadiusDestination="destinationSelected"
@@ -141,12 +145,7 @@
             },
             newDestination: Object,
             selectedDestination: {},
-            heading: String,
-            containerClass: {
-                default: function () {
-                    return 'containerWithNav';
-                }
-            }
+            heading: String
         },
 
         data() {
@@ -160,14 +159,19 @@
                 savingObjective: false,
                 letObjectiveSaved: false,
                 radiusList: [
-                    {value: 0.005, text: "5 Meters"},
-                    {value: 0.01, text: "10 Meters"},
-                    {value: 0.02, text: "20 Meters"},
-                    {value: 0.05, text: "50 Meters"},
-                    {value: 0.1, text: "100 Meters"},
-                    {value: 0.5, text: "500 Meters"},
+                    {value: 0.005, text: "5 m"},
+                    {value: 0.01, text: "10 m"},
+                    {value: 0.02, text: "20 m"},
+                    {value: 0.03, text: "30 m"},
+                    {value: 0.04, text: "40 m"},
+                    {value: 0.05, text: "50 m"},
+                    {value: 0.1, text: "100 m"},
+                    {value: 0.25, text: "250 m"},
+                    {value: 0.5, text: "500 m"},
                     {value: 1, text: "1 Km"},
+                    {value: 2.5, text: "2.5 Km"},
                     {value: 5, text: "5 Km"},
+                    {value: 7.5, text: "7.5 Km"},
                     {value: 10, text: "10 Km"},
                 ],
                 initial: {
@@ -177,7 +181,8 @@
                         lng: 173.299565
                     }
                 },
-                destinationSelected: {}
+                destinationSelected: {},
+                radiusSelected: {value: 0.005, text: "5 Metres"}
             }
         },
 
@@ -205,6 +210,8 @@
             validateRiddle() {
                 if (this.inputObjective.riddle.length > 0) {
                     return true;
+                } else if (this.inputObjective.riddle.length > 250) {
+                    return false;
                 }
                 return null;
             },
@@ -213,13 +220,13 @@
             /**
              * Returns true if the user has selected a check in radius
              *
-             * @returns true if validated.
+             * @returns {boolean} true if validated.
              */
             validateCheckIn() {
-                if (this.inputObjective.radius === null) {
+                if (this.radiusSelected.value === null) {
                     return false;
                 }
-                return this.inputObjective.radius.length > 0 || this.inputObjective.radius !== null;
+                return this.radiusSelected.value > 0;
             },
 
 
@@ -256,7 +263,21 @@
             editingObjective() {
                 if (this.inputObjective.id !== null) {
                     this.destinationSelected = this.inputObjective.destination;
+                    this.radiusSelected = this.radiusList[this.findIndexInArray()];
                 }
+            },
+
+
+            /**
+             * Locates the given objectives radius in the list of radius values.
+             */
+            findIndexInArray() {
+                for (let i = 0; i < this.radiusList.length; i += 1) {
+                    if (this.radiusList[i]['value'] === this.inputObjective.radius) {
+                        return i;
+                    }
+                }
+                return -1;
             },
 
 
@@ -266,15 +287,17 @@
              */
             validateObjective() {
                 if (this.validateDestination && this.validateRiddle && this.validateCheckIn) {
-                    if (this.heading === "Add") {
+                    if (this.heading === "Create" || this.heading === "Add") {
                         this.addObjective();
                     } else if (this.heading === "Edit") {
                         this.editObjective();
                     } else {
-                        if (this.inputObjective.id !== null) {
+                        // These fields are necessary as when editing or creating objectives in a quest behaviour needs
+                        // to work differently.
+                        if (this.inputObjective.id) {
                             this.updateObjective();
                         } else {
-                            this.saveObjective();
+                            this.saveObjective()
                         }
                     }
                 } else {
@@ -297,7 +320,7 @@
              * component.
              */
             addObjective() {
-                this.inputObjective.radius = this.inputObjective.radius.value;
+                this.inputObjective.radius = this.radiusSelected.value;
                 delete this.inputObjective.startTime;
                 delete this.inputObjective.endTime;
                 delete this.inputObjective.startDate;
@@ -312,29 +335,27 @@
              * component.
              */
             editObjective() {
-                this.inputObjective.radius = this.inputObjective.radius.value;
+                this.inputObjective.radius = this.radiusSelected.value;
                 delete this.inputObjective.startTime;
                 delete this.inputObjective.endTime;
                 delete this.inputObjective.startDate;
                 delete this.inputObjective.endDate;
+                // Emits here for editing an objective in a quest, as later the destination value is changed.
                 this.$emit('editObjective', this.inputObjective);
                 this.$emit('cancelCreate')
             },
 
 
             /**
-             * Creates formatted JSON of the currently active objective.
-             *
-             * @returns JSON string with fields 'riddle', 'destination_id', 'start_date', 'end_date'.
+             * Creates formatted Json of the currently active objective.
              */
             assembleObjective() {
                 this.inputObjective.destination = {"id": this.inputObjective.destination.id};
-                this.inputObjective.radius = this.inputObjective.radius.value;
             },
 
 
             /**
-             * POST's the currently active destination to the objectives endpoint in JSON format, for newly creating
+             * POST's the currently active destination to the objectives endpoint in Json format, for newly creating
              * destinations.
              */
             saveObjective() {
@@ -372,7 +393,7 @@
 
 
             /**
-             * PUT's the currently active destination to the objectives endpoint in JSON format, for edited
+             * PUT's the currently active destination to the objectives endpoint in Json format, for edited
              * destinations.
              */
             updateObjective() {
@@ -385,6 +406,7 @@
                 })
                     .then(this.checkStatus)
                     .then(function () {
+                        self.$emit('successCreate', "Objective Successfully Edited");
                         self.$emit('cancelCreate')
                     })
             },
@@ -429,7 +451,6 @@
                 const error = new Error(`HTTP Error ${response.statusText}`);
                 error.status = response.statusText;
                 error.response = response;
-                console.log(error);
 
                 this.errorMessage = "";
                 response.clone().text().then(text => {
@@ -437,7 +458,6 @@
                     let result = [];
                     for (let i = 0; i < text.length; i++) {
                         if (!response.ok) {
-                            console.log(text);
                             result.push(text[i].message);
                         }
                         else {

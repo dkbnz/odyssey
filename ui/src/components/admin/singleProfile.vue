@@ -5,7 +5,7 @@
                 <!-- Nav bar for admin to display the selected page they wish to work on. -->
                 <b-navbar toggleable="lg" class="stickyMinorNav">
                     <b-collapse id="nav-collapse-admin" is-nav>
-                        <b-nav class="singleProfileNav" vertical>
+                        <b-nav class="p-1 bg-white" vertical>
                             <b-nav-item @click="goBack">Go Back</b-nav-item>
                             <b-navbar-brand @click="currentDisplay = 0" class="nav-bar-brand">
                                 <b-img :src="getProfilePictureThumbnail()"
@@ -40,7 +40,6 @@
 
             <b-col>
                 <view-profile
-                        :containerClass="'adminContainer'"
                         :adminView="adminView"
                         :destinations="destinations"
                         :nationalityOptions="nationalityOptions"
@@ -51,7 +50,6 @@
                         v-if="currentDisplay === 0">
                 </view-profile>
                 <edit-profile
-                        :containerClass="'adminContainer'"
                         :adminView="adminView"
                         :nationalityOptions="nationalityOptions"
                         :profile="editProfile"
@@ -60,7 +58,6 @@
                         v-if="currentDisplay === 1">
                 </edit-profile>
                 <your-trips
-                        :containerClass="'adminContainer'"
                         :admin-view="adminView"
                         :destinations="destinations"
                         :profile="editProfile"
@@ -68,7 +65,6 @@
                         v-if="currentDisplay === 2">
                 </your-trips>
                 <plan-a-trip
-                        :containerClass="'adminTripsContainer'"
                         :adminView="adminView"
                         :destinations="destinations"
                         :heading="'Plan a Trip'"
@@ -77,7 +73,6 @@
                         v-if="currentDisplay === 3">
                 </plan-a-trip>
                 <destinations-page
-                        :containerClass="'noBordersContainer'"
                         :destinationTypes="destinationTypes"
                         :adminView="adminView"
                         :destinations="destinations"
@@ -86,13 +81,11 @@
                         v-if="currentDisplay === 4">
                 </destinations-page>
                 <objective-page
-                        :containerClass="'noBordersContainer'"
                         :adminView="adminView"
                         :profile="editProfile"
                         v-if="currentDisplay === 5">
                 </objective-page>
                 <quest-page
-                        :containerClass="'noBordersContainer'"
                         :adminView="adminView"
                         :profile="editProfile"
                         v-if="currentDisplay === 6">

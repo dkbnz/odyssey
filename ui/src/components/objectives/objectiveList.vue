@@ -18,6 +18,7 @@
             </b-alert>
             <b-list-group-item href="#" class="flex-column justify-content-center"
                                v-if="creatingObjective" draggable="false">
+                <!-- Adding objective component -->
                 <add-objective :profile="profile" :heading="'Create'"
                                @cancelCreate="cancelCreate"
                                :selectedDestination="selectedDestination"
@@ -26,7 +27,7 @@
 
                 </add-objective>
             </b-list-group-item>
-            <div v-if="!sideBarView">
+            <div v-if="!sideBarView && yourObjectives">
                 <b-list-group-item href="#" class="flex-column justify-content-center"
                                    v-if="!creatingObjective" draggable="false">
                     <div class="d-flex justify-content-center">
@@ -67,11 +68,13 @@
                         </b-col>
                     </b-row>
                 </template>
+                <!-- Editing objective component -->
                 <add-objective v-else
                                :profile="profile"
                                :heading="'Edit'"
                                :input-objective="copiedObjective"
                                @cancelCreate="cancelEdit"
+                               @successCreate="showSuccess"
                                @destination-select="$emit('destination-select')"
                                :selectedDestination="selectedDestination">
 
@@ -81,7 +84,7 @@
             <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults"
                                draggable="false">
                 <div class="d-flex justify-content-center">
-                    <b-spinner label="Loading..."></b-spinner>
+                    <b-img alt="Loading" class="align-middle loading" src="../../../static/logo_sm.png"></b-img>
                 </div>
             </b-list-group-item>
             <b-list-group-item href="#" class="flex-column justify-content-center"
@@ -221,6 +224,7 @@
              * @returns {Promise<Response | never>}
              */
             queryObjectives() {
+                this.loadingResults = true;
                 return fetch(`/v1/objectives`, {
                     accept: "application/json"
                 })
@@ -234,12 +238,12 @@
 
 
             /**
-             * Runs a query which searches through the objectives in the database and returns only
-             * objectives created by the profile.
+             * Runs a query which searches through the objectives in the database and returns only objectives created by the profile.
              *
              * @returns {Promise<Response | never>}
              */
             queryYourObjectives() {
+                this.loadingResults = true;
                 if (this.profile.id !== undefined) {
                     return fetch(`/v1/objectives/` + this.profile.id, {})
                         .then(this.parseJSON)

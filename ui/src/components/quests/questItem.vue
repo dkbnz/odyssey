@@ -311,11 +311,6 @@
                 }
             },
             heading: String,
-            containerClass: {
-                default: function () {
-                    return 'containerWithNav';
-                }
-            },
             selectedObjective: {
                 default: function () {
                     return {}
@@ -484,6 +479,8 @@
             validateTitle() {
                 if (this.inputQuest.title.length > 0) {
                     return true;
+                } else if (this.inputQuest.title.length > 100) {
+                    return false;
                 }
                 return null;
             },
@@ -588,9 +585,7 @@
 
 
             /**
-             * Creates formatted JSON of the currently active quest.
-             *
-             * @returns JSON string with fields 'title', 'objectives', 'startDate', 'endDate'.
+             * Creates formatted Json of the currently active quest.
              */
             assembleQuest() {
                 this.joinDates();
@@ -605,7 +600,7 @@
 
 
             /**
-             * POST's the currently active quest to the quests endpoint in JSON format, for newly creating
+             * POST's the currently active quest to the quests endpoint in Json format, for newly creating
              * quests.
              */
             saveQuest() {
@@ -659,7 +654,7 @@
 
 
             /**
-             * PUT's the currently active quest to the quests endpoint in JSON format, for edited
+             * PUT's the currently active quest to the quests endpoint in Json format, for edited
              * quests.
              */
             updateQuest() {
@@ -734,19 +729,24 @@
                 let radius = this.inputQuest.objectives[this.objectiveIndex].radius;
                 let radiusValue;
                 let radiusList = [
-                    {value: 0.005, text: "5 Meters"},
-                    {value: 0.01, text: "10 Meters"},
-                    {value: 0.02, text: "20 Meters"},
-                    {value: 0.05, text: "50 Meters"},
-                    {value: 0.1, text: "100 Meters"},
-                    {value: 0.5, text: "500 Meters"},
+                    {value: 0.005, text: "5 m"},
+                    {value: 0.01, text: "10 m"},
+                    {value: 0.02, text: "20 m"},
+                    {value: 0.03, text: "30 m"},
+                    {value: 0.04, text: "40 m"},
+                    {value: 0.05, text: "50 m"},
+                    {value: 0.1, text: "100 m"},
+                    {value: 0.25, text: "250 m"},
+                    {value: 0.5, text: "500 m"},
                     {value: 1, text: "1 Km"},
+                    {value: 2.5, text: "2.5 Km"},
                     {value: 5, text: "5 Km"},
+                    {value: 7.5, text: "7.5 Km"},
                     {value: 10, text: "10 Km"},
                 ];
                 for (let i = 0; i < radiusList.length; i++) {
                     if (radius === radiusList[i].value) {
-                        radiusValue = radiusList[i];
+                        radiusValue = radiusList[i].value;
                     }
                 }
                 this.objectiveSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[this.objectiveIndex]));
@@ -802,8 +802,7 @@
              */
             splitDates() {
                 if (this.inputQuest.id !== null) {
-                    this.inputQuest.startDate = new Date(this.inputQuest.startDate).toLocaleString();
-
+                    this.inputQuest.startDate = new Date(this.inputQuest.startDate).toLocaleString('en-GB');
                     //Start date
                     let startDate = this.inputQuest.startDate;
 
@@ -818,7 +817,7 @@
                     this.startTime = this.startTime.split("+")[0];
                     this.startTime = this.startTime.split("-")[0];
 
-                    this.inputQuest.endDate = new Date(this.inputQuest.endDate).toLocaleString();
+                    this.inputQuest.endDate = new Date(this.inputQuest.endDate).toLocaleString('en-GB');
 
                     //End Date
                     let endDate = this.inputQuest.endDate;

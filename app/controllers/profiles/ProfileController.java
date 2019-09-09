@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import repositories.points.AchievementTrackerRepository;
 import repositories.profiles.NationalityRepository;
 import repositories.profiles.PassportRepository;
 import repositories.profiles.ProfileRepository;
@@ -30,6 +31,7 @@ import repositories.destinations.TravellerTypeRepository;
 import util.AuthenticationUtil;
 
 import static play.mvc.Results.*;
+import static util.QueryUtil.queryComparator;
 
 
 /**
@@ -53,12 +55,16 @@ public class ProfileController {
     private static final String DATE_OF_BIRTH = "dateOfBirth";
     private static final String NATIONALITY_FIELD = "nationalities.nationality";
     private static final String TRAVELLER_TYPE_FIELD = "travellerTypes.travellerType";
+    private static final String ACHIEVEMENT_POINTS = "achievementTracker.points";
     private static final String POINTS = "points";
+    private static final String PAGE = "page";
+    private static final String PAGE_SIZE = "pageSize";
     private static final String SORT_BY = "sortBy";
     private static final String SORT_ORDER = "sortOrder";
-    private static final String RANK = "rank";
     private static final String MIN_POINTS = "min_points";
     private static final String MAX_POINTS = "max_points";
+    private static final String RANK = "rank";
+    private static final String ACHIEVEMENT_RANK = "achievementTracker.rank";
     private static final String AUTHORIZED = "authorized";
     private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String NO_PROFILE_FOUND = "No profile found.";
@@ -66,22 +72,24 @@ public class ProfileController {
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String UPDATED = "UPDATED";
     private static final String ID = "id";
-    private static final String PAGE = "page";
 
     private ProfileRepository profileRepository;
     private NationalityRepository nationalityRepository;
     private PassportRepository passportRepository;
     private TravellerTypeRepository travellerTypeRepository;
+    private AchievementTrackerRepository achievementTrackerRepository;
 
     @Inject
     public ProfileController(ProfileRepository profileRepository,
                              NationalityRepository nationalityRepository,
                              PassportRepository passportRepository,
-                             TravellerTypeRepository travellerTypeRepository) {
+                             TravellerTypeRepository travellerTypeRepository,
+                             AchievementTrackerRepository achievementTrackerRepository) {
         this.profileRepository = profileRepository;
         this.passportRepository = passportRepository;
         this.nationalityRepository = nationalityRepository;
         this.travellerTypeRepository = travellerTypeRepository;
+        this.achievementTrackerRepository = achievementTrackerRepository;
     }
 
 
@@ -560,7 +568,7 @@ public class ProfileController {
      */
     public Result list(Http.Request request) {
         int pageNumber = 0;
-        int pageSize = 10;
+        int pageSize = 100;
 
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
@@ -574,6 +582,15 @@ public class ProfileController {
             pageNumber = Integer.parseInt(request.getQueryString(PAGE));
         }
 
+        if (request.getQueryString(PAGE_SIZE) != null && !request.getQueryString(PAGE_SIZE).isEmpty()) {
+            if (request.getQueryString(PAGE_SIZE).equals("Infinity")) {
+                pageSize = Integer.MAX_VALUE;
+            } else {
+                pageSize = Integer.parseInt(request.getQueryString(PAGE_SIZE));
+            }
+        }
+
+
         String getError = validQueryString(request);
 
         if (getError != null) {
@@ -607,56 +624,6 @@ public class ProfileController {
                     .setMaxRows(pageSize)
                     .findPagedList()
                     .getList();
-        }
-
-        return ok(Json.toJson(profiles));
-    }
-
-
-    /**
-     * Performs an Ebean find query on the database to search for all profiles.
-     * If no query is specified in the Http request, it will return a list of all profiles. If a query is specified,
-     * uses the searchProfiles() method to execute a search based on the search query parameters. This is used on the
-     * Search Profiles page.
-     *
-     * @param request           an Http Request containing Json Body.
-     * @return                  unauthorized() (Http 401) if the user is not logged in.
-     *                          ok() (Http 200) if the search is successful.
-     */
-    public Result listAll(Http.Request request) {
-
-        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
-        if (loggedInUser == null) {
-            return unauthorized(NOT_SIGNED_IN);
-        }
-
-        List<Profile> profiles;
-        ExpressionList<Profile> expressionList = profileRepository.getExpressionList();
-
-        String getError = validQueryString(request);
-
-        if (getError != null) {
-            return badRequest(getError);
-        }
-
-        searchProfiles(expressionList, request);
-
-        if (request.getQueryString(SORT_BY) != null && request.getQueryString(SORT_BY).length() > 0
-                && Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
-            profiles = expressionList
-                    .where()
-                    .orderBy().asc(request.getQueryString(SORT_BY))
-                    .findList();
-        } else if (request.getQueryString(SORT_BY) != null && request.getQueryString(SORT_BY).length() > 0
-                && !Boolean.parseBoolean(request.getQueryString(SORT_ORDER))) {
-            profiles = expressionList
-                    .where()
-                    .orderBy().desc(request.getQueryString(SORT_BY))
-                    .findList();
-        } else {
-            profiles = expressionList
-                    .orderBy().desc(POINTS)
-                    .findList();
         }
 
         return ok(Json.toJson(profiles));
@@ -711,43 +678,64 @@ public class ProfileController {
         LocalDate minDate = LocalDate.of(1000, 1, 1);
         LocalDate maxDate = LocalDate.of(3000, 12, 30);
 
-        if(request.getQueryString(NAME) != null && !request.getQueryString(NAME).isEmpty()) {
+        if (checkQueryFieldExists(request, NAME)) {
             // Uses the name part of the query to search for profiles by their first, middle or last names.
+            String queryString = queryComparator(request.getQueryString(NAME));
             expressionList.disjunction()
-                    .eq(FIRST_NAME, request.getQueryString(NAME))
-                    .eq(MIDDLE_NAME, request.getQueryString(NAME))
-                    .eq(LAST_NAME, request.getQueryString(NAME))
+                    .ilike(FIRST_NAME, queryString)
+                    .ilike(MIDDLE_NAME, queryString)
+                    .ilike(LAST_NAME, queryString)
             .endJunction();
         }
 
-        if(request.getQueryString(GENDER) != null && !request.getQueryString(GENDER).isEmpty()) {
+        if (checkQueryFieldExists(request, GENDER)) {
             expressionList.eq(GENDER, request.getQueryString(GENDER));
         }
 
-        if(request.getQueryString(MIN_AGE) != null && !request.getQueryString(MIN_AGE).isEmpty()) {
+        if (checkQueryFieldExists(request, MIN_AGE)) {
             maxDate = LocalDate.now().minusYears(Integer.parseInt(request.getQueryString(MIN_AGE)));
         }
 
-        if(request.getQueryString(MAX_AGE) != null && !request.getQueryString(MAX_AGE).isEmpty()) {
+        if (checkQueryFieldExists(request, MAX_AGE)) {
             minDate = LocalDate.now().minusYears(Integer.parseInt(request.getQueryString(MAX_AGE)) + AGE_SEARCH_OFFSET);
         }
         expressionList.between(DATE_OF_BIRTH, minDate, maxDate);
 
-        if(request.getQueryString(NATIONALITY) != null && !request.getQueryString(NATIONALITY).isEmpty()) {
+        if (checkQueryFieldExists(request, NATIONALITY)) {
             expressionList.eq(NATIONALITY_FIELD, request.getQueryString(NATIONALITY));
         }
 
-        if(request.getQueryString(TRAVELLER_TYPE) != null && !request.getQueryString(TRAVELLER_TYPE).isEmpty()) {
+        if (checkQueryFieldExists(request, TRAVELLER_TYPE)) {
             expressionList.eq(TRAVELLER_TYPE_FIELD, request.getQueryString(TRAVELLER_TYPE));
         }
 
-        if(request.getQueryString(MIN_POINTS) != null && !request.getQueryString(MIN_POINTS).isEmpty()) {
-            expressionList.ge("achievementTracker.points", request.getQueryString(MIN_POINTS));
+        if (checkQueryFieldExists(request, MIN_POINTS)) {
+            expressionList.ge(ACHIEVEMENT_POINTS, request.getQueryString(MIN_POINTS));
         }
 
-        if(request.getQueryString(MAX_POINTS) != null && !request.getQueryString(MAX_POINTS).isEmpty()) {
-            expressionList.le("achievementTracker.points", request.getQueryString(MAX_POINTS));
+        if (checkQueryFieldExists(request, MAX_POINTS)) {
+            expressionList.le(ACHIEVEMENT_POINTS, request.getQueryString(MAX_POINTS));
         }
+
+        if(request.getQueryString(RANK) != null && !request.getQueryString(RANK).isEmpty()) {
+            Integer rank = Integer.parseInt(request.getQueryString(RANK)) - 1;
+
+            int pointsFromRank = achievementTrackerRepository.getPointsFromRank(rank);
+            expressionList.le(ACHIEVEMENT_POINTS, pointsFromRank);
+        }
+    }
+
+
+    /**
+     * Helper function for searching for profiles. Checks if the query string contains the given field and the field
+     * is not empty.
+     *
+     * @param request   the Http request containing the query string.
+     * @param field     the field to be checked for in the query.
+     * @return          boolean true if the given field exists in the query, false otherwise.
+     */
+    private boolean checkQueryFieldExists(Http.Request request, String field) {
+        return request.getQueryString(field) != null && !request.getQueryString(field).isEmpty();
     }
 
 
