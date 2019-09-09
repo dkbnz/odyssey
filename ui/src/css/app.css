@@ -165,9 +165,7 @@ a {
 
 /* Disabled property for badges if user has not achieved them yet */
 .disabledBadge {
-    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
-    filter: grayscale(100%);
-    opacity: 0.5;
+    opacity: 0.2;
 }
 
 .card-body {
