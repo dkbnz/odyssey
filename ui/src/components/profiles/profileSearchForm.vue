@@ -8,7 +8,9 @@
                     id="name-field"
                     label="Name:"
                     label-for="name">
-                <b-form-input id="name" v-model="searchParameters.name"></b-form-input>
+                <b-form-input id="name"
+                              v-model="searchParameters.name">
+                </b-form-input>
             </b-form-group>
             <b-form-row>
                 <b-col>
@@ -62,7 +64,9 @@
                     <b-form-group
                             label="Rank:">
                         <b-input-group>
-                            <b-form-input v-model="searchParameters.rank" type="number"></b-form-input>
+                            <b-form-input v-model="searchParameters.rank"
+                                          type="number">
+                            </b-form-input>
                             <b-input-group-append>
                                 <b-button variant="outline-info" @click="searchParameters.rank = userProfile.achievementTracker.rank" size="sm">My Rank</b-button>
                             </b-input-group-append>
@@ -130,6 +134,12 @@
                 } else if (this.searchParameters.age[0] > this.searchParameters.age[1]) {
                     this.showError = true;
                     this.alertMessage = "Min age is greater than max age";
+                }  else if (this.searchParameters.name.length > 100) {
+                    this.showError = true;
+                    this.alertMessage = "Input length must be less than 100 characters";
+                }   else if (this.searchParameters.rank.length > 9) {
+                    this.showError = true;
+                    this.alertMessage = "Rank cannot be greater than 999,999,999";
                 } else {
                     this.showError = false;
                     this.$emit('search', this.searchParameters);

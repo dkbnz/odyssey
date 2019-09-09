@@ -210,6 +210,8 @@
             validateRiddle() {
                 if (this.inputObjective.riddle.length > 0) {
                     return true;
+                } else if (this.inputObjective.riddle.length > 250) {
+                    return false;
                 }
                 return null;
             },

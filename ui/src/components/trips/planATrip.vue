@@ -75,7 +75,8 @@
                                 <b-form-input :type="'text'"
                                               id="trip_name"
                                               trim
-                                              v-model="inputTrip.name"></b-form-input>
+                                              v-model="inputTrip.name">
+                                </b-form-input>
                             </b-form-group>
                         </b-container>
 
@@ -556,6 +557,9 @@
                 if (this.inputTrip.name === null || this.inputTrip.name.length === 0) {
                     this.showError = true;
                     this.errorMessage = "No Trip Name";
+                } else if (this.inputTrip.name.length > 100) {
+                    this.showError = true;
+                    this.errorMessage = "Trip name is too long";
                 } else if (this.inputTrip.destinations.length < 2) {
                     this.showError = true;
                     this.errorMessage = "There must be at least 2 destinations";

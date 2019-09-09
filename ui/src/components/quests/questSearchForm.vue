@@ -8,7 +8,9 @@
                     id="title-field"
                     label="Quest Title:"
                     label-for="title">
-                <b-form-input id="title" v-model="searchTitle" :state="questTitleValidation"></b-form-input>
+                <b-form-input id="title"
+                              v-model="searchTitle"
+                              :state="questTitleValidation"></b-form-input>
             </b-form-group>
 
             <p>Number of Objectives:</p>
@@ -37,7 +39,9 @@
                                 id="number-objectives-field"
                                 label="Amount:"
                                 label-for="number-objectives">
-                            <b-form-input id="number-objectives" trim v-model="searchNumberObjective"
+                            <b-form-input id="number-objectives"
+                                          trim
+                                          v-model="searchNumberObjective"
                                           :state="numberObjectiveValidation">
                             </b-form-input>
                         </b-form-group>
@@ -53,7 +57,9 @@
                                 id="created-first-field"
                                 label="First Name:"
                                 label-for="created-first">
-                            <b-form-input id="created-first" trim v-model="searchCreatedFirst"
+                            <b-form-input id="created-first"
+                                          trim
+                                          v-model="searchCreatedFirst"
                                           :state="createdFirstValidation">
                             </b-form-input>
                         </b-form-group>
@@ -64,7 +70,9 @@
                                 id="created-last-field"
                                 label="Last Name:"
                                 label-for="created-last">
-                            <b-form-input id="created-last" trim v-model="searchCreatedLast"
+                            <b-form-input id="created-last"
+                                          trim
+                                          v-model="searchCreatedLast"
                                           :state="createdLastValidation">
                             </b-form-input>
                         </b-form-group>
