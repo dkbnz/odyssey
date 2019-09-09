@@ -6,13 +6,9 @@ import models.profiles.Profile;
 import models.util.BaseModel;
 import repositories.points.AchievementTrackerRepository;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import javax.persistence.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -26,8 +22,8 @@ public class AchievementTracker extends BaseModel {
      */
     private int points;
 
-    //@ElementCollection
-    private Map<Badge, Integer> badgeProgress;
+    @OneToMany(mappedBy = "achievementTracker", cascade = CascadeType.ALL)
+    private Set<BadgeProgress> badgeProgressSet;
 
 
     /**
@@ -59,20 +55,36 @@ public class AchievementTracker extends BaseModel {
     }
 
     public void addBadgeProgress(Badge badge, int progress) {
-        badgeProgress.put(badge, badgeProgress.getOrDefault(badge, 0) + progress);
+        Optional<BadgeProgress> badgeProgressOptional = badgeProgressSet.stream()
+                .filter(badgeProgress -> badge
+                        .getId()
+                        .equals(badgeProgress
+                                .getBadge()
+                                .getId()
+                        )
+                ).findFirst();
+
+        BadgeProgress badgeToProgress;
+
+        if (badgeProgressOptional.isPresent()) {
+            badgeToProgress = badgeProgressOptional.get();
+        } else {
+            badgeToProgress = new BadgeProgress(this, badge);
+            badgeProgressSet.add(badgeToProgress);
+        }
+
+        badgeToProgress.addProgress(progress);
     }
 
 
     @JsonProperty("badges")
     public Set<Badge> getBadges() {
-        Set<Badge> badgesEarned = new HashSet<>();
-        for (Map.Entry<Badge, Integer> entry : badgeProgress.entrySet()) {
-            Badge tempBadge = entry.getKey();
-            tempBadge.setProgress(entry.getValue());
-            badgesEarned.add(tempBadge);
-        }
-        return badgesEarned;
+        return badgeProgressSet
+                .stream()
+                .map(BadgeProgress::getBadge)
+                .collect(Collectors.toSet());
     }
+
 
     /**
      * Returns the rank of the profile associated with this achievement tracker.
