@@ -235,9 +235,75 @@ Feature: Profile API Endpoint
       | 6   | 60      |
     When I search for profiles by "rank" with value "4"
     Then the status code received is 200
-    And the response contains only the following profiles:
-      | username            |
-      | testuser1@email.com |
-      | testuser2@email.com |
-      | testuser3@email.com |
-      | testuser4@email.com |
+    And the response contains the following profiles:
+      | username                |
+      | admin@travelea.com      |
+      | guestUser@travelea.com  |
+      | testuser1@email.com     |
+      | testuser2@email.com     |
+    And the response does not contain the following profiles:
+      | username                |
+      | testuser3@email.com     |
+      | testuser4@email.com     |
+
+
+  Scenario: Searching for profiles by rank with tied profiles
+    Given I am logged in
+    And the following users exist in the database:
+      | id  | username                |
+      | 1   | admin@travelea.com      |
+      | 2   | guestUser@travelea.com  |
+      | 3   | testuser1@email.com     |
+      | 4   | testuser2@email.com     |
+      | 5   | testuser3@email.com     |
+      | 6   | testuser4@email.com     |
+    And the users have the following points
+      | id  | points  |
+      | 1   | 10      |
+      | 2   | 10      |
+      | 3   | 10      |
+      | 4   | 40      |
+      | 5   | 40      |
+      | 6   | 40      |
+    When I search for profiles by "rank" with value "3"
+    Then the status code received is 200
+    And the response contains the following profiles:
+      | username                |
+      | admin@travelea.com      |
+      | guestUser@travelea.com  |
+      | testuser1@email.com     |
+    And the response does not contain the following profiles:
+      | username                |
+      | testuser2@email.com     |
+      | testuser3@email.com     |
+      | testuser4@email.com     |
+
+
+  Scenario: Searching for profiles by rank where no profiles have points
+    Given I am logged in
+    And the following users exist in the database:
+      | id  | username                |
+      | 1   | admin@travelea.com      |
+      | 2   | guestUser@travelea.com  |
+      | 3   | testuser1@email.com     |
+      | 4   | testuser2@email.com     |
+      | 5   | testuser3@email.com     |
+      | 6   | testuser4@email.com     |
+    And the users have the following points
+      | id  | points  |
+      | 1   | 0       |
+      | 2   | 0       |
+      | 3   | 0       |
+      | 4   | 0       |
+      | 5   | 0       |
+      | 6   | 0       |
+    When I search for profiles by "rank" with value "1"
+    Then the status code received is 200
+    And the response contains the following profiles:
+      | username                |
+      | admin@travelea.com      |
+      | guestUser@travelea.com  |
+      | testuser1@email.com     |
+      | testuser2@email.com     |
+      | testuser3@email.com     |
+      | testuser4@email.com     |
