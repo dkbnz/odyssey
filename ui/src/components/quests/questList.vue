@@ -1,10 +1,5 @@
 <template>
-    <div :class="classContainer">
-        <div v-if="classContainer" >
-            <h1 class="page-title">Quests</h1>
-            <p class="page-title"><i>Here are all this profile's currently active quests!</i></p>
-        </div>
-
+    <div>
         <b-row>
             <b-col cols="12" md="8">
                 <b-list-group>
@@ -185,7 +180,7 @@
                 </b-modal>
                 <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
                     <div class="d-flex justify-content-center">
-                        <b-spinner></b-spinner>
+                        <b-img alt="Loading" class="align-middle loading" src="../../../static/logo_sm.png"></b-img>
                     </div>
                 </b-list-group-item>
                 <b-list-group-item href="#" class="flex-column justify-content-center"
@@ -269,11 +264,6 @@
             hideSideBar: {
                 default: function () {
                     return false;
-                }
-            },
-            classContainer: {
-                default: function () {
-                    return "";
                 }
             }
         },
@@ -429,7 +419,7 @@
                         .then(this.parseJSON)
                         .then((data) => {
                             this.foundQuests = data;
-                            this.loadingResults = false;
+                            //this.loadingResults = false;
                         })
                 }
 
@@ -466,8 +456,6 @@
                     return fetch(`/v1/quests/` + questToAttempt.id + `/attempt/` + this.profile.id, {
                         method: 'POST'
                     }).then(response => {
-                        if (response.ok) {
-                        }
                         return response;
                     }).then(response => response.json())
                         .then(data => {
@@ -670,14 +658,19 @@
                 let radius = newObjective.radius;
                 let radiusValue;
                 let radiusList = [
-                    {value: 0.005, text: "5 Meters"},
-                    {value: 0.01, text: "10 Meters"},
-                    {value: 0.02, text: "20 Meters"},
-                    {value: 0.05, text: "50 Meters"},
-                    {value: 0.1, text: "100 Meters"},
-                    {value: 0.5, text: "500 Meters"},
+                    {value: 0.005, text: "5 m"},
+                    {value: 0.01, text: "10 m"},
+                    {value: 0.02, text: "20 m"},
+                    {value: 0.03, text: "30 m"},
+                    {value: 0.04, text: "40 m"},
+                    {value: 0.05, text: "50 m"},
+                    {value: 0.1, text: "100 m"},
+                    {value: 0.25, text: "250 m"},
+                    {value: 0.5, text: "500 m"},
                     {value: 1, text: "1 Km"},
+                    {value: 2.5, text: "2.5 Km"},
                     {value: 5, text: "5 Km"},
+                    {value: 7.5, text: "7.5 Km"},
                     {value: 10, text: "10 Km"},
                 ];
                 for (let i = 0; i < radiusList.length; i++) {

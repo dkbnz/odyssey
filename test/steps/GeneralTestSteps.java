@@ -307,5 +307,4 @@ public class GeneralTestSteps {
 
         Assert.assertEquals(0, arrNode.size());
     }
-
 }

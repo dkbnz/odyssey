@@ -54,8 +54,6 @@ public class DestinationController extends Controller {
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
 
-    private ObjectMapper objectMapper;
-
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
     private TripDestinationRepository tripDestinationRepository;
@@ -72,8 +70,7 @@ public class DestinationController extends Controller {
             TripDestinationRepository tripDestinationRepository,
             TripRepository tripRepository,
             ObjectiveRepository objectiveRepository,
-            AchievementTrackerController achievementTrackerController,
-            ObjectMapper objectMapper) {
+            AchievementTrackerController achievementTrackerController) {
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
         this.tripDestinationRepository = tripDestinationRepository;
@@ -81,7 +78,6 @@ public class DestinationController extends Controller {
         this.objectiveRepository = objectiveRepository;
         this.destinationTypeRepository = destinationTypeRepository;
         this.achievementTrackerController = achievementTrackerController;
-        this.objectMapper = objectMapper;
     }
 
 
@@ -91,10 +87,10 @@ public class DestinationController extends Controller {
      *
      * @param request       Http request from the client containing authentication details.
      * @param destinationId the id of the destination to find the number of dependent trips for and photos.
-     * @return ok()    (Http 200) response containing the number of photos in a destination,
-     * trips a destination is used in as well as the list of each trips name and its owner's
-     * name. Otherwise, returns forbidden()
-     * (Http 403) if the user is not allowed to access this number.
+     * @return ok()         (Http 200) response containing the number of photos in a destination,
+     *                      trips a destination is used in as well as the list of each trips name and its owner's
+     *                      name. Otherwise, returns forbidden() (Http 403) if the user is not allowed to access
+     *                      this number.
      */
     public Result getDestinationUsage(Http.Request request, Long destinationId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -135,10 +131,10 @@ public class DestinationController extends Controller {
     /**
      * Uses a Json body containing a destination to check any matching destinations upon editing a destination.
      *
-     * @param request Http request from the client containing authentication details and the given destination.
-     * @return unauthorized() (Http 401) if the user is not logged in.
-     * forbidden() (Http 403) if the logged in user is not the owner of the destination.
-     * ok() (Http 200) containing a Json list of the matching destinations.
+     * @param request   Http request from the client containing authentication details and the given destination.
+     * @return          unauthorized() (Http 401) if the user is not logged in.
+     *                  forbidden() (Http 403) if the logged in user is not the owner of the destination.
+     *                  ok() (Http 200) containing a Json list of the matching destinations.
      */
     public Result getDestinationUsageEdited(Http.Request request) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -178,9 +174,9 @@ public class DestinationController extends Controller {
      * Fetches all destinations based on Http request query parameters. This also includes pagination, destination
      * ownership and the public or private query.
      *
-     * @param request an Http request containing query parameters to filter results.
-     * @return ok() (Http 200) response containing the destinations found in the response body, forbidden()
-     * (Http 403) if the user has tried to access destinations they are not authorised for.
+     * @param request   an Http request containing query parameters to filter results.
+     * @return          ok() (Http 200) response containing the destinations found in the response body, forbidden()
+     *                  (Http 403) if the user has tried to access destinations they are not authorised for.
      */
     public Result fetch(Http.Request request) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -402,7 +398,7 @@ public class DestinationController extends Controller {
                         profileToChange.addDestination(destination);
                         profileRepository.save(profileToChange);
 
-
+                        ObjectMapper objectMapper = new ObjectMapper();
                         // TODO Matthew/Doug look into possibility of passing the objective through
                         int pointsAdded = achievementTrackerController.rewardAction(loggedInUser, destination);
                         ObjectNode returnJson = objectMapper.createObjectNode();

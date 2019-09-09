@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white mt-5 pl-3 pr-3 pb-3">
+    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <!-- Div for all the user's future trips -->
         <div id="upcomingTrips" class="upperPadding">
             <h1 class="page-title">Upcoming Trips</h1>
@@ -39,7 +39,6 @@
             <!-- Modal that uses the plan a trip page to edit a selected trip -->
             <b-modal hide-footer id="editTripModal" ref="editTripModal" size="xl" title="Edit Trip">
                 <plan-a-trip
-                        :containerClass="'noMarginsContainer'"
                         :destinations="destinations"
                         :heading="'Edit a Trip'"
                         :inputTrip="selectedTrip"
@@ -67,7 +66,8 @@
                     striped
                     responsive>
                 <div class="text-center my-2" slot="table-busy">
-                    <b-spinner class="align-middle" v-if="retrievingTrips"></b-spinner>
+                    <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" src="../../../static/logo_sm.png">
+                    </b-img>
                     <strong>Can't find any trips!</strong>
                 </div>
                 <template slot="more_details" slot-scope="row">
@@ -185,6 +185,8 @@
                          responsive>
 
                     <div slot="table-busy" class="text-center my-2">
+                        <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" src="../../../static/logo_sm.png">
+                        </b-img>
                         <strong>Can't find any trips!</strong>
                     </div>
                     <template slot="more_details" slot-scope="row">
@@ -296,12 +298,7 @@
                 }
             },
             destinations: Array,
-            adminView: Boolean,
-            containerClass: {
-                default: function () {
-                    return 'containerWithNav';
-                }
-            }
+            adminView: Boolean
         },
 
         watch: {
@@ -540,7 +537,6 @@
                 const error = new Error(`HTTP Error ${response.statusText}`);
                 error.status = response.statusText;
                 error.response = response;
-                console.log(error);
                 throw error;
             },
 

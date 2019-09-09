@@ -1,6 +1,5 @@
 <template>
-    <div :class="containerClass">
-
+    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <h1 class="page-title">{{ heading }}</h1>
         <p class="page-title"><i>{{ subHeading }}</i></p>
 
@@ -76,7 +75,8 @@
                                 <b-form-input :type="'text'"
                                               id="trip_name"
                                               trim
-                                              v-model="inputTrip.name"></b-form-input>
+                                              v-model="inputTrip.name">
+                                </b-form-input>
                             </b-form-group>
                         </b-container>
 
@@ -260,12 +260,8 @@
                         <b-button @click="validateTrip"
                                   block class="mr-2 float-right"
                                   variant="primary">
-                            <b-spinner label="Spinning"
-                                       small
-                                       v-if="savingTrip"
-                                       variant="dark">
-                                Saving...
-                            </b-spinner>
+                            <b-img alt="Loading" class="align-middle loading" v-if="savingTrip" src="..//../../static/tab_favicon.png" width="25%">
+                            </b-img>
                             Save Trip
                         </b-button>
                     </b-container>
@@ -313,11 +309,6 @@
             },
             heading: String,
             subHeading: String,
-            containerClass: {
-                default: function () {
-                    return 'containerWithNav';
-                }
-            },
             adminView: false
         },
 
@@ -566,6 +557,9 @@
                 if (this.inputTrip.name === null || this.inputTrip.name.length === 0) {
                     this.showError = true;
                     this.errorMessage = "No Trip Name";
+                } else if (this.inputTrip.name.length > 100) {
+                    this.showError = true;
+                    this.errorMessage = "Trip name is too long";
                 } else if (this.inputTrip.destinations.length < 2) {
                     this.showError = true;
                     this.errorMessage = "There must be at least 2 destinations";
@@ -683,6 +677,7 @@
                         self.resetDestForm();
                         self.inputTrip.name = "";
                         self.inputTrip.destinations = [];
+                        self.parseJSON(response).then(data => self.createPointToast(data.pointsRewarded, "Trip Created"));
                         return JSON.parse(JSON.stringify(response));
                     } else {
                         throw new Error('Something went wrong, try again later.');
@@ -725,6 +720,21 @@
                     this.errorMessage = (error);
 
                 });
+            },
+
+
+            /**
+             * Displays a toast saying they've gained a certain amount of points.
+             * @param points the points to display.
+             * @param title the title of the toast, indicating the context of the point gain.
+             */
+            createPointToast(points, title) {
+                let message = "Your points have increased by " + points;
+                this.$bvToast.toast(message, {
+                    title: title,
+                    autoHideDelay: 3000,
+                    appendToast: true
+                })
             },
 
 

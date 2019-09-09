@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import models.profiles.Profile;
 import models.util.BaseModel;
-import util.PointUtil;
-
-import javax.persistence.Column;
+import repositories.points.AchievementTrackerRepository;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
@@ -60,6 +58,6 @@ public class AchievementTracker extends BaseModel {
      */
     @JsonProperty("rank")
     public int getRank() {
-        return PointUtil.getRank(this.owner);
+        return AchievementTrackerRepository.getRank(this.owner);
     }
 }

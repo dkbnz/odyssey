@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white mt-5 pl-3 pr-3 pb-3">
+    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <div class="upperPadding">
             <h1 class="page-title">Personal Media</h1>
         </div>
@@ -30,8 +30,8 @@
         </b-modal>
 
         <div class="d-flex justify-content-center mb-3">
-            <b-spinner v-if="retrievingPhotos"></b-spinner>
-            <p v-if="photos.length === 0"><b>No photos found.</b></p>
+            <b-img alt="Loading" class="align-middle loading" v-if="retrievingPhotos" src="../../../static/logo_sm.png"></b-img>
+            <p v-if="photos.length === 0 && !retrievingPhotos"><b>No photos found.</b></p>
         </div>
 
         <photo-table :photos="photos"
@@ -44,9 +44,9 @@
         >
         </photo-table>
         <b-modal centered hide-footer ref="modalImage" size="xl">
-            <b-img-lazy v-if="photoToView !== null" :src="getFullPhoto()" alt="Image couldn't be retrieved"
+            <b-img v-if="photoToView !== null" :src="getFullPhoto()" alt="Image couldn't be retrieved"
                         onerror="this.src = '../../../static/default_image.png'" center fluid>
-            </b-img-lazy>
+            </b-img>
             <b-row>
                 <b-col>
                     <b-button
@@ -137,7 +137,7 @@
         },
 
         mounted() {
-            self = this;
+            let self = this;
             setTimeout(self.getPhotosList, 500);
         },
 
@@ -170,8 +170,7 @@
              * @param photo     photo object being clicked on.
              */
             photoClicked(photo) {
-                this.photoToView = photo;
-                console.log(this.photoToView);
+                this.photoToView = JSON.parse(JSON.stringify(photo));
                 this.$refs['modalImage'].show();
             },
 
