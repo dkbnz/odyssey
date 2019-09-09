@@ -1,8 +1,38 @@
 <template>
     <div style="max-width: 500px">
+        <b-list-group>
+            <b-list-group-item href="#"
+                               class="flex-column align-items-start"
+                               v-for="badge in profile.achievementTracker.badges"
+                               :key="badge.id">
+                <b-row>
+                    <b-col cols="4">
+                        <single-badge :id="badge.badgeName + 'badge'" :source-badge="badge.badgeName.toLowerCase()" :achieved-badge="true" :achievement-level="badge.level"></single-badge>
+                        <b-tooltip :target="badge.badgeName + 'badge'" triggers="hover">
+                            {{badge.badgeName}}
+                        </b-tooltip>
+                    </b-col>
+                    <b-col>
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{badge.badgeName}}</h5>
+                            <small>{{badge.progress}}{{badge.breakpoint == null ? '' : '/' + badge.breakpoint}}</small>
+                        </div>
+
+                        <p class="mb-1">
+                            {{badge.howToProgress}}
+                        </p>
+
+                        <b-progress :value="badge.progress" :max="badge.breakpoint == null ? badge.progress : badge.breakpoint" :variant="badge.breakpoint == null ? 'success' : 'primary'"></b-progress>
+                    </b-col>
+                </b-row>
+            </b-list-group-item>
+        </b-list-group>
+
         <div class="row">
+
+
             <div class="column">
-                <single-badge id="streaker-badge" :source-badge="'streaker'" :achieved-badge="true" :achievement-level="2"></single-badge>
+                <single-badge id="streaker-badge" :source-badge="profile.achievementTracker.badges[0].badgeName.toLowerCase()" :achieved-badge="true" :achievement-level="profile.achievementTracker.badges[0].level"></single-badge>
                 <single-badge id="wayfarer-badge" :source-badge="'wayfarer'" :achieved-badge="true"></single-badge>
                 <single-badge id="cartographer-badge" :source-badge="'cartographer'" :achieved-badge="true"></single-badge>
             </div>
@@ -53,6 +83,10 @@
     import SingleBadge from "./singleBadge";
     export default {
         name: "badgeTable",
+
+        props: {
+            profile: Object
+        },
 
         components: {
             SingleBadge

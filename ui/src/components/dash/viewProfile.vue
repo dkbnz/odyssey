@@ -1,7 +1,7 @@
 <template>
     <b-container fluid>
         <b-row>
-            <b-col md="3" class="bg-white p-1 pl-3 mt-2 rounded-lg">
+            <b-col md="3" class="bg-white p-3 mt-2 rounded-lg">
                 <div class="fixedElement">
                     <!-- The profile picture of the current profile being viewed. -->
 
@@ -44,8 +44,8 @@
                         <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
                     </ul>
                     <h2> Badges </h2>
-                    <div class="m-4 d-flex justify-content-center">
-                        <badge-table></badge-table>
+                    <div class="d-flex justify-content-center">
+                        <badge-table :profile="profile"></badge-table>
                     </div>
                 </div>
                 <!-- END OF THE PROFILE SECTION -->
