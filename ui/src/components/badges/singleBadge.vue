@@ -1,15 +1,18 @@
 <template>
     <div>
-        <b-img :src="assets[sourceBadge]" :class="{disabledBadge: !achievedBadge}" fluid></b-img>
-        <div class="rowStars">
-            <div class="columnStars" v-for="index in 3" :key="index">
-                <b-img
-                        :id="'star-' + index"
-                        :src="assets['star']"
-                        :class="{disabledBadge: index > achievementLevel}" fluid>
-                </b-img>
+        <b-card>
+            <b-img :src="assets[sourceBadge]" :class="{disabledBadge: !achievedBadge}"></b-img>
+            <div class="rowStars">
+                <div class="columnStars" v-for="index in 3" :key="index">
+                    <b-img
+                            :id="'star-' + index"
+                            :src="assets[starSources[index-1]]"
+                            :class="{disabledBadge: index > achievementLevel}">
+                    </b-img>
+                </div>
             </div>
-        </div>
+        </b-card>
+
     </div>
 </template>
 
@@ -17,6 +20,12 @@
     import assets from '../../assets/assets';
     export default {
         name: "singleBadge",
+
+        data() {
+            return {
+                starSources: ['bronzeStar', 'silverStar', 'goldStar']
+            }
+        },
 
         props: {
             sourceBadge: String,

@@ -237,7 +237,7 @@ to use the image throughout the TravelEA application.
 All images are obtained from [Unsplash](https://unsplash.com), a free photo source, and don't require any copyright
 accreditation. However, they do prefer valid accreditation is given which is outlined below.
 - [Backpacker](https://unsplash.com/photos/gbaeHydpgtE) - Photo by [Chris Hayashi](https://unsplash.com/@chris_hayashi)
-- [Business](https://unsplash.com/photos/ZGjbiukp_-A) - Photo by [Samson Creative.](https://unsplash.com/@samsonyyc)
+- [Business](https://unsplash.com/photos/ZGjbiukp_-A) - Photo by [Samson Creative](https://unsplash.com/@samsonyyc)
 - [Frequent Weekender](https://unsplash.com/photos/BPCsppbNRMI) - Photo by [Everett McIntire](https://unsplash.com/@everettm)
 - [Gap Year](https://unsplash.com/photos/n5LNMjr7gyI) - Photo by [Court Prather](https://unsplash.com/@courtmarie)
 - [Groupie](https://unsplash.com/photos/zdSoe8za6Hs) - Photo by [Levi Guzman](https://unsplash.com/@homeschool)
