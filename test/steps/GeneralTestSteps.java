@@ -260,6 +260,15 @@ public class GeneralTestSteps {
     }
 
 
+    @Given("^I am logged in as user with username \"(.*)\" and id \"(.*)\"$")
+    public void iAmLoggedInAsUserWithId(String username, String userId) {
+        // Write code here that turns the phrase above into concrete actions
+        loginRequest(username, ALT_AUTH_PASS);
+        assertEquals(OK, testContext.getStatusCode());
+        testContext.setLoggedInId(userId);
+    }
+
+
     /**
      * Sends a logout request to the system.
      *

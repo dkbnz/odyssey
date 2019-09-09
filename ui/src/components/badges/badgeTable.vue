@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div style="max-width: 500px">
         <div class="row">
             <div class="column">
                 <single-badge id="streaker-badge" :source-badge="'streaker'" :achieved-badge="true" :achievement-level="2"></single-badge>

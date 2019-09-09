@@ -219,7 +219,7 @@ Feature: Profile API Endpoint
     Given I am logged in
     And a user exists in the database with the id 1 and username "admin@travelea.com"
     And the user has 5000 points
-    When I search for profiles with "5000" points
+    When I search for profiles with 5000 points
     Then the status code received is 200
     And the response contains the profile with username "admin@travelea.com"
 
@@ -228,6 +228,6 @@ Feature: Profile API Endpoint
     Given I am logged in
     And a user exists in the database with the id 1 and username "admin@travelea.com"
     And the user has 5 points
-    When I search for profiles with "5000" points
+    When I search for profiles with 5000 points
     Then the status code received is 200
     And the response is empty
