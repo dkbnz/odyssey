@@ -237,11 +237,11 @@ public class QuestTestSteps {
         String endDate           = list.get(index).get(END_DATE_STRING);
 
         if (startDate.isEmpty()) {
-            startDate = generalTestSteps.getDateBuffer(true);
+            startDate = generalTestSteps.getDateTimeBuffer(true);
         }
 
         if (endDate.isEmpty()) {
-            endDate = generalTestSteps.getDateBuffer(false);
+            endDate = generalTestSteps.getDateTimeBuffer(false);
         }
 
         //Add values to a JsonNode
