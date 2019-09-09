@@ -72,6 +72,7 @@ Feature: Achievement Tracker API Endpoint
 #    When I create a new destination with the following values
 #      | Name | Type | District | Latitude | Longitude | Country     |
 #      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+#    Then the status code received is 201
 #    Then I gain the "Cartographer" badge with level 1
 #
 #
@@ -88,7 +89,9 @@ Feature: Achievement Tracker API Endpoint
 #    And the trip has a destination with the following values
 #      | Destination | Start Date | End Date |
 #      | 567         |            |          |
-#    Then I gain the "Planner" badge with level 1
+#    And I create the trip
+#    Then the status code received is 201
+#    And I gain the "Planner" badge with level 1
 #
 #
 #  Scenario: Creating my first quest and getting a badge

@@ -2,6 +2,7 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.bs.A;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -13,7 +14,11 @@ import play.test.Helpers;
 import repositories.quests.QuestRepository;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+import static org.junit.Assert.fail;
 import static play.test.Helpers.*;
 
 public class AchievementTrackerTestSteps {
@@ -22,6 +27,12 @@ public class AchievementTrackerTestSteps {
      * Singleton class which stores generally used variables
      */
     private TestContext testContext = TestContext.getInstance();
+
+
+    /**
+     * New instance of the general test steps.
+     */
+    private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
 
 
     /**
@@ -104,6 +115,24 @@ public class AchievementTrackerTestSteps {
     private static final String QUESTS = "quests";
 
 
+    /**
+     * The static Json variable keys for a trip.
+     */
+    private static final String NAME = "trip_name";
+    private static final String ID = "id";
+    private static final String TRIP_DESTINATIONS = "trip_destinations";
+    private static final String DESTINATION = "destination_id";
+    private static final String START_DATE = "start_date";
+    private static final String END_DATE = "end_date";
+
+
+    private static final String NAME_STRING = "Name";
+    private static final String DESTINATION_STRING = "Destination";
+    private static final String START_DATE_STRING = "Start Date";
+    private static final String END_DATE_STRING = "End Date";
+
+    private ObjectNode tripJson;
+    private List<ObjectNode> tripDestinations = new ArrayList<>();
 
     /**
      * And object mapper used during tests.
@@ -151,6 +180,74 @@ public class AchievementTrackerTestSteps {
                 .session(AUTHORIZED, testContext.getLoggedInId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    /**
+     * Converts a given data table of trip values to a Json node object of this trip.
+     *
+     * @param dataTable     the data table containing values of a trip.
+     */
+    private void convertDataTableTripJson(io.cucumber.datatable.DataTable dataTable, int index) {
+        //Get all input from the data table
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        String name       = list.get(index).get(NAME_STRING);
+
+        //Add values to a JsonNode
+        ObjectMapper mapper = new ObjectMapper();
+        tripJson = mapper.createObjectNode();
+        tripJson.put(NAME, name);
+    }
+
+
+    /**
+     * Converts a given data table of trip destination values to a Json node object of this trip.
+     *
+     * @param dataTable     the data table containing values of a trip destination.
+     */
+    private void convertDataTableToObjectiveJson(io.cucumber.datatable.DataTable dataTable, int index) {
+        //Get all input from the data table
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+        String destination       = list.get(index).get(DESTINATION_STRING);
+        String startDate            = list.get(index).get(START_DATE_STRING);
+        String endDate            = list.get(index).get(END_DATE_STRING);
+
+        if (startDate.isEmpty()) {
+            startDate = generalTestSteps.getDateBuffer(true);
+        }
+
+        if (endDate.isEmpty()) {
+            endDate = generalTestSteps.getDateBuffer(false);
+        }
+
+
+        //Add values to a JsonNode
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode json = mapper.createObjectNode();
+
+        json.put(DESTINATION, destination);
+        json.put(START_DATE, startDate);
+        json.put(END_DATE, endDate);
+        tripDestinations.add(json);
+    }
+
+
+    /**
+     * Sends the backend request to create a trip.
+     *
+     * @param json  the given Json body containing a trip.
+     */
+    private void createTripRequest(JsonNode json) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .bodyJson(json)
+                .uri(TRIP_URI + testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        tripDestinations.clear();
+
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
@@ -215,27 +312,25 @@ public class AchievementTrackerTestSteps {
 
     @When("I create a new trip with the following values")
     public void iCreateANewTripWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-        throw new cucumber.api.PendingException();
+        testContext.setTargetId(testContext.getLoggedInId());
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            convertDataTableTripJson(dataTable, i);
+        }
     }
 
 
     @When("the trip has a destination with the following values")
     public void theTripHasADestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-        throw new cucumber.api.PendingException();
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            convertDataTableToObjectiveJson(dataTable, i);
+            tripJson.putArray(TRIP_DESTINATIONS).addAll(tripDestinations);
+        }
+    }
+
+
+    @When("I create the trip")
+    public void ICreateTheTrip() {
+        createTripRequest(tripJson);
     }
 
 
