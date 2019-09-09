@@ -12,7 +12,7 @@ public class Badge extends BaseModel {
     private static final String MAX_LEVEL = "You have fully achieved this badge!";
     private static final ImmutableList<String> LEVELS = ImmutableList.of("bronze", "silver", "gold", "max");
 
-    @Column(unique = true, nullable = false, name = "name")    // Declares that the name needs to be unique through the database.
+    @Column(unique = true, nullable = false, name = "action_to_achieve")    // Declares that the name needs to be unique through the database.
     @Enumerated(EnumType.STRING)
     private Action actionToAchieve;
 

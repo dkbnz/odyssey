@@ -1,17 +1,15 @@
 <template>
     <div>
-        <b-card>
-            <b-img :src="assets[sourceBadge]" :class="{disabledBadge: !achievedBadge}"></b-img>
-            <div class="rowStars">
-                <div class="columnStars" v-for="index in 3" :key="index">
-                    <b-img
-                            :id="'star-' + index"
-                            :src="assets[starSources[index-1]]"
-                            :class="{disabledBadge: index > achievementLevel}">
-                    </b-img>
-                </div>
+        <b-img :src="assets[sourceBadge]" :class="{disabledBadge: !achievedBadge}" fluid></b-img>
+        <div class="rowStars">
+            <div class="columnStars" v-for="index in 3" :key="index">
+                <b-img
+                        :id="'star-' + index"
+                        :src="assets[starSources[index-1]]"
+                        :class="{disabledBadge: index > achievementLevel}" fluid>
+                </b-img>
             </div>
-        </b-card>
+        </div>
 
     </div>
 </template>
