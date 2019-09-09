@@ -479,6 +479,8 @@
             validateTitle() {
                 if (this.inputQuest.title.length > 0) {
                     return true;
+                } else if (this.inputQuest.title.length > 100) {
+                    return false;
                 }
                 return null;
             },
