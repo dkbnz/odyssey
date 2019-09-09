@@ -12,6 +12,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repositories.quests.QuestRepository;
+import scala.Int;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -209,16 +210,22 @@ public class AchievementTrackerTestSteps {
     private void convertDataTableToObjectiveJson(io.cucumber.datatable.DataTable dataTable, int index) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String destination       = list.get(index).get(DESTINATION_STRING);
-        String startDate            = list.get(index).get(START_DATE_STRING);
-        String endDate            = list.get(index).get(END_DATE_STRING);
+        String destination         = list.get(index).get(DESTINATION_STRING);
+        String startDate           = list.get(index).get(START_DATE_STRING);
+        String endDate             = list.get(index).get(END_DATE_STRING);
+
+        // If there is already destinations in the trip, then we need the dates to be spaced out.
+        int dateBuffer = 0;
+        if (!tripDestinations.isEmpty()) {
+            dateBuffer += 10;
+        }
 
         if (startDate.isEmpty()) {
-            startDate = generalTestSteps.getDateBuffer(true);
+            startDate = generalTestSteps.getDateBuffer(true, dateBuffer);
         }
 
         if (endDate.isEmpty()) {
-            endDate = generalTestSteps.getDateBuffer(false);
+            endDate = generalTestSteps.getDateBuffer(false, dateBuffer);
         }
 
 
@@ -243,7 +250,7 @@ public class AchievementTrackerTestSteps {
                 .method(POST)
                 .session(AUTHORIZED, testContext.getLoggedInId())
                 .bodyJson(json)
-                .uri(TRIP_URI + testContext.getLoggedInId());
+                .uri(TRIP_URI + "/" + testContext.getLoggedInId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
         tripDestinations.clear();

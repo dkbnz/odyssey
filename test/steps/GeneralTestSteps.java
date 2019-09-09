@@ -200,7 +200,7 @@ public class GeneralTestSteps {
      * @param isStartDate   boolean value to determine if the date being changed is the start or the end date.
      * @return              the start or end date, which is modified by the necessary date buffer.
      */
-    public String getDateBuffer(boolean isStartDate) {
+    public String getDateTimeBuffer(boolean isStartDate) {
         Calendar calendar = Calendar.getInstance();
 
         if (isStartDate) {
@@ -208,6 +208,26 @@ public class GeneralTestSteps {
         }
         calendar.add(Calendar.DATE, END_DATE_BUFFER);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:MM:ssZ");
+        return sdf.format(calendar.getTime());
+    }
+
+
+    /**
+     * Creates a new date object from today's date. This is then used to ensure our tests will always pass, as a
+     * buffer is used to make the start date before today and the end date after today.
+     *
+     * @param isStartDate   boolean value to determine if the date being changed is the start or the end date.
+     * @param dateBuffer    the buffer value for the dates, is required because sometimes dates need to be in order.
+     *                      For example, in a trip.
+     * @return              the start or end date, which is modified by the necessary date buffer.
+     */
+    public String getDateBuffer(boolean isStartDate, int dateBuffer) {
+        Calendar calendar = Calendar.getInstance();
+        if (isStartDate) {
+            calendar.add(Calendar.DATE, START_DATE_BUFFER + dateBuffer);
+        }
+        calendar.add(Calendar.DATE, END_DATE_BUFFER + dateBuffer);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(calendar.getTime());
     }
 

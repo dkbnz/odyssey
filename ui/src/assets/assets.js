@@ -12,5 +12,15 @@ export default {
     streaker: './static/badges/streaker.png',
     planner: './static/badges/planner.png',
     writer: './static/badges/writer.png',
-    star: './static/badges/star.png'
+    bronzeStar: './static/badges/bronzeStar.png',
+    silverStar: './static/badges/silverStar.png',
+    goldStar: './static/badges/goldStar.png',
+    backpacker: './static/traveller_types/backpacker.png',
+    business: './static/traveller_types/business.png',
+    frequentWeekender: './static/traveller_types/frequentWeekender.png',
+    gapYear: './static/traveller_types/gapYear.png',
+    groupie: './static/traveller_types/groupie.png',
+    holidayMaker: './static/traveller_types/holidayMaker.png',
+    thrillseeker: './static/traveller_types/thrillseeker.png',
+    welcomePage: './static/background_image.jpg'
 }
