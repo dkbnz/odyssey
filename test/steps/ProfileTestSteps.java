@@ -246,6 +246,7 @@ public class ProfileTestSteps {
         String maxAge = getValue(MAX_AGE, givenFields, givenValues);
         String minPoints = getValue(MIN_POINTS, givenFields, givenValues);
         String maxPoints = getValue(MAX_POINTS, givenFields, givenValues);
+        String rank = getValue(RANK, givenFields, givenValues);
 
         minAge = minAge.equals("") ? "0"    : minAge;
         maxAge = maxAge.equals("") ? "120"  : maxAge;
@@ -266,6 +267,8 @@ public class ProfileTestSteps {
                 + MIN_POINTS + EQUALS + minPoints
                 + AND
                 + MAX_POINTS + EQUALS + maxPoints
+                + AND
+                + RANK + EQUALS + rank
                 + AND
                 + SORT_BY + EQUALS + ""
                 + AND
@@ -616,17 +619,24 @@ public class ProfileTestSteps {
     }
 
 
-    @Then("the response contains only the following profiles:")
+    @Then("the response contains the following profiles:")
     public void theResponseContainsTheFollowingProfiles(DataTable dataTable) {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
 
         for (int i = 0; i < list.size(); i++) {
             String username = list.get(i).get("username");
-            String responseBody = testContext.getResponseBody();
-            Assert.assertTrue(responseBody.contains(username));
-//            testContext.setResponseBody(responseBody.replaceAll("\\{(.*)" + username + "(.*)}", "PISS"));
-            System.out.println(testContext.getResponseBody());
-            System.out.println(1);
+            Assert.assertTrue(testContext.getResponseBody().contains(username));
+        }
+    }
+
+
+    @Then("the response does not contain the following profiles:")
+    public void theResponseDoesNotContainsTheFollowingProfiles(DataTable dataTable) {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+
+        for (int i = 0; i < list.size(); i++) {
+            String username = list.get(i).get("username");
+            Assert.assertFalse(testContext.getResponseBody().contains(username));
         }
     }
 
