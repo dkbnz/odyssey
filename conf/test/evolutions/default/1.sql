@@ -8,6 +8,27 @@ create table achievement_tracker (
   constraint pk_achievement_tracker primary key (id)
 );
 
+create table badge (
+  id                            bigint auto_increment not null,
+  name                          varchar(19) not null,
+  badge_name                    varchar(255),
+  bronze_breakpoint             integer not null,
+  silver_breakpoint             integer not null,
+  gold_breakpoint               integer not null,
+  how_to_progress               varchar(255),
+  constraint ck_badge_name check ( name in ('DESTINATION_CREATED','QUEST_CREATED','OBJECTIVE_CREATED','RIDDLE_SOLVED','CHECKED_IN','QUEST_COMPLETED')),
+  constraint uq_badge_name unique (name),
+  constraint pk_badge primary key (id)
+);
+
+create table badge_progress (
+  id                            bigint auto_increment not null,
+  badge_id                      bigint,
+  achievement_tracker_id        bigint,
+  progress                      integer not null,
+  constraint pk_badge_progress primary key (id)
+);
+
 create table destination (
   id                            bigint auto_increment not null,
   name                          varchar(255),
@@ -185,6 +206,12 @@ create table destination_type (
 );
 
 alter table achievement_tracker add constraint fk_achievement_tracker_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
+
+create index ix_badge_progress_badge_id on badge_progress (badge_id);
+alter table badge_progress add constraint fk_badge_progress_badge_id foreign key (badge_id) references badge (id) on delete restrict on update restrict;
+
+create index ix_badge_progress_achievement_tracker_id on badge_progress (achievement_tracker_id);
+alter table badge_progress add constraint fk_badge_progress_achievement_tracker_id foreign key (achievement_tracker_id) references achievement_tracker (id) on delete restrict on update restrict;
 
 create index ix_destination_type_id on destination (type_id);
 alter table destination add constraint fk_destination_type_id foreign key (type_id) references destination_type (id) on delete restrict on update restrict;
