@@ -1,7 +1,10 @@
 package controllers.trips;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.points.AchievementTrackerController;
 import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
@@ -34,18 +37,26 @@ public class TripController extends Controller {
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private static final int DEFAULT_ADMIN_ID = 1;
 
+    private static final String REWARD = "pointsRewarded";
+
     private TripRepository tripRepository;
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
+    private AchievementTrackerController achievementTrackerController;
+    private ObjectMapper objectMapper;
 
 
     @Inject
     public TripController(TripRepository tripRepository,
                           ProfileRepository profileRepository,
-                          DestinationRepository destinationRepository) {
+                          DestinationRepository destinationRepository,
+                          AchievementTrackerController achievementTrackerController,
+                          ObjectMapper objectMapper) {
         this.tripRepository = tripRepository;
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
+        this.achievementTrackerController = achievementTrackerController;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -103,7 +114,14 @@ public class TripController extends Controller {
                             determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
                         }
                         tripRepository.save(trip);
-                        return created(Json.toJson(trip.getId()));
+
+                        ObjectNode returnJson = objectMapper.createObjectNode();
+
+                        int pointsAdded = achievementTrackerController.rewardAction(affectedProfile, trip);
+                        returnJson.put(REWARD, pointsAdded);
+                        returnJson.put("createdId", trip.getId());
+
+                        return created(returnJson);
                     } else {
                         return badRequest();
                     }

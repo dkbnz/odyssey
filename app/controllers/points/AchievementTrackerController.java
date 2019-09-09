@@ -10,6 +10,7 @@ import models.points.Action;
 import models.points.PointReward;
 import models.profiles.Profile;
 import models.quests.Quest;
+import models.trips.Trip;
 import models.util.ApiError;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -67,6 +68,16 @@ public class AchievementTrackerController extends Controller {
         PointReward reward = pointRewardRepository.findUsing(Action.OBJECTIVE_CREATED);    // Get the reward to add.
         achievementTracker.addPoints(reward.getValue());
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
+
+        return reward.getValue();
+    }
+
+    public int rewardAction(Profile actingProfile, Trip tripCreated) {
+        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();
+
+        PointReward reward = pointRewardRepository.findUsing(Action.TRIP_CREATED);
+        achievementTracker.addPoints(reward.getValue());
+        profileRepository.update(actingProfile);
 
         return reward.getValue();
     }

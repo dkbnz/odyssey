@@ -72,7 +72,6 @@ public class QuestController {
                            ProfileRepository profileRepository,
                            DestinationRepository destinationRepository,
                            AchievementTrackerController achievementTrackerController,
-                           PointRewardRepository pointRewardRepository,
                            ObjectMapper objectMapper) {
         this.questRepository = questRepository;
         this.questAttemptRepository = questAttemptRepository;
