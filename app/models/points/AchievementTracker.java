@@ -48,13 +48,24 @@ public class AchievementTracker extends BaseModel {
 
     /**
      * Adds the provided number of points to the points value.
+     *
      * @param pointsToAdd the points to be added to the tracker's total score.
      */
     public void addPoints(int pointsToAdd) {
         this.points += pointsToAdd;
     }
 
+
+    /**
+     * Add progress to the specified badge. If the profile has not achieved the badge, create it for them.
+     *
+     * @param badge     the badge to increment the progress of.
+     * @param progress  the progress to add to the badge.
+     */
     public void addBadgeProgress(Badge badge, int progress) {
+
+        // Retrieve an optional for the badge progress.
+        // Checks if there is already a badge progress class tracking the specified badge.
         Optional<BadgeProgress> badgeProgressOptional = badgeProgressSet.stream()
                 .filter(badgeProgress -> badge
                         .getId()
@@ -64,21 +75,32 @@ public class AchievementTracker extends BaseModel {
                         )
                 ).findFirst();
 
+        // Badge progress we are going to mutate.
         BadgeProgress badgeToProgress;
 
         if (badgeProgressOptional.isPresent()) {
+            // If there is a badge progress class tracking the current badge, then retrieve it.
             badgeToProgress = badgeProgressOptional.get();
         } else {
+            // Otherwise, create a new one and add it to the set of badges we are tracking progress of.
             badgeToProgress = new BadgeProgress(this, badge);
             badgeProgressSet.add(badgeToProgress);
         }
 
+        // Increment the progress by the specified amount.
         badgeToProgress.addProgress(progress);
     }
 
 
+    /**
+     * Get all of the badges held by the set of badgeprogress bridging model.
+     *
+     * @return a set of badges that the user has achieved with their corresponding progress.
+     */
     @JsonProperty("badges")
     public Set<Badge> getBadges() {
+
+        // Extract all of the badges out of the badge progress set and return them as a set.
         return badgeProgressSet
                 .stream()
                 .map(BadgeProgress::getBadge)
