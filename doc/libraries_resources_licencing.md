@@ -249,12 +249,13 @@ accreditation. However, they do prefer valid accreditation is given which is out
 
 All images are obtained from [Flaticon](https://www.flaticon.com), a free photo source and requires accreditation for 
 images. Accreditation is required somewhere within credits, with the images or with documentation.
- - [Wayfarer](https://www.flaticon.com/free-icon/direction_1191593#term=signpost&page=1&position=3) - Photo by Freepik
+ - [Planner](https://www.flaticon.com/free-icon/direction_1191593#term=signpost&page=1&position=3) - Photo by Freepik
  - [Cartographer](https://www.flaticon.com/free-icon/address_1076323#term=location&page=1&position=5) - Photo by Freepik
  - [Writer](https://www.flaticon.com/free-icon/map_1606528#term=map%20scroll&page=1&position=3) - Photo by Freepik
  - [Solver](https://www.flaticon.com/free-icon/loupe_751381#term=search&page=1&position=4) - Photo by Freepik
  - [Explorer](https://www.flaticon.com/free-icon/search_1150637#term=search%20map&page=1&position=16) - Photo by Freepik
  - [Odyssey](https://www.flaticon.com/free-icon/helmet_1455027#term=greece&page=1&position=8) - Photo by Freepik
- - [Nomad](https://www.flaticon.com/free-icon/hiking_1706736#term=walking&page=1&position=4) - Photo by Freepik
+ - [Wayfarer](https://www.flaticon.com/free-icon/hiking_1706736#term=walking&page=1&position=4) - Photo by Freepik
  - [Streaker](https://www.flaticon.com/free-icon/flash_656403#term=lightning%20bolt&page=1&position=21) - Photo by Freepik
  - [Overachiever](https://www.flaticon.com/free-icon/laurel_876862#term=award&page=1&position=22) - Photo by Freepik
+ - [Star](https://www.flaticon.com/free-icon/favorite_1721927) - Photo by Freepik

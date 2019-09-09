@@ -43,6 +43,8 @@
                     <ul>
                         <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
                     </ul>
+                    <h2> Badges </h2>
+                    <badge-table></badge-table>
                 </div>
                 <!-- END OF THE PROFILE SECTION -->
 
@@ -147,6 +149,7 @@
     import PhotoUploader from "../photos/photoUploader";
     import QuestList from "../quests/questList";
     import ActiveQuestList from "../quests/activeQuestList";
+    import BadgeTable from "../badges/badgeTable";
 
     export default {
         name: "viewProfile",
@@ -500,6 +503,7 @@
         },
 
         components: {
+            BadgeTable,
             ActiveQuestList,
             QuestList,
             YourTrips,
