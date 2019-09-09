@@ -88,7 +88,8 @@
                                   min="1900-01-01"
                                   max="1999-12-31"
                                   id="dateOfBirth"
-                                  trim v-model="saveProfile.dateOfBirth">
+                                  trim
+                                  v-model="saveProfile.dateOfBirth">
                     </b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
                         You need a date of birth before today and after 01/01/1900.
@@ -311,17 +312,24 @@
             firstNameValidation() {
                 if (this.saveProfile.firstName.length === 0) {
                     return false;
+                } else if (this.saveProfile.firstName.length > 100) {
+                    return false
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.saveProfile.firstName);
             },
             middleNameValidation() {
+                if (this.saveProfile.middleName.length > 100) {
+                    return false
+                }
                 let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.saveProfile.middleName) || this.saveProfile.middleName.length === 0;
             },
             lastNameValidation() {
                 if (this.saveProfile.lastName.length === 0) {
                     return false;
+                } else if (this.saveProfile.lastName.length > 100) {
+                    return false
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.saveProfile.lastName);
@@ -329,6 +337,8 @@
             emailValidation() {
                 if (this.saveProfile.username.length === 0) {
                     return false;
+                }  else if (this.saveProfile.username.length > 100) {
+                    return false
                 }
                 let emailRegex = new RegExp("^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})");
                 this.checkUsername();
@@ -337,6 +347,8 @@
             passwordValidation() {
                 if (this.saveProfile.password.length === 0) {
                     return null;
+                }  else if (this.saveProfile.password.length > 100) {
+                    return false
                 }
                 let passwordRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])" +
                     "(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
@@ -345,6 +357,8 @@
             rePasswordValidation() {
                 if (this.rePassword.length === 0) {
                     return null;
+                }  else if (this.rePassword.length > 100) {
+                    return false
                 }
                 let passwordRegex =
                     new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");

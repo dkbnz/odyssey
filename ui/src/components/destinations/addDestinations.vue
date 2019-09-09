@@ -114,8 +114,13 @@
                         id="district-field"
                         label="District:"
                         label-for="district">
-                    <b-form-input id="district" @click="showError = false" v-model="inputDestination.district"
-                                  type="text" trim required :state="destinationDistrictValidation">
+                    <b-form-input id="district"
+                                  @click="showError=false"
+                                  v-model="inputDestination.district"
+                                  type="text"
+                                  trim
+                                  required
+                                  :state="destinationDistrictValidation">
                     </b-form-input>
                 </b-form-group>
 
@@ -123,7 +128,10 @@
                         id="latitude-field"
                         label="Latitude:"
                         label-for="latitude">
-                    <b-form-input id="latitude" v-model="inputDestination.latitude" type="text" trim required
+                    <b-form-input id="latitude"
+                                  v-model="inputDestination.latitude"
+                                  type="text"
+                                  trim required
                                   :state="destinationLatitudeValidation"></b-form-input>
                     <b-form-invalid-feedback :state="destinationLatitudeValidation">
                         {{latitudeErrorMessage}}
@@ -134,7 +142,10 @@
                         id="longitude-field"
                         label="Longitude:"
                         label-for="longitude">
-                    <b-form-input id="longitude" v-model="inputDestination.longitude" type="text" trim required
+                    <b-form-input id="longitude"
+                                  v-model="inputDestination.longitude"
+                                  type="text"
+                                  trim required
                                   :state="destinationLongitudeValidation"></b-form-input>
                     <b-form-invalid-feedback :state="destinationLongitudeValidation">
                         {{longitudeErrorMessage}}
@@ -233,6 +244,8 @@
             destinationNameValidation() {
                 if (this.inputDestination.name.length === 0) {
                     return null;
+                } else if (this.inputDestination.name.length > 100) {
+                    return false
                 }
                 return this.inputDestination.name.length > 0;
             },
@@ -259,6 +272,8 @@
             destinationDistrictValidation() {
                 if (this.inputDestination.district.length === 0) {
                     return null;
+                } else if (this.inputDestination.district.length > 100) {
+                    return false
                 }
                 return this.inputDestination.district.length > 0;
             },
