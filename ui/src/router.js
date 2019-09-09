@@ -6,6 +6,7 @@ import Profiles from './components/profiles/leaderboardPage'
 import Trips from './components/trips/tripsPage'
 import AdminPanel from './components/admin/adminPanel'
 import Quests from './components/quests/questPage'
+import Credits from './components/helperComponents/creditsPage'
 
 import VueRouter from 'vue-router';
 
@@ -73,7 +74,15 @@ const routes = [
         meta: {
             title: "Administrator - TravelEA"
         }
-    }
+    },
+    {
+        path:"/credits",
+        name: "credits",
+        component: Credits,
+        meta: {
+            title: "Credits - TravelEA"
+        }
+    },
 ];
 
 const router = new VueRouter({
