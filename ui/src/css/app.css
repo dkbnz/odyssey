@@ -130,13 +130,11 @@ a {
 .row {
     display: flex;
     flex-wrap: wrap;
-    padding: 0 4px;
 }
 
 .column {
     flex: 25%;
-    max-width: 25%;
-    padding: 0 4px;
+    max-width: 50%;
 }
 
 .column img {
@@ -145,20 +143,13 @@ a {
     width: 100%;
 }
 
-/* Responsive layout - makes a two column-layout instead of four columns */
-@media screen and (max-width: 800px) {
-    .column {
-        flex: 50%;
-        max-width: 50%;
-    }
+.rowStars {
+    display: flex;
+    flex-wrap: wrap;
 }
 
-/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
-@media screen and (max-width: 600px) {
-    .column {
-        flex: 100%;
-        max-width: 100%;
-    }
+.columnStars {
+    flex: 20%;
 }
 
 /* Disabled property for badges if user has not achieved them yet */
@@ -166,4 +157,8 @@ a {
     -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
     filter: grayscale(100%);
     opacity: 0.5;
+}
+
+.card-body {
+    padding: 10px;
 }
