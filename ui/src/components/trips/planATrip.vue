@@ -673,6 +673,7 @@
                         self.resetDestForm();
                         self.inputTrip.name = "";
                         self.inputTrip.destinations = [];
+                        self.parseJSON(response).then(data => self.createPointToast(data.pointsRewarded, "Trip Created"));
                         return JSON.parse(JSON.stringify(response));
                     } else {
                         throw new Error('Something went wrong, try again later.');
@@ -715,6 +716,21 @@
                     this.errorMessage = (error);
 
                 });
+            },
+
+
+            /**
+             * Displays a toast saying they've gained a certain amount of points.
+             * @param points the points to display.
+             * @param title the title of the toast, indicating the context of the point gain.
+             */
+            createPointToast(points, title) {
+                let message = "Your points have increased by " + points;
+                this.$bvToast.toast(message, {
+                    title: title,
+                    autoHideDelay: 3000,
+                    appendToast: true
+                })
             },
 
 
