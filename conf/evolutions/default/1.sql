@@ -60,6 +60,17 @@ create table achievement_tracker (
   constraint pk_achievement_tracker primary key (id)
 );
 
+create table badge (
+  id                            bigint auto_increment not null,
+  name                          varchar(19) not null,
+  silver_breakpoint             integer not null,
+  gold_breakpoint               integer not null,
+  how_to_progress               varchar(255),
+  constraint ck_badge_name check ( name in ('DESTINATION_CREATED','QUEST_CREATED','OBJECTIVE_CREATED','RIDDLE_SOLVED','CHECKED_IN','QUEST_COMPLETED')),
+  constraint uq_badge_name unique (name),
+  constraint pk_badge primary key (id)
+);
+
 create table destination (
   id                            bigint auto_increment not null,
   name                          varchar(255),
@@ -422,6 +433,8 @@ alter table trip_destination drop foreign key fk_trip_destination_destination_id
 drop index ix_trip_destination_destination_id on trip_destination;
 
 drop table if exists achievement_tracker;
+
+drop table if exists badge;
 
 drop table if exists destination;
 

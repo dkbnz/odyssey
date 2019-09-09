@@ -5,8 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import models.profiles.Profile;
 import models.util.BaseModel;
 import repositories.points.AchievementTrackerRepository;
+
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -19,6 +25,9 @@ public class AchievementTracker extends BaseModel {
      * The points attained for the user.
      */
     private int points;
+
+    //@ElementCollection
+    private Map<Badge, Integer> badgeProgress;
 
 
     /**
@@ -49,6 +58,21 @@ public class AchievementTracker extends BaseModel {
         this.points += pointsToAdd;
     }
 
+    public void addBadgeProgress(Badge badge, int progress) {
+        badgeProgress.put(badge, badgeProgress.getOrDefault(badge, 0) + progress);
+    }
+
+
+    @JsonProperty("badges")
+    public Set<Badge> getBadges() {
+        Set<Badge> badgesEarned = new HashSet<>();
+        for (Map.Entry<Badge, Integer> entry : badgeProgress.entrySet()) {
+            Badge tempBadge = entry.getKey();
+            tempBadge.setProgress(entry.getValue());
+            badgesEarned.add(tempBadge);
+        }
+        return badgesEarned;
+    }
 
     /**
      * Returns the rank of the profile associated with this achievement tracker.
