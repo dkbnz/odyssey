@@ -90,7 +90,7 @@ public class ProfileTestSteps {
     /**
      * The number of profiles expected.
      */
-    private static final int NUMBER_OF_PROFILES = 6;
+    private static final int NUMBER_OF_PROFILES = 9;
 
     private static final String NAME = "name";
     private static final String NATIONALITY = "nationalities";

@@ -92,10 +92,6 @@ public class AchievementTrackerTestSteps {
     private ObjectMapper mapper = new ObjectMapper();
 
     /**
-     *
-     */
-
-    /**
      * Points the profile started with.
      */
     private int startingPoints;
@@ -107,33 +103,6 @@ public class AchievementTrackerTestSteps {
     private int currentPoints;
 
 
-    @Given("I have some starting points")
-    public void iHaveSomeStartingPoints() throws IOException {
-        String userToView = testContext.getLoggedInId();
-        getPointsRequest(userToView);
-        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        startingPoints = responseBody.get("userPoints").asInt();
-    }
-
-
-
-    @When("I solve the current riddle for a Quest")
-    public void iSolveTheFirstRiddleOfTheQuestWithID() throws IOException {
-        sendRiddleGuessRequest(TO_GUESS_RIDDLE_ID, DESTINATION_TO_GUESS);
-        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        Assert.assertEquals(SUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
-    }
-
-    @Then("I have gained points")
-    public void iHaveGainedPoints() throws IOException {
-        String userToView = testContext.getLoggedInId();
-        getPointsRequest(userToView);
-
-        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        currentPoints = responseBody.get("userPoints").asInt();
-        Assert.assertTrue("Current points is not greater than starting points",currentPoints > startingPoints);
-    }
-
     private void getPointsRequest(String userId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
@@ -143,6 +112,7 @@ public class AchievementTrackerTestSteps {
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
+
 
     private void sendRiddleGuessRequest(long attemptId, long destinationId) {
         Http.RequestBuilder request = fakeRequest()
@@ -154,11 +124,113 @@ public class AchievementTrackerTestSteps {
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
+
+    private void sendCheckInRequest(long attemptId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(QUEST_URI + QUEST_ATTEMPT_URI + attemptId + CHECK_IN_URI)
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    @Given("I have some starting points")
+    public void iHaveSomeStartingPoints() throws IOException {
+        String userToView = testContext.getLoggedInId();
+        getPointsRequest(userToView);
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        startingPoints = responseBody.get("userPoints").asInt();
+    }
+
+
+    @Given("I currently have no destinations created")
+    public void iCurrentlyHaveNoDestinationsCreated() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @Given("I currently have no trips created")
+    public void iCurrentlyHaveNoTripsCreated() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @Given("I currently have no quests created")
+    public void iCurrentlyHaveNoQuestsCreated() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @Given("^the user has (\\d+) points$")
+    public void theUserHasPoints(int userPoints) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @When("^I search for profiles with (\\d+) points$")
+    public void iSearchForProfilesWithPoints(int searchPoints) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @When("I solve the current riddle for a Quest")
+    public void iSolveTheFirstRiddleOfTheQuestWithID() throws IOException {
+        sendRiddleGuessRequest(TO_GUESS_RIDDLE_ID, DESTINATION_TO_GUESS);
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        Assert.assertEquals(SUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
+    }
+
+
+    @When("I create a new trip with the following values")
+    public void iCreateANewTripWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        // Write code here that turns the phrase above into concrete actions
+        // For automatic transformation, change DataTable to one of
+        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+        // Double, Byte, Short, Long, BigInteger or BigDecimal.
+        //
+        // For other transformations you can register a DataTableType.
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @When("the trip has a destination with the following values")
+    public void theTripHasADestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        // Write code here that turns the phrase above into concrete actions
+        // For automatic transformation, change DataTable to one of
+        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+        // Double, Byte, Short, Long, BigInteger or BigDecimal.
+        //
+        // For other transformations you can register a DataTableType.
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @Then("I have gained points")
+    public void iHaveGainedPoints() throws IOException {
+        String userToView = testContext.getLoggedInId();
+        getPointsRequest(userToView);
+
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        currentPoints = responseBody.get("userPoints").asInt();
+        Assert.assertTrue("Current points is not greater than starting points",currentPoints > startingPoints);
+    }
+
+
     @When("I try to view my points")
     public void iTryToViewMyPoints() {
         String userToView = testContext.getLoggedInId();
         getPointsRequest(userToView);
     }
+
 
     @Then("I am given my point total")
     public void iAmGivenMyPointTotal() throws IOException {
@@ -174,11 +246,13 @@ public class AchievementTrackerTestSteps {
 
     }
 
+
     @When("I try to view another user's points value")
     public void iTryToViewAnotherUserSPointsValue() {
         String userToView = Long.toString(OTHER_USER_ID);
         getPointsRequest(userToView);
     }
+
 
     @Then("I am given their total number of points")
     public void iAmGivenTheirTotalNumberOfPoints() throws IOException {
@@ -191,12 +265,14 @@ public class AchievementTrackerTestSteps {
         Assert.assertTrue("Points value is negative", currentPoints >= 0);
     }
 
+
     @When("I incorrectly guess the answer to a quest riddle")
     public void iIncorrectlyGuessTheAnswerToAQuestRiddle() throws IOException {
         sendRiddleGuessRequest(TO_GUESS_RIDDLE_ID, INCORRECT_DESTINATION_GUESS);
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         Assert.assertEquals(UNSUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
     }
+
 
     @When("I check into a destination")
     public void iCheckIntoADestination() {
@@ -206,15 +282,6 @@ public class AchievementTrackerTestSteps {
 
     }
 
-    private void sendCheckInRequest(long attemptId) {
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .uri(QUEST_URI + QUEST_ATTEMPT_URI + attemptId + CHECK_IN_URI)
-                .session(AUTHORIZED, testContext.getLoggedInId());
-        Result result = route(testContext.getApplication(), request);
-        testContext.setStatusCode(result.status());
-        testContext.setResponseBody(Helpers.contentAsString(result));
-    }
 
     @Then("I have not gained points")
     public void iHaveNotGainedPoints() throws IOException {
@@ -224,6 +291,20 @@ public class AchievementTrackerTestSteps {
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         currentPoints = responseBody.get("userPoints").asInt();
         Assert.assertEquals("Starting and end point values are not equal", currentPoints, startingPoints);
+    }
+
+
+    @Then("^I gain the \"(.*)\" badge with level (\\d+)$")
+    public void iGainTheBadgeWithLevel(String obtainedBadge, int badgeLevel) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @Then("I have completed the quest")
+    public void iHaveCompletedTheQuest() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
     }
 
 }

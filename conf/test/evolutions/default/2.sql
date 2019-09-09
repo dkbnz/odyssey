@@ -346,7 +346,10 @@ INSERT INTO `profile` (`id`, `username`, `password`, `first_name`, `middle_name`
 (3, 'testuser1@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserOne', 'Other', '1973-02-18', '2019-01-05 15:31:19.579000', 0, NULL),
 (4, 'testuser2@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserTwo', 'Other', '1982-05-12', '2019-02-04 15:31:19.579000', 0, NULL),
 (5, 'testuser3@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserThree', 'Other', '1971-01-23', '2019-03-03 15:31:19.579000', 0, NULL),
-(6, 'testuser4@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', 0, NULL);
+(6, 'testuser4@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', 0, NULL),
+(7, 'testuser5@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', 0, NULL),
+(8, 'testuser6@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', 0, NULL),
+(9, 'testuser7@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', 0, NULL);
 
 INSERT INTO `achievement_tracker` (`id`, `points`, `owner_id`) VALUES
 (1, 0, 1),
@@ -354,9 +357,10 @@ INSERT INTO `achievement_tracker` (`id`, `points`, `owner_id`) VALUES
 (3, 0, 3),
 (4, 0, 4),
 (5, 0, 5),
-(6, 0, 6);
-
-
+(6, 0, 6),
+(7, 99, 7),
+(8, 999, 8),
+(9, 9999, 9);
 
 INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `longitude`, `country`, `is_public`, `owner_id`) VALUES
 (119, 'Angus Flat', 31, 'Canterbury', -43.65598, 170.48378, 'New Zealand', true, 5),
@@ -572,6 +576,8 @@ INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `sol
 (3, 2, 3, 1, 1, 0),
 (4, 2, 4, 0, 1, 0),
 (5, 3, 5, 0, 2, 1),
-(6, 4, 2, 0, 2, 1);
+(6, 4, 2, 0, 2, 1),
+(7, 2, 6, 0, 1, 0);
+
 
 # --- !Downs
