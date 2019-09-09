@@ -11,8 +11,12 @@
         name: "footerMain",
 
         methods: {
+            /**
+             * Navigates to the credits pages, and scrolls to the top of the page.
+             */
             goToCredits() {
-                this.$router.push('/credits')
+                this.$router.push('/credits');
+                window.scrollTo(0, 0);
             }
         }
     }

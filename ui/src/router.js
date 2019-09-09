@@ -10,6 +10,7 @@ import Credits from './components/helperComponents/creditsPage'
 
 import VueRouter from 'vue-router';
 
+
 const routes = [
     {
         path:"/",
@@ -83,6 +84,10 @@ const routes = [
             title: "Credits - TravelEA"
         }
     },
+    {
+        path: '*',
+        redirect: '/dash'
+    }
 ];
 
 const router = new VueRouter({
@@ -94,6 +99,5 @@ const defaultTitle = 'TravelEA';
 router.afterEach((to, from) => {
     document.title = to.meta.title || defaultTitle;
 });
-
 export default router;
 
