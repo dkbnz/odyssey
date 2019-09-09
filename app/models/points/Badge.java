@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Entity
 public class Badge extends BaseModel {
 
-    public static final ImmutableList<String> LEVELS = ImmutableList.of("bronze", "silver", "gold");
+    public static final ImmutableList<String> LEVELS = ImmutableList.of("bronze", "silver", "gold", "maxed");
 
     @Column(unique = true, nullable = false, name = "name")    // Declares that the name needs to be unique through the database.
     @Enumerated(EnumType.STRING)
