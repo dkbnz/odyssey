@@ -10,7 +10,7 @@
 </template>
 
 <script>
-    import assets from './assets'
+    import assets from './assets/assets'
 
     export default {
         computed: {

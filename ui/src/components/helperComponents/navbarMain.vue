@@ -47,7 +47,7 @@
 </template>
 
 <script>
-    import Assets from '../../assets/index'
+    import Assets from '../../assets/assets'
 
     export default {
         name: "navbarMain",
