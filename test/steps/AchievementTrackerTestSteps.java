@@ -2,6 +2,7 @@ package steps;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cucumber.api.java.bs.A;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -39,6 +40,18 @@ public class AchievementTrackerTestSteps {
      * The quest URI endpoint.
      */
     private static final String QUEST_URI = "/v1/quests";
+
+
+    /**
+     * The destination endpoint uri.
+     */
+    private static final String DESTINATION_URI = "/v1/destinations";
+
+
+    /**
+     * The trip endpoint uri.
+     */
+    private static final String TRIP_URI = "/v1/trips";
 
 
     /**
@@ -83,6 +96,12 @@ public class AchievementTrackerTestSteps {
     private static final long REG_USER_ID = 2L;
     private static final long OTHER_USER_ID = 3L;
     private static final long GLOBAL_ADMIN_ID = 1L;
+
+
+    private static final int EMPTY_LIST_RESPONSE_SIZE = 2;
+    private static final String DESTINATIONS = "destinations";
+    private static final String TRIPS = "trips";
+    private static final String QUESTS = "quests";
 
 
 
@@ -145,24 +164,30 @@ public class AchievementTrackerTestSteps {
     }
 
 
-    @Given("I currently have no destinations created")
-    public void iCurrentlyHaveNoDestinationsCreated() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
-    }
+    @Given("I currently have no \"(.*)\" created$")
+    public void iCurrentlyHaveNoTripsCreated(String endPoint) {
+        String uri = "";
+        switch(endPoint) {
+            case DESTINATIONS:
+                uri = DESTINATION_URI;
+                break;
+            case TRIPS:
+                uri = TRIP_URI;
+                break;
+            case QUESTS:
+                uri = QUEST_URI;
+                break;
+        }
 
-
-    @Given("I currently have no trips created")
-    public void iCurrentlyHaveNoTripsCreated() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
-    }
-
-
-    @Given("I currently have no quests created")
-    public void iCurrentlyHaveNoQuestsCreated() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(uri + "/" + testContext.getLoggedInId())
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+        Assert.assertEquals(OK, testContext.getStatusCode());
+        Assert.assertEquals(EMPTY_LIST_RESPONSE_SIZE, testContext.getResponseBody().length());
     }
 
 
