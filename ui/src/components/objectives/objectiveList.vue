@@ -8,7 +8,7 @@
                     @dismissed="dismissCountDown=0"
                     dismissible
                     variant="success">
-                <p>{{alertText}}</p>
+                <p>{{alertMessage}}</p>
                 <b-progress
                         :max="dismissSeconds"
                         :value="dismissCountDown"
@@ -16,6 +16,7 @@
                         variant="success"
                 ></b-progress>
             </b-alert>
+            <b-alert v-model="showError">{{alertMessage}}</b-alert>
             <b-list-group-item href="#" class="flex-column justify-content-center"
                                v-if="creatingObjective" draggable="false">
                 <!-- Adding objective component -->
@@ -154,7 +155,7 @@
                 objectiveId: null,
                 dismissSeconds: 3,
                 dismissCountDown: 0,
-                alertText: "",
+                alertMessage: "",
                 copiedObjective: null,
                 deleteAlertError: false,
                 deleteAlertMessage: ""
@@ -201,19 +202,18 @@
                 fetch(`/v1/objectives/` + this.objectiveId, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.getMore();
-                        self.$refs['deleteObjectiveModal'].hide();
-                        self.alertText = "Objective Successfully Deleted";
-                        self.showAlert();
-                    }
-                    else {
-                        // Converts response to text, this is then displayed on the frontend.
-                        response.text().then(data => {
-                            self.deleteAlertMessage = data;
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.getMore();
+                            self.$refs['deleteObjectiveModal'].hide();
+                            self.alertText = "Objective Successfully Deleted";
+                            self.showAlert();
+                        } else {
+                            // Converts response to text, this is then displayed on the frontend.
+                            self.deleteAlertMessage = self.getErrorMessage(responseBody);
                             self.deleteAlertError = true;
-                        });
-                    }
+                        }
+                    });
                 });
             },
 
@@ -225,15 +225,21 @@
              */
             queryObjectives() {
                 this.loadingResults = true;
+                let self = this;
                 return fetch(`/v1/objectives`, {
                     accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.foundObjectives = data;
-                        this.loadingResults = false;
-                    });
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.foundObjectives = responseBody;
+                            self.loadingResults = false;
+                            self.displayConfirmation();
+                        } else {
+                            self.alertMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    })
+                });
             },
 
 
@@ -244,13 +250,20 @@
              */
             queryYourObjectives() {
                 this.loadingResults = true;
+                let self = this;
                 if (this.profile.id !== undefined) {
                     return fetch(`/v1/objectives/` + this.profile.id, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.foundObjectives = data;
-                            this.loadingResults = false;
-                        })
+                        .then(function (response) {
+                            response.json().then(responseBody => {
+                                if (response.ok) {
+                                    self.foundObjectives = data;
+                                    self.loadingResults = false;
+                                } else {
+                                    self.alertMessage = self.getErrorMessage(responseBody);
+                                    self.showError = true;
+                                }
+                            });
+                        });
                 }
 
             },
