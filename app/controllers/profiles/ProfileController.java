@@ -63,7 +63,6 @@ public class ProfileController {
     private static final String MIN_POINTS = "min_points";
     private static final String MAX_POINTS = "max_points";
     private static final String RANK = "rank";
-    private static final String ACHIEVEMENT_RANK = "achievementTracker.rank";
     private static final String AUTHORIZED = "authorized";
     private static final String DUPLICATE_PROFILE = "Duplicate profile found.";
     private static final String HASH_FAIL = "Unable to hash the user password";
@@ -511,7 +510,7 @@ public class ProfileController {
                         try {
                             profileToUpdate.setPassword(AuthenticationUtil.hashProfilePassword(json.get(PASS_FIELD).asText()));
                         } catch (NoSuchAlgorithmException e) {
-                            log.error("Unable to hash the user password", e);
+                            log.error(HASH_FAIL, e);
                             return internalServerError(ApiError.badRequest(HASH_FAIL));
                         }
                     }
