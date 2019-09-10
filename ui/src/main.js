@@ -41,6 +41,22 @@ Vue.mixin({
                 });
             }
 
+        },
+
+
+        /**
+         * Iterates through the response body and retrieves the error messages for each error.
+         * This can be called from anywhere, and returns a string with a newline character separating each message.
+         *
+         * @param responseBody  the Json response body containing the list of errors.
+         * @returns {string}    the error message string with each error message separated by a new line character.
+         */
+        getErrorMessage(responseBody) {
+            let errorString = "";
+            for (let errorMessage = 0; errorMessage < responseBody.length; errorMessage++) {
+                errorString += responseBody[errorMessage].message + "\n";
+            }
+            return errorString;
         }
     }
 });

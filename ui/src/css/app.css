@@ -171,3 +171,7 @@ a {
 .card-body {
     padding: 10px;
 }
+
+.errorMessage {
+    white-space:pre-wrap;
+}

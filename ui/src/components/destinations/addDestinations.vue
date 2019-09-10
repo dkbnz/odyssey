@@ -1,7 +1,7 @@
 <template>
     <div>
         <h4 class="page-title">{{heading}} a Destination</h4>
-        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger"><p class="errorMessage">{{errorMessage}}</p></b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act
         as a buffer for destination being added-->
@@ -341,14 +341,20 @@
              * Sets the countries list to the list of countries from the country api
              */
             getCountries() {
+                let self = this;
                 return fetch("https://restcountries.eu/rest/v2/all", {
                     dataType: 'html'
                 })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.countryList = data;
-                    })
+                    .then(function (response) {
+                        response.json().then(responseBody => {
+                            if (response.ok) {
+                                self.countryList = responseBody;
+                            } else {
+                                self.errorMessage = self.getErrorMessage(responseBody);
+                                self.showError = true;
+                            }
+                        })
+                    });
             },
 
 
@@ -424,16 +430,19 @@
                         "is_public": this.inputDestination.public
                     }))
                 })
-                    .then(response => {
-                        self.checkStatus(response);
-                        return self.parseJSON(response);
-                    })
-                    .then(responseBody => {
-                        self.resetDestForm();
-                        self.showAlert();
-                        self.$emit('data-changed');
-                        self.createPointToast(responseBody.pointsRewarded, "Destination Created");
-                        return responseBody;
+                    .then(function (response) {
+                        response.json().then(responseBody => {
+                            if (response.ok) {
+                                self.resetDestForm();
+                                self.showAlert();
+                                self.$emit('data-changed');
+                                self.createPointToast(responseBody.pointsRewarded, "Destination Created");
+                                return responseBody;
+                            } else {
+                                self.errorMessage = self.getErrorMessage(responseBody);
+                                self.showError = true;
+                            }
+                        })
                     });
             },
 
@@ -441,19 +450,23 @@
             /**
              * Checks whether the destination being edited is present in any other parts of the application.
              * This is to display a confirmation message to the user.
-             *
              */
             validateEdit() {
                 let self = this;
                 fetch(`/v1/destinations/` + this.inputDestination.id + `/checkDuplicates`, {
                     accept: "application/json"
                 })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
                     .then(function (response) {
-                        self.getMatchingEditedDestination();
-                        self.displayConfirmation();
+                        response.json().then(responseBody => {
+                            if (response.ok) {
+                                self.destinationConflicts = responseBody;
+                                self.getMatchingEditedDestination();
+                                self.displayConfirmation();
+                            } else {
+                                self.errorMessage = self.getErrorMessage(responseBody);
+                                self.showError = true;
+                            }
+                        })
                     });
             },
 
@@ -466,8 +479,13 @@
                     body: (JSON.stringify(this.inputDestination))
                 })
                     .then(function (response) {
-                        response.json().then(data => {
-                            self.editDestinationConflicts = data;
+                        response.json().then(responseBody => {
+                            if (response.ok) {
+                                self.editDestinationConflicts = responseBody;
+                            } else {
+                                self.errorMessage = self.getErrorMessage(responseBody);
+                                self.showError = true;
+                            }
                         })
                     })
             },
@@ -493,25 +511,23 @@
                     headers: {'content-type': 'application/json'},
                     body: jsonBody
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.showAlert();
-                        self.dismissModal('confirmEditModal');
-                        response.json().then(data => {
-                            self.$emit('destination-saved', data);
-                        });
-                    } else {
-                        self.errorMessage = "";
-                        self.showError = true;
-                        response.clone().text().then(text => {
-                            self.errorMessage = text;
-                        });
-                    }
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.showAlert();
+                            self.dismissModal('confirmEditModal');
+                            self.$emit('destination-saved', responseBody);
+                        } else {
+                            self.errorMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    })
                 });
             },
 
 
             /**
              * Displays a toast saying they've gained a certain amount of points.
+             *
              * @param points the points to display.
              * @param title the title of the toast, indicating the context of the point gain.
              */
@@ -559,41 +575,6 @@
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
-            },
-
-
-            /**
-             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
-             * console.
-             *
-             * @param response, passed back to the getAllTrips function to be parsed into a Json.
-             * @returns throws the error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-
-                this.errorMessage = "";
-                response.clone().text().then(text => {
-                    this.errorMessage = text;
-                    this.showError = true;
-                });
-                throw error;
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response the Http response.
-             * @returns the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
             },
 
 
