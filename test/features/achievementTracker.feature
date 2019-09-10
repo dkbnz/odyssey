@@ -64,7 +64,7 @@ Feature: Achievement Tracker API Endpoint
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
     Then I have gained points
 
-#TODO: Isaac - Waiting on backend.
+#TODO: Everyone - Waiting on backend.
 #  Scenario: Creating my first destination and getting a badge
 #    Given the application is running
 #    And I am logged in as user with id "7"
@@ -75,58 +75,58 @@ Feature: Achievement Tracker API Endpoint
 #    Then the status code received is 201
 #    And I gain the "Cartographer" badge with level 1
 #
-#    Scenario: Creating my first trip and getting a badge
-#    Given the application is running
-#    And I am logged in as user with id "7"
-#    And my current progress towards the "Planner" badge is 0
-#    When I create a new trip with the following values
-#      | Name       |
-#      | First Trip |
-#    And the trip has a destination with the following values
-#      | Destination | Start Date | End Date |
-#      | 1155        |            |          |
-#    And the trip has a destination with the following values
-#      | Destination | Start Date | End Date |
-#      | 567         |            |          |
-#    And I create the trip
-#    Then the status code received is 201
-#    And I gain the "Planner" badge with level 1
-#
-#
-#  Scenario: Creating my tenth trip and getting a silver level badge
-#    Given the application is running
-#    And I am logged in as user with id "8"
-#    And my current progress towards the "Planner" badge is 9
-#    When I create a new trip with the following values
-#      | Name       |
-#      | First Trip |
-#    And the trip has a destination with the following values
-#      | Destination | Start Date | End Date |
-#      | 1155        |            |          |
-#    And the trip has a destination with the following values
-#      | Destination | Start Date | End Date |
-#      | 567         |            |          |
-#    And I create the trip
-#    Then the status code received is 201
-#    And I gain the "Planner" badge with level 2
-#
-#
-#  Scenario: Creating my twenty-ninth trip and getting a gold level badge
-#    Given the application is running
-#    And I am logged in as user with id "9"
-#    And my current progress towards the "Planner" badge is 29
-#    When I create a new trip with the following values
-#      | Name       |
-#      | First Trip |
-#    And the trip has a destination with the following values
-#      | Destination | Start Date | End Date |
-#      | 1155        |            |          |
-#    And the trip has a destination with the following values
-#      | Destination | Start Date | End Date |
-#      | 567         |            |          |
-#    And I create the trip
-#    Then the status code received is 201
-#    And I gain the "Planner" badge with level 3
+    Scenario: Creating my first trip and getting a badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And my current progress towards the "Planner" badge is 0
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    Then the status code received is 201
+    And I gain the "Planner" badge with level 1
+
+
+  Scenario: Creating my tenth trip and getting a silver level badge
+    Given the application is running
+    And I am logged in as user with id "8"
+    And my current progress towards the "Planner" badge is 9
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    Then the status code received is 201
+    And I gain the "Planner" badge with level 2
+
+
+  Scenario: Creating my twenty-ninth trip and getting a gold level badge
+    Given the application is running
+    And I am logged in as user with id "9"
+    And my current progress towards the "Planner" badge is 29
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    Then the status code received is 201
+    And I gain the "Planner" badge with level 3
 #
 #
 #  Scenario: Creating my first quest and getting a badge

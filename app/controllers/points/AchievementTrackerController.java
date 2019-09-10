@@ -14,6 +14,7 @@ import models.util.ApiError;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import repositories.points.BadgeRepository;
 import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
@@ -23,16 +24,34 @@ public class AchievementTrackerController extends Controller {
 
     private ProfileRepository profileRepository;
     private PointRewardRepository pointRewardRepository;
+    private BadgeRepository badgeRepository;
     private ObjectMapper objectMapper;
 
 
     @Inject
     public AchievementTrackerController(ProfileRepository profileRepository,
                                         PointRewardRepository pointRewardRepository,
+                                        BadgeRepository badgeRepository,
                                         ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
         this.pointRewardRepository = pointRewardRepository;
+        this.badgeRepository = badgeRepository;
         this.objectMapper = objectMapper;
+    }
+
+    /**
+     * Adds badge progress to the user's AchievementTracker when they progress with the badge progress.
+     *
+     * @param actingProfile         the profile receiving progress.
+     * @param action                the action that was carried out.
+     * @return                      the progress added to the profile for the specified badge.
+     */
+    public int rewardAction(Profile actingProfile, Action action) {
+        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
+        achievementTracker.addBadgeProgress(badgeRepository.findUsing(action), 1);
+        profileRepository.update(actingProfile);
+        //TODO: Joel and Isaac, using badgeRepository.findUsing(action).getProgress() returns null.
+        return 0;
     }
 
 

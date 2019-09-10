@@ -2,6 +2,8 @@ package controllers.trips;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import controllers.points.AchievementTrackerController;
+import models.points.Action;
 import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
@@ -37,15 +39,18 @@ public class TripController extends Controller {
     private TripRepository tripRepository;
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
+    private AchievementTrackerController achievementTrackerController;
 
 
     @Inject
     public TripController(TripRepository tripRepository,
                           ProfileRepository profileRepository,
-                          DestinationRepository destinationRepository) {
+                          DestinationRepository destinationRepository,
+                          AchievementTrackerController achievementTrackerController) {
         this.tripRepository = tripRepository;
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
+        this.achievementTrackerController = achievementTrackerController;
     }
 
 
@@ -103,6 +108,7 @@ public class TripController extends Controller {
                             determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
                         }
                         tripRepository.save(trip);
+                        achievementTrackerController.rewardAction(affectedProfile, Action.TRIP_CREATED);
                         return created(Json.toJson(trip.getId()));
                     } else {
                         return badRequest();
