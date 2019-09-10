@@ -26,6 +26,11 @@ public class AchievementTracker extends BaseModel {
     private Set<BadgeProgress> badgeProgressSet;
 
 
+    @JsonIgnore
+    @Transient
+    private Badge recentlyAchieved;
+
+
     /**
      * The user, who the has earned set of achievements listed.
      */
@@ -51,8 +56,9 @@ public class AchievementTracker extends BaseModel {
      *
      * @param pointsToAdd the points to be added to the tracker's total score.
      */
-    public void addPoints(int pointsToAdd) {
+    public int addPoints(int pointsToAdd) {
         this.points += pointsToAdd;
+        return pointsToAdd;
     }
 
 
@@ -87,10 +93,22 @@ public class AchievementTracker extends BaseModel {
             badgeProgressSet.add(badgeToProgress);
         }
 
+        // Check level
+        int currentLevel = badgeToProgress.getBadge().getLevel();
+
         // Increment the progress by the specified amount.
         badgeToProgress.addProgress(progress);
+
+        // If level increment, add to recently achieved
+        if (badgeToProgress.getBadge().getLevel() != currentLevel) {
+            recentlyAchieved = badgeToProgress.getBadge();
+        }
+
     }
 
+    public Badge getRecentlyAchieved() {
+        return recentlyAchieved;
+    }
 
     /**
      * Get all of the badges held by the set of badgeprogress bridging model.
