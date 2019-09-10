@@ -7,7 +7,9 @@ import cucumber.api.java.bs.A;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import models.points.Badge;
 import org.junit.Assert;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -16,9 +18,11 @@ import scala.Int;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static play.test.Helpers.*;
 
@@ -40,6 +44,12 @@ public class AchievementTrackerTestSteps {
      * The achievement tracker URI endpoint.
      */
     private static final String ACHIEVEMENT_TRACKER_URI = "/v1/achievementTracker/";
+
+
+    /**
+     * The profiles uri.
+     */
+    private static final String PROFILES_URI = "/v1/profiles";
 
 
     /**
@@ -131,6 +141,9 @@ public class AchievementTrackerTestSteps {
     private static final String DESTINATION_STRING = "Destination";
     private static final String START_DATE_STRING = "Start Date";
     private static final String END_DATE_STRING = "End Date";
+
+    private static final String ACHIEVEMENT_TRACKER = "achievementTracker";
+    private static final String BADGE = "badge";
 
     private ObjectNode tripJson;
     private List<ObjectNode> tripDestinations = new ArrayList<>();
@@ -258,6 +271,28 @@ public class AchievementTrackerTestSteps {
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
+    private Badge getBadgeForLoggedInUser() {
+        System.out.println(testContext.getLoggedInId());
+        System.out.println(testContext.getTargetId());
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, testContext.getTargetId())
+                .uri(PROFILES_URI);
+        Result result = route(testContext.getApplication(), request);
+
+        System.out.println(Helpers.contentAsString(result));
+
+        Iterator<JsonNode> iterator = generalTestSteps.getTheResponseIterator(Helpers.contentAsString(result));
+
+        // Finds badge from the iterator
+        Badge badge = new Badge();
+        while (iterator.hasNext()) {
+            JsonNode jsonProfile = iterator.next();
+            badge = Json.fromJson(jsonProfile.get(ACHIEVEMENT_TRACKER).get(BADGE), Badge.class);
+        }
+        return badge;
+    }
+
 
     @Given("I have some starting points")
     public void iHaveSomeStartingPoints() throws IOException {
@@ -299,6 +334,14 @@ public class AchievementTrackerTestSteps {
     public void theUserHasPoints(int userPoints) {
         // Write code here that turns the phrase above into concrete actions
         throw new cucumber.api.PendingException();
+    }
+
+
+    @Given("^my current progress towards the \"(.*)\" badge is (\\d+)$")
+    public void myCurrentProgressTowardsTheBadgeIs(String badgeName, Integer progress) {
+        Badge badge = getBadgeForLoggedInUser(badgeName);
+        Assert.assertEquals(badge.getProgress(), progress);
+        System.out.println(Json.toJson(badge));
     }
 
 

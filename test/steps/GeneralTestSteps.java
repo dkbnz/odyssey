@@ -18,9 +18,11 @@ import repositories.profiles.ProfileRepository;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import static play.test.Helpers.*;
 
 public class GeneralTestSteps {
@@ -92,6 +94,7 @@ public class GeneralTestSteps {
      * Repository to access the profiles in the running application.
      */
     private ProfileRepository profileRepository;
+    ObjectMapper objectMapper = new ObjectMapper();
 
 
     @Before
@@ -232,6 +235,23 @@ public class GeneralTestSteps {
     }
 
 
+    /**
+     * Gets the response as an iterator array Node from any fake request so that you can iterate over the response data.
+     *
+     * @param content   the string of the result using helper content as string.
+     * @return          an Array node iterator.
+     */
+    public Iterator<JsonNode> getTheResponseIterator(String content) {
+        JsonNode arrNode = null;
+        try {
+            arrNode = objectMapper.readTree(content);
+        } catch (IOException e) {
+            fail("unable to get response iterator");
+        }
+        return arrNode.elements();
+    }
+
+
     @Given("the application is running")
     public void theApplicationIsRunning() {
         Assert.assertTrue(testContext.getApplication().isTest());
@@ -283,8 +303,8 @@ public class GeneralTestSteps {
     @Given("^I am logged in as user with id \"(.*)\"$")
     public void iAmLoggedInAsUserWithId(String userId) {
         // Write code here that turns the phrase above into concrete actions
-        assertEquals(OK, testContext.getStatusCode());
         testContext.setLoggedInId(userId);
+        testContext.setTargetId(userId);
     }
 
 
