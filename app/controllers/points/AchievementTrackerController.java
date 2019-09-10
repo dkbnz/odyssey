@@ -171,17 +171,22 @@ public class AchievementTrackerController extends Controller {
      * @param completed         a boolean indicating if the action was completing the quest.
      * @return                  the points rewarded to the user.
      */
-    public int rewardAction(Profile actingProfile, Quest questWorkedOn, boolean completed) {
+    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, boolean completed) {
         AchievementTracker achievementTracker = actingProfile.getAchievementTracker();
-        PointReward reward;
+        PointReward points;
+        Collection<Badge> badgesAchieved = new ArrayList<>();
         if (completed) {
-            reward = pointRewardRepository.findUsing(Action.QUEST_COMPLETED);
+            points = pointRewardRepository.findUsing(Action.QUEST_COMPLETED);
+            badgesAchieved.add(giveBadge(actingProfile, Action.QUEST_COMPLETED, 1));
         } else {
-            reward = pointRewardRepository.findUsing(Action.QUEST_CREATED);
+            points = pointRewardRepository.findUsing(Action.QUEST_CREATED);
+            badgesAchieved.add(giveBadge(actingProfile, Action.QUEST_CREATED, 1));
         }
-        achievementTracker.addPoints(reward.getValue());
+        achievementTracker.addPoints(points.getValue());
+
         profileRepository.update(actingProfile);
-        return reward.getValue();
+
+        return constructRewardJson(badgesAchieved, points.getValue());
     }
 
 

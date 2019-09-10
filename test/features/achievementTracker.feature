@@ -128,26 +128,68 @@ Feature: Achievement Tracker API Endpoint
     Then the status code received is 201
     And I gain the "Planner" badge with level 3
 #
-#
-#  Scenario: Creating my first quest and getting a badge
-#    Given the application is running
-#    And I am logged in as user with id "7"
-#    And I currently have no "quests" created
-#    When I start to create a quest using the following values
-#      | Title       | Start Date | End Date  |
-#      | Cool Quest  |            |           |
-#    And the quest has the following objective
-#      | Destination | Riddle                                 | Radius |
-#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-#    And the quest has the following objective
-#      | Destination | Riddle                                 | Radius |
-#      | 119         | What rhymes some stuff?                | 0.005  |
-#    And the quest has the following objective
-#      | Destination | Riddle                                 | Radius |
-#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-#    And I create the quest
-#    Then the status code received is 201
-#    And I gain the "Writer" badge with level 1
+
+  Scenario: Creating my first quest and getting a badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And I currently have no "quests" created
+    When I start to create a quest using the following values
+      | Title       | Start Date | End Date  |
+      | Cool Quest  |            |           |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    Then the status code received is 201
+    And I gain the "Writer" badge with level 1
+
+
+  Scenario: Creating enough quests to achieve second level Writer
+    Given the application is running
+    And I am logged in as user with id "8"
+    And I currently have no "quests" created
+    When I start to create a quest using the following values
+      | Title       | Start Date | End Date  |
+      | Cool Quest  |            |           |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    Then the status code received is 201
+    And I gain the "Writer" badge with level 2
+
+
+  Scenario: Creating enough quests to achieve third level Writer
+    Given the application is running
+    And I am logged in as user with id "9"
+    And I currently have no "quests" created
+    When I start to create a quest using the following values
+      | Title       | Start Date | End Date  |
+      | Cool Quest  |            |           |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    Then the status code received is 201
+    And I gain the "Writer" badge with level 3
 #
 #
 #  Scenario: Solving my first quest and getting a badge
