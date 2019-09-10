@@ -1,5 +1,6 @@
 <template>
     <div>
+        <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
         <h3>Public Destination Photos</h3>
         <photo-table
                 :photos="publicPhotos"
@@ -43,7 +44,9 @@
         data: function () {
             return {
                 publicPhotos: [],
-                personalPhotos: []
+                personalPhotos: [],
+                showError: false,
+                errorMessage: ""
             }
         },
 
@@ -94,12 +97,15 @@
                     method: 'PATCH',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
-                }).then(response => {
-                    if (response.status === 200) {
-                        response.clone().json().then(text => {
-                            self.profile.photoGallery = text;
-                        });
-                    }
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.profile.photoGallery = responseBody;
+                        } else {
+                            self.errorMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    });
                 });
 
                 let index = this.indexOfById(this.destination.photoGallery, photo);
@@ -162,11 +168,14 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
-                }).then(response => {
-                    if (response.status !== 201) {
-                        self.showError = true;
-                        self.alertMessage = "An error occurred when adding a destination photo";
-                    }
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.status !== 201) {
+                            self.errorMessage = "An error occurred when adding a destination photo";
+                            self.errorMessage += '\n' + self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    });
                 });
             },
 
@@ -182,11 +191,14 @@
                     method: 'DELETE',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
-                }).then(response => {
-                    if (response.status !== 200) {
-                        self.showError = true;
-                        self.alertMessage = "An error occurred when deleting a destination photo";
-                    }
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.status !== 200) {
+                            self.errorMessage = "An error occurred when deleting a destination photo";
+                            self.errorMessage += '\n' + self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    });
                 });
             },
 
@@ -200,6 +212,12 @@
                 this.$refs[modal].hide();
             },
 
+
+            /**
+             * Displays the specified modal.
+             *
+             * @param modal     the modal that is wanting to be displayed.
+             */
             showModal(modal) {
                 this.$refs[modal].show();
             },

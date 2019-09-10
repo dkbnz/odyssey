@@ -259,17 +259,22 @@
                 fetch(`/v1/photos/user/` + self.profile.id, {
                     accept: "application/json",
                     method: "GET"
-                })
-                    .then(response => response.json())
-                    .then(photos => {
-                        for (let i in photos) {
-                            if (this.authentication || photos[i].public || self.adminView) {
-                                self.photos.push(photos[i]);
-                                self.reloadPhotoTable += 1;
+                }).then(function (response) {
+                    response.json().then(photos => {
+                        if (response.ok) {
+                            for (let i in photos) {
+                                if (this.authentication || photos[i].public || self.adminView) {
+                                    self.photos.push(photos[i]);
+                                    self.reloadPhotoTable += 1;
+                                }
                             }
+                            self.retrievingPhotos = false;
+                        } else {
+                            self.alertMessage = self.getErrorMessage(photos);
+                            self.showError = true;
                         }
-                        self.retrievingPhotos = false;
-                    })
+                    });
+                });
             },
 
 
@@ -309,12 +314,15 @@
                     method: 'PATCH',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
-                }).then(response => {
-                    if (response.status === 200) {
-                        response.clone().json().then(text => {
-                            self.photos = text;
-                        });
-                    }
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.status === 200) {
+                            self.photos = responseBody;
+                        } else {
+                            self.alertMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    });
                 });
             },
 
@@ -350,7 +358,6 @@
                     this.errorMessage = "Invalid image size/type"
                 }
                 return response.json();
-
             },
 
 
