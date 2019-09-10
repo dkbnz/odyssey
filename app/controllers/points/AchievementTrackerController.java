@@ -48,11 +48,12 @@ public class AchievementTrackerController extends Controller {
     }
 
     /**
-     * For points
+     * Adds points to the given profile, depending on the action.
+     * Progresses the Overachiever badge
      *
-     * @param actingProfile
-     * @param action
-     * @return
+     * @param actingProfile     the profile receiving points
+     * @param action            the action being taken
+     * @return                  the number of points added, or null if none are added
      */
     private Integer givePoints(Profile actingProfile, Action action) {
 
@@ -65,6 +66,8 @@ public class AchievementTrackerController extends Controller {
 
         if (reward != null) {
             int value = reward.getValue();
+
+            // Progress the Overachiever badge
             giveBadge(actingProfile, Action.POINTS_GAINED, value);
             return achievementTracker.addPoints(value);
         }
