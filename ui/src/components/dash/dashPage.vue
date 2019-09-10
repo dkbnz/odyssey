@@ -60,7 +60,7 @@
         },
 
         mounted() {
-            this.getProfile(profile => this.profile = profile);
+            this.getProfile();
         },
 
         methods: {
@@ -90,12 +90,13 @@
              * Retrieves the current profile in case any changes have been made.
              */
             getProfile() {
+                let self = this;
                 return fetch(`/v1/profile`, {
                     accept: "application/json"
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
-                            return responseBody;
+                            self.profile = responseBody;
                         }
                     });
                 });

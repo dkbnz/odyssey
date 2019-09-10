@@ -1,7 +1,7 @@
 <template>
     <div>
         <h4 class="page-title">Search Quests</h4>
-        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger"><p class="errorMessage">{{errorMessage}}</p></b-alert>
         <div>
             <!--Input fields for searching for quests-->
             <b-form-group

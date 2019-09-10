@@ -22,7 +22,7 @@
         <b-button v-if="authentication" class="btn btn-info" block v-b-modal.modalAddPhoto>Add Photo</b-button>
         <b-modal ref="uploaderModal" id="modalAddPhoto" hide-footer centered title="Add Photo">
             <template slot="modal-title"><h2>Add Photo</h2></template>
-            <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+            <b-alert dismissible v-model="showError" variant="danger"><p class="errorMessage">{{errorMessage}}</p></b-alert>
             <photoUploader v-on:dismiss-error="showError = false"
                            v-on:save-photos="sendPhotosToBackend"
                            :acceptTypes="'image/jpeg, image/jpg, image/png'">
@@ -103,6 +103,12 @@
                 }
             },
             adminView: Boolean
+        },
+
+        watch: {
+            profile() {
+                this.getPhotosList();
+            }
         },
 
         data: function () {
@@ -263,14 +269,15 @@
                     response.json().then(photos => {
                         if (response.ok) {
                             for (let i in photos) {
-                                if (this.authentication || photos[i].public || self.adminView) {
+                                if (self.authentication || photos[i].public || self.adminView) {
                                     self.photos.push(photos[i]);
                                     self.reloadPhotoTable += 1;
                                 }
                             }
+                            self.showError = false;
                             self.retrievingPhotos = false;
                         } else {
-                            self.alertMessage = self.getErrorMessage(photos);
+                            self.errorMessage = self.getErrorMessage(photos);
                             self.showError = true;
                         }
                     });
@@ -317,9 +324,10 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.status === 200) {
+                            self.showError = false;
                             self.photos = responseBody;
                         } else {
-                            self.alertMessage = self.getErrorMessage(responseBody);
+                            self.errorMessage = self.getErrorMessage(responseBody);
                             self.showError = true;
                         }
                     });

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
+        <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{errorMessage}}</p></b-alert>
         <h3>Public Destination Photos</h3>
         <photo-table
                 :photos="publicPhotos"

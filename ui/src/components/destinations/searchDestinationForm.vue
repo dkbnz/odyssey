@@ -2,7 +2,7 @@
     <div>
         <h4 class="page-title" v-if="searchPublic">Search Public Destinations</h4>
         <h4 class="page-title" v-else>Search Your Destinations</h4>
-        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger"><p class="errorMessage">{{errorMessage}}</p></b-alert>
         <b-form @submit.prevent="searchDestinations">
             <!--Input fields for searching for destinations-->
             <b-form-group

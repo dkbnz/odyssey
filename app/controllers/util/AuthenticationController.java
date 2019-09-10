@@ -3,6 +3,7 @@ package controllers.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import models.profiles.Profile;
+import models.util.ApiError;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -22,6 +23,10 @@ public class AuthenticationController extends Controller {
     private static final String USERNAME = "username";
     private static final String PASS_FIELD = "password";
     private static final String AUTHORIZED = "authorized";
+    private static final String LOGGED_IN = "OK, logged In";
+    private static final String ALREADY_LOGGED_IN = "OK, Already Logged In";
+    private static final String LOGGED_OUT = "OK, Logged out";
+    private static final String HASH_FAIL = "Invalid JSON: JSON Object contains no user or password key";
 
     private ProfileRepository profileRepository;
 
@@ -42,7 +47,7 @@ public class AuthenticationController extends Controller {
     public Result login(Http.Request request) {
         return request.session()
                 .getOptional(AUTHORIZED)
-                .map(userId -> ok("OK, Already logged In")) // User is already logged in, return OK
+                .map(userId -> ok(ALREADY_LOGGED_IN)) // User is already logged in, return OK
                 .orElseGet(() -> { // orElseGet tries to get the `getOptional` value, otherwise executes the following function
 
                     // User is not logged in, attempt to search database
@@ -52,7 +57,7 @@ public class AuthenticationController extends Controller {
                     if (loginJson == null || (!(loginJson.has(USERNAME) && loginJson.has(PASS_FIELD)))) {
                         // If JSON Object contains no user or pass key, return bad request
                         // Prevents null pointer exceptions when trying to get the values below.
-                        return badRequest("Bad User Credentials");
+                        return badRequest(ApiError.invalidJson());
                     }
 
                     String username = loginJson.get(USERNAME).asText();
@@ -62,7 +67,8 @@ public class AuthenticationController extends Controller {
                     try {
                         password = AuthenticationUtil.hashProfilePassword(loginJson.get(PASS_FIELD).asText());
                     } catch (NoSuchAlgorithmException e) {
-                        LOGGER.log(Level.SEVERE, "Invalid JSON: JSON Object contains no user or password key", e);
+                        LOGGER.log(Level.SEVERE, HASH_FAIL, e);
+                        return badRequest(ApiError.badRequest(HASH_FAIL));
                     }
 
                     Profile profile = profileRepository.getExpressionList()
@@ -71,10 +77,10 @@ public class AuthenticationController extends Controller {
                     if ((profile != null) && (profile.getPassword().equals(password))) {
                         // Profile was successfully fetched and password matches,
                         // Set session token as id and return ok (200 response)
-                        return ok("Logged In").addingToSession(request, AUTHORIZED, profile.id.toString());
+                        return ok(LOGGED_IN).addingToSession(request, AUTHORIZED, profile.id.toString());
                     }
 
-                    return unauthorized("Invalid user credentials provided");
+                    return unauthorized(ApiError.unauthorized());
                 });
     }
 
@@ -85,6 +91,6 @@ public class AuthenticationController extends Controller {
      * @return ok() (Http 200) result, as logout should always succeed.
      */
     public Result logout() {
-        return ok("OK, Logged out").withNewSession(); // Sets a new session, clearing the old one
+        return ok(LOGGED_OUT).withNewSession(); // Sets a new session, clearing the old one
     }
 }
