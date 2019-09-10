@@ -68,7 +68,7 @@
                 <div class="text-center my-2" slot="table-busy">
                     <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" :src="assets['loadingLogo']">
                     </b-img>
-                    <strong>Can't find any trips!</strong>
+                    <strong v-if="!retrievingTrips && !futureTrips.length">Can't find any trips!</strong>
                 </div>
                 <template slot="more_details" slot-scope="row">
                     <b-button size="sm"
@@ -187,7 +187,7 @@
                     <div slot="table-busy" class="text-center my-2">
                         <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" :src="assets['loadingLogo']">
                         </b-img>
-                        <strong>Can't find any trips!</strong>
+                        <strong v-if="!retrievingTrips && !pastTrips.length" >Can't find any trips!</strong>
                     </div>
                     <template slot="more_details" slot-scope="row">
                         <b-button size="sm"
