@@ -2,7 +2,7 @@
     <div v-if="destination.owner !== undefined">
         <b-modal id="deleteDestinationModal" ref="deleteDestinationModal" size="xl" title="Delete Destination">
             <b-alert v-model="showError" variant="danger" dismissible>
-                Could not delete destination!
+               {{alertMessage}}
             </b-alert>
             <p v-if="destinationUsage.photo_count === 1">
                 This destination contains {{destinationUsage.photo_count}} photo.
@@ -78,8 +78,8 @@
                     {{travellerTypeLinkText}}
                 </b-button>
 
-                <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
-                <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
+                <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess" dismissible>{{alertMessage}}</b-alert>
+                <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure" dismissible>{{alertMessage}}</b-alert>
 
                 <div v-if="showEditTravellerTypes" class="travellerTypeDiv">
                     <b-form-group label="Add Traveller Types:">
@@ -237,13 +237,15 @@
                 fetch(`/v1/destinations/` + this.copiedDestination.id, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.dismissModal('deleteDestinationModal');
-                        self.$emit('destination-deleted');
-                    }
-                    else {
-                        self.showError = true;
-                    }
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.dismissModal('deleteDestinationModal');
+                            self.$emit('destination-deleted');
+                        } else {
+                            self.errorMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    })
                 });
             },
 
@@ -252,11 +254,19 @@
              * Sends an Http request to check which trips a destination is used in.
              */
             getTripsUsedBy() {
+                let self = this;
                 fetch(`/v1/destinations/` + this.copiedDestination.id + `/checkDuplicates`, {
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(response => this.destinationUsage = response);
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.destinationUsage = responseBody;
+                        } else {
+                            self.errorMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    })
+                });
             },
 
 
@@ -293,8 +303,8 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.calculatedTravellerTypes)
-                })
-                    .then(function (response) {
+                }).then(function (response) {
+                    response.json().then(responseBody => {
                         if (response.ok) {
                             if (self.destination.owner.id === self.profile.id || self.profile.admin) {
                                 self.destination.travellerTypes = self.calculatedTravellerTypes;
@@ -309,7 +319,9 @@
                             }, 3000);
                             self.showEditTravellerTypes = false;
                         } else {
-                            self.alertMessage = "Cannot update traveller types";
+                            self.showTravellerTypeUpdateSuccess = false;
+                            self.showError = false;
+                            self.alertMessage = self.getErrorMessage(responseBody);
                             self.showTravellerTypeUpdateFailure = true;
                             setTimeout(function () {
                                 self.showTravellerTypeUpdateFailure = false;
@@ -317,8 +329,8 @@
                             self.showEditTravellerTypes = false;
                         }
                         self.$emit('data-changed');
-                        return JSON.parse(JSON.stringify(response));
-                    });
+                    })
+                });
             }
         }
     }
