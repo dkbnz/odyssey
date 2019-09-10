@@ -32,6 +32,12 @@ public class ProfileTestSteps {
 
 
     /**
+     * General test steps
+     */
+    private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
+
+
+    /**
      * Authorised string variable.
      */
     private static final String AUTHORIZED = "authorized";
@@ -142,23 +148,6 @@ public class ProfileTestSteps {
 
     private ProfileRepository profileRepository =
             testContext.getApplication().injector().instanceOf(ProfileRepository.class);
-
-
-    /**
-     * Gets the response as an iterator array Node from any fake request so that you can iterate over the response data.
-     *
-     * @param content   the string of the result using helper content as string.
-     * @return          an Array node iterator.
-     */
-    private Iterator<JsonNode> getTheResponseIterator(String content) {
-        JsonNode arrNode = null;
-        try {
-            arrNode = new ObjectMapper().readTree(content);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Unable to get response iterator for fake request.", e);
-        }
-        return arrNode.elements();
-    }
 
 
     /**
@@ -305,7 +294,7 @@ public class ProfileTestSteps {
         testContext.setStatusCode(result.status());
 
         // Gets the response
-        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+        Iterator<JsonNode> iterator = generalTestSteps.getTheResponseIterator(Helpers.contentAsString(result));
 
         // Finds profile from the iterator
         boolean foundProfile = false;
@@ -331,7 +320,7 @@ public class ProfileTestSteps {
         testContext.setStatusCode(result.status());
 
         // Gets the response
-        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+        Iterator<JsonNode> iterator = generalTestSteps.getTheResponseIterator(Helpers.contentAsString(result));
 
         // Finds profile from the iterator
         boolean foundProfile = false;
@@ -381,7 +370,7 @@ public class ProfileTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
 
-        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+        Iterator<JsonNode> iterator = generalTestSteps.getTheResponseIterator(Helpers.contentAsString(result));
 
         // Checks the response for admin profile and length of 2 users
         boolean passProfiles = false;
@@ -410,7 +399,7 @@ public class ProfileTestSteps {
         Result result = route(testContext.getApplication(), request);
 
         // Gets the response
-        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+        Iterator<JsonNode> iterator = generalTestSteps.getTheResponseIterator(Helpers.contentAsString(result));
 
         // Checks the response for Holidaymaker and length of 7 traveller types
         boolean passTravelTypes = false;
@@ -440,7 +429,7 @@ public class ProfileTestSteps {
         Result result = route(testContext.getApplication(), request);
 
         // Gets the response
-        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
+        Iterator<JsonNode> iterator = generalTestSteps.getTheResponseIterator(Helpers.contentAsString(result));
 
         // Checks the response for the nationality
         boolean passNationalities = false;
