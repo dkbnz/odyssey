@@ -14,7 +14,7 @@
         <div v-if="page === 1">
             <b-button @click="page = 0" block variant="primary">Search</b-button>
             <div class="d-flex justify-content-center mb-3 buttonMarginsTop">
-                <b-img alt="Loading" v-if="retrievingProfiles && initialLoad" class="align-middle loading" src="../../../static/logo_sm.png"></b-img>
+                <b-img alt="Loading" v-if="retrievingProfiles && initialLoad" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
             </div>
             <mobile-profile-list
                     :loading="retrievingProfiles"
@@ -29,7 +29,7 @@
             <div class="flex-column justify-content-center">
                 <div class="d-flex justify-content-center">
                     <b-img alt="Loading" v-if="retrievingProfiles && !initialLoad" class="loading"
-                           src="../../../static/logo_sm.png">
+                           :src="assets['loadingLogo']">
                     </b-img>
                 </div>
                 <div v-if="!retrievingProfiles && profiles.length > 0">

@@ -20,7 +20,6 @@
 </template>
 
 <script>
-    import assets from '../../assets/assets';
     export default {
         name: "singleBadge",
 
@@ -32,12 +31,6 @@
 
         props: {
             badge: Object
-        },
-
-        computed: {
-            assets() {
-                return assets
-            }
         }
     }
 </script>
