@@ -115,7 +115,12 @@ public class AchievementTrackerController extends Controller {
      */
     public JsonNode rewardAction(Profile actingProfile, Trip tripCreated) {
         Collection<Badge> badgesAchieved = new ArrayList<>();
-        badgesAchieved.add(giveBadge(actingProfile, Action.TRIP_CREATED, 1));
+
+        Badge badgeToGive = giveBadge(actingProfile, Action.TRIP_CREATED, 1);
+
+        if (badgeToGive != null) {
+            badgesAchieved.add(badgeToGive);
+        }
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
         return constructRewardJson(badgesAchieved, null);
     }
