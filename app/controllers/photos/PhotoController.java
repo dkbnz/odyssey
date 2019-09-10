@@ -41,7 +41,6 @@ public class PhotoController extends Controller {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private static final Long MAX_IMG_SIZE = 5000000L;
     private static final String AUTHORIZED = "authorized";
-    private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String PHOTO_ID = "id";
     private static final String IS_PUBLIC = "public";
     private static final String PROFILE_NOT_FOUND = "Requested profile doesn't exist.";
