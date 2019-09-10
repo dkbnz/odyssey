@@ -191,9 +191,18 @@
                 let self = this;
                 fetch('/v1/makeAdmin/' + makeAdminProfile.id, {
                     method: 'POST',
-                }).then(function () {
-                    self.searchProfiles();
-                })
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.showError = false;
+                            self.searchProfiles();
+                        } else {
+                            self.alertMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    });
+                });
+
             },
 
 
@@ -209,11 +218,20 @@
                     method: 'POST',
                 }).then(function () {
                     self.searchProfiles();
-                }).then(function () {
-                    if (self.profile.id === makeAdminProfile.id) {
-                        self.$router.push("/dash");
-                        self.$router.go();
-                    }
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.showError = false;
+                            if (self.profile.id === makeAdminProfile.id) {
+                                self.$router.push("/dash");
+                                self.$router.go();
+                            }
+                        } else {
+                            self.alertMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    })
+
                 })
             },
 
@@ -228,9 +246,17 @@
                 let self = this;
                 fetch('/v1/profile/' + deleteUser.id, {
                     method: 'DELETE',
-                }).then(function () {
-                    self.searchProfiles();
-                })
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.showError = false;
+                            self.searchProfiles();
+                        } else {
+                            self.alertMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    });
+                });
             },
 
 
@@ -284,6 +310,7 @@
              */
             queryProfiles() {
                 this.retrievingProfiles = true;
+                let self = this;
                 let searchQuery = "";
                 if (!this.searchParameters) {
                     searchQuery =
@@ -317,48 +344,19 @@
                 }
                 return fetch(`/v1/profiles` +  searchQuery, {
                     method: "GET"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.profiles = data;
-                        this.retrievingProfiles = false;
-                    })
-            },
-
-
-            /**
-             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
-             * console.
-             *
-             * @param response, passed back to the getAllTrips function to be parsed into a Json.
-             * @returns throws the error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                this.showError = true;
-                response.clone().text().then(text => {
-                    this.alertMessage = text;
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.showError = false;
+                            self.profiles = responseBody;
+                        } else {
+                            self.alertMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                        self.retrievingProfiles = false;
+                    });
                 });
-                throw error;
             },
-
-
-            /**
-             * Used to turn the response of the fetch method into a usable Json.
-             *
-             * @param response of the fetch method.
-             * @returns the Json body of the response.
-             */
-            parseJSON(response) {
-                return response.json();
-            },
-
 
             /**
              * Used to send a selected profile to a modal so the admin can confirm they want to delete the selected

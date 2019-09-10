@@ -1,5 +1,6 @@
 <template>
     <div>
+        <b-alert v-model="showError">{{alertMessage}}</b-alert>
         <div v-if="page === 0">
             <b-jumbotron class="bg-white">
                 <h1 class="page-title">Leaderboard</h1>
@@ -93,33 +94,13 @@
                 queryPage: 0,
                 pageSize: 10,
                 gettingMore: false,
-                searchParameters: null
+                searchParameters: null,
+                showError: false,
+                alertMessage: ""
             }
         },
 
         methods: {
-            /**
-             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
-             * console.
-             *
-             * @param response, passed back to the getAllTrips function to be parsed into a Json.
-             * @returns throws the error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                this.showError = true;
-                response.clone().text().then(text => {
-                    this.alertMessage = text;
-                });
-                throw error;
-            },
-
-
             /**
              * Function to retrieve more destinations when a user reaches the bottom of the list.
              */
@@ -136,6 +117,7 @@
             queryProfiles(searchParameters) {
                 this.retrievingProfiles = true;
                 this.searchParameters = searchParameters;
+                let self = this;
                 let searchQuery = "";
                 this.page = 1;
                 if (!this.searchParameters) {
@@ -161,31 +143,35 @@
                 }
 
                 return fetch(`/v1/profiles` + searchQuery, {})
-                    .then(this.checkStatus)
-                    .then(response => response.json())
-                    .then((data) => {
-                        if (data !== null && data !== undefined) {
-                            if (data.length < 10) {
-                                this.moreResults = false;
-                                this.initialLoad = false;
-                            } else {
-                                this.moreResults = true;
-                                this.initialLoad = false;
-                            }
-                            if (!this.gettingMore && data.length === 0) {
-                                this.profiles = [];
-                            }
-                            for (let i = 0; i < data.length; i++) {
-                                if (this.gettingMore) {
-                                    this.profiles.push(data[i]);
+                    .then(function (response) {
+                        response.json().then(data => {
+                            if (response.ok && data !== null && data !== undefined) {
+                                self.showError = false;
+                                if (data.length < 10) {
+                                    self.moreResults = false;
+                                    self.initialLoad = false;
                                 } else {
-                                    this.gettingMore = false;
-                                    this.profiles = data;
+                                    self.moreResults = true;
+                                    self.initialLoad = false;
                                 }
+                                if (!this.gettingMore && data.length === 0) {
+                                    self.profiles = [];
+                                }
+                                for (let i = 0; i < data.length; i++) {
+                                    if (self.gettingMore) {
+                                        self.profiles.push(data[i]);
+                                    } else {
+                                        self.gettingMore = false;
+                                        self.profiles = data;
+                                    }
+                                }
+                                self.retrievingProfiles = false;
+                            } else {
+                                self.alertMessage = self.getErrorMessage(data);
+                                self.showError = true;
                             }
-                            this.retrievingProfiles = false;
-                        }
-                    })
+                        });
+                    });
             },
 
             selectProfile(profile) {

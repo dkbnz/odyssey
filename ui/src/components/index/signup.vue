@@ -512,19 +512,18 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function (response) {
-                    if (response.status === 201 && !self.createdByAdmin) {
-                        self.$router.go();
-                        return response.json();
-                    } else if (response.status === 201 && self.createdByAdmin) {
-                        self.$emit('profile-created', true);
-                    } else {
-                        self.showError = true;
-                        response.clone().text().then(text => {
-                            self.alertMessage = text;
-                        });
-                    }
-
-                })
+                    response.json().then(responseBody => {
+                        if (response.status === 201 && !self.createdByAdmin) {
+                            self.$router.go();
+                            return responseBody;
+                        } else if (response.status === 201 && self.createdByAdmin) {
+                            self.$emit('profile-created', true);
+                        } else {
+                            self.alertMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    });
+                });
             }
         }
     }
