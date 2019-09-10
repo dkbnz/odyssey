@@ -141,11 +141,16 @@
              * Retrieves all the traveller types.
              */
             getTravellerTypes() {
+                let self = this;
                 return fetch(`/v1/travtypes`, {
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(travellerTypes => this.travellerTypeOptions = travellerTypes);
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.travellerTypeOptions = responseBody;
+                        }
+                    });
+                });
             },
 
 
@@ -153,11 +158,16 @@
              * Retrieves all the nationalities.
              */
             getNationalities() {
+                let self = this;
                 return fetch(`/v1/nationalities`, {
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(nationalities => this.nationalityOptions = nationalities);
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.nationalityOptions = responseBody;
+                        }
+                    });
+                });
             },
 
 

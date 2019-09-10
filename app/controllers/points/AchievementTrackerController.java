@@ -242,7 +242,7 @@ public class AchievementTrackerController extends Controller {
      * @param request       the Http request sent.
      * @param userId        the user whose points have been requested.
      * @return              ok() (Http 200) containing the user's points if successfully attained.
-     *                      unauthorised() (Http 401) if the one sending the request is not logged in.
+     *                      unauthorized() (Http 401) if the one sending the request is not logged in.
      *                      notFound() (Http 404) if the requested user is not found.
      *
      */

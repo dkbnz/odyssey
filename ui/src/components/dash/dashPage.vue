@@ -89,23 +89,17 @@
             /**
              * Retrieves the current profile in case any changes have been made.
              */
-            getProfile(updateProfile) {
+            getProfile() {
                 return fetch(`/v1/profile`, {
                     accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then(updateProfile);
-            },
-
-
-            /**
-             * Converts the response body to a Json.
-             */
-            parseJSON(response) {
-                return response.json();
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            return responseBody;
+                        }
+                    });
+                });
             }
-
-
         },
 
         components: {

@@ -1,5 +1,6 @@
 <template>
     <div>
+        <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
         <b-table :busy="loading"
                  :fields="fields"
                  :items="profileList"
@@ -166,7 +167,9 @@
                 {value: Infinity, text: "All"}],
                 perPage: 5,
                 currentPage: 1,
-                rows: null
+                rows: null,
+                errorMessage: "",
+                showError: false
             }
         },
 
@@ -221,6 +224,7 @@
              */
             getRows() {
                 let searchQuery = "";
+                let self = this;
                 if (!this.searchParameters) {
                     searchQuery =
                         "?name=" + "" +
@@ -248,9 +252,17 @@
                     fetch(`/v1/profiles/count` + searchQuery, {
                         method: "GET",
                         accept: "application/json"
-                    })
-                        .then(response => response.json())
-                        .then(data => this.rows = data);
+                    }).then(function (response) {
+                        response.json().then(responseBody => {
+                            if (response.ok) {
+                                self.showError = false;
+                                self.rows = responseBody;
+                            } else {
+                                self.errorMessage = self.getErrorMessage(responseBody);
+                                self.showError = true;
+                            }
+                        });
+                    });
                 }
             }
         }
