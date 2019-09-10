@@ -33,8 +33,8 @@ Vue.mixin({
                 );
 
                 this.$bvToast.toast([toastContent], {
-                    title: "Yipeeeeeeeeeeeeee",
-                    autoHideDelay: 3000,
+                    title: "Congratulations!",
+                    autoHideDelay: 5000,
                     appendToast: true,
                     solid: true,
                     variant: 'success'
