@@ -75,7 +75,7 @@ Feature: Achievement Tracker API Endpoint
 #    Then the status code received is 201
 #    And I gain the "Cartographer" badge with level 1
 #
-    Scenario: Creating my first trip and getting a badge
+    Scenario: Creating my first trip and getting a bronze level Planner badge
     Given the application is running
     And I am logged in as user with id "7"
     And my current progress towards the "Planner" badge is 0
@@ -93,7 +93,7 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Planner" badge with level 1
 
 
-  Scenario: Creating my tenth trip and getting a silver level badge
+  Scenario: Creating enough trips to achieve a silver level Planner badge
     Given the application is running
     And I am logged in as user with id "8"
     And my current progress towards the "Planner" badge is 9
@@ -111,7 +111,7 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Planner" badge with level 2
 
 
-  Scenario: Creating my twenty-ninth trip and getting a gold level badge
+  Scenario: Creating enough trips to achieve a gold level Planner badge
     Given the application is running
     And I am logged in as user with id "9"
     And my current progress towards the "Planner" badge is 29
@@ -127,9 +127,9 @@ Feature: Achievement Tracker API Endpoint
     And I create the trip
     Then the status code received is 201
     And I gain the "Planner" badge with level 3
-#
 
-  Scenario: Creating my first quest and getting a badge
+
+  Scenario: Creating my first quest and getting a bronze level Writer badge
     Given the application is running
     And I am logged in as user with id "7"
     And I currently have no "quests" created
@@ -150,7 +150,7 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Writer" badge with level 1
 
 
-  Scenario: Creating enough quests to achieve second level Writer
+  Scenario: Creating enough quests to achieve a silver level Writer badge
     Given the application is running
     And I am logged in as user with id "8"
     And I currently have no "quests" created
@@ -171,7 +171,7 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Writer" badge with level 2
 
 
-  Scenario: Creating enough quests to achieve third level Writer
+  Scenario: Creating enough quests to achieve a gold level Writer badge
     Given the application is running
     And I am logged in as user with id "9"
     And I currently have no "quests" created
@@ -192,7 +192,7 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Writer" badge with level 3
 #
 #
-#  Scenario: Solving my first quest and getting a badge
+#  Scenario: Solving my first quest and getting a bronze level Solver badge
 #    Given the application is running
 #    And I am logged in as user with id "7"
 #    And a quest exists with id 6
@@ -203,7 +203,7 @@ Feature: Achievement Tracker API Endpoint
 #    And I gain the "Solver" badge with level 1
 #
 #
-  Scenario: Gaining enough points to achieve first level Overachiever
+  Scenario: Gaining enough points to achieve bronze level Overachiever badge
     Given the application is running
     And I am logged in as user with id "7"
     When I create a new destination with the following values
@@ -213,7 +213,7 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Overachiever" badge with level 1
 
 
-  Scenario: Gaining enough points to achieve second level Overachiever
+  Scenario: Gaining enough points to achieve silver level Overachiever badge
     Given the application is running
     And I am logged in as user with id "8"
     When I create a new destination with the following values
@@ -223,7 +223,7 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Overachiever" badge with level 2
 
 
-  Scenario: Gaining enough points to achieve third level Overachiever
+  Scenario: Gaining enough points to achieve gold level Overachiever badge
     Given the application is running
     And I am logged in as user with id "9"
     When I create a new destination with the following values
@@ -233,7 +233,7 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Overachiever" badge with level 3
 #
 #
-#  Scenario: Getting the first level Streaker badge
+#  Scenario: Getting the bronze level Streaker badge
 #    Given the application is running
 #    And The following profile does not exist with the username "TestUser123@travelea.com" within the TravelEA database
 #    When A user attempts to create a profile with the following fields:

@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-list-group>
-            <b-list-group-item href="#"
+            <b-list-group-item
                                class="flex-column align-items-start"
                                v-for="badge in profile.achievementTracker.badges"
                                :key="badge.id">
