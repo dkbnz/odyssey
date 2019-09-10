@@ -1,5 +1,7 @@
 package steps;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -8,6 +10,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.points.Badge;
+import models.profiles.Profile;
 import org.junit.Assert;
 import play.libs.Json;
 import play.mvc.Http;
@@ -17,11 +20,9 @@ import repositories.quests.QuestRepository;
 import scala.Int;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static play.test.Helpers.*;
@@ -49,7 +50,7 @@ public class AchievementTrackerTestSteps {
     /**
      * The profiles uri.
      */
-    private static final String PROFILES_URI = "/v1/profiles";
+    private static final String PROFILE_URI = "/v1/profile";
 
 
     /**
@@ -143,13 +144,31 @@ public class AchievementTrackerTestSteps {
     private static final String END_DATE_STRING = "End Date";
 
     private static final String ACHIEVEMENT_TRACKER = "achievementTracker";
-    private static final String BADGE = "badge";
+    private static final String BADGES = "badges";
+    private static final String BADGE_NAME = "name";
+    private static final String LEVEL = "level";
+    private static final String PROGRESS = "progress";
 
     private ObjectNode tripJson;
     private List<ObjectNode> tripDestinations = new ArrayList<>();
 
     /**
-     * And object mapper used during tests.
+     * Global variable for the person's badges.
+     */
+    private JsonNode badges;
+
+    /**
+     * Global variable for the requested badge's progress.
+     */
+    private int currentBadgeProgress = 0;
+
+    /**
+     * Global variable for the requested badge's level.
+     */
+    private int currentBadgeLevel = 0;
+
+    /**
+     * An object mapper used during tests.
      */
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -271,26 +290,33 @@ public class AchievementTrackerTestSteps {
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
-    private Badge getBadgeForLoggedInUser() {
-        System.out.println(testContext.getLoggedInId());
-        System.out.println(testContext.getTargetId());
+
+    /**
+     * Calculates the requested badge progress and level for the currently logged in profile.
+     *
+     * @param badgeName     the requested badge.
+     */
+    private void getBadgeProgressAndLevelForLoggedInUser(String badgeName) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, testContext.getTargetId())
-                .uri(PROFILES_URI);
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(PROFILE_URI);
         Result result = route(testContext.getApplication(), request);
-
-        System.out.println(Helpers.contentAsString(result));
-
-        Iterator<JsonNode> iterator = generalTestSteps.getTheResponseIterator(Helpers.contentAsString(result));
-
-        // Finds badge from the iterator
-        Badge badge = new Badge();
-        while (iterator.hasNext()) {
-            JsonNode jsonProfile = iterator.next();
-            badge = Json.fromJson(jsonProfile.get(ACHIEVEMENT_TRACKER).get(BADGE), Badge.class);
+        try {
+            ObjectNode profile = mapper.readTree(Helpers.contentAsString(result)).deepCopy();
+            badges = profile.get(ACHIEVEMENT_TRACKER).get(BADGES);
+        } catch (Exception e) {
+            fail("Unable to retrieve badges");
         }
-        return badge;
+
+        // Iterates through each badge in the list of the person's badges.
+        for (JsonNode badge: badges) {
+            // If the current viewing badge is the requested badge, return it's level.
+            if (badge.get(BADGE_NAME).asText().equals(badgeName)) {
+                this.currentBadgeProgress = badge.get(PROGRESS).asInt();
+                this.currentBadgeLevel = badge.get(LEVEL).asInt();
+            }
+        }
     }
 
 
@@ -338,10 +364,9 @@ public class AchievementTrackerTestSteps {
 
 
     @Given("^my current progress towards the \"(.*)\" badge is (\\d+)$")
-    public void myCurrentProgressTowardsTheBadgeIs(String badgeName, Integer progress) {
-        Badge badge = getBadgeForLoggedInUser(badgeName);
-        Assert.assertEquals(badge.getProgress(), progress);
-        System.out.println(Json.toJson(badge));
+    public void myCurrentProgressTowardsTheBadgeIs(String badgeName, int progress) {
+        getBadgeProgressAndLevelForLoggedInUser(badgeName);
+        Assert.assertEquals(progress, currentBadgeProgress);
     }
 
 
@@ -448,7 +473,7 @@ public class AchievementTrackerTestSteps {
     public void iCheckIntoADestination() {
         sendCheckInRequest(TO_CHECK_IN_RIDDLE_ID);
 
-        Assert.assertEquals(200, testContext.getStatusCode());
+        Assert.assertEquals(OK, testContext.getStatusCode());
 
     }
 
@@ -466,8 +491,12 @@ public class AchievementTrackerTestSteps {
 
     @Then("^I gain the \"(.*)\" badge with level (\\d+)$")
     public void iGainTheBadgeWithLevel(String obtainedBadge, int badgeLevel) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+        getBadgeProgressAndLevelForLoggedInUser(obtainedBadge);
+        assertEquals(badgeLevel, currentBadgeLevel);
+
+        // Need to reset after each test.
+        currentBadgeLevel = 0;
+        currentBadgeProgress = 0;
     }
 
 

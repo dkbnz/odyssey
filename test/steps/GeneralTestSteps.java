@@ -94,7 +94,6 @@ public class GeneralTestSteps {
      * Repository to access the profiles in the running application.
      */
     private ProfileRepository profileRepository;
-    ObjectMapper objectMapper = new ObjectMapper();
 
 
     @Before
@@ -244,7 +243,7 @@ public class GeneralTestSteps {
     public Iterator<JsonNode> getTheResponseIterator(String content) {
         JsonNode arrNode = null;
         try {
-            arrNode = objectMapper.readTree(content);
+            arrNode = new ObjectMapper().readTree(content);
         } catch (IOException e) {
             fail("unable to get response iterator");
         }
@@ -304,7 +303,6 @@ public class GeneralTestSteps {
     public void iAmLoggedInAsUserWithId(String userId) {
         // Write code here that turns the phrase above into concrete actions
         testContext.setLoggedInId(userId);
-        testContext.setTargetId(userId);
     }
 
 
