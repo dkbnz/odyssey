@@ -38,12 +38,12 @@ Feature: Achievement Tracker API Endpoint
     Then I have not gained points
 
 
-  Scenario: Checking in to a quest objective
-    Given the application is running
-    And I am logged in
-    And I have some starting points
-    When I check into a destination
-    Then I have gained points
+#  Scenario: Checking in to a quest objective
+#    Given the application is running
+#    And I am logged in
+#    And I have some starting points
+#    When I check into a destination
+#    Then I have gained points
 
 
   Scenario: Checking in to an objective that hasn't been solved
@@ -203,34 +203,34 @@ Feature: Achievement Tracker API Endpoint
 #    And I gain the "Solver" badge with level 1
 #
 #
-#  Scenario: Gaining enough points to achieve first level Overachiever
-#    Given the application is running
-#    And I am logged in as user with id "7"
-#    When I create a new destination with the following values
-#      | Name | Type | District | Latitude | Longitude | Country     |
-#      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-#    Then the status code received is 201
-#    And I gain the "Overachiever" badge with level 1
-#
-#
-#  Scenario: Gaining enough points to achieve second level Overachiever
-#    Given the application is running
-#    And I am logged in as user with id "8"
-#    When I create a new destination with the following values
-#      | Name | Type | District | Latitude | Longitude | Country     |
-#      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-#    Then the status code received is 201
-#    And I gain the "Overachiever" badge with level 2
-#
-#
-#  Scenario: Gaining enough points to achieve third level Overachiever
-#    Given the application is running
-#    And I am logged in as user with id "9"
-#    When I create a new destination with the following values
-#      | Name | Type | District | Latitude | Longitude | Country     |
-#      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-#    Then the status code received is 201
-#    And I gain the "Overachiever" badge with level 3
+  Scenario: Gaining enough points to achieve first level Overachiever
+    Given the application is running
+    And I am logged in as user with id "7"
+    When I create a new destination with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    Then the status code received is 201
+    And I gain the "Overachiever" badge with level 1
+
+
+  Scenario: Gaining enough points to achieve second level Overachiever
+    Given the application is running
+    And I am logged in as user with id "8"
+    When I create a new destination with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    Then the status code received is 201
+    And I gain the "Overachiever" badge with level 2
+
+
+  Scenario: Gaining enough points to achieve third level Overachiever
+    Given the application is running
+    And I am logged in as user with id "9"
+    When I create a new destination with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    Then the status code received is 201
+    And I gain the "Overachiever" badge with level 3
 #
 #
 #  Scenario: Getting the first level Streaker badge
