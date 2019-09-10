@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-alert v-model="showError">{{alertMessage}}</b-alert>
+        <b-alert v-model="showError"><p class="errorMessage">{{alertMessage}}</p></b-alert>
         <div v-if="page === 0">
             <b-jumbotron class="bg-white">
                 <h1 class="page-title">Leaderboard</h1>

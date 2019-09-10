@@ -5,6 +5,7 @@
             <p class="page-title">
                 <i>Because you are an admin, you can achieve all functionality in the application!</i>
             </p>
+            <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
             <b-row>
                 <b-col cols="6">
                     <b-card
@@ -38,8 +39,8 @@
                         </b-collapse>
                     </b-card>
                     <b-card header="Destination Traveller Types">
-                        <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
-                        <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
+                        <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess"><p class="errorMessage">{{alertMessage}}</p></b-alert>
+                        <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure"><p class="errorMessage">{{alertMessage}}</p></b-alert>
                         <!-- Loop through the list of proposals and generate an area to accept/reject for each one -->
                         <div v-if="travellerTypeProposals.length > 0" class="proposalDiv">
                             <b-card v-for="destination in travellerTypeProposals"
@@ -145,6 +146,7 @@
                 showSingleProfile: false,
                 showCollapse: false,
                 showSuccess: false,
+                showError: false,
                 travellerTypeProposals: [],
                 showDestinationDetails: false,
                 alertMessage: "",
@@ -173,6 +175,7 @@
 
             /**
              * Emits the selected profile to the adminPanel page, this is so an admin can modify the profile.
+             *
              * @param editProfile   the selected profile to be modified by an admin.
              */
             getSingleProfile(editProfile) {
@@ -184,14 +187,24 @@
              * Retrieves the list of traveller type proposals to display on the frontend. Admin can then accept/reject
              * proposals.
              *
-             *@param updateTravellerTypeProposals   the variable to update the list of traveller type proposals.
+             * @param updateTravellerTypeProposals   the variable to update the list of traveller type proposals.
              */
             getTravellerTypeProposals(updateTravellerTypeProposals) {
+                let self = this;
                 return fetch(`/v1/destinations/proposals`, {
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(updateTravellerTypeProposals);
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.showError = false;
+                            return responseBody;
+                        } else {
+                            self.showSuccess = false;
+                            self.alertMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    });
+                });
             },
 
 
@@ -247,6 +260,7 @@
 
             /**
              * Sends a request to the back end, which contains all the traveller types.
+             *
              * @param destination   the destination to have the traveller types added to.
              */
             sendTravellerTypes(destination) {
@@ -255,8 +269,8 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(destination.travellerTypes)
-                })
-                    .then(function(response) {
+                }).then(function(response) {
+                    response.json().then(responseBody => {
                         if (response.ok) {
                             self.alertMessage = "Destination traveller types updated";
                             self.showTravellerTypeUpdateSuccess = true;
@@ -266,15 +280,14 @@
                             self.removeProposed(destination);
                         } else {
                             self.alertMessage = "Cannot update traveller types";
+                            self.alertMessage += '\n' + self.getErrorMessage(responseBody);
                             self.showTravellerTypeUpdateFailure = true;
-                            setTimeout(function () {
-                                self.showTravellerTypeUpdateFailure = false;
-                            }, 3000);
                         }
-                        return JSON.parse(JSON.stringify(response));
                     });
+                });
             }
         },
+
         components: {
             DesktopLeaderboard,
             SignUp

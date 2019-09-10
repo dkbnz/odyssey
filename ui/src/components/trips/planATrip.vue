@@ -3,7 +3,7 @@
         <h1 class="page-title">{{ heading }}</h1>
         <p class="page-title"><i>{{ subHeading }}</i></p>
 
-        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger"><p class="errorMessage">{{errorMessage}}</p></b-alert>
 
         <!-- Displays success alert and progress bar on trip creation as a loading bar
         for the trip being added to the database -->
@@ -25,7 +25,7 @@
         <!-- Modal for editing the arrival and departure dates for a destination
         Displayed when the 'Edit' button is clicked on a destination -->
         <b-modal hide-footer id="editModal" ref="editModal" title="Edit Destination">
-            <b-alert dismissible v-model="showDateError" variant="danger">{{errorMessage}}</b-alert>
+            <b-alert dismissible v-model="showDateError" variant="danger"><p class="errorMessage">{{errorMessage}}</p></b-alert>
             <div class="d-block">
                 <b-form-group id="editInDate-field" label="Start Date:" label-for="editInDate">
                     <b-input :type="'date'"

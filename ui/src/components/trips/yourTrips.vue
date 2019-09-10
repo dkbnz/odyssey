@@ -4,7 +4,7 @@
         <div id="upcomingTrips" class="upperPadding">
             <h1 class="page-title">Upcoming Trips</h1>
             <p class="page-title"><i>Here are your upcoming trips!</i></p>
-            <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+            <b-alert dismissible v-model="showError" variant="danger"><p class="errorMessage">{{errorMessage}}</p></b-alert>
             <b-alert
                     :show="dismissCountDown"
                     @dismiss-count-down="countDownChanged"

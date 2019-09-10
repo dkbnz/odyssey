@@ -3,6 +3,7 @@
         <h1 class="page-title">Edit Profile</h1>
         <p class="page-title"><i>Edit your profile using the form below!</i></p>
         <b-alert variant="success" v-model="showSuccess">Profile successfully saved!</b-alert>
+        <b-alert variant="danger" v-model="showErrorResponse"><p class="errorMessage">{{errorMessage}}</p></b-alert>
         <!--First name field, with default set to the user's current first name. Validates inputted text-->
         <b-row>
             <b-col>
@@ -290,6 +291,8 @@
                 validEmail: false,
                 showSuccess: false,
                 showError: false,
+                showErrorResponse: false,
+                errorMessage: "",
                 genderOptions: [
                     {value: 'Male', text: 'Male'},
                     {value: 'Female', text: 'Female'},
@@ -564,17 +567,26 @@
                         headers: {'content-type': 'application/json'},
                         body: JSON.stringify(this.saveProfile)
                     }).then(function (response) {
-                        if (!self.adminView) {
-                            self.$router.go();
-                        } else {
-                            self.showSuccess = true;
-                            setTimeout(function() {
-                                self.showSuccess = false;
-                            }, 3000)
-                        }
-                        self.$emit('profile-saved', self.saveProfile);
-                        window.scrollTo(0, 0);
-                        return response.json();
+                        response.json().then(responseBody => {
+                            if (response.ok) {
+                                if (!self.adminView) {
+                                    self.$router.go();
+                                } else {
+                                    self.showSuccess = true;
+                                    setTimeout(function() {
+                                        self.showSuccess = false;
+                                    }, 3000)
+                                }
+                                self.$emit('profile-saved', self.saveProfile);
+                                window.scrollTo(0, 0);
+                                self.showErrorResponse = false;
+                                return responseBody;
+                            } else {
+                                self.errorMessage = self.getErrorMessage(responseBody);
+                                self.showErrorResponse = true;
+                            }
+                        });
+
                     })
                 }
             }

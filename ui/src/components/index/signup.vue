@@ -128,7 +128,7 @@
 
         <!--Fields for inputting nationalities, passports & traveller types-->
         <div v-if="showSecond" id="secondSignup">
-            <b-alert v-model="showError" variant="danger" dismissible>{{alertMessage}}</b-alert>
+            <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
             <b-form>
                 <b-row>
                     <b-col>
