@@ -10,14 +10,14 @@ create table achievement_tracker (
 
 create table badge (
   id                            bigint auto_increment not null,
-  name                          varchar(19) not null,
-  badge_name                    varchar(255),
+  action_to_achieve             varchar(29) not null,
+  name                          varchar(255),
   bronze_breakpoint             integer not null,
   silver_breakpoint             integer not null,
   gold_breakpoint               integer not null,
   how_to_progress               varchar(255),
-  constraint ck_badge_name check ( name in ('DESTINATION_CREATED','QUEST_CREATED','OBJECTIVE_CREATED','RIDDLE_SOLVED','CHECKED_IN','QUEST_COMPLETED')),
-  constraint uq_badge_name unique (name),
+  constraint ck_badge_action_to_achieve check ( action_to_achieve in ('DESTINATION_CREATED','TRIP_CREATED','QUEST_CREATED','OBJECTIVE_CREATED','RIDDLE_SOLVED','CHECKED_IN','POINTS_GAINED','LOGIN_STREAK','INTERNATIONAL_QUEST_COMPLETED','LARGE_QUEST_COMPLETED','DISTANCE_QUEST_COMPLETED','QUEST_COMPLETED')),
+  constraint uq_badge_action_to_achieve unique (action_to_achieve),
   constraint pk_badge primary key (id)
 );
 
@@ -122,7 +122,7 @@ create table point_reward (
   id                            bigint auto_increment not null,
   name                          varchar(19) not null,
   value                         integer not null,
-  constraint ck_point_reward_name check ( name in ('DESTINATION_CREATED','QUEST_CREATED','OBJECTIVE_CREATED','RIDDLE_SOLVED','CHECKED_IN','QUEST_COMPLETED')),
+  constraint ck_point_reward_name check ( name in ('DESTINATION_CREATED','TRIP_CREATED','QUEST_CREATED','OBJECTIVE_CREATED','RIDDLE_SOLVED','CHECKED_IN','POINTS_GAINED','LOGIN_STREAK','INTERNATIONAL_QUEST_COMPLETED','LARGE_QUEST_COMPLETED','DISTANCE_QUEST_COMPLETED','QUEST_COMPLETED')),
   constraint uq_point_reward_name unique (name),
   constraint pk_point_reward primary key (id)
 );
@@ -306,6 +306,12 @@ alter table trip_destination add constraint fk_trip_destination_destination_id f
 # --- !Downs
 
 alter table achievement_tracker drop constraint if exists fk_achievement_tracker_owner_id;
+
+alter table badge_progress drop constraint if exists fk_badge_progress_badge_id;
+drop index if exists ix_badge_progress_badge_id;
+
+alter table badge_progress drop constraint if exists fk_badge_progress_achievement_tracker_id;
+drop index if exists ix_badge_progress_achievement_tracker_id;
 
 alter table destination drop constraint if exists fk_destination_type_id;
 drop index if exists ix_destination_type_id;

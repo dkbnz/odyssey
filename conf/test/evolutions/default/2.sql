@@ -362,6 +362,46 @@ INSERT INTO `achievement_tracker` (`id`, `points`, `owner_id`) VALUES
 (8, 999, 8),
 (9, 9999, 9);
 
+INSERT INTO `badge` (`id`, `action_to_achieve`, `name`, `bronze_breakpoint`, `silver_breakpoint`, `gold_breakpoint`, `how_to_progress`) VALUES
+(1,'TRIP_CREATED', 'Planner', 1, 10, 30, 'You need to create %s more trips to achieve %s'),
+(2,'DESTINATION_CREATED', 'Cartographer', 1, 10, 50, 'You need to create %s more destinations to achieve %s'),
+(3,'QUEST_CREATED', 'Writer', 1, 15, 50, 'You need to create %s more quests to achieve %s'),
+(4,'QUEST_COMPLETED', 'Solver', 1, 20, 50, 'You need to complete %s more quests to achieve %s'),
+(5,'INTERNATIONAL_QUEST_COMPLETED', 'Explorer', 1, 10, 30, 'You need to complete %s more international quests to achieve %s'),
+(6,'LARGE_QUEST_COMPLETED', 'Odyssey', 1, 10, 30, 'You need to complete %s more large quests to achieve %s'),
+(7,'DISTANCE_QUEST_COMPLETED', 'Wayfarer', 100, 1000, 10000, 'You need to travel %s more km''s in quests to achieve %s'),
+(8,'POINTS_GAINED', 'Overachiever', 100, 1000, 10000, 'You need to earn %s more points to achieve %s'),
+(9,'LOGIN_STREAK', 'Streaker', 1, 7, 31, 'You need to login each day %s more times to achieve %s');
+
+INSERT INTO `badge_progress` (`id`, `badge_id`, `achievement_tracker_id`, `progress`) VALUES
+(1, 1, 7, 0),
+(2, 1, 8, 9),
+(3, 1, 9, 29),
+(4, 2, 7, 0),
+(5, 2, 8, 9),
+(6, 2, 9, 49),
+(7, 3, 7, 0),
+(8, 3, 8, 14),
+(9, 3, 9, 49),
+(10, 4, 7, 0),
+(11, 4, 8, 19),
+(12, 4, 9, 49),
+(13, 5, 7, 0),
+(14, 5, 8, 9),
+(15, 5, 9, 29),
+(16, 6, 7, 0),
+(17, 6, 8, 9),
+(18, 6, 9, 29),
+(19, 7, 7, 99),
+(20, 7, 8, 999),
+(21, 7, 9, 9999),
+(22, 8, 7, 99),
+(23, 8, 8, 999),
+(24, 8, 9, 9999),
+(25, 9, 7, 0),
+(26, 9, 8, 6),
+(27, 9, 9, 30);
+
 INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `longitude`, `country`, `is_public`, `owner_id`) VALUES
 (119, 'Angus Flat', 31, 'Canterbury', -43.65598, 170.48378, 'New Zealand', true, 5),
 (325, 'Baylys Beach Post Office', 10, 'North Auckland', -35.953527, 173.74573, 'New Zealand', false, 2),

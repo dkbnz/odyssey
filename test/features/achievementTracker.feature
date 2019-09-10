@@ -67,36 +67,71 @@ Feature: Achievement Tracker API Endpoint
 #TODO: Isaac - Waiting on backend.
 #  Scenario: Creating my first destination and getting a badge
 #    Given the application is running
-#    And I am logged in as user with username "testuser5@email.com" and id "7"
-#    And I currently have no "destinations" created
+#    And I am logged in as user with id "7"
+#    And my current progress towards the "Cartographer" badge is 0
 #    When I create a new destination with the following values
 #      | Name | Type | District | Latitude | Longitude | Country     |
 #      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
 #    Then the status code received is 201
-#    Then I gain the "Cartographer" badge with level 1
-#
-#
-#  Scenario: Creating my first trip and getting a badge
-#    Given the application is running
-#    And I am logged in as user with username "testuser5@email.com" and id "7"
-#    And I currently have no "trips" created
-#    When I create a new trip with the following values
-#      | Name       |
-#      | First Trip |
-#    And the trip has a destination with the following values
-#      | Destination | Start Date | End Date |
-#      | 1155        |            |          |
-#    And the trip has a destination with the following values
-#      | Destination | Start Date | End Date |
-#      | 567         |            |          |
-#    And I create the trip
-#    Then the status code received is 201
-#    And I gain the "Planner" badge with level 1
+#    And I gain the "Cartographer" badge with level 1
+
+    Scenario: Creating my first trip and getting a badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And my current progress towards the "Planner" badge is 0
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    Then the status code received is 201
+    And I gain the "Planner" badge with level 1
+
+
+  Scenario: Creating my tenth trip and getting a silver level badge
+    Given the application is running
+    And I am logged in as user with id "8"
+    And my current progress towards the "Planner" badge is 9
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    Then the status code received is 201
+    And I gain the "Planner" badge with level 2
+
+
+  Scenario: Creating my twenty-ninth trip and getting a gold level badge
+    Given the application is running
+    And I am logged in as user with id "9"
+    And my current progress towards the "Planner" badge is 99
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    Then the status code received is 201
+    And I gain the "Planner" badge with level 3
 #
 #
 #  Scenario: Creating my first quest and getting a badge
 #    Given the application is running
-#    And I am logged in as user with username "testuser5@email.com" and id "7"
+#    And I am logged in as user with id "7"
 #    And I currently have no "quests" created
 #    When I start to create a quest using the following values
 #      | Title       | Start Date | End Date  |
@@ -117,7 +152,7 @@ Feature: Achievement Tracker API Endpoint
 #
 #  Scenario: Solving my first quest and getting a badge
 #    Given the application is running
-#    And I am logged in as user with username "testuser5@email.com" and id "7"
+#    And I am logged in as user with id "7"
 #    And a quest exists with id 6
 #    When I check in for quest attempt 7
 #    Then the status code received is 200
@@ -128,7 +163,7 @@ Feature: Achievement Tracker API Endpoint
 #
 #  Scenario: Gaining enough points to achieve first level Overachiever
 #    Given the application is running
-#    And I am logged in as user with username "testuser5@email.com" and id "7"
+#    And I am logged in as user with id "7"
 #    When I create a new destination with the following values
 #      | Name | Type | District | Latitude | Longitude | Country     |
 #      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
@@ -138,7 +173,7 @@ Feature: Achievement Tracker API Endpoint
 #
 #  Scenario: Gaining enough points to achieve second level Overachiever
 #    Given the application is running
-#    And I am logged in as user with username "testuser6@email.com" and id "8"
+#    And I am logged in as user with id "8"
 #    When I create a new destination with the following values
 #      | Name | Type | District | Latitude | Longitude | Country     |
 #      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
@@ -148,7 +183,7 @@ Feature: Achievement Tracker API Endpoint
 #
 #  Scenario: Gaining enough points to achieve third level Overachiever
 #    Given the application is running
-#    And I am logged in as user with username "testuser7@email.com" and id "9"
+#    And I am logged in as user with id "9"
 #    When I create a new destination with the following values
 #      | Name | Type | District | Latitude | Longitude | Country     |
 #      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
