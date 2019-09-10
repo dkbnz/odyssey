@@ -22,5 +22,6 @@ export default {
     groupie: './static/traveller_types/groupie.png',
     holidayMaker: './static/traveller_types/holidayMaker.png',
     thrillseeker: './static/traveller_types/thrillseeker.png',
-    welcomePage: './static/background_image.jpg'
+    welcomePage: './static/background_image.jpg',
+    loadingLogo: './static/logo_sm.png'
 }

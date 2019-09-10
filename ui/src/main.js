@@ -3,6 +3,8 @@ import App from './App.vue'
 import BootstrapVue from 'bootstrap-vue'
 import router from './router'
 
+import assets from './assets/assets';
+
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import VueSlider from 'vue-slider-component'
@@ -57,6 +59,12 @@ Vue.mixin({
                 errorString += responseBody[errorMessage].message + "\n";
             }
             return errorString;
+        }
+    },
+
+    computed: {
+        assets() {
+            return assets
         }
     }
 });

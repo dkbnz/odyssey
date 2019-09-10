@@ -14,7 +14,7 @@
                  striped>
 
             <div class="text-center my-2" slot="table-busy">
-                <b-img alt="Loading" class="loading" v-if="loading" src="../../../static/logo_sm.png"></b-img>
+                <b-img alt="Loading" class="loading" v-if="loading" :src="assets['loadingLogo']"></b-img>
             </div>
             <template slot="profilePhoto" slot-scope="row">
                 <b-img :src="getProfilePictureThumbnail(row.item.profilePicture)"
