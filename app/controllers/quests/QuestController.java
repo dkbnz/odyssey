@@ -1,6 +1,7 @@
 package controllers.quests;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
@@ -11,6 +12,7 @@ import models.objectives.Objective;
 import models.profiles.Profile;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
+import models.points.Badge;
 import models.util.ApiError;
 import play.libs.Json;
 import play.mvc.Http;
@@ -64,7 +66,8 @@ public class QuestController {
     private static final String GREATER_THAN = ">";
     private static final String LESS_THAN = "<";
 
-    private static final String REWARD = "pointsRewarded";
+    private static final String REWARD = "reward";
+    private static final String NEW_QUEST = "newQuest";
 
     @Inject
     public QuestController(QuestRepository questRepository,
@@ -138,15 +141,14 @@ public class QuestController {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
-        int pointsAdded = achievementTrackerController.rewardAction(questOwner, newQuest, false);   // Points for creating quest
-        returnJson.put(REWARD, pointsAdded);
+        returnJson.set(REWARD, achievementTrackerController.rewardAction(questOwner, newQuest, false));   // Points for creating quest
 
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
 
         questRepository.refresh(newQuest);
 
-        returnJson.set("newQuest", Json.toJson(newQuest));
+        returnJson.set(NEW_QUEST, Json.toJson(newQuest));
         return created(returnJson);
     }
 
@@ -632,10 +634,7 @@ public class QuestController {
 
         // Add points based on the action
         if (solveSuccess) {
-
-            // TODO Matthew/Doug look into possibility of passing the objective through
-            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), false);
-            returnJson.put(REWARD, pointsAdded);
+            returnJson.set(REWARD, achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), false));
         }
 
         // Serialize quest attempt regardless of result.
@@ -685,8 +684,8 @@ public class QuestController {
 
             // If quest was completed
             if (questAttempt.isCompleted()) {
-                int questCompletedPoints = achievementTrackerController.rewardAction(attemptedBy, questAttempted, true); // Points for completing quest
-                returnJson.put("completedPoints", questCompletedPoints);
+                //int questCompletedPoints = achievementTrackerController.rewardAction(attemptedBy, questAttempted, true); // Points for completing quest
+                //returnJson.put("completedPoints", questCompletedPoints);
             }
             returnJson.put(REWARD, pointsAdded);
             returnJson.set("attempt", Json.toJson(questAttempt));
