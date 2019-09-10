@@ -274,13 +274,18 @@
                     body: this.getFormData(files)
 
                 }).then(function (response) {
-                    if (response.status === 201) {
-                        response.clone().json().then(text => {
-                            self.newProfilePhoto = text[text.length - 1];
+                    response.json().then(responseBody => {
+                        if (response.status === 201) {
+                            self.showError = false;
+                            self.newProfilePhoto = responseBody[responseBody.length - 1];
                             self.makeProfileImage();
-                        });
-                    }
-                })
+                        } else {
+                            self.alertMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                        self.loadingResults = false;
+                    });
+                });
             },
 
 
@@ -294,24 +299,6 @@
                 let personalPhotos = new FormData();
                 personalPhotos.append('photo0', files);
                 return personalPhotos;
-            },
-
-
-            /**
-             * Retrieves a Json body from a response.
-             *
-             * @param response  the response parsed into Json.
-             * @returns {*}     the Json response body.
-             */
-            parseJSON(response) {
-                if (response.status === 201) {
-                    this.files = null;
-                    this.$refs['profilePhotoUploader'].hide();
-                } else {
-                    this.showError = true;
-                    this.errorMessage = "Invalid image size/type"
-                }
-                return response.json();
             },
 
 
@@ -372,18 +359,21 @@
                 fetch('/v1/profilePhoto/' + this.profile.id, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    if (response.status === 200) {
-                        self.profileImageThumb = "../../../static/default_profile_picture.png";
-                        self.profileImageFull = "../../../static/default_profile_picture.png";
-                        self.profile.profilePicture = null;
-                        self.showAlert();
-                        self.alertMessage = "Profile photo successfully deleted";
-                        self.$refs['profilePictureModal'].hide();
-                    } else {
-                        self.showError = true;
-                        self.alertMessage = "Unable to delete profile photo";
-                    }
-                })
+                    response.json().then(responseBody => {
+                        if (response.status === 200) {
+                            self.profileImageThumb = "../../../static/default_profile_picture.png";
+                            self.profileImageFull = "../../../static/default_profile_picture.png";
+                            self.profile.profilePicture = null;
+                            self.showAlert();
+                            self.alertMessage = "Profile photo successfully deleted";
+                            self.$refs['profilePictureModal'].hide();
+                        } else {
+                            self.showError = true;
+                            self.alertMessage = "Unable to delete profile photo";
+                            self.alertMessage += '\n' + self.getErrorMessage(responseBody);
+                        }
+                    });
+                });
             },
 
 

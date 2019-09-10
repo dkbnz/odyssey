@@ -2,8 +2,8 @@
     <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <h1 class="page-title">Edit Profile</h1>
         <p class="page-title"><i>Edit your profile using the form below!</i></p>
-        <b-alert variant="success" v-model="showSuccess">Profile successfully saved!</b-alert>
-        <b-alert variant="danger" v-model="showErrorResponse"><p class="errorMessage">{{errorMessage}}</p></b-alert>
+        <b-alert variant="success" v-model="showSuccess" dismissible>Profile successfully saved!</b-alert>
+        <b-alert variant="danger" v-model="showErrorResponse" dismissible><p class="errorMessage">{{errorMessage}}</p></b-alert>
         <!--First name field, with default set to the user's current first name. Validates inputted text-->
         <b-row>
             <b-col>

@@ -378,10 +378,6 @@
             }
         },
 
-        mounted() {
-            this.getDestinations(destinationsList => this.destinationsList = destinationsList);
-        },
-
         methods: {
             /**
              * Method used to check the destination to be added to the table is valid.
@@ -735,31 +731,6 @@
              */
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
-            },
-
-
-            /**
-             * Retrieves the list of all destinations.
-             *
-             * @param updateDestinations    the list of destinations to be updated.
-             */
-            getDestinations(updateDestinations) {
-                return fetch(`/v1/destinations`, {
-                    accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then(updateDestinations);
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response      the Http response.
-             * @returns             the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
             },
 
 

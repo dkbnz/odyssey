@@ -26,7 +26,7 @@
                 </b-col>
                 <b-col cols="6">
                     <b-card header="Create a Profile">
-                        <b-alert v-model="showSuccess" variant="success">Profile successfully created</b-alert>
+                        <b-alert v-model="showSuccess" variant="success" dismissible>Profile successfully created</b-alert>
                         <b-button @click="showCollapse = !showCollapse" block variant="success">
                             Create a New Profile</b-button>
                         <!-- The collapsible that uses the sign up page to create a new profile -->

@@ -105,7 +105,7 @@
                     </div>
                     <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
                 </b-list-group-item>
-                <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop">
+                <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop" dismissible>
                     You are not at the required location, you are {{getHowClose()}} away.
                 </b-alert>
 

@@ -343,16 +343,6 @@
 
 
             /**
-             * Converts the Http response body to a Json.
-             * @param response  the received Http response.
-             * @returns {*}     the response body as a Json object.
-             */
-            parseJSON(response) {
-                return response.json();
-            },
-
-
-            /**
              * Used to dismiss the delete a objective confirmation modal.
              *
              * @param modal, the modal that is wanting to be dismissed.

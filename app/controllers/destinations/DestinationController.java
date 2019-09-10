@@ -206,6 +206,10 @@ public class DestinationController extends Controller {
         if (request.getQueryString(OWNER) != null && !request.getQueryString(OWNER).isEmpty()) {
             Profile destinationOwner = profileRepository.findById(Long.valueOf(request.getQueryString(OWNER)));
 
+            if (destinationOwner == null) {
+                return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
+            }
+
             if (AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
                 expressionList.eq(OWNER, destinationOwner);
             } else {
