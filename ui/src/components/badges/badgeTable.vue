@@ -7,10 +7,7 @@
                                :key="badge.id">
                 <b-row>
                     <b-col cols="4">
-                        <single-badge :id="badge.name + 'badge'" :source-badge="badge.name.toLowerCase()" :achieved-badge="true" :achievement-level="badge.level"></single-badge>
-                        <b-tooltip :target="badge.name + 'badge'" triggers="hover">
-                            {{badge.name}}
-                        </b-tooltip>
+                        <single-badge :badge="badge"></single-badge>
                     </b-col>
                     <b-col>
                         <div class="d-flex w-100 justify-content-between">
