@@ -680,14 +680,16 @@ public class QuestController {
             ObjectNode returnJson = objectMapper.createObjectNode();
 
             Quest questAttempted = questAttempt.getQuestAttempted();
-            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, toCheckInTo, true); // Points for checking in
 
-            // If quest was completed
-            if (questAttempt.isCompleted()) {
-                //int questCompletedPoints = achievementTrackerController.rewardAction(attemptedBy, questAttempted, true); // Points for completing quest
-                //returnJson.put("completedPoints", questCompletedPoints);
-            }
-            returnJson.put(REWARD, pointsAdded);
+            // TODO: Hayden/Isaac, figure out what to do with two reward jsons
+//            JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, toCheckInTo, true); // Points for checking in
+//
+//            // If quest was completed
+//            if (questAttempt.isCompleted()) {
+//                JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted, true); // Points for completing quest
+//                returnJson.put("completedPoints", questCompletedPoints);
+//            }
+////            returnJson.put(REWARD, pointsAdded);
             returnJson.set("attempt", Json.toJson(questAttempt));
 
             questAttemptRepository.update(questAttempt);

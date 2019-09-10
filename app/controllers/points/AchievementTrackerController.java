@@ -56,11 +56,17 @@ public class AchievementTrackerController extends Controller {
      */
     private Integer givePoints(Profile actingProfile, Action action) {
 
+        if (actingProfile == null) {
+            return null;
+        }
+
         AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
         PointReward reward = pointRewardRepository.findUsing(action);    // Get the reward to add.
 
         if (reward != null) {
-            return achievementTracker.addPoints(reward.getValue());
+            int value = reward.getValue();
+            giveBadge(actingProfile, Action.POINTS_GAINED, value);
+            return achievementTracker.addPoints(value);
         }
 
         return null;
@@ -115,6 +121,7 @@ public class AchievementTrackerController extends Controller {
      */
     public JsonNode rewardAction(Profile actingProfile, Trip tripCreated) {
         Collection<Badge> badgesAchieved = new ArrayList<>();
+
         badgesAchieved.add(giveBadge(actingProfile, Action.TRIP_CREATED, 1));
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
         return constructRewardJson(badgesAchieved, null);
@@ -129,13 +136,19 @@ public class AchievementTrackerController extends Controller {
      * @return                      the points added rewarded to the profile.
      */
     public int rewardAction(Profile actingProfile, Destination destinationCreated) {
-        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
+        Collection<Badge> badgesAchieved = new ArrayList<>();
 
-        PointReward reward = pointRewardRepository.findUsing(Action.DESTINATION_CREATED);    // Get the reward to add.
-        achievementTracker.addPoints(reward.getValue());
+        int reward = givePoints(actingProfile, Action.DESTINATION_CREATED);
+
+        // Check if user has received badge for gaining points
+        Badge badge = actingProfile.getAchievementTracker().getRecentlyAchieved();
+        if (badge != null) {
+            badgesAchieved.add(badge);
+        }
+
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
-        return reward.getValue();
+        return reward;
     }
 
 
@@ -167,18 +180,21 @@ public class AchievementTrackerController extends Controller {
      * @return                  the points rewarded to the user.
      */
     public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, boolean completed) {
-        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();
         PointReward points;
         Collection<Badge> badgesAchieved = new ArrayList<>();
-        if (completed) {
-            points = pointRewardRepository.findUsing(Action.QUEST_COMPLETED);
-            badgesAchieved.add(giveBadge(actingProfile, Action.QUEST_COMPLETED, 1));
-        } else {
-            points = pointRewardRepository.findUsing(Action.QUEST_CREATED);
-            badgesAchieved.add(giveBadge(actingProfile, Action.QUEST_CREATED, 1));
-        }
-        achievementTracker.addPoints(points.getValue());
+        Action completedAction = completed ? Action.QUEST_COMPLETED : Action.QUEST_CREATED;
 
+        givePoints(actingProfile, completedAction);
+
+        // Check if user has received badge for gaining points
+        Badge badge = actingProfile.getAchievementTracker().getRecentlyAchieved();
+        if (badge != null) {
+            badgesAchieved.add(badge);
+        }
+
+        badgesAchieved.add(giveBadge(actingProfile, completedAction, 1));
+
+        points = pointRewardRepository.findUsing(completedAction);
         profileRepository.update(actingProfile);
 
         return constructRewardJson(badgesAchieved, points.getValue());
@@ -192,17 +208,24 @@ public class AchievementTrackerController extends Controller {
      * @param objectiveSolved   the objective which the action was performed on.
      * @return                  the points added rewarded to the profile.
      */
-    public int rewardAction(Profile actingProfile, Objective objectiveSolved, boolean checkedIn) {
+    public JsonNode rewardAction(Profile actingProfile, Objective objectiveSolved, boolean checkedIn) {
+        PointReward points;
+        Collection<Badge> badgesAchieved = new ArrayList<>();
         Action completedAction = checkedIn ? Action.CHECKED_IN : Action.RIDDLE_SOLVED;
 
-        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
+        givePoints(actingProfile, completedAction);
 
-        PointReward reward = pointRewardRepository.findUsing(completedAction);    // Get the reward to add.
+        // Check if user has received badge for gaining points
+        Badge badge = actingProfile.getAchievementTracker().getRecentlyAchieved();
+        if (badge != null) {
+            badgesAchieved.add(badge);
+        }
 
-        achievementTracker.addPoints(reward.getValue());
+        points = pointRewardRepository.findUsing(completedAction);
+
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
-        return reward.getValue();
+        return constructRewardJson(badgesAchieved, points.getValue());
     }
 
 
