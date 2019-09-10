@@ -673,7 +673,7 @@
                         self.resetDestForm();
                         self.inputTrip.name = "";
                         self.inputTrip.destinations = [];
-                        return JSON.parse(JSON.stringify(response));
+                        return response.json();
                     } else {
                         throw new Error('Something went wrong, try again later.');
                     }

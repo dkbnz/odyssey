@@ -1,5 +1,5 @@
 <template>
-    <div style="max-width: 500px">
+    <div>
         <b-list-group>
             <b-list-group-item href="#"
                                class="flex-column align-items-start"
@@ -27,55 +27,6 @@
                 </b-row>
             </b-list-group-item>
         </b-list-group>
-
-        <!--<div class="row">-->
-
-
-            <!--<div class="column">-->
-                <!--<single-badge id="streaker-badge" :source-badge="profile.achievementTracker.badges[0].name.toLowerCase()" :achieved-badge="true" :achievement-level="profile.achievementTracker.badges[0].level"></single-badge>-->
-                <!--<single-badge id="wayfarer-badge" :source-badge="'wayfarer'" :achieved-badge="true"></single-badge>-->
-                <!--<single-badge id="cartographer-badge" :source-badge="'cartographer'" :achieved-badge="true"></single-badge>-->
-            <!--</div>-->
-            <!--<div class="column">-->
-                <!--<single-badge id="writer-badge" :source-badge="'writer'" :achieved-badge="true"></single-badge>-->
-                <!--<single-badge id="solver-badge" :source-badge="'solver'" :achieved-badge="true"></single-badge>-->
-                <!--<single-badge id="explorer-badge" :source-badge="'explorer'" :achieved-badge="false"></single-badge>-->
-            <!--</div>-->
-            <!--<div class="column">-->
-                <!--<single-badge id="odyssey-badge" :source-badge="'odyssey'" :achieved-badge="false"></single-badge>-->
-                <!--<single-badge id="planner-badge" :source-badge="'planner'" :achieved-badge="true"></single-badge>-->
-                <!--<single-badge id="overachiever-badge" :source-badge="'overachiever'" :achieved-badge="true"></single-badge>-->
-            <!--</div>-->
-        <!--</div>-->
-        <!--<div id="tool-tips">-->
-            <!--<b-tooltip target="streaker-badge" triggers="hover">-->
-                <!--Streaker-->
-            <!--</b-tooltip>-->
-            <!--<b-tooltip target="wayfarer-badge" triggers="hover">-->
-                <!--Wayfarer-->
-            <!--</b-tooltip>-->
-            <!--<b-tooltip target="cartographer-badge" triggers="hover">-->
-                <!--Cartographer-->
-            <!--</b-tooltip>-->
-            <!--<b-tooltip target="writer-badge" triggers="hover">-->
-                <!--Writer-->
-            <!--</b-tooltip>-->
-            <!--<b-tooltip target="solver-badge" triggers="hover">-->
-                <!--Solver-->
-            <!--</b-tooltip>-->
-            <!--<b-tooltip target="explorer-badge" triggers="hover">-->
-                <!--Explorer-->
-            <!--</b-tooltip>-->
-            <!--<b-tooltip target="odyssey-badge" triggers="hover">-->
-                <!--Odyssey-->
-            <!--</b-tooltip>-->
-            <!--<b-tooltip target="planner-badge" triggers="hover">-->
-                <!--Planner-->
-            <!--</b-tooltip>-->
-            <!--<b-tooltip target="overachiever-badge" triggers="hover">-->
-                <!--Overachiever-->
-            <!--</b-tooltip>-->
-        <!--</div>-->
     </div>
 </template>
 

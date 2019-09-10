@@ -313,8 +313,8 @@ public class AchievementTrackerTestSteps {
         for (JsonNode badge: badges) {
             // If the current viewing badge is the requested badge, return it's level.
             if (badge.get(BADGE_NAME).asText().equals(badgeName)) {
-                this.currentBadgeProgress = badge.get(PROGRESS).asInt();
-                this.currentBadgeLevel = badge.get(LEVEL).asInt();
+                currentBadgeProgress = badge.get(PROGRESS).asInt();
+                currentBadgeLevel = badge.get(LEVEL).asInt();
             }
         }
     }
