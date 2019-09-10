@@ -81,7 +81,7 @@
                 <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
                 <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
 
-                <div v-if="showEditTravellerTypes" class="travellerTypeDiv">
+                <div v-if="showEditTravellerTypes" class="mb-1 mt-1">
                     <b-form-group label="Add Traveller Types:">
                         <b-form-checkbox-group id="addTravellerTypes" v-model="calculatedTravellerTypes">
                             <b-form-checkbox v-for="travellerType in travTypeOptions" :value="travellerType"
