@@ -1,15 +1,19 @@
 package controllers.points;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import models.destinations.Destination;
 import models.objectives.Objective;
 import models.points.AchievementTracker;
 import models.points.Action;
+import models.points.Badge;
 import models.points.PointReward;
 import models.profiles.Profile;
 import models.quests.Quest;
+import models.trips.Trip;
 import models.util.ApiError;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -19,8 +23,12 @@ import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 
+import java.util.*;
+
 public class AchievementTrackerController extends Controller {
     private static final String USER_POINTS = "userPoints";
+    private static final String POINTS_REWARDED = "pointsRewarded";
+    private static final String BADGES_ACHIEVED = "badgesAchieved";
 
     private ProfileRepository profileRepository;
     private PointRewardRepository pointRewardRepository;
@@ -40,18 +48,76 @@ public class AchievementTrackerController extends Controller {
     }
 
     /**
+     * For points
+     *
+     * @param actingProfile
+     * @param action
+     * @return
+     */
+    private Integer givePoints(Profile actingProfile, Action action) {
+
+        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
+        PointReward reward = pointRewardRepository.findUsing(action);    // Get the reward to add.
+
+        if (reward != null) {
+            return achievementTracker.addPoints(reward.getValue());
+        }
+
+        return null;
+    }
+
+
+    /**
      * Adds badge progress to the user's AchievementTracker when they progress with the badge progress.
      *
      * @param actingProfile         the profile receiving progress.
      * @param action                the action that was carried out.
      * @return                      the progress added to the profile for the specified badge.
      */
-    public int rewardAction(Profile actingProfile, Action action) {
+    private Badge giveBadge(Profile actingProfile, Action action, int progress) {
+
         AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
-        achievementTracker.addBadgeProgress(badgeRepository.findUsing(action), 1);
-        profileRepository.update(actingProfile);
-        //TODO: Joel and Isaac, using badgeRepository.findUsing(action).getProgress() returns null.
-        return 0;
+
+        Badge badge = badgeRepository.findUsing(action);
+
+        if (badge != null) {
+            achievementTracker.addBadgeProgress(badge, progress);
+            return achievementTracker.getRecentlyAchieved();
+        }
+
+        return null;
+    }
+
+
+
+    private JsonNode constructRewardJson(Collection<Badge> badgesAchieved, Integer pointsAchieved) {
+
+        ObjectNode returnJson = objectMapper.createObjectNode();
+
+        if(pointsAchieved != null) {
+            returnJson.put(POINTS_REWARDED, pointsAchieved);
+        }
+
+        ArrayNode badges = objectMapper.valueToTree(badgesAchieved);
+
+        returnJson.putArray(BADGES_ACHIEVED).addAll(badges);
+
+        return returnJson;
+    }
+
+
+    /**
+     * Rewards the user for creating a trip.
+     *
+     * @param actingProfile         the profile receiving points.
+     * @param tripCreated           the trip that was created.
+     * @return                      Json node of the reward result.
+     */
+    public JsonNode rewardAction(Profile actingProfile, Trip tripCreated) {
+        Collection<Badge> badgesAchieved = new ArrayList<>();
+        badgesAchieved.add(giveBadge(actingProfile, Action.TRIP_CREATED, 1));
+        profileRepository.update(actingProfile);    // Update the tracker stored in the database.
+        return constructRewardJson(badgesAchieved, null);
     }
 
 
