@@ -24,8 +24,6 @@ import static play.mvc.Results.*;
 
 public class DestinationTravellerTypeController {
 
-    private static final String INVALID_JSON = "Invalid request body recieved.";
-
     private DestinationRepository destinationRepository;
     private TravellerTypeRepository travellerTypeRepository;
     private ProfileRepository profileRepository;
@@ -140,7 +138,7 @@ public class DestinationTravellerTypeController {
         JsonNode jsonBody = request.body().asJson();
 
         if (jsonBody == null || !jsonBody.isArray()) {
-            return badRequest(ApiError.badRequest(INVALID_JSON));
+            return badRequest(ApiError.invalidJson());
         }
 
         Set<TravellerType> currentTravellerTypes = destinationToMutate.getTravellerTypes();

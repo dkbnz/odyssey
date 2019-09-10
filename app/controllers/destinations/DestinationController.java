@@ -57,7 +57,6 @@ public class DestinationController extends Controller {
     private static final String LONGITUDE_INVALID = "Given longitude is not valid";
     private static final String LATITUDE_INVALID = "Given latitude is not valid";
     private static final String DESTINATION_SUCCESSFULLY_DELETED = "Destination successfully deleted";
-    private static final String INVALID_INPUT = "Given Destination is Invalid";
     private static final String DUPLICATE_DESTINATION = "A destination with these details already exists either in " +
             "your destinations or public destinations lists";
     private static final Double LATITUDE_LIMIT = 90.0;
@@ -407,7 +406,7 @@ public class DestinationController extends Controller {
                     JsonNode json = request.body().asJson();
 
                     if (!validInput(json)) {
-                        return badRequest(ApiError.badRequest(INVALID_INPUT));
+                        return badRequest(ApiError.invalidJson());
                     }
 
                     if (destinationDoesNotExist(json, profileToChange)) {

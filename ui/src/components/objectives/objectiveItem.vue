@@ -363,15 +363,18 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputObjective)
-                })
-                    .then(this.checkStatus)
-                    .then(function (response) {
-                        self.parseJSON(response).then(data => {
-                            self.createPointToast(data.pointsRewarded, "Objective Created");
-                        });
-                        self.$emit('successCreate', "Objective Successfully Created");
-                        self.$emit('cancelCreate')
-                    })
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.createPointToast(responseBody.pointsRewarded, "Objective Created");
+                            self.$emit('successCreate', "Objective Successfully Created");
+                            self.$emit('cancelCreate')
+                        } else {
+                            self.errorMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    });
+                });
             },
 
 
@@ -401,12 +404,17 @@
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputObjective)
-                })
-                    .then(this.checkStatus)
-                    .then(function () {
-                        self.$emit('successCreate', "Objective Successfully Edited");
-                        self.$emit('cancelCreate')
-                    })
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.$emit('successCreate', "Objective Successfully Edited");
+                            self.$emit('cancelCreate')
+                        } else {
+                            self.errorMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                    });
+                });
             },
 
 
@@ -433,53 +441,7 @@
              */
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
-            },
-
-
-            /**
-             * Checks the Http response for errors.
-             *
-             * @param response the retrieved Http response.
-             * @returns {*} throws the Http response error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-
-                this.errorMessage = "";
-                response.clone().text().then(text => {
-                    text = JSON.parse(text);
-                    let result = [];
-                    for (let i = 0; i < text.length; i++) {
-                        if (!response.ok) {
-                            result.push(text[i].message);
-                        }
-                        else {
-                            result.push(text[i]);
-                        }
-                    }
-                    this.errorMessage = result;
-
-                    this.showError = true;
-                });
-                throw error;
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response the Http response.
-             * @returns the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
             }
-
         }
     }
 </script>
