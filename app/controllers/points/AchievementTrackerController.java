@@ -15,6 +15,7 @@ import models.profiles.Profile;
 import models.quests.Quest;
 import models.trips.Trip;
 import models.util.ApiError;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -264,5 +265,23 @@ public class AchievementTrackerController extends Controller {
         pointsJson.put(USER_POINTS, tracker.getPoints());
 
         return ok(pointsJson);
+    }
+
+
+    /**
+     * Requests all badges that are currently stored in the database. This is the badges themselves, not a user's
+     * progress towards a badge.
+     *
+     * @param request   the Http request containing the relevant authentication parameters.
+     * @return          ok() (Http 200) containing a Json list of all the badges.
+     *                  unauthorized() (Http 401) if the user is not logged in.
+     */
+    public Result fetchAllBadges(Http.Request request) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        return ok(Json.toJson(badgeRepository.findAll()));
     }
 }

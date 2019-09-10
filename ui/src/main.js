@@ -20,6 +20,9 @@ Vue.component('VueSlider', VueSlider);
 Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 
+/**
+ * Allows use of these methods in every single component.
+ */
 Vue.mixin({
     components: {
         RewardToast
