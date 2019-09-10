@@ -7,6 +7,7 @@ import models.destinations.Destination;
 import models.objectives.Objective;
 import models.points.AchievementTracker;
 import models.points.Action;
+import models.points.Badge;
 import models.points.PointReward;
 import models.profiles.Profile;
 import models.quests.Quest;
@@ -14,24 +15,31 @@ import models.util.ApiError;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import repositories.points.AchievementTrackerRepository;
+import repositories.points.BadgeRepository;
 import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
+
+import java.util.Set;
 
 public class AchievementTrackerController extends Controller {
     private static final String USER_POINTS = "userPoints";
 
     private ProfileRepository profileRepository;
     private PointRewardRepository pointRewardRepository;
+    private BadgeRepository badgeRepository;
     private ObjectMapper objectMapper;
 
 
     @Inject
     public AchievementTrackerController(ProfileRepository profileRepository,
                                         PointRewardRepository pointRewardRepository,
+                                        BadgeRepository badgeRepository,
                                         ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
         this.pointRewardRepository = pointRewardRepository;
+        this.badgeRepository = badgeRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -90,6 +98,11 @@ public class AchievementTrackerController extends Controller {
             reward = pointRewardRepository.findUsing(Action.QUEST_CREATED);
         }
         achievementTracker.addPoints(reward.getValue());
+
+
+        Badge badge = badgeRepository.findUsing(Action.QUEST_CREATED);
+        actingProfile.getAchievementTracker().addBadgeProgress(badge, 1);
+
         profileRepository.update(actingProfile);
         return reward.getValue();
     }
