@@ -64,6 +64,22 @@ Feature: Achievement Tracker API Endpoint
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
     Then I have gained points
 
+# TODO: Isaac - Need a fix to breakpoint when retrieving all badges
+#  Scenario: Successfully requesting all badges
+#    Given the application is running
+#    And I am logged in
+#    When I request to retrieve all badges
+#    Then the status code received is 200
+#    And the response contains 9 badges
+#
+#
+#  Scenario: Unsuccessfully requesting all badges when not logged in
+#    Given the application is running
+#    And I am not logged in
+#    When I request to retrieve all badges
+#    Then the status code received is 401
+
+
 #TODO: Everyone - Waiting on backend.
 #  Scenario: Creating my first destination and getting a badge
 #    Given the application is running

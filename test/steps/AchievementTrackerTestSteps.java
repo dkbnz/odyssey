@@ -78,6 +78,12 @@ public class AchievementTrackerTestSteps {
 
 
     /**
+     * The badges endpoint uri.
+     */
+    private static final String BADGES_URI = "/v1/achievementTracker/badges";
+
+
+    /**
      * Authorisation token for sessions
      */
     private static final String AUTHORIZED = "authorized";
@@ -403,6 +409,18 @@ public class AchievementTrackerTestSteps {
     }
 
 
+    @When("I request to retrieve all badges")
+    public void iRequestToRetrieveAllBadges() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .uri(BADGES_URI)
+                .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
     @When("I create the trip")
     public void ICreateTheTrip() {
         createTripRequest(tripJson);
@@ -506,4 +524,11 @@ public class AchievementTrackerTestSteps {
         throw new cucumber.api.PendingException();
     }
 
+
+    @Then("^the response contains (\\d+) badges$")
+    public void theResponseContainsBadges(int numberOfBadges) {
+        // Write code here that turns the phrase above into concrete actions
+        JsonNode responseJson = mapper.valueToTree(testContext.getResponseBody());
+        Assert.assertEquals(numberOfBadges, responseJson.size());
+    }
 }
