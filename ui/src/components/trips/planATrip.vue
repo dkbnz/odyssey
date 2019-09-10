@@ -673,11 +673,13 @@
                         self.resetDestForm();
                         self.inputTrip.name = "";
                         self.inputTrip.destinations = [];
-                        return response.json();
+                        return response;
                     } else {
                         throw new Error('Something went wrong, try again later.');
                     }
-                }).catch((error) => {
+                }).then(response => response.json()
+                ).then(json => self.showRewardToast(json.reward)
+                ).catch((error) => {
                     this.savingTrip = false;
                     this.showError = true;
                     this.errorMessage = (error);
