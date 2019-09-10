@@ -1,9 +1,10 @@
 <template>
     <div>
+        <!--<p>{{rewardJson.pointsRewarded}}</p>-->
         <b-list-group>
-            <b-list-group-item href="#"
+            <b-list-group-item
                                class="flex-column align-items-start"
-                               v-for="badge in profile.achievementTracker.badges"
+                               v-for="badge in rewardJson.badgesAchieved"
                                :key="badge.id">
                 <b-row>
                     <b-col cols="4">
@@ -24,21 +25,33 @@
                 </b-row>
             </b-list-group-item>
         </b-list-group>
+
+        <!--<div v-for="badge in rewardJson.badgesAchieved" class="w-25">-->
+            <!--<h3>{{badge.name}}</h3>-->
+            <!--<small>{{rewardLevels[badge.level-1]}}</small>-->
+            <!--<single-badge :badge="badge"></single-badge>-->
+        <!--</div>-->
     </div>
 </template>
 
 <script>
-    import SingleBadge from "./singleBadge";
+    import SingleBadge from "../badges/singleBadge";
     export default {
-        name: "badgeTable",
+        name: "rewardToast",
 
         props: {
-            profile: Object
+            rewardJson: Object
+        },
+
+        data() {
+            return {
+                rewardLevels: ['Bronze', 'Silver', 'Gold']
+            }
         },
 
         components: {
             SingleBadge
-        }
+        },
     }
 </script>
 
