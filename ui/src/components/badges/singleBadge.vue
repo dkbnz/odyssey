@@ -1,15 +1,20 @@
 <template>
     <div>
-        <b-img :src="assets[sourceBadge]" :class="{disabledBadge: !achievedBadge}" fluid></b-img>
+
+        <b-img :id="badge.name + 'badge'" :src="assets[badge.name.toLowerCase()]" :class="{disabledBadge: !badge.level}" fluid></b-img>
         <div class="rowStars">
             <div class="columnStars" v-for="index in 3" :key="index">
                 <b-img
                         :id="'star-' + index"
                         :src="assets[starSources[index-1]]"
-                        :class="{disabledBadge: index > achievementLevel}" fluid>
+                        :class="{disabledBadge: index > badge.level}" fluid>
                 </b-img>
             </div>
         </div>
+
+        <b-tooltip :target="badge.name + 'badge'" triggers="hover">
+            {{badge.name}}
+        </b-tooltip>
 
     </div>
 </template>
@@ -26,9 +31,7 @@
         },
 
         props: {
-            sourceBadge: String,
-            achievedBadge: Boolean,
-            achievementLevel: Number
+            badge: Object
         },
 
         computed: {
