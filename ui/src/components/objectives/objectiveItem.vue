@@ -366,6 +366,7 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
+                            self.showError = false;
                             self.createPointToast(responseBody.pointsRewarded, "Objective Created");
                             self.$emit('successCreate', "Objective Successfully Created");
                             self.$emit('cancelCreate')
@@ -407,6 +408,7 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
+                            self.showError = false;
                             self.$emit('successCreate', "Objective Successfully Edited");
                             self.$emit('cancelCreate')
                         } else {
