@@ -55,9 +55,9 @@ public class AchievementTrackerRepository extends BeanRepository<Long, Achieveme
         return Ebean.getDefaultServer()
                 .find(AchievementTracker.class)
                 .setDistinct(true)
-                .select("points")
+                .select(POINTS)
                 .where()
-                .ge("points", profileToFind
+                .ge(POINTS, profileToFind
                         .getAchievementTracker()
                         .getPoints())
                 .findCount();

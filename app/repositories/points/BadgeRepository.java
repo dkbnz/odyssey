@@ -8,7 +8,7 @@ import models.points.Badge;
 
 public class BadgeRepository extends BeanRepository<Long, Badge> {
 
-    private static final String NAME = "name";
+    private static final String ACTION_TO_ACHIEVE = "action_to_achieve";
 
     @Inject
     public BadgeRepository() {
@@ -18,7 +18,7 @@ public class BadgeRepository extends BeanRepository<Long, Badge> {
     
     public Badge findUsing(Action action) {
         return query().where()
-                .eq(NAME, action)
+                .eq(ACTION_TO_ACHIEVE, action)
                 .findOne();
     }
 }
