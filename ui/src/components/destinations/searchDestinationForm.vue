@@ -230,17 +230,23 @@
 
 
             /**
-             * Sets the countries list to the list of countries from the country api
+             * Sets the countries list to the list of countries from the country api.
              */
             getCountries() {
                 return fetch("https://restcountries.eu/rest/v2/all", {
                     dataType: 'html'
                 })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.countryList = data;
-                    })
+                    .then(function (response) {
+                        response.json().then(responseBody => {
+                            if (response.ok) {
+                                self.showError = false;
+                                self.countryList = responseBody;
+                            } else {
+                                self.errorMessage = self.getErrorMessage(responseBody);
+                                self.showError = true;
+                            }
+                        });
+                    });
             },
 
 
@@ -254,65 +260,6 @@
                 if (validationField === null || validationField === true) {
                     return true;
                 }
-            },
-
-
-            /**
-             * Runs a query which searches through the destinations in the database and returns all which
-             * follow the search criteria.
-             *
-             * @returns {Promise<Response | never>}
-             */
-            queryDestinations() {
-                this.retrievingDestinations = true;
-                if (this.searchType === "Any") {
-                    this.searchType = "";
-                }
-                let searchQuery =
-                    "?name=" + this.searchName +
-                    "&type_id=" + this.searchType +
-                    "&district=" + this.searchDistrict +
-                    "&latitude=" + this.searchLatitude +
-                    "&longitude=" + this.searchLongitude +
-                    "&country=" + this.searchCountry;
-
-                return fetch(`/v1/destinations` + searchQuery, {
-                    dataType: 'html'
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.$emit('searched-destinations', data);
-                        this.retrievingDestinations = false;
-                    })
-            },
-
-
-            /**
-             * Displays an error if search failed.
-             *
-             * @param response from database search query.
-             * @throws the error if it occurs.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                throw error;
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response the Http response.
-             * @returns the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
             }
         },
 

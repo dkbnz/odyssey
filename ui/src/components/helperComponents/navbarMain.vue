@@ -79,18 +79,16 @@
                 fetch(`/v1/logout`, {
                     method: 'POST',
                     accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then(function (response) {
-                        if (response.ok) {
-                            self.$router.push("/");
-                            self.$router.go();
-                            return response;
-                        } else {
-                            self.$router.push("/dash");
-                            return response;
-                        }
-                    });
+                }).then(function (response) {
+                    if (response.ok) {
+                        self.$router.push("/");
+                        self.$router.go();
+                        return response;
+                    } else {
+                        self.$router.push("/dash");
+                        return response;
+                    }
+                });
             },
 
 

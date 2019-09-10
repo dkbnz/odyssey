@@ -18,6 +18,7 @@
                                 variant="success"
                         ></b-progress>
                     </b-alert>
+                    <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
                     <b-list-group-item href="#" class="flex-column justify-content-center"
                                        v-if="creatingQuest"
                                        draggable="false">
@@ -281,6 +282,8 @@
                 dismissCountDown: 0,
                 alertText: "",
                 copiedQuest: null,
+                showError: false,
+                errorMessage: "",
                 deleteAlertError: false,
                 deleteAlertMessage: "",
                 showDestinations: false,
@@ -367,22 +370,19 @@
                 fetch('/v1/quests/' + this.questId, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.getMore();
-                        self.$refs['deleteQuestModal'].hide();
-                        self.alertText = "Quest Successfully Deleted";
-                        self.showAlert();
-                    }
-                    else {
-                        // Converts response to text, this is then displayed on the frontend.
-                        let responseBody = JSON.parse(data);
-                        let message = "";
-                        for (let i = 0; i < responseBody.length; i++) {
-                            message += responseBody[i].message + "\n";
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.showError = false;
+                            self.deleteAlertError = false;
+                            self.getMore();
+                            self.$refs['deleteQuestModal'].hide();
+                            self.alertText = "Quest Successfully Deleted";
+                            self.showAlert();
+                        } else {
+                            self.deleteAlertMessage = self.getErrorMessage(responseBody);
+                            self.deleteAlertError = true;
                         }
-                        self.deleteAlertMessage = message;
-                        self.deleteAlertError = true;
-                    }
+                    });
                 });
             },
 
@@ -394,15 +394,21 @@
              */
             queryQuests() {
                 this.loadingResults = true;
+                let self = this;
                 return fetch('/v1/quests', {
                     accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.foundQuests = data;
-                        this.loadingResults = false;
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.showError = false;
+                            self.foundQuests = responseBody;
+                        } else {
+                            self.errorMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
+                        self.loadingResults = false;
                     });
+                });
             },
 
 
@@ -413,16 +419,23 @@
              * @returns {Promise<Response | never>}
              */
             queryYourQuests() {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
                     return fetch(`/v1/quests/` + this.profile.id, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.foundQuests = data;
-                            //this.loadingResults = false;
-                        })
+                        .then(function (response) {
+                            response.json().then(responseBody => {
+                                if (response.ok) {
+                                    self.showError = false;
+                                    self.foundQuests = responseBody;
+                                } else {
+                                    self.errorMessage = self.getErrorMessage(responseBody);
+                                    self.showError = true;
+                                }
+                                self.loadingResults = false;
+                            });
+                        });
                 }
-
             },
 
 
@@ -436,11 +449,18 @@
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
                     return fetch(`/v1/quests/profiles/` + this.profile.id, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.questAttempts = data;
-                            this.loadingResults = false;
-                        })
+                        .then(function (response) {
+                            response.json().then(responseBody => {
+                                if (response.ok) {
+                                    self.showError = false;
+                                    self.questAttempts = responseBody;
+                                } else {
+                                    self.errorMessage = self.getErrorMessage(responseBody);
+                                    self.showError = true;
+                                }
+                                self.loadingResults = false;
+                            });
+                        });
                 }
 
             },
@@ -452,23 +472,27 @@
              * @returns {Promise<Response | never>}
              */
             createAttempt(questToAttempt, viewActive) {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     return fetch(`/v1/quests/` + questToAttempt.id + `/attempt/` + this.profile.id, {
                         method: 'POST'
-                    }).then(response => {
-                        return response;
-                    }).then(response => response.json())
-                        .then(data => {
-                            // If 'start now' is clicked
-                            if (viewActive) {
-                                this.$emit('start-quest-now', data);
+                    }).then(function (response) {
+                        response.json().then(responseBody => {
+                            if (response.ok) {
+                                if (viewActive) {
+                                    self.$emit('start-quest-now', responseBody);
+                                } else {
+                                    // Refresh quests
+                                    self.getMore();
+                                    self.showSuccess({message: "Quest started"});
+                                    self.$emit('start-quest-later', responseBody);
+                                }
                             } else {
-                                // Refresh quests
-                                this.getMore();
-                                this.showSuccess({message: "Quest started"});
-                                this.$emit('start-quest-later', data);
+                                self.errorMessage = self.getErrorMessage(responseBody);
+                                self.showError = true;
                             }
                         });
+                    });
                 }
             },
 
@@ -483,11 +507,18 @@
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
                     return fetch(`/v1/quests/` + this.profile.id + `/complete`, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.foundQuests = data;
-                            this.loadingResults = false;
-                        })
+                        .then(function (response) {
+                            response.json().then(responseBody => {
+                                if (response.ok) {
+                                    self.showError = false;
+                                    self.foundQuests = responseBody;
+                                } else {
+                                    self.errorMessage = self.getErrorMessage(responseBody);
+                                    self.showError = true;
+                                }
+                                self.loadingResults = false;
+                            });
+                        });
                 }
 
             },
@@ -536,12 +567,17 @@
                 let self = this;
                 return fetch('/v1/quests/' + this.questId + '/profiles', {
                     accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(data => {
-                        self.activeUsers = data.length;
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.showError = false;
+                            self.activeUsers = responseBody.length;
+                        } else {
+                            self.errorMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
                     });
+                });
             },
 
 
@@ -582,11 +618,11 @@
             /**
              * Sets the message for the success alert to the inputted message and runs showAlert to show the success
              * message.
+             *
              * @param messageObject the object to display
              */
             showSuccess(messageObject) {
                 this.getMore();
-                this.queryYourQuests();
                 this.alertText = messageObject.message;
 
                 // If points were given, also set the data value, otherwise make sure it's the default of 0 to hide it.
@@ -599,6 +635,7 @@
 
             /**
              * Displays a toast saying they've gained a certain amount of points.
+             *
              * @param points the points to display.
              * @param title the title of the toast, indicating the context of the point gain.
              */
@@ -609,15 +646,6 @@
                     autoHideDelay: 3000,
                     appendToast: true
                 })
-            },
-
-            /**
-             * Converts the Http response body to a Json.
-             * @param response  the received Http response.
-             * @returns {*}     the response body as a Json object.
-             */
-            parseJSON(response) {
-                return response.json();
             },
 
 

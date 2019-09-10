@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
-            <b-alert v-model="showError" variant="danger"><p class="errorMessage">{{alertMessage}}</p></b-alert>
+            <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
             <!-- Confirmation modal for deleting a profile. -->
             <b-modal ref="deleteProfileModal" id="deleteProfileModal" hide-footer title="Delete Profile">
                 <div class="d-block">

@@ -204,11 +204,17 @@
                 return fetch("https://restcountries.eu/rest/v2/all", {
                     dataType: 'html'
                 })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.countryList = data;
-                    })
+                    .then(function (response) {
+                        response.json().then(responseBody => {
+                            if (response.ok) {
+                                self.showError = false;
+                                self.countryList = responseBody;
+                            } else {
+                                self.errorMessage = self.getErrorMessage(responseBody);
+                                self.showError = true;
+                            }
+                        })
+                    });
             },
 
 
@@ -242,6 +248,7 @@
              * @returns {Promise<Response | never>}
              */
             queryQuests() {
+                let self = this;
                 let searchQuery =
                     "?title=" + this.searchTitle +
                     "&operator=" + this.searchOperator +
@@ -252,40 +259,17 @@
 
                 return fetch(`/v1/quests` + searchQuery, {
                     dataType: 'html'
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.$emit('searched-quests', data);
+                }).then(function(response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.showError = false;
+                            self.$emit('searched-quests', responseBody);
+                        } else {
+                            self.errorMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                        }
                     })
-            },
-
-
-            /**
-             * Displays an error if search failed.
-             *
-             * @param response from database search query.
-             * @throws the error if it occurs.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                throw error;
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response the Http response.
-             * @returns the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
+                });
             }
         },
     }
