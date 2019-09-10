@@ -16,7 +16,7 @@
                         variant="success"
                 ></b-progress>
             </b-alert>
-            <b-alert v-model="showError">{{alertMessage}}</b-alert>
+            <b-alert v-model="showError" variant="danger" dismissible>{{alertMessage}}</b-alert>
             <b-list-group-item href="#" class="flex-column justify-content-center"
                                v-if="creatingObjective" draggable="false">
                 <!-- Adding objective component -->
@@ -158,7 +158,8 @@
                 alertMessage: "",
                 copiedObjective: null,
                 deleteAlertError: false,
-                deleteAlertMessage: ""
+                deleteAlertMessage: "",
+                showError: false
             }
         },
 
@@ -204,6 +205,8 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
+                            self.deleteAlertMessage = false;
+                            self.showError = false;
                             self.getMore();
                             self.$refs['deleteObjectiveModal'].hide();
                             self.alertText = "Objective Successfully Deleted";
@@ -231,13 +234,14 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
+                            self.deleteAlertMessage = false;
+                            self.showError = false;
                             self.foundObjectives = responseBody;
-                            self.loadingResults = false;
-                            self.displayConfirmation();
                         } else {
                             self.alertMessage = self.getErrorMessage(responseBody);
                             self.showError = true;
                         }
+                        self.loadingResults = false;
                     })
                 });
             },
@@ -256,18 +260,19 @@
                         .then(function (response) {
                             response.json().then(responseBody => {
                                 if (response.ok) {
-                                    self.foundObjectives = data;
-                                    self.loadingResults = false;
+                                    self.deleteAlertMessage = false;
+                                    self.showError = false;
+                                    self.foundObjectives = responseBody;
                                 } else {
                                     self.alertMessage = self.getErrorMessage(responseBody);
                                     self.showError = true;
                                 }
+                                self.loadingResults = false;
                             });
                         });
                 }
 
             },
-
 
             /**
              * Changes creatingObjective to true to show the create objective window, and calls function to close edit
@@ -332,7 +337,7 @@
             showSuccess(message) {
                 this.getMore();
                 this.queryYourObjectives();
-                this.alertText = message;
+                this.alertMessage = message;
                 this.showAlert();
             },
 
