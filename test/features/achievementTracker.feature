@@ -267,7 +267,7 @@ Feature: Achievement Tracker API Endpoint
 #    When I login to the application with id "7" and username "testuser5@email.com"
 #    Then the status code received is 200
 #    And my current streak is 0
-#    And my last login was 0 hours ago
+#    And my last login was 0 days ago
 #    And the current progress towards the "Streaker" badge is still 3
 #
 #
@@ -280,7 +280,7 @@ Feature: Achievement Tracker API Endpoint
 #    Then the status code received is 200
 #    And I gain the "Streaker" badge with level 2
 #    And my current streak is 7
-#    And my last login was 0 hours ago
+#    And my last login was 0 days ago
 #
 #
 #  Scenario: Getting the gold level Streaker badge
@@ -292,7 +292,7 @@ Feature: Achievement Tracker API Endpoint
 #    Then the status code received is 200
 #    And I gain the "Streaker" badge with level 3
 #    And my current streak is 31
-#    And my last login was 0 hours ago
+#    And my last login was 0 days ago
 
 
   Scenario: Gaining enough points to achieve bronze level Wayfarer badge
