@@ -42,12 +42,11 @@
                         <b-container fluid>
                             <p class="mb-1">Selected Destination:</p>
                             <b-list-group @click="$emit('destination-select')">
-                                <b-list-group-item href="#" class="flex-column align-items-start"
+                                <b-list-group-item class="flex-column align-items-start"
                                                    v-if="destinationSelected"
                                                    id="selectedDestination"
                                                    :disabled="destinationSelected === '{}'"
-                                                   :variant="checkDestinationState"
-                                                   draggable="false">
+                                                   :variant="checkDestinationState">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5 class="mb-1" v-if="destinationSelected.name">
                                             {{destinationSelected.name}}

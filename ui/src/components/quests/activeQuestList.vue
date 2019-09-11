@@ -24,12 +24,12 @@
                 </p>
             </b-list-group-item>
 
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
+            <b-list-group-item class="flex-column justify-content-center" v-if="loadingResults">
                 <div class="d-flex justify-content-center">
                     <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
                 </div>
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center"
+            <b-list-group-item class="flex-column justify-content-center"
                                v-if="!loadingResults && questAttempts.length === 0">
                 <div class="d-flex justify-content-center">
                     <strong>No Quests Found</strong>

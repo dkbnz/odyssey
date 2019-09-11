@@ -72,6 +72,9 @@ public class QuestController {
     private static final String POINTS_REWARDED = "pointsRewarded";
     private static final String BADGES_ACHIEVED = "badgesAchieved";
     private static final String ATTEMPT = "attempt";
+    private static final String QUEST_CREATED = "Quest Created";
+    private static final String RIDDLE_SOLVED = "Riddle Solved";
+    private static final String QUEST_COMPLETED = "Quest Completed";
 
     @Inject
     public QuestController(QuestRepository questRepository,
@@ -145,7 +148,7 @@ public class QuestController {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
-        returnJson.set(REWARD, achievementTrackerController.rewardAction(questOwner, newQuest, "Quest Created"));   // Points for creating quest
+        returnJson.set(REWARD, achievementTrackerController.rewardAction(questOwner, newQuest, QUEST_CREATED, null));   // Points for creating quest
 
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
@@ -638,7 +641,7 @@ public class QuestController {
 
         // Add points based on the action
         if (solveSuccess) {
-            returnJson.set(REWARD, achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), "Riddle Solved"));
+            returnJson.set(REWARD, achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), RIDDLE_SOLVED, null));
         }
 
         // Serialize quest attempt regardless of result.
@@ -704,7 +707,18 @@ public class QuestController {
 
             // If quest was completed
             if (questAttempt.isCompleted()) {
-                JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted, "Quest Completed"); // Points for completing quest
+                double totalDistance = 0;
+
+                for (int i = 1; i < questAttempt.getQuestAttempted().getObjectives().size(); i++) {
+                    if (questAttempt.getQuestAttempted().getObjectives().size() > 1) {
+                        totalDistance += distance(questAttempt.getQuestAttempted().getObjectives().get(i-1).getDestination().getLatitude(),
+                                questAttempt.getQuestAttempted().getObjectives().get(i).getDestination().getLatitude(),
+                                questAttempt.getQuestAttempted().getObjectives().get(i-1).getDestination().getLongitude(),
+                                questAttempt.getQuestAttempted().getObjectives().get(i).getDestination().getLongitude());
+                    }
+                }
+
+                JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted, QUEST_COMPLETED, totalDistance); // Points for completing quest
 
                 // Add all quest reward points to the list of achieved points.
                 for (JsonNode points : questRewardJson.get(POINTS_REWARDED)) {
@@ -715,6 +729,9 @@ public class QuestController {
                 for (JsonNode badge : questRewardJson.get(BADGES_ACHIEVED)) {
                     badgesAchieved.add(badge);
                 }
+
+
+                System.out.println(totalDistance);
             }
 
             // The reward Json part of the returned Json.
@@ -733,5 +750,31 @@ public class QuestController {
         // User cannot check-in for this current attempt as they have
         // not solved the current destination or the quest is complete
         return forbidden(ApiError.forbidden());
+    }
+
+
+    /**
+     * Calculates the distance between two destinations locations represented by latitude and longitude values.
+     * This is used to determine the quest's total distance, so the user can obtain the Wayfarer badge.
+     *
+     * @param latitude1     the first destination's latitude value.
+     * @param latitude2     the second destination's latitude value.
+     * @param longitude1    the first destination's longitude value.
+     * @param longitude2    the second destination's longitude value.
+     * @return              a double containing the distance between the two points.
+     */
+    private static double distance(double latitude1, double latitude2, double longitude1, double longitude2) {
+        final int R = 6371; // Radius of the earth
+
+        double latDistance = Math.toRadians(latitude2 - latitude1);
+        double lonDistance = Math.toRadians(longitude2 - longitude1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(latitude1)) * Math.cos(Math.toRadians(latitude2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c; // convert to meters
+        distance = Math.pow(distance, 2);
+
+        return Math.sqrt(distance);
     }
 }

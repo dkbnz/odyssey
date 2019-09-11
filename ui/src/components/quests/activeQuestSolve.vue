@@ -24,7 +24,7 @@
             </b-alert>
 
             <b-collapse v-model="showSelectedDestination" id="selected-destination-collapse">
-                <b-list-group-item href="#" class="flex-column align-items-start"
+                <b-list-group-item class="flex-column align-items-start"
                                    id="selectedDestination"
                                    :disabled="selectedDestination === {}">
                     <div class="d-flex w-100 justify-content-between">
@@ -71,10 +71,9 @@
             <b-list-group>
 
                 <!-- List the solved objectives in the quest attempt -->
-                <b-list-group-item v-for="objective in questAttempt.solved" href="#"
+                <b-list-group-item v-for="objective in questAttempt.solved"
                                    class="flex-column align-items-start"
-                                   :key="objective.id"
-                                   draggable="false">
+                                   :key="objective.id">
                     <div class="d-flex w-100 justify-content-between">
                         <p class="mb-1 mobile-text font-weight-bold">{{objective.riddle}}</p>
                         <small>
@@ -87,16 +86,16 @@
                 </b-list-group-item>
 
                 <!-- If we have an objective to solve, display it -->
-                <b-list-group-item href="#"
+                <b-list-group-item
                                    class="d-flex justify-content-between align-items-center"
-                                   draggable="false" v-if="questAttempt.toSolve != null">
+                                   v-if="questAttempt.toSolve != null">
                     <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
                     <b-button size="sm" variant="primary" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
                 </b-list-group-item>
                 <!-- If we have an objective to check in to, display it -->
-                <b-list-group-item href="#"
+                <b-list-group-item
                                    class="d-flex justify-content-between align-items-center"
-                                   draggable="false" v-if="questAttempt.toCheckIn != null">
+                                   v-if="questAttempt.toCheckIn != null">
                     <div>
                     <span class="mobile-text font-weight-bold">{{questAttempt.toCheckIn.riddle}}</span>
                         <p class="mb-1 mobile-text">
@@ -110,10 +109,9 @@
                 </b-alert>
 
                 <!-- List the remaining unsolved objectives in the quest attempt -->
-                <b-list-group-item v-for="objective in questAttempt.unsolved" href="#"
+                <b-list-group-item v-for="objective in questAttempt.unsolved"
                                    class="d-flex justify-content-between align-items-center"
-                                   :key="objective.id"
-                                   draggable="false" disabled>
+                                   :key="objective.id" disabled>
                     <span class="mobile-text font-weight-bold">{{objective.riddle}}</span>
                 </b-list-group-item>
             </b-list-group>
