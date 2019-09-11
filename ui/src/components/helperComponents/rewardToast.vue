@@ -22,17 +22,15 @@
                             {{badgeAchieved.howToProgress}}
                         </p>
 
-                        <b-progress :value="badgeAchieved.progress" :max="badgeAchieved.breakpoint == null ? badgeAchieved.progress : badgeAchieved.breakpoint" :variant="badgeAchieved.breakpoint == null ? 'success' : 'primary'"></b-progress>
+                        <b-progress
+                            :value="badgeAchieved.progress"
+                            :max="badgeAchieved.breakpoint == null ? badgeAchieved.progress : badgeAchieved.breakpoint"
+                            :variant="badgeAchieved.breakpoint == null ? 'success' : 'primary'">
+                        </b-progress>
                     </b-col>
                 </b-row>
             </b-list-group-item>
         </b-list-group>
-
-        <!--<div v-for="badge in rewardJson.badgesAchieved" class="w-25">-->
-            <!--<h3>{{badge.name}}</h3>-->
-            <!--<small>{{rewardLevels[badge.level-1]}}</small>-->
-            <!--<single-badge :badge="badge"></single-badge>-->
-        <!--</div>-->
     </div>
 </template>
 
@@ -42,7 +40,7 @@
         name: "rewardToast",
 
         props: {
-            pointsRewarded: Number,
+            pointsRewarded: Object,
             badgeAchieved: Object
         },
 
