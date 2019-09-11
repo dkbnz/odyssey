@@ -309,6 +309,10 @@
                 this.showSelectedDestination = true;
             },
 
+
+            /**
+             * Displays the destinationSearch panel and the riddle that the user is trying to solve.
+             */
             destinationSearch(riddle) {
                 this.showDestinationSearch = true;
                 this.searchedRiddle = riddle;
