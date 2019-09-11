@@ -148,7 +148,8 @@ public class QuestController {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
-        returnJson.set(REWARD, achievementTrackerController.rewardAction(questOwner, newQuest, QUEST_CREATED, null));   // Points for creating quest
+        returnJson.set(REWARD, achievementTrackerController.rewardAction(questOwner, newQuest,
+                QUEST_CREATED, null));   // Points for creating quest
 
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
@@ -194,7 +195,7 @@ public class QuestController {
         }
 
         try {
-            // Attempt to turn json body into a objective object.
+            // Attempt to turn Json body into a objective object.
             quest = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Quest.class)
                     .readValue(request.body().asJson());
@@ -695,42 +696,23 @@ public class QuestController {
             // Objective reward result of checking in.
             JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, toCheckInTo, true); // Points for checking in
 
-            // Add all objective reward points to the list of achieved points.
-            for (JsonNode points : objectiveRewardJson.get(POINTS_REWARDED)) {
-                pointsRewarded.add(points);
-            }
+            // Add all objective reward points and badges to the list of achieved points.
+            pointsRewarded = achievementTrackerController.addAllAwards(pointsRewarded, objectiveRewardJson, POINTS_REWARDED);
+            badgesAchieved = achievementTrackerController.addAllAwards(badgesAchieved, objectiveRewardJson, BADGES_ACHIEVED);
 
-            // Add all objective reward badges to the list of achieved badges.
-            for (JsonNode badge : objectiveRewardJson.get(BADGES_ACHIEVED)) {
-                badgesAchieved.add(badge);
-            }
 
             // If quest was completed
             if (questAttempt.isCompleted()) {
-                double totalDistance = 0;
 
-                List<Objective> questObjectives = questAttempt.getQuestAttempted().getObjectives();
-
-                for (int i = 1; i < questObjectives.size(); i++) {
-                    totalDistance +=
-                            calculateDistance(questObjectives.get(i-1).getDestination().getLatitude(),
-                                     questObjectives.get(i).getDestination().getLatitude(),
-                                     questObjectives.get(i-1).getDestination().getLongitude(),
-                                     questObjectives.get(i).getDestination().getLongitude());
-                }
+                double totalDistance = calculateTotalQuestDistance(questAttempt);
 
                 JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted,
                         QUEST_COMPLETED, totalDistance); // Awards for completing a quest
 
-                // Add all quest reward points to the list of achieved points.
-                for (JsonNode points : questRewardJson.get(POINTS_REWARDED)) {
-                    pointsRewarded.add(points);
-                }
+                // Add all quest reward points and badges to the list of achieved points.
+                pointsRewarded = achievementTrackerController.addAllAwards(pointsRewarded, questRewardJson, POINTS_REWARDED);
+                badgesAchieved = achievementTrackerController.addAllAwards(badgesAchieved, questRewardJson, BADGES_ACHIEVED);
 
-                // Add all quest reward badges to the list of achieved badges.
-                for (JsonNode badge : questRewardJson.get(BADGES_ACHIEVED)) {
-                    badgesAchieved.add(badge);
-                }
             }
 
             // The reward Json part of the returned Json.
@@ -753,6 +735,27 @@ public class QuestController {
 
 
     /**
+     * Calculates the total distance between each objective for the quest associated with the given QuestAttempt.
+     *
+     * @param questAttempt    the QuestAttempt that the user is checking in to.
+     * @return                a double containing the total distance between each objective in the quest.
+     */
+    private static double calculateTotalQuestDistance(QuestAttempt questAttempt) {
+        double totalDistance = 0;
+        List<Objective> questObjectives = questAttempt.getQuestAttempted().getObjectives();
+        // Calculate the total distance between each objective in the quest.
+        for (int i = 1; i < questObjectives.size(); i++) {
+            totalDistance +=
+                    calculateDistance(questObjectives.get(i-1).getDestination().getLatitude(),
+                            questObjectives.get(i).getDestination().getLatitude(),
+                            questObjectives.get(i-1).getDestination().getLongitude(),
+                            questObjectives.get(i).getDestination().getLongitude());
+        }
+        return totalDistance;
+    }
+
+
+    /**
      * Calculates the distance between two destinations locations represented by latitude and longitude values.
      * This is used to determine the quest's total distance, so the user can obtain the Wayfarer badge.
      *
@@ -763,6 +766,7 @@ public class QuestController {
      * @return              a double containing the distance between the two points.
      */
     private static double calculateDistance(double latitude1, double latitude2, double longitude1, double longitude2) {
+
         final int R = 6371; // Radius of the earth
 
         double latDistance = Math.toRadians(latitude2 - latitude1);
