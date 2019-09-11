@@ -100,16 +100,17 @@ public class AchievementTrackerController extends Controller {
 
 
 
-    private JsonNode constructRewardJson(Collection<Badge> badgesAchieved, Integer pointsAchieved) {
+    private JsonNode constructRewardJson(Collection<Badge> badgesAchieved, PointReward pointsAchieved) {
+
+        Collection<PointReward> pointsAchievedCollection = new ArrayList<>();
+        pointsAchievedCollection.add(pointsAchieved);
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
-        if(pointsAchieved != null) {
-            returnJson.put(POINTS_REWARDED, pointsAchieved);
-        }
-
         ArrayNode badges = objectMapper.valueToTree(badgesAchieved);
+        ArrayNode pointsRewarded = objectMapper.valueToTree(pointsAchievedCollection);
 
+        returnJson.putArray(POINTS_REWARDED).addAll(pointsRewarded);
         returnJson.putArray(BADGES_ACHIEVED).addAll(badges);
 
         return returnJson;
@@ -184,13 +185,27 @@ public class AchievementTrackerController extends Controller {
      *
      * @param actingProfile     the profile that completed the action.
      * @param questWorkedOn     the quest that was either created or completed
-     * @param completed         a boolean indicating if the action was completing the quest.
+     * @param questAction       a string indicating if what action was taken for the quest.
      * @return                  the points rewarded to the user.
      */
-    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, boolean completed) {
+    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, String questAction) {
         PointReward points;
         Collection<Badge> badgesAchieved = new ArrayList<>();
-        Action completedAction = completed ? Action.QUEST_COMPLETED : Action.QUEST_CREATED;
+        Action completedAction;
+        switch (questAction) {
+            case "Riddle Solved":
+                completedAction = Action.RIDDLE_SOLVED;
+                break;
+            case "Quest Completed":
+                completedAction = Action.QUEST_COMPLETED;
+                break;
+            case "Quest Created":
+                completedAction = Action.QUEST_CREATED;
+                break;
+            default:
+                completedAction = null;
+                break;
+        }
 
         givePoints(actingProfile, completedAction);
 
@@ -205,7 +220,7 @@ public class AchievementTrackerController extends Controller {
         points = pointRewardRepository.findUsing(completedAction);
         profileRepository.update(actingProfile);
 
-        return constructRewardJson(badgesAchieved, points.getValue());
+        return constructRewardJson(badgesAchieved, points);
     }
 
 
@@ -233,7 +248,7 @@ public class AchievementTrackerController extends Controller {
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
-        return constructRewardJson(badgesAchieved, points.getValue());
+        return constructRewardJson(badgesAchieved, points);
     }
 
 

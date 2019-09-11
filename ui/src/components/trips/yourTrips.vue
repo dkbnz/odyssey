@@ -166,7 +166,7 @@
         </div>
 
         <!-- Div for all the user's past trips -->
-        <div id="pastTrips" class="mt-3 mp-3">
+        <div id="pastTrips" class="mt-3 mb-3 pt-3">
             <h1 class="page-title">Past Trips</h1>
             <p class="page-title"><i>Here are your past trips!</i></p>
 
