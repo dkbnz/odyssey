@@ -24,6 +24,8 @@ import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class AchievementTrackerController extends Controller {
@@ -82,6 +84,7 @@ public class AchievementTrackerController extends Controller {
      *
      * @param actingProfile         the profile receiving progress.
      * @param action                the action that was carried out.
+     * @param progress              the level of progress to be added on.
      * @return                      the progress added to the profile for the specified badge.
      */
     private Badge giveBadge(Profile actingProfile, Action action, int progress) {
@@ -186,6 +189,7 @@ public class AchievementTrackerController extends Controller {
      * @param actingProfile     the profile that completed the action.
      * @param questWorkedOn     the quest that was either created or completed
      * @param questAction       a string indicating if what action was taken for the quest.
+     * @param questDistance     a double value storing the total distance between objectives in a quest.
      * @return                  the points rewarded to the user.
      */
     public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, String questAction, Double questDistance) {
@@ -216,6 +220,12 @@ public class AchievementTrackerController extends Controller {
         }
 
         badgesAchieved.add(giveBadge(actingProfile, completedAction, 1));
+
+        // Adds to the Wayfarer (distance badge) progress. Needs to be in this current order.
+        if (completedAction == Action.QUEST_COMPLETED && questDistance != null) {
+            int roundedValue = (int) Math.ceil(questDistance);
+            badgesAchieved.add(giveBadge(actingProfile, Action.DISTANCE_QUEST_COMPLETED, roundedValue));
+        }
 
         points = pointRewardRepository.findUsing(completedAction);
         profileRepository.update(actingProfile);

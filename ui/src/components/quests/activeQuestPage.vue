@@ -105,6 +105,8 @@
                     return item.id === questAttempt.id;
                 });
 
+                console.log(foundIndex);
+
                 // If quest attempt found, replace it in the array, otherwise add to quest attempts.
                 if (foundIndex !== -1) {
                     this.questAttempts.splice(foundIndex, 1, questAttempt);

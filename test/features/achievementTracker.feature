@@ -64,7 +64,7 @@ Feature: Achievement Tracker API Endpoint
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
     Then I have gained points
 
-# TODO: Isaac - Need a fix to breakpoint when retrieving all badges
+
   Scenario: Successfully requesting all badges
     Given the application is running
     And I am logged in
@@ -293,3 +293,33 @@ Feature: Achievement Tracker API Endpoint
 #    And I gain the "Streaker" badge with level 3
 #    And my current streak is 31
 #    And my last login was 0 hours ago
+
+
+  Scenario: Gaining enough points to achieve bronze level Wayfarer badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And my current progress towards the "Wayfarer" badge is 9999
+    When I check in for quest attempt 8
+    Then the status code received is 200
+    And I have completed the quest
+    And I gain the "Wayfarer" badge with level 1
+
+
+  Scenario: Gaining enough points to achieve silver level Wayfarer badge
+    Given the application is running
+    And I am logged in as user with id "8"
+    And my current progress towards the "Wayfarer" badge is 99999
+    When I check in for quest attempt 9
+    Then the status code received is 200
+    And I have completed the quest
+    And I gain the "Wayfarer" badge with level 2
+
+
+  Scenario: Gaining enough points to achieve gold level Wayfarer badge
+    Given the application is running
+    And I am logged in as user with id "9"
+    And my current progress towards the "Wayfarer" badge is 499999
+    When I check in for quest attempt 10
+    Then the status code received is 200
+    And I have completed the quest
+    And I gain the "Wayfarer" badge with level 3
