@@ -100,16 +100,15 @@ public class AchievementTrackerController extends Controller {
 
 
 
-    private JsonNode constructRewardJson(Collection<Badge> badgesAchieved, Integer pointsAchieved) {
+    private JsonNode constructRewardJson(Collection<Badge> badgesAchieved, PointReward pointsAchieved) {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
-        if(pointsAchieved != null) {
-            returnJson.put(POINTS_REWARDED, pointsAchieved);
-        }
+        JsonNode pointsRewarded = objectMapper.valueToTree(pointsAchieved);
 
         ArrayNode badges = objectMapper.valueToTree(badgesAchieved);
 
+        returnJson.set(POINTS_REWARDED, pointsRewarded);
         returnJson.putArray(BADGES_ACHIEVED).addAll(badges);
 
         return returnJson;
@@ -205,7 +204,7 @@ public class AchievementTrackerController extends Controller {
         points = pointRewardRepository.findUsing(completedAction);
         profileRepository.update(actingProfile);
 
-        return constructRewardJson(badgesAchieved, points.getValue());
+        return constructRewardJson(badgesAchieved, points);
     }
 
 
@@ -233,7 +232,7 @@ public class AchievementTrackerController extends Controller {
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
-        return constructRewardJson(badgesAchieved, points.getValue());
+        return constructRewardJson(badgesAchieved, points);
     }
 
 
