@@ -199,7 +199,7 @@
                             setTimeout(function() {
                                 self.guessSuccess = false;
                             }, 3000);
-                            self.showRewardToast(data);
+                            self.showRewardToast(data.reward);
                         } else {
                             // If unsuccessful guess
                             self.showError = true;

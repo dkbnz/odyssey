@@ -68,6 +68,7 @@ public class QuestController {
 
     private static final String REWARD = "reward";
     private static final String NEW_QUEST = "newQuest";
+    private static final String GUESS_RESULT = "guessResult";
     private static final String POINTS_REWARDED = "pointsRewarded";
     private static final String BADGES_ACHIEVED = "badgesAchieved";
     private static final String ATTEMPT = "attempt";
@@ -144,7 +145,7 @@ public class QuestController {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
-        returnJson.set(REWARD, achievementTrackerController.rewardAction(questOwner, newQuest, false));   // Points for creating quest
+        returnJson.set(REWARD, achievementTrackerController.rewardAction(questOwner, newQuest, "Quest Created"));   // Points for creating quest
 
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
@@ -632,12 +633,12 @@ public class QuestController {
         boolean solveSuccess = questAttempt.solveCurrent(destinationGuess);
 
         // Attempt to solve the current objective in the quest attempt, serialize the result.
-        returnJson.put("guessResult", solveSuccess);
+        returnJson.put(GUESS_RESULT, solveSuccess);
 
 
         // Add points based on the action
         if (solveSuccess) {
-            returnJson.set(REWARD, achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), false));
+            returnJson.set(REWARD, achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), "Riddle Solved"));
         }
 
         // Serialize quest attempt regardless of result.
@@ -703,7 +704,7 @@ public class QuestController {
 
             // If quest was completed
             if (questAttempt.isCompleted()) {
-                JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted, true); // Points for completing quest
+                JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted, "Quest Completed"); // Points for completing quest
 
                 // Add all quest reward points to the list of achieved points.
                 for (JsonNode points : questRewardJson.get(POINTS_REWARDED)) {

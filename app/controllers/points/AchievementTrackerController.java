@@ -185,13 +185,27 @@ public class AchievementTrackerController extends Controller {
      *
      * @param actingProfile     the profile that completed the action.
      * @param questWorkedOn     the quest that was either created or completed
-     * @param completed         a boolean indicating if the action was completing the quest.
+     * @param questAction       a string indicating if what action was taken for the quest.
      * @return                  the points rewarded to the user.
      */
-    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, boolean completed) {
+    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, String questAction) {
         PointReward points;
         Collection<Badge> badgesAchieved = new ArrayList<>();
-        Action completedAction = completed ? Action.QUEST_COMPLETED : Action.QUEST_CREATED;
+        Action completedAction;
+        switch (questAction) {
+            case "Riddle Solved":
+                completedAction = Action.RIDDLE_SOLVED;
+                break;
+            case "Quest Completed":
+                completedAction = Action.QUEST_COMPLETED;
+                break;
+            case "Quest Created":
+                completedAction = Action.QUEST_CREATED;
+                break;
+            default:
+                completedAction = null;
+                break;
+        }
 
         givePoints(actingProfile, completedAction);
 
