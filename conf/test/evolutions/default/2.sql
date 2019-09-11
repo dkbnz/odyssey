@@ -369,7 +369,7 @@ INSERT INTO `badge` (`id`, `action_to_achieve`, `name`, `bronze_breakpoint`, `si
 (4,'QUEST_COMPLETED', 'Solver', 1, 20, 50, 'You need to complete %s more quests to achieve %s'),
 (5,'INTERNATIONAL_QUEST_COMPLETED', 'Explorer', 1, 5, 10, 'You need to complete %s more international quests to achieve %s'),
 (6,'LARGE_QUEST_COMPLETED', 'Odyssey', 1, 10, 30, 'You need to complete %s more large quests to achieve %s'),
-(7,'DISTANCE_QUEST_COMPLETED', 'Wayfarer', 10000, 100000, 500000, 'You need to travel %s more metres in quests to achieve %s'),
+(7,'DISTANCE_QUEST_COMPLETED', 'Wayfarer', 100000, 500000, 1000000, 'You need to travel %s more metres in quests to achieve %s'),
 (8,'POINTS_GAINED', 'Overachiever', 100, 1000, 10000, 'You need to earn %s more points to achieve %s'),
 (9,'LOGIN_STREAK', 'Streaker', 1, 7, 31, 'You need to login each day %s more times to achieve %s');
 
@@ -392,9 +392,9 @@ INSERT INTO `badge_progress` (`id`, `badge_id`, `achievement_tracker_id`, `progr
 (16, 6, 7, 0),
 (17, 6, 8, 9),
 (18, 6, 9, 29),
-(19, 7, 7, 99),
-(20, 7, 8, 999),
-(21, 7, 9, 9999),
+(19, 7, 7, 99999),
+(20, 7, 8, 499999),
+(21, 7, 9, 999999),
 (22, 8, 7, 99),
 (23, 8, 8, 999),
 (24, 8, 9, 9999),
@@ -619,8 +619,8 @@ INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `sol
 (6, 4, 2, 0, 2, 1),
 (7, 7, 6, 1, 0, 0),
 (8, 7, 5, 1, 1, 0),
-(9, 8, 6, 1, 1, 0),
-(10, 9, 6, 1, 1, 0);
+(9, 8, 5, 1, 1, 0),
+(10, 9, 5, 1, 1, 0);
 
 
 # --- !Downs

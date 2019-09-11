@@ -583,13 +583,6 @@ public class AchievementTrackerTestSteps {
     }
 
 
-    @Then("I have completed the quest")
-    public void iHaveCompletedTheQuest() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
-    }
-
-
     @Then("^the response contains (\\d+) badges$")
     public void theResponseContainsBadges(int numberOfBadges) throws Exception {
         // Write code here that turns the phrase above into concrete actions
