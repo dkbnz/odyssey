@@ -3,6 +3,7 @@
 create table achievement_tracker (
   id                            bigint auto_increment not null,
   points                        integer not null,
+  current_streak                integer not null,
   owner_id                      bigint,
   constraint uq_achievement_tracker_owner_id unique (owner_id),
   constraint pk_achievement_tracker primary key (id)
@@ -137,6 +138,7 @@ create table profile (
   gender                        varchar(255),
   date_of_birth                 date,
   is_admin                      boolean default false not null,
+  last_login                    timestamp,
   date_of_creation              timestamp,
   profile_picture_id            bigint,
   constraint uq_profile_profile_picture_id unique (profile_picture_id),

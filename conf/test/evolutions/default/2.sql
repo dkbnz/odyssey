@@ -340,27 +340,27 @@ INSERT INTO `point_reward`(`id`, `name`, `value`) VALUES
 (5, 'OBJECTIVE_CREATED', 2),
 (6, 'QUEST_COMPLETED', 20);
 
-INSERT INTO `profile` (`id`, `username`, `password`, `first_name`, `middle_name`, `last_name`, `gender`, `date_of_birth`, `date_of_creation`, `is_admin`, `profile_picture_id`) VALUES
-(1, 'admin@travelea.com', '25F43B1486AD95A1398E3EEB3D83BC4010015FCC9BEDB35B432E00298D5021F7', 'Default', '', 'Admin', 'Male', '2018-01-01', '2019-01-01 13:00:00.000000', 1, NULL),
-(2, 'guestUser@travelea.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Dave', 'John', 'McInloch', 'Other', '1998-10-18', '2019-04-17 15:31:19.579000', 0, NULL),
-(3, 'testuser1@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserOne', 'Other', '1973-02-18', '2019-01-05 15:31:19.579000', 0, NULL),
-(4, 'testuser2@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserTwo', 'Other', '1982-05-12', '2019-02-04 15:31:19.579000', 0, NULL),
-(5, 'testuser3@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserThree', 'Other', '1971-01-23', '2019-03-03 15:31:19.579000', 0, NULL),
-(6, 'testuser4@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', 0, NULL),
-(7, 'testuser5@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', 0, NULL),
-(8, 'testuser6@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', 0, NULL),
-(9, 'testuser7@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', 0, NULL);
+INSERT INTO `profile` (`id`, `username`, `password`, `first_name`, `middle_name`, `last_name`, `gender`, `date_of_birth`, `last_login`, `date_of_creation`, `is_admin`, `profile_picture_id`) VALUES
+(1, 'admin@travelea.com', '25F43B1486AD95A1398E3EEB3D83BC4010015FCC9BEDB35B432E00298D5021F7', 'Default', '', 'Admin', 'Male', '2018-01-01', '2019-01-01 13:00:00.000000', '2019-01-01 13:00:00.000000', 1, NULL),
+(2, 'guestUser@travelea.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Dave', 'John', 'McInloch', 'Other', '1998-10-18', '2019-04-17 15:31:19.579000', '2019-04-17 15:31:19.579000', 0, NULL),
+(3, 'testuser1@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserOne', 'Other', '1973-02-18', '2019-01-05 15:31:19.579000', '2019-01-05 15:31:19.579000', 0, NULL),
+(4, 'testuser2@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserTwo', 'Other', '1982-05-12', '2019-02-04 15:31:19.579000', '2019-02-04 15:31:19.579000', 0, NULL),
+(5, 'testuser3@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserThree', 'Other', '1971-01-23', '2019-03-03 15:31:19.579000', '2019-03-03 15:31:19.579000', 0, NULL),
+(6, 'testuser4@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', '2019-04-02 15:31:19.579000', 0, NULL),
+(7, 'testuser5@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', '2019-04-02 15:31:19.579000', 0, NULL),
+(8, 'testuser6@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', '2019-04-02 15:31:19.579000', 0, NULL),
+(9, 'testuser7@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', '2019-04-02 15:31:19.579000', 0, NULL);
 
-INSERT INTO `achievement_tracker` (`id`, `points`, `owner_id`) VALUES
-(1, 0, 1),
-(2, 0, 2),
-(3, 0, 3),
-(4, 0, 4),
-(5, 0, 5),
-(6, 0, 6),
-(7, 99, 7),
-(8, 999, 8),
-(9, 9999, 9);
+INSERT INTO `achievement_tracker` (`id`, `points`, `owner_id`, `current_streak`) VALUES
+(1, 0, 1, 0),
+(2, 0, 2, 0),
+(3, 0, 3, 0),
+(4, 0, 4, 0),
+(5, 0, 5, 0),
+(6, 0, 6, 0),
+(7, 99, 7, 3),
+(8, 999, 8, 6),
+(9, 9999, 9, 30);
 
 INSERT INTO `badge` (`id`, `action_to_achieve`, `name`, `bronze_breakpoint`, `silver_breakpoint`, `gold_breakpoint`, `how_to_progress`) VALUES
 (1,'TRIP_CREATED', 'Planner', 1, 10, 30, 'You need to create %s more trips to achieve %s'),
