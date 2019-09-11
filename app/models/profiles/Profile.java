@@ -38,6 +38,10 @@ public class Profile extends BaseModel {
     private LocalDate dateOfBirth;
     private boolean isAdmin;
 
+    @JsonIgnore
+    @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
+    private Date lastLogin;
+
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date dateOfCreation;
 
@@ -79,6 +83,13 @@ public class Profile extends BaseModel {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "owner")
     private AchievementTracker achievementTracker;
 
+    public Date getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(Date lastLogin) {
+        this.lastLogin = lastLogin;
+    }
 
     public List<Objective> getMyObjectives() {
         return myObjectives;
