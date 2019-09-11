@@ -166,7 +166,7 @@ public class GeneralTestSteps {
      * @param username      the string of the username to complete the login with.
      * @param password      the string of the password to complete the login with.
      */
-    private void loginRequest(String username, String password) {
+    public void loginRequest(String username, String password) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode json = mapper.createObjectNode();
 
