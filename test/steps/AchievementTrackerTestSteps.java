@@ -11,6 +11,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.points.Badge;
 import models.profiles.Profile;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import play.libs.Json;
 import play.mvc.Http;
@@ -155,6 +156,10 @@ public class AchievementTrackerTestSteps {
     private static final String LEVEL = "level";
     private static final String PROGRESS = "progress";
 
+    private static final String CURRENT_STREAK = "currentStreak";
+    private static final String LAST_LOGIN = "lastLogin";
+    private static final String REG_AUTH_PASS = "guest123";
+
     private ObjectNode tripJson;
     private List<ObjectNode> tripDestinations = new ArrayList<>();
 
@@ -182,6 +187,16 @@ public class AchievementTrackerTestSteps {
      * Points the profile started with.
      */
     private int startingPoints;
+
+    /**
+     * Users current streak global variable
+     */
+    private int currentStreak;
+
+    /**
+     * Users last login global variable
+     */
+    private DateTime lastLogin;
 
 
     /**
@@ -326,6 +341,26 @@ public class AchievementTrackerTestSteps {
     }
 
 
+    /**
+     * Gets the users current streak information
+     * @param userId the id for the users streak check
+     */
+    private void getProfileStreakInformation(String userId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, userId)
+                .uri(PROFILE_URI);
+        Result result = route(testContext.getApplication(), request);
+        try {
+            ObjectNode profile = mapper.readTree(Helpers.contentAsString(result)).deepCopy();
+            currentStreak = profile.get(ACHIEVEMENT_TRACKER).get(CURRENT_STREAK).asInt();
+            lastLogin = new DateTime(profile.get(LAST_LOGIN).asLong());
+        } catch (Exception e) {
+            fail("Unable to retrieve streak information");
+        }
+    }
+
+
     @Given("I have some starting points")
     public void iHaveSomeStartingPoints() throws IOException {
         String userToView = testContext.getLoggedInId();
@@ -373,6 +408,36 @@ public class AchievementTrackerTestSteps {
     public void myCurrentProgressTowardsTheBadgeIs(String badgeName, int progress) {
         getBadgeProgressAndLevelForLoggedInUser(badgeName);
         Assert.assertEquals(progress, currentBadgeProgress);
+    }
+
+
+    @Given("^the user with id \"(.*)\" has a current streak of (\\d+)$")
+    public void theUserWithIdHasACurrentStreakOf(String id, int currentStreakTest) {
+        getProfileStreakInformation(id);
+        Assert.assertEquals(currentStreakTest, currentStreak);
+    }
+
+
+    @Given("^the user with id \"(.*)\" current progress towards the \"(.*)\" badge is (\\d+)$")
+    public void theUserWithIdCurrentProgressTowardsTheBadgeIs(String id, String badgeName, int progress) {
+        testContext.setLoggedInId(id);
+        getBadgeProgressAndLevelForLoggedInUser(badgeName);
+        Assert.assertEquals(progress, currentBadgeProgress);
+    }
+
+
+    @Given("^the user with id \"(.*)\" last logged in (\\d+) day ago$")
+    public void theUserWithIdLastLoggedInDayAgo(String id, Integer days) {
+        throw new cucumber.api.PendingException();
+//        getProfileStreakInformation(id);
+//        Assert.assertEquals(days, lastLogin);
+    }
+
+
+    @When("^I login to the application with id \"(.*)\"$ and username \"(.*)\"$")
+    public void iLoginToTheApplicationWithUsername(String id, String username) {
+        generalTestSteps.loginRequest(username, REG_AUTH_PASS);
+        testContext.setLoggedInId(id);
     }
 
 
@@ -532,4 +597,26 @@ public class AchievementTrackerTestSteps {
 
         Assert.assertEquals(numberOfBadges, responseJson.size());
     }
+
+
+    @Then("^my current streak is (\\d+)$")
+    public void myCurrentStreakIs(int currentStreakTest) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @Then("^my last login was (\\d+) hours ago$")
+    public void myLastLoginWasHoursAgo(Integer int1) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @Then("^the current progress towards the \"(.*)\" badge is still (\\d+)$")
+    public void theCurrentProgressTowardsTheBadgeIsStill(String obtainedBadge, int progressTest) {
+        getBadgeProgressAndLevelForLoggedInUser(obtainedBadge);
+        assertEquals(progressTest, currentBadgeProgress);
+    }
+
 }

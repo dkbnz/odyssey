@@ -247,8 +247,8 @@ Feature: Achievement Tracker API Endpoint
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
     Then the status code received is 201
     And I gain the "Overachiever" badge with level 3
-#
-#
+
+#TODO: Joel - Waiting on backend implementation.
 #  Scenario: Getting the bronze level Streaker badge
 #    Given the application is running
 #    And The following profile does not exist with the username "TestUser123@travelea.com" within the TravelEA database
@@ -257,3 +257,39 @@ Feature: Achievement Tracker API Endpoint
 #      | TestUser123@travelea.com | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  | 1           | 1              | 1                |
 #    Then the status code received is 201
 #    And I gain the "Streaker" badge with level 1
+#
+#
+#  Scenario: Losing a current streak
+#    Given the application is running
+#    And the user with id "7" has a current streak of 3
+#    And the user with id "7" current progress towards the "Streaker" badge is 3
+#    And the user with id "7" last logged in 2 day ago
+#    When I login to the application with id "7" and username "testuser5@email.com"
+#    Then the status code received is 200
+#    And my current streak is 0
+#    And my last login was 0 hours ago
+#    And the current progress towards the "Streaker" badge is still 3
+#
+#
+#  Scenario: Getting the silver level Streaker badge
+#    Given the application is running
+#    And the user with id "8" has a current streak of 6
+#    And the user with id "8" current progress towards the "Streaker" badge is 6
+#    And the user with id "8" last logged in 1 day ago
+#    When I login to the application with id "8" and username "testuser6@email.com"
+#    Then the status code received is 200
+#    And I gain the "Streaker" badge with level 2
+#    And my current streak is 7
+#    And my last login was 0 hours ago
+#
+#
+#  Scenario: Getting the gold level Streaker badge
+#    Given the application is running
+#    And the user with id "9" has a current streak of 30
+#    And the user with id "9" current progress towards the "Streaker" badge is 30
+#    And the user with id "9" last logged in 1 day ago
+#    When I login to the application with id "9" and username "testuser7@email.com"
+#    Then the status code received is 200
+#    And I gain the "Streaker" badge with level 3
+#    And my current streak is 31
+#    And my last login was 0 hours ago
