@@ -28,7 +28,6 @@ import java.util.List;
 
 public class TripController extends Controller {
 
-    private static final String AUTHORIZED = "authorized";
     private static final String NAME = "trip_name";
     private static final String TRIP_DESTINATIONS = "trip_destinations";
     private static final String START_DATE = "start_date";
@@ -68,67 +67,62 @@ public class TripController extends Controller {
      *
      * @param request           Http Request containing Json Body.
      * @param affectedUserId    The user id of the user who will own the new trip.
-     * @return                  created() (Http 201) response for successful trip creation, or badRequest() (Http 400).
+     * @return                  created() (Http 201) response for successful trip creation.
+     *                          badRequest() (Http 400) if the given request body is invalid.
+     *                          forbidden() (Http 403) if the user doesn't have the permissions to achieve this action.
+     *                          unauthorized() (Http 401) if the user is not logged in.
      */
     public Result create(Http.Request request, Long affectedUserId) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(userId -> {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
 
-                    Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
-                    Profile affectedProfile = profileRepository.findById(affectedUserId);
+        Profile affectedProfile = profileRepository.findById(affectedUserId);
 
-                    if (loggedInUser == null) {
-                        return unauthorized(ApiError.unauthorized());
-                    }
+        if (affectedProfile == null) {
+            return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
+        }
 
-                    // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if (!AuthenticationUtil.validUser(loggedInUser, affectedProfile)) {
-                        return forbidden(ApiError.forbidden());
-                    }
+        // If user is admin, or if they are editing their own profile then allow them to edit.
+        if (!AuthenticationUtil.validUser(loggedInUser, affectedProfile)) {
+            return forbidden(ApiError.forbidden());
+        }
 
-                    if (affectedProfile == null) {
-                        return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
-                    }
+        JsonNode json = request.body().asJson();
 
-                    JsonNode json = request.body().asJson();
+        if (!isValidTrip(json)) {
+            return badRequest(ApiError.invalidJson());
+        }
 
-                    if (!isValidTrip(json)) {
-                        return badRequest(ApiError.invalidJson());
-                    }
+        // Create a trip object and give it the name extracted from the request.
+        Trip trip = new Trip();
+        trip.setName(json.get(NAME).asText());
 
-                    // Create a trip object and give it the name extracted from the request.
-                    Trip trip = new Trip();
-                    trip.setName(json.get(NAME).asText());
+        // Create a json node for the destinations contained in the trip to use for iteration.
+        ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
 
-                    // Create a json node for the destinations contained in the trip to use for iteration.
-                    ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
+        // Create an empty List for TripDestination objects to be populated from the request.
+        List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
 
-                    // Create an empty List for TripDestination objects to be populated from the request.
-                    List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
+        // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return 201.
+        if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
+            trip.setDestinations(destinationList);
+            affectedProfile.addTrip(trip);
+            profileRepository.save(affectedProfile);
+            for (TripDestination tripDestination: destinationList) {
+                determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
+            }
+            tripRepository.save(trip);
 
-                    // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return 201.
-                    if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
-                        trip.setDestinations(destinationList);
-                        affectedProfile.addTrip(trip);
-                        profileRepository.save(affectedProfile);
-                        for (TripDestination tripDestination: destinationList) {
-                            determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
-                        }
-                        tripRepository.save(trip);
+            ObjectNode returnJson = objectMapper.createObjectNode();
+            returnJson.set(REWARD, achievementTrackerController.rewardAction(affectedProfile, trip));
+            returnJson.put(NEW_TRIP_ID, trip.getId());
 
-
-                        ObjectNode returnJson = objectMapper.createObjectNode();
-                        returnJson.set(REWARD, achievementTrackerController.rewardAction(affectedProfile, trip));
-                        returnJson.put(NEW_TRIP_ID, trip.getId());
-
-                        return created(returnJson);
-                    } else {
-                        return badRequest(ApiError.invalidJson());
-                    }
-
-                })
-                .orElseGet(() -> unauthorized());
+            return created(returnJson);
+        } else {
+            return badRequest(ApiError.invalidJson());
+        }
     }
 
 
@@ -153,10 +147,7 @@ public class TripController extends Controller {
         }
 
         // Check if the array of destinations in the request contains at least two destinations.
-        if (!(json.get(TRIP_DESTINATIONS) == null || json.get(TRIP_DESTINATIONS).size() >= MINIMUM_TRIP_DESTINATIONS)) {
-            return false;
-        }
-        return true;
+        return (json.get(TRIP_DESTINATIONS) == null || json.get(TRIP_DESTINATIONS).size() >= MINIMUM_TRIP_DESTINATIONS);
     }
 
 

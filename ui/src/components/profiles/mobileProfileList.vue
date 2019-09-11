@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <b-list-group class="scroll">
+    <div class="scroll">
+        <b-list-group>
             <b-list-group-item href="#"
                                class="flex-column align-items-start"
                                v-for="profile in profileList"

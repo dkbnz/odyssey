@@ -19,9 +19,8 @@
                         ></b-progress>
                     </b-alert>
                     <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
-                    <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="creatingQuest"
-                                       draggable="false">
+                    <b-list-group-item class="flex-column justify-content-center"
+                                       v-if="creatingQuest">
                         <quest-item
                                 :selected-objective="selectedObjective"
                                 :heading="'Create'"
@@ -33,9 +32,8 @@
                                 @Your-OBJ-side-bar="showHideBar => this.showYourObjectives = showHideBar"
                         ></quest-item>
                     </b-list-group-item>
-                    <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="editingQuest"
-                                       draggable="false">
+                    <b-list-group-item class="flex-column justify-content-center"
+                                       v-if="editingQuest">
                         <quest-item
                                 :selected-objective="selectedObjective"
                                 :inputQuest="copiedQuest"
@@ -49,9 +47,8 @@
                         ></quest-item>
                     </b-list-group-item>
                     <div v-if="yourQuests">
-                        <b-list-group-item href="#" class="flex-column justify-content-center"
-                                           v-if="!creatingQuest && !editingQuest"
-                                           draggable="false">
+                        <b-list-group-item class="flex-column justify-content-center"
+                                           v-if="!creatingQuest && !editingQuest">
                             <div class="d-flex justify-content-center">
                                 <b-button variant="success" @click="addQuest" block>Add a New Quest</b-button>
                             </div>
@@ -61,7 +58,7 @@
                                        class="flex-column align-items-start"
                                        :key="quest.id"
                                        draggable="false"
-                                        v-if="!activeQuests"
+                                       v-if="!activeQuests"
                                        @click="selectedQuest = quest">
                         <template v-if="!editingQuest && !(activeId === quest.id)">
                             <b-row class="buttonMarginsTop">
@@ -179,12 +176,12 @@
                             class="mr-2 float-right">Cancel
                     </b-button>
                 </b-modal>
-                <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
+                <b-list-group-item class="flex-column justify-content-center" v-if="loadingResults">
                     <div class="d-flex justify-content-center">
                         <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
                     </div>
                 </b-list-group-item>
-                <b-list-group-item href="#" class="flex-column justify-content-center"
+                <b-list-group-item class="flex-column justify-content-center"
                                    v-if="!loadingResults && foundQuests.length === 0">
                     <div class="d-flex justify-content-center">
                         <strong>No Quests Found</strong>

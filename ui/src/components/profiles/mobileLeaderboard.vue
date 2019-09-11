@@ -154,7 +154,7 @@
                                     self.moreResults = true;
                                     self.initialLoad = false;
                                 }
-                                if (!this.gettingMore && data.length === 0) {
+                                if (!self.gettingMore && data.length === 0) {
                                     self.profiles = [];
                                 }
                                 for (let i = 0; i < data.length; i++) {
