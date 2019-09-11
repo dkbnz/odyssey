@@ -661,7 +661,8 @@ public class QuestController {
      *
      * @param request           request containing session information.
      * @param attemptId         the id of the quest attempt to be checked in to
-     * @return                  ok() (Http 200) response containing the quest attempt if check in was successful.
+     * @return                  ok() (Http 200) response containing the quest attempt and the given awards if check in
+     *                          was successful.
      *                          notFound() (Http 404) response containing an ApiError for retrieval failure.
      *                          unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
      *                          forbidden() (Http 403) response containing an ApiError if the user is forbidden from
