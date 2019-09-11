@@ -613,8 +613,7 @@
                     response.json().then(responseBody => {
                         if (response.ok) {
                             self.showError = false;
-                            self.pointsRewarded = responseBody.pointsRewarded;
-                            self.$emit('successCreate', {message: "Quest Successfully Created", pointsRewarded: self.pointsRewarded});
+                            self.$emit('successCreate', {message: "Quest Successfully Created", reward: responseBody.reward});
                             self.$emit('cancelCreate');
                         } else {
                             self.errorMessage = self.getErrorMessage(responseBody);
