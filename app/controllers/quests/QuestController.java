@@ -3,6 +3,7 @@ package controllers.quests;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import controllers.points.AchievementTrackerController;
@@ -12,7 +13,6 @@ import models.objectives.Objective;
 import models.profiles.Profile;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
-import models.points.Badge;
 import models.util.ApiError;
 import play.libs.Json;
 import play.mvc.Http;
@@ -68,6 +68,9 @@ public class QuestController {
 
     private static final String REWARD = "reward";
     private static final String NEW_QUEST = "newQuest";
+    private static final String POINTS_REWARDED = "pointsRewarded";
+    private static final String BADGES_ACHIEVED = "badgesAchieved";
+    private static final String ATTEMPT = "attempt";
 
     @Inject
     public QuestController(QuestRepository questRepository,
@@ -638,7 +641,7 @@ public class QuestController {
         }
 
         // Serialize quest attempt regardless of result.
-        returnJson.set("attempt", Json.toJson(questAttempt));
+        returnJson.set(ATTEMPT, Json.toJson(questAttempt));
 
         questAttemptRepository.update(questAttempt);
 
@@ -681,16 +684,38 @@ public class QuestController {
 
             Quest questAttempted = questAttempt.getQuestAttempted();
 
-            // TODO: Hayden/Isaac, figure out what to do with two reward jsons
-//            JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, toCheckInTo, true); // Points for checking in
-//
-//            // If quest was completed
-//            if (questAttempt.isCompleted()) {
-//                JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted, true); // Points for completing quest
-//                returnJson.put("completedPoints", questCompletedPoints);
-//            }
-////            returnJson.put(REWARD, pointsAdded);
-            returnJson.set("attempt", Json.toJson(questAttempt));
+            // ArrayNodes that will store all the points and badges rewarded from checking in.
+            ArrayNode pointsRewarded = objectMapper.createArrayNode();
+            ArrayNode badgesAchieved = objectMapper.createArrayNode();
+
+            // Objective reward result of checking in.
+            JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, toCheckInTo, true); // Points for checking in
+            pointsRewarded.add(objectiveRewardJson.get(POINTS_REWARDED));
+
+            // Add all objective reward badges to the list of achieved badges.
+            for (JsonNode badge : objectiveRewardJson.get(BADGES_ACHIEVED)) {
+                badgesAchieved.add(badge);
+            }
+
+            // If quest was completed
+            if (questAttempt.isCompleted()) {
+                JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted, true); // Points for completing quest
+                pointsRewarded.add(questRewardJson.get(POINTS_REWARDED));
+
+                // Add all quest reward badges to the list of achieved badges.
+                for (JsonNode badge : questRewardJson.get(BADGES_ACHIEVED)) {
+                    badgesAchieved.add(badge);
+                }
+            }
+
+            // The reward Json part of the returned Json.
+            ObjectNode rewardJson = objectMapper.createObjectNode();
+            rewardJson.set(POINTS_REWARDED, pointsRewarded);
+            rewardJson.set(BADGES_ACHIEVED, badgesAchieved);
+
+            // Set up the return Json to contain the reward and the quest attempt.
+            returnJson.set(REWARD, rewardJson);
+            returnJson.set(ATTEMPT, Json.toJson(questAttempt));
 
             questAttemptRepository.update(questAttempt);
             return ok(returnJson);
