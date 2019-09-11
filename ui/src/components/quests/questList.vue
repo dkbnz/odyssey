@@ -501,9 +501,12 @@
              * @returns {Promise<Response | never>}
              */
             queryCompletedQuests() {
+                let self= this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
-                    return fetch(`/v1/quests/` + this.profile.id + `/complete`, {})
+                    return fetch(`/v1/quests/` + this.profile.id + `/complete`, {
+                        accept: 'application/json'
+                    })
                         .then(function (response) {
                             response.json().then(responseBody => {
                                 if (response.ok) {
