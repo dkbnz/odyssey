@@ -376,6 +376,34 @@ public class AchievementTrackerTestSteps {
     }
 
 
+    @Given("the user with id {int} has a current streak of {int}")
+    public void theUserWithIdHasACurrentStreakOf(Integer int1, Integer int2) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @Given("the user with id {int} current progress towards the {string} badge is {int}")
+    public void theUserWithIdCurrentProgressTowardsTheBadgeIs(Integer int1, String string, Integer int2) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @Given("the user with id {int} last logged in {int} day ago")
+    public void theUserWithIdLastLoggedInDayAgo(Integer int1, Integer int2) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @When("I login to the application with username {string}")
+    public void iLoginToTheApplicationWithUsername(String string) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
     @When("^I search for profiles with (\\d+) points$")
     public void iSearchForProfilesWithPoints(int searchPoints) {
         // Write code here that turns the phrase above into concrete actions
@@ -531,4 +559,26 @@ public class AchievementTrackerTestSteps {
         JsonNode responseJson = mapper.valueToTree(testContext.getResponseBody());
         Assert.assertEquals(numberOfBadges, responseJson.size());
     }
+
+
+    @Then("my current streak is {int}")
+    public void myCurrentStreakIs(Integer int1) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @Then("my last login was {int} hours ago")
+    public void myLastLoginWasHoursAgo(Integer int1) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
+
+    @Then("the current progress towards the {string} badge is still {int}")
+    public void theCurrentProgressTowardsTheBadgeIsStill(String string, Integer int1) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
 }
