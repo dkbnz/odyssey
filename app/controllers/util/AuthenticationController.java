@@ -10,6 +10,9 @@ import play.mvc.Result;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,6 +30,7 @@ public class AuthenticationController extends Controller {
     private static final String ALREADY_LOGGED_IN = "OK, Already Logged In";
     private static final String LOGGED_OUT = "OK, Logged out";
     private static final String HASH_FAIL = "Invalid JSON: JSON Object contains no user or password key";
+    private static final Integer DAY_IN_MS = 86400000;
 
     private ProfileRepository profileRepository;
 
@@ -45,43 +49,86 @@ public class AuthenticationController extends Controller {
      *                  credentials can be found.
      */
     public Result login(Http.Request request) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(userId -> ok(ALREADY_LOGGED_IN)) // User is already logged in, return OK
-                .orElseGet(() -> { // orElseGet tries to get the `getOptional` value, otherwise executes the following function
 
-                    // User is not logged in, attempt to search database
-                    JsonNode loginJson = request.body().asJson();
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
 
-                    // Check if a body was given and has required fields
-                    if (loginJson == null || (!(loginJson.has(USERNAME) && loginJson.has(PASS_FIELD)))) {
-                        // If JSON Object contains no user or pass key, return bad request
-                        // Prevents null pointer exceptions when trying to get the values below.
-                        return badRequest(ApiError.invalidJson());
-                    }
+        if (loggedInUser == null) {
+            // user is not logged in and attempt to log in with user and pass key
+            JsonNode loginJson = request.body().asJson();
 
-                    String username = loginJson.get(USERNAME).asText();
+            // Check if a body was given and has required fields
+            if (loginJson == null || (!(loginJson.has(USERNAME) && loginJson.has(PASS_FIELD)))) {
+                // If JSON Object contains no user or pass key, return bad request
+                // Prevents null pointer exceptions when trying to get the values below.
+                return badRequest(ApiError.invalidJson());
+            }
 
-                    // Uses the hashProfilePassword() method to hash the given password.
-                    String password = null;
-                    try {
-                        password = AuthenticationUtil.hashProfilePassword(loginJson.get(PASS_FIELD).asText());
-                    } catch (NoSuchAlgorithmException e) {
-                        LOGGER.log(Level.SEVERE, HASH_FAIL, e);
-                        return badRequest(ApiError.badRequest(HASH_FAIL));
-                    }
+            String username = loginJson.get(USERNAME).asText();
 
-                    Profile profile = profileRepository.getExpressionList()
-                            .like(USERNAME, username).findOne();
+            // Uses the hashProfilePassword() method to hash the given password.
+            String password = null;
+            try {
+                password = AuthenticationUtil.hashProfilePassword(loginJson.get(PASS_FIELD).asText());
+            } catch (NoSuchAlgorithmException e) {
+                LOGGER.log(Level.SEVERE, HASH_FAIL, e);
+                return badRequest(ApiError.badRequest(HASH_FAIL));
+            }
 
-                    if ((profile != null) && (profile.getPassword().equals(password))) {
-                        // Profile was successfully fetched and password matches,
-                        // Set session token as id and return ok (200 response)
-                        return ok(LOGGED_IN).addingToSession(request, AUTHORIZED, profile.id.toString());
-                    }
+            Profile profile = profileRepository.getExpressionList()
+                    .like(USERNAME, username).findOne();
 
-                    return unauthorized(ApiError.unauthorized());
-                });
+            if ((profile != null) && (profile.getPassword().equals(password))) {
+                // Profile was successfully fetched and password matches,
+                // checks if needing tpo increment the streaker badge
+//                checkStreakIncrement(profile);
+                // Set session token as id and return ok (200 response)
+                return ok(LOGGED_IN).addingToSession(request, AUTHORIZED, profile.id.toString());
+            }
+
+            return unauthorized(ApiError.unauthorized());
+        } else {
+            // user is logged in
+//            checkStreakIncrement(loggedInUser);
+            return ok(ALREADY_LOGGED_IN);
+        }
+
+//        return request.session()
+//                .getOptional(AUTHORIZED)
+//                .map(userId -> ok(ALREADY_LOGGED_IN)) // User is already logged in, return OK
+//                .orElseGet(() -> { // orElseGet tries to get the `getOptional` value, otherwise executes the following function
+//
+//                    // User is not logged in, attempt to search database
+//                    JsonNode loginJson = request.body().asJson();
+//
+//                    // Check if a body was given and has required fields
+//                    if (loginJson == null || (!(loginJson.has(USERNAME) && loginJson.has(PASS_FIELD)))) {
+//                        // If JSON Object contains no user or pass key, return bad request
+//                        // Prevents null pointer exceptions when trying to get the values below.
+//                        return badRequest(ApiError.invalidJson());
+//                    }
+//
+//                    String username = loginJson.get(USERNAME).asText();
+//
+//                    // Uses the hashProfilePassword() method to hash the given password.
+//                    String password = null;
+//                    try {
+//                        password = AuthenticationUtil.hashProfilePassword(loginJson.get(PASS_FIELD).asText());
+//                    } catch (NoSuchAlgorithmException e) {
+//                        LOGGER.log(Level.SEVERE, HASH_FAIL, e);
+//                        return badRequest(ApiError.badRequest(HASH_FAIL));
+//                    }
+//
+//                    Profile profile = profileRepository.getExpressionList()
+//                            .like(USERNAME, username).findOne();
+//
+//                    if ((profile != null) && (profile.getPassword().equals(password))) {
+//                        // Profile was successfully fetched and password matches,
+//                        // Set session token as id and return ok (200 response)
+//                        return ok(LOGGED_IN).addingToSession(request, AUTHORIZED, profile.id.toString());
+//                    }
+//
+//                    return unauthorized(ApiError.unauthorized());
+//                });
     }
 
 
@@ -92,5 +139,34 @@ public class AuthenticationController extends Controller {
      */
     public Result logout() {
         return ok(LOGGED_OUT).withNewSession(); // Sets a new session, clearing the old one
+    }
+
+    private void checkStreakIncrement(Profile profile) {
+
+        Date lastLogin = profile.getLastLogin();
+
+        LocalDate localDateLastLogin = lastLogin.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        int yearLastLogin  = localDateLastLogin.getYear();
+        int monthLastLogin = localDateLastLogin.getMonthValue();
+        int dayLastLogin  = localDateLastLogin.getDayOfMonth();
+
+        Date daysAgoDate = new Date(System.currentTimeMillis() - DAY_IN_MS);
+
+        LocalDate localDate = daysAgoDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        int yearTest  = localDate.getYear();
+        int monthTest = localDate.getMonthValue();
+        int dayTest   = localDate.getDayOfMonth();
+
+        profile.setLastLogin(daysAgoDate);
+        profileRepository.update(profile);
+
+//        Profile profileTest = profileRepository.findById(Long.valueOf(userId));
+
+//        LocalDate profileLastLogin = profileTest.getLastLogin().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+//
+//        int yearProfile  = profileLastLogin.getYear();
+//        int monthProfile = profileLastLogin.getMonthValue();
+//        int dayProfile   = profileLastLogin.getDayOfMonth();
+
     }
 }
