@@ -31,21 +31,22 @@ Vue.mixin({
         showRewardToast(rewardJson) {
             if((rewardJson.hasOwnProperty('badgesAchieved') && rewardJson.badgesAchieved.length) || (rewardJson.hasOwnProperty('pointsRewarded'))) {
                 for (let j = 0; j < rewardJson.pointsRewarded.length; j++) {
-                    const h = this.$createElement;
+                    if (rewardJson.pointsRewarded[j]) {
+                        const h = this.$createElement;
 
-                    const toastContent = h(
-                        'reward-toast',
-                        {props: {pointsRewarded: rewardJson.pointsRewarded[j]}}
-                    );
+                        const toastContent = h(
+                            'reward-toast',
+                            {props: {pointsRewarded: rewardJson.pointsRewarded[j]}}
+                        );
 
-                    this.$bvToast.toast([toastContent], {
-                        title: this.possibleActions[rewardJson.pointsRewarded[j].name],
-                        autoHideDelay: 5000,
-                        appendToast: true,
-                        solid: true,
-                        variant: 'success'
-                    });
-
+                        this.$bvToast.toast([toastContent], {
+                            title: this.possibleActions[rewardJson.pointsRewarded[j].name],
+                            autoHideDelay: 5000,
+                            appendToast: true,
+                            solid: true,
+                            variant: 'success'
+                        });
+                    }
                 }
                 for (let i = 0; i < rewardJson.badgesAchieved.length; i++) {
                     if (rewardJson.badgesAchieved[i]) {
