@@ -623,6 +623,7 @@
              */
             showSuccess(messageObject) {
                 this.getMore();
+                this.showRewardToast(messageObject.reward);
                 this.alertText = messageObject.message;
 
                 // If points were given, also set the data value, otherwise make sure it's the default of 0 to hide it.

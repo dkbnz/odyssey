@@ -94,6 +94,10 @@ public class Badge extends BaseModel {
      */
     @JsonProperty("breakpoint")
     public Integer getCurrentBreakpoint() {
+        if (progress == null) {
+            return null;
+        }
+
         switch (this.getLevel()) {
             case 0:
                 return bronzeBreakpoint;

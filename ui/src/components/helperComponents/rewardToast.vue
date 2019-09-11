@@ -1,26 +1,28 @@
 <template>
     <div>
-        <!--<p>{{rewardJson.pointsRewarded}}</p>-->
-        <b-list-group>
+        <div v-if="pointsRewarded">
+            <p>You gained {{pointsRewarded.value}} {{pointsRewarded === 1 ? 'point' : 'points'}}</p>
+        </div>
+        <b-list-group v-if="badgeAchieved">
             <b-list-group-item
                                class="flex-column align-items-start"
-                               v-for="badge in rewardJson.badgesAchieved"
-                               :key="badge.id">
+                               v-if="badgeAchieved !== null"
+                               :key="badgeAchieved.id">
                 <b-row>
                     <b-col cols="4">
-                        <single-badge :badge="badge"></single-badge>
+                        <single-badge :badge="badgeAchieved"></single-badge>
                     </b-col>
                     <b-col>
                         <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">{{badge.name}}</h5>
-                            <small>{{badge.progress}}{{badge.breakpoint == null ? '' : '/' + badge.breakpoint}}</small>
+                            <h5 class="mb-1">{{badgeAchieved.name}}</h5>
+                            <small>{{badgeAchieved.progress}}{{badgeAchieved.breakpoint == null ? '' : '/' + badgeAchieved.breakpoint}}</small>
                         </div>
 
                         <p class="mb-1">
-                            {{badge.howToProgress}}
+                            {{badgeAchieved.howToProgress}}
                         </p>
 
-                        <b-progress :value="badge.progress" :max="badge.breakpoint == null ? badge.progress : badge.breakpoint" :variant="badge.breakpoint == null ? 'success' : 'primary'"></b-progress>
+                        <b-progress :value="badgeAchieved.progress" :max="badgeAchieved.breakpoint == null ? badgeAchieved.progress : badgeAchieved.breakpoint" :variant="badgeAchieved.breakpoint == null ? 'success' : 'primary'"></b-progress>
                     </b-col>
                 </b-row>
             </b-list-group-item>
@@ -40,7 +42,8 @@
         name: "rewardToast",
 
         props: {
-            rewardJson: Object
+            pointsRewarded: Number,
+            badgeAchieved: Object
         },
 
         data() {
@@ -52,6 +55,8 @@
         components: {
             SingleBadge
         },
+
+
     }
 </script>
 
