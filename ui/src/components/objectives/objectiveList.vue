@@ -17,8 +17,8 @@
                 ></b-progress>
             </b-alert>
             <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
-            <b-list-group-item href="#" class="flex-column justify-content-center"
-                               v-if="creatingObjective" draggable="false">
+            <b-list-group-item class="flex-column justify-content-center"
+                               v-if="creatingObjective">
                 <!-- Adding objective component -->
                 <add-objective :profile="profile" :heading="'Create'"
                                @cancelCreate="cancelCreate"
@@ -29,8 +29,8 @@
                 </add-objective>
             </b-list-group-item>
             <div v-if="!sideBarView && yourObjectives">
-                <b-list-group-item href="#" class="flex-column justify-content-center"
-                                   v-if="!creatingObjective" draggable="false">
+                <b-list-group-item class="flex-column justify-content-center"
+                                   v-if="!creatingObjective">
                     <div class="d-flex justify-content-center">
                         <b-button variant="success"
                                   @click="addObjective" block>
@@ -82,14 +82,13 @@
                 </add-objective>
                 <!--Objective component-->
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults"
-                               draggable="false">
+            <b-list-group-item class="flex-column justify-content-center" v-if="loadingResults">
                 <div class="d-flex justify-content-center">
                     <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
                 </div>
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center"
-                               v-if="!loadingResults && foundObjectives.length === 0" draggable="false">
+            <b-list-group-item class="flex-column justify-content-center"
+                               v-if="!loadingResults && foundObjectives.length === 0">
                 <div class="d-flex justify-content-center">
                     <strong>No Objectives</strong>
                 </div>

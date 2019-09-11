@@ -86,7 +86,7 @@
                                     <b-col>
                                         <h6 class="mb-1">Selected Destination:</h6>
                                         <b-list-group>
-                                            <b-list-group-item href="#" class="flex-column align-items-start"
+                                            <b-list-group-item class="flex-column align-items-start"
                                                                id="selectedDestination"
                                                                :disabled="selectedDestination.length === '{}'">
                                                 <div class="d-flex w-100 justify-content-between">
