@@ -22,7 +22,6 @@ public class PointReward extends BaseModel {
     @Column(nullable = false)
     private int value;
 
-
     public int getValue() {
         return value;
     }
