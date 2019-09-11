@@ -188,7 +188,7 @@ public class AchievementTrackerController extends Controller {
      * @param questAction       a string indicating if what action was taken for the quest.
      * @return                  the points rewarded to the user.
      */
-    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, String questAction) {
+    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, String questAction, Double questDistance) {
         PointReward points;
         Collection<Badge> badgesAchieved = new ArrayList<>();
         Action completedAction;

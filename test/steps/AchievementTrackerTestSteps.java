@@ -620,9 +620,10 @@ public class AchievementTrackerTestSteps {
 
 
     @Then("^the response contains (\\d+) badges$")
-    public void theResponseContainsBadges(int numberOfBadges) {
+    public void theResponseContainsBadges(int numberOfBadges) throws Exception {
         // Write code here that turns the phrase above into concrete actions
-        JsonNode responseJson = mapper.valueToTree(testContext.getResponseBody());
+        JsonNode responseJson = mapper.readTree(testContext.getResponseBody());
+
         Assert.assertEquals(numberOfBadges, responseJson.size());
     }
 
