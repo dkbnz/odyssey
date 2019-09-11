@@ -199,7 +199,7 @@
                             setTimeout(function() {
                                 self.guessSuccess = false;
                             }, 3000);
-                            self.createPointToast(data.pointsRewarded, "Riddle Solved")
+                            self.showRewardToast(data);
                         } else {
                             // If unsuccessful guess
                             self.showError = true;
@@ -208,21 +208,6 @@
                             }, 3000)
                         }
                     })
-            },
-
-
-            /**
-             * Displays a toast saying they've gained a certain amount of points.
-             * @param points the points to display.
-             * @param title the title of the toast, indicating the context of the point gain.
-             */
-            createPointToast(points, title) {
-                let message = "Your points have increased by " + points;
-                this.$bvToast.toast(message, {
-                    title: title,
-                    autoHideDelay: 3000,
-                    appendToast: true
-                })
             },
 
 
@@ -293,12 +278,7 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        self.createPointToast(data.pointsRewarded, "Checked In");
-                        if (data.completedPoints != null) {
-                            setTimeout(points => {
-                                self.createPointToast(points, "Quest Complete")
-                            }, 500, data.completedPoints);
-                        }
+                        self.showRewardToast(data.reward);
                         self.$emit('updated-quest-attempt', data.attempt);
                     })
             },

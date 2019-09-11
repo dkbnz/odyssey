@@ -690,7 +690,11 @@ public class QuestController {
 
             // Objective reward result of checking in.
             JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, toCheckInTo, true); // Points for checking in
-            pointsRewarded.add(objectiveRewardJson.get(POINTS_REWARDED));
+
+            // Add all objective reward points to the list of achieved points.
+            for (JsonNode points : objectiveRewardJson.get(POINTS_REWARDED)) {
+                pointsRewarded.add(points);
+            }
 
             // Add all objective reward badges to the list of achieved badges.
             for (JsonNode badge : objectiveRewardJson.get(BADGES_ACHIEVED)) {
@@ -700,7 +704,11 @@ public class QuestController {
             // If quest was completed
             if (questAttempt.isCompleted()) {
                 JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted, true); // Points for completing quest
-                pointsRewarded.add(questRewardJson.get(POINTS_REWARDED));
+
+                // Add all quest reward points to the list of achieved points.
+                for (JsonNode points : questRewardJson.get(POINTS_REWARDED)) {
+                    pointsRewarded.add(points);
+                }
 
                 // Add all quest reward badges to the list of achieved badges.
                 for (JsonNode badge : questRewardJson.get(BADGES_ACHIEVED)) {

@@ -30,22 +30,41 @@ Vue.mixin({
     methods: {
         showRewardToast(rewardJson) {
             if((rewardJson.hasOwnProperty('badgesAchieved') && rewardJson.badgesAchieved.length) || (rewardJson.hasOwnProperty('pointsRewarded'))) {
-                const h = this.$createElement;
+                for (let j = 0; j < rewardJson.pointsRewarded.length; j++) {
+                    const h = this.$createElement;
 
-                const toastContent = h(
-                    'reward-toast',
-                    {props: {rewardJson: rewardJson}}
-                );
+                    const toastContent = h(
+                        'reward-toast',
+                        {props: {pointsRewarded: rewardJson.pointsRewarded[j]}}
+                    );
 
-                this.$bvToast.toast([toastContent], {
-                    title: "Congratulations!",
-                    autoHideDelay: 5000,
-                    appendToast: true,
-                    solid: true,
-                    variant: 'success'
-                });
+                    this.$bvToast.toast([toastContent], {
+                        title: this.possibleActions[rewardJson.pointsRewarded[j].name],
+                        autoHideDelay: 5000,
+                        appendToast: true,
+                        solid: true,
+                        variant: 'success'
+                    });
+
+                }
+                for (let i = 0; i < rewardJson.badgesAchieved.length; i++) {
+                    if (rewardJson.badgesAchieved[i]) {
+                        const h = this.$createElement;
+                        const toastContent = h(
+                            'reward-toast',
+                            {props: {badgeAchieved: rewardJson.badgesAchieved[i]}}
+                        );
+
+                        this.$bvToast.toast([toastContent], {
+                            title: "Congratulations!",
+                            autoHideDelay: 5000,
+                            appendToast: true,
+                            solid: true,
+                            variant: 'success'
+                        });
+                    }
+                }
             }
-
         },
 
 
@@ -68,6 +87,21 @@ Vue.mixin({
     computed: {
         assets() {
             return assets
+        }
+    },
+
+    data() {
+        return {
+            possibleActions: {
+                DESTINATION_CREATED: 'Destination Created',
+                OBJECTIVE_CREATED: 'Objective Created',
+                QUEST_CREATED: 'Quest Created',
+                TRIP_CREATED: 'Trip Created',
+                RIDDLE_SOLVED: 'Riddle Solved',
+                CHECKED_IN: 'Checked In',
+                QUEST_COMPLETED: 'Quest Completed'
+
+            }
         }
     }
 });
