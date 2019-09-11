@@ -12,15 +12,18 @@ import cucumber.api.java.en.When;
 import models.points.Badge;
 import models.profiles.Profile;
 import org.joda.time.DateTime;
+import java.time.LocalDate;
 import org.junit.Assert;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.profiles.ProfileRepository;
 import repositories.quests.QuestRepository;
 import scala.Int;
 
 import java.io.IOException;
+import java.time.ZoneId;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -158,6 +161,7 @@ public class AchievementTrackerTestSteps {
 
     private static final String CURRENT_STREAK = "currentStreak";
     private static final String LAST_LOGIN = "lastLogin";
+    private static final Integer DAY_IN_MS = 86400000;
     private static final String REG_AUTH_PASS = "guest123";
 
     private ObjectNode tripJson;
@@ -203,6 +207,12 @@ public class AchievementTrackerTestSteps {
      * Points the profile has after an action.
      */
     private int currentPoints;
+
+
+    /**
+     * Repository to access the profiles in the running application.
+     */
+    private ProfileRepository profileRepository;
 
 
     private void getPointsRequest(String userId) {
@@ -427,14 +437,33 @@ public class AchievementTrackerTestSteps {
 
 
     @Given("^the user with id \"(.*)\" last logged in (\\d+) day ago$")
-    public void theUserWithIdLastLoggedInDayAgo(String id, Integer days) {
-        throw new cucumber.api.PendingException();
-//        getProfileStreakInformation(id);
-//        Assert.assertEquals(days, lastLogin);
+    public void theUserWithIdLastLoggedInDayAgo(String userId, Integer days) {
+        Profile profile = profileRepository.findById(Long.valueOf(userId));
+
+        Date daysAgoDate = new Date(System.currentTimeMillis() - (days * DAY_IN_MS));
+
+        LocalDate localDate = daysAgoDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        int yearTest  = localDate.getYear();
+        int monthTest = localDate.getMonthValue();
+        int dayTest   = localDate.getDayOfMonth();
+
+        profile.setLastLogin(daysAgoDate);
+        profileRepository.update(profile);
+
+        Profile profileTest = profileRepository.findById(Long.valueOf(userId));
+
+        LocalDate profileLastLogin = profileTest.getLastLogin().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        int yearProfile  = profileLastLogin.getYear();
+        int monthProfile = profileLastLogin.getMonthValue();
+        int dayProfile   = profileLastLogin.getDayOfMonth();
+
+        Assert.assertEquals(yearTest, yearProfile);
+        Assert.assertEquals(monthTest, monthProfile);
+        Assert.assertEquals(dayTest, dayProfile);
     }
 
-
-    @When("^I login to the application with id \"(.*)\"$ and username \"(.*)\"$")
+    @When("^I login to the application with id \"(.*)\" and username \"(.*)\"$")
     public void iLoginToTheApplicationWithUsername(String id, String username) {
         generalTestSteps.loginRequest(username, REG_AUTH_PASS);
         testContext.setLoggedInId(id);
@@ -600,15 +629,31 @@ public class AchievementTrackerTestSteps {
 
     @Then("^my current streak is (\\d+)$")
     public void myCurrentStreakIs(int currentStreakTest) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+        getProfileStreakInformation(testContext.getLoggedInId());
+        assertEquals(currentStreakTest, currentStreak);
     }
 
 
-    @Then("^my last login was (\\d+) hours ago$")
-    public void myLastLoginWasHoursAgo(Integer int1) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+    @Then("^my last login was (\\d+) days ago$")
+    public void myLastLoginWasHoursAgo(int days) {
+        Profile profileTest = profileRepository.findById(Long.valueOf(testContext.getLoggedInId()));
+
+        LocalDate profileLastLogin = profileTest.getLastLogin().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        Date daysAgoDate = new Date(System.currentTimeMillis() - (days * DAY_IN_MS));
+        LocalDate dayAgoTest = daysAgoDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        int yearTest  = dayAgoTest.getYear();
+        int monthTest = dayAgoTest.getMonthValue();
+        int dayTest   = dayAgoTest.getDayOfMonth();
+
+        int yearProfile  = profileLastLogin.getYear();
+        int monthProfile = profileLastLogin.getMonthValue();
+        int dayProfile   = profileLastLogin.getDayOfMonth();
+
+        Assert.assertEquals(yearTest, yearProfile);
+        Assert.assertEquals(monthTest, monthProfile);
+        Assert.assertEquals(dayTest, dayProfile);
     }
 
 
