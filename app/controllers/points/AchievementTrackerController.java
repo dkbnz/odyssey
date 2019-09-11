@@ -102,13 +102,15 @@ public class AchievementTrackerController extends Controller {
 
     private JsonNode constructRewardJson(Collection<Badge> badgesAchieved, PointReward pointsAchieved) {
 
+        Collection<PointReward> pointsAchievedCollection = new ArrayList<>();
+        pointsAchievedCollection.add(pointsAchieved);
+
         ObjectNode returnJson = objectMapper.createObjectNode();
 
-        JsonNode pointsRewarded = objectMapper.valueToTree(pointsAchieved);
-
         ArrayNode badges = objectMapper.valueToTree(badgesAchieved);
+        ArrayNode pointsRewarded = objectMapper.valueToTree(pointsAchievedCollection);
 
-        returnJson.set(POINTS_REWARDED, pointsRewarded);
+        returnJson.putArray(POINTS_REWARDED).addAll(pointsRewarded);
         returnJson.putArray(BADGES_ACHIEVED).addAll(badges);
 
         return returnJson;
