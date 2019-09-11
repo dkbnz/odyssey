@@ -22,6 +22,9 @@ public class AchievementTracker extends BaseModel {
      */
     private int points;
 
+    @JsonIgnore
+    private int currentStreak;
+
     @OneToMany(mappedBy = "achievementTracker", cascade = CascadeType.ALL)
     private Set<BadgeProgress> badgeProgressSet;
 
@@ -38,6 +41,20 @@ public class AchievementTracker extends BaseModel {
     @JsonIgnore
     private Profile owner;
 
+    /**
+     * gets the current streak for the user
+     * @return the integer of the users current streak
+     */
+    public int getCurrentStreak() {
+        return currentStreak;
+    }
+
+    /**
+     * sets the current streak for the user
+     */
+    public void setCurrentStreak(int currentStreak) {
+        this.currentStreak = currentStreak;
+    }
 
     /**
      * Default constructor to set the points to a not-null default value.
