@@ -298,28 +298,25 @@ Feature: Achievement Tracker API Endpoint
   Scenario: Gaining enough points to achieve bronze level Wayfarer badge
     Given the application is running
     And I am logged in as user with id "7"
-    And my current progress towards the "Wayfarer" badge is 9999
+    And my current progress towards the "Wayfarer" badge is 99999
     When I check in for quest attempt 8
     Then the status code received is 200
-    And I have completed the quest
     And I gain the "Wayfarer" badge with level 1
 
 
   Scenario: Gaining enough points to achieve silver level Wayfarer badge
     Given the application is running
     And I am logged in as user with id "8"
-    And my current progress towards the "Wayfarer" badge is 99999
+    And my current progress towards the "Wayfarer" badge is 499999
     When I check in for quest attempt 9
     Then the status code received is 200
-    And I have completed the quest
     And I gain the "Wayfarer" badge with level 2
 
 
   Scenario: Gaining enough points to achieve gold level Wayfarer badge
     Given the application is running
     And I am logged in as user with id "9"
-    And my current progress towards the "Wayfarer" badge is 499999
+    And my current progress towards the "Wayfarer" badge is 999999
     When I check in for quest attempt 10
     Then the status code received is 200
-    And I have completed the quest
     And I gain the "Wayfarer" badge with level 3
