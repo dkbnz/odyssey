@@ -367,9 +367,9 @@ INSERT INTO `badge` (`id`, `action_to_achieve`, `name`, `bronze_breakpoint`, `si
 (2,'DESTINATION_CREATED', 'Cartographer', 1, 10, 50, 'You need to create %s more destinations to achieve %s'),
 (3,'QUEST_CREATED', 'Writer', 1, 15, 50, 'You need to create %s more quests to achieve %s'),
 (4,'QUEST_COMPLETED', 'Solver', 1, 20, 50, 'You need to complete %s more quests to achieve %s'),
-(5,'INTERNATIONAL_QUEST_COMPLETED', 'Explorer', 1, 10, 30, 'You need to complete %s more international quests to achieve %s'),
+(5,'INTERNATIONAL_QUEST_COMPLETED', 'Explorer', 1, 5, 10, 'You need to complete %s more international quests to achieve %s'),
 (6,'LARGE_QUEST_COMPLETED', 'Odyssey', 1, 10, 30, 'You need to complete %s more large quests to achieve %s'),
-(7,'DISTANCE_QUEST_COMPLETED', 'Wayfarer', 100, 1000, 10000, 'You need to travel %s more km''s in quests to achieve %s'),
+(7,'DISTANCE_QUEST_COMPLETED', 'Wayfarer', 10000, 100000, 500000, 'You need to travel %s more metres in quests to achieve %s'),
 (8,'POINTS_GAINED', 'Overachiever', 100, 1000, 10000, 'You need to earn %s more points to achieve %s'),
 (9,'LOGIN_STREAK', 'Streaker', 1, 7, 31, 'You need to login each day %s more times to achieve %s');
 
@@ -577,7 +577,7 @@ INSERT INTO `objective` (`id`, `destination_id`, `riddle`, `radius`, `owner_id`)
 (8, 1834, 'My radius riddle', 1, 2),
 (9, 1834, 'Under the seeeeeeeeaaaaaaaa', 1, 2),
 (10, 1834, 'In german I am named Koeln', 1, 2),
-(11, 1834, 'I am the capital of Switzerland', 1, 2),
+(11, 119, 'I am the capital of Switzerland', 1, 2),
 (12, 1834, 'I am the capital of Australia', 1, 2),
 (13, 1834, 'I like to move it, move it!', 0.02, 2),
 (14, 1834, 'The better engineering university', 1, 2),
@@ -617,7 +617,10 @@ INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `sol
 (4, 2, 4, 0, 1, 0),
 (5, 3, 5, 0, 2, 1),
 (6, 4, 2, 0, 2, 1),
-(7, 7, 6, 1, 0, 0);
+(7, 7, 6, 1, 0, 0),
+(8, 7, 5, 1, 1, 0),
+(9, 8, 6, 1, 1, 0),
+(10, 9, 6, 1, 1, 0);
 
 
 # --- !Downs

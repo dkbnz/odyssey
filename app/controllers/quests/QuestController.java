@@ -709,16 +709,18 @@ public class QuestController {
             if (questAttempt.isCompleted()) {
                 double totalDistance = 0;
 
-                for (int i = 1; i < questAttempt.getQuestAttempted().getObjectives().size(); i++) {
-                    if (questAttempt.getQuestAttempted().getObjectives().size() > 1) {
-                        totalDistance += distance(questAttempt.getQuestAttempted().getObjectives().get(i-1).getDestination().getLatitude(),
-                                questAttempt.getQuestAttempted().getObjectives().get(i).getDestination().getLatitude(),
-                                questAttempt.getQuestAttempted().getObjectives().get(i-1).getDestination().getLongitude(),
-                                questAttempt.getQuestAttempted().getObjectives().get(i).getDestination().getLongitude());
-                    }
+                List<Objective> questObjectives = questAttempt.getQuestAttempted().getObjectives();
+
+                for (int i = 1; i < questObjectives.size(); i++) {
+                    totalDistance +=
+                            calculateDistance(questObjectives.get(i-1).getDestination().getLatitude(),
+                                     questObjectives.get(i).getDestination().getLatitude(),
+                                     questObjectives.get(i-1).getDestination().getLongitude(),
+                                     questObjectives.get(i).getDestination().getLongitude());
                 }
 
-                JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted, QUEST_COMPLETED, totalDistance); // Points for completing quest
+                JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted,
+                        QUEST_COMPLETED, totalDistance); // Awards for completing a quest
 
                 // Add all quest reward points to the list of achieved points.
                 for (JsonNode points : questRewardJson.get(POINTS_REWARDED)) {
@@ -729,9 +731,6 @@ public class QuestController {
                 for (JsonNode badge : questRewardJson.get(BADGES_ACHIEVED)) {
                     badgesAchieved.add(badge);
                 }
-
-
-                System.out.println(totalDistance);
             }
 
             // The reward Json part of the returned Json.
@@ -763,7 +762,7 @@ public class QuestController {
      * @param longitude2    the second destination's longitude value.
      * @return              a double containing the distance between the two points.
      */
-    private static double distance(double latitude1, double latitude2, double longitude1, double longitude2) {
+    private static double calculateDistance(double latitude1, double latitude2, double longitude1, double longitude2) {
         final int R = 6371; // Radius of the earth
 
         double latDistance = Math.toRadians(latitude2 - latitude1);
@@ -772,7 +771,7 @@ public class QuestController {
                 + Math.cos(Math.toRadians(latitude1)) * Math.cos(Math.toRadians(latitude2))
                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = R * c; // convert to meters
+        double distance = R * c * 1000; // convert to meters
         distance = Math.pow(distance, 2);
 
         return Math.sqrt(distance);
