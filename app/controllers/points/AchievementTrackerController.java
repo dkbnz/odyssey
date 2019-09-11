@@ -23,9 +23,6 @@ import repositories.points.BadgeRepository;
 import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 
 public class AchievementTrackerController extends Controller {
@@ -308,5 +305,23 @@ public class AchievementTrackerController extends Controller {
         }
 
         return ok(Json.toJson(badgeRepository.findAll()));
+    }
+
+
+    /**
+     * Adds all awards specified by the string awardsToGet to the ArrayNode of awards. This is used whenever a user
+     * gets points or badges.
+     *
+     * @param awardJson     the ArrayNode that will contain all the added awards.
+     * @param awardsToAdd   the JsonNode containing all the rewards to be added.
+     * @param awardsToGet   the String value that determines which awards (points or badges) to be added to the returned
+     *                      ArrayNode.
+     * @return              an ArrayNode containing all the rewards to add.
+     */
+    public ArrayNode addAllAwards(ArrayNode awardJson, JsonNode awardsToAdd, String awardsToGet) {
+        for (JsonNode award : awardsToAdd.get(awardsToGet)) {
+            awardJson.add(award);
+        }
+        return awardJson;
     }
 }
