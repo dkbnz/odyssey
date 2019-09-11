@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="badgesDiv">
         <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
         <div v-if="profile && profile.achievementTracker">
             <b-list-group >
@@ -42,9 +42,9 @@
                                 <small>{{badge.progress}}{{badge.breakpoint == null ? '' : '/' + badge.breakpoint}}</small>
                             </div>
 
-                            <small class="mb-1">
+                            <p class="mb-1">
                                 {{requiredActions[badge.actionToAchieve]}}
-                            </small>
+                            </p>
                         </b-col>
                     </b-row>
                 </b-list-group-item>
