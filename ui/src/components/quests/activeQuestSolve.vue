@@ -322,10 +322,11 @@
              */
             getHowClose() {
                 if (this.totalDistance) {
-                    if (this.totalDistance >= 1) {
-                        return String(this.totalDistance.toFixed(3)) + " kms";
+                    var showDistance = this.totalDistance - this.questAttempt.toCheckIn.radius;
+                    if (showDistance >= 1) {
+                        return String(showDistance.toFixed(3)) + " kms";
                     }
-                    return String(this.totalDistance.toFixed(5)*1000) + " metres";
+                    return String(showDistance.toFixed(5)*1000) + " metres";
                 }
             }
         }
