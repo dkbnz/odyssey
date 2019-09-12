@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="pointsRewarded">
-            <p>You gained {{pointsRewarded.value}} {{pointsRewarded === 1 ? 'point' : 'points'}}</p>
+            <p>You gained {{pointsRewarded.value}} {{pointsRewarded.value === 1 ? 'point!' : 'points!'}}</p>
         </div>
         <b-list-group v-if="badgeAchieved">
             <b-list-group-item

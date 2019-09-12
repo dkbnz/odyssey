@@ -73,9 +73,7 @@ public class QuestController {
     private static final String POINTS_REWARDED = "pointsRewarded";
     private static final String BADGES_ACHIEVED = "badgesAchieved";
     private static final String ATTEMPT = "attempt";
-    private static final String QUEST_CREATED = "Quest Created";
-    private static final String RIDDLE_SOLVED = "Riddle Solved";
-    private static final String QUEST_COMPLETED = "Quest Completed";
+    private static final String QUEST_DELETED = "Quest successfully deleted";
 
     @Inject
     public QuestController(QuestRepository questRepository,
@@ -265,7 +263,7 @@ public class QuestController {
          questRepository.update(quest);
          questRepository.delete(quest);
          profileRepository.update(questOwner);
-         return ok();
+         return ok(Json.toJson(QUEST_DELETED));
     }
 
 

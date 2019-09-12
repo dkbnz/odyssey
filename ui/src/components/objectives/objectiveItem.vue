@@ -371,7 +371,7 @@
                     response.json().then(responseBody => {
                         if (response.ok) {
                             self.showError = false;
-                            self.createPointToast(responseBody.pointsRewarded, "Objective Created");
+                            self.showRewardToast(responseBody.reward);
                             self.$emit('successCreate', "Objective Successfully Created");
                             self.$emit('cancelCreate')
                         } else {
@@ -379,22 +379,6 @@
                         }
                     });
                 });
-            },
-
-
-            /**
-             * Displays a toast saying they've gained a certain amount of points.
-             *
-             * @param points the points to display.
-             * @param title the title of the toast, indicating the context of the point gain.
-             */
-            createPointToast(points, title) {
-                let message = "Your points have increased by " + points;
-                this.$bvToast.toast(message, {
-                    title: title,
-                    autoHideDelay: 3000,
-                    appendToast: true
-                })
             },
 
 
