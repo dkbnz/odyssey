@@ -22,7 +22,7 @@
         <b-button v-if="authentication" class="btn btn-info" block v-b-modal.modalAddPhoto>Add Photo</b-button>
         <b-modal ref="uploaderModal" id="modalAddPhoto" hide-footer centered title="Add Photo">
             <template slot="modal-title"><h2>Add Photo</h2></template>
-            <b-alert dismissible v-model="showError" variant="danger"><p class="errorMessage">{{errorMessage}}</p></b-alert>
+            <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
             <photoUploader v-on:dismiss-error="showError = false"
                            v-on:save-photos="sendPhotosToBackend"
                            :acceptTypes="'image/jpeg, image/jpg, image/png'">

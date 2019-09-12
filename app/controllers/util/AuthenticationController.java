@@ -8,6 +8,7 @@ import models.util.ApiError;
 import org.joda.time.DateTime;
 import org.joda.time.chrono.ISOChronology;
 import org.joda.time.format.DateTimeFormat;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -104,7 +105,7 @@ public class AuthenticationController extends Controller {
                 // checks if needing to increment the streaker badge
 //                checkStreakIncrement(profile, clientTime, timeOffset);
                 // Set session token as id and return ok (200 response)
-                return ok(LOGGED_IN).addingToSession(request, AUTHORIZED, profile.id.toString());
+                return ok(Json.toJson(LOGGED_IN)).addingToSession(request, AUTHORIZED, profile.id.toString());
             }
 
             return unauthorized(ApiError.unauthorized());
@@ -125,7 +126,7 @@ public class AuthenticationController extends Controller {
 //            int timeOffset = loginJson.get(TIME_OFFSET).asInt();
 //
 //            checkStreakIncrement(loggedInUser, clientTime, timeOffset);
-            return ok(ALREADY_LOGGED_IN);
+            return ok(Json.toJson(ALREADY_LOGGED_IN));
         }
     }
 
@@ -136,7 +137,7 @@ public class AuthenticationController extends Controller {
      * @return ok() (Http 200) result, as logout should always succeed.
      */
     public Result logout() {
-        return ok(LOGGED_OUT).withNewSession(); // Sets a new session, clearing the old one
+        return ok(Json.toJson(LOGGED_OUT)).withNewSession(); // Sets a new session, clearing the old one
     }
 
 

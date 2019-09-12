@@ -78,8 +78,8 @@
                     {{travellerTypeLinkText}}
                 </b-button>
 
-                <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
-                <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
+                <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
+                <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
 
                 <div v-if="showEditTravellerTypes" class="mb-1 mt-1">
                     <b-form-group label="Add Traveller Types:">

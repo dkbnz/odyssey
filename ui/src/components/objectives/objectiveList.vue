@@ -16,7 +16,7 @@
                         variant="success"
                 ></b-progress>
             </b-alert>
-            <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
+            <b-alert v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
             <b-list-group-item class="flex-column justify-content-center"
                                v-if="creatingObjective">
                 <!-- Adding objective component -->

@@ -99,7 +99,6 @@
              * the list of profile's badges.
              */
             getAllBadges() {
-                console.log("HERE");
                 this.loadingResults = true;
                 let self = this;
                 fetch(`/v1/achievementTracker/badges`, {

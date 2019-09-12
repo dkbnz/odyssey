@@ -10,15 +10,7 @@
 </template>
 
 <script>
-    import assets from './assets/assets'
-
     export default {
-        computed: {
-            assets() {
-                return assets
-            }
-        },
-
         mounted() {
             this.getProfile(profile => this.profile = profile);
             this.getNationalities(nationalities => this.nationalityOptions = nationalities);

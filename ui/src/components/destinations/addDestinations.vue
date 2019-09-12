@@ -1,7 +1,7 @@
 <template>
     <div>
         <h4 class="page-title">{{heading}} a Destination</h4>
-        <b-alert dismissible v-model="showError" variant="danger"><p class="errorMessage">{{errorMessage}}</p></b-alert>
+        <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act
         as a buffer for destination being added-->

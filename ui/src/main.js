@@ -86,7 +86,7 @@ Vue.mixin({
                 );
 
                 this.$bvToast.toast([toastContent], {
-                    title: "Oh Dear, an error occurred",
+                    title: "Oh dear, an error occurred",
                     autoHideDelay: 10000,
                     appendToast: true,
                     solid: true,
