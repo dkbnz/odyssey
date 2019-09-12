@@ -64,6 +64,7 @@ public class ProfileController {
     private static final String MAX_POINTS = "max_points";
     private static final String RANK = "rank";
     private static final String AUTHORIZED = "authorized";
+    private static final String USERNAME_OK = "Username is OK";
     private static final String DUPLICATE_PROFILE = "Duplicate profile found.";
     private static final String HASH_FAIL = "Unable to hash the user password";
     private static final String INVALID_NATIONALITY_TRAVELLER_TYPES = "Invalid number of Nationalities/Traveller Types";
@@ -348,7 +349,7 @@ public class ProfileController {
                     }
 
                     if (!profileExists(username) || userProfile.getUsername().equals(username)) {
-                        return ok(); // If they are checking their own username, return ok()
+                        return ok(Json.toJson(USERNAME_OK)); // If they are checking their own username, return ok()
                     } else {
                         return badRequest(ApiError.badRequest(DUPLICATE_PROFILE));
                     }
@@ -356,7 +357,7 @@ public class ProfileController {
                 .orElseGet(() -> {
                     //User is not logged in, used for sign-up.
                     if (!profileExists(username)) {
-                        return ok();
+                        return ok(Json.toJson(USERNAME_OK));
                     } else {
                         return badRequest(ApiError.badRequest(DUPLICATE_PROFILE));
                     }

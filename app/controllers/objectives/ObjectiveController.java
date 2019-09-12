@@ -39,6 +39,7 @@ public class ObjectiveController {
     private static final String DESTINATION_ERROR = "Provided Destination not found.";
     private static final String INVALID_JSON_FORMAT = "Invalid Json format.";
     private static final String OBJECTIVE_IN_USE = "Cannot delete, objective is currently used in a quest.";
+    private static final String NEW_OBJECTIVE_ID = "newObjectiveId";
 
     @Inject
     public ObjectiveController(ObjectiveRepository objectiveRepository,
@@ -134,7 +135,7 @@ public class ObjectiveController {
         objectiveRepository.save(objective);
 
         returnJson.set(REWARD, achievementTrackerController.rewardAction(objectiveOwner, objective, Action.OBJECTIVE_CREATED));
-        returnJson.set("newObjectiveId", Json.toJson(objective.getId()));
+        returnJson.set(NEW_OBJECTIVE_ID, Json.toJson(objective.getId()));
 
         profileRepository.update(objectiveOwner);
         destinationRepository.update(objectiveDestination);
