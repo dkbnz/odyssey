@@ -189,9 +189,10 @@ create table profile (
   last_name                     varchar(255),
   gender                        varchar(255),
   date_of_birth                 date,
-  is_admin                      tinyint(1) default 0 not null,
-  last_login                    datetime(6),
-  date_of_creation              datetime(6),
+  is_admin                      boolean default false not null,
+  increment_time                timestamp,
+  last_seen                     timestamp,
+  date_of_creation              timestamp,
   profile_picture_id            bigint,
   constraint uq_profile_profile_picture_id unique (profile_picture_id),
   constraint pk_profile primary key (id)

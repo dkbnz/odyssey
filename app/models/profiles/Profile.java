@@ -40,7 +40,11 @@ public class Profile extends BaseModel {
 
     @JsonIgnore
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
-    private Date lastLogin;
+    private Date incrementTime;
+
+    @JsonIgnore
+    @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
+    private Date lastSeen;
 
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date dateOfCreation;
@@ -83,12 +87,20 @@ public class Profile extends BaseModel {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "owner")
     private AchievementTracker achievementTracker;
 
-    public Date getLastLogin() {
-        return lastLogin;
+    public Date getLastSeen() {
+        return lastSeen;
     }
 
-    public void setLastLogin(Date lastLogin) {
-        this.lastLogin = lastLogin;
+    public void setLastSeen(Date lastSeen) {
+        this.lastSeen = lastSeen;
+    }
+
+    public Date getIncrementTime() {
+        return incrementTime;
+    }
+
+    public void setIncrementTime(Date incrementTime) {
+        this.incrementTime = incrementTime;
     }
 
     public List<Objective> getMyObjectives() {
