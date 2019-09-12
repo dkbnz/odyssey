@@ -616,8 +616,7 @@
                             self.$emit('successCreate', {message: "Quest Successfully Created", reward: responseBody.reward});
                             self.$emit('cancelCreate');
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
@@ -637,8 +636,7 @@
                             self.showError = false;
                             self.activeUsers = responseBody.length;
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
@@ -666,8 +664,7 @@
                         } else {
                             // Ensures the start and end date fields are not wiped after an error occurs.
                             self.splitDates();
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });

@@ -174,7 +174,7 @@
         },
 
         mounted() {
-            this.getDestinationTypes(destinationTypesTemp => this.destinationTypes = destinationTypesTemp);
+            this.getDestinationTypes();
         },
 
         methods: {
@@ -274,12 +274,16 @@
                 return fetch('/v1/quests/attempt/' + this.questAttempt.id + '/checkIn', {
                     method: "POST",
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        self.$emit('updated-quest-attempt', data.attempt);
-                        self.showRewardToast(data.reward);
-                    })
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.$emit('updated-quest-attempt', responseBody.attempt);
+                            self.showRewardToast(responseBody.reward);
+                        } else {
+                            self.showErrorToast(responseBody);
+                        }
+                    });
+                });
             },
 
 
@@ -290,11 +294,18 @@
              * @returns {Promise<any | never>}  the returned promise.
              */
             getDestinationTypes(updateDestinationTypes) {
+                let self = this;
                 return fetch(`/v1/destinationTypes`, {
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(updateDestinationTypes);
+                }).then(function (response) {
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.destinationTypes =  responseBody;
+                        } else {
+                            self.showErrorToast(responseBody);
+                        }
+                    });
+                });
             },
 
 

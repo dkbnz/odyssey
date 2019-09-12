@@ -35,7 +35,7 @@ public class TripController extends Controller {
     private static final String DESTINATION_ID = "destination_id";
     private static final String TRIP_ID = "trip_id";
     private static final String PROFILE_NOT_FOUND = "Requested profile doesn't exist.";
-    private static final String REWARD = "reward";
+    public static final String REWARD = "reward";
     private static final String NEW_TRIP_ID = "newTripId";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private static final int DEFAULT_ADMIN_ID = 1;
