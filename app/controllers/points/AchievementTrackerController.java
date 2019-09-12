@@ -23,7 +23,6 @@ import repositories.points.BadgeRepository;
 import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
-
 import java.util.*;
 
 public class AchievementTrackerController extends Controller {
@@ -82,6 +81,7 @@ public class AchievementTrackerController extends Controller {
      *
      * @param actingProfile         the profile receiving progress.
      * @param action                the action that was carried out.
+     * @param progress              the level of progress to be added on.
      * @return                      the progress added to the profile for the specified badge.
      */
     private Badge giveBadge(Profile actingProfile, Action action, int progress) {
@@ -186,6 +186,7 @@ public class AchievementTrackerController extends Controller {
      * @param actingProfile     the profile that completed the action.
      * @param questWorkedOn     the quest that was either created or completed
      * @param questAction       a string indicating if what action was taken for the quest.
+     * @param questDistance     a double value storing the total distance between objectives in a quest.
      * @return                  the points rewarded to the user.
      */
     public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, String questAction, Double questDistance) {
@@ -216,6 +217,12 @@ public class AchievementTrackerController extends Controller {
         }
 
         badgesAchieved.add(giveBadge(actingProfile, completedAction, 1));
+
+        // Adds to the Wayfarer (distance badge) progress. Needs to be in this current order.
+        if (completedAction == Action.QUEST_COMPLETED && questDistance != null) {
+            int roundedValue = (int) Math.ceil(questDistance);
+            badgesAchieved.add(giveBadge(actingProfile, Action.DISTANCE_QUEST_COMPLETED, roundedValue));
+        }
 
         points = pointRewardRepository.findUsing(completedAction);
         profileRepository.update(actingProfile);
@@ -298,5 +305,23 @@ public class AchievementTrackerController extends Controller {
         }
 
         return ok(Json.toJson(badgeRepository.findAll()));
+    }
+
+
+    /**
+     * Adds all awards specified by the string awardsToGet to the ArrayNode of awards. This is used whenever a user
+     * gets points or badges.
+     *
+     * @param awardJson     the ArrayNode that will contain all the added awards.
+     * @param awardsToAdd   the JsonNode containing all the rewards to be added.
+     * @param awardsToGet   the String value that determines which awards (points or badges) to be added to the returned
+     *                      ArrayNode.
+     * @return              an ArrayNode containing all the rewards to add.
+     */
+    public ArrayNode addAllAwards(ArrayNode awardJson, JsonNode awardsToAdd, String awardsToGet) {
+        for (JsonNode award : awardsToAdd.get(awardsToGet)) {
+            awardJson.add(award);
+        }
+        return awardJson;
     }
 }

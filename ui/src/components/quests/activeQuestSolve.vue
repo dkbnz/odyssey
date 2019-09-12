@@ -53,6 +53,7 @@
 
 
         </div>
+
         <div v-else>
             <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom show-only-mobile" size="sm">Back</b-button>
             <h2 class="page-title" v-if="questAttempt.questAttempted">{{questAttempt.questAttempted.title}}</h2>
@@ -276,8 +277,8 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        self.showRewardToast(data.reward);
                         self.$emit('updated-quest-attempt', data.attempt);
+                        self.showRewardToast(data.reward);
                     })
             },
 
@@ -308,6 +309,10 @@
                 this.showSelectedDestination = true;
             },
 
+
+            /**
+             * Displays the destinationSearch panel and the riddle that the user is trying to solve.
+             */
             destinationSearch(riddle) {
                 this.showDestinationSearch = true;
                 this.searchedRiddle = riddle;
@@ -319,8 +324,8 @@
              * objective destination.
              */
             getHowClose() {
-                if (this.totalDistance) {
-                    var showDistance = this.totalDistance - this.questAttempt.toCheckIn.radius;
+                if (this.totalDistance && this.questAttempt.toCheckIn) {
+                    let showDistance = this.totalDistance - this.questAttempt.toCheckIn.radius;
                     if (showDistance >= 1) {
                         return String(showDistance.toFixed(3)) + " kms";
                     }
