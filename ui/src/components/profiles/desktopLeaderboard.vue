@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
+        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg" v-if="!showSingleProfilePage">
             <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
             <!-- Confirmation modal for deleting a profile. -->
             <b-modal ref="deleteProfileModal" id="deleteProfileModal" hide-footer title="Delete Profile">
@@ -50,6 +50,7 @@
                             @get-more="getMore"
                             @clear-profiles="clearProfiles"
                             @sort-table="sortTable"
+                            @show-single-profile="showSingleProfile"
                     >
                     </profile-list>
                 </b-col>
@@ -77,9 +78,23 @@
                         @get-more="getMore"
                         @clear-profiles="this.profiles = []"
                         @sort-table="sortTable"
+                        @show-single-profile="showSingleProfile"
                 >
                 </profile-list>
             </div>
+        </div>
+        <div v-if="showSingleProfilePage" class="align-content-center">
+            <b-row>
+                <b-col>
+                    <div class="p-3">
+                        <b-button @click="showSingleProfilePage = false" variant="primary">Go Back</b-button>
+                    </div>
+                </b-col>
+                <b-col cols="11">
+                    <view-profile :admin-view="false" :destinations="destinations" :userProfile="profile"
+                                  :profile="selectedProfileToView"></view-profile>
+                </b-col>
+            </b-row>
         </div>
         <footer-main></footer-main>
     </div>
@@ -132,7 +147,9 @@
                 searchParameters: null,
                 searchingProfiles: false,
                 columnSortBy: {sortBy: "", order: ""},
-                firstPage: false
+                firstPage: false,
+                showSingleProfilePage: false,
+                selectedProfileToView: null
             }
         },
 
@@ -400,6 +417,18 @@
              */
             clearProfiles() {
                 this.profiles = [];
+            },
+
+
+            /**
+             * Displays the profile page using the given profile.
+             *
+             * @param profile   the profile to be displayed.
+             */
+            showSingleProfile(profile) {
+                window.scrollTo(0, 0);
+                this.selectedProfileToView = profile;
+                this.showSingleProfilePage = true;
             }
 
         }

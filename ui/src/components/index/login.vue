@@ -40,10 +40,12 @@
              */
             login() {
                 let self = this;
+                let time = new Date();
+                let offset = new Date().getTimezoneOffset();
                 fetch('/v1/login', {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
-                    body: JSON.stringify({username: this.username, password: this.password})
+                    body: JSON.stringify({username: this.username, password: this.password, clientTime: time, timeOffset: offset})
                 }).then(function (response) {
                     if (response.ok) {
                         self.showError = false;

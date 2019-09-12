@@ -81,16 +81,37 @@ Feature: Achievement Tracker API Endpoint
 
 
 #TODO: Everyone - Waiting on backend.
-#  Scenario: Creating my first destination and getting a badge
-#    Given the application is running
-#    And I am logged in as user with id "7"
-#    And my current progress towards the "Cartographer" badge is 0
-#    When I create a new destination with the following values
-#      | Name | Type | District | Latitude | Longitude | Country     |
-#      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
-#    Then the status code received is 201
-#    And I gain the "Cartographer" badge with level 1
-#
+  Scenario: Creating my first destination and getting a bronze level Cartographer badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And my current progress towards the "Cartographer" badge is 0
+    When I create a new destination with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    Then the status code received is 201
+    And I gain the "Cartographer" badge with level 1
+
+  Scenario: Creating enough destinations to achieve a silver level Cartographer badge
+    Given the application is running
+    And I am logged in as user with id "8"
+    And my current progress towards the "Cartographer" badge is 9
+    When I create a new destination with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    Then the status code received is 201
+    And I gain the "Cartographer" badge with level 2
+
+
+  Scenario: Creating enough destinations to achieve a gold level Cartographer badge
+    Given the application is running
+    And I am logged in as user with id "9"
+    And my current progress towards the "Cartographer" badge is 49
+    When I create a new destination with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    Then the status code received is 201
+    And I gain the "Cartographer" badge with level 3
+
     Scenario: Creating my first trip and getting a bronze level Planner badge
     Given the application is running
     And I am logged in as user with id "7"

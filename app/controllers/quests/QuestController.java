@@ -696,7 +696,7 @@ public class QuestController {
             ArrayNode badgesAchieved = objectMapper.createArrayNode();
 
             // Objective reward result of checking in.
-            JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, toCheckInTo, true); // Points for checking in
+            JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, toCheckInTo, Action.CHECKED_IN); // Points for checking in
 
             // Add all objective reward points and badges to the list of achieved points.
             pointsRewarded = achievementTrackerController.addAllAwards(pointsRewarded, objectiveRewardJson, POINTS_REWARDED);

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import controllers.points.AchievementTrackerController;
+import models.points.Action;
 import models.util.ApiError;
 import models.profiles.Profile;
 import models.destinations.Destination;
@@ -20,6 +21,7 @@ import util.Views;
 
 import java.util.*;
 
+import static controllers.trips.TripController.REWARD;
 import static play.mvc.Results.*;
 
 public class ObjectiveController {
@@ -125,8 +127,7 @@ public class ObjectiveController {
 
         objectiveRepository.save(objective);
 
-        int pointsAdded = achievementTrackerController.rewardAction(objectiveOwner, objective);
-        returnJson.put("pointsRewarded", pointsAdded);
+        returnJson.set(REWARD, achievementTrackerController.rewardAction(objectiveOwner, objective, Action.OBJECTIVE_CREATED));
         returnJson.set("newObjectiveId", Json.toJson(objective.getId()));
 
         profileRepository.update(objectiveOwner);
