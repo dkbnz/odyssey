@@ -202,18 +202,25 @@
                 fetch(`/v1/objectives/` + this.objectiveId, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.deleteAlertError = false;
-                            self.getMore();
-                            self.$refs['deleteObjectiveModal'].hide();
-                            self.alertMessage = "Objective Successfully Deleted";
-                            self.showAlert();
-                        } else {
-                            self.deleteAlertMessage = self.getErrorMessage(responseBody);
-                            self.deleteAlertError = true;
-                        }
-                    });
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.deleteAlertError = false;
+                    self.getMore();
+                    self.$refs['deleteObjectiveModal'].hide();
+                    self.alertMessage = "Objective Successfully Deleted";
+                    self.showAlert();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             },
 
@@ -229,15 +236,24 @@
                 return fetch(`/v1/objectives`, {
                     accept: "application/json"
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.deleteAlertError = false;
-                            self.foundObjectives = responseBody;
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.deleteAlertError = false;
+                    self.foundObjectives = responseBody;
+                    self.loadingResults = false;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
+                        });
                         self.loadingResults = false;
-                    })
+                    }
                 });
             },
 
@@ -253,16 +269,26 @@
                 if (this.profile.id !== undefined) {
                     return fetch(`/v1/objectives/` + this.profile.id, {})
                         .then(function (response) {
-                            response.json().then(responseBody => {
-                                if (response.ok) {
-                                    self.deleteAlertError = false;
-                                    self.foundObjectives = responseBody;
-                                } else {
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.deleteAlertError = false;
+                            self.foundObjectives = responseBody;
+                            self.loadingResults = false;
+                        }).catch(function (response) {
+                            if (response.status > 404) {
+                                self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                            } else {
+                                response.json().then(function(responseBody) {
                                     self.showErrorToast(responseBody);
-                                }
+                                });
                                 self.loadingResults = false;
-                            });
+                            }
                         });
+
                 }
 
             },

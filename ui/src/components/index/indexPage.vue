@@ -42,7 +42,7 @@
     export default {
         name: "Index.vue",
 
-        props: ['assets', 'nationalityOptions', 'travTypeOptions', 'profile'],
+        props: ['nationalityOptions', 'travTypeOptions', 'profile'],
 
         data: function () {
             return {

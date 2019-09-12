@@ -47,18 +47,10 @@
 </template>
 
 <script>
-    import Assets from '../../assets/assets'
-
     export default {
         name: "navbarMain",
 
         props: ['profile'],
-
-        computed: {
-            assets() {
-                return Assets
-            },
-        },
 
         data() {
             return {

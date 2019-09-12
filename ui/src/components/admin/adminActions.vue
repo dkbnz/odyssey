@@ -188,15 +188,27 @@
                 return fetch(`/v1/destinations/proposals`, {
                     accept: "application/json"
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.travellerTypeProposals = responseBody;
-                        } else {
-                            self.showSuccess = false;
-                            self.showErrorToast(responseBody);
-                        }
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showTravellerTypeUpdateFailure = false;
+                    self.retrievingProposals = false;
+                    self.travellerTypeProposals = responseBody;
+                }).catch(function (response) {
+                    self.alertMessage = "Cannot retrieve traveller type proposals";
+                    self.showTravellerTypeUpdateFailure = true;
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.showSuccess = false;
                         self.retrievingProposals = false;
-                    });
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             },
 
@@ -262,22 +274,30 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(destination.travellerTypes)
-                }).then(function(response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showTravellerTypeUpdateFailure = false;
-                            self.alertMessage = "Destination traveller types updated";
-                            self.showTravellerTypeUpdateSuccess = true;
-                            setTimeout(function () {
-                                self.showTravellerTypeUpdateSuccess = false;
-                            }, 3000);
-                            self.removeProposed(destination);
-                        } else {
-                            self.alertMessage = "Cannot update traveller types";
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.showTravellerTypeUpdateFailure = false;
+                    self.alertMessage = "Destination traveller types updated";
+                    self.showTravellerTypeUpdateSuccess = true;
+                    setTimeout(function () {
+                        self.showTravellerTypeUpdateSuccess = false;
+                    }, 3000);
+                    self.removeProposed(destination);
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.alertMessage = "Cannot update traveller types";
+                        self.showTravellerTypeUpdateFailure = true;
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                            self.showTravellerTypeUpdateFailure = true;
-                        }
-                    });
+                        });
+                    }
                 });
             }
         },

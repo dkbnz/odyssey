@@ -245,18 +245,28 @@
 
                 fetch('/v1/profilePhoto/' + this.newProfilePhoto.id, {
                     method: 'PUT'
-                }).then(response => {
-                    if (response.status === 200) {
-                        self.showError = false;
-                        self.setProfilePhoto(self.newProfilePhoto.id);
-                        self.newProfilePhoto.public = true;
-                        self.profile.photoGallery.push(self.newProfilePhoto);
-                        self.refreshPhotos += 1;
-                        self.$refs['profilePictureModal'].hide();
-                        self.$refs['profilePhotoUploader'].hide();
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        self.showError = true;
-                        self.alertMessage = "An error occurred when making this your profile photo";
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.showError = false;
+                    self.setProfilePhoto(self.newProfilePhoto.id);
+                    self.newProfilePhoto.public = true;
+                    self.profile.photoGallery.push(self.newProfilePhoto);
+                    self.refreshPhotos += 1;
+                    self.$refs['profilePictureModal'].hide();
+                    self.$refs['profilePhotoUploader'].hide();
+                }).catch(function (response) {
+                    self.validEmail = false;
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
                     }
                 });
             },

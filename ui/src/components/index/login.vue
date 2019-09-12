@@ -16,7 +16,7 @@
                     label-for="password">
                 <b-form-input :type="'password'" id="password" trim v-model="password"></b-form-input>
             </b-form-group>
-            <b-button @click="login" block id="sign-in" type="submit" variant="primary">Sign In</b-button>
+            <b-button block id="sign-in" type="submit" variant="primary">Sign In</b-button>
         </b-form>
     </div>
 </template>
@@ -48,25 +48,18 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify({username: this.username, password: this.password, clientTime: time, timeOffset: offset})
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showError = false;
-                            self.$router.go();
-                        } else {
-                            if (response.status === 401) {
-                                self.alertMessage = "Invalid Username or Password";
-                                self.showError = true;
-                            } else {
-                                self.showErrorToast(responseBody)
-                            }
-
-                        }
-                    });
-                }).catch(function (error) {
-                    let returnJson = {
-                        message: error
-                    };
-                    self.showErrorToast(JSON.stringify(returnJson));
+                    if (response.status === 401) {
+                        self.alertMessage = "Invalid username or password";
+                        self.showError = true;
+                    } else if (!response.ok) {
+                        throw response;
+                    } else {
+                        self.showError = false;
+                        self.$router.go();
+                        return response.json();
+                    }
+                }).catch(function () {
+                    self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                 });
             }
         }

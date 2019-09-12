@@ -368,16 +368,24 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputObjective)
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showError = false;
-                            self.showRewardToast(responseBody.reward);
-                            self.$emit('successCreate', "Objective Successfully Created");
-                            self.$emit('cancelCreate')
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    self.showRewardToast(responseBody.reward);
+                    self.$emit('successCreate', "Objective Successfully Created");
+                    self.$emit('cancelCreate')
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 
@@ -394,15 +402,23 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputObjective)
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showError = false;
-                            self.$emit('successCreate', "Objective Successfully Edited");
-                            self.$emit('cancelCreate')
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.showError = false;
+                    self.$emit('successCreate', "Objective Successfully Edited");
+                    self.$emit('cancelCreate')
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 
