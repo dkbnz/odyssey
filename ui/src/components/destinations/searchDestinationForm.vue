@@ -230,6 +230,7 @@
              * Sets the countries list to the list of countries from the country api.
              */
             getCountries() {
+                let self = this;
                 return fetch("https://restcountries.eu/rest/v2/all", {
                     dataType: 'html'
                 })
