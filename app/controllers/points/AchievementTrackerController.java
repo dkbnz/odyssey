@@ -19,6 +19,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import repositories.points.AchievementTrackerRepository;
 import repositories.points.BadgeRepository;
 import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
@@ -29,6 +30,7 @@ public class AchievementTrackerController extends Controller {
     private static final String USER_POINTS = "userPoints";
     private static final String POINTS_REWARDED = "pointsRewarded";
     private static final String BADGES_ACHIEVED = "badgesAchieved";
+    private static final String STREAKER = "Streaker";
 
     private ProfileRepository profileRepository;
     private PointRewardRepository pointRewardRepository;
@@ -39,6 +41,7 @@ public class AchievementTrackerController extends Controller {
     @Inject
     public AchievementTrackerController(ProfileRepository profileRepository,
                                         PointRewardRepository pointRewardRepository,
+                                        AchievementTrackerRepository achievementTrackerRepository,
                                         BadgeRepository badgeRepository,
                                         ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
@@ -136,6 +139,34 @@ public class AchievementTrackerController extends Controller {
         returnJson.putArray(BADGES_ACHIEVED).addAll(badges);
 
         return returnJson;
+    }
+
+
+    /**
+     * Rewards the user for logging in on consecutive days.
+     *
+     * @param actingProfile         the profile receiving points.
+     * @return                      Json node of the reward result.
+     */
+    public JsonNode rewardAction(Profile actingProfile) {
+        Collection<Badge> badgesAchieved = new ArrayList<>();
+
+        Set<Badge> badges = actingProfile.getAchievementTracker().getBadges();
+
+        for (Badge badge : badges) {
+            if (badge.getName().equals(STREAKER)) {
+
+            }
+        }
+
+//        if (actingProfile.getAchievementTracker().getCurrentStreak() > badegStreak)
+//        Badge badgeToGive = giveBadge(actingProfile, Action.LOGIN_STREAK, 1);
+//
+//        if (badgeToGive != null) {
+//            badgesAchieved.add(badgeToGive);
+//        }
+        profileRepository.update(actingProfile);    // Update the tracker stored in the database.
+        return constructRewardJson(badgesAchieved, null);
     }
 
 
