@@ -91,9 +91,6 @@ public class Profile extends BaseModel {
     @Transient
     private int numberOfQuestsCreated;
 
-    public Date getLastSeen() {
-
-    }
     public DateTime getLastSeen() {
         return lastSeen;
     }
