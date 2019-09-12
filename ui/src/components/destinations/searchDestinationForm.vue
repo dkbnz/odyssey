@@ -2,7 +2,6 @@
     <div>
         <h4 class="page-title" v-if="searchPublic">Search Public Destinations</h4>
         <h4 class="page-title" v-else>Search Your Destinations</h4>
-        <b-alert dismissible v-model="showError" variant="danger"><p class="errorMessage">{{errorMessage}}</p></b-alert>
         <b-form @submit.prevent="searchDestinations">
             <!--Input fields for searching for destinations-->
             <b-form-group
@@ -113,7 +112,6 @@
                 searchLatitude: "",
                 searchLongitude: "",
                 searchCountry: "",
-                showError: false,
                 optionViews: [
                     {value: 1, text: "1"},
                     {value: 5, text: "5"},
@@ -131,7 +129,6 @@
                     {key: 'country', value: 'country', sortable: true}
                 ],
                 searchDestination: "",
-                errorMessage: "",
                 retrievingDestinations: false,
                 longitudeErrorMessage: "",
                 latitudeErrorMessage: "",
@@ -239,11 +236,9 @@
                     .then(function (response) {
                         response.json().then(responseBody => {
                             if (response.ok) {
-                                self.showError = false;
                                 self.countryList = responseBody;
                             } else {
-                                self.errorMessage = self.getErrorMessage(responseBody);
-                                self.showError = true;
+                                self.showErrorToast(responseBody);
                             }
                         });
                     });

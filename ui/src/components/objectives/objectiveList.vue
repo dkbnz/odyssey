@@ -211,9 +211,7 @@
                             self.alertText = "Objective Successfully Deleted";
                             self.showAlert();
                         } else {
-                            // Converts response to text, this is then displayed on the frontend.
-                            self.deleteAlertMessage = self.getErrorMessage(responseBody);
-                            self.deleteAlertError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
@@ -237,8 +235,7 @@
                             self.showError = false;
                             self.foundObjectives = responseBody;
                         } else {
-                            self.alertMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                         self.loadingResults = false;
                     })
@@ -263,8 +260,7 @@
                                     self.showError = false;
                                     self.foundObjectives = responseBody;
                                 } else {
-                                    self.alertMessage = self.getErrorMessage(responseBody);
-                                    self.showError = true;
+                                    self.showErrorToast(responseBody);
                                 }
                                 self.loadingResults = false;
                             });

@@ -5,7 +5,6 @@
             <p class="page-title">
                 <i>Because you are an admin, you can achieve all functionality in the application!</i>
             </p>
-            <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
             <b-row>
                 <b-col cols="6">
                     <b-card
@@ -141,7 +140,6 @@
                 showSingleProfile: false,
                 showCollapse: false,
                 showSuccess: false,
-                showError: false,
                 travellerTypeProposals: [],
                 showDestinationDetails: false,
                 alertMessage: "",
@@ -192,12 +190,10 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
-                            self.showError = false;
                             self.travellerTypeProposals = responseBody;
                         } else {
                             self.showSuccess = false;
-                            self.alertMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                         self.retrievingProposals = false;
                     });
@@ -278,7 +274,7 @@
                             self.removeProposed(destination);
                         } else {
                             self.alertMessage = "Cannot update traveller types";
-                            self.alertMessage += '\n' + self.getErrorMessage(responseBody);
+                            self.showErrorToast(responseBody);
                             self.showTravellerTypeUpdateFailure = true;
                         }
                     });

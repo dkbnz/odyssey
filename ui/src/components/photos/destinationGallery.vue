@@ -1,6 +1,5 @@
 <template>
     <div>
-        <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{errorMessage}}</p></b-alert>
         <h3>Public Destination Photos</h3>
         <photo-table
                 :photos="publicPhotos"
@@ -44,9 +43,7 @@
         data: function () {
             return {
                 publicPhotos: [],
-                personalPhotos: [],
-                showError: false,
-                errorMessage: ""
+                personalPhotos: []
             }
         },
 
@@ -102,8 +99,7 @@
                         if (response.ok) {
                             self.profile.photoGallery = responseBody;
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
@@ -171,9 +167,7 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.status !== 201) {
-                            self.errorMessage = "An error occurred when adding a destination photo";
-                            self.errorMessage += '\n' + self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
@@ -194,9 +188,7 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.status !== 200) {
-                            self.errorMessage = "An error occurred when deleting a destination photo";
-                            self.errorMessage += '\n' + self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });

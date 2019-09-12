@@ -50,15 +50,16 @@ public class AchievementTrackerController extends Controller {
         this.objectMapper = objectMapper;
     }
 
+
     /**
-     * Adds points to the given profile, depending on the action.
-     * Progresses the Overachiever badge
+     * Adds points to the given profile. The point value is determined by the action completed.
+     * Progresses the Overachiever badge.
      *
      * @param actingProfile     the profile receiving points
      * @param action            the action being taken
      * @return                  the number of points added, or null if none are added
      */
-    private Integer givePoints(Profile actingProfile, Action action) {
+    private PointReward givePoints(Profile actingProfile, Action action) {
 
         if (actingProfile == null) {
             return null;
@@ -68,11 +69,12 @@ public class AchievementTrackerController extends Controller {
         PointReward reward = pointRewardRepository.findUsing(action);    // Get the reward to add.
 
         if (reward != null) {
-            int value = reward.getValue();
+            int pointsValue = reward.getValue();
+            achievementTracker.addPoints(pointsValue);
 
             // Progress the Overachiever badge
-            giveBadge(actingProfile, Action.POINTS_GAINED, value);
-            return achievementTracker.addPoints(value);
+            progressBadge(actingProfile, Action.POINTS_GAINED, pointsValue);
+            return reward;
         }
 
         return null;
@@ -80,14 +82,14 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
-     * Adds badge progress to the user's AchievementTracker when they progress with the badge progress.
+     * Adds badge progress to the user's AchievementTracker when they complete an action.
      *
      * @param actingProfile         the profile receiving progress.
      * @param action                the action that was carried out.
      * @param progress              the level of progress to be added on.
      * @return                      the progress added to the profile for the specified badge.
      */
-    private Badge giveBadge(Profile actingProfile, Action action, int progress) {
+    private Badge progressBadge(Profile actingProfile, Action action, int progress) {
 
         AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
 
@@ -102,7 +104,27 @@ public class AchievementTrackerController extends Controller {
     }
 
 
+    /**
+     * Checks if a user has received a badge for gaining points.
+     * If they have, adds the badge to the collection of badges achieved.
+     *
+     * @param actingProfile     the profile that performed the action.
+     * @param badgesAchieved    the collection of badges achieved.
+     */
+    private void updatePointsBadge(Profile actingProfile, Collection<Badge> badgesAchieved) {
+        Badge badge = actingProfile.getAchievementTracker().getRecentlyAchieved();
+        if (badge != null) {
+            badgesAchieved.add(badge);
+        }
+    }
 
+
+    /**
+     * Takes a collection
+     * @param badgesAchieved
+     * @param pointsAchieved
+     * @return
+     */
     private JsonNode constructRewardJson(Collection<Badge> badgesAchieved, PointReward pointsAchieved) {
 
         Collection<PointReward> pointsAchievedCollection = new ArrayList<>();
@@ -150,45 +172,51 @@ public class AchievementTrackerController extends Controller {
 
     /**
      * Rewards the user for creating a trip.
+     * Adds progress towards the trip creation badge.
      *
-     * @param actingProfile         the profile receiving points.
+     * @param actingProfile         the profile that performed the action.
      * @param tripCreated           the trip that was created.
      * @return                      Json node of the reward result.
      */
     public JsonNode rewardAction(Profile actingProfile, Trip tripCreated) {
         Collection<Badge> badgesAchieved = new ArrayList<>();
 
-        Badge badgeToGive = giveBadge(actingProfile, Action.TRIP_CREATED, 1);
-
+        // Progress towards badge
+        Badge badgeToGive = progressBadge(actingProfile, Action.TRIP_CREATED, 1);
         if (badgeToGive != null) {
             badgesAchieved.add(badgeToGive);
         }
+
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
+
         return constructRewardJson(badgesAchieved, null);
     }
 
 
     /**
-     * Adds points to the user's AchievementTracker for creating a destination.
+     * Rewards the user for creating a destination.
+     * Adds points to the user's AchievementTracker and adds progress towards the destination creation badge.
      *
-     * @param actingProfile         the profile receiving points.
+     * @param actingProfile         the profile that performed the action.
      * @param destinationCreated    the destination that was created.
      * @return                      the points added rewarded to the profile.
      */
-    public int rewardAction(Profile actingProfile, Destination destinationCreated) {
+    public JsonNode rewardAction(Profile actingProfile, Destination destinationCreated) {
         Collection<Badge> badgesAchieved = new ArrayList<>();
 
-        int reward = givePoints(actingProfile, Action.DESTINATION_CREATED);
+        // Award points
+        PointReward points = givePoints(actingProfile, Action.DESTINATION_CREATED);
+        updatePointsBadge(actingProfile, badgesAchieved);
 
-        // Check if user has received badge for gaining points
-        Badge badge = actingProfile.getAchievementTracker().getRecentlyAchieved();
-        if (badge != null) {
-            badgesAchieved.add(badge);
+        // Progress towards badge
+        Badge badgeToProgress = progressBadge(actingProfile, Action.DESTINATION_CREATED, 1);
+        if (badgeToProgress != null) {
+            badgesAchieved.add(badgeToProgress);
         }
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
-        return reward;
+        return constructRewardJson(badgesAchieved, points);
     }
 
 
@@ -216,47 +244,30 @@ public class AchievementTrackerController extends Controller {
      *
      * @param actingProfile     the profile that completed the action.
      * @param questWorkedOn     the quest that was either created or completed
-     * @param questAction       a string indicating if what action was taken for the quest.
-     * @param questDistance     a double value storing the total distance between objectives in a quest.
+     * @param completedAction   an action indicating the operation performed on the quest.
      * @return                  the points rewarded to the user.
      */
-    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, String questAction, Double questDistance) {
-        PointReward points;
+    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, Action completedAction) {
         Collection<Badge> badgesAchieved = new ArrayList<>();
-        Action completedAction;
-        switch (questAction) {
-            case "Riddle Solved":
-                completedAction = Action.RIDDLE_SOLVED;
-                break;
-            case "Quest Completed":
-                completedAction = Action.QUEST_COMPLETED;
-                break;
-            case "Quest Created":
-                completedAction = Action.QUEST_CREATED;
-                break;
-            default:
-                completedAction = null;
-                break;
-        }
 
-        givePoints(actingProfile, completedAction);
+        // Award points
+        PointReward points = givePoints(actingProfile, completedAction);
+        updatePointsBadge(actingProfile, badgesAchieved);
 
-        // Check if user has received badge for gaining points
-        Badge badge = actingProfile.getAchievementTracker().getRecentlyAchieved();
-        if (badge != null) {
-            badgesAchieved.add(badge);
-        }
-
-        badgesAchieved.add(giveBadge(actingProfile, completedAction, 1));
+        // Progress towards badge
+        badgesAchieved.add(progressBadge(actingProfile, completedAction, 1));
 
         // Adds to the Wayfarer (distance badge) progress. Needs to be in this current order.
-        if (completedAction == Action.QUEST_COMPLETED && questDistance != null) {
-            int roundedValue = (int) Math.ceil(questDistance);
-            badgesAchieved.add(giveBadge(actingProfile, Action.DISTANCE_QUEST_COMPLETED, roundedValue));
+        if (completedAction == Action.QUEST_COMPLETED) {
+
+            // Calculate the distance of the completed quest and add the progress to the relevant badge.
+            badgesAchieved.add(progressBadge(actingProfile,
+                    Action.DISTANCE_QUEST_COMPLETED,
+                    calculateTotalQuestDistance(questWorkedOn)));
+
         }
 
-        points = pointRewardRepository.findUsing(completedAction);
-        profileRepository.update(actingProfile);
+        profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
         return constructRewardJson(badgesAchieved, points);
     }
@@ -270,19 +281,12 @@ public class AchievementTrackerController extends Controller {
      * @return                  the points added rewarded to the profile.
      */
     public JsonNode rewardAction(Profile actingProfile, Objective objectiveSolved, boolean checkedIn) {
-        PointReward points;
         Collection<Badge> badgesAchieved = new ArrayList<>();
         Action completedAction = checkedIn ? Action.CHECKED_IN : Action.RIDDLE_SOLVED;
 
-        givePoints(actingProfile, completedAction);
-
-        // Check if user has received badge for gaining points
-        Badge badge = actingProfile.getAchievementTracker().getRecentlyAchieved();
-        if (badge != null) {
-            badgesAchieved.add(badge);
-        }
-
-        points = pointRewardRepository.findUsing(completedAction);
+        // Award points
+        PointReward points = givePoints(actingProfile, completedAction);
+        updatePointsBadge(actingProfile, badgesAchieved);
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
@@ -354,5 +358,54 @@ public class AchievementTrackerController extends Controller {
             awardJson.add(award);
         }
         return awardJson;
+    }
+
+
+    /**
+     * Calculates the total distance between each objective for a given Quest.
+     *
+     * @param quest           the Quest to calculate the distance of.
+     * @return                an int containing the total distance in meters between each objective in the quest.
+     */
+    private int calculateTotalQuestDistance(Quest quest) {
+        double totalDistance = 0;
+
+        List<Objective> questObjectives = quest.getObjectives();
+        // Calculate the total distance between each objective in the quest.
+        for (int i = 1; i < questObjectives.size(); i++) {
+            totalDistance +=
+                    calculateDistance(questObjectives.get(i-1).getDestination().getLatitude(),
+                            questObjectives.get(i).getDestination().getLatitude(),
+                            questObjectives.get(i-1).getDestination().getLongitude(),
+                            questObjectives.get(i).getDestination().getLongitude());
+        }
+        return (int) Math.ceil(totalDistance);
+    }
+
+
+    /**
+     * Calculates the distance between two destinations locations represented by latitude and longitude values.
+     * This is used to determine the quest's total distance, so the user can obtain the Wayfarer badge.
+     *
+     * @param latitude1     the first destination's latitude value.
+     * @param latitude2     the second destination's latitude value.
+     * @param longitude1    the first destination's longitude value.
+     * @param longitude2    the second destination's longitude value.
+     * @return              a double containing the distance between the two points.
+     */
+    private double calculateDistance(double latitude1, double latitude2, double longitude1, double longitude2) {
+
+        final int R = 6371; // Radius of the earth
+
+        double latDistance = Math.toRadians(latitude2 - latitude1);
+        double lonDistance = Math.toRadians(longitude2 - longitude1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(latitude1)) * Math.cos(Math.toRadians(latitude2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c * 1000; // convert to meters
+        distance = Math.pow(distance, 2);
+
+        return Math.sqrt(distance);
     }
 }

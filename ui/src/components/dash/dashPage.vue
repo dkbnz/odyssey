@@ -97,6 +97,8 @@
                     response.json().then(responseBody => {
                         if (response.ok) {
                             self.profile = responseBody;
+                        } else {
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });

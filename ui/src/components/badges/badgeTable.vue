@@ -1,6 +1,5 @@
 <template>
     <div class="badgesDiv">
-        <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
         <div v-if="profile && profile.achievementTracker">
             <b-list-group >
                 <b-list-group-item
@@ -86,9 +85,7 @@
                     DISTANCE_QUEST_COMPLETED: 'You need to travel in a quest!',
                     POINTS_GAINED: 'You need to earn some points!',
                     LOGIN_STREAK: 'You need to get a login streak!',
-                },
-                alertMessage: "",
-                showError: false
+                }
             }
         },
 
@@ -111,15 +108,13 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
-                            self.showError = false;
                             for (let i = 0; i < responseBody.length; i++) {
                                 if (!self.profileBadgesIds.includes(responseBody[i].id)) {
                                     self.badges.push(responseBody[i]);
                                 }
                             }
                         } else {
-                            self.alertMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                         self.loadingResults = false;
                     });

@@ -148,6 +148,8 @@
                     response.json().then(responseBody => {
                         if (response.ok) {
                             self.travellerTypeOptions = responseBody;
+                        } else {
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
@@ -165,6 +167,8 @@
                     response.json().then(responseBody => {
                         if (response.ok) {
                             self.nationalityOptions = responseBody;
+                        } else {
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
