@@ -31,6 +31,10 @@ public class AchievementTrackerController extends Controller {
     private static final String POINTS_REWARDED = "pointsRewarded";
     private static final String BADGES_ACHIEVED = "badgesAchieved";
 
+    private static final int SINGLE_COUNTRY = 1;
+    private static final int INCREMENT_ONE = 1;
+
+
     private ProfileRepository profileRepository;
     private PointRewardRepository pointRewardRepository;
     private BadgeRepository badgeRepository;
@@ -134,7 +138,7 @@ public class AchievementTrackerController extends Controller {
     public JsonNode rewardAction(Profile actingProfile, Trip tripCreated) {
         Collection<Badge> badgesAchieved = new ArrayList<>();
 
-        Badge badgeToGive = giveBadge(actingProfile, Action.TRIP_CREATED, 1);
+        Badge badgeToGive = giveBadge(actingProfile, Action.TRIP_CREATED, INCREMENT_ONE);
 
         if (badgeToGive != null) {
             badgesAchieved.add(badgeToGive);
@@ -217,6 +221,11 @@ public class AchievementTrackerController extends Controller {
                     Action.DISTANCE_QUEST_COMPLETED,
                     calculateTotalQuestDistance(questWorkedOn)));
 
+            // Check if the quest is international.
+            if (questWorkedOn.getObjectiveCountries().size() > SINGLE_COUNTRY) {
+                badgesAchieved.add(giveBadge(actingProfile,
+                        Action.INTERNATIONAL_QUEST_COMPLETED, INCREMENT_ONE));
+            }
         }
 
         points = pointRewardRepository.findUsing(completedAction);
