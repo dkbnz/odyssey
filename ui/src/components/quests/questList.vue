@@ -18,7 +18,6 @@
                                 variant="success"
                         ></b-progress>
                     </b-alert>
-                    <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
                     <b-list-group-item class="flex-column justify-content-center"
                                        v-if="creatingQuest">
                         <quest-item
@@ -159,13 +158,6 @@
                     <div class="d-block">
                         Are you sure that you want to delete this Quest?
                     </div>
-                    <!--Error when deleting quest alert-->
-                    <b-alert
-                            v-model="deleteAlertError"
-                            dismissible
-                            variant="danger">
-                        <p>{{deleteAlertMessage}}</p>
-                    </b-alert>
                     <b-button
                             class="mr-2 float-right"
                             variant="danger"
@@ -279,10 +271,6 @@
                 dismissCountDown: 0,
                 alertText: "",
                 copiedQuest: null,
-                showError: false,
-                errorMessage: "",
-                deleteAlertError: false,
-                deleteAlertMessage: "",
                 showDestinations: false,
                 showYourObjectives: false,
                 showQuestAttemptSolve: false,
@@ -369,15 +357,12 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
-                            self.showError = false;
-                            self.deleteAlertError = false;
                             self.getMore();
                             self.$refs['deleteQuestModal'].hide();
                             self.alertText = "Quest Successfully Deleted";
                             self.showAlert();
                         } else {
-                            self.deleteAlertMessage = self.getErrorMessage(responseBody);
-                            self.deleteAlertError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
@@ -397,11 +382,9 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
-                            self.showError = false;
                             self.foundQuests = responseBody;
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                         self.loadingResults = false;
                     });
@@ -423,11 +406,9 @@
                         .then(function (response) {
                             response.json().then(responseBody => {
                                 if (response.ok) {
-                                    self.showError = false;
                                     self.foundQuests = responseBody;
                                 } else {
-                                    self.errorMessage = self.getErrorMessage(responseBody);
-                                    self.showError = true;
+                                    self.showErrorToast(responseBody);
                                 }
                                 self.loadingResults = false;
                             });
@@ -449,11 +430,9 @@
                         .then(function (response) {
                             response.json().then(responseBody => {
                                 if (response.ok) {
-                                    self.showError = false;
                                     self.questAttempts = responseBody;
                                 } else {
-                                    self.errorMessage = self.getErrorMessage(responseBody);
-                                    self.showError = true;
+                                    self.showErrorToast(responseBody);
                                 }
                                 self.loadingResults = false;
                             });
@@ -485,8 +464,7 @@
                                     self.$emit('start-quest-later', responseBody);
                                 }
                             } else {
-                                self.errorMessage = self.getErrorMessage(responseBody);
-                                self.showError = true;
+                                self.showErrorToast(responseBody);
                             }
                         });
                     });
@@ -510,11 +488,9 @@
                         .then(function (response) {
                             response.json().then(responseBody => {
                                 if (response.ok) {
-                                    self.showError = false;
                                     self.foundQuests = responseBody;
                                 } else {
-                                    self.errorMessage = self.getErrorMessage(responseBody);
-                                    self.showError = true;
+                                    self.showErrorToast(responseBody);
                                 }
                                 self.loadingResults = false;
                             });
@@ -570,11 +546,9 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
-                            self.showError = false;
                             self.activeUsers = responseBody.length;
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
@@ -657,7 +631,6 @@
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
-                this.deleteAlertError = false;
             },
 
 

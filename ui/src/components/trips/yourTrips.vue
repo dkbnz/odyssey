@@ -491,8 +491,7 @@
                                 }
                                 self.retrievingTrips = false;
                             } else {
-                                self.errorMessage = self.getErrorMessage(trips);
-                                self.showError = true;
+                                self.showErrorToast(trips);
                             }
                         });
                     });
@@ -565,8 +564,7 @@
                             self.errorMessage += '\n' + self.getErrorMessage(responseBody);
                             self.showError = true;
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });

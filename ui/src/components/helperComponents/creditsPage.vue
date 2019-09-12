@@ -267,7 +267,6 @@
 <script>
     import NavbarMain from "./navbarMain";
     import FooterMain from "./footerMain";
-    import assets from '../../assets/assets';
     export default {
         name: "creditsPage",
 
@@ -278,12 +277,6 @@
         components: {
             FooterMain,
             NavbarMain
-        },
-
-        computed: {
-            assets() {
-                return assets
-            }
         }
     }
 </script>

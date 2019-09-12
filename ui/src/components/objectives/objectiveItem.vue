@@ -288,14 +288,13 @@
                         this.addObjective();
                     } else if (this.heading === "Edit") {
                         this.editObjective();
+                    }
+                    // These fields are necessary as when editing or creating objectives in a quest behaviour needs
+                    // to work differently.
+                    if (this.inputObjective.id) {
+                        this.updateObjective();
                     } else {
-                        // These fields are necessary as when editing or creating objectives in a quest behaviour needs
-                        // to work differently.
-                        if (this.inputObjective.id) {
-                            this.updateObjective();
-                        } else {
-                            this.saveObjective()
-                        }
+                        this.saveObjective()
                     }
                 } else {
                     this.errorMessage = "Not all fields have valid information!";
@@ -370,8 +369,7 @@
                             self.$emit('successCreate', "Objective Successfully Created");
                             self.$emit('cancelCreate')
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
@@ -411,8 +409,7 @@
                             self.$emit('successCreate', "Objective Successfully Edited");
                             self.$emit('cancelCreate')
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });

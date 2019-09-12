@@ -277,8 +277,7 @@
                             self.showError = false;
                             self.retrievingPhotos = false;
                         } else {
-                            self.errorMessage = self.getErrorMessage(photos);
-                            self.showError = true;
+                            self.showErrorToast(photos);
                         }
                     });
                 });
@@ -327,8 +326,7 @@
                             self.showError = false;
                             self.photos = responseBody;
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
