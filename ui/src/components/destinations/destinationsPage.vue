@@ -26,7 +26,7 @@
                         <p>Destination Successfully {{action}}!</p>
                         <b-progress
                                 :max="dismissSeconds"
-                                :value="dismissCountdown - 1"
+                                :value="dismissCountDown - 1"
                                 height="4px"
                                 variant="success"
                         ></b-progress>

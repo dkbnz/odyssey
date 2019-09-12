@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import controllers.points.AchievementTrackerController;
 import models.points.Action;
+import models.quests.Quest;
 import models.util.ApiError;
 import models.profiles.Profile;
 import models.destinations.Destination;
@@ -16,6 +17,7 @@ import play.mvc.Result;
 import repositories.profiles.ProfileRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.objectives.ObjectiveRepository;
+import repositories.quests.QuestRepository;
 import util.AuthenticationUtil;
 import util.Views;
 
@@ -30,22 +32,26 @@ public class ObjectiveController {
     private DestinationRepository destinationRepository;
     private ProfileRepository profileRepository;
     private AchievementTrackerController achievementTrackerController;
+    private QuestRepository questRepository;
     private ObjectMapper objectMapper;
 
     private static final Long GLOBAL_ADMIN_ID = 1L;
     private static final String DESTINATION_ERROR = "Provided Destination not found.";
     private static final String INVALID_JSON_FORMAT = "Invalid Json format.";
+    private static final String OBJECTIVE_IN_USE = "Cannot delete, objective is currently used in a quest.";
 
     @Inject
     public ObjectiveController(ObjectiveRepository objectiveRepository,
                                DestinationRepository destinationRepository,
                                ProfileRepository profileRepository,
                                AchievementTrackerController achievementTrackerController,
+                               QuestRepository questRepository,
                                ObjectMapper objectMapper) {
         this.objectiveRepository = objectiveRepository;
         this.destinationRepository = destinationRepository;
         this.profileRepository = profileRepository;
         this.achievementTrackerController = achievementTrackerController;
+        this.questRepository = questRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -237,6 +243,12 @@ public class ObjectiveController {
 
         if (!AuthenticationUtil.validUser(loggedInUser, objectiveOwner)) {
             return forbidden(ApiError.forbidden());
+        }
+
+        List<Quest> quests = questRepository.findAllUsing(objective);
+
+        if (!quests.isEmpty()) {
+            return badRequest(ApiError.badRequest(OBJECTIVE_IN_USE));
         }
 
         if (objectiveOwner != null) {
