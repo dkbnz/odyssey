@@ -1,3 +1,6 @@
+/*
+ * Script to populate the database schema for tests. This is the first level, which is used for setting up the test app.
+ */
 # --- !Ups
 
 create table achievement_tracker (

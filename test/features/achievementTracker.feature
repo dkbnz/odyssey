@@ -320,3 +320,30 @@ Feature: Achievement Tracker API Endpoint
     When I check in for quest attempt 10
     Then the status code received is 200
     And I gain the "Wayfarer" badge with level 3
+
+
+  Scenario: Completing an international quest to earn a bronze level Explorer badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And my current progress towards the "Explorer" badge is 0
+    When I check in for quest attempt 11
+    Then the status code received is 200
+    And I gain the "Explorer" badge with level 1
+
+
+  Scenario: Completing enough international quests to earn a silver level Explorer badge
+    Given the application is running
+    And I am logged in as user with id "8"
+    And my current progress towards the "Explorer" badge is 4
+    When I check in for quest attempt 12
+    Then the status code received is 200
+    And I gain the "Explorer" badge with level 2
+
+
+  Scenario: Completing enough international quests to earn a gold level Explorer badge
+    Given the application is running
+    And I am logged in as user with id "9"
+    And my current progress towards the "Explorer" badge is 9
+    When I check in for quest attempt 13
+    Then the status code received is 200
+    And I gain the "Explorer" badge with level 3
