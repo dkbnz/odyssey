@@ -168,7 +168,7 @@ public class AchievementTrackerController extends Controller {
      *
      * @param actingProfile         the profile that performed the action.
      * @param destinationCreated    the destination that was created.
-     * @return                      the points added rewarded to the profile.
+     * @return                      Json node of the reward result.
      */
     public JsonNode rewardAction(Profile actingProfile, Destination destinationCreated) {
         Collection<Badge> badgesAchieved = new ArrayList<>();
@@ -190,20 +190,23 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
-     * Adds points to the user's AchievementTracker for creating an objective.
+     * Rewards the user for creating or checking into an objective.
+     * Adds points to the given profile's AchievementTracker based on the completed action.
      *
-     * @param actingProfile     the profile that performed the action.
-     * @param objectiveCreated  the objective that was created.
-     * @return                  the number of points that the user was rewarded.
+     * @param actingProfile     the profile receiving points.
+     * @param objective         the objective which the action was performed on.
+     * @return                  Json node of the reward result.
      */
-    public int rewardAction(Profile actingProfile, Objective objectiveCreated) {
-        AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
+    public JsonNode rewardAction(Profile actingProfile, Objective objective, Action completedAction) {
+        Collection<Badge> badgesAchieved = new ArrayList<>();
 
-        PointReward reward = pointRewardRepository.findUsing(Action.OBJECTIVE_CREATED);    // Get the reward to add.
-        achievementTracker.addPoints(reward.getValue());
+        // Award points
+        PointReward points = givePoints(actingProfile, completedAction);
+        updatePointsBadge(actingProfile, badgesAchieved);
+
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
-        return reward.getValue();
+        return constructRewardJson(badgesAchieved, points);
     }
 
 
@@ -214,7 +217,7 @@ public class AchievementTrackerController extends Controller {
      * @param actingProfile     the profile that completed the action.
      * @param questWorkedOn     the quest that was either created or completed
      * @param completedAction   an action indicating the operation performed on the quest.
-     * @return                  the points rewarded to the user.
+     * @return                  Json node of the reward result.
      */
     public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, Action completedAction) {
         Collection<Badge> badgesAchieved = new ArrayList<>();
@@ -235,27 +238,6 @@ public class AchievementTrackerController extends Controller {
                     calculateTotalQuestDistance(questWorkedOn)));
 
         }
-
-        profileRepository.update(actingProfile);    // Update the tracker stored in the database.
-
-        return constructRewardJson(badgesAchieved, points);
-    }
-
-
-    /**
-     * Adds the given amount of points to the given profile's AchievementTracker.
-     *
-     * @param actingProfile     the profile receiving points.
-     * @param objectiveSolved   the objective which the action was performed on.
-     * @return                  the points added rewarded to the profile.
-     */
-    public JsonNode rewardAction(Profile actingProfile, Objective objectiveSolved, boolean checkedIn) {
-        Collection<Badge> badgesAchieved = new ArrayList<>();
-        Action completedAction = checkedIn ? Action.CHECKED_IN : Action.RIDDLE_SOLVED;
-
-        // Award points
-        PointReward points = givePoints(actingProfile, completedAction);
-        updatePointsBadge(actingProfile, badgesAchieved);
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
