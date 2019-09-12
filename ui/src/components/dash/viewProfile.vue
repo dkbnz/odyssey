@@ -2,7 +2,7 @@
     <b-container fluid>
         <b-row>
             <b-col md="3" class="bg-white p-3 mt-2 rounded-lg">
-                <div class="fixedElement">
+                <div class="profilePage">
                     <!-- The profile picture of the current profile being viewed. -->
 
                     <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
@@ -24,26 +24,26 @@
                     <h6 v-if="profile.achievementTracker">Rank: #{{profile.achievementTracker.rank}} Points: ({{profile.achievementTracker.points}})</h6>
                     <p v-if="profile.admin"><i>Administrator</i></p>
                     <p v-else><i>Regular User</i></p>
-                    <h2>Personal Details</h2>
+                    <h3>Personal Details</h3>
                     <p> Username: {{ profile.username }}</p>
                     <p> Date of Creation: {{ new Date(profile.dateOfCreation).toUTCString()}}</p>
                     <p> Date of Birth: {{new Date(profile.dateOfBirth).toLocaleDateString()}}</p>
                     <p> Gender: {{ profile.gender }}</p>
-                    <h2> Nationalities </h2>
+                    <h3> Nationalities </h3>
                     <ul>
                         <li v-for="nationality in profile.nationalities">{{ nationality.nationality }}</li>
                     </ul>
 
-                    <h2> Passports </h2>
+                    <h3> Passports </h3>
                     <ul>
                         <li v-for="passport in profile.passports">{{ passport.country }}</li>
                     </ul>
 
-                    <h2> Traveller Types </h2>
+                    <h3> Traveller Types </h3>
                     <ul>
                         <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
                     </ul>
-                    <h2> Badges </h2>
+                    <h3> Badges </h3>
                     <div class="d-flex justify-content-center">
                         <badge-table :profile="profile"></badge-table>
                     </div>
