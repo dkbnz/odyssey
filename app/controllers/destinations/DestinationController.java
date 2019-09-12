@@ -31,6 +31,7 @@ import repositories.destinations.DestinationTypeRepository;
 import repositories.objectives.ObjectiveRepository;
 import util.AuthenticationUtil;
 
+import static controllers.trips.TripController.REWARD;
 import static util.QueryUtil.queryComparator;
 
 
@@ -421,10 +422,8 @@ public class DestinationController extends Controller {
                         profileRepository.save(profileToChange);
 
                         ObjectMapper objectMapper = new ObjectMapper();
-                        // TODO Matthew/Doug look into possibility of passing the objective through
-                        int pointsAdded = achievementTrackerController.rewardAction(loggedInUser, destination);
                         ObjectNode returnJson = objectMapper.createObjectNode();
-                        returnJson.put(POINTS_REWARDED, pointsAdded);
+                        returnJson.set(REWARD, achievementTrackerController.rewardAction(loggedInUser, destination));
                         returnJson.put(DESTINATION_ID, destination.getId());
                         return created(returnJson);
                     } else {

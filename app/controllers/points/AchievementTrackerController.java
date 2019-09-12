@@ -55,7 +55,7 @@ public class AchievementTrackerController extends Controller {
      * @param action            the action being taken
      * @return                  the number of points added, or null if none are added
      */
-    private Integer givePoints(Profile actingProfile, Action action) {
+    private PointReward givePoints(Profile actingProfile, Action action) {
 
         if (actingProfile == null) {
             return null;
@@ -65,11 +65,12 @@ public class AchievementTrackerController extends Controller {
         PointReward reward = pointRewardRepository.findUsing(action);    // Get the reward to add.
 
         if (reward != null) {
-            int value = reward.getValue();
+            int pointsValue = reward.getValue();
+            achievementTracker.addPoints(pointsValue);
 
             // Progress the Overachiever badge
-            giveBadge(actingProfile, Action.POINTS_GAINED, value);
-            return achievementTracker.addPoints(value);
+            giveBadge(actingProfile, Action.POINTS_GAINED, pointsValue);
+            return reward;
         }
 
         return null;
@@ -119,6 +120,7 @@ public class AchievementTrackerController extends Controller {
 
     /**
      * Rewards the user for creating a trip.
+     * Adds progress towards the trip creation badge.
      *
      * @param actingProfile         the profile receiving points.
      * @param tripCreated           the trip that was created.
@@ -138,16 +140,18 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
-     * Adds points to the user's AchievementTracker for creating a destination.
+     * Rewards the user for creating a destination.
+     * Adds points to the user's AchievementTracker and adds progress towards the destination creation badge.
      *
      * @param actingProfile         the profile receiving points.
      * @param destinationCreated    the destination that was created.
      * @return                      the points added rewarded to the profile.
      */
-    public int rewardAction(Profile actingProfile, Destination destinationCreated) {
+    public JsonNode rewardAction(Profile actingProfile, Destination destinationCreated) {
         Collection<Badge> badgesAchieved = new ArrayList<>();
 
-        int reward = givePoints(actingProfile, Action.DESTINATION_CREATED);
+        // Add points
+        PointReward points = givePoints(actingProfile, Action.DESTINATION_CREATED);
 
         // Check if user has received badge for gaining points
         Badge badge = actingProfile.getAchievementTracker().getRecentlyAchieved();
@@ -155,9 +159,16 @@ public class AchievementTrackerController extends Controller {
             badgesAchieved.add(badge);
         }
 
+        // Progress towards badge
+        Badge badgeToGive = giveBadge(actingProfile, Action.DESTINATION_CREATED, 1);
+
+        if (badgeToGive != null) {
+            badgesAchieved.add(badgeToGive);
+        }
+
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
-        return reward;
+        return constructRewardJson(badgesAchieved, points);
     }
 
 
@@ -239,7 +250,6 @@ public class AchievementTrackerController extends Controller {
      * @return                  the points added rewarded to the profile.
      */
     public JsonNode rewardAction(Profile actingProfile, Objective objectiveSolved, boolean checkedIn) {
-        PointReward points;
         Collection<Badge> badgesAchieved = new ArrayList<>();
         Action completedAction = checkedIn ? Action.CHECKED_IN : Action.RIDDLE_SOLVED;
 
@@ -251,7 +261,7 @@ public class AchievementTrackerController extends Controller {
             badgesAchieved.add(badge);
         }
 
-        points = pointRewardRepository.findUsing(completedAction);
+        PointReward points = pointRewardRepository.findUsing(completedAction);
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
