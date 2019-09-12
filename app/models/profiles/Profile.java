@@ -10,6 +10,7 @@ import models.quests.Quest;
 import models.quests.QuestAttempt;
 import models.objectives.Objective;
 import models.trips.Trip;
+import org.joda.time.DateTime;
 import play.data.format.Formats;
 
 import javax.persistence.*;
@@ -40,11 +41,11 @@ public class Profile extends BaseModel {
 
     @JsonIgnore
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
-    private Date incrementTime;
+    private DateTime incrementTime;
 
     @JsonIgnore
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
-    private Date lastSeen;
+    private DateTime lastSeen;
 
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date dateOfCreation;
@@ -91,18 +92,21 @@ public class Profile extends BaseModel {
     private int numberOfQuestsCreated;
 
     public Date getLastSeen() {
+
+    }
+    public DateTime getLastSeen() {
         return lastSeen;
     }
 
-    public void setLastSeen(Date lastSeen) {
+    public void setLastSeen(DateTime lastSeen) {
         this.lastSeen = lastSeen;
     }
 
-    public Date getIncrementTime() {
+    public DateTime getIncrementTime() {
         return incrementTime;
     }
 
-    public void setIncrementTime(Date incrementTime) {
+    public void setIncrementTime(DateTime incrementTime) {
         this.incrementTime = incrementTime;
     }
 
