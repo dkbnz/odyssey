@@ -1,5 +1,5 @@
 <template>
-    <div class="badgesDiv">
+    <div>
         <div v-if="profile && profile.achievementTracker">
             <b-list-group >
                 <b-list-group-item

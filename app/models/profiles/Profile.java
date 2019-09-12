@@ -91,6 +91,9 @@ public class Profile extends BaseModel {
     @Transient
     private int numberOfQuestsCreated;
 
+    @Transient
+    private int numberOfQuestsCompleted;
+
     public DateTime getLastSeen() {
         return lastSeen;
     }
@@ -285,6 +288,23 @@ public class Profile extends BaseModel {
         return myQuests.size();
     }
 
+
+    /**
+     * Calculates the number of quests completed. Returns it as a Transient value, therefore doesn't need to be stored
+     * in the database.
+     *
+     * @return the total number of quests the profile has completed.
+     */
+    public int getNumberOfQuestsCompleted() {
+        for (QuestAttempt questAttempt : questAttempts) {
+            if (questAttempt.isCompleted()) {
+                numberOfQuestsCompleted+= 1;
+            }
+        }
+        return numberOfQuestsCompleted;
+    }
+
+
     public boolean removeObjective(Objective objective) {
         return myObjectives.remove(objective);
     }
@@ -334,9 +354,11 @@ public class Profile extends BaseModel {
         return myQuests;
     }
 
+
     public AchievementTracker getAchievementTracker() {
         return achievementTracker;
     }
+
 
     public void setAchievementTracker(AchievementTracker achievementTracker) {
         this.achievementTracker = achievementTracker;

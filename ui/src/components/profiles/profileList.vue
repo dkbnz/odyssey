@@ -24,6 +24,14 @@
                        alt="Profile Image">
                 </b-img>
             </template>
+            <template slot="nationalities" slot-scope="row">
+                {{calculateNationalities(row.item.nationalities)}}
+            </template>
+
+            <template slot="travellerTypes" slot-scope="row">
+                {{calculateTravTypes(row.item.travellerTypes)}}
+            </template>
+
 
             <!--Shows more details about any profile-->
             <template slot="actions" slot-scope="row">
@@ -60,23 +68,18 @@
 
             <template slot="row-details" slot-scope="row">
                 <b-card bg-variant="light">
-                    <!--<view-profile-->
-                            <!--:admin-view="false"-->
-                            <!--:destinations="destinations"-->
-                            <!--:profile="row.item"-->
-                            <!--:userProfile="profile">-->
-                    <!--</view-profile>-->
                     <b-row>
                         <b-col cols="3">
-                            <h3>Basic Information</h3>
+                            <h3>Information</h3>
                             <p>Date of Birth: {{new Date(row.item.dateOfBirth).toLocaleDateString()}}</p>
                             <h3>Statistics</h3>
                             <p>Badges Achieved: {{row.item.achievementTracker.badges.length}} <br />
                                 Points: {{row.item.achievementTracker.points}} <br />
-                                Quests Created: {{row.item.numberOfQuestsCreated}}
+                                Quests Created: {{row.item.numberOfQuestsCreated}} <br />
+                                Quests Completed: {{row.item.numberOfQuestsCompleted}} <br />
                             </p>
                         </b-col>
-                        <b-col>
+                        <b-col cols="3">
                             <h3>Nationalities</h3>
                             <ul>
                                 <li v-for="nationality in row.item.nationalities">{{nationality.nationality}}</li>
@@ -88,11 +91,10 @@
                         </b-col>
                         <b-col>
                             <div class="mt-5">
-                                <b-button @click="$emit('show-single-profile', row.item)" variant="primary">
-                                    Show Full Profile
-                                </b-button>
+                                <b-list-group-item href="#" @click="$emit('show-single-profile', row.item)" variant="primary">
+                                    <h3>Show Full Profile</h3>
+                                </b-list-group-item>
                             </div>
-
                         </b-col>
                     </b-row>
 
@@ -163,7 +165,8 @@
                 }
             },
             searchParameters: Object,
-            firstPage: Boolean
+            firstPage: Boolean,
+            refreshTable: Boolean
         },
 
         watch: {
@@ -185,6 +188,10 @@
             firstPage() {
                 // Reset the pagination to the first page.
                 this.currentPage = 1;
+            },
+
+            refreshTable() {
+                this.$refs['profilesTable'].refresh()
             }
         },
 
@@ -204,18 +211,71 @@
 
         computed: {
             fields() {
+                if (this.adminView) {
+                    return [
+                        {key: 'achievementTracker.rank', label: "Rank", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'achievementTracker.points', label: "Points", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'profilePhoto', label: "Photo", sortable: false, class: 'tableWidthSmall'},
+                        {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'actions', class: 'tableWidthMedium'}
+                    ]
+                }
                 return [
                     {key: 'achievementTracker.rank', label: "Rank", sortable: true, class: 'tableWidthSmall'},
                     {key: 'achievementTracker.points', label: "Points", sortable: true, class: 'tableWidthSmall'},
                     {key: 'profilePhoto', label: "Photo", sortable: false, class: 'tableWidthSmall'},
                     {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
                     {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'nationalities', label: "Nationalities", sortable: false, class: 'tableWidthSmall'},
+                    {key: 'travellerTypes', label: "Traveller Types", sortable: false, class: 'tableWidthSmall'},
                     {key: 'actions', class: 'tableWidthMedium'}
                 ]
+
             }
         },
 
         methods: {
+            /**
+             * Used to calculate a specific rows nationalities from their list of nationalities. Shows all the
+             * nationalities in the row.
+             *
+             * @param nationalities     the row's (profile) nationalities.
+             */
+            calculateNationalities(nationalities) {
+                let nationalityList = "";
+                for (let i = 0; i < nationalities.length; i++) {
+                    if (nationalities[i + 1] !== undefined) {
+                        nationalityList += nationalities[i].nationality + ", ";
+                    } else {
+                        nationalityList += nationalities[i].nationality;
+                    }
+
+                }
+                return nationalityList;
+            },
+
+
+            /**
+             * Used to calculate a specific rows traveller types from their list of traveller types. Shows all the
+             * traveller types in the row.
+             *
+             * @param travellerTypes     the row's (profile) traveller types.
+             */
+            calculateTravTypes(travellerTypes) {
+                let travTypeList = "";
+                for (let i = 0; i < travellerTypes.length; i++) {
+                    if (travellerTypes[i + 1] !== undefined) {
+                        travTypeList += travellerTypes[i].travellerType + ", ";
+                    } else {
+                        travTypeList += travellerTypes[i].travellerType;
+                    }
+
+                }
+                return travTypeList;
+            },
+
+
             /**
              * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
              *

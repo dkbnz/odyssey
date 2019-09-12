@@ -13,7 +13,7 @@
                         <p>{{alertText}}</p>
                         <b-progress
                                 :max="dismissSeconds"
-                                :value="dismissCountDown"
+                                :value="dismissCountdown - 1"
                                 height="4px"
                                 variant="success"
                         ></b-progress>

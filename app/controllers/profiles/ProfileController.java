@@ -415,14 +415,14 @@ public class ProfileController {
                         // If user is admin, they can delete other profiles
                         if (userProfile.isAdmin()) {
                             profileRepository.delete(profileToDelete);
-                            return ok("Delete successful");
+                            return ok(Json.toJson("Profile Successfully Deleted"));
                         }
                         return forbidden(ApiError.forbidden());
                     }
 
                     // User is deleting their own profile
                     profileRepository.delete(profileToDelete);
-                    return ok("Delete successful").withNewSession();
+                    return ok(Json.toJson("Profile Successfully Deleted")).withNewSession();
                 })
                 .orElseGet(() -> unauthorized(ApiError.unauthorized())); // User is not logged in
     }
@@ -552,7 +552,7 @@ public class ProfileController {
 
                     profileRepository.update(profileToUpdate);
 
-                    return ok(UPDATED);
+                    return ok(Json.toJson(profileToUpdate));
                 })
                 .orElseGet(() -> unauthorized(ApiError.unauthorized())); // User is not logged in
     }

@@ -17,6 +17,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import com.google.inject.Inject;
 
+import java.text.Normalizer;
 import java.util.*;
 
 import models.profiles.Profile;
@@ -57,7 +58,6 @@ public class DestinationController extends Controller {
     private static final String PROFILE_NOT_FOUND = "Requested profile not found";
     private static final String LONGITUDE_INVALID = "Given longitude is not valid";
     private static final String LATITUDE_INVALID = "Given latitude is not valid";
-    private static final String DESTINATION_SUCCESSFULLY_DELETED = "Destination successfully deleted";
     private static final String DUPLICATE_DESTINATION = "A destination with these details already exists either in " +
             "your destinations or public destinations lists";
     private static final Double LATITUDE_LIMIT = 90.0;
@@ -325,6 +325,12 @@ public class DestinationController extends Controller {
         String latitude = json.get(LATITUDE).asText();
         String longitude = json.get(LONGITUDE).asText();
 
+        // Used to remove all accents and diacritics from destination name and country.
+        name = Normalizer.normalize(name, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        country = Normalizer.normalize(country, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+
         // Checks all fields contain data
         if (name.length() == 0 || country.length() == 0 || district.length() == 0 ||
                 latitude.length() == 0 || longitude.length() == 0) {
@@ -484,7 +490,7 @@ public class DestinationController extends Controller {
         }
 
         destinationRepository.delete(destination);
-        return ok(DESTINATION_SUCCESSFULLY_DELETED);
+        return ok(Json.toJson(destination));
     }
 
 

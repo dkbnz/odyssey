@@ -114,6 +114,10 @@ a {
     white-space: nowrap;
 }
 
+.profilePage {
+    max-height: 100vh;
+}
+
 .profilePage p {
     margin: 0;
     font-size: 15px;
@@ -186,7 +190,7 @@ a {
 }
 
 .badgesDiv {
-    max-height: 600px;
+    max-height: inherit;
     overflow: auto;
     overflow-y: scroll;
 }

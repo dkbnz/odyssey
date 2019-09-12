@@ -196,7 +196,7 @@ public class PhotoController extends Controller {
             personalPhotoRepository.update(photo);
             personalPhotoRepository.delete(photo);
             profileRepository.update(photoOwner);
-            return ok();
+            return ok(Json.toJson(photo));
         }
         return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
     }
@@ -230,7 +230,7 @@ public class PhotoController extends Controller {
 
         profileToChange.setProfilePicture(null);
         profileRepository.update(profileToChange);
-        return ok();
+        return ok(Json.toJson(profileToChange));
     }
 
 
@@ -272,7 +272,7 @@ public class PhotoController extends Controller {
         owner.setProfilePicture(personalPhoto);
         personalPhotoRepository.update(personalPhoto);
         profileRepository.update(owner);
-        return ok();
+        return ok(Json.toJson(personalPhoto));
     }
 
 
@@ -542,8 +542,9 @@ public class PhotoController extends Controller {
                     if (loggedInUser == null) {
                         return notFound(ApiError.notFound());
                     }
-                    if(AuthenticationUtil.validUser(loggedInUser, owner))
+                    if(AuthenticationUtil.validUser(loggedInUser, owner)) {
                         return getImageResult(personalPhoto.getPhoto(), getThumbnail);
+                    }
 
                     return forbidden(ApiError.forbidden());
                 }).orElseGet(() -> unauthorized(ApiError.unauthorized()));
