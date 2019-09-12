@@ -11,7 +11,7 @@
                 <p>{{alertMessage}}</p>
                 <b-progress
                         :max="dismissSeconds"
-                        :value="dismissCountdown - 1"
+                        :value="dismissCountDown - 1"
                         height="4px"
                         variant="success"
                 ></b-progress>
@@ -204,14 +204,14 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
-                            self.deleteAlertMessage = false;
-                            self.showError = false;
+                            self.deleteAlertError = false;
                             self.getMore();
                             self.$refs['deleteObjectiveModal'].hide();
-                            self.alertText = "Objective Successfully Deleted";
+                            self.alertMessage = "Objective Successfully Deleted";
                             self.showAlert();
                         } else {
-                            self.showErrorToast(responseBody);
+                            self.deleteAlertMessage = self.getErrorMessage(responseBody);
+                            self.deleteAlertError = true;
                         }
                     });
                 });
@@ -231,8 +231,7 @@
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
-                            self.deleteAlertMessage = false;
-                            self.showError = false;
+                            self.deleteAlertError = false;
                             self.foundObjectives = responseBody;
                         } else {
                             self.showErrorToast(responseBody);
@@ -256,8 +255,7 @@
                         .then(function (response) {
                             response.json().then(responseBody => {
                                 if (response.ok) {
-                                    self.deleteAlertMessage = false;
-                                    self.showError = false;
+                                    self.deleteAlertError = false;
                                     self.foundObjectives = responseBody;
                                 } else {
                                     self.showErrorToast(responseBody);
