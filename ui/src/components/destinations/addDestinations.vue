@@ -412,10 +412,9 @@
              * Adds new destination to database, then resets form and shows success alert.
              * Checks whether location is duplicate and displays error if so.
              *
-             * @param cb.
              * @returns {Promise<Response | never>}.
              */
-            addDestination(cb) {
+            addDestination() {
                 let self = this;
                 fetch(`/v1/destinations/` + this.profile.id, {
                     method: 'POST',
@@ -463,14 +462,16 @@
                                 self.getMatchingEditedDestination();
                                 self.displayConfirmation();
                             } else {
-                                self.errorMessage = self.getErrorMessage(responseBody);
-                                self.showError = true;
+                                self.showErrorToast(responseBody);
                             }
                         })
                     });
             },
 
 
+            /**
+             * Retrieves all the destinations that match the requested destination after it has been modified.
+             */
             getMatchingEditedDestination() {
                 let self = this;
                 fetch(`/v1/destinationsCheckEdit`, {
@@ -483,8 +484,7 @@
                             if (response.ok) {
                                 self.editDestinationConflicts = responseBody;
                             } else {
-                                self.errorMessage = self.getErrorMessage(responseBody);
-                                self.showError = true;
+                                self.showErrorToast(responseBody);
                             }
                         })
                     })
@@ -517,8 +517,7 @@
                             self.dismissModal('confirmEditModal');
                             self.$emit('destination-saved', responseBody);
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     })
                 });
