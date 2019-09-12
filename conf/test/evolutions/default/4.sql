@@ -201,7 +201,8 @@ INSERT INTO `objective` (`id`, `destination_id`, `riddle`, `radius`, `owner_id`)
 (15, 1834, 'One small step for man, one giant leap for mankind', 1, 2),
 (16, 1834, 'Gully that *may* have killed its family', 1, 2),
 (17, 1834, 'What rhymes with smangus fat?', 0.005, 2),
-(18, 9000, 'Earthquake prone country that has had a nuclear bomb.', 10, 10);
+(18, 9000, 'Earthquake prone country that has had a nuclear bomb.', 10, 10),
+(19, 9000, 'Earthquake prone country that has had a nuclear bomb.', 10, 2);
 
 
 INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
@@ -211,7 +212,8 @@ INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
 (4, 'Use the force Luke', '2019-08-15 04:04:00', '9999-08-16 11:59:00', 2),
 (5, 'Energise', '2019-08-15 04:09:00', '9999-08-16 11:59:00', 1),
 (6, 'Urlaub in Europa', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 1),
-(7, 'International Quest', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 10);
+(7, 'International Quest', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 10),
+(8, 'Quest with objective to delete', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 2);
 
 
 INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
@@ -231,7 +233,8 @@ INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
 (6, 11),
 (7, 18),
 (7, 11),
-(7, 4);
+(7, 4),
+(8, 19);
 
 
 INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `solved_current`, `checked_in_index`, `completed`) VALUES

@@ -162,6 +162,12 @@ public class ObjectiveTestSteps {
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
+    @When("^I attempt to delete the objective with id (\\d+)$")
+    public void iAttemptToDeleteTheObjectiveWithId(long givenId) {
+        objectiveId = givenId;
+        this.iAttemptToDeleteTheObjective();
+    }
+
 
     @When("I attempt to delete the objective")
     public void iAttemptToDeleteTheObjective() {
