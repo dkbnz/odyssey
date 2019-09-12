@@ -447,12 +447,12 @@ public class AchievementTrackerTestSteps {
         int monthTest = localDate.getMonthValue();
         int dayTest   = localDate.getDayOfMonth();
 
-        profile.setLastLogin(daysAgoDate);
+        profile.setLastSeen(daysAgoDate);
         profileRepository.update(profile);
 
         Profile profileTest = profileRepository.findById(Long.valueOf(userId));
 
-        LocalDate profileLastLogin = profileTest.getLastLogin().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate profileLastLogin = profileTest.getLastSeen().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         int yearProfile  = profileLastLogin.getYear();
         int monthProfile = profileLastLogin.getMonthValue();
@@ -639,7 +639,7 @@ public class AchievementTrackerTestSteps {
     public void myLastLoginWasHoursAgo(int days) {
         Profile profileTest = profileRepository.findById(Long.valueOf(testContext.getLoggedInId()));
 
-        LocalDate profileLastLogin = profileTest.getLastLogin().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate profileLastLogin = profileTest.getLastSeen().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         Date daysAgoDate = new Date(System.currentTimeMillis() - (days * DAY_IN_MS));
         LocalDate dayAgoTest = daysAgoDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
