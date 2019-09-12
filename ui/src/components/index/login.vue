@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-form @submit.prevent="login">
-            <b-alert dismissible v-model="showError" variant="danger">Invalid Username or Password</b-alert>
+            <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
             <b-form-group
                     description="Please enter your username (email)"
                     id="username-field"
@@ -29,7 +29,8 @@
             return {
                 username: '',
                 password: '',
-                showError: false
+                showError: false,
+                alertMessage: ""
             }
         },
 
@@ -47,15 +48,26 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify({username: this.username, password: this.password, clientTime: time, timeOffset: offset})
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.showError = false;
-                        self.$router.go();
-                        return JSON.parse(JSON.stringify(response));
-                    } else {
-                        self.showError = true;
-                        return JSON.parse(JSON.stringify(response));
-                    }
-                })
+                    response.json().then(responseBody => {
+                        if (response.ok) {
+                            self.showError = false;
+                            self.$router.go();
+                        } else {
+                            if (response.status === 401) {
+                                self.alertMessage = "Invalid Username or Password";
+                                self.showError = true;
+                            } else {
+                                self.showErrorToast(responseBody)
+                            }
+
+                        }
+                    });
+                }).catch(function (error) {
+                    let returnJson = {
+                        message: error
+                    };
+                    self.showErrorToast(JSON.stringify(returnJson));
+                });
             }
         }
     }

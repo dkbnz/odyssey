@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg" v-if="!showSingleProfilePage">
-            <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
+            <b-alert v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
             <b-alert
                     :show="dismissCountDown"
                     @dismiss-count-down="countDownChanged"

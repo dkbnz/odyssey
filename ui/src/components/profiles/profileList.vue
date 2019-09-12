@@ -25,11 +25,11 @@
                 </b-img>
             </template>
             <template slot="nationalities" slot-scope="row">
-                {{calculateNationalities(row.item.nationalities)}}
+                <p class="wrapWhiteSpace">{{calculateNationalities(row.item.nationalities)}}</p>
             </template>
 
-            <template slot="travellerTypes" slot-scope="row">
-                {{calculateTravTypes(row.item.travellerTypes)}}
+            <template slot="travellerTypes" slot-scope="row" class="wrapWhiteSpace">
+                <p class="wrapWhiteSpace">{{calculateTravellerTypes(row.item.travellerTypes)}}</p>
             </template>
 
 
@@ -90,8 +90,10 @@
                             </ul>
                         </b-col>
                         <b-col>
-                            <div class="mt-5">
-                                <b-list-group-item href="#" @click="$emit('show-single-profile', row.item)" variant="primary">
+                            <div class="h-100 d-flex">
+                                <b-list-group-item href="#" class="w-50 justify-content-center align-self-center"
+                                                   @click="$emit('show-single-profile', row.item)"
+                                                   variant="primary">
                                     <h3>Show Full Profile</h3>
                                 </b-list-group-item>
                             </div>
@@ -246,7 +248,7 @@
                 let nationalityList = "";
                 for (let i = 0; i < nationalities.length; i++) {
                     if (nationalities[i + 1] !== undefined) {
-                        nationalityList += nationalities[i].nationality + ", ";
+                        nationalityList += nationalities[i].nationality + ", \n";
                     } else {
                         nationalityList += nationalities[i].nationality;
                     }
@@ -262,11 +264,11 @@
              *
              * @param travellerTypes     the row's (profile) traveller types.
              */
-            calculateTravTypes(travellerTypes) {
+            calculateTravellerTypes(travellerTypes) {
                 let travTypeList = "";
                 for (let i = 0; i < travellerTypes.length; i++) {
                     if (travellerTypes[i + 1] !== undefined) {
-                        travTypeList += travellerTypes[i].travellerType + ", ";
+                        travTypeList += travellerTypes[i].travellerType + ", \n";
                     } else {
                         travTypeList += travellerTypes[i].travellerType;
                     }

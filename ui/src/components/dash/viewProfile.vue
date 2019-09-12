@@ -19,7 +19,7 @@
                             @dismiss-count-down="countDownChanged"
                     > {{alertMessage}}
                     </b-alert>
-                    <b-alert dismissible v-model="showError" variant="danger"><p class="errorMessage">{{alertMessage}}</p></b-alert>
+                    <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
                     <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
                     <h6 v-if="profile.achievementTracker">Rank: #{{profile.achievementTracker.rank}} Points: ({{profile.achievementTracker.points}})</h6>
                     <p v-if="profile.admin"><i>Administrator</i></p>
@@ -122,7 +122,7 @@
                             </b-button>
                             <b-modal ref="profilePhotoUploader" id="profilePhotoUploader" hide-footer centered
                                      title="Change Profile Photo">
-                                <b-alert dismissible v-model="showError" variant="danger"><p class="errorMessage">{{errorMessage}}</p></b-alert>
+                                <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
                                 <photoUploader @save-photos="uploadProfilePhoto"
                                                :acceptTypes="'image/jpeg, image/jpg, image/png'"
                                                :multipleFiles="false">
