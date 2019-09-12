@@ -188,6 +188,12 @@
         watch: {
             inputObjective() {
                 this.destinationSelected = this.inputObjective.destination;
+                // Changes the selected radius to match the given objective radius.
+                for (let i = 0; i < this.radiusList.length; i++) {
+                    if (this.radiusList[i].value === this.inputObjective.radius.value) {
+                        this.radiusSelected = this.radiusList[i];
+                    }
+                }
             },
 
             selectedDestination() {
