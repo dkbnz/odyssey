@@ -59,13 +59,43 @@
             </template>
 
             <template slot="row-details" slot-scope="row">
-                <b-card bg-variant="secondary">
-                    <view-profile
-                            :admin-view="false"
-                            :destinations="destinations"
-                            :profile="row.item"
-                            :userProfile="profile">
-                    </view-profile>
+                <b-card bg-variant="light">
+                    <!--<view-profile-->
+                            <!--:admin-view="false"-->
+                            <!--:destinations="destinations"-->
+                            <!--:profile="row.item"-->
+                            <!--:userProfile="profile">-->
+                    <!--</view-profile>-->
+                    <b-row>
+                        <b-col cols="3">
+                            <h3>Basic Information</h3>
+                            <p>Date of Birth: {{new Date(row.item.dateOfBirth).toLocaleDateString()}}</p>
+                            <h3>Statistics</h3>
+                            <p>Badges Achieved: {{row.item.achievementTracker.badges.length}} <br />
+                                Points: {{row.item.achievementTracker.points}} <br />
+                                Quests Created: {{row.item.numberOfQuestsCreated}}
+                            </p>
+                        </b-col>
+                        <b-col>
+                            <h3>Nationalities</h3>
+                            <ul>
+                                <li v-for="nationality in row.item.nationalities">{{nationality.nationality}}</li>
+                            </ul>
+                            <h3>Passports</h3>
+                            <ul>
+                                <li v-for="passport in row.item.passports">{{passport.country}}</li>
+                            </ul>
+                        </b-col>
+                        <b-col>
+                            <div class="mt-5">
+                                <b-button @click="$emit('show-single-profile', row.item)" variant="primary">
+                                    Show Full Profile
+                                </b-button>
+                            </div>
+
+                        </b-col>
+                    </b-row>
+
                 </b-card>
             </template>
 
@@ -104,10 +134,12 @@
 
 <script>
     import ViewProfile from "../dash/viewProfile";
+    import BadgeList from "../badges/badgeTable";
     export default {
         name: "profileList",
 
         components: {
+            BadgeList,
             ViewProfile
         },
 

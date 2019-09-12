@@ -2,17 +2,24 @@ package controllers.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import controllers.points.AchievementTrackerController;
 import models.profiles.Profile;
 import models.util.ApiError;
+import org.joda.time.DateTime;
+import org.joda.time.chrono.ISOChronology;
+import org.joda.time.format.DateTimeFormat;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import org.joda.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,13 +37,18 @@ public class AuthenticationController extends Controller {
     private static final String ALREADY_LOGGED_IN = "OK, Already Logged In";
     private static final String LOGGED_OUT = "OK, Logged out";
     private static final String HASH_FAIL = "Invalid JSON: JSON Object contains no user or password key";
-    private static final Integer DAY_IN_MS = 86400000;
+    private static final Integer HOURS_IN_A_DAY = 24;
+    private static final Integer STARTING_STREAK_NUMBER = 1;
+    private static final Integer LOST_STREAK = 0;
     private static final String TIME_FIELD = "clientTime";
+    private static final String TIME_OFFSET = "timeOffset";
 
     private ProfileRepository profileRepository;
+    private AchievementTrackerController achievementTrackerController;
 
     @Inject
-    public AuthenticationController(ProfileRepository profileRepository) {
+    public AuthenticationController(ProfileRepository profileRepository, AchievementTrackerController achievementTrackerController) {
+        this.achievementTrackerController = achievementTrackerController;
         this.profileRepository = profileRepository;
     }
 
@@ -58,10 +70,16 @@ public class AuthenticationController extends Controller {
             JsonNode loginJson = request.body().asJson();
 
             // Check if a body was given and has required fields
-            if (loginJson == null || (!(loginJson.has(USERNAME) && loginJson.has(PASS_FIELD)))) {
+            if (loginJson == null ||
+                    (!(loginJson.has(USERNAME) &&
+                            loginJson.has(PASS_FIELD)))) {
                 // If JSON Object contains no user or pass key, return bad request
                 // Prevents null pointer exceptions when trying to get the values below.
                 return badRequest(ApiError.invalidJson());
+
+//                 &&
+//                loginJson.has(TIME_FIELD) &&
+//                        loginJson.has(TIME_OFFSET)
             }
 
             String username = loginJson.get(USERNAME).asText();
@@ -78,10 +96,13 @@ public class AuthenticationController extends Controller {
             Profile profile = profileRepository.getExpressionList()
                     .like(USERNAME, username).findOne();
 
+//            String clientTime = loginJson.get(TIME_FIELD).asText();
+//            int timeOffset = loginJson.get(TIME_OFFSET).asInt();
+
             if ((profile != null) && (profile.getPassword().equals(password))) {
                 // Profile was successfully fetched and password matches,
-                // checks if needing tpo increment the streaker badge
-                //checkStreakIncrement(profile);
+                // checks if needing to increment the streaker badge
+//                checkStreakIncrement(profile, clientTime, timeOffset);
                 // Set session token as id and return ok (200 response)
                 return ok(LOGGED_IN).addingToSession(request, AUTHORIZED, profile.id.toString());
             }
@@ -89,7 +110,21 @@ public class AuthenticationController extends Controller {
             return unauthorized(ApiError.unauthorized());
         } else {
             // user is logged in
-            //checkStreakIncrement(loggedInUser);
+
+            JsonNode loginJson = request.body().asJson();
+
+            if (loginJson == null ||
+                    (!(loginJson.has(USERNAME) &&
+                            loginJson.has(PASS_FIELD)))) {
+                // If JSON Object contains no user or pass key, return bad request
+                // Prevents null pointer exceptions when trying to get the values below.
+                return badRequest(ApiError.invalidJson());
+            }
+//
+//            String clientTime = loginJson.get(TIME_FIELD).asText();
+//            int timeOffset = loginJson.get(TIME_OFFSET).asInt();
+//
+//            checkStreakIncrement(loggedInUser, clientTime, timeOffset);
             return ok(ALREADY_LOGGED_IN);
         }
     }
@@ -105,36 +140,49 @@ public class AuthenticationController extends Controller {
     }
 
 
-    private void checkStreakIncrement(Profile profile, Date clientTime) {
-
-//
-//        Date lastSeen = profile.getLastSeen();
-//        Date incrementTime = profile.getIncrementTime();
-//        Date streakTimeout = new Date(lastSeen + 2);
+    private void checkStreakIncrement(Profile profile, String clientTime, int timeOffset) {
 
 
-//        LocalDate localDateLastLogin = lastLogin.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//        int yearLastLogin  = localDateLastLogin.getYear();
-//        int monthLastLogin = localDateLastLogin.getMonthValue();
-//        int dayLastLogin  = localDateLastLogin.getDayOfMonth();
-//
-//        Date daysAgoDate = new Date(System.currentTimeMillis() - DAY_IN_MS);
-//
-//        LocalDate localDate = daysAgoDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//        int yearTest  = localDate.getYear();
-//        int monthTest = localDate.getMonthValue();
-//        int dayTest   = localDate.getDayOfMonth();
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+        DateTime clientDateTime = formatter.parseDateTime(clientTime);
 
-//        profile.setLastLogin(daysAgoDate);
+        // UTC time converted from the clients time and timezone
+        DateTime utcDateTime = clientDateTime.plusMinutes(timeOffset);
+
+        // The previous time the user was seen using the application before this interaction
+        DateTime lastSeen = profile.getLastSeen();
+
+        // The time at which the profile should be awarded an increase in their streak
+        DateTime incrementTime = profile.getIncrementTime();
+
+        if (incrementTime == null && lastSeen == null) {
+            // Users first time (sign up)
+            profile.getAchievementTracker().setCurrentStreak(STARTING_STREAK_NUMBER);
+            profile.setIncrementTime(utcDateTime.plusHours(HOURS_IN_A_DAY));
+
+        } else {
+
+            if (utcDateTime.isBefore(lastSeen.plusHours(HOURS_IN_A_DAY))) {
+                // User has not lost their streak just pushes their boundary time
+
+                if (utcDateTime.isAfter(incrementTime)) {
+                    // Passed the increment time and so adds to the users streak
+                    profile.getAchievementTracker().addToCurrentStreak();
+                    profile.setIncrementTime(utcDateTime.plusHours(HOURS_IN_A_DAY));
+                    achievementTrackerController.rewardAction(profile);
+                }
+
+            } else {
+                // User has lost their streak
+                profile.getAchievementTracker().setCurrentStreak(LOST_STREAK);
+                profile.setIncrementTime(utcDateTime.plusHours(HOURS_IN_A_DAY));
+            }
+        }
+
+        profile.setLastSeen(utcDateTime);
+
+
         profileRepository.update(profile);
-
-//        Profile profileTest = profileRepository.findById(Long.valueOf(userId));
-
-//        LocalDate profileLastLogin = profileTest.getLastLogin().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//
-//        int yearProfile  = profileLastLogin.getYear();
-//        int monthProfile = profileLastLogin.getMonthValue();
-//        int dayProfile   = profileLastLogin.getDayOfMonth();
 
     }
 }
