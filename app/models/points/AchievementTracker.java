@@ -57,6 +57,13 @@ public class AchievementTracker extends BaseModel {
     }
 
     /**
+     * Adds to the profiles current streak
+     */
+    public void addToCurrentStreak() {
+        this.currentStreak++;
+    }
+
+    /**
      * Default constructor to set the points to a not-null default value.
      */
     public AchievementTracker() {
