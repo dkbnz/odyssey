@@ -74,14 +74,20 @@
              * @returns {Promise<Response | never>}
              */
             queryYourActiveQuests() {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
                     return fetch(`/v1/quests/profiles/` + this.profile.id, {})
-                        .then(response => response.json())
-                        .then((data) => {
-                            this.questAttempts = data;
-                            this.loadingResults = false;
-                        })
+                        .then(function (response) {
+                            response.json().then(responseBody => {
+                                if (response.ok) {
+                                    self.questAttempts = responseBody;
+                                    self.loadingResults = false;
+                                } else {
+                                    self.showErrorToast(responseBody);
+                                }
+                            });
+                        });
                 }
             },
 

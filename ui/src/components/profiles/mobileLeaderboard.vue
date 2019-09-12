@@ -1,6 +1,5 @@
 <template>
     <div>
-        <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
         <div v-if="page === 0">
             <b-jumbotron class="bg-white">
                 <h1 class="page-title">Leaderboard</h1>
@@ -94,9 +93,7 @@
                 queryPage: 0,
                 pageSize: 10,
                 gettingMore: false,
-                searchParameters: null,
-                showError: false,
-                alertMessage: ""
+                searchParameters: null
             }
         },
 
@@ -146,7 +143,6 @@
                     .then(function (response) {
                         response.json().then(data => {
                             if (response.ok && data !== null && data !== undefined) {
-                                self.showError = false;
                                 if (data.length < 10) {
                                     self.moreResults = false;
                                     self.initialLoad = false;
@@ -167,8 +163,7 @@
                                 }
                                 self.retrievingProfiles = false;
                             } else {
-                                self.alertMessage = self.getErrorMessage(data);
-                                self.showError = true;
+                                self.showErrorToast(responseBody);
                             }
                         });
                     });

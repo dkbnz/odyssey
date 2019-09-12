@@ -370,8 +370,7 @@
                             self.$emit('successCreate', "Objective Successfully Created");
                             self.$emit('cancelCreate')
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
@@ -411,8 +410,7 @@
                             self.$emit('successCreate', "Objective Successfully Edited");
                             self.$emit('cancelCreate')
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });

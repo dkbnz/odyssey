@@ -1,7 +1,6 @@
 <template>
     <div>
         <h4 class="page-title">Search Quests</h4>
-        <b-alert dismissible v-model="showError" variant="danger"><p class="errorMessage">{{errorMessage}}</p></b-alert>
         <div>
             <!--Input fields for searching for quests-->
             <b-form-group
@@ -115,12 +114,10 @@
                 searchCreatedFirst: "",
                 searchCreatedLast: "",
                 searchCountry: "",
-                showError: false,
                 operatorOptions: [
                     {value: '>', text: "Greater than"},
                     {value: '<', text: "Less than"},
                 ],
-                errorMessage: "",
                 countryList: Array
             }
         },
@@ -207,11 +204,9 @@
                     .then(function (response) {
                         response.json().then(responseBody => {
                             if (response.ok) {
-                                self.showError = false;
                                 self.countryList = responseBody;
                             } else {
-                                self.errorMessage = self.getErrorMessage(responseBody);
-                                self.showError = true;
+                                self.showErrorToast(responseBody);
                             }
                         })
                     });
@@ -262,11 +257,9 @@
                 }).then(function(response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
-                            self.showError = false;
                             self.$emit('searched-quests', responseBody);
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     })
                 });

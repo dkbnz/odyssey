@@ -350,8 +350,7 @@
                             if (response.ok) {
                                 self.countryList = responseBody;
                             } else {
-                                self.errorMessage = self.getErrorMessage(responseBody);
-                                self.showError = true;
+                                self.showErrorToast(responseBody);
                             }
                         })
                     });
@@ -438,8 +437,7 @@
                                 self.createPointToast(responseBody.pointsRewarded, "Destination Created");
                                 return responseBody;
                             } else {
-                                self.errorMessage = self.getErrorMessage(responseBody);
-                                self.showError = true;
+                                self.showErrorToast(responseBody);
                             }
                         })
                     });
