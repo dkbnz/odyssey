@@ -13,6 +13,7 @@ import models.points.Badge;
 import models.points.PointReward;
 import models.profiles.Profile;
 import models.quests.Quest;
+import models.quests.QuestAttempt;
 import models.trips.Trip;
 import models.util.ApiError;
 import play.libs.Json;
@@ -46,6 +47,7 @@ public class AchievementTrackerController extends Controller {
         this.badgeRepository = badgeRepository;
         this.objectMapper = objectMapper;
     }
+
 
     /**
      * Adds points to the given profile, depending on the action.
@@ -100,7 +102,12 @@ public class AchievementTrackerController extends Controller {
     }
 
 
-
+    /**
+     * Takes a collection
+     * @param badgesAchieved
+     * @param pointsAchieved
+     * @return
+     */
     private JsonNode constructRewardJson(Collection<Badge> badgesAchieved, PointReward pointsAchieved) {
 
         Collection<PointReward> pointsAchievedCollection = new ArrayList<>();
@@ -196,28 +203,12 @@ public class AchievementTrackerController extends Controller {
      *
      * @param actingProfile     the profile that completed the action.
      * @param questWorkedOn     the quest that was either created or completed
-     * @param questAction       a string indicating if what action was taken for the quest.
-     * @param questDistance     a double value storing the total distance between objectives in a quest.
+     * @param completedAction   an action indicating the operation performed on the quest.
      * @return                  the points rewarded to the user.
      */
-    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, String questAction, Double questDistance) {
+    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, Action completedAction) {
         PointReward points;
         Collection<Badge> badgesAchieved = new ArrayList<>();
-        Action completedAction;
-        switch (questAction) {
-            case "Riddle Solved":
-                completedAction = Action.RIDDLE_SOLVED;
-                break;
-            case "Quest Completed":
-                completedAction = Action.QUEST_COMPLETED;
-                break;
-            case "Quest Created":
-                completedAction = Action.QUEST_CREATED;
-                break;
-            default:
-                completedAction = null;
-                break;
-        }
 
         givePoints(actingProfile, completedAction);
 
@@ -230,9 +221,13 @@ public class AchievementTrackerController extends Controller {
         badgesAchieved.add(giveBadge(actingProfile, completedAction, 1));
 
         // Adds to the Wayfarer (distance badge) progress. Needs to be in this current order.
-        if (completedAction == Action.QUEST_COMPLETED && questDistance != null) {
-            int roundedValue = (int) Math.ceil(questDistance);
-            badgesAchieved.add(giveBadge(actingProfile, Action.DISTANCE_QUEST_COMPLETED, roundedValue));
+        if (completedAction == Action.QUEST_COMPLETED) {
+
+            // Calculate the distance of the completed quest and add the progress to the relevant badge.
+            badgesAchieved.add(giveBadge(actingProfile,
+                    Action.DISTANCE_QUEST_COMPLETED,
+                    calculateTotalQuestDistance(questWorkedOn)));
+
         }
 
         points = pointRewardRepository.findUsing(completedAction);
@@ -333,5 +328,54 @@ public class AchievementTrackerController extends Controller {
             awardJson.add(award);
         }
         return awardJson;
+    }
+
+
+    /**
+     * Calculates the total distance between each objective for a given Quest.
+     *
+     * @param quest           the Quest to calculate the distance of.
+     * @return                an int containing the total distance in meters between each objective in the quest.
+     */
+    private int calculateTotalQuestDistance(Quest quest) {
+        double totalDistance = 0;
+
+        List<Objective> questObjectives = quest.getObjectives();
+        // Calculate the total distance between each objective in the quest.
+        for (int i = 1; i < questObjectives.size(); i++) {
+            totalDistance +=
+                    calculateDistance(questObjectives.get(i-1).getDestination().getLatitude(),
+                            questObjectives.get(i).getDestination().getLatitude(),
+                            questObjectives.get(i-1).getDestination().getLongitude(),
+                            questObjectives.get(i).getDestination().getLongitude());
+        }
+        return (int) Math.ceil(totalDistance);
+    }
+
+
+    /**
+     * Calculates the distance between two destinations locations represented by latitude and longitude values.
+     * This is used to determine the quest's total distance, so the user can obtain the Wayfarer badge.
+     *
+     * @param latitude1     the first destination's latitude value.
+     * @param latitude2     the second destination's latitude value.
+     * @param longitude1    the first destination's longitude value.
+     * @param longitude2    the second destination's longitude value.
+     * @return              a double containing the distance between the two points.
+     */
+    private double calculateDistance(double latitude1, double latitude2, double longitude1, double longitude2) {
+
+        final int R = 6371; // Radius of the earth
+
+        double latDistance = Math.toRadians(latitude2 - latitude1);
+        double lonDistance = Math.toRadians(longitude2 - longitude1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(latitude1)) * Math.cos(Math.toRadians(latitude2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c * 1000; // convert to meters
+        distance = Math.pow(distance, 2);
+
+        return Math.sqrt(distance);
     }
 }

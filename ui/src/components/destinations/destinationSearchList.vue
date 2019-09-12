@@ -13,7 +13,6 @@
             </b-list-group>
         </div>
         <div v-else>
-            <b-alert v-model="showError" variant="danger" dismissible>{{errorMessage}}</b-alert>
             <b-button variant="success" @click="showSearch = true" block>Back to Search</b-button>
             <b-list-group class="scroll">
                 <b-list-group-item v-for="destination in foundDestinations" href="#"
@@ -79,9 +78,7 @@
                loadingResults: false,
                moreResults: true,
                destToSearch: {},
-               queryPage: 0,
-               showError: false,
-               errorMessage: ""
+               queryPage: 0
            }
         },
 
@@ -132,7 +129,6 @@
                     response.json().then(data => {
                         if (response.ok) {
                             if (data !== null && data !== undefined) {
-                                self.showError = false;
                                 self.moreResults = data.length >= 50;
                                 for (let i = 0; i < data.length; i++) {
                                     self.foundDestinations.push(data[i]);
@@ -140,8 +136,7 @@
                                 self.$emit('destination-search', self.foundDestinations);
                             }
                         } else {
-                            self.errorMessage = self.getErrorMessage(data);
-                            self.showError = true;
+                            self.showErrorToast(data);
                         }
                         self.loadingResults = false;
                     })

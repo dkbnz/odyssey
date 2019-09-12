@@ -262,8 +262,7 @@
                         if (response.ok) {
                             self.destinationUsage = responseBody;
                         } else {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     })
                 });
@@ -321,7 +320,7 @@
                         } else {
                             self.showTravellerTypeUpdateSuccess = false;
                             self.showError = false;
-                            self.alertMessage = self.getErrorMessage(responseBody);
+                            self.showErrorToast(responseBody);
                             self.showTravellerTypeUpdateFailure = true;
                             setTimeout(function () {
                                 self.showTravellerTypeUpdateFailure = false;

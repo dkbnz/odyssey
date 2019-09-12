@@ -1,7 +1,6 @@
 <template>
     <div>
         <b-row>
-            <b-alert v-model="showError" variant="danger" dismissible>{{alertMessage}}</b-alert>
             <b-col cols="5">
                 <active-quest-list
                         :quest-attempts="questAttempts"
@@ -56,9 +55,7 @@
             return {
                 selectedQuestAttempt: {},
                 questAttempts: [],
-                loadingResults: false,
-                showError: false,
-                alertMessage: ""
+                loadingResults: false
             }
         },
 
@@ -82,11 +79,9 @@
                         .then(function (response) {
                             response.json().then(responseBody => {
                                 if (response.ok) {
-                                    self.showError = false;
                                     self.questAttempts = responseBody;
                                 } else {
-                                    self.showError = true;
-                                    self.alertMessage = self.getErrorMessage(responseBody);
+                                    self.showErrorToast(responseBody);
                                 }
                                 self.loadingResults = false;
                             });

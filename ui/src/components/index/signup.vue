@@ -519,8 +519,7 @@
                         } else if (response.status === 201 && self.createdByAdmin) {
                             self.$emit('profile-created', true);
                         } else {
-                            self.alertMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
