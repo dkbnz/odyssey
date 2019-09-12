@@ -26,31 +26,30 @@
                 </b-list-group-item>
             </b-list-group>
         </div>
+        <div v-if="badges.length">
+            <b-list-group-item class="flex-column align-items-start"
+                               v-for="badge in badges"
+                               :key="badge.id">
+                <b-row>
+                    <b-col cols="4">
+                        <single-badge :badge="badge"></single-badge>
+                    </b-col>
+                    <b-col>
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{badge.name}}</h5>
+                            <small>{{badge.progress}}{{badge.breakpoint == null ? '' : '/' + badge.breakpoint}}</small>
+                        </div>
 
-            <div v-if="badges.length">
-                <b-list-group-item class="flex-column align-items-start"
-                                   v-for="badge in badges"
-                                   :key="badge.id">
-                    <b-row>
-                        <b-col cols="4">
-                            <single-badge :badge="badge"></single-badge>
-                        </b-col>
-                        <b-col>
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">{{badge.name}}</h5>
-                                <small>{{badge.progress}}{{badge.breakpoint == null ? '' : '/' + badge.breakpoint}}</small>
-                            </div>
-
-                            <p class="mb-1">
-                                {{requiredActions[badge.actionToAchieve]}}
-                            </p>
-                        </b-col>
-                    </b-row>
-                </b-list-group-item>
-            </div>
-            <div v-else class="text-center my-2" >
-                <b-img alt="Loading" class="loading" v-if="loadingResults" :src="assets['loadingLogo']"></b-img>
-            </div>
+                        <p class="mb-1">
+                            {{requiredActions[badge.actionToAchieve]}}
+                        </p>
+                    </b-col>
+                </b-row>
+            </b-list-group-item>
+        </div>
+        <div v-else class="text-center my-2" >
+            <b-img alt="Loading" class="loading" v-if="loadingResults" :src="assets['loadingLogo']"></b-img>
+        </div>
     </div>
 </template>
 
@@ -100,6 +99,7 @@
              * the list of profile's badges.
              */
             getAllBadges() {
+                console.log("HERE");
                 this.loadingResults = true;
                 let self = this;
                 fetch(`/v1/achievementTracker/badges`, {

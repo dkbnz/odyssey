@@ -87,6 +87,9 @@ public class Profile extends BaseModel {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "owner")
     private AchievementTracker achievementTracker;
 
+    @Transient
+    private int numberOfQuestsCreated;
+
     public Date getLastSeen() {
         return lastSeen;
     }
@@ -277,6 +280,9 @@ public class Profile extends BaseModel {
         return photoGallery.remove(photoToRemove);
     }
 
+    public int getNumberOfQuestsCreated() {
+        return myQuests.size();
+    }
 
     public boolean removeObjective(Objective objective) {
         return myObjectives.remove(objective);
