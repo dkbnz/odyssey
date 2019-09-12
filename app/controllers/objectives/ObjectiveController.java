@@ -243,7 +243,7 @@ public class ObjectiveController {
             objectiveOwner.removeObjective(objective);
             objectiveRepository.delete(objective);
             profileRepository.update(objectiveOwner);
-            return ok();
+            return ok(Json.toJson(objective));
         }
         return badRequest(ApiError.invalidJson());
     }

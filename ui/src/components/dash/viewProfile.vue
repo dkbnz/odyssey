@@ -44,7 +44,7 @@
                         <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
                     </ul>
                     <h3> Badges </h3>
-                    <div class="d-flex justify-content-center">
+                    <div class="d-flex justify-content-center badgesDiv">
                         <badge-table :profile="profile"></badge-table>
                     </div>
                 </div>

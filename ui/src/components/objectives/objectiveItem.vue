@@ -15,7 +15,7 @@
             <p>Trip Successfully Saved</p>
             <b-progress
                     :max="dismissSecs"
-                    :value="dismissCountDown"
+                    :value="dismissCountdown - 1"
                     height="4px"
                     variant="success"
             ></b-progress>

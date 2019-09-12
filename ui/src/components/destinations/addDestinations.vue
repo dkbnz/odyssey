@@ -14,7 +14,7 @@
             <p>Destination Successfully {{heading}}ed</p>
             <b-progress
                     :max="dismissSecs"
-                    :value="dismissCountDown"
+                    :value="dismissCountDown - 1"
                     height="4px"
                     variant="success"
             ></b-progress>

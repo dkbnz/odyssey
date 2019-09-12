@@ -2,6 +2,20 @@
     <div>
         <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg" v-if="!showSingleProfilePage">
             <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{alertMessage}}</p></b-alert>
+            <b-alert
+                    :show="dismissCountDown"
+                    @dismiss-count-down="countDownChanged"
+                    @dismissed="dismissCountDown=0"
+                    dismissible
+                    variant="success">
+                <p>{{alertMessage}}</p>
+                <b-progress
+                        :max="dismissSecs"
+                        :value="dismissCountDown - 1"
+                        height="4px"
+                        variant="success"
+                ></b-progress>
+            </b-alert>
             <!-- Confirmation modal for deleting a profile. -->
             <b-modal ref="deleteProfileModal" id="deleteProfileModal" hide-footer title="Delete Profile">
                 <div class="d-block">
@@ -34,6 +48,7 @@
                 <b-col sm="8">
                     <!--Displays results from profile search in a table format-->
                     <profile-list
+                            :refresh-table="refreshTable"
                             :first-page = "firstPage"
                             :more-results="moreResults"
                             :searching-profiles="searchingProfiles"
@@ -62,6 +77,7 @@
                         @cleared-form="clearForm">
                 </profile-search-form>
                 <profile-list
+                        :refresh-table = "refreshTable"
                         :firstPage = "firstPage"
                         :more-results="moreResults"
                         :searching-profiles="searchingProfiles"
@@ -96,7 +112,7 @@
                 </b-col>
             </b-row>
         </div>
-        <footer-main></footer-main>
+        <footer-main v-if="!minimalInfo"></footer-main>
     </div>
 </template>
 
@@ -149,7 +165,10 @@
                 columnSortBy: {sortBy: "", order: ""},
                 firstPage: false,
                 showSingleProfilePage: false,
-                selectedProfileToView: null
+                selectedProfileToView: null,
+                refreshTable: false,
+                dismissSecs: 3,
+                dismissCountDown: 0
             }
         },
 
@@ -158,46 +177,6 @@
         },
 
         methods: {
-            /**
-             * Used to calculate a specific rows nationalities from their list of nationalities. Shows all the
-             * nationalities in the row.
-             *
-             * @param nationalities     the row's (profile) nationalities.
-             */
-            calculateNationalities(nationalities) {
-                let nationalityList = "";
-                for (let i = 0; i < nationalities.length; i++) {
-                    if (nationalities[i + 1] !== undefined) {
-                        nationalityList += nationalities[i].nationality + ", ";
-                    } else {
-                        nationalityList += nationalities[i].nationality;
-                    }
-
-                }
-                return nationalityList;
-            },
-
-
-            /**
-             * Used to calculate a specific rows traveller types from their list of traveller types. Shows all the
-             * traveller types in the row.
-             *
-             * @param travellerTypes     the row's (profile) traveller types.
-             */
-            calculateTravTypes(travellerTypes) {
-                let travTypeList = "";
-                for (let i = 0; i < travellerTypes.length; i++) {
-                    if (travellerTypes[i + 1] !== undefined) {
-                        travTypeList += travellerTypes[i].travellerType + ", ";
-                    } else {
-                        travTypeList += travellerTypes[i].travellerType;
-                    }
-
-                }
-                return travTypeList;
-            },
-
-
             /**
              * Method to make a user an admin. This method is only available if the currently logged in user is an
              * admin. Backend validation ensures a user cannot bypass this.
@@ -212,7 +191,11 @@
                     response.json().then(responseBody => {
                         if (response.ok) {
                             self.showError = false;
-                            self.searchProfiles();
+                            let index = self.profiles.indexOf(makeAdminProfile);
+                            self.profiles[index] = responseBody;
+                            self.refreshTable = !self.refreshTable;
+                            self.alertMessage = "Profile is now an admin!";
+                            self.showAlert();
                         } else {
                             self.showErrorToast(responseBody);
                         }
@@ -232,12 +215,15 @@
                 let self = this;
                 fetch('/v1/removeAdmin/' + makeAdminProfile.id, {
                     method: 'POST',
-                }).then(function () {
-                    self.searchProfiles();
                 }).then(function (response) {
                     response.json().then(responseBody => {
                         if (response.ok) {
                             self.showError = false;
+                            let index = self.profiles.indexOf(makeAdminProfile);
+                            self.profiles[index] = responseBody;
+                            self.refreshTable = !self.refreshTable;
+                            self.alertMessage = "Profile is no longer an admin!";
+                            self.showAlert();
                             if (self.profile.id === makeAdminProfile.id) {
                                 self.$router.push("/dash");
                                 self.$router.go();
@@ -265,7 +251,10 @@
                     response.json().then(responseBody => {
                         if (response.ok) {
                             self.showError = false;
-                            self.searchProfiles();
+                            let index = self.profiles.indexOf(deleteUser);
+                            self.profiles.splice(index, 1);
+                            self.alertMessage = responseBody;
+                            self.showAlert()
                         } else {
                             self.showErrorToast(responseBody);
                         }
@@ -429,7 +418,25 @@
                 window.scrollTo(0, 0);
                 this.selectedProfileToView = profile;
                 this.showSingleProfilePage = true;
-            }
+            },
+
+
+            /**
+             * Used to allow an alert to countdown on the successful action.
+             *
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown
+            },
+
+
+            /**
+             * Displays the countdown alert on the successful action.
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
+            },
 
         }
     }

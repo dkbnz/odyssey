@@ -14,7 +14,7 @@
             <p>Photo Successfully Added</p>
             <b-progress
                     :max="dismissSecs"
-                    :value="dismissCountDown"
+                    :value="dismissCountdown - 1"
                     height="4px"
                     variant="success"
             ></b-progress>
@@ -30,7 +30,7 @@
         </b-modal>
 
         <div class="d-flex justify-content-center mb-3">
-            <b-img alt="Loading" class="align-middle loading" v-if="retrievingPhotos" :src="assets['loadingLogo']"></b-img>
+            <b-img alt="Loading" class="mt-3 align-middle loading" v-if="retrievingPhotos" :src="assets['loadingLogo']"></b-img>
             <p v-if="photos.length === 0 && !retrievingPhotos"><b>No photos found.</b></p>
         </div>
 

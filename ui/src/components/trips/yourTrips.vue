@@ -14,7 +14,7 @@
                 <p>Trip Deleted</p>
                 <b-progress
                         :max="dismissSecs"
-                        :value="dismissCountDown"
+                        :value="dismissCountdown - 1"
                         height="4px"
                         variant="success"
                 ></b-progress>
@@ -150,7 +150,7 @@
                                        trim v-model="perPageUpcoming"></b-form-select>
                     </b-form-group>
                 </b-col>
-                <b-col cols="8">
+                <b-col cols="10">
                     <b-pagination
                             :per-page="perPageUpcoming"
                             :total-rows="rowsUpcoming"
@@ -265,7 +265,7 @@
                             </b-form-select>
                         </b-form-group>
                     </b-col>
-                    <b-col cols="8">
+                    <b-col cols="10">
                         <b-pagination
                                 :per-page="perPagePast"
                                 :total-rows="rowsPast"
@@ -553,6 +553,7 @@
                     method: 'DELETE',
                 }).then(function (response) {
                     response.json().then(responseBody => {
+                        console.log("HERE");
                         if (response.ok) {
                             self.showError = false;
                             self.validDelete = true;

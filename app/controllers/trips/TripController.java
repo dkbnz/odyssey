@@ -205,7 +205,7 @@ public class TripController extends Controller {
 
         if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
             tripRepository.updateTrip(tripOwner, trip, destinationList);
-            return ok();
+            return ok(Json.toJson(trip));
         } else {
             return badRequest(ApiError.invalidJson());
         }
@@ -448,6 +448,6 @@ public class TripController extends Controller {
         // Repository method handling the database and object manipulation.
         tripRepository.deleteTripFromProfile(tripOwner, trip);
         // Deletion successful.
-        return ok();
+        return ok(Json.toJson(trip));
     }
 }
