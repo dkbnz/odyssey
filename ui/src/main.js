@@ -11,6 +11,7 @@ import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 
 import RewardToast from "./components/helperComponents/rewardToast";
+import ErrorToast from "./components/helperComponents/errorToast";
 
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
@@ -25,7 +26,8 @@ Vue.use(BootstrapVue);
  */
 Vue.mixin({
     components: {
-        RewardToast
+        RewardToast,
+        ErrorToast
     },
     methods: {
         showRewardToast(rewardJson) {
@@ -65,6 +67,31 @@ Vue.mixin({
                         });
                     }
                 }
+            }
+        },
+
+
+        /**
+         * Displays a toast on the page if an error occurs in the backend.
+         *
+         * @param errorResponse     the Json body of the response error.
+         */
+        showErrorToast(errorResponse) {
+            for (let i = 0; i < errorResponse.length; i++) {
+                const h = this.$createElement;
+
+                const toastContent = h(
+                    'error-toast',
+                    {props: {errorMessage: errorResponse[i].message}}
+                );
+
+                this.$bvToast.toast([toastContent], {
+                    title: "Oh Dear, an error occurred",
+                    autoHideDelay: 10000,
+                    appendToast: true,
+                    solid: true,
+                    variant: 'danger'
+                });
             }
         },
 
