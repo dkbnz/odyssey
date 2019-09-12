@@ -42,7 +42,7 @@
                         <b-container fluid>
                             <p class="mb-1">Selected Destination:</p>
                             <b-list-group @click="$emit('destination-select')">
-                                <b-list-group-item class="flex-column align-items-start"
+                                <b-list-group-item class="flex-column align-items-start" href="#"
                                                    v-if="destinationSelected"
                                                    id="selectedDestination"
                                                    :disabled="destinationSelected === '{}'"
@@ -378,6 +378,7 @@
 
             /**
              * Displays a toast saying they've gained a certain amount of points.
+             *
              * @param points the points to display.
              * @param title the title of the toast, indicating the context of the point gain.
              */

@@ -67,7 +67,6 @@
                     return null;
                 }
             },
-            destinationTypes: Array,
             searchPublic: Boolean
         },
 
@@ -78,11 +77,36 @@
                loadingResults: false,
                moreResults: true,
                destToSearch: {},
-               queryPage: 0
+               queryPage: 0,
+               destinationTypes: []
            }
         },
 
+        mounted() {
+            this.getDestinationTypes();
+        },
+
         methods: {
+            /**
+             * Retrieves the different destination types from the backend.
+             *
+             * @returns {Promise<any | never>}  the returned promise.
+             */
+            getDestinationTypes() {
+                let self = this;
+                return fetch(`/v1/destinationTypes`, {
+                    accept: "application/json"
+                }).then(function(response) {
+                    response.json().then(data => {
+                        if (response.ok) {
+                            self.destinationTypes = data;
+                        } else {
+                            self.showErrorToast(data);
+                        }
+                    })
+                });
+            },
+
            /**
             * Function to retrieve more destinations when a user reaches the bottom of the list.
             */
