@@ -105,18 +105,27 @@
                     accept: 'application/json'
 
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            for (let i = 0; i < responseBody.length; i++) {
-                                if (!self.profileBadgesIds.includes(responseBody[i].id)) {
-                                    self.badges.push(responseBody[i]);
-                                }
-                            }
-                        } else {
-                            self.showErrorToast(responseBody);
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.loadingResults = false;
+                    for (let i = 0; i < responseBody.length; i++) {
+                        if (!self.profileBadgesIds.includes(responseBody[i].id)) {
+                            self.badges.push(responseBody[i]);
                         }
+                    }
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
                         self.loadingResults = false;
-                    });
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             },
 

@@ -486,8 +486,23 @@
                         body: JSON.stringify({'username': this.saveProfile.username})
 
                     }).then(function (response) {
-                        self.validEmail = response.ok || (self.saveProfile.username === self.profile.username)
-                    })
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response;
+                        }
+                    }).then(function (response) {
+                        self.validEmail = response.ok || (self.saveProfile.username === self.profile.username);
+                    }).catch(function (response) {
+                        self.validEmail = false;
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
+                    });
                 }
 
             },
@@ -567,27 +582,34 @@
                         headers: {'content-type': 'application/json'},
                         body: JSON.stringify(this.saveProfile)
                     }).then(function (response) {
-                        response.json().then(responseBody => {
-                            if (response.ok) {
-                                if (!self.adminView) {
-                                    self.$router.go();
-                                } else {
-                                    self.showSuccess = true;
-                                    setTimeout(function() {
-                                        self.showSuccess = false;
-                                    }, 3000)
-                                }
-                                self.$emit('profile-saved', self.saveProfile);
-                                window.scrollTo(0, 0);
-                                self.showErrorResponse = false;
-                                return responseBody;
-                            } else {
-                                self.errorMessage = self.getErrorMessage(responseBody);
-                                self.showErrorResponse = true;
-                            }
-                        });
-
-                    })
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        if (!self.adminView) {
+                            self.$router.go();
+                        } else {
+                            self.showSuccess = true;
+                            setTimeout(function() {
+                                self.showSuccess = false;
+                            }, 3000)
+                        }
+                        self.$emit('profile-saved', self.saveProfile);
+                        window.scrollTo(0, 0);
+                        self.showErrorResponse = false;
+                        return responseBody;
+                    }).catch(function (response) {
+                        self.validEmail = false;
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
+                    });
                 }
             }
         }
