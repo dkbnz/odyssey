@@ -197,8 +197,7 @@
                             self.showError = false;
                             self.searchProfiles();
                         } else {
-                            self.alertMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
@@ -227,8 +226,7 @@
                                 self.$router.go();
                             }
                         } else {
-                            self.alertMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     })
 
@@ -252,8 +250,7 @@
                             self.showError = false;
                             self.searchProfiles();
                         } else {
-                            self.alertMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                     });
                 });
@@ -350,8 +347,7 @@
                             self.showError = false;
                             self.profiles = responseBody;
                         } else {
-                            self.alertMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
+                            self.showErrorToast(responseBody);
                         }
                         self.retrievingProfiles = false;
                     });

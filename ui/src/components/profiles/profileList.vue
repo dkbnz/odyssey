@@ -1,6 +1,5 @@
 <template>
     <div>
-        <b-alert v-model="showError" variant="danger" dismissible><p class="errorMessage">{{errorMessage}}</p></b-alert>
         <b-table :busy="loading"
                  :fields="fields"
                  :items="profileList"
@@ -167,9 +166,7 @@
                 {value: Infinity, text: "All"}],
                 perPage: 5,
                 currentPage: 1,
-                rows: null,
-                errorMessage: "",
-                showError: false
+                rows: null
             }
         },
 
@@ -255,11 +252,9 @@
                     }).then(function (response) {
                         response.json().then(responseBody => {
                             if (response.ok) {
-                                self.showError = false;
                                 self.rows = responseBody;
                             } else {
-                                self.errorMessage = self.getErrorMessage(responseBody);
-                                self.showError = true;
+                                self.showErrorToast(responseBody);
                             }
                         });
                     });
