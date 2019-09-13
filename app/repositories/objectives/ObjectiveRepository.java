@@ -5,7 +5,6 @@ import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import models.destinations.Destination;
 import models.objectives.Objective;
-import play.libs.Json;
 
 import java.util.List;
 
@@ -17,10 +16,6 @@ import java.util.List;
 public class ObjectiveRepository extends BeanRepository<Long, Objective> {
 
     private static final String DESTINATION = "destination";
-    private static final String OWNER = "owner";
-    private static final String RIDDLE = "riddle";
-    private static final String RADIUS = "radius";
-    private static final String ID = "id";
 
     @Inject
     public ObjectiveRepository() {
@@ -38,23 +33,6 @@ public class ObjectiveRepository extends BeanRepository<Long, Objective> {
         return query()
                 .where()
                 .eq(DESTINATION, destination)
-                .findList();
-    }
-
-    /**
-     * Returns a list of objectives that are equal, excluding the given objective.
-     *
-     * @param objective     objective to search with.
-     * @return              list of objectives that are equal.
-     */
-    public List<Objective> findEqual(Objective objective) {
-        System.out.println(Json.toJson(objective));
-        return query()
-                .where()
-                .eq(RIDDLE, objective.getRiddle())
-                .eq(RADIUS, objective.getRadius())
-                .eq(DESTINATION, objective.getDestination())
-                .eq(ID, objective.getId())
                 .findList();
     }
 }
