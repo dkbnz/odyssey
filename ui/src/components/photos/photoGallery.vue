@@ -1,6 +1,8 @@
 <template>
-    <div class="containerWithNav">
-        <h1 class="page-title">Personal Media</h1>
+    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
+        <div class="upperPadding">
+            <h1 class="page-title">Personal Media</h1>
+        </div>
         <p v-if="authentication" class="page-title"><i>Here are your photos</i></p>
 
         <b-alert
@@ -28,8 +30,8 @@
         </b-modal>
 
         <div class="d-flex justify-content-center mb-3">
-            <b-spinner v-if="retrievingPhotos"></b-spinner>
-            <p v-if="photos.length === 0"><b>No photos found.</b></p>
+            <b-img alt="Loading" class="align-middle loading" v-if="retrievingPhotos" src="../../../static/logo_sm.png"></b-img>
+            <p v-if="photos.length === 0 && !retrievingPhotos"><b>No photos found.</b></p>
         </div>
 
         <photo-table :photos="photos"
@@ -38,13 +40,13 @@
                      :userProfile="userProfile"
                      :adminView="adminView"
                      :privacy-update="updatePhotoPrivacy"
-                     :photo-click="photoClicked"
+                     @photo-click="photoClicked"
         >
         </photo-table>
         <b-modal centered hide-footer ref="modalImage" size="xl">
-            <b-img-lazy v-if="photoToView !== null" :src="getFullPhoto()" alt="Image couldn't be retrieved"
-                        @error="imageAlt" center fluid>
-            </b-img-lazy>
+            <b-img v-if="photoToView !== null" :src="getFullPhoto()" alt="Image couldn't be retrieved"
+                        onerror="this.src = '../../../static/default_image.png'" center fluid>
+            </b-img>
             <b-row>
                 <b-col>
                     <b-button
@@ -135,7 +137,8 @@
         },
 
         mounted() {
-            this.getPhotosList()
+            let self = this;
+            setTimeout(self.getPhotosList, 500);
         },
 
         methods: {
@@ -166,8 +169,8 @@
              *
              * @param photo     photo object being clicked on.
              */
-            photoClicked: function (photo) {
-                this.photoToView = photo;
+            photoClicked(photo) {
+                this.photoToView = JSON.parse(JSON.stringify(photo));
                 this.$refs['modalImage'].show();
             },
 
@@ -253,22 +256,20 @@
             getPhotosList() {
                 let self = this;
                 this.retrievingPhotos = true;
-                setTimeout(function() {
-                    let selfe = self;
-                    fetch(`/v1/photos/user/` + self.profile.id, {
-                        accept: "application/json",
-                    })
-                        .then(response => response.json())
-                        .then(photos => {
-                            for (let i in photos) {
-                                if (photos[i].public || selfe.adminView) {
-                                    selfe.photos.push(photos[i]);
-                                    selfe.reloadPhotoTable += 1;
-                                    selfe.retrievingPhotos = false;
-                                }
+                fetch(`/v1/photos/user/` + self.profile.id, {
+                    accept: "application/json",
+                    method: "GET"
+                })
+                    .then(response => response.json())
+                    .then(photos => {
+                        for (let i in photos) {
+                            if (this.authentication || photos[i].public || self.adminView) {
+                                self.photos.push(photos[i]);
+                                self.reloadPhotoTable += 1;
                             }
-                        })
-                }, 500)
+                        }
+                        self.retrievingPhotos = false;
+                    })
             },
 
 
@@ -372,3 +373,6 @@
         }
     }
 </script>
+<style scoped>
+    @import "../../css/dash.css";
+</style>

@@ -94,6 +94,11 @@ public class QuestTestSteps {
 
 
     /**
+     *  String to add to the query parameter when searching for a quest
+     */
+    private static final String OBJECTIVE_QUERY = "objective";
+
+    /**
      * String to add the equals character (=) (<) (>) to build a query string.
      */
     private static final String EQUALS = "=";
@@ -128,6 +133,7 @@ public class QuestTestSteps {
     /**
      * The static Json variable keys for a objective.
      */
+    private static final String QUEST_TITLE = "newQuest";
     private static final String ID = "id";
     private static final String OBJECTIVE_DESTINATION = "destination";
     private static final String OBJECTIVE_RIDDLE = "riddle";
@@ -290,7 +296,7 @@ public class QuestTestSteps {
         if (testContext.getStatusCode() < 400) {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode actualObj = mapper.readTree(Helpers.contentAsString(result));
-            questId = Long.parseLong(actualObj.get(ID).toString());
+            questId = Long.parseLong(actualObj.get(QUEST_TITLE).get(ID).toString());
         }
 
         testContext.setResponseBody(Helpers.contentAsString(result));
@@ -334,7 +340,7 @@ public class QuestTestSteps {
                 .append(queryOperator)
 
                 .append(AND)
-                .append(OBJECTIVES)
+                .append(OBJECTIVE_QUERY)
                 .append(EQUALS)
                 .append(queryObjectives)
 
@@ -657,7 +663,7 @@ public class QuestTestSteps {
     public void iAttemptToRetrieveAllQuestsWithTitle(String title) {
         queryTitle = getValue(TITLE, TITLE, title).replace(SPACE, QUERY_SPACE_REPLACE);
         queryOperator = getValue(OPERATOR, "","");
-        queryObjectives = getValue(OBJECTIVES, "","");
+        queryObjectives = getValue(OBJECTIVE_QUERY, "","");
         queryFirstName = getValue(FIRST_NAME, "", "");
         queryLastName = getValue(LAST_NAME, "", "");
         queryCountry = getValue(COUNTRY, "", "");
@@ -670,7 +676,7 @@ public class QuestTestSteps {
     public void iAttemptToRetrieveAllQuestsWithObjectivesNumbering(Integer numberOfObjectives) {
         queryTitle = getValue(TITLE, "", "");
         queryOperator = getValue(OPERATOR, OPERATOR, EQUALS);
-        queryObjectives = getValue(OBJECTIVES, OBJECTIVES, numberOfObjectives.toString());
+        queryObjectives = getValue(OBJECTIVE_QUERY, OBJECTIVE_QUERY, numberOfObjectives.toString());
         queryFirstName = getValue(FIRST_NAME, "", "");
         queryLastName = getValue(LAST_NAME, "", "");
         queryCountry = getValue(COUNTRY, "", "");
@@ -682,7 +688,7 @@ public class QuestTestSteps {
     public void iAttemptToRetrieveAllQuestsWithLessThanObjectivesNumbering(Integer numberOfObjectives) {
         queryTitle = getValue(TITLE, "", "");
         queryOperator = getValue(OPERATOR, OPERATOR, LESS_THAN);
-        queryObjectives = getValue(OBJECTIVES, OBJECTIVES, numberOfObjectives.toString());
+        queryObjectives = getValue(OBJECTIVE_QUERY, OBJECTIVE_QUERY, numberOfObjectives.toString());
         queryFirstName = getValue(FIRST_NAME, "", "");
         queryLastName = getValue(LAST_NAME, "", "");
         queryCountry = getValue(COUNTRY, "", "");
@@ -694,7 +700,7 @@ public class QuestTestSteps {
     public void iAttemptToRetrieveAllQuestsWithGreaterThanObjectivesNumbering(Integer numberOfObjectives) {
         queryTitle = getValue(TITLE, "", "");
         queryOperator = getValue(OPERATOR, OPERATOR, GREATER_THAN);
-        queryObjectives = getValue(OBJECTIVES, OBJECTIVES, numberOfObjectives.toString());
+        queryObjectives = getValue(OBJECTIVE_QUERY, OBJECTIVE_QUERY, numberOfObjectives.toString());
         queryFirstName = getValue(FIRST_NAME, "", "");
         queryLastName = getValue(LAST_NAME, "", "");
         queryCountry = getValue(COUNTRY, "", "");
@@ -706,7 +712,7 @@ public class QuestTestSteps {
     public void iAttemptToRetrieveAllQuestsByUser(String firstName, String lastName) {
         queryTitle = getValue(TITLE, "", "");
         queryOperator = getValue(OPERATOR, "", "");
-        queryObjectives = getValue(OBJECTIVES, "", "");
+        queryObjectives = getValue(OBJECTIVE_QUERY, "", "");
         queryFirstName = getValue(FIRST_NAME, FIRST_NAME, firstName).replace(SPACE, QUERY_SPACE_REPLACE);
         queryLastName = getValue(LAST_NAME, LAST_NAME, lastName).replace(SPACE, QUERY_SPACE_REPLACE);
         queryCountry = getValue(COUNTRY, "", "");
@@ -718,7 +724,7 @@ public class QuestTestSteps {
     public void iAttemptToRetrieveAllQuestsByCountry(String country) {
         queryTitle = getValue(TITLE, "", "");
         queryOperator = getValue(OPERATOR, "", "");
-        queryObjectives = getValue(OBJECTIVES, "", "");
+        queryObjectives = getValue(OBJECTIVE_QUERY, "", "");
         queryFirstName = getValue(FIRST_NAME, "", "");
         queryLastName = getValue(LAST_NAME, "", "");
         queryCountry = getValue(COUNTRY, COUNTRY, country).replace(SPACE, QUERY_SPACE_REPLACE);

@@ -1,5 +1,5 @@
 <template>
-    <div class="adminTripsContainer">
+    <div class="bg-white m-1 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <div v-if="showQuestAttempt">
             <active-quest-solve
                     :quest-attempt="selectedQuestAttempt"
@@ -71,7 +71,7 @@
              * Runs a query which searches through the quests in the database and returns only
              * quests started by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryYourActiveQuests() {
                 if (this.profile.id !== undefined) {

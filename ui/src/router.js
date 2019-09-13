@@ -2,7 +2,7 @@ import Index from './components/index/indexPage'
 import Dash from './components/dash/dashPage'
 import Destinations from './components/destinations/destinationsPage'
 import Objectives from './components/objectives/objectivePage'
-import Profiles from './components/profiles/profilesPage'
+import Profiles from './components/profiles/leaderboardPage'
 import Trips from './components/trips/tripsPage'
 import AdminPanel from './components/admin/adminPanel'
 import Quests from './components/quests/questPage'
@@ -51,11 +51,11 @@ const routes = [
         }
     },
     {
-        path:"/profiles",
+        path:"/leaderboard",
         name: "profiles",
         component: Profiles,
         meta: {
-            title: "Profiles - TravelEA"
+            title: "Leaderboard - TravelEA"
         }
     },
     {

@@ -136,9 +136,8 @@ public class PhotoController extends Controller {
      *
      * @param profileToAdd  profile to add the photo to.
      * @param filename      filename of saved photo.
-     * @param isPublic      boolean flag of if photo is public.
      */
-    private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic)
+    private void addImageToProfile(Profile profileToAdd, String filename, String contentType)
             throws IOException {
         Photo photoToAdd = new Photo();
         photoToAdd.setMainFilename(getPhotoFilePath(false) + "/" + filename);
@@ -149,7 +148,7 @@ public class PhotoController extends Controller {
 
         PersonalPhoto personalPhoto = new PersonalPhoto();
         personalPhoto.setPhoto(photoToAdd);
-        personalPhoto.setPublic(isPublic);
+        personalPhoto.setPublic(false);
         personalPhoto.setProfile(profileToAdd);
 
         personalPhotoRepository.save(personalPhoto);
@@ -177,6 +176,7 @@ public class PhotoController extends Controller {
             return notFound();
         }
 
+
         Profile photoOwner = photo.getProfile();
 
         if (!AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
@@ -188,6 +188,8 @@ public class PhotoController extends Controller {
                 destinationRepository.update(destination);
             }
             photoOwner.removePhotoFromGallery(photo);
+            photo.clearDestinations();
+            personalPhotoRepository.update(photo);
             personalPhotoRepository.delete(photo);
             profileRepository.update(photoOwner);
             return ok();
@@ -343,7 +345,7 @@ public class PhotoController extends Controller {
             try {
                 temporaryFile.copyTo(Paths.get(getPhotoFilePath(false), filename),true);
                 saveThumbnail(filename);
-                addImageToProfile(profileToAdd, filename, photo.getContentType(), false);
+                addImageToProfile(profileToAdd, filename, photo.getContentType());
             } catch (IOException e) {
                 log.error("Unable to convert image to thumbnail", e);
                 return internalServerError(Json.toJson(e));
@@ -436,11 +438,10 @@ public class PhotoController extends Controller {
      * @throws IOException  if there is an error with saving the thumbnail.
      */
     private void saveThumbnail(String filename) throws IOException {
-        BufferedImage photo = ImageIO.read(new File(getPhotoFilePath(false) + "/" + filename));
+        BufferedImage photo = ImageIO.read(new File(String.format("%s/%s", getPhotoFilePath(false), filename)));
         BufferedImage croppedImage = makeSquare(photo);
         BufferedImage thumbnail = scale(croppedImage);
-        ImageIO.write(thumbnail, "jpg", new File(getPhotoFilePath(true)
-                + "/" + filename));
+        ImageIO.write(thumbnail, "jpg", new File(String.format("%s/%s", getPhotoFilePath(true), filename)));
     }
 
 
@@ -496,7 +497,7 @@ public class PhotoController extends Controller {
      * @param getThumbnail      boolean to specify if a thumbnail version is required.
      * @return                  result containing an image file.
      */
-    private Result getImageResult(Photo photoToRetrieve, Boolean getThumbnail) {
+    private Result getImageResult(Photo photoToRetrieve, boolean getThumbnail) {
 
         String contentType = photoToRetrieve.getContentType();
         // If get thumbnail is true, set filename to thumbnail filename, otherwise set it to main filename

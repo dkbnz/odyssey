@@ -1,10 +1,5 @@
 <template>
-    <div :class="classContainer">
-        <div v-if="classContainer" >
-            <h1 class="page-title">Quests</h1>
-            <p class="page-title"><i>Here are all this profile's currently active quests!</i></p>
-        </div>
-
+    <div>
         <b-row>
             <b-col cols="12" md="8">
                 <b-list-group>
@@ -185,7 +180,7 @@
                 </b-modal>
                 <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
                     <div class="d-flex justify-content-center">
-                        <b-spinner></b-spinner>
+                        <b-img alt="Loading" class="align-middle loading" src="../../../static/logo_sm.png"></b-img>
                     </div>
                 </b-list-group-item>
                 <b-list-group-item href="#" class="flex-column justify-content-center"
@@ -270,11 +265,6 @@
                 default: function () {
                     return false;
                 }
-            },
-            classContainer: {
-                default: function () {
-                    return "";
-                }
             }
         },
 
@@ -332,6 +322,7 @@
 
         mounted() {
             this.getMore();
+            this.$bvToast.show('example-toast');
         },
 
         watch: {
@@ -399,7 +390,7 @@
             /**
              * Runs a query which searches through the quests in the database and returns all.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryQuests() {
                 this.loadingResults = true;
@@ -419,7 +410,7 @@
              * Runs a query which searches through the quests in the database and returns only
              * quests created by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryYourQuests() {
                 if (this.profile.id !== undefined) {
@@ -439,7 +430,7 @@
              * Runs a query which searches through the quests in the database and returns only
              * quests started by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryYourActiveQuests() {
                 if (this.profile.id !== undefined) {
@@ -458,15 +449,13 @@
             /**
              * Creates a new quest attempt for the selected quest and current user.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             createAttempt(questToAttempt, viewActive) {
                 if (this.profile.id !== undefined) {
                     return fetch(`/v1/quests/` + questToAttempt.id + `/attempt/` + this.profile.id, {
                         method: 'POST'
                     }).then(response => {
-                        if (response.ok) {
-                        }
                         return response;
                     }).then(response => response.json())
                         .then(data => {
@@ -476,7 +465,7 @@
                             } else {
                                 // Refresh quests
                                 this.getMore();
-                                this.showSuccess("Quest started");
+                                this.showSuccess({message: "Quest started"});
                                 this.$emit('start-quest-later', data);
                             }
                         });
@@ -488,7 +477,7 @@
              * Runs a query which searches through the quests in the database and returns only
              * quests created by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryCompletedQuests() {
                 if (this.profile.id !== undefined) {
@@ -593,20 +582,39 @@
             /**
              * Sets the message for the success alert to the inputted message and runs showAlert to show the success
              * message.
-             * @param message to be set as the alert message.
+             * @param messageObject the object to display
              */
-            showSuccess(message) {
+            showSuccess(messageObject) {
                 this.getMore();
                 this.queryYourQuests();
-                this.alertText = message;
+                this.alertText = messageObject.message;
+
+                // If points were given, also set the data value, otherwise make sure it's the default of 0 to hide it.
+                if (messageObject.pointsRewarded != null) {
+                    this.createPointToast(messageObject.pointsRewarded, "Quest Created");
+                }
                 this.showAlert();
             },
 
 
             /**
+             * Displays a toast saying they've gained a certain amount of points.
+             * @param points the points to display.
+             * @param title the title of the toast, indicating the context of the point gain.
+             */
+            createPointToast(points, title) {
+                let message = "Your points have increased by " + points;
+                this.$bvToast.toast(message, {
+                    title: title,
+                    autoHideDelay: 3000,
+                    appendToast: true
+                })
+            },
+
+            /**
              * Converts the Http response body to a Json.
              * @param response  the received Http response.
-             * @returns {*}     the response body as a Json object.
+             * @return {*}     the response body as a Json object.
              */
             parseJSON(response) {
                 return response.json();
@@ -650,14 +658,19 @@
                 let radius = newObjective.radius;
                 let radiusValue;
                 let radiusList = [
-                    {value: 0.005, text: "5 Meters"},
-                    {value: 0.01, text: "10 Meters"},
-                    {value: 0.02, text: "20 Meters"},
-                    {value: 0.05, text: "50 Meters"},
-                    {value: 0.1, text: "100 Meters"},
-                    {value: 0.5, text: "500 Meters"},
+                    {value: 0.005, text: "5 m"},
+                    {value: 0.01, text: "10 m"},
+                    {value: 0.02, text: "20 m"},
+                    {value: 0.03, text: "30 m"},
+                    {value: 0.04, text: "40 m"},
+                    {value: 0.05, text: "50 m"},
+                    {value: 0.1, text: "100 m"},
+                    {value: 0.25, text: "250 m"},
+                    {value: 0.5, text: "500 m"},
                     {value: 1, text: "1 Km"},
+                    {value: 2.5, text: "2.5 Km"},
                     {value: 5, text: "5 Km"},
+                    {value: 7.5, text: "7.5 Km"},
                     {value: 10, text: "10 Km"},
                 ];
                 for (let i = 0; i < radiusList.length; i++) {
@@ -703,7 +716,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @returns {number}    the number of rows required in the table based on number of objectives to be
+             * @return {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
             rows(quest) {

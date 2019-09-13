@@ -21,7 +21,8 @@ DELETE  /v1/profile/:id          controllers.profiles.ProfileController.delete(r
 
 # User Profiles
 GET     /v1/profiles             controllers.profiles.ProfileController.list(request: Request)
-POST    /v1/profiles                      controllers.profiles.ProfileController.create(request: Request)
+GET     /v1/profiles/count       controllers.profiles.ProfileController.getTotalNumberOfProfiles(request: Request)
+POST    /v1/profiles             controllers.profiles.ProfileController.create(request: Request)
 
 # Admin
 POST    /v1/makeAdmin/:id                 controllers.profiles.ProfileController.makeAdmin(request: Request, id: Long)
@@ -84,6 +85,9 @@ POST    /v1/quests/:questId/attempt/:userId                    controllers.quest
 POST    /v1/quests/attempt/:attemptId/guess/:destinationId     controllers.quests.QuestController.guess(request: Request, attemptId: Long, destinationId: Long)
 POST    /v1/quests/attempt/:attemptId/checkIn                  controllers.quests.QuestController.checkIn(request: Request, attemptId: Long)
 GET     /v1/quests/profiles/:userId                            controllers.quests.QuestController.getQuestAttemptsByProfile(request: Request, userId: Long)
+
+# Achievement Tracker
+GET     /v1/achievementTracker/:userId/points                  controllers.points.AchievementTrackerController.fetchPoints(request: Request, userId: Long)
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production, but above redirect.
 GET     /static/*file                                  controllers.Assets.at(path="/public/static", file)

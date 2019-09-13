@@ -332,13 +332,31 @@ INSERT INTO passport (`id`, `country`) VALUES
 (107, 'Zambia'),
 (108, 'Zimbabwe');
 
+INSERT INTO `point_reward`(`id`, `name`, `value`) VALUES
+(1, 'RIDDLE_SOLVED', 5),
+(2, 'CHECKED_IN', 10),
+(3, 'DESTINATION_CREATED', 2),
+(4, 'QUEST_CREATED', 3),
+(5, 'OBJECTIVE_CREATED', 1),
+(6, 'TRIP_CREATED', 3),
+(7, 'QUEST_COMPLETED', 20);
+
 INSERT INTO `profile` (`id`, `username`, `password`, `first_name`, `middle_name`, `last_name`, `gender`, `date_of_birth`, `date_of_creation`, `is_admin`, `profile_picture_id`) VALUES
-(1, 'admin@travelea.com', '25F43B1486AD95A1398E3EEB3D83BC4010015FCC9BEDB35B432E00298D5021F7', 'Default', '', 'Admin', 'male', '2019-01-01', '2019-01-01 13:00:00.000000', 1, NULL),
-(2, 'guestUser@travelea.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Dave', '', 'McInloch', 'Other', '1998-10-18', '2019-04-17 15:31:19.579000', 0, NULL),
+(1, 'admin@travelea.com', '25F43B1486AD95A1398E3EEB3D83BC4010015FCC9BEDB35B432E00298D5021F7', 'Default', '', 'Admin', 'Male', '2018-01-01', '2019-01-01 13:00:00.000000', 1, NULL),
+(2, 'guestUser@travelea.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Dave', 'John', 'McInloch', 'Other', '1998-10-18', '2019-04-17 15:31:19.579000', 0, NULL),
 (3, 'testuser1@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserOne', 'Other', '1973-02-18', '2019-01-05 15:31:19.579000', 0, NULL),
 (4, 'testuser2@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserTwo', 'Other', '1982-05-12', '2019-02-04 15:31:19.579000', 0, NULL),
 (5, 'testuser3@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserThree', 'Other', '1971-01-23', '2019-03-03 15:31:19.579000', 0, NULL),
 (6, 'testuser4@email.com', '6B93CCBA414AC1D0AE1E77F3FAC560C748A6701ED6946735A49D463351518E16', 'Test', '', 'UserFour', 'Other', '1986-11-03', '2019-04-02 15:31:19.579000', 0, NULL);
+
+INSERT INTO `achievement_tracker` (`id`, `points`, `owner_id`) VALUES
+(1, 0, 1),
+(2, 0, 2),
+(3, 0, 3),
+(4, 0, 4),
+(5, 0, 5),
+(6, 0, 6);
+
 
 
 INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `longitude`, `country`, `is_public`, `owner_id`) VALUES
@@ -372,6 +390,7 @@ INSERT INTO `destination` (`id`, `name`, `type_id`, `district`, `latitude`, `lon
 (3338, 'Maungawhiorangi', 93, 'Gisborne', -38.174833, 177.243242, 'New Zealand', true, 1),
 (3360, 'McCallum Stream', 89, 'Marlborough', -41.797334, 173.260076, 'New Zealand', true, 1),
 (3558, 'Morgan Stream', 89, 'Canterbury', -43.59628, 171.339142, 'New Zealand', true, 1),
+(3577, 'Bern', 18, 'Bern', 46.947832, 7.447618, 'Switzerland', true, 1),
 (3580, 'Mother Millers Spring', 87, 'Canterbury', -43.358825, 171.288873, 'New Zealand', true, 1),
 (3594, 'Motukauatirahi/Cass Bay', 6, 'Canterbury', -43.607459, 172.692363, 'New Zealand', true, 1),
 (3607, 'Motuoapa Peninsula', 55, 'South Auckland', -38.924214, 175.859163, 'New Zealand', true, 1),
@@ -528,8 +547,9 @@ INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
 (1, 'Journey to the centre of the Earth', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 1),
 (2, 'My new quest', '2019-08-15 22:47:00', '9999-08-16 11:59:00', 6),
 (3, 'I am your father', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 2),
-(4, 'Use the force Luke', '2019-08-16 04:04:00', '9999-08-16 11:59:00', 2),
-(5, 'Energise', '2019-08-16 04:09:00', '9999-08-16 11:59:00', 1);
+(4, 'Use the force Luke', '2019-08-15 04:04:00', '9999-08-16 11:59:00', 2),
+(5, 'Energise', '2019-08-15 04:09:00', '9999-08-16 11:59:00', 1),
+(6, 'Urlaub in Europa', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 1);
 
 INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
 (1, 1),
@@ -544,7 +564,8 @@ INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
 (4, 8),
 (4, 9),
 (5, 10),
-(5, 11);
+(5, 11),
+(6, 11);
 
 INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `solved_current`, `checked_in_index`, `completed`) VALUES
 (1, 1, 1, 0, 0, 0),

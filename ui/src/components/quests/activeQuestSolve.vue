@@ -55,7 +55,7 @@
         </div>
         <div v-else>
             <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom show-only-mobile" size="sm">Back</b-button>
-            <h2 class="page-title">{{questAttempt.questAttempted.title}}</h2>
+            <h2 class="page-title" v-if="questAttempt.questAttempted">{{questAttempt.questAttempted.title}}</h2>
 
             <b-alert v-model="guessSuccess" variant="success" dismissible>
                 Success!
@@ -148,7 +148,8 @@
                 validCheckIn: false,
                 showNotValidCheckIn: false,
                 totalDistance: null,
-                searchedRiddle: null
+                searchedRiddle: null,
+                pointsGained: Number
             }
         },
 
@@ -181,6 +182,8 @@
             /**
              * Sends a request to check the users guess for a given quest attempt.
              * Displays appropriate messages upon receiving a response.
+             *
+             * @return {Promise <Response | never>}     the fetch method promise.
              */
             checkGuess() {
                 let self = this;
@@ -190,20 +193,39 @@
                 })
                     .then(response => response.json())
                     .then((data) => {
+                        // If successful guess
                         if (data.guessResult) {
                             self.goBack();
                             self.guessSuccess = true;
                             self.$emit('updated-quest-attempt', data.attempt);
                             setTimeout(function() {
                                 self.guessSuccess = false;
-                            }, 3000)
+                            }, 3000);
+                            self.createPointToast(data.pointsRewarded, "Riddle Solved")
                         } else {
+                            // If unsuccessful guess
                             self.showError = true;
                             setTimeout(function() {
                                 self.showError = false;
                             }, 3000)
                         }
                     })
+            },
+
+
+            /**
+             * Displays a toast saying they've gained a certain amount of points.
+             *
+             * @param points the points to display.
+             * @param title the title of the toast, indicating the context of the point gain.
+             */
+            createPointToast(points, title) {
+                let message = "Your points have increased by " + points;
+                this.$bvToast.toast(message, {
+                    title: title,
+                    autoHideDelay: 3000,
+                    appendToast: true
+                })
             },
 
 
@@ -265,6 +287,8 @@
 
             /**
              * Sends the request to check in to the current objective.
+             *
+             * @return {Promise <Response | never>}     the fetch method promise.
              */
             sendCheckInRequest() {
                 let self = this;
@@ -273,8 +297,14 @@
                     accept: "application/json"
                 })
                     .then(response => response.json())
-                    .then((data) => {
-                        self.$emit('updated-quest-attempt', data);
+                    .then(data => {
+                        self.createPointToast(data.pointsRewarded, "Checked In");
+                        if (data.completedPoints != null) {
+                            setTimeout(points => {
+                                self.createPointToast(points, "Quest Complete")
+                            }, 500, data.completedPoints);
+                        }
+                        self.$emit('updated-quest-attempt', data.attempt);
                     })
             },
 
@@ -283,7 +313,7 @@
              * Retrieves the different destination types from the backend.
              *
              * @param updateDestinationTypes    the list to be updated with the specified destination types.
-             * @returns {Promise<any | never>}  the returned promise.
+             * @return {Promise<any | never>}   the returned promise.
              */
             getDestinationTypes(updateDestinationTypes) {
                 return fetch(`/v1/destinationTypes`, {
@@ -305,6 +335,12 @@
                 this.showSelectedDestination = true;
             },
 
+
+            /**
+             * Displays the search destination sidebar and sets the riddle to be displayed.
+             *
+             * @param riddle    the riddle to be displayed in the destination sidebar.
+             */
             destinationSearch(riddle) {
                 this.showDestinationSearch = true;
                 this.searchedRiddle = riddle;
@@ -314,13 +350,16 @@
             /**
              * Returns a string value for the distance from the user's current location to the location of the
              * objective destination.
+             *
+             * @return a string value containing the total distance from the user to the objective destination.
              */
             getHowClose() {
-                if (this.totalDistance >= 1) {
-                    return String(Number(Math.round(this.totalDistance+'e3')+'e-3')) + " kms";
+                if (this.totalDistance) {
+                    if (this.totalDistance >= 1) {
+                        return String(this.totalDistance.toFixed(3)) + " kms";
+                    }
+                    return String(this.totalDistance.toFixed(5)*1000) + " metres";
                 }
-                return String(Number(Math.round((this.totalDistance * 1000)+'e0')+'e-0')) + " metres";
-
             }
         }
 

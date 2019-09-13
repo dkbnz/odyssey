@@ -1,7 +1,10 @@
 package controllers.trips;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.points.AchievementTrackerController;
 import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
@@ -33,19 +36,27 @@ public class TripController extends Controller {
     private static final String TRIP_ID = "trip_id";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private static final int DEFAULT_ADMIN_ID = 1;
+    private static final String REWARD = "pointsRewarded";
+    private static final String CREATED_ID = "createdId";
 
     private TripRepository tripRepository;
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
+    private AchievementTrackerController achievementTrackerController;
+    private ObjectMapper objectMapper;
 
 
     @Inject
     public TripController(TripRepository tripRepository,
                           ProfileRepository profileRepository,
-                          DestinationRepository destinationRepository) {
+                          DestinationRepository destinationRepository,
+                          AchievementTrackerController achievementTrackerController,
+                          ObjectMapper objectMapper) {
         this.tripRepository = tripRepository;
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
+        this.achievementTrackerController = achievementTrackerController;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -55,7 +66,8 @@ public class TripController extends Controller {
      *
      * @param request           Http Request containing Json Body.
      * @param affectedUserId    The user id of the user who will own the new trip.
-     * @return                  created() (Http 201) response for successful trip creation, or badRequest() (Http 400).
+     * @return                  created() (Http 201) response containing the reward and trip id.
+     *                          badRequest() (Http 400).
      */
     public Result create(Http.Request request, Long affectedUserId) {
         return request.session()
@@ -103,7 +115,14 @@ public class TripController extends Controller {
                             determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
                         }
                         tripRepository.save(trip);
-                        return created(Json.toJson(trip.getId()));
+
+                        ObjectNode returnJson = objectMapper.createObjectNode();
+
+                        int pointsAdded = achievementTrackerController.rewardAction(affectedProfile, trip);
+                        returnJson.put(REWARD, pointsAdded);
+                        returnJson.put(CREATED_ID, trip.getId());
+
+                        return created(returnJson);
                     } else {
                         return badRequest();
                     }
@@ -237,16 +256,9 @@ public class TripController extends Controller {
                 // Parse the values contained in the current node of the array
                 Long parsedDestinationId = destinationJson.get(DESTINATION_ID).asLong();
 
-                LocalDate parsedStartDate = null;
-                if (!(destinationJson.get(START_DATE).asText().equals("null")
-                        || destinationJson.get(START_DATE).asText().equals(""))) {
-                    parsedStartDate = LocalDate.parse(destinationJson.get(START_DATE).asText());
-                }
-                LocalDate parsedEndDate = null;
-                if (!(destinationJson.get(END_DATE).asText().equals("null")
-                        || destinationJson.get(END_DATE).asText().equals(""))) {
-                    parsedEndDate = LocalDate.parse(destinationJson.get(END_DATE).asText());
-                }
+                LocalDate parsedStartDate = parseDestinationDates(destinationJson, START_DATE);
+                LocalDate parsedEndDate = parseDestinationDates(destinationJson, END_DATE);
+
                 Destination parsedDestination = destinationRepository.findById(parsedDestinationId);
 
                 // Create a new TripDestination object and set the values to be those parsed.
@@ -264,6 +276,23 @@ public class TripController extends Controller {
             }
         }
         return result;
+    }
+
+
+    /**
+     * Checks if each date for a destination in a quest is valid. If valid parses it into a LocalDate object.
+     *
+     * @param destinationJson   the Json object containing the destination dates.
+     * @param field             the specified field, either start date or end date, that will be retrieved from the
+     *                          destinationJson.
+     * @return                  a LocalDate variable containing the requested date field, if none found returns null.
+     */
+    private LocalDate parseDestinationDates(JsonNode destinationJson, String field) {
+        if (!(destinationJson.get(field).asText().equals("null")
+                || destinationJson.get(field).asText().equals(""))) {
+           return LocalDate.parse(destinationJson.get(field).asText());
+        }
+        return null;
     }
 
 
