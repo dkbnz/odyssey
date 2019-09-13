@@ -452,48 +452,57 @@
                     return fetch(`/v1/trips/` + userId, {
                         accept: "application/json"
                     }).then(function (response) {
-                        response.json().then(trips => {
-                            if (response.ok) {
-                                self.showError = false;
-                                let today = new Date();
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function () {
+                        self.showError = false;
+                        let today = new Date();
 
-                                self.futureTrips = [];
-                                self.pastTrips = [];
-                                for (let i = 0; i < trips.length; i++) {
+                        self.futureTrips = [];
+                        self.pastTrips = [];
+                        for (let i = 0; i < trips.length; i++) {
 
-                                    // Sort the list of destinations of each trip using the list order
-                                    trips[i].destinations.sort((a, b) => {
-                                        // This is a comparison function that .sort needs to determine how to order the list
+                            // Sort the list of destinations of each trip using the list order
+                            trips[i].destinations.sort((a, b) => {
+                                // This is a comparison function that .sort needs to determine how to order the list
 
-                                        if (a.listOrder > b.listOrder) return 1;
-                                        if (a.listOrder < b.listOrder) return -1;
-                                        return 0;
-                                    });
+                                if (a.listOrder > b.listOrder) return 1;
+                                if (a.listOrder < b.listOrder) return -1;
+                                return 0;
+                            });
 
-                                    let destinationDates = [];
-                                    for (let j = 0; j < trips[i].destinations.length; j++) {
-                                        if (trips[i].destinations[j].startDate !== null) {
-                                            destinationDates.push(trips[i].destinations[j].startDate)
-                                        }
-                                        if (trips[i].destinations[j].endDate !== null) {
-                                            destinationDates.push(trips[i].destinations[j].endDate)
-                                        }
-                                    }
-                                    if (destinationDates.length === 0) {
-                                        self.futureTrips.push(trips[i]);
-                                    }
-                                    else if (new Date(destinationDates[destinationDates.length - 1]) < today) {
-                                        self.pastTrips.push(trips[i]);
-                                    } else {
-                                        self.futureTrips.push(trips[i]);
-                                    }
-                                    self.futureTrips.sort(self.sortFutureTrips);
+                            let destinationDates = [];
+                            for (let j = 0; j < trips[i].destinations.length; j++) {
+                                if (trips[i].destinations[j].startDate !== null) {
+                                    destinationDates.push(trips[i].destinations[j].startDate)
                                 }
-                                self.retrievingTrips = false;
-                            } else {
-                                self.showErrorToast(trips);
+                                if (trips[i].destinations[j].endDate !== null) {
+                                    destinationDates.push(trips[i].destinations[j].endDate)
+                                }
                             }
-                        });
+                            if (destinationDates.length === 0) {
+                                self.futureTrips.push(trips[i]);
+                            }
+                            else if (new Date(destinationDates[destinationDates.length - 1]) < today) {
+                                self.pastTrips.push(trips[i]);
+                            } else {
+                                self.futureTrips.push(trips[i]);
+                            }
+                            self.futureTrips.sort(self.sortFutureTrips);
+                        }
+                        self.retrievingTrips = false;
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            self.retrievingTrips = false;
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
                     });
                 }
             },
@@ -552,21 +561,26 @@
                 fetch('/v1/trips/' + trip.id, {
                     method: 'DELETE',
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showError = false;
-                            self.validDelete = true;
-                            self.dismissModal('deleteModal');
-                            self.getAllTrips();
-                            self.showAlert();
-                        } else if (response.status === 403) {
-                            self.errorMessage = 'You cannot delete another user\'s trips';
-                            self.errorMessage += '\n' + self.getErrorMessage(responseBody);
-                            self.showError = true;
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.showError = false;
+                    self.validDelete = true;
+                    self.dismissModal('deleteModal');
+                    self.getAllTrips();
+                    self.showAlert();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.showError = false;
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 

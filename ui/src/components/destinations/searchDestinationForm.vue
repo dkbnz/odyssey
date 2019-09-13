@@ -231,18 +231,25 @@
              */
             getCountries() {
                 let self = this;
-                return fetch("https://restcountries.eu/rest/v2/all", {
-                    dataType: 'html'
-                })
-                    .then(function (response) {
-                        response.json().then(responseBody => {
-                            if (response.ok) {
-                                self.countryList = responseBody;
-                            } else {
-                                self.showErrorToast(responseBody);
-                            }
+                fetch("https://restcountries.eu/rest/v2/all", {})
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.countryList = responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.loadingResults = false;
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
                         });
-                    });
+                    }
+                });
             },
 
 

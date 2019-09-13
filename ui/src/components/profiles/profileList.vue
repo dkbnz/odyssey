@@ -344,13 +344,21 @@
                         method: "GET",
                         accept: "application/json"
                     }).then(function (response) {
-                        response.json().then(responseBody => {
-                            if (response.ok) {
-                                self.rows = responseBody;
-                            } else {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        self.rows = responseBody;
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            response.json().then(function(responseBody) {
                                 self.showErrorToast(responseBody);
-                            }
-                        });
+                            });
+                        }
                     });
                 }
             }

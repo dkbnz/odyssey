@@ -187,26 +187,37 @@
                 return fetch('/v1/quests/attempt/' + this.questAttempt.id + '/guess/' + this.selectedDestination.id, {
                     method: "POST",
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then((data) => {
-                        // If successful guess
-                        if (data.guessResult) {
-                            self.goBack();
-                            self.guessSuccess = true;
-                            self.$emit('updated-quest-attempt', data.attempt);
-                            setTimeout(function() {
-                                self.guessSuccess = false;
-                            }, 3000);
-                            self.showRewardToast(data.reward);
-                        } else {
-                            // If unsuccessful guess
-                            self.showError = true;
-                            setTimeout(function() {
-                                self.showError = false;
-                            }, 3000)
-                        }
-                    })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    if (responseBody.guessResult) {
+                        self.goBack();
+                        self.guessSuccess = true;
+                        self.$emit('updated-quest-attempt', responseBody.attempt);
+                        setTimeout(function() {
+                            self.guessSuccess = false;
+                        }, 3000);
+                        self.showRewardToast(responseBody.reward);
+                    } else {
+                        // If unsuccessful guess
+                        self.showError = true;
+                        setTimeout(function() {
+                            self.showError = false;
+                        }, 3000)
+                    }
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
             },
 
 
@@ -271,18 +282,26 @@
              */
             sendCheckInRequest() {
                 let self = this;
-                return fetch('/v1/quests/attempt/' + this.questAttempt.id + '/checkIn', {
+                fetch('/v1/quests/attempt/' + this.questAttempt.id + '/checkIn', {
                     method: "POST",
                     accept: "application/json"
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.$emit('updated-quest-attempt', responseBody.attempt);
-                            self.showRewardToast(responseBody.reward);
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.$emit('updated-quest-attempt', responseBody.attempt);
+                    self.showRewardToast(responseBody.reward);
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 
@@ -291,20 +310,27 @@
              * Retrieves the different destination types from the backend.
              *
              * @param updateDestinationTypes    the list to be updated with the specified destination types.
-             * @returns {Promise<any | never>}  the returned promise.
              */
             getDestinationTypes(updateDestinationTypes) {
                 let self = this;
-                return fetch(`/v1/destinationTypes`, {
+                fetch(`/v1/destinationTypes`, {
                     accept: "application/json"
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.destinationTypes =  responseBody;
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.destinationTypes =  responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 

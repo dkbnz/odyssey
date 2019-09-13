@@ -237,15 +237,26 @@
                 fetch(`/v1/destinations/` + this.copiedDestination.id, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.dismissModal('deleteDestinationModal');
-                            self.$emit('destination-deleted');
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.showError = false;
+                    self.dismissModal('deleteDestinationModal');
+                    self.$emit('destination-deleted');
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.loadingResults = false;
+                        response.json().then(function(responseBody) {
                             self.errorMessage = self.getErrorMessage(responseBody);
                             self.showError = true;
-                        }
-                    })
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             },
 
@@ -258,13 +269,24 @@
                 fetch(`/v1/destinations/` + this.copiedDestination.id + `/checkDuplicates`, {
                     accept: "application/json"
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.destinationUsage = responseBody;
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.destinationUsage = responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.loadingResults = false;
+                        response.json().then(function(responseBody) {
+                            self.errorMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
                             self.showErrorToast(responseBody);
-                        }
-                    })
+                        });
+                    }
                 });
             },
 
@@ -303,32 +325,42 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.calculatedTravellerTypes)
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            if (self.destination.owner.id === self.profile.id || self.profile.admin) {
-                                self.destination.travellerTypes = self.calculatedTravellerTypes;
-                                self.alertMessage = "Destination traveller types updated";
-                            } else {
-                                self.alertMessage = "Update request sent";
-                            }
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    if (self.destination.owner.id === self.profile.id || self.profile.admin) {
+                        self.destination.travellerTypes = self.calculatedTravellerTypes;
+                        self.alertMessage = "Destination traveller types updated";
+                    } else {
+                        self.alertMessage = "Update request sent";
+                    }
 
-                            self.showTravellerTypeUpdateSuccess = true;
-                            setTimeout(function () {
-                                self.showTravellerTypeUpdateSuccess = false;
-                            }, 3000);
-                            self.showEditTravellerTypes = false;
-                        } else {
+                    self.showTravellerTypeUpdateSuccess = true;
+                    setTimeout(function () {
+                        self.showTravellerTypeUpdateSuccess = false;
+                    }, 3000);
+                    self.showEditTravellerTypes = false;
+                    self.$emit('data-changed');
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.loadingResults = false;
+                        response.json().then(function(responseBody) {
                             self.showTravellerTypeUpdateSuccess = false;
                             self.showError = false;
-                            self.showErrorToast(responseBody);
                             self.showTravellerTypeUpdateFailure = true;
                             setTimeout(function () {
                                 self.showTravellerTypeUpdateFailure = false;
                             }, 3000);
                             self.showEditTravellerTypes = false;
-                        }
-                        self.$emit('data-changed');
-                    })
+                            self.showErrorToast(responseBody);
+                            self.$emit('data-changed');
+                        });
+                    }
                 });
             }
         }

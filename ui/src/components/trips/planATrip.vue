@@ -545,7 +545,7 @@
              * A valid trip has a name, has at least two destinations, has no duplicate destinations next to each other,
              * each destination's dates are chronologically valid compared to its previous dates.
              * If the trip is invalid, errors are shown. If the trip is valid then it is either given to the saveNewTrip
-             * method or the saveOldTrip method depending on if the trip is a new trip, or the trip is an old trip being
+             * method or the updateTrip method depending on if the trip is a new trip, or the trip is an old trip being
              * edited.
              */
             validateTrip() {
@@ -577,7 +577,7 @@
                     if (this.inputTrip.id === null) {
                         this.saveNewTrip(trip);
                     } else {
-                        this.saveOldTrip(trip, this.inputTrip.id);
+                        this.updateTrip(trip, this.inputTrip.id);
                     }
                 }
             },
@@ -662,23 +662,28 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)
                 }).then(function (response) {
-                    if (response.status === 201) {
-                        self.savingTrip = false;
-                        self.showAlert();
-                        self.$emit('tripSaved', true);
-                        self.resetDestForm();
-                        self.inputTrip.name = "";
-                        self.inputTrip.destinations = [];
-                        return response;
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        throw new Error('Something went wrong, try again later.');
+                        return response.json();
                     }
-                }).then(response => response.json()
-                ).then(json => self.showRewardToast(json.reward)
-                ).catch((error) => {
-                    this.savingTrip = false;
-                    this.showError = true;
-                    this.errorMessage = (error);
+                }).then(function (responseBody) {
+                    self.savingTrip = false;
+                    self.showAlert();
+                    self.$emit('tripSaved', true);
+                    self.resetDestForm();
+                    self.inputTrip.name = "";
+                    self.inputTrip.destinations = [];
+                    self.showRewardToast(responseBody.reward)
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.savingTrip = false;
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             },
 
@@ -691,7 +696,7 @@
              * @param trip      the trip to be saved.
              * @param tripId    the id of the trip to be saved. This is required because the trip is being edited.
              */
-            saveOldTrip(trip, tripId) {
+            updateTrip(trip, tripId) {
                 this.savingTrip = true;
                 let self = this;
                 fetch('/v1/trips/' + tripId, {
@@ -699,19 +704,25 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)
                 }).then(function (response) {
-                    if (response.status === 200) {
-                        self.savingTrip = false;
-                        self.showAlert();
-                        self.$emit('tripSaved', true);
-                        return JSON.parse(JSON.stringify(response));
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        throw new Error('Something went wrong, try again later.');
+                        return response.json();
                     }
-                }).catch((error) => {
-                    this.savingTrip = false;
-                    this.showError = true;
-                    this.errorMessage = (error);
-
+                }).then(function (responseBody) {
+                    self.savingTrip = false;
+                    self.showAlert();
+                    self.$emit('tripSaved', true);
+                    return responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.savingTrip = false;
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             },
 

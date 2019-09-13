@@ -610,15 +610,23 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputQuest)
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showError = false;
-                            self.$emit('successCreate', {message: "Quest Successfully Created", reward: responseBody.reward});
-                            self.$emit('cancelCreate');
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    self.$emit('successCreate', {message: "Quest Successfully Created", reward: responseBody.reward});
+                    self.$emit('cancelCreate');
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 
@@ -631,14 +639,22 @@
                 return fetch('/v1/quests/' + this.inputQuest.id + '/profiles', {
                     accept: "application/json"
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showError = false;
-                            self.activeUsers = responseBody.length;
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    self.activeUsers = responseBody.length;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 
@@ -656,17 +672,24 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputQuest)
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showError = false;
-                            self.$emit('successEdit', "Quest Successfully Edited");
-                            self.$emit('cancelCreate')
-                        } else {
-                            // Ensures the start and end date fields are not wiped after an error occurs.
-                            self.splitDates();
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.showError = false;
+                    self.$emit('successEdit', "Quest Successfully Edited");
+                    self.$emit('cancelCreate')
+                }).catch(function (response) {
+                    self.splitDates();
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 
