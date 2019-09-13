@@ -43,6 +43,8 @@ public class AchievementTrackerController extends Controller {
     private static final int SINGLE_COUNTRY = 1;
     private static final int INCREMENT_ONE = 1;
 
+    private static final int ODYSSEY_THRESHOLD = 10;
+
 
     private ProfileRepository profileRepository;
     private PointRewardRepository pointRewardRepository;
@@ -271,7 +273,7 @@ public class AchievementTrackerController extends Controller {
         updatePointsBadge(actingProfile, badgesAchieved);
 
         // Progress towards badge
-        badgesAchieved.add(progressBadge(actingProfile, completedAction, 1));
+        badgesAchieved.add(progressBadge(actingProfile, completedAction, INCREMENT_ONE));
 
         // Adds to the Wayfarer (distance badge) progress. Needs to be in this current order.
         if (completedAction == Action.QUEST_COMPLETED) {
@@ -286,6 +288,13 @@ public class AchievementTrackerController extends Controller {
                 badgesAchieved.add(progressBadge(actingProfile,
                         Action.INTERNATIONAL_QUEST_COMPLETED, INCREMENT_ONE));
             }
+
+            // Check if quest contains enough objectives to be an odyssey.
+            if (questWorkedOn.getObjectives().size() >= ODYSSEY_THRESHOLD) {
+                badgesAchieved.add(progressBadge(actingProfile,
+                        Action.LARGE_QUEST_COMPLETED, INCREMENT_ONE));
+            }
+
         }
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.

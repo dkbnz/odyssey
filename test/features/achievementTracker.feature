@@ -112,7 +112,7 @@ Feature: Achievement Tracker API Endpoint
     Then the status code received is 201
     And I gain the "Cartographer" badge with level 3
 
-    Scenario: Creating my first trip and getting a bronze level Planner badge
+  Scenario: Creating my first trip and getting a bronze level Planner badge
     Given the application is running
     And I am logged in as user with id "7"
     And my current progress towards the "Planner" badge is 0
@@ -171,14 +171,14 @@ Feature: Achievement Tracker API Endpoint
     And I am logged in as user with id "7"
     And I currently have no "quests" created
     When I start to create a quest using the following values
-      | Title       | Start Date | End Date  |
-      | Cool Quest  |            |           |
+      | Title      | Start Date | End Date |
+      | Cool Quest |            |          |
     And the quest has the following objective
       | Destination | Riddle                                 | Radius |
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
     And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
+      | Destination | Riddle                  | Radius |
+      | 119         | What rhymes some stuff? | 0.005  |
     And the quest has the following objective
       | Destination | Riddle                                 | Radius |
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
@@ -192,14 +192,14 @@ Feature: Achievement Tracker API Endpoint
     And I am logged in as user with id "8"
     And I currently have no "quests" created
     When I start to create a quest using the following values
-      | Title       | Start Date | End Date  |
-      | Cool Quest  |            |           |
+      | Title      | Start Date | End Date |
+      | Cool Quest |            |          |
     And the quest has the following objective
       | Destination | Riddle                                 | Radius |
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
     And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
+      | Destination | Riddle                  | Radius |
+      | 119         | What rhymes some stuff? | 0.005  |
     And the quest has the following objective
       | Destination | Riddle                                 | Radius |
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
@@ -213,14 +213,14 @@ Feature: Achievement Tracker API Endpoint
     And I am logged in as user with id "9"
     And I currently have no "quests" created
     When I start to create a quest using the following values
-      | Title       | Start Date | End Date  |
-      | Cool Quest  |            |           |
+      | Title      | Start Date | End Date |
+      | Cool Quest |            |          |
     And the quest has the following objective
       | Destination | Riddle                                 | Radius |
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
     And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes some stuff?                | 0.005  |
+      | Destination | Riddle                  | Radius |
+      | 119         | What rhymes some stuff? | 0.005  |
     And the quest has the following objective
       | Destination | Riddle                                 | Radius |
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
@@ -368,3 +368,30 @@ Feature: Achievement Tracker API Endpoint
     When I check in for quest attempt 13
     Then the status code received is 200
     And I gain the "Explorer" badge with level 3
+
+
+#  Scenario: Gaining enough points to achieve bronze level Odyssey badge
+#    Given the application is running
+#    And I am logged in as user with id "7"
+#    And my current progress towards the "Odyssey" badge is 0
+#    When I check in for quest attempt 14
+#    Then the status code received is 200
+#    And I gain the "Odyssey" badge with level 1
+#
+#
+#  Scenario: Gaining enough points to achieve silver level Odyssey badge
+#    Given the application is running
+#    And I am logged in as user with id "8"
+#    And my current progress towards the "Odyssey" badge is 9
+#    When I check in for quest attempt 15
+#    Then the status code received is 200
+#    And I gain the "Odyssey" badge with level 2
+#
+#
+#  Scenario: Gaining enough points to achieve gold level Odyssey badge
+#    Given the application is running
+#    And I am logged in as user with id "9"
+#    And my current progress towards the "Odyssey" badge is 29
+#    When I check in for quest attempt 16
+#    Then the status code received is 200
+#    And I gain the "Odyssey" badge with level 3
