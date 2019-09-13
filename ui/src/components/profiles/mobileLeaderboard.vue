@@ -191,6 +191,12 @@
                     })
             },
 
+
+            /**
+             * Displays the view full profile page for the mobile.
+             *
+             * @param profile   the profile to be displayed in full.
+             */
             selectProfile(profile) {
                 this.selectedProfile = profile;
                 this.page = 2

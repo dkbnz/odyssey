@@ -305,7 +305,7 @@
 
         computed: {
             /**
-             * Validates input fields based on regular expression.
+             * Each below method validates the input fields based on regular expression.
              *
              * @returns {boolean} true if input is valid, false if invalid, or null if field remains unselected.
              */
