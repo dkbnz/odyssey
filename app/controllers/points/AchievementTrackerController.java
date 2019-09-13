@@ -179,6 +179,7 @@ public class AchievementTrackerController extends Controller {
             }
         }
 
+
         if(foundBadge == null || foundBadge.getProgress() < currentStreak) {
             badgesAchieved.add(progressBadge(actingProfile, Action.LOGIN_STREAK, INCREMENT_ONE));
         }
@@ -487,6 +488,7 @@ public class AchievementTrackerController extends Controller {
 
         if (lastSeenDate == null) {
             profile.getAchievementTracker().setCurrentStreak(STARTING_STREAK_NUMBER);
+            this.rewardAction(profile);
         } else {
             Date incrementDate = addOneDay(lastSeenDate);
 
