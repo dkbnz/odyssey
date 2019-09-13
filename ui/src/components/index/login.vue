@@ -7,14 +7,21 @@
                     id="username-field"
                     label="Username"
                     label-for="username">
-                <b-form-input autofocus id="username" trim v-model="username"></b-form-input>
+                <b-form-input autofocus
+                              id="username"
+                              trim
+                              v-model="username"></b-form-input>
             </b-form-group>
             <b-form-group
                     description="Please enter your password"
                     id="password-field"
                     label="Password"
                     label-for="password">
-                <b-form-input :type="'password'" id="password" trim v-model="password"></b-form-input>
+                <b-form-input :type="'password'"
+                              id="password"
+                              trim
+                              v-model="password">
+                </b-form-input>
             </b-form-group>
             <b-button block id="sign-in" type="submit" variant="primary">Sign In</b-button>
         </b-form>
@@ -30,7 +37,7 @@
                 username: '',
                 password: '',
                 showError: false,
-                alertMessage: ""
+                alertMessage: ''
             }
         },
 

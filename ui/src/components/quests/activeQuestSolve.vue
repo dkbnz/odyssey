@@ -94,7 +94,7 @@
                     <b-button size="sm" variant="primary" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
                 </b-list-group-item>
                 <!-- If we have an objective to check in to, display it -->
-                <b-list-group-item
+                <b-list-group-item href="#"
                                    class="d-flex justify-content-between align-items-center"
                                    v-if="questAttempt.toCheckIn != null">
                     <div>
@@ -181,6 +181,8 @@
             /**
              * Sends a request to check the users guess for a given quest attempt.
              * Displays appropriate messages upon receiving a response.
+             *
+             * @return {Promise <Response | never>}     the fetch method promise.
              */
             checkGuess() {
                 let self = this;
@@ -279,6 +281,8 @@
 
             /**
              * Sends the request to check in to the current objective.
+             *
+             * @return {Promise <Response | never>}     the fetch method promise.
              */
             sendCheckInRequest() {
                 let self = this;
@@ -348,7 +352,9 @@
 
 
             /**
-             * Displays the destinationSearch panel and the riddle that the user is trying to solve.
+             * Displays the search destination sidebar and sets the riddle to be displayed.
+             *
+             * @param riddle    the riddle to be displayed in the destination sidebar.
              */
             destinationSearch(riddle) {
                 this.showDestinationSearch = true;
@@ -359,6 +365,8 @@
             /**
              * Returns a string value for the distance from the user's current location to the location of the
              * objective destination.
+             *
+             * @return a string value containing the total distance from the user to the objective destination.
              */
             getHowClose() {
                 if (this.totalDistance && this.questAttempt.toCheckIn) {

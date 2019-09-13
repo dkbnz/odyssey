@@ -235,6 +235,7 @@ public class ProfileTestSteps {
         String maxAge = getValue(MAX_AGE, givenFields, givenValues);
         String minPoints = getValue(MIN_POINTS, givenFields, givenValues);
         String maxPoints = getValue(MAX_POINTS, givenFields, givenValues);
+        String rank = getValue(RANK, givenFields, givenValues);
 
         minAge = minAge.equals("") ? "0"    : minAge;
         maxAge = maxAge.equals("") ? "120"  : maxAge;
@@ -255,6 +256,8 @@ public class ProfileTestSteps {
                 + MIN_POINTS + EQUALS + minPoints
                 + AND
                 + MAX_POINTS + EQUALS + maxPoints
+                + AND
+                + RANK + EQUALS + rank
                 + AND
                 + SORT_BY + EQUALS + ""
                 + AND
@@ -343,6 +346,20 @@ public class ProfileTestSteps {
     }
 
 
+    @Given("the following users exist in the database:")
+    public void theFollowingUsersExistInTheDatabase(DataTable dataTable) {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+
+        for (int i = 0; i < list.size(); i++) {
+            Long userId = Long.parseLong(list.get(i).get("id"));
+            String username = list.get(i).get("username");
+            Profile profile = profileRepository.findById(userId);
+            Assert.assertNotNull(profile);
+            Assert.assertEquals(profile.getUsername(), username);
+        }
+    }
+
+
     @Given("^a user does not exist with the username \"(.*)\"$")
     public void aUserDoesNotExistWithTheUsername(String username) {
         Assert.assertNull(profileRepository.getExpressionList()
@@ -358,6 +375,25 @@ public class ProfileTestSteps {
         achievementTracker.addPoints(points);
         profileRepository.update(profile);
         Assert.assertEquals(points.longValue(), achievementTracker.getPoints());
+    }
+
+
+    @Given("the users have the following points")
+    public void theUsersHaveTheFollowingPoints(DataTable dataTable) {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+
+        for (int i = 0; i < list.size(); i++) {
+            Long userId = Long.parseLong(list.get(i).get("id"));
+            Integer points = Integer.parseInt(list.get(i).get("points"));
+
+            Profile profile = profileRepository.findById(userId.longValue());
+            AchievementTracker achievementTracker = profile.getAchievementTracker(); //Null profile fails test, which is fine
+            achievementTracker.addPoints(points);
+            profileRepository.update(profile);
+            Assert.assertEquals(points.longValue(), achievementTracker.getPoints());
+        }
+
+
     }
 
 
@@ -569,6 +605,28 @@ public class ProfileTestSteps {
     @Then("^the response contains the profile with username \"(.*)\"$")
     public void theResponseContainsProfile(String username) {
         Assert.assertTrue(testContext.getResponseBody().contains(username));
+    }
+
+
+    @Then("the response contains the following profiles:")
+    public void theResponseContainsTheFollowingProfiles(DataTable dataTable) {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+
+        for (int i = 0; i < list.size(); i++) {
+            String username = list.get(i).get("username");
+            Assert.assertTrue(testContext.getResponseBody().contains(username));
+        }
+    }
+
+
+    @Then("the response does not contain the following profiles:")
+    public void theResponseDoesNotContainsTheFollowingProfiles(DataTable dataTable) {
+        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+
+        for (int i = 0; i < list.size(); i++) {
+            String username = list.get(i).get("username");
+            Assert.assertFalse(testContext.getResponseBody().contains(username));
+        }
     }
 
 

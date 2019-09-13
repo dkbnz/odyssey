@@ -15,7 +15,8 @@
             <div class="text-center my-2" slot="table-busy">
                 <b-img alt="Loading" class="loading" v-if="loading" :src="assets['loadingLogo']"></b-img>
             </div>
-            <template slot="profilePhoto" slot-scope="row">
+
+            <template v-slot:cell(profilePhoto)="row" >
                 <b-img :src="getProfilePictureThumbnail(row.item.profilePicture)"
                        onerror="this.src = '../../../static/default_profile_picture.png'"
                        fluid
@@ -24,17 +25,17 @@
                        alt="Profile Image">
                 </b-img>
             </template>
-            <template slot="nationalities" slot-scope="row">
+            <template v-slot:cell(nationalities)="row">
                 <p class="wrapWhiteSpace">{{calculateNationalities(row.item.nationalities)}}</p>
             </template>
 
-            <template slot="travellerTypes" slot-scope="row" class="wrapWhiteSpace">
+            <template v-slot:cell(travellerTypes)="row">
                 <p class="wrapWhiteSpace">{{calculateTravellerTypes(row.item.travellerTypes)}}</p>
             </template>
 
 
             <!--Shows more details about any profile-->
-            <template slot="actions" slot-scope="row">
+            <template v-slot:cell(actions)="row">
                 <!-- If user is admin, can delete, make/remove admin rights and delete other users -->
                 <b-row class="text-center" v-if="profile.admin && adminView">
                     <b-button @click="$emit('make-admin', row.item)" block
@@ -66,7 +67,7 @@
                 </b-row>
             </template>
 
-            <template slot="row-details" slot-scope="row">
+            <template v-slot:row-details="row">
                 <b-card bg-variant="light">
                     <b-row>
                         <b-col cols="3">
@@ -310,7 +311,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @returns {number}    the number of rows required in the table based on number of profiles to be
+             * @return {number}    the number of rows required in the table based on number of profiles to be
              *                      displayed.
              */
             getRows() {

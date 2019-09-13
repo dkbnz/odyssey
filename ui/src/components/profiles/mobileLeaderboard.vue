@@ -110,6 +110,9 @@
 
             /**
              * Queries database for profiles which fit search criteria.
+             *
+             * @param searchParameters  the search parameters that generate the search query for profiles.
+             * @return {Promise <Response | never>}        the fetch method to retrieve profiles.
              */
             queryProfiles(searchParameters) {
                 this.retrievingProfiles = true;
@@ -177,6 +180,12 @@
                     });
             },
 
+
+            /**
+             * Displays the view full profile page for the mobile.
+             *
+             * @param profile   the profile to be displayed in full.
+             */
             selectProfile(profile) {
                 this.selectedProfile = profile;
                 this.page = 2

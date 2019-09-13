@@ -59,12 +59,12 @@ public class ObjectiveController {
 
     /**
      * Creates and saves a new objective for a user, checking if the user is creating one for themselves or if
-     * the user is an admin. It also checks the request for validity.
+     * the user is an admin. It also checks the request for validity. Gives the user points for creating an objective.
      *
      * @param request   the Http request containing a Json body of the new objective details.
      * @param userId    the id of the user who will own the created objective.
-     * @return          created() (Http 201) response if creation is successful.
-     *                  notFound() (Http 404) response if
+     * @return          created() (Http 201) response containing the points rewarded and the objective id.
+     *                  notFound() (Http 404) response if the global admin isn't found.
      *                  forbidden() (Http 403) response if the logged in user is not the target owner or an admin.
      *                  badRequest() (Http 400) response if the request contains any errors.
      *                  unauthorized() (Http 401) response if no one is logged in.

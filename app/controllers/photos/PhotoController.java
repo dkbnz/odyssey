@@ -139,9 +139,8 @@ public class PhotoController extends Controller {
      *
      * @param profileToAdd  profile to add the photo to.
      * @param filename      filename of saved photo.
-     * @param isPublic      boolean flag of if photo is public.
      */
-    private void addImageToProfile(Profile profileToAdd, String filename, String contentType, Boolean isPublic)
+    private void addImageToProfile(Profile profileToAdd, String filename, String contentType)
             throws IOException {
         Photo photoToAdd = new Photo();
         photoToAdd.setMainFilename(getPhotoFilePath(false) + "/" + filename);
@@ -152,7 +151,7 @@ public class PhotoController extends Controller {
 
         PersonalPhoto personalPhoto = new PersonalPhoto();
         personalPhoto.setPhoto(photoToAdd);
-        personalPhoto.setPublic(isPublic);
+        personalPhoto.setPublic(false);
         personalPhoto.setProfile(profileToAdd);
 
         personalPhotoRepository.save(personalPhoto);
@@ -349,7 +348,7 @@ public class PhotoController extends Controller {
             try {
                 temporaryFile.copyTo(Paths.get(getPhotoFilePath(false), filename),true);
                 saveThumbnail(filename);
-                addImageToProfile(profileToAdd, filename, photo.getContentType(), false);
+                addImageToProfile(profileToAdd, filename, photo.getContentType());
             } catch (IOException e) {
                 log.error("Unable to convert image to thumbnail", e);
                 return internalServerError(Json.toJson(e));

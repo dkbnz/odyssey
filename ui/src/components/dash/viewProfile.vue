@@ -276,7 +276,7 @@
             /**
              * Creates the POST request for directly uploading a new profile photo.
              *
-             * @files   the files containing the new profile photo.
+             * @param files   the files containing the new profile photo.
              */
             uploadProfilePhoto(files) {
                 let self = this;

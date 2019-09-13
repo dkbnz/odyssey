@@ -112,7 +112,7 @@
              * Runs a query which searches through the destinations in the database and returns all which
              * follow the search criteria.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryDestinations(destinationToSearch) {
                 this.loadingResults = true;
