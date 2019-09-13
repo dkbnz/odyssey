@@ -36,8 +36,8 @@ public class TripController extends Controller {
     private static final String TRIP_ID = "trip_id";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private static final int DEFAULT_ADMIN_ID = 1;
-
     private static final String REWARD = "pointsRewarded";
+    private static final String CREATED_ID = "createdId";
 
     private TripRepository tripRepository;
     private ProfileRepository profileRepository;
@@ -66,7 +66,8 @@ public class TripController extends Controller {
      *
      * @param request           Http Request containing Json Body.
      * @param affectedUserId    The user id of the user who will own the new trip.
-     * @return                  created() (Http 201) response for successful trip creation, or badRequest() (Http 400).
+     * @return                  created() (Http 201) response containing the reward and trip id.
+     *                          badRequest() (Http 400).
      */
     public Result create(Http.Request request, Long affectedUserId) {
         return request.session()
@@ -119,7 +120,7 @@ public class TripController extends Controller {
 
                         int pointsAdded = achievementTrackerController.rewardAction(affectedProfile, trip);
                         returnJson.put(REWARD, pointsAdded);
-                        returnJson.put("createdId", trip.getId());
+                        returnJson.put(CREATED_ID, trip.getId());
 
                         return created(returnJson);
                     } else {
