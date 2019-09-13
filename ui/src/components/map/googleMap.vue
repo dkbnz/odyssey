@@ -198,6 +198,7 @@
                 }
             },
 
+
             /**
              * Initializes the map with given latitude and longitude and zoom
              */

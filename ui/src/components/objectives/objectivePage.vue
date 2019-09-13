@@ -90,6 +90,7 @@
                 this.showDestinations = true;
             },
 
+
             /**
              * Hides the destination searching sidebar.
              */
