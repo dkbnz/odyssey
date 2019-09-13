@@ -16,7 +16,6 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.destinations.DestinationRepository;
-import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
@@ -31,10 +30,6 @@ import static util.QueryUtil.queryComparator;
 
 public class QuestController {
 
-    private static final String QUEST_ATTEMPT_EXISTS = "An attempt already exists for this quest.";
-
-    private static final String START_OWN_QUEST = "You cannot start your own quest.";
-
     private QuestRepository questRepository;
     private QuestAttemptRepository questAttemptRepository;
     private ProfileRepository profileRepository;
@@ -47,6 +42,8 @@ public class QuestController {
      */
     private ObjectMapper objectMapper;
 
+    private static final String QUEST_ATTEMPT_EXISTS = "An attempt already exists for this quest.";
+    private static final String START_OWN_QUEST = "You cannot start your own quest.";
     private static final String TITLE = "title";
     private static final String OPERATOR = "operator";
     private static final String OBJECTIVE = "objective";
@@ -60,11 +57,13 @@ public class QuestController {
     private static final String OWNER = "owner";
     private static final String ATTEMPTS = "attempts";
     private static final String COUNTRY_OCCURRENCES = "objectives.destination.country";
+    private static final String NEW_QUEST = "newQuest";
     private static final String EQUAL_TO = "=";
     private static final String GREATER_THAN = ">";
     private static final String LESS_THAN = "<";
-
     private static final String REWARD = "pointsRewarded";
+    private static final String COMPLETED_POINTS = "completedPoints";
+    private static final String ATTEMPT = "attempt";
 
     @Inject
     public QuestController(QuestRepository questRepository,
@@ -88,7 +87,7 @@ public class QuestController {
      *
      * @param request   the Http request containing a Json body of the new quest details.
      * @param userId    the id of the user who will own the created quest.
-     * @return          created() (Http 201) response if creation is successful.
+     * @return          created() (Http 201) response containing the points rewarded and the new quest.
      *                  notFound() (Http 404) response if a quest owner profile cannot be retrieved.
      *                  forbidden() (Http 403) response if the user creating the quest is doing so incorrectly.
      *                  badRequest() (Http 400) response if the request contains any errors in its form or contents.
@@ -137,7 +136,8 @@ public class QuestController {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
-        int pointsAdded = achievementTrackerController.rewardAction(questOwner, newQuest, false);   // Points for creating quest
+        // Points for creating quest
+        int pointsAdded = achievementTrackerController.rewardAction(questOwner, newQuest, false);
         returnJson.put(REWARD, pointsAdded);
 
         questRepository.save(newQuest);
@@ -145,7 +145,7 @@ public class QuestController {
 
         questRepository.refresh(newQuest);
 
-        returnJson.set("newQuest", Json.toJson(newQuest));
+        returnJson.set(NEW_QUEST, Json.toJson(newQuest));
         return created(returnJson);
     }
 
@@ -631,20 +631,17 @@ public class QuestController {
 
         // Add points based on the action
         if (solveSuccess) {
-
-            // TODO Matthew/Doug look into possibility of passing the objective through
             int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), false);
             returnJson.put(REWARD, pointsAdded);
         }
 
         // Serialize quest attempt regardless of result.
-        returnJson.set("attempt", Json.toJson(questAttempt));
+        returnJson.set(ATTEMPT, Json.toJson(questAttempt));
 
         questAttemptRepository.update(questAttempt);
 
         return ok(returnJson);
     }
-
 
 
 
@@ -675,20 +672,20 @@ public class QuestController {
             return forbidden(ApiError.forbidden());
         }
 
-        Objective toCheckInTo = questAttempt.getCurrentToCheckIn(); // Used to call check in 'rewardAction' method.
+        Objective objectiveToCheckInTo = questAttempt.getCurrentToCheckIn(); // Used to call check in 'rewardAction' method.
         if (questAttempt.checkIn()) {
             ObjectNode returnJson = objectMapper.createObjectNode();
 
             Quest questAttempted = questAttempt.getQuestAttempted();
-            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, toCheckInTo, true); // Points for checking in
+            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, objectiveToCheckInTo, true); // Points for checking in
 
             // If quest was completed
             if (questAttempt.isCompleted()) {
                 int questCompletedPoints = achievementTrackerController.rewardAction(attemptedBy, questAttempted, true); // Points for completing quest
-                returnJson.put("completedPoints", questCompletedPoints);
+                returnJson.put(COMPLETED_POINTS, questCompletedPoints);
             }
             returnJson.put(REWARD, pointsAdded);
-            returnJson.set("attempt", Json.toJson(questAttempt));
+            returnJson.set(ATTEMPT, Json.toJson(questAttempt));
 
             questAttemptRepository.update(questAttempt);
             return ok(returnJson);

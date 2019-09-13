@@ -22,9 +22,10 @@ public class AchievementTrackerRepository extends BeanRepository<Long, Achieveme
 
 
     /**
-     * Returns the number of points from a given rank
-     * @param rank the rank to find the points for.
-     * @return the number of points relating to that rank. If the given rank is not found, return 0
+     * Returns the number of points from a given rank.
+     *
+     * @param rank  the rank to find the points for.
+     * @return      the number of points relating to that rank. If the given rank is not found, return 0
      */
     public int getPointsFromRank(int rank) {
         AchievementTracker achievementTracker = query()
@@ -46,18 +47,18 @@ public class AchievementTrackerRepository extends BeanRepository<Long, Achieveme
 
 
     /**
-     * Finds the rank of a given profile based on the points in their AchievementTracker
+     * Finds the rank of a given profile based on the points in their AchievementTracker.
      *
-     * @param profileToFind the profile to find the rank of.
-     * @return  an integer representing the rank of a profile.
+     * @param profileToFind  the profile to find the rank of.
+     * @return               an integer representing the rank of a profile.
      */
     public static int getRank(Profile profileToFind) {
         return Ebean.getDefaultServer()
                 .find(AchievementTracker.class)
                 .setDistinct(true)
-                .select("points")
+                .select(POINTS)
                 .where()
-                .ge("points", profileToFind
+                .ge(POINTS, profileToFind
                         .getAchievementTracker()
                         .getPoints())
                 .findCount();

@@ -72,6 +72,7 @@ public class AchievementTrackerController extends Controller {
         return reward.getValue();
     }
 
+
     public int rewardAction(Profile actingProfile, Trip tripCreated) {
         AchievementTracker achievementTracker = actingProfile.getAchievementTracker();
 
@@ -89,13 +90,13 @@ public class AchievementTrackerController extends Controller {
      *
      * @param actingProfile     the profile that completed the action.
      * @param questWorkedOn     the quest that was either created or completed
-     * @param completed         a boolean indicating if the action was completing the quest.
+     * @param hasCompleted      a boolean indicating if the action was completing the quest.
      * @return                  the points rewarded to the user.
      */
-    public int rewardAction(Profile actingProfile, Quest questWorkedOn, boolean completed) {
+    public int rewardAction(Profile actingProfile, Quest questWorkedOn, boolean hasCompleted) {
         AchievementTracker achievementTracker = actingProfile.getAchievementTracker();
         PointReward reward;
-        if (completed) {
+        if (hasCompleted) {
             reward = pointRewardRepository.findUsing(Action.QUEST_COMPLETED);
         } else {
             reward = pointRewardRepository.findUsing(Action.QUEST_CREATED);
@@ -111,10 +112,11 @@ public class AchievementTrackerController extends Controller {
      *
      * @param actingProfile     the profile receiving points.
      * @param objectiveSolved   the objective which the action was performed on.
+     * @param hasCheckedIn      boolean depending on if the user has checking in or not.
      * @return                  the points added rewarded to the profile.
      */
-    public int rewardAction(Profile actingProfile, Objective objectiveSolved, boolean checkedIn) {
-        Action completedAction = checkedIn ? Action.CHECKED_IN : Action.RIDDLE_SOLVED;
+    public int rewardAction(Profile actingProfile, Objective objectiveSolved, boolean hasCheckedIn) {
+        Action completedAction = hasCheckedIn ? Action.CHECKED_IN : Action.RIDDLE_SOLVED;
 
         AchievementTracker achievementTracker = actingProfile.getAchievementTracker();  // Get the tracker for the user.
 

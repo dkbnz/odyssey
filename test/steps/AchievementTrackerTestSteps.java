@@ -91,9 +91,6 @@ public class AchievementTrackerTestSteps {
      */
     private ObjectMapper mapper = new ObjectMapper();
 
-    /**
-     *
-     */
 
     /**
      * Points the profile started with.
@@ -116,13 +113,13 @@ public class AchievementTrackerTestSteps {
     }
 
 
-
     @When("I solve the current riddle for a Quest")
     public void iSolveTheFirstRiddleOfTheQuestWithID() throws IOException {
         sendRiddleGuessRequest(TO_GUESS_RIDDLE_ID, DESTINATION_TO_GUESS);
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         Assert.assertEquals(SUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
     }
+
 
     @Then("I have gained points")
     public void iHaveGainedPoints() throws IOException {
@@ -134,6 +131,7 @@ public class AchievementTrackerTestSteps {
         Assert.assertTrue("Current points is not greater than starting points",currentPoints > startingPoints);
     }
 
+
     private void getPointsRequest(String userId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
@@ -143,6 +141,7 @@ public class AchievementTrackerTestSteps {
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
+
 
     private void sendRiddleGuessRequest(long attemptId, long destinationId) {
         Http.RequestBuilder request = fakeRequest()
@@ -154,11 +153,13 @@ public class AchievementTrackerTestSteps {
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
+
     @When("I try to view my points")
     public void iTryToViewMyPoints() {
         String userToView = testContext.getLoggedInId();
         getPointsRequest(userToView);
     }
+
 
     @Then("I am given my point total")
     public void iAmGivenMyPointTotal() throws IOException {
@@ -174,11 +175,13 @@ public class AchievementTrackerTestSteps {
 
     }
 
+
     @When("I try to view another user's points value")
     public void iTryToViewAnotherUserSPointsValue() {
         String userToView = Long.toString(OTHER_USER_ID);
         getPointsRequest(userToView);
     }
+
 
     @Then("I am given their total number of points")
     public void iAmGivenTheirTotalNumberOfPoints() throws IOException {
@@ -191,12 +194,14 @@ public class AchievementTrackerTestSteps {
         Assert.assertTrue("Points value is negative", currentPoints >= 0);
     }
 
+
     @When("I incorrectly guess the answer to a quest riddle")
     public void iIncorrectlyGuessTheAnswerToAQuestRiddle() throws IOException {
         sendRiddleGuessRequest(TO_GUESS_RIDDLE_ID, INCORRECT_DESTINATION_GUESS);
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         Assert.assertEquals(UNSUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
     }
+
 
     @When("I check into a destination")
     public void iCheckIntoADestination() {
@@ -205,6 +210,7 @@ public class AchievementTrackerTestSteps {
         Assert.assertEquals(200, testContext.getStatusCode());
 
     }
+
 
     private void sendCheckInRequest(long attemptId) {
         Http.RequestBuilder request = fakeRequest()
@@ -215,6 +221,7 @@ public class AchievementTrackerTestSteps {
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
+
 
     @Then("I have not gained points")
     public void iHaveNotGainedPoints() throws IOException {

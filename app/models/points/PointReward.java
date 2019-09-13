@@ -27,12 +27,15 @@ public class PointReward extends BaseModel {
         return value;
     }
 
+
     public Action getName() {
         return name;
     }
 
+
     /**
      * Overridden equals method which performs a deep comparison between the given object and this object.
+     *
      * @param object the object to be compared with.
      * @return true if they are equal, false if they are not equal.
      */
@@ -51,8 +54,10 @@ public class PointReward extends BaseModel {
         return (pointReward.getName().equals(this.name) && pointReward.getValue() == this.value);
     }
 
+
     /**
      * Overridden hashCode method of the class. Has is based off the class attributes.
+     *
      * @return the hash code of the class instance based on the name and value.
      */
     @Override
