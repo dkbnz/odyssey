@@ -87,32 +87,6 @@
         },
 
         methods: {
-            /**
-             * Retrieves the different destination types from the backend.
-             */
-            getDestinationTypes() {
-                let self = this;
-                fetch(`/v1/destinationTypes`, {
-                    accept: "application/json"
-                }).then(function (response) {
-                    if (!response.ok) {
-                        throw response;
-                    } else {
-                        return response.json();
-                    }
-                }).then(function (responseBody) {
-                    self.destinationTypes = responseBody;
-                }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
-                });
-            },
-
            /**
             * Function to retrieve more destinations when a user reaches the bottom of the list.
             */

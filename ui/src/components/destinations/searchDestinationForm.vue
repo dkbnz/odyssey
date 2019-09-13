@@ -88,7 +88,6 @@
 
         props: {
             searchPublic: Boolean,
-            destinationTypes: Array,
             profile: Object,
             userProfile: {
                 default: function () {
@@ -99,6 +98,7 @@
 
         mounted() {
             this.getCountries();
+            this.getDestinationTypes();
         },
 
         data() {
@@ -132,7 +132,8 @@
                 retrievingDestinations: false,
                 longitudeErrorMessage: "",
                 latitudeErrorMessage: "",
-                countryList: Array
+                countryList: [],
+                destinationTypes: []
             }
         },
 
@@ -203,6 +204,33 @@
         },
 
         methods: {
+            /**
+             * Retrieves the different destination types from the backend.
+             */
+            getDestinationTypes() {
+                let self = this;
+                fetch(`/v1/destinationTypes`, {
+                    accept: "application/json"
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.destinationTypes = responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
+            },
+
+
             /**
              * Sets values for search.
              */
