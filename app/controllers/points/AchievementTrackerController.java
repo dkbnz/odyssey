@@ -15,9 +15,6 @@ import models.profiles.Profile;
 import models.quests.Quest;
 import models.trips.Trip;
 import models.util.ApiError;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -39,6 +36,7 @@ public class AchievementTrackerController extends Controller {
     private static final Integer STARTING_STREAK_NUMBER = 1;
     private static final Integer LOST_STREAK = 0;
     private static final String CLIENT_DATE_FIELD = "clientDate";
+    private static final String CURRENT_STREAK = "currentStreak";
 
     private static final int SINGLE_COUNTRY = 1;
     private static final int INCREMENT_ONE = 1;
@@ -139,7 +137,7 @@ public class AchievementTrackerController extends Controller {
      * @param pointsAchieved
      * @return
      */
-    private JsonNode constructRewardJson(Collection<Badge> badgesAchieved, PointReward pointsAchieved) {
+    private ObjectNode constructRewardJson(Collection<Badge> badgesAchieved, PointReward pointsAchieved) {
 
         Collection<PointReward> pointsAchievedCollection = new ArrayList<>();
         pointsAchievedCollection.add(pointsAchieved);
@@ -162,7 +160,7 @@ public class AchievementTrackerController extends Controller {
      * @param actingProfile         the profile receiving points.
      * @return                      Json node of the reward result.
      */
-    private JsonNode rewardAction(Profile actingProfile) {
+    private ObjectNode rewardAction(Profile actingProfile) {
 
         int currentStreak = actingProfile.getAchievementTracker().getCurrentStreak();
 
@@ -481,7 +479,7 @@ public class AchievementTrackerController extends Controller {
 
         Date clientDate;
 
-        JsonNode responseJson = null;
+        ObjectNode responseJson = objectMapper.createObjectNode();
 
         try {
             clientDate = new SimpleDateFormat("yyyy-MM-dd").parse(clientDateString);
@@ -494,6 +492,8 @@ public class AchievementTrackerController extends Controller {
         if (lastSeenDate == null) {
             profile.getAchievementTracker().setCurrentStreak(STARTING_STREAK_NUMBER);
             responseJson = this.rewardAction(profile);
+            responseJson.put(CURRENT_STREAK, profile.getAchievementTracker().getCurrentStreak());
+
         } else {
             Date incrementDate = addOneDay(lastSeenDate);
 
@@ -501,7 +501,10 @@ public class AchievementTrackerController extends Controller {
                 // User has been seen on the next day to their previous seen date
                 // And so their streaks have incremented
                 profile.getAchievementTracker().addToCurrentStreak();
+
+
                 responseJson = this.rewardAction(profile);
+                responseJson.put(CURRENT_STREAK, profile.getAchievementTracker().getCurrentStreak());
             } else if (clientDate.after(incrementDate)) {
                 // User has lost their streak
                 profile.getAchievementTracker().setCurrentStreak(LOST_STREAK);
