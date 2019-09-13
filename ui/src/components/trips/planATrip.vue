@@ -697,6 +697,7 @@
              *
              * @param trip      the trip to be saved.
              * @param tripId    the id of the trip to be saved. This is required because the trip is being edited.
+             * @return          a Json of the response body.
              */
             saveOldTrip(trip, tripId) {
                 this.savingTrip = true;
@@ -725,6 +726,7 @@
 
             /**
              * Displays a toast saying they've gained a certain amount of points.
+             *
              * @param points the points to display.
              * @param title the title of the toast, indicating the context of the point gain.
              */
@@ -760,6 +762,7 @@
              * Retrieves the list of all destinations.
              *
              * @param updateDestinations    the list of destinations to be updated.
+             * @return {Promise <Response | never>}     the fetch method promise.
              */
             getDestinations(updateDestinations) {
                 return fetch(`/v1/destinations`, {

@@ -182,6 +182,8 @@
             /**
              * Sends a request to check the users guess for a given quest attempt.
              * Displays appropriate messages upon receiving a response.
+             *
+             * @return {Promise <Response | never>}     the fetch method promise.
              */
             checkGuess() {
                 let self = this;
@@ -213,6 +215,7 @@
 
             /**
              * Displays a toast saying they've gained a certain amount of points.
+             *
              * @param points the points to display.
              * @param title the title of the toast, indicating the context of the point gain.
              */
@@ -308,7 +311,7 @@
              * Retrieves the different destination types from the backend.
              *
              * @param updateDestinationTypes    the list to be updated with the specified destination types.
-             * @returns {Promise<any | never>}  the returned promise.
+             * @return {Promise<any | never>}   the returned promise.
              */
             getDestinationTypes(updateDestinationTypes) {
                 return fetch(`/v1/destinationTypes`, {
@@ -330,6 +333,12 @@
                 this.showSelectedDestination = true;
             },
 
+
+            /**
+             * Displays the search destination sidebar and sets the riddle to be displayed.
+             *
+             * @param riddle    the riddle to be displayed in the destination sidebar.
+             */
             destinationSearch(riddle) {
                 this.showDestinationSearch = true;
                 this.searchedRiddle = riddle;
@@ -339,6 +348,8 @@
             /**
              * Returns a string value for the distance from the user's current location to the location of the
              * objective destination.
+             *
+             * @return a string value containing the total distance from the user to the objective destination.
              */
             getHowClose() {
                 if (this.totalDistance) {

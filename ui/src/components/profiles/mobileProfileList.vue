@@ -47,7 +47,8 @@
             /**
              * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
              *
-             * @param photo         returns a url of which photo should be displayed as the profile picture for the user.
+             * @param photo     returns a url of which photo should be displayed as the profile picture for the user.
+             * @return          string value containing the url to load the profile thumbnail.
              */
             getProfilePictureThumbnail(photo) {
                 if (photo !== null) {

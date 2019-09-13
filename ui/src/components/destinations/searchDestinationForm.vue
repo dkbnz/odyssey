@@ -154,7 +154,7 @@
 
         computed: {
             /**
-             * @returns {number} number of rows to be displayed based on number of destinations present.
+             * @return {number} number of rows to be displayed based on number of destinations present.
              */
             rows() {
                 return this.destinations.length
@@ -162,7 +162,7 @@
             /**
              * Validates the input fields based on regex.
              *
-             * @returns {*} true if input is valid.
+             * @return {*} true if input is valid.
              */
             destinationNameValidation() {
                 if (this.searchName.length === 0) {
@@ -261,7 +261,7 @@
              * Checks each of the validation fields to ensure they are return either null (no value is given), or the
              * field is valid.
              *
-             * @returns {boolean} true if the fields are valid.
+             * @return {boolean} true if the fields are valid.
              */
             validateFields(validationField) {
                 if (validationField === null || validationField === true) {
@@ -274,7 +274,7 @@
              * Runs a query which searches through the destinations in the database and returns all which
              * follow the search criteria.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryDestinations() {
                 this.retrievingDestinations = true;
@@ -322,7 +322,7 @@
              * Converts the retrieved Http response to a Json format.
              *
              * @param response the Http response.
-             * @returns the Http response body as Json.
+             * @return the Http response body as Json.
              */
             parseJSON(response) {
                 return response.json();

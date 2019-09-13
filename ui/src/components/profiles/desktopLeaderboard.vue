@@ -286,7 +286,7 @@
             /**
              * Queries database for profiles which fit search criteria.
              *
-             * @return {Promise}    the fetch method to retrieve profiles.
+             * @return {Promise <Response | never>}    the fetch method to retrieve profiles.
              */
             queryProfiles() {
                 this.retrievingProfiles = true;
@@ -338,7 +338,7 @@
              * console.
              *
              * @param response, passed back to the getAllTrips function to be parsed into a Json.
-             * @returns throws the error.
+             * @return throws the error.
              */
             checkStatus(response) {
                 if (response.status >= 200 && response.status < 300) {
@@ -359,7 +359,7 @@
              * Used to turn the response of the fetch method into a usable Json.
              *
              * @param response of the fetch method.
-             * @returns the Json body of the response.
+             * @return the Json body of the response.
              */
             parseJSON(response) {
                 return response.json();

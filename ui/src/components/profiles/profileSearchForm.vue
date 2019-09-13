@@ -149,6 +149,8 @@
 
             /**
              * Retrieves all the traveller types.
+             *
+             * @return {Promise <Response | never>}     the fetch method promise.
              */
             getTravellerTypes() {
                 return fetch(`/v1/travtypes`, {
@@ -161,6 +163,8 @@
 
             /**
              * Retrieves all the nationalities.
+             *
+             * @return {Promise <Response | never>}     the fetch method promise.
              */
             getNationalities() {
                 return fetch(`/v1/nationalities`, {

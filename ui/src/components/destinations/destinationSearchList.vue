@@ -108,7 +108,7 @@
              * Runs a query which searches through the destinations in the database and returns all which
              * follow the search criteria.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryDestinations(destinationToSearch) {
                 this.loadingResults = true;
@@ -145,7 +145,7 @@
              * Checks the Http response for errors.
              *
              * @param response the retrieved Http response.
-             * @returns {*} throws the Http response error.
+             * @return {*} throws the Http response error.
              */
             checkStatus(response) {
                 if (response.status >= 200 && response.status < 300) {
@@ -161,7 +161,7 @@
             /**
              * Converts the Http response body to a Json.
              * @param response  the received Http response.
-             * @returns {*}     the response body as a Json object.
+             * @return {*}     the response body as a Json object.
              */
             parseJSON(response) {
                 return response.json();

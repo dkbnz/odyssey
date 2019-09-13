@@ -422,6 +422,9 @@
 
             /**
              * Gathers trip dates into an array, regardless of whether they are start/end date.
+             *
+             * @param destinations  the destinations of the trip that is going to be used to display the trip dates.
+             * @return {Array}      the dates of the first and last destination in the trip.
              */
             calculateTripDates(destinations) {
                 let tripDates = [];
@@ -498,6 +501,10 @@
             /**
              * Orders the future trips by the dates. If there are no dates then they will be at the top. If there are
              * dates, then trips will be ordered chronologically.
+             *
+             * @param first     the first trip to be sorted.
+             * @param next      the next trip to be sorted.
+             * @return {Number} the index that of the trips order.
              */
             sortFutureTrips(first, next) {
                 let firstDestinationsStart = [];
