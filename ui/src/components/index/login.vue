@@ -52,7 +52,6 @@
                     } else if (!response.ok) {
                         throw response;
                     } else {
-                        self.setLastSeen();
                         self.showError = false;
                         self.$router.go();
                         return response.json();
