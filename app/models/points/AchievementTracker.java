@@ -45,6 +45,7 @@ public class AchievementTracker extends BaseModel {
      * gets the current streak for the user
      * @return the integer of the users current streak
      */
+    @JsonProperty("streak")
     public int getCurrentStreak() {
         return currentStreak;
     }
