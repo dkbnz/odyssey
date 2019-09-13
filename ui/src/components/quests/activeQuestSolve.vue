@@ -287,6 +287,8 @@
 
             /**
              * Sends the request to check in to the current objective.
+             *
+             * @return {Promise <Response | never>}     the fetch method promise.
              */
             sendCheckInRequest() {
                 let self = this;
