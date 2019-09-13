@@ -69,7 +69,7 @@
              * Runs a query which searches through the quests in the database and returns only
              * quests started by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise <Response | never>}     the fetch method promise.
              */
             queryYourActiveQuests() {
                 let self = this;
@@ -104,6 +104,7 @@
              * Updates the list of quest attempts when a selected attempt changes.
              *
              * @param questAttempt  the quest attempt to update.
+             * @return              the id number of the quest attempt in the list of quest attempts.
              */
             updateQuestAttempts(questAttempt) {
                 let foundIndex = this.questAttempts.findIndex(item => {

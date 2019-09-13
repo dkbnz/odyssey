@@ -75,7 +75,8 @@
                                 <b-form-input :type="'text'"
                                               id="trip_name"
                                               trim
-                                              v-model="inputTrip.name"></b-form-input>
+                                              v-model="inputTrip.name">
+                                </b-form-input>
                             </b-form-group>
                         </b-container>
 
@@ -156,7 +157,7 @@
                                  striped>
 
                             <!-- Buttons that appear for each destination added to table -->
-                            <template slot="actions" slot-scope="row">
+                            <template v-slot:cell(actions)="row">
                                 <!--Opens edit modal-->
                                 <b-button size="sm"
                                           v-b-modal.editModal
@@ -183,7 +184,7 @@
                             </template>
 
                             <!-- Buttons to shift destinations up/down in table -->
-                            <template slot="order" slot-scope="row">
+                            <template v-slot:cell(order)="row">
                                 <b-button :disabled="inputTrip.destinations.length === 1 || row.index === 0"
                                           @click="moveUp(row.index)"
                                           class="mr-2"
@@ -200,7 +201,7 @@
                             </template>
 
                             <!-- Additional details about selected destination, shown when 'Show Details' button is clicked -->
-                            <template slot="row-details" slot-scope="row">
+                            <template v-slot:row-details="row" >
                                 <b-card>
                                     <b-row class="mb-2">
                                         <b-col class="text-sm-right" sm="3"><b>Type:</b></b-col>
@@ -552,6 +553,9 @@
                 if (this.inputTrip.name === null || this.inputTrip.name.length === 0) {
                     this.showError = true;
                     this.errorMessage = "No Trip Name";
+                } else if (this.inputTrip.name.length > 100) {
+                    this.showError = true;
+                    this.errorMessage = "Trip name is too long";
                 } else if (this.inputTrip.destinations.length < 2) {
                     this.showError = true;
                     this.errorMessage = "There must be at least 2 destinations";
@@ -695,6 +699,7 @@
              *
              * @param trip      the trip to be saved.
              * @param tripId    the id of the trip to be saved. This is required because the trip is being edited.
+             * @return          a Json of the response body.
              */
             updateTrip(trip, tripId) {
                 this.savingTrip = true;

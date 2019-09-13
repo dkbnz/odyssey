@@ -87,18 +87,27 @@
         },
 
         computed: {
+            /**
+             * The total number of photos. Used for the table pagination.
+             */
             rows() {
                 return this.photos.length;
             },
 
 
+            /**
+             * How many photos to display on the table. Used for pagination.
+             */
             perPage() {
                 return this.numberOfRows * this.numberOfColumns;
             },
 
+
+            /**
+             * Determines if the dropdown for photo privacy should be displayed.
+             */
             showDropdown() {
                 return this.auth;
-
             }
         },
 

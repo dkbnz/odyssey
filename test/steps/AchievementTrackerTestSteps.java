@@ -202,12 +202,10 @@ public class AchievementTrackerTestSteps {
      */
     private DateTime lastLogin;
 
-
     /**
      * Points the profile has after an action.
      */
     private int currentPoints;
-
 
     /**
      * Repository to access the profiles in the running application.

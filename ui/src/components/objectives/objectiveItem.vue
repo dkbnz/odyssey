@@ -118,14 +118,12 @@
 
 <script>
     import DestinationSidebar from "../destinations/destinationSidebar";
-    import BCol from "bootstrap-vue/es/components/layout/col";
     import GoogleMap from "../map/googleMap";
 
     export default {
         name: "addObjective",
 
         components: {
-            BCol,
             DestinationSidebar,
             GoogleMap
         },
@@ -210,11 +208,13 @@
             /**
              * Returns true if the inputted riddle has length greater than 0.
              *
-             * @returns {Boolean} true if validated.
+             * @return {Boolean} true if validated.
              */
             validateRiddle() {
                 if (this.inputObjective.riddle.length > 0) {
                     return true;
+                } else if (this.inputObjective.riddle.length > 250) {
+                    return false;
                 }
                 return null;
             },
@@ -223,7 +223,7 @@
             /**
              * Returns true if the user has selected a check in radius
              *
-             * @returns {boolean} true if validated.
+             * @return {boolean} true if validated.
              */
             validateCheckIn() {
                 if (this.radiusSelected.value === null) {
@@ -236,7 +236,7 @@
             /**
              * Returns true if the input destination exists and matches the one selected in the sidebar and isn't empty.
              *
-             * @returns {boolean} true if valid.
+             * @return {boolean} true if valid.
              */
             validateDestination() {
                 return (this.inputObjective.destination !== null
@@ -252,7 +252,7 @@
              * Checks the validity of the destination using validateDestination and returns the appropriate state for
              * display.
              *
-             * @returns         {string}, 'success' if destination is valid, 'secondary' otherwise.
+             * @return         {string}, 'success' if destination is valid, 'secondary' otherwise.
              */
             checkDestinationState() {
                 return this.validateDestination ? "success" : "secondary"

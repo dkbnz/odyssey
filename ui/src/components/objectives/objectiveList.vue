@@ -228,7 +228,7 @@
             /**
              * Runs a query which searches through the objectives in the database and returns all.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryObjectives() {
                 this.loadingResults = true;
@@ -261,7 +261,7 @@
             /**
              * Runs a query which searches through the objectives in the database and returns only objectives created by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryYourObjectives() {
                 this.loadingResults = true;
@@ -288,9 +288,7 @@
                                 self.loadingResults = false;
                             }
                         });
-
                 }
-
             },
 
             /**
@@ -318,7 +316,6 @@
             /**
              * Changes the objective ID to the currently selected objective id.
              * Dismisses the delete objective modal.
-             *
              */
             setObjective(objective) {
                 this.objectiveId = objective.id;

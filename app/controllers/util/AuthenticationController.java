@@ -22,7 +22,7 @@ public class AuthenticationController extends Controller {
 
     private static final Logger LOGGER = Logger.getLogger( AuthenticationController.class.getName() );
     private static final String USERNAME = "username";
-    private static final String PASS_FIELD = "password";
+    private static final String AUTHENTICATION_FIELD = "password";
     private static final String AUTHORIZED = "authorized";
     private static final String LOGGED_IN = "OK, logged In";
     private static final String ALREADY_LOGGED_IN = "OK, Already Logged In";
@@ -56,7 +56,7 @@ public class AuthenticationController extends Controller {
             // Check if a body was given and has required fields
             if (loginJson == null ||
                     (!(loginJson.has(USERNAME) &&
-                            loginJson.has(PASS_FIELD)))) {
+                            loginJson.has(AUTHENTICATION_FIELD)))) {
                 // If JSON Object contains no user or pass key, return bad request
                 // Prevents null pointer exceptions when trying to get the values below.
                 return badRequest(ApiError.invalidJson());
@@ -67,7 +67,7 @@ public class AuthenticationController extends Controller {
             // Uses the hashProfilePassword() method to hash the given password.
             String password = null;
             try {
-                password = AuthenticationUtil.hashProfilePassword(loginJson.get(PASS_FIELD).asText());
+                password = AuthenticationUtil.hashProfilePassword(loginJson.get(AUTHENTICATION_FIELD).asText());
             } catch (NoSuchAlgorithmException e) {
                 LOGGER.log(Level.SEVERE, HASH_FAIL, e);
                 return badRequest(ApiError.badRequest(HASH_FAIL));
@@ -92,7 +92,7 @@ public class AuthenticationController extends Controller {
 
             if (loginJson == null ||
                     (!(loginJson.has(USERNAME) &&
-                            loginJson.has(PASS_FIELD)))) {
+                            loginJson.has(AUTHENTICATION_FIELD)))) {
                 // If JSON Object contains no user or pass key, return bad request
                 // Prevents null pointer exceptions when trying to get the values below.
                 return badRequest(ApiError.invalidJson());

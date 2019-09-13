@@ -34,10 +34,6 @@ import static util.QueryUtil.queryComparator;
 
 public class QuestController {
 
-    private static final String QUEST_ATTEMPT_EXISTS = "An attempt already exists for this quest.";
-
-    private static final String START_OWN_QUEST = "You cannot start your own quest.";
-
     private QuestRepository questRepository;
     private QuestAttemptRepository questAttemptRepository;
     private ProfileRepository profileRepository;
@@ -50,6 +46,8 @@ public class QuestController {
      */
     private ObjectMapper objectMapper;
 
+    private static final String QUEST_ATTEMPT_EXISTS = "An attempt already exists for this quest.";
+    private static final String START_OWN_QUEST = "You cannot start your own quest.";
     private static final String TITLE = "title";
     private static final String OPERATOR = "operator";
     private static final String OBJECTIVE = "objective";
@@ -66,7 +64,6 @@ public class QuestController {
     private static final String EQUAL_TO = "=";
     private static final String GREATER_THAN = ">";
     private static final String LESS_THAN = "<";
-
     private static final String REWARD = "reward";
     private static final String NEW_QUEST = "newQuest";
     private static final String GUESS_RESULT = "guessResult";
@@ -98,7 +95,7 @@ public class QuestController {
      *
      * @param request   the Http request containing a Json body of the new quest details.
      * @param userId    the id of the user who will own the created quest.
-     * @return          created() (Http 201) response if creation is successful.
+     * @return          created() (Http 201) response containing the points rewarded and the new quest.
      *                  notFound() (Http 404) response if a quest owner profile cannot be retrieved.
      *                  forbidden() (Http 403) response if the user creating the quest is doing so incorrectly.
      *                  badRequest() (Http 400) response if the request contains any errors in its form or contents.
@@ -654,7 +651,6 @@ public class QuestController {
 
 
 
-
     /**
      * Check in to the most recently solved objective for a given quest attempt.
      *
@@ -683,7 +679,7 @@ public class QuestController {
             return forbidden(ApiError.forbidden());
         }
 
-        Objective toCheckInTo = questAttempt.getCurrentToCheckIn(); // Used to call check in 'rewardAction' method.
+        Objective objectiveToCheckInTo = questAttempt.getCurrentToCheckIn(); // Used to call check in 'rewardAction' method.
         if (questAttempt.checkIn()) {
             ObjectNode returnJson = objectMapper.createObjectNode();
 
@@ -694,7 +690,7 @@ public class QuestController {
             ArrayNode badgesAchieved = objectMapper.createArrayNode();
 
             // Objective reward result of checking in.
-            JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, toCheckInTo, Action.CHECKED_IN); // Points for checking in
+            JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, objectiveToCheckInTo, Action.CHECKED_IN); // Points for checking in
 
             // Add all objective reward points and badges to the list of achieved points.
             pointsRewarded = achievementTrackerController.addAllAwards(pointsRewarded, objectiveRewardJson, POINTS_REWARDED);

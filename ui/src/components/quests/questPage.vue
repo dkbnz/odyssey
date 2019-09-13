@@ -91,6 +91,8 @@
             /**
              * Switches to the 'active' page and refreshes the quest list.
              * The 'active' page has an index of 0.
+             *
+             * @param questAttempt      the quest attempt to be displayed on the active quests page.
              */
             changeToActiveTab(questAttempt) {
                 this.tabIndex = 0;

@@ -2,18 +2,18 @@ import Vue from 'vue'
 import App from './App.vue'
 import BootstrapVue from 'bootstrap-vue'
 import router from './router'
+import VueRouter from 'vue-router';
+import VueSlider from 'vue-slider-component'
 
 import assets from './assets/assets';
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 
 import RewardToast from "./components/helperComponents/rewardToast";
 import ErrorToast from "./components/helperComponents/errorToast";
 
-import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 
 Vue.component('VueSlider', VueSlider);

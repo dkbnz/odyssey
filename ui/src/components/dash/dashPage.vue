@@ -88,6 +88,8 @@
 
             /**
              * Retrieves the current profile in case any changes have been made.
+             *
+             * @param updateProfile     the profile to be updated.
              */
             getProfile() {
                 let self = this;

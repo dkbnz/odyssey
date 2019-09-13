@@ -196,7 +196,7 @@
                              striped>
 
                         <!-- Buttons that appear for each objective added to table -->
-                        <template slot="actions" slot-scope="row">
+                        <template v-slot:cell(actions)="row">
                             <b-button size="sm"
                                       @click="editObjective(row.item)"
                                       variant="warning"
@@ -214,7 +214,7 @@
                         </template>
 
                         <!-- Buttons to shift objectives up/down in table -->
-                        <template slot="order" slot-scope="row">
+                        <template v-slot:cell(order)="row">
                             <b-button :disabled="inputQuest.objectives.length === 1 || row.index === 0 || heading === 'Edit'"
                                       @click="moveUp(row.index)"
                                       class="mr-2"
@@ -229,7 +229,7 @@
                                       variant="success">&darr;
                             </b-button>
                         </template>
-                        <template slot="radius" slot-scope="row">
+                        <template v-slot:cell(radius)="row">
                             {{getRadiusValue(row.item.radius)}}
                         </template>
                     </b-table>
@@ -280,14 +280,12 @@
 </template>
 
 <script>
-    import BCol from "bootstrap-vue/es/components/layout/col";
     import AddObjective from "../objectives/objectiveItem";
 
     export default {
         name: "questItem",
 
         components: {
-            BCol,
             AddObjective
         },
 
@@ -394,7 +392,7 @@
              * For new quest, checks the start date is after the current date.
              * For all other quests, checks the start date is either the same as or before the end date.
              *
-             * @returns {boolean} true if start date is valid, or a null if entry length isn't big enough.
+             * @return {boolean} true if start date is valid, or a null if entry length isn't big enough.
              */
             validateStartDate() {
                 // For a new hunt, the start date must be after today.
@@ -415,7 +413,7 @@
              * Checks that the start time is not after or the same as the end time if the dates are the same,
              * and that the start time is not before the current time if the current date is today.
              *
-             * @returns {boolean} true if start time is valid, null if entry length isn't big enough.
+             * @return {boolean} true if start time is valid, null if entry length isn't big enough.
              */
             validateStartTime() {
                 // For new quests, check the start time is after the current time.
@@ -440,7 +438,7 @@
             /**
              * Checks that the end time is not before or the same as the start time if the dates are the same.
              *
-             * @returns {boolean} true if end time is valid.
+             * @return {boolean} true if end time is valid.
              */
             validateEndTime() {
                 if (this.inputQuest.startDate === this.inputQuest.endDate) {
@@ -456,7 +454,7 @@
              * For new quests, checks the end date is after the current date.
              * For all other quests, checks the end date is either the same as or after the start date.
              *
-             * @returns {boolean} true if end date is valid.
+             * @return {boolean} true if end date is valid.
              */
             validateEndDate() {
                 // For a new quests, the end date must be after today.
@@ -474,19 +472,22 @@
             /**
              * Returns true if the inputted title has length greater than 0.
              *
-             * @returns {Boolean} true if validated.
+             * @return {Boolean} true if validated.
              */
             validateTitle() {
                 if (this.inputQuest.title.length > 0) {
                     return true;
+                } else if (this.inputQuest.title.length > 100) {
+                    return false;
                 }
                 return null;
             },
 
 
             /**
+             * Used to validate that there are enough objectives in the quest.
              *
-             * @returns {Boolean} true if validated.
+             * @return {Boolean} true if validated.
              */
             validateObjectives() {
                 if (this.inputQuest.objectives.length > 0) {
@@ -498,7 +499,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @returns {number}    the number of rows required in the table based on number of objectives to be
+             * @return {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
             rows() {
@@ -510,7 +511,7 @@
             /**
              * Gets the current date+time as a Date object.
              *
-             * @returns Current Datetime.
+             * @return Current Datetime.
              */
             getCurrentDate() {
                 return new Date();
@@ -532,7 +533,7 @@
             /**
              * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day.
              *
-             * @returns Current Date in YYYY-MM-DD String Format.
+             * @return Current Date in YYYY-MM-DD String Format.
              */
             getDateString() {
                 let today = this.getCurrentDate();
@@ -547,7 +548,7 @@
             /**
              * Gets the current time as a string in HH:MM format, including padding O's.
              *
-             * @returns Current Time in HH:MM String Format.
+             * @return Current Time in HH:MM String Format.
              */
             getTimeString() {
                 let today = this.getCurrentDate();
@@ -633,6 +634,8 @@
 
             /**
              * Gets all users that are currently using the given quest.
+             *
+             * @return {Promise <Response | never>}     the fetch method promise.
              */
             getActiveUsers() {
                 let self = this;
@@ -730,6 +733,8 @@
 
             /**
              * Displays the edit objective field and sets the current objective to the specified value.
+             *
+             * @param objective     the objective that is going to be edited.
              */
             editObjective(objective) {
                 this.objectiveIndex = this.inputQuest.objectives.indexOf(objective);
@@ -768,6 +773,8 @@
 
             /**
              * Removes an objective from the list of quest's objectives.
+             *
+             * @param objective     the objective to be deleted.
              */
             deleteObjective(objective) {
                 let rowIndex = this.inputQuest.objectives.indexOf(objective);

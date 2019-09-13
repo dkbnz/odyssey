@@ -103,7 +103,7 @@
                                              ref="questObjective"
                                              striped>
 
-                                    <template slot="radius" slot-scope="row">
+                                    <template v-slot:cell(radius)="row">
                                         {{getRadiusValue(row.item.radius)}}
                                     </template>
                                 </b-table>
@@ -380,7 +380,7 @@
             /**
              * Runs a query which searches through the quests in the database and returns all.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryQuests() {
                 this.loadingResults = true;
@@ -411,7 +411,7 @@
              * Runs a query which searches through the quests in the database and returns only
              * quests created by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryYourQuests() {
                 let self = this;
@@ -445,7 +445,7 @@
              * Runs a query which searches through the quests in the database and returns only
              * quests started by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryYourActiveQuests() {
                 if (this.profile.id !== undefined) {
@@ -478,7 +478,7 @@
             /**
              * Creates a new quest attempt for the selected quest and current user.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             createAttempt(questToAttempt, viewActive) {
                 let self = this;
@@ -517,7 +517,7 @@
              * Runs a query which searches through the quests in the database and returns only
              * quests created by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryCompletedQuests() {
                 let self= this;
@@ -775,7 +775,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @returns {number}    the number of rows required in the table based on number of objectives to be
+             * @return {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
             rows(quest) {

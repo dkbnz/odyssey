@@ -60,9 +60,10 @@ public class DestinationController extends Controller {
     private static final String LATITUDE_INVALID = "Given latitude is not valid";
     private static final String DUPLICATE_DESTINATION = "A destination with these details already exists either in " +
             "your destinations or public destinations lists";
+    private static final String POINTS_REWARDED = "pointsRewarded";
+    private static final String DESTINATION_ID = "destinationId";
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
-    private static final String POINTS_REWARDED = "pointsRewarded";
 
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;

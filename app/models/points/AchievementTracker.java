@@ -71,6 +71,7 @@ public class AchievementTracker extends BaseModel {
         this.points = 0;
     }
 
+
     public int getPoints() {
         return points;
     }
