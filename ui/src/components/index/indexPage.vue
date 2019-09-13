@@ -57,6 +57,7 @@
              */
             profile: function () {
                 if (this.profile.id !== undefined) {
+                    this.updateActivity();
                     if (this.profile.admin) {
                         this.$router.replace("/admin");
                     } else {
