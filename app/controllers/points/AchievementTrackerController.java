@@ -448,8 +448,11 @@ public class AchievementTrackerController extends Controller {
                 return badRequest(ApiError.invalidJson());
             } else {
                 String clientDate = lastSeenJson.get(CLIENT_DATE_FIELD).asText();
-                if (checkStreakIncrement(loggedInUser, clientDate)) {
-                    return ok();
+
+                JsonNode responseJson = checkStreakIncrement(loggedInUser, clientDate);
+
+                if (responseJson != null) {
+                    return ok(responseJson);
                 } else {
                     return badRequest(ApiError.invalidJson());
                 }
@@ -470,25 +473,27 @@ public class AchievementTrackerController extends Controller {
      *
      * @param profile               the profile your wanting to check the streaks date for
      * @param clientDateString      the clients date string sent from the front end of the application
-     * @return                      true if this process was able to be achieved
-     *                              false if the process got caught with a parsing exception and so should return 400
-     *                              to the front end application
+     * @return                      jsonNode containing the badge if this process was able to be achieved
+     *                              jsonNode null if the process got caught with a parsing exception and so should
+     *                              return 400 to the front end application
      */
-    private boolean checkStreakIncrement(Profile profile, String clientDateString) {
+    private JsonNode checkStreakIncrement(Profile profile, String clientDateString) {
 
         Date clientDate;
+
+        JsonNode responseJson = null;
 
         try {
             clientDate = new SimpleDateFormat("yyyy-MM-dd").parse(clientDateString);
         } catch (ParseException e) {
-            return false;
+            return null;
         }
 
         Date lastSeenDate = profile.getLastSeenDate();
 
         if (lastSeenDate == null) {
             profile.getAchievementTracker().setCurrentStreak(STARTING_STREAK_NUMBER);
-            this.rewardAction(profile);
+            responseJson = this.rewardAction(profile);
         } else {
             Date incrementDate = addOneDay(lastSeenDate);
 
@@ -496,7 +501,7 @@ public class AchievementTrackerController extends Controller {
                 // User has been seen on the next day to their previous seen date
                 // And so their streaks have incremented
                 profile.getAchievementTracker().addToCurrentStreak();
-                this.rewardAction(profile);
+                responseJson = this.rewardAction(profile);
             } else if (clientDate.after(incrementDate)) {
                 // User has lost their streak
                 profile.getAchievementTracker().setCurrentStreak(LOST_STREAK);
@@ -507,7 +512,7 @@ public class AchievementTrackerController extends Controller {
 
         profileRepository.update(profile);
 
-        return true;
+        return responseJson;
     }
 
 
