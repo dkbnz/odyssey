@@ -196,7 +196,7 @@
                              striped>
 
                         <!-- Buttons that appear for each objective added to table -->
-                        <template slot="actions" slot-scope="row">
+                        <template v-slot:cell(actions)="row">
                             <b-button size="sm"
                                       @click="editObjective(row.item)"
                                       variant="warning"
@@ -214,7 +214,7 @@
                         </template>
 
                         <!-- Buttons to shift objectives up/down in table -->
-                        <template slot="order" slot-scope="row">
+                        <template v-slot:cell(order)="row">
                             <b-button :disabled="inputQuest.objectives.length === 1 || row.index === 0 || heading === 'Edit'"
                                       @click="moveUp(row.index)"
                                       class="mr-2"
@@ -229,7 +229,7 @@
                                       variant="success">&darr;
                             </b-button>
                         </template>
-                        <template slot="radius" slot-scope="row">
+                        <template v-slot:cell(radius)="row">
                             {{getRadiusValue(row.item.radius)}}
                         </template>
                     </b-table>

@@ -70,7 +70,7 @@
                     </b-img>
                     <strong>Can't find any trips!</strong>
                 </div>
-                <template slot="more_details" slot-scope="row">
+                <template v-slot:cell(more_details)="row">
                     <b-button size="sm"
                               @click="row.toggleDetails"
                               variant="warning"
@@ -101,17 +101,17 @@
                 </template>
 
                 <!-- Shows all the trip destinations in a separate nested table -->
-                <template slot="row-details" slot-scope="row">
+                <template v-slot:row-details="row">
                     <b-card>
                         <b-table
                                 :fields="subFields"
                                 :items="row.item.destinations"
                                 id="futureTripsDestinations"
                                 ref="destinationsTable">
-                            <template slot="destInDate" slot-scope="data" v-if="futureTrips.length > 0">
+                            <template v-slot:cell(destInDate)="data" v-if="futureTrips.length > 0">
                                 {{formatDate(data.item.startDate)}}
                             </template>
-                            <template slot="destOutDate" slot-scope="data" v-if="futureTrips.length > 0">
+                            <template v-slot:cell(destOutDate)="data" v-if="futureTrips.length > 0">
                                 {{formatDate(data.item.endDate)}}
                             </template>
 
@@ -120,21 +120,20 @@
                     </b-card>
                 </template>
 
-                <template slot="tripStartDate"
-                          slot-scope="data">
+                <template v-slot:cell(tripStartDate)="data">
                     <!--{{data.item.destinations}}-->
                     {{formatDate(calculateTripDates(data.item.destinations)[0])}}
                 </template>
 
-                <template slot="tripEndDate" slot-scope="data">
+                <template v-slot:cell(tripEndDate)="data">
                     {{formatDate(calculateTripDates(data.item.destinations)[data.item.destinations.length -1])}}
                 </template>
 
-                <template slot="tripEndDest" slot-scope="data" v-if="futureTrips.length > 0">
+                <template v-slot:cell(tripEndDest)="data" v-if="futureTrips.length > 0">
                     {{data.item.destinations[data.item.destinations.length -1].destination.name}}
                 </template>
 
-                <template slot="duration" slot-scope="data" v-if="futureTrips.length > 0">
+                <template v-slot:cell(duration)="data" v-if="futureTrips.length > 0">
                     {{calculateDuration(data.item.destinations)}}
                 </template>
 
@@ -189,7 +188,7 @@
                         </b-img>
                         <strong>Can't find any trips!</strong>
                     </div>
-                    <template slot="more_details" slot-scope="row">
+                    <template v-slot:cell(more_details)="row">
                         <b-button size="sm"
                                   @click="row.toggleDetails"
                                   variant="warning"
@@ -220,36 +219,36 @@
                     </template>
 
                     <!-- Shows all the trip destinations in a separate nested table -->
-                    <template slot="row-details" slot-scope="row">
+                    <template v-slot:cell(row-details)="row">
                         <b-card>
                             <b-table
                                     :fields="subFields"
                                     :items="row.item.destinations"
                                     id="pastTripsDestinations"
                                     ref="pastDestinationsTable">
-                                <template slot="destInDate" slot-scope="data" v-if="pastTrips.length > 0">
+                                <template v-slot:cell(destInDate)="data" v-if="pastTrips.length > 0">
                                     {{formatDate(data.item.startDate)}}
                                 </template>
-                                <template slot="destOutDate" slot-scope="data" v-if="pastTrips.length > 0">
+                                <template v-slot:cell(destOutDate)="data" v-if="pastTrips.length > 0">
                                     {{formatDate(data.item.endDate)}}
                                 </template>
                             </b-table>
                         </b-card>
                     </template>
 
-                    <template slot="tripStartDate" slot-scope="data">
+                    <template v-slot:cell(tripStartDate)="data">
                         {{formatDate(calculateTripDates(data.item.destinations)[0])}}
                     </template>
 
-                    <template slot="tripEndDate" slot-scope="data">
+                    <template v-slot:cell(tripEndDate)="data">
                         {{formatDate(calculateTripDates(data.item.destinations)[data.item.destinations.length -1])}}
                     </template>
 
-                    <template slot="tripEndDest" slot-scope="data" v-if="pastTrips.length > 0">
+                    <template v-slot:cell(tripEndDest)="data" v-if="pastTrips.length > 0">
                         {{data.item.destinations[data.item.destinations.length -1].destination.name}}
                     </template>
 
-                    <template slot="duration" slot-scope="data" v-if="pastTrips.length > 0">
+                    <template v-slot:cell(duration)="data" v-if="pastTrips.length > 0">
                         {{calculateDuration(data.item.destinations)}}
                     </template>
 
