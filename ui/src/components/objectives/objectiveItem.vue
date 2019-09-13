@@ -119,14 +119,12 @@
 
 <script>
     import DestinationSidebar from "../destinations/destinationSidebar";
-    import BCol from "bootstrap-vue/es/components/layout/col";
     import GoogleMap from "../map/googleMap";
 
     export default {
         name: "addObjective",
 
         components: {
-            BCol,
             DestinationSidebar,
             GoogleMap
         },
