@@ -236,23 +236,20 @@
 
             /**
              * Function to retrieve more destinations when a user reaches the bottom of the list.
+             *
+             * @param queryPage     the page to load from the backend.
+             * @param pageSize      the total number of profiles to be loaded.
              */
             getMore(queryPage, pageSize) {
-                //TODO: Isaac - Still some bugs in this section.
                 if (pageSize !== this.pageSize) {
                     this.profiles = [];
                     this.pageSize = pageSize;
                     this.queryProfiles();
                 } else {
-                    console.log("QUERY PAGE CATCHUP");
                     this.queryPage = queryPage;
-                    // while (this.queryPage < queryPage) {
-                    //     this.queryPage += 1;
-                        this.queryProfiles();
-                    // }
+                    this.queryProfiles();
                 }
                 if (this.pageSize === Infinity) {
-                    console.log("INFINITY");
                     this.queryPage = 0;
                     this.queryProfiles();
                 }
@@ -263,6 +260,8 @@
 
             /**
              * Used to initialise the appropriate parameters for searching for profiles.
+             *
+             * @param searchParameters  the search parameters that generate the search query for profiles.
              */
             searchProfiles(searchParameters) {
                 this.queryPage = 0;
@@ -271,6 +270,11 @@
             },
 
 
+            /**
+             * Called when the table is being sorted.
+             *
+             * @param columnSortBy  the column to sort the profiles by in the profiles table.
+             */
             sortTable(columnSortBy) {
                 this.columnSortBy = columnSortBy;
                 this.queryPage = 0;
@@ -281,6 +285,8 @@
 
             /**
              * Queries database for profiles which fit search criteria.
+             *
+             * @return {Promise}    the fetch method to retrieve profiles.
              */
             queryProfiles() {
                 this.retrievingProfiles = true;
@@ -381,6 +387,8 @@
 
             /**
              * Emits the event that the admin is viewing a profile to edit, this will navigate to the edit page.
+             *
+             * @param profile   the profile for the admin to edit.
              */
             emitAdminEdit(profile) {
                 this.$emit('admin-edit', profile);

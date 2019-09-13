@@ -45,6 +45,7 @@
             /**
              * Used to log a user in based on the username and password that are entered. If the response is not ok()
              * (HTTP 200), then an error is shown.
+             *
              */
             login() {
                 if (this.username.length > 100 || this.password.length > 100) {

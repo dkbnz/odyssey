@@ -281,7 +281,6 @@
             /**
              * Changes the objective ID to the currently selected objective id.
              * Dismisses the delete objective modal.
-             *
              */
             setObjective(objective) {
                 this.objectiveId = objective.id;
