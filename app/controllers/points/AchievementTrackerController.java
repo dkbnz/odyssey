@@ -15,6 +15,9 @@ import models.profiles.Profile;
 import models.quests.Quest;
 import models.trips.Trip;
 import models.util.ApiError;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -31,6 +34,11 @@ public class AchievementTrackerController extends Controller {
     private static final String POINTS_REWARDED = "pointsRewarded";
     private static final String BADGES_ACHIEVED = "badgesAchieved";
     private static final String STREAKER = "Streaker";
+    private static final Integer HOURS_IN_A_DAY = 24;
+    private static final Integer STARTING_STREAK_NUMBER = 1;
+    private static final Integer LOST_STREAK = 0;
+    private static final String TIME_FIELD = "clientTime";
+    private static final String TIME_OFFSET = "timeOffset";
 
     private static final int SINGLE_COUNTRY = 1;
     private static final int INCREMENT_ONE = 1;
@@ -399,5 +407,81 @@ public class AchievementTrackerController extends Controller {
         distance = Math.pow(distance, 2);
 
         return Math.sqrt(distance);
+    }
+
+
+    public Result updateLastSeen(Http.Request request) {
+
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+
+        if (loggedInUser != null) {
+            // User is logged in and attempts to get their client timezone data
+            JsonNode lastSeenJson = request.body().asJson();
+
+            // Check if a body was given and has required fields
+            if (lastSeenJson == null ||
+                    (!(lastSeenJson.has(TIME_FIELD) &&
+                            lastSeenJson.has(TIME_OFFSET)))) {
+                // If JSON Object contains no time or time offset key, return bad request
+                // Prevents null pointer exceptions when trying to get the values below.
+                return badRequest(ApiError.invalidJson());
+            } else {
+                String clientTime = lastSeenJson.get(TIME_FIELD).asText();
+                int timeOffset = lastSeenJson.get(TIME_OFFSET).asInt();
+                checkStreakIncrement(loggedInUser, clientTime, timeOffset);
+                return ok();
+            }
+        } else {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+    }
+
+
+    private void checkStreakIncrement(Profile profile, String clientTime, int timeOffset) {
+
+
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        DateTime clientDateTime = formatter.parseDateTime(clientTime);
+        System.out.println(clientDateTime);
+
+        // UTC time converted from the clients time and timezone
+        DateTime utcDateTime = clientDateTime.plusMinutes(timeOffset);
+
+//        // The previous time the user was seen using the application before this interaction
+//        DateTime lastSeen = profile.getLastSeen();
+//
+//        // The time at which the profile should be awarded an increase in their streak
+//        DateTime incrementTime = profile.getIncrementTime();
+//
+//        if (incrementTime == null && lastSeen == null) {
+//            // Users first time (sign up)
+//            profile.getAchievementTracker().setCurrentStreak(STARTING_STREAK_NUMBER);
+//            profile.setIncrementTime(utcDateTime.plusHours(HOURS_IN_A_DAY));
+//
+//        } else {
+//
+//            if (utcDateTime.isBefore(lastSeen.plusHours(HOURS_IN_A_DAY))) {
+//                // User has not lost their streak just pushes their boundary time
+//
+//                if (utcDateTime.isAfter(incrementTime)) {
+//                    // Passed the increment time and so adds to the users streak
+//                    profile.getAchievementTracker().addToCurrentStreak();
+//                    profile.setIncrementTime(utcDateTime.plusHours(HOURS_IN_A_DAY));
+//                    this.rewardAction(profile);
+//                }
+//
+//            } else {
+//                // User has lost their streak
+//                profile.getAchievementTracker().setCurrentStreak(LOST_STREAK);
+//                profile.setIncrementTime(utcDateTime.plusHours(HOURS_IN_A_DAY));
+//            }
+//        }
+//
+//        profile.setLastSeen(utcDateTime);
+
+
+        profileRepository.update(profile);
+
     }
 }
