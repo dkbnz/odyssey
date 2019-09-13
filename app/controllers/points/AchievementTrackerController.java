@@ -27,18 +27,18 @@ import repositories.points.BadgeRepository;
 import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class AchievementTrackerController extends Controller {
     private static final String USER_POINTS = "userPoints";
     private static final String POINTS_REWARDED = "pointsRewarded";
     private static final String BADGES_ACHIEVED = "badgesAchieved";
-    private static final String STREAKER = "Streaker";
-    private static final Integer HOURS_IN_A_DAY = 24;
     private static final Integer STARTING_STREAK_NUMBER = 1;
     private static final Integer LOST_STREAK = 0;
-    private static final String TIME_FIELD = "clientTime";
-    private static final String TIME_OFFSET = "timeOffset";
+    private static final String CLIENT_DATE_FIELD = "clientDate";
 
     private static final int SINGLE_COUNTRY = 1;
     private static final int INCREMENT_ONE = 1;
@@ -162,23 +162,27 @@ public class AchievementTrackerController extends Controller {
      * @param actingProfile         the profile receiving points.
      * @return                      Json node of the reward result.
      */
-    public JsonNode rewardAction(Profile actingProfile) {
+    private JsonNode rewardAction(Profile actingProfile) {
+
+        int currentStreak = actingProfile.getAchievementTracker().getCurrentStreak();
+
         Collection<Badge> badgesAchieved = new ArrayList<>();
 
         Set<Badge> badges = actingProfile.getAchievementTracker().getBadges();
 
-        for (Badge badge : badges) {
-            if (badge.getName().equals(STREAKER)) {
+        Badge foundBadge = null;
 
+        for (Badge badge : badges) {
+            if (badge.getActionToAchieve().equals(Action.LOGIN_STREAK)) {
+                foundBadge = badge;
+                break;
             }
         }
 
-//        if (actingProfile.getAchievementTracker().getCurrentStreak() > badegStreak)
-//        Badge badgeToGive = giveBadge(actingProfile, Action.LOGIN_STREAK, 1);
-//
-//        if (badgeToGive != null) {
-//            badgesAchieved.add(badgeToGive);
-//        }
+        if(foundBadge == null || foundBadge.getProgress() < currentStreak) {
+            badgesAchieved.add(progressBadge(actingProfile, Action.LOGIN_STREAK, INCREMENT_ONE));
+        }
+
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
         return constructRewardJson(badgesAchieved, null);
     }
@@ -419,6 +423,14 @@ public class AchievementTrackerController extends Controller {
     }
 
 
+    /**
+     * Function called from the routes to update the currently logged in session's users streak
+     *
+     * @param request       contains the profile information and the client date information in the json body
+     * @return              ok if the request is fine and their is a user and the json format is correct
+     *                      badRequest if the request has invalid json
+     *                      unauthorized if there is no user in the database for the given session
+     */
     public Result updateLastSeen(Http.Request request) {
 
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -429,16 +441,18 @@ public class AchievementTrackerController extends Controller {
 
             // Check if a body was given and has required fields
             if (lastSeenJson == null ||
-                    (!(lastSeenJson.has(TIME_FIELD) &&
-                            lastSeenJson.has(TIME_OFFSET)))) {
+                    (!lastSeenJson.has(CLIENT_DATE_FIELD))) {
                 // If JSON Object contains no time or time offset key, return bad request
                 // Prevents null pointer exceptions when trying to get the values below.
                 return badRequest(ApiError.invalidJson());
             } else {
-                String clientTime = lastSeenJson.get(TIME_FIELD).asText();
-                int timeOffset = lastSeenJson.get(TIME_OFFSET).asInt();
-                checkStreakIncrement(loggedInUser, clientTime, timeOffset);
-                return ok();
+                String clientDate = lastSeenJson.get(CLIENT_DATE_FIELD).asText();
+                if (checkStreakIncrement(loggedInUser, clientDate)) {
+                    return ok();
+                } else {
+                    return badRequest(ApiError.invalidJson());
+                }
+
             }
         } else {
             return unauthorized(ApiError.unauthorized());
@@ -447,50 +461,64 @@ public class AchievementTrackerController extends Controller {
     }
 
 
-    private void checkStreakIncrement(Profile profile, String clientTime, int timeOffset) {
+    /**
+     * Checks the users client date with their last seen date in the database. If the date is one day more than the last
+     * seen date then the user will increment their current streak and send the check to see if they should increment
+     * their streaker badge. If the users current date is any day after their last seen date plus one then they will
+     * lose their current streak.
+     *
+     * @param profile               the profile your wanting to check the streaks date for
+     * @param clientDateString      the clients date string sent from the front end of the application
+     * @return                      true if this process was able to be achieved
+     *                              false if the process got caught with a parsing exception and so should return 400
+     *                              to the front end application
+     */
+    private boolean checkStreakIncrement(Profile profile, String clientDateString) {
 
+        Date clientDate;
 
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        DateTime clientDateTime = formatter.parseDateTime(clientTime);
-        System.out.println(clientDateTime);
+        try {
+            clientDate = new SimpleDateFormat("yyyy-MM-dd").parse(clientDateString);
+        } catch (ParseException e) {
+            return false;
+        }
 
-        // UTC time converted from the clients time and timezone
-        DateTime utcDateTime = clientDateTime.plusMinutes(timeOffset);
+        Date lastSeenDate = profile.getLastSeenDate();
 
-//        // The previous time the user was seen using the application before this interaction
-//        DateTime lastSeen = profile.getLastSeen();
-//
-//        // The time at which the profile should be awarded an increase in their streak
-//        DateTime incrementTime = profile.getIncrementTime();
-//
-//        if (incrementTime == null && lastSeen == null) {
-//            // Users first time (sign up)
-//            profile.getAchievementTracker().setCurrentStreak(STARTING_STREAK_NUMBER);
-//            profile.setIncrementTime(utcDateTime.plusHours(HOURS_IN_A_DAY));
-//
-//        } else {
-//
-//            if (utcDateTime.isBefore(lastSeen.plusHours(HOURS_IN_A_DAY))) {
-//                // User has not lost their streak just pushes their boundary time
-//
-//                if (utcDateTime.isAfter(incrementTime)) {
-//                    // Passed the increment time and so adds to the users streak
-//                    profile.getAchievementTracker().addToCurrentStreak();
-//                    profile.setIncrementTime(utcDateTime.plusHours(HOURS_IN_A_DAY));
-//                    this.rewardAction(profile);
-//                }
-//
-//            } else {
-//                // User has lost their streak
-//                profile.getAchievementTracker().setCurrentStreak(LOST_STREAK);
-//                profile.setIncrementTime(utcDateTime.plusHours(HOURS_IN_A_DAY));
-//            }
-//        }
-//
-//        profile.setLastSeen(utcDateTime);
+        if (lastSeenDate == null) {
+            profile.getAchievementTracker().setCurrentStreak(STARTING_STREAK_NUMBER);
+        } else {
+            Date incrementDate = addOneDay(lastSeenDate);
 
+            if (clientDate.equals(incrementDate)) {
+                // User has been seen on the next day to their previous seen date
+                // And so their streaks have incremented
+                profile.getAchievementTracker().addToCurrentStreak();
+                this.rewardAction(profile);
+            } else if (clientDate.after(incrementDate)) {
+                // User has lost their streak
+                profile.getAchievementTracker().setCurrentStreak(LOST_STREAK);
+            }
+        }
+
+        profile.setLastSeenDate(clientDate);
 
         profileRepository.update(profile);
 
+        return true;
+    }
+
+
+    /**
+     * Adds one day to the given date and returns.
+     *
+     * @param date          the date that you want to add 1 date to.
+     * @return              a new date that is 1 day later than the date given.
+     */
+    private Date addOneDay(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.DATE, INCREMENT_ONE);
+        return cal.getTime();
     }
 }
