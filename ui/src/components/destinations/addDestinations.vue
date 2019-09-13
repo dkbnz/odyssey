@@ -239,7 +239,7 @@
             /**
              * Validates the name input field. Name is valid when it contains more than one character.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationNameValidation() {
                 if (this.inputDestination.name.length === 0) {
@@ -254,7 +254,7 @@
             /**
              * Validates the type input field. Type is valid when the type has been selected.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationTypeValidation() {
                 if (this.inputDestination.type.id == null) {
@@ -267,7 +267,7 @@
             /**
              * Validates the district input field. District is valid when the district has been selected.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationDistrictValidation() {
                 if (this.inputDestination.district.length === 0) {
@@ -283,7 +283,7 @@
              * Validates the latitude input field. Latitude is valid when it contains only numeric characters, is not
              * empty, and is within the range -90 to 90.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationLatitudeValidation() {
                 if (this.inputDestination.latitude === null || this.inputDestination.latitude.length === 0) {
@@ -306,7 +306,7 @@
              * Validates the longitude input field. Longitude is valid when it contains only numeric characters, is not
              * empty, and is within the range -180 to 180.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationLongitudeValidation() {
                 if (this.inputDestination.longitude === null || this.inputDestination.longitude.length === 0) {
@@ -328,7 +328,7 @@
              * Validates the country input field. Country is valid when it contains more than one character, and is not
              * a number.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationCountryValidation() {
                 if (this.inputDestination.country === null) {
@@ -341,7 +341,7 @@
             /**
              * Tells users editing a destination whether they've made the destination public or private.
              *
-             * @returns {string}    public or private depending on the input destination privacy.
+             * @return{string}    public or private depending on the input destination privacy.
              */
             isPublic() {
                 if (this.inputDestination.public) {
@@ -422,7 +422,7 @@
              * Checks whether location is duplicate and displays error if so.
              *
              * @param cb.
-             * @returns {Promise<Response | never>}.
+             * @return{Promise<Response | never>}.
              */
             addDestination(cb) {
                 let self = this;
@@ -582,7 +582,7 @@
              * console.
              *
              * @param response, passed back to the getAllTrips function to be parsed into a Json.
-             * @returns throws the error.
+             * @returnthrows the error.
              */
             checkStatus(response) {
                 if (response.status >= 200 && response.status < 300) {
@@ -605,7 +605,7 @@
              * Converts the retrieved Http response to a Json format.
              *
              * @param response the Http response.
-             * @returns the Http response body as Json.
+             * @returnthe Http response body as Json.
              */
             parseJSON(response) {
                 return response.json();
@@ -616,7 +616,7 @@
              * Converts the given boolean value to a readable string.
              *
              * @param isPublic      boolean value false if the destination is not public, true otherwise.
-             * @returns {string}    returns a string 'Public' or 'Private' depending on the given parameter.
+             * @return{string}    returns a string 'Public' or 'Private' depending on the given parameter.
              */
             convertToPublicString(isPublic) {
                 if (isPublic) {

@@ -221,7 +221,7 @@
             /**
              * Runs a query which searches through the objectives in the database and returns all.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryObjectives() {
                 this.loadingResults = true;
@@ -240,7 +240,7 @@
             /**
              * Runs a query which searches through the objectives in the database and returns only objectives created by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryYourObjectives() {
                 this.loadingResults = true;
@@ -326,7 +326,7 @@
             /**
              * Converts the Http response body to a Json.
              * @param response  the received Http response.
-             * @returns {*}     the response body as a Json object.
+             * @return {*}     the response body as a Json object.
              */
             parseJSON(response) {
                 return response.json();

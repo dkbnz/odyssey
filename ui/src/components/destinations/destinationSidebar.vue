@@ -66,7 +66,7 @@
              * Retrieves the different destination types from the backend.
              *
              * @param updateDestinationTypes    the list to be updated with the specified destination types.
-             * @returns {Promise<any | never>}  the returned promise.
+             * @return {Promise<any | never>}  the returned promise.
              */
             getDestinationTypes(updateDestinationTypes) {
                 return fetch(`/v1/destinationTypes`, {

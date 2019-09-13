@@ -390,7 +390,7 @@
             /**
              * Runs a query which searches through the quests in the database and returns all.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryQuests() {
                 this.loadingResults = true;
@@ -410,7 +410,7 @@
              * Runs a query which searches through the quests in the database and returns only
              * quests created by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryYourQuests() {
                 if (this.profile.id !== undefined) {
@@ -430,7 +430,7 @@
              * Runs a query which searches through the quests in the database and returns only
              * quests started by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryYourActiveQuests() {
                 if (this.profile.id !== undefined) {
@@ -449,7 +449,7 @@
             /**
              * Creates a new quest attempt for the selected quest and current user.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             createAttempt(questToAttempt, viewActive) {
                 if (this.profile.id !== undefined) {
@@ -477,7 +477,7 @@
              * Runs a query which searches through the quests in the database and returns only
              * quests created by the profile.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryCompletedQuests() {
                 if (this.profile.id !== undefined) {
@@ -614,7 +614,7 @@
             /**
              * Converts the Http response body to a Json.
              * @param response  the received Http response.
-             * @returns {*}     the response body as a Json object.
+             * @return {*}     the response body as a Json object.
              */
             parseJSON(response) {
                 return response.json();
@@ -716,7 +716,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @returns {number}    the number of rows required in the table based on number of objectives to be
+             * @return {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
             rows(quest) {

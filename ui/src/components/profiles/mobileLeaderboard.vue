@@ -103,7 +103,7 @@
              * console.
              *
              * @param response, passed back to the getAllTrips function to be parsed into a Json.
-             * @returns throws the error.
+             * @return throws the error.
              */
             checkStatus(response) {
                 if (response.status >= 200 && response.status < 300) {
@@ -132,6 +132,9 @@
 
             /**
              * Queries database for profiles which fit search criteria.
+             *
+             * @param searchParameters  the search parameters that generate the search query for profiles.
+             * @return {Promise <Response | never>}        the fetch method to retrieve profiles.
              */
             queryProfiles(searchParameters) {
                 this.retrievingProfiles = true;
