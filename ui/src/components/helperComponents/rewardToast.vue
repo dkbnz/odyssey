@@ -31,17 +31,23 @@
                 </b-row>
             </b-list-group-item>
         </b-list-group>
+        <div v-if="streakValue">
+            <streak-display :currentStreak="streakValue"></streak-display>
+            <p>Congratulations! Your streak increased!</p>
+        </div>
     </div>
 </template>
 
 <script>
     import SingleBadge from "../badges/singleBadge";
+    import StreakDisplay from "../dash/streakDisplay";
     export default {
         name: "rewardToast",
 
         props: {
             pointsRewarded: Object,
-            badgeAchieved: Object
+            badgeAchieved: Object,
+            streakValue: Number
         },
 
         data() {
@@ -51,6 +57,7 @@
         },
 
         components: {
+            StreakDisplay,
             SingleBadge
         },
 
