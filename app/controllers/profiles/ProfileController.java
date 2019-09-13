@@ -97,11 +97,13 @@ public class ProfileController {
     /**
      * Creates a user based on given Json body. All new users are not an admin by default. This is used on the Sign Up
      * page when a user is making a new profile. All parameters are compulsory, except for passport country. When a user
-     * creates a new profile, a session is made and they are automatically logged in.
+     * creates a new profile, a session is made and they are automatically logged in unless they are an admin.
      *
-     * @param request       an Http Request containing Json Body.
-     * @return              if username exists, returns badRequest() (Http 400), if user is created, sets session and
-     * returns              created() (Http 201).
+     * @param request       an Http Request containing Json Body for a new profile.
+     * @return              created() (Http 201) response for successful profile creation before setting the session.
+     *                      forbidden() (Http 403) response if a non-admin user is creating a profile while logged in.
+     *                      badRequest() (Http 400) response if the username already exists or if there are Json errors.
+     *                      internalServerError() (Http 500) response if the AuthenticationUtil can't hash the password.
      */
     public Result create(Http.Request request) {
 
@@ -171,6 +173,7 @@ public class ProfileController {
 
         profileRepository.save(newUser);
 
+        // Check if a logged in admin is making a profile, or if a new user is signing up for the first time.
         return (userProfile != null && userProfile.isAdmin())
                 ? created("")
                 : created().addingToSession(request, AUTHORIZED, newUser.id.toString());
@@ -326,8 +329,9 @@ public class ProfileController {
      * user when validating their email on Sign Up.
      *
      * @param request       an Http Request containing Json Body.
-     * @return              ok() (Http 200) when there is no username in the database, or a badRequest() (Http 400) when
-     *                      there is already is a user with that username in the database.
+     * @return              ok() (Http 200) response if no duplicate username is found within the database.
+     *                      notFound() (Http 404) response if the user editing their username does not exist.
+     *                      badRequest() (Http 400) response if a duplicate of the username is found in the database.
      */
     public Result checkUsername(Http.Request request) {
         JsonNode json = request.body().asJson();
@@ -371,8 +375,8 @@ public class ProfileController {
      * referenced.
      *
      * @param request      an Http Request containing Json Body.
-     * @return             if profile is successfully retrieved, returns ok() (Http 200) with the Json body of the user
-     *                     profile. Otherwise returns unauthorized() (Http 401).
+     * @return             ok() (Http 200) response containing the Json of the profile if successfully retrieved.
+     *                     unauthorized() (Http 401) response if the user is not logged in when attempting retrieval.
      */
     public Result fetch(Http.Request request) {
         return request.session()
@@ -392,10 +396,11 @@ public class ProfileController {
      * user, admin or not.
      *
      * @param request       an Http Request containing Json Body.
-     * @return              ok() (Http 200) if the profile is successfully deleted.
-     *                      unauthorized() (Http 401) if not logged in.
-     *                      forbidden() (Http 403) when the logged in user is not an admin, or they are trying to delete
-     *                      the global admin (id 1).
+     * @return              ok() (Http 200) response if the profile is deleted successfully.
+     *                      notFound() (Http 404) response if either the user or target doesn't exist.
+     *                      forbidden() (Http 403) response if the logged in user is not an admin user.
+     *                      badRequest() (Http 400) response if the global admin is the deletion target.
+     *                      unauthorized() (Http 401) response if the user attempting deletion isn't logged in.
      */
     public Result delete(Http.Request request, Long id) {
         if (id == DEFAULT_ADMIN_ID) {
@@ -474,8 +479,12 @@ public class ProfileController {
      * If the Id is specified in the Json body, and the logged in user is an admin, then edit the specified Id.
      *
      * @param request       an Http Request containing Json Body.
-     * @return              ok() (Http 200) if the profile is successfully updated.
-     *                      unauthorized() (Http 401) if not logged in.
+     * @return              ok() (Http 200) response if the profile is successfully updated.
+     *                      notFound() (Http 404) response if the user or the target doesn't exist.
+     *                      forbidden() (Http 403) response if the user is not an admin or editing themselves.
+     *                      badRequest() (Http 400) response if the Json body contained in the request is invalid.
+     *                      unauthorized() (Http 401) response if the user attempting to make an edit is not logged in.
+     *                      internalServerError() (Http 500) response if the AuthenticationUtil can't hash the password.
      */
     public Result update(Http.Request request, Long editUserId) {
         return request.session()
@@ -566,8 +575,9 @@ public class ProfileController {
      * pagination. This is used on the Search Profiles page.
      *
      * @param request           an Http Request containing Json Body.
-     * @return                  unauthorized() (Http 401) if the user is not logged in.
-     *                          ok() (Http 200) if the search is successful.
+     * @return                  ok() (Http 200) response if the search is successful.
+     *                          badRequest() (Http 400) response if the query String is invalid.
+     *                          unauthorized() (Http 401) response if no user is logged in when making this request.
      */
     public Result list(Http.Request request) {
         int pageNumber = 0;
@@ -592,7 +602,6 @@ public class ProfileController {
                 pageSize = Integer.parseInt(request.getQueryString(PAGE_SIZE));
             }
         }
-
 
         String getError = validQueryString(request);
 
@@ -746,8 +755,9 @@ public class ProfileController {
      * number of profiles in the database.
      *
      * @param request   an Http request containing the login information and authentication data.
-     * @return          unauthorized() (Http 401) if the user is not logged in.
-     *                  ok() (Http 200) containing the total number of profiles stored in the database.
+     * @return          ok() (Http 200) response containing the number of profiles in the database.
+     *                  badRequest() (Http 400) response if the query within the request is invalid.
+     *                  unauthorized() (Http 401) response if the user is not logged into the system.
      */
     public Result getTotalNumberOfProfiles(Http.Request request) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -776,9 +786,10 @@ public class ProfileController {
      *
      * @param request       an Http Request containing Json Body.
      * @param id            the id of the user to made an admin.
-     * @return              ok() (Http 200) if successfully making a user admin,
-     *                      unauthorized() (Http 401) if they are not logged in,
-     *                      forbidden() (Http 403) if logged in user is not an admin.
+     * @return              ok() (Http 200) response if a user is successfully made an admin.
+     *                      notFound() (Http 404) response if the target user isn't in the database.
+     *                      forbidden() (Http 403) response if a non-admin user is trying to make admins.
+     *                      unauthorized() (Http 401) response if the user trying to make admins isn't logged in.
      */
     public Result makeAdmin(Http.Request request, Long id) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -810,10 +821,10 @@ public class ProfileController {
      *
      * @param request       an Http Request containing Json Body.
      * @param id            the id of the user to be removed as an admin.
-     * @return              forbidden() (Http 403) if logged in user is not an admin or the profile trying to be changed
-     *                      is the global admin,
-     *                      unauthorized() (Http 401) if the user is not logged in,
-     *                      ok() (Http 200) if successfully updating the admin property of a profile.
+     * @return              ok() (Http 200) response if an admin is made into a normal user.
+     *                      notFound() (Http 404) response if the 'admin' being made normal doesn't exist.
+     *                      forbidden() (Http 403) response if non-admins attempt this, or the global admin's targeted.
+     *                      unauthorized() (Http 401) response if the user trying to make this request is not logged in.
      */
     public Result removeAdmin(Http.Request request, Long id) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
