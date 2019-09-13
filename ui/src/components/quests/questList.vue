@@ -419,7 +419,7 @@
                         .then(this.parseJSON)
                         .then((data) => {
                             this.foundQuests = data;
-                            //this.loadingResults = false;
+                            this.loadingResults = false;
                         })
                 }
 
