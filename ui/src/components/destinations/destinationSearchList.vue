@@ -89,21 +89,27 @@
         methods: {
             /**
              * Retrieves the different destination types from the backend.
-             *
-             * @returns {Promise<any | never>}  the returned promise.
              */
             getDestinationTypes() {
                 let self = this;
-                return fetch(`/v1/destinationTypes`, {
+                fetch(`/v1/destinationTypes`, {
                     accept: "application/json"
-                }).then(function(response) {
-                    response.json().then(data => {
-                        if (response.ok) {
-                            self.destinationTypes = data;
-                        } else {
-                            self.showErrorToast(data);
-                        }
-                    })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.destinationTypes = responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             },
 
@@ -147,23 +153,31 @@
                     (this.searchPublic ? "&is_public=1" : "&owner=" + this.profile.id) +
                     "&page=" + this.queryPage;
 
-                return fetch(`/v1/destinations` + searchQuery, {
-                    dataType: 'html'
-                }).then(function(response) {
-                    response.json().then(data => {
-                        if (response.ok) {
-                            if (data !== null && data !== undefined) {
-                                self.moreResults = data.length >= 50;
-                                for (let i = 0; i < data.length; i++) {
-                                    self.foundDestinations.push(data[i]);
-                                }
-                                self.$emit('destination-search', self.foundDestinations);
+                return fetch(`/v1/destinations` + searchQuery, {})
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                        if (responseBody !== null && responseBody !== undefined) {
+                            self.loadingResults = false;
+                            self.moreResults = responseBody.length >= 50;
+                            for (let i = 0; i < responseBody.length; i++) {
+                                self.foundDestinations.push(responseBody[i]);
                             }
-                        } else {
-                            self.showErrorToast(data);
+                            self.$emit('destination-search', self.foundDestinations);
                         }
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
                         self.loadingResults = false;
-                    })
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             }
         }

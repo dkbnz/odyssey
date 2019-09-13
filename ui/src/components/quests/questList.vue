@@ -355,16 +355,24 @@
                 fetch('/v1/quests/' + this.questId, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.getMore();
-                            self.$refs['deleteQuestModal'].hide();
-                            self.alertText = "Quest Successfully Deleted";
-                            self.showAlert();
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.getMore();
+                    self.$refs['deleteQuestModal'].hide();
+                    self.alertText = "Quest Successfully Deleted";
+                    self.showAlert();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 
@@ -380,14 +388,21 @@
                 return fetch('/v1/quests', {
                     accept: "application/json"
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.foundQuests = responseBody;
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.foundQuests = responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                        self.loadingResults = false;
-                    });
+                        });
+                    }
                 });
             },
 
@@ -404,14 +419,23 @@
                     this.loadingResults = true;
                     return fetch(`/v1/quests/` + this.profile.id, {})
                         .then(function (response) {
-                            response.json().then(responseBody => {
-                                if (response.ok) {
-                                    self.foundQuests = responseBody;
-                                } else {
-                                    self.showErrorToast(responseBody);
-                                }
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.foundQuests = responseBody;
+                            self.loadingResults = false;
+                        }).catch(function (response) {
+                            if (response.status > 404) {
+                                self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                            } else {
                                 self.loadingResults = false;
-                            });
+                                response.json().then(function(responseBody) {
+                                    self.showErrorToast(responseBody);
+                                });
+                            }
                         });
                 }
             },
@@ -428,14 +452,23 @@
                     this.loadingResults = true;
                     return fetch(`/v1/quests/profiles/` + this.profile.id, {})
                         .then(function (response) {
-                            response.json().then(responseBody => {
-                                if (response.ok) {
-                                    self.questAttempts = responseBody;
-                                } else {
-                                    self.showErrorToast(responseBody);
-                                }
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.questAttempts = responseBody;
+                            self.loadingResults = false;
+                        }).catch(function (response) {
+                            if (response.status > 404) {
+                                self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                            } else {
                                 self.loadingResults = false;
-                            });
+                                response.json().then(function(responseBody) {
+                                    self.showErrorToast(responseBody);
+                                });
+                            }
                         });
                 }
 
@@ -453,20 +486,28 @@
                     return fetch(`/v1/quests/` + questToAttempt.id + `/attempt/` + this.profile.id, {
                         method: 'POST'
                     }).then(function (response) {
-                        response.json().then(responseBody => {
-                            if (response.ok) {
-                                if (viewActive) {
-                                    self.$emit('start-quest-now', responseBody);
-                                } else {
-                                    // Refresh quests
-                                    self.getMore();
-                                    self.showSuccess({message: "Quest started"});
-                                    self.$emit('start-quest-later', responseBody);
-                                }
-                            } else {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        if (viewActive) {
+                            self.$emit('start-quest-now', responseBody);
+                        } else {
+                            // Refresh quests
+                            self.getMore();
+                            self.showSuccess({message: "Quest started"});
+                            self.$emit('start-quest-later', responseBody);
+                        }
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            response.json().then(function(responseBody) {
                                 self.showErrorToast(responseBody);
-                            }
-                        });
+                            });
+                        }
                     });
                 }
             },
@@ -484,17 +525,25 @@
                     this.loadingResults = true;
                     return fetch(`/v1/quests/` + this.profile.id + `/complete`, {
                         accept: 'application/json'
-                    })
-                        .then(function (response) {
-                            response.json().then(responseBody => {
-                                if (response.ok) {
-                                    self.foundQuests = responseBody;
-                                } else {
-                                    self.showErrorToast(responseBody);
-                                }
-                                self.loadingResults = false;
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        self.foundQuests = responseBody;
+                        self.loadingResults = false;
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            self.loadingResults = false;
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
                             });
-                        });
+                        }
+                    });
                 }
 
             },
@@ -544,13 +593,21 @@
                 return fetch('/v1/quests/' + this.questId + '/profiles', {
                     accept: "application/json"
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.activeUsers = responseBody.length;
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.activeUsers = responseBody.length;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 

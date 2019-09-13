@@ -72,13 +72,24 @@
                     method: 'POST',
                     accept: "application/json"
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.$router.push("/");
-                        self.$router.go();
-                        return response;
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        self.$router.push("/dash");
                         return response;
+                    }
+                }).then(function (response) {
+                    self.$router.push("/");
+                    self.$router.go();
+                    return response;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.errorMessage = self.getErrorMessage(responseBody);
+                            self.showError = true;
+                            self.showErrorToast(responseBody);
+                        });
                     }
                 });
             },

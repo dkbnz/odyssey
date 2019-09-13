@@ -260,7 +260,6 @@
                     self.$refs['profilePictureModal'].hide();
                     self.$refs['profilePhotoUploader'].hide();
                 }).catch(function (response) {
-                    self.validEmail = false;
                     if (response.status > 404) {
                         self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                     } else {
@@ -284,17 +283,25 @@
                     body: this.getFormData(files)
 
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.status === 201) {
-                            self.showError = false;
-                            self.newProfilePhoto = responseBody[responseBody.length - 1];
-                            self.makeProfileImage();
-                        } else {
-                            self.alertMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
-                        }
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.loadingResults = false;
+                    self.showError = false;
+                    self.newProfilePhoto = responseBody[responseBody.length - 1];
+                    self.makeProfileImage();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
                         self.loadingResults = false;
-                    });
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             },
 
@@ -369,20 +376,27 @@
                 fetch('/v1/profilePhoto/' + this.profile.id, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.status === 200) {
-                            self.profileImageThumb = "../../../static/default_profile_picture.png";
-                            self.profileImageFull = "../../../static/default_profile_picture.png";
-                            self.profile.profilePicture = null;
-                            self.showAlert();
-                            self.alertMessage = "Profile photo successfully deleted";
-                            self.$refs['profilePictureModal'].hide();
-                        } else {
-                            self.showError = true;
-                            self.alertMessage = "Unable to delete profile photo";
-                            self.alertMessage += '\n' + self.getErrorMessage(responseBody);
-                        }
-                    });
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.profileImageThumb = "../../../static/default_profile_picture.png";
+                    self.profileImageFull = "../../../static/default_profile_picture.png";
+                    self.profile.profilePicture = null;
+                    self.showAlert();
+                    self.alertMessage = "Profile photo successfully deleted";
+                    self.$refs['profilePictureModal'].hide();
+                    self.makeProfileImage();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             },
 
@@ -447,14 +461,29 @@
              * @returns {Promise<Response | never>}
              */
             queryYourActiveQuests() {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
                     return fetch(`/v1/quests/profiles/` + this.profile.id, {})
-                        .then(response => response.json())
-                        .then((data) => {
-                            this.questAttempts = data;
-                            this.loadingResults = false;
-                        })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.questAttempts = responseBody;
+                            self.loadingResults = false;
+                        }).catch(function (response) {
+                            if (response.status > 404) {
+                                self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                            } else {
+                                self.loadingResults = false;
+                                response.json().then(function(responseBody) {
+                                    self.showErrorToast(responseBody);
+                                });
+                            }
+                        });
                 }
             },
 
@@ -479,27 +508,34 @@
              * @returns {Promise<Response | never>}    the Fetch method promise.
              */
             addQuestToProfile() {
+                let self = this;
                 if (this.userProfile.id !== undefined) {
                     return fetch(`/v1/quests/` + this.selectedQuest.id + `/attempt/` + this.userProfile.id, {
                         method: 'POST'
-                    }).then(response => {
-                        if (response.ok) {
-                            // Display 'created' toast
-                            this.$bvToast.toast('Quest added to active', {
-                                title: `Quest Added`,
-                                variant: "default",
-                                autoHideDelay: "3000",
-                                solid: true
-                            });
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
                         } else {
-                            this.$bvToast.toast('Something went wrong', {
-                                title: `Quest Adding Failed`,
-                                variant: "danger",
-                                autoHideDelay: "3000",
-                                solid: true
+                            return response.json();
+                        }
+                    }).then(function () {
+                        // Display 'created' toast
+                        self.$bvToast.toast('Quest added to your active quests!', {
+                            title: `Quest Added`,
+                            variant: "success",
+                            autoHideDelay: "5000",
+                            solid: true
+                        });
+                        self.$refs['selected-quest-modal'].hide();
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
                             });
                         }
-                    })
+                    });
                 }
             }
         },

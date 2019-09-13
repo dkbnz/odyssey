@@ -512,16 +512,26 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.status === 201 && !self.createdByAdmin) {
-                            self.$router.go();
-                            return responseBody;
-                        } else if (response.status === 201 && self.createdByAdmin) {
-                            self.$emit('profile-created', true);
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
+                    }
+                }).then(function (responseBody) {
+                    if (response.status === 201 && !self.createdByAdmin) {
+                        self.$router.go();
+                        return responseBody;
+                    } else if (response.status === 201 && self.createdByAdmin) {
+                        self.$emit('profile-created', true);
+                    }
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             }
         }

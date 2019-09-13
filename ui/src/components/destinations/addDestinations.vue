@@ -344,16 +344,23 @@
                 let self = this;
                 return fetch("https://restcountries.eu/rest/v2/all", {
                     dataType: 'html'
-                })
-                    .then(function (response) {
-                        response.json().then(responseBody => {
-                            if (response.ok) {
-                                self.countryList = responseBody;
-                            } else {
-                                self.showErrorToast(responseBody);
-                            }
-                        })
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.countryList = responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
             },
 
 
@@ -427,20 +434,27 @@
                         "country": this.inputDestination.country,
                         "is_public": this.inputDestination.public
                     }))
-                })
-                    .then(function (response) {
-                        response.json().then(responseBody => {
-                            if (response.ok) {
-                                self.resetDestForm();
-                                self.showAlert();
-                                self.$emit('data-changed');
-                                self.createPointToast(responseBody.pointsRewarded, "Destination Created");
-                                return responseBody;
-                            } else {
-                                self.showErrorToast(responseBody);
-                            }
-                        })
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.resetDestForm();
+                    self.showAlert();
+                    self.$emit('data-changed');
+                    self.createPointToast(responseBody.pointsRewarded, "Destination Created");
+                    return responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
             },
 
 
@@ -452,18 +466,26 @@
                 let self = this;
                 fetch(`/v1/destinations/` + this.inputDestination.id + `/checkDuplicates`, {
                     accept: "application/json"
-                })
-                    .then(function (response) {
-                        response.json().then(responseBody => {
-                            if (response.ok) {
-                                self.destinationConflicts = responseBody;
-                                self.getMatchingEditedDestination();
-                                self.displayConfirmation();
-                            } else {
-                                self.showErrorToast(responseBody);
-                            }
-                        })
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.destinationConflicts = responseBody;
+                    self.getMatchingEditedDestination();
+                    self.displayConfirmation();
+                    return responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
             },
 
 
@@ -476,16 +498,23 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: (JSON.stringify(this.inputDestination))
-                })
-                    .then(function (response) {
-                        response.json().then(responseBody => {
-                            if (response.ok) {
-                                self.editDestinationConflicts = responseBody;
-                            } else {
-                                self.showErrorToast(responseBody);
-                            }
-                        })
-                    })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.editDestinationConflicts = responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
             },
 
 
@@ -509,15 +538,23 @@
                     headers: {'content-type': 'application/json'},
                     body: jsonBody
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showAlert();
-                            self.dismissModal('confirmEditModal');
-                            self.$emit('destination-saved', responseBody);
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showAlert();
+                    self.dismissModal('confirmEditModal');
+                    self.$emit('destination-saved', responseBody);
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    })
+                        });
+                    }
                 });
             },
 

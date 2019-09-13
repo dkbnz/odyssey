@@ -95,21 +95,28 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.profile.photoGallery = responseBody;
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
+                    }
+                }).then(function (responseBody) {
+                    self.profile.photoGallery = responseBody;
+                    let index = self.indexOfById(self.destination.photoGallery, photo);
+                    if (index !== -1) {
+                        self.destination.photoGallery[index] = photo
+                    }
+
+                    self.calculatePhotoSplit();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
-
-                let index = this.indexOfById(this.destination.photoGallery, photo);
-                if (index !== -1) {
-                    this.destination.photoGallery[index] = photo
-                }
-
-                this.calculatePhotoSplit();
             },
 
 
@@ -165,11 +172,19 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.status !== 201) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
+                    }
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 
@@ -186,11 +201,19 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.status !== 200) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
+                    }
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 

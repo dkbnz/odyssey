@@ -141,31 +141,39 @@
 
                 return fetch(`/v1/profiles` + searchQuery, {})
                     .then(function (response) {
-                        response.json().then(data => {
-                            if (response.ok && data !== null && data !== undefined) {
-                                if (data.length < 10) {
-                                    self.moreResults = false;
-                                    self.initialLoad = false;
-                                } else {
-                                    self.moreResults = true;
-                                    self.initialLoad = false;
-                                }
-                                if (!self.gettingMore && data.length === 0) {
-                                    self.profiles = [];
-                                }
-                                for (let i = 0; i < data.length; i++) {
-                                    if (self.gettingMore) {
-                                        self.profiles.push(data[i]);
-                                    } else {
-                                        self.gettingMore = false;
-                                        self.profiles = data;
-                                    }
-                                }
-                                self.retrievingProfiles = false;
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        if (responseBody.length < 10) {
+                            self.moreResults = false;
+                            self.initialLoad = false;
+                        } else {
+                            self.moreResults = true;
+                            self.initialLoad = false;
+                        }
+                        if (!self.gettingMore && responseBody.length === 0) {
+                            self.profiles = [];
+                        }
+                        for (let i = 0; i < responseBody.length; i++) {
+                            if (self.gettingMore) {
+                                self.profiles.push(responseBody[i]);
                             } else {
-                                self.showErrorToast(responseBody);
+                                self.gettingMore = false;
+                                self.profiles = responseBody;
                             }
-                        });
+                        }
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            self.retrievingProfiles = false;
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
                     });
             },
 

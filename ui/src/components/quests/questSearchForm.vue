@@ -200,16 +200,23 @@
             getCountries() {
                 return fetch("https://restcountries.eu/rest/v2/all", {
                     dataType: 'html'
-                })
-                    .then(function (response) {
-                        response.json().then(responseBody => {
-                            if (response.ok) {
-                                self.countryList = responseBody;
-                            } else {
-                                self.showErrorToast(responseBody);
-                            }
-                        })
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.countryList = responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
             },
 
 
@@ -252,16 +259,23 @@
                     "&last_name=" + this.searchCreatedLast +
                     "&country=" + this.searchCountry;
 
-                return fetch(`/v1/quests` + searchQuery, {
-                    dataType: 'html'
-                }).then(function(response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.$emit('searched-quests', responseBody);
-                        } else {
+                return fetch(`/v1/quests` + searchQuery, {})
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                        self.$emit('searched-quests', responseBody);
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    })
+                        });
+                    }
                 });
             }
         },

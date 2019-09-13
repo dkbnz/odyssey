@@ -188,20 +188,27 @@
                 fetch('/v1/makeAdmin/' + makeAdminProfile.id, {
                     method: 'POST',
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showError = false;
-                            let index = self.profiles.indexOf(makeAdminProfile);
-                            self.profiles[index] = responseBody;
-                            self.refreshTable = !self.refreshTable;
-                            self.alertMessage = "Profile is now an admin!";
-                            self.showAlert();
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    let index = self.profiles.indexOf(makeAdminProfile);
+                    self.profiles[index] = responseBody;
+                    self.refreshTable = !self.refreshTable;
+                    self.alertMessage = "Profile is now an admin!";
+                    self.showAlert();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
-
             },
 
 
@@ -216,24 +223,32 @@
                 fetch('/v1/removeAdmin/' + makeAdminProfile.id, {
                     method: 'POST',
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showError = false;
-                            let index = self.profiles.indexOf(makeAdminProfile);
-                            self.profiles[index] = responseBody;
-                            self.refreshTable = !self.refreshTable;
-                            self.alertMessage = "Profile is no longer an admin!";
-                            self.showAlert();
-                            if (self.profile.id === makeAdminProfile.id) {
-                                self.$router.push("/dash");
-                                self.$router.go();
-                            }
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    let index = self.profiles.indexOf(makeAdminProfile);
+                    self.profiles[index] = responseBody;
+                    self.refreshTable = !self.refreshTable;
+                    self.alertMessage = "Profile is no longer an admin!";
+                    self.showAlert();
+                    if (self.profile.id === makeAdminProfile.id) {
+                        self.$router.push("/dash");
+                        self.$router.go();
+                    }
+                    self.showAlert();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    })
-
-                })
+                        });
+                    }
+                });
             },
 
 
@@ -248,17 +263,25 @@
                 fetch('/v1/profile/' + deleteUser.id, {
                     method: 'DELETE',
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showError = false;
-                            let index = self.profiles.indexOf(deleteUser);
-                            self.profiles.splice(index, 1);
-                            self.alertMessage = responseBody;
-                            self.showAlert()
-                        } else {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    let index = self.profiles.indexOf(deleteUser);
+                    self.profiles.splice(index, 1);
+                    self.alertMessage = responseBody;
+                    self.showAlert()
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
-                        }
-                    });
+                        });
+                    }
                 });
             },
 
@@ -348,15 +371,24 @@
                 return fetch(`/v1/profiles` +  searchQuery, {
                     method: "GET"
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.showError = false;
-                            self.profiles = responseBody;
-                        } else {
-                            self.showErrorToast(responseBody);
-                        }
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    self.profiles = responseBody;
+                    self.retrievingProfiles = false;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
                         self.retrievingProfiles = false;
-                    });
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             },
 
