@@ -41,12 +41,10 @@
              */
             login() {
                 let self = this;
-                let time = new Date();
-                let offset = new Date().getTimezoneOffset();
                 fetch('/v1/login', {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
-                    body: JSON.stringify({username: this.username, password: this.password, clientTime: time, timeOffset: offset})
+                    body: JSON.stringify({username: this.username, password: this.password})
                 }).then(function (response) {
                     if (response.status === 401) {
                         self.alertMessage = "Invalid username or password";
@@ -54,6 +52,7 @@
                     } else if (!response.ok) {
                         throw response;
                     } else {
+                        self.setLastSeen();
                         self.showError = false;
                         self.$router.go();
                         return response.json();

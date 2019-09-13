@@ -109,6 +109,30 @@ Vue.mixin({
                 errorString += responseBody[errorMessage].message + "\n";
             }
             return errorString;
+        },
+
+
+        updateActivity() {
+            console.log("Running");
+            let self = this;
+            let time = this.MINUTE * 5;      // Runs every 5 minutes
+            this.setLastSeen();
+            setTimeout(function() {
+                self.updateActivity();
+            }, time)
+        },
+
+        setLastSeen() {
+            let date = new Date();
+            let self = this;
+            fetch('/v1/achievementTracker/updateLastSeen', {
+                method: 'POST',
+                headers: {'content-type': 'application/json'},
+                body: JSON.stringify({clientDate: date})
+            }).then(function (response) {
+                if (response.status >= 400 && response.status <= 500) {
+                    self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                }});
         }
     },
 
@@ -129,7 +153,8 @@ Vue.mixin({
                 CHECKED_IN: 'Checked In',
                 QUEST_COMPLETED: 'Quest Completed'
 
-            }
+            },
+            MINUTE: 60000
         }
     }
 });
