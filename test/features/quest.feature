@@ -397,7 +397,7 @@ Feature: Quest API Endpoint
     And the application is running
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 7 quests
+    And the response contains 8 quests
 
 
   Scenario: Retrieve all quests that are available with additional invalid quest dates
@@ -419,7 +419,7 @@ Feature: Quest API Endpoint
     And the status code received is 201
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 7 quests
+    And the response contains 8 quests
 
 
   Scenario: Retrieve all quests that are available with additional valid quest dates
@@ -441,7 +441,7 @@ Feature: Quest API Endpoint
     And the status code received is 201
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 7 quests
+    And the response contains 8 quests
 
 
   Scenario: Retrieve all quests that have the title 'Cool Quest'
@@ -574,7 +574,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with greater than 3 objectives
     Then the status code received is 200
-    And the response contains 2 quests
+    And the response contains 3 quests
 
 
   Scenario: Retrieve all quests that were made by the owner
@@ -606,10 +606,10 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests created by the user 'Dave' 'McInloch'
     Then the status code received is 200
-    And the response contains 4 quests
+    And the response contains 5 quests
 
 
-  Scenario: Retrieve all quests that are contained the country of 'Japan'
+  Scenario: Retrieve all quests that contain the country of 'Japan'
     And I am logged in as an admin user
     And a quest already exists with the following values
       | Title       | Start Date               | End Date                 |
@@ -622,7 +622,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests that contain the country 'Japan'
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 4 quests
 
 
   Scenario: Retrieve all quests when I am not logged in
@@ -637,7 +637,7 @@ Feature: Quest API Endpoint
     And the application is running
     When I attempt to retrieve my quests
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 4 quests
 
 
   Scenario: Retrieve all quests when I have none created
@@ -655,7 +655,7 @@ Feature: Quest API Endpoint
     And a user exists with id 2
     When I attempt to retrieve quests for user 2
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 4 quests
 
 
   Scenario: Retrieve all quests for another user as a regular user
