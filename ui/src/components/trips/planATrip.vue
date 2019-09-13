@@ -157,7 +157,7 @@
                                  striped>
 
                             <!-- Buttons that appear for each destination added to table -->
-                            <template slot="actions" slot-scope="row">
+                            <template v-slot:cell(actions)="row">
                                 <!--Opens edit modal-->
                                 <b-button size="sm"
                                           v-b-modal.editModal
@@ -184,7 +184,7 @@
                             </template>
 
                             <!-- Buttons to shift destinations up/down in table -->
-                            <template slot="order" slot-scope="row">
+                            <template v-slot:cell(order)="row">
                                 <b-button :disabled="inputTrip.destinations.length === 1 || row.index === 0"
                                           @click="moveUp(row.index)"
                                           class="mr-2"
@@ -201,7 +201,7 @@
                             </template>
 
                             <!-- Additional details about selected destination, shown when 'Show Details' button is clicked -->
-                            <template slot="row-details" slot-scope="row">
+                            <template v-slot:row-details="row" >
                                 <b-card>
                                     <b-row class="mb-2">
                                         <b-col class="text-sm-right" sm="3"><b>Type:</b></b-col>

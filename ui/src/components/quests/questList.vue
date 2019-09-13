@@ -106,7 +106,7 @@
                                              ref="questObjective"
                                              striped>
 
-                                    <template slot="radius" slot-scope="row">
+                                    <template v-slot:cell(radius)="row">
                                         {{getRadiusValue(row.item.radius)}}
                                     </template>
                                 </b-table>
