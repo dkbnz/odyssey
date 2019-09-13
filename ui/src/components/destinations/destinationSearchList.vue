@@ -37,13 +37,13 @@
                 </b-list-group-item>
                 <b-list-group-item href="#" class="flex-column justify-content-center">
                     <div class="d-flex justify-content-center" v-if="loadingResults">
-                        <b-spinner label="Loading..."></b-spinner>
+                        <b-img alt="Loading" class="align-middle loading" src="../../../static/logo_sm.png"></b-img>
                     </div>
-                    <div class="d-flex justify-content-center" v-else>
-                        <div v-if="moreResults">
-                            <b-button variant="success" @click="getMore" block>More</b-button>
+                    <div>
+                        <div v-if="moreResults && !loadingResults">
+                            <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>More</b-button>
                         </div>
-                        <div v-else>
+                        <div class="d-flex justify-content-center" v-else-if="!moreResults && !loadingResults">
                             <h5 class="mb-1">No More Results</h5>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
            return {
                foundDestinations: [],
                showSearch: true,
-               loadingResults: true,
+               loadingResults: false,
                moreResults: true,
                destToSearch: {},
                queryPage: 0
@@ -96,13 +96,11 @@
              * Resets the data fields and performs the initial search query when a user clicks search
              */
            initialQuery(destinationToSearch) {
-               this.loadingResults = true;
                this.showSearch = false;
                this.queryPage = 0;
                this.foundDestinations = [];
                this.destToSearch = destinationToSearch;
                this.queryDestinations(this.destToSearch);
-               this.loadingResults = false;
            },
 
 
@@ -110,9 +108,10 @@
              * Runs a query which searches through the destinations in the database and returns all which
              * follow the search criteria.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryDestinations(destinationToSearch) {
+                this.loadingResults = true;
                 let searchQuery =
                     "?name=" + destinationToSearch.name +
                     "&type_id=" + destinationToSearch.type +
@@ -129,15 +128,15 @@
                     .then(this.checkStatus)
                     .then(this.parseJSON)
                     .then((data) => {
-                        if (data === undefined || data.length < 50) {
-                            this.moreResults = false;
-                        } else {
-                            this.moreResults = true;
+                        if (data !== null && data !== undefined) {
+                            this.moreResults = data.length >= 50;
+                            for (let i = 0; i < data.length; i++) {
+                                this.foundDestinations.push(data[i]);
+                            }
+                            this.$emit('destination-search', this.foundDestinations);
+                            this.loadingResults = false;
                         }
-                        for (var i = 0; i < data.length; i++) {
-                            this.foundDestinations.push(data[i]);
-                        }
-                        this.$emit('destination-search', this.foundDestinations);
+
                     })
             },
 
@@ -146,7 +145,7 @@
              * Checks the Http response for errors.
              *
              * @param response the retrieved Http response.
-             * @returns {*} throws the Http response error.
+             * @return {*} throws the Http response error.
              */
             checkStatus(response) {
                 if (response.status >= 200 && response.status < 300) {
@@ -155,7 +154,6 @@
                 const error = new Error(`HTTP Error ${response.statusText}`);
                 error.status = response.statusText;
                 error.response = response;
-                console.log(error);
                 throw error;
             },
 
@@ -163,7 +161,7 @@
             /**
              * Converts the Http response body to a Json.
              * @param response  the received Http response.
-             * @returns {*}     the response body as a Json object.
+             * @return {*}     the response body as a Json object.
              */
             parseJSON(response) {
                 return response.json();

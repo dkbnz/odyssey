@@ -311,11 +311,6 @@
                 }
             },
             heading: String,
-            containerClass: {
-                default: function () {
-                    return 'containerWithNav';
-                }
-            },
             selectedObjective: {
                 default: function () {
                     return {}
@@ -368,7 +363,8 @@
                     riddle: "",
                     radius: null
                 },
-                activeUsers: null
+                activeUsers: null,
+                pointsRewarded: Number
             }
         },
 
@@ -398,7 +394,7 @@
              * For new quest, checks the start date is after the current date.
              * For all other quests, checks the start date is either the same as or before the end date.
              *
-             * @returns {boolean} true if start date is valid, or a null if entry length isn't big enough.
+             * @return {boolean} true if start date is valid, or a null if entry length isn't big enough.
              */
             validateStartDate() {
                 // For a new hunt, the start date must be after today.
@@ -419,7 +415,7 @@
              * Checks that the start time is not after or the same as the end time if the dates are the same,
              * and that the start time is not before the current time if the current date is today.
              *
-             * @returns {boolean} true if start time is valid, null if entry length isn't big enough.
+             * @return {boolean} true if start time is valid, null if entry length isn't big enough.
              */
             validateStartTime() {
                 // For new quests, check the start time is after the current time.
@@ -444,7 +440,7 @@
             /**
              * Checks that the end time is not before or the same as the start time if the dates are the same.
              *
-             * @returns {boolean} true if end time is valid.
+             * @return {boolean} true if end time is valid.
              */
             validateEndTime() {
                 if (this.inputQuest.startDate === this.inputQuest.endDate) {
@@ -460,7 +456,7 @@
              * For new quests, checks the end date is after the current date.
              * For all other quests, checks the end date is either the same as or after the start date.
              *
-             * @returns {boolean} true if end date is valid.
+             * @return {boolean} true if end date is valid.
              */
             validateEndDate() {
                 // For a new quests, the end date must be after today.
@@ -478,19 +474,22 @@
             /**
              * Returns true if the inputted title has length greater than 0.
              *
-             * @returns {Boolean} true if validated.
+             * @return {Boolean} true if validated.
              */
             validateTitle() {
                 if (this.inputQuest.title.length > 0) {
                     return true;
+                } else if (this.inputQuest.title.length > 100) {
+                    return false;
                 }
                 return null;
             },
 
 
             /**
+             * Used to validate that there are enough objectives in the quest.
              *
-             * @returns {Boolean} true if validated.
+             * @return {Boolean} true if validated.
              */
             validateObjectives() {
                 if (this.inputQuest.objectives.length > 0) {
@@ -502,7 +501,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @returns {number}    the number of rows required in the table based on number of objectives to be
+             * @return {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
             rows() {
@@ -514,7 +513,7 @@
             /**
              * Gets the current date+time as a Date object.
              *
-             * @returns Current Datetime.
+             * @return Current Datetime.
              */
             getCurrentDate() {
                 return new Date();
@@ -536,7 +535,7 @@
             /**
              * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day.
              *
-             * @returns Current Date in YYYY-MM-DD String Format.
+             * @return Current Date in YYYY-MM-DD String Format.
              */
             getDateString() {
                 let today = this.getCurrentDate();
@@ -551,7 +550,7 @@
             /**
              * Gets the current time as a string in HH:MM format, including padding O's.
              *
-             * @returns Current Time in HH:MM String Format.
+             * @return Current Time in HH:MM String Format.
              */
             getTimeString() {
                 let today = this.getCurrentDate();
@@ -587,9 +586,7 @@
 
 
             /**
-             * Creates formatted JSON of the currently active quest.
-             *
-             * @returns JSON string with fields 'title', 'objectives', 'startDate', 'endDate'.
+             * Creates formatted Json of the currently active quest.
              */
             assembleQuest() {
                 this.joinDates();
@@ -604,7 +601,7 @@
 
 
             /**
-             * POST's the currently active quest to the quests endpoint in JSON format, for newly creating
+             * POST's the currently active quest to the quests endpoint in Json format, for newly creating
              * quests.
              */
             saveQuest() {
@@ -615,7 +612,8 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputQuest)
-                }).then(function (response) {
+                }).then(response => {
+                    // If an error occurred, the process it.
                     if (response.status >= 400) {
                         // Ensures the start and end date fields are not wiped after an error occurs.
                         self.splitDates();
@@ -630,8 +628,12 @@
                             self.showError = true;
                         });
                     } else {
-                        self.$emit('successCreate', "Quest Successfully Created");
-                        self.$emit('cancelCreate')
+                        self.parseJSON(response).then(body => {
+                            self.pointsRewarded = body.pointsRewarded;
+                            self.$emit('successCreate', {message: "Quest Successfully Created", pointsRewarded: self.pointsRewarded});
+                            self.$emit('cancelCreate');
+                        });
+
                     }
                 });
             },
@@ -639,6 +641,8 @@
 
             /**
              * Gets all users that are currently using the given quest.
+             *
+             * @return {Promise <Response | never>}     the fetch method promise.
              */
             getActiveUsers() {
                 return fetch('/v1/quests/' + this.inputQuest.id + '/profiles', {
@@ -653,7 +657,7 @@
 
 
             /**
-             * PUT's the currently active quest to the quests endpoint in JSON format, for edited
+             * PUT's the currently active quest to the quests endpoint in Json format, for edited
              * quests.
              */
             updateQuest() {
@@ -722,25 +726,32 @@
 
             /**
              * Displays the edit objective field and sets the current objective to the specified value.
+             *
+             * @param objective     the objective that is going to be edited.
              */
             editObjective(objective) {
                 this.objectiveIndex = this.inputQuest.objectives.indexOf(objective);
                 let radius = this.inputQuest.objectives[this.objectiveIndex].radius;
                 let radiusValue;
                 let radiusList = [
-                    {value: 0.005, text: "5 Meters"},
-                    {value: 0.01, text: "10 Meters"},
-                    {value: 0.02, text: "20 Meters"},
-                    {value: 0.05, text: "50 Meters"},
-                    {value: 0.1, text: "100 Meters"},
-                    {value: 0.5, text: "500 Meters"},
+                    {value: 0.005, text: "5 m"},
+                    {value: 0.01, text: "10 m"},
+                    {value: 0.02, text: "20 m"},
+                    {value: 0.03, text: "30 m"},
+                    {value: 0.04, text: "40 m"},
+                    {value: 0.05, text: "50 m"},
+                    {value: 0.1, text: "100 m"},
+                    {value: 0.25, text: "250 m"},
+                    {value: 0.5, text: "500 m"},
                     {value: 1, text: "1 Km"},
+                    {value: 2.5, text: "2.5 Km"},
                     {value: 5, text: "5 Km"},
+                    {value: 7.5, text: "7.5 Km"},
                     {value: 10, text: "10 Km"},
                 ];
                 for (let i = 0; i < radiusList.length; i++) {
                     if (radius === radiusList[i].value) {
-                        radiusValue = radiusList[i];
+                        radiusValue = radiusList[i].value;
                     }
                 }
                 this.objectiveSelected = JSON.parse(JSON.stringify(this.inputQuest.objectives[this.objectiveIndex]));
@@ -755,6 +766,8 @@
 
             /**
              * Removes an objective from the list of quest's objectives.
+             *
+             * @param objective     the objective to be deleted.
              */
             deleteObjective(objective) {
                 let rowIndex = this.inputQuest.objectives.indexOf(objective);
@@ -796,8 +809,7 @@
              */
             splitDates() {
                 if (this.inputQuest.id !== null) {
-                    this.inputQuest.startDate = new Date(this.inputQuest.startDate).toLocaleString();
-
+                    this.inputQuest.startDate = new Date(this.inputQuest.startDate).toLocaleString('en-GB');
                     //Start date
                     let startDate = this.inputQuest.startDate;
 
@@ -812,7 +824,7 @@
                     this.startTime = this.startTime.split("+")[0];
                     this.startTime = this.startTime.split("-")[0];
 
-                    this.inputQuest.endDate = new Date(this.inputQuest.endDate).toLocaleString();
+                    this.inputQuest.endDate = new Date(this.inputQuest.endDate).toLocaleString('en-GB');
 
                     //End Date
                     let endDate = this.inputQuest.endDate;
@@ -963,7 +975,7 @@
             /**
              * Converts the Http response body to a Json.
              * @param response  the received Http response.
-             * @returns {*}     the response body as a Json object.
+             * @return {*}     the response body as a Json object.
              */
             parseJSON(response) {
                 return response.json();

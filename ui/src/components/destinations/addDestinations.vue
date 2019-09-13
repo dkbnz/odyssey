@@ -114,8 +114,13 @@
                         id="district-field"
                         label="District:"
                         label-for="district">
-                    <b-form-input id="district" @click="showError = false" v-model="inputDestination.district"
-                                  type="text" trim required :state="destinationDistrictValidation">
+                    <b-form-input id="district"
+                                  @click="showError=false"
+                                  v-model="inputDestination.district"
+                                  type="text"
+                                  trim
+                                  required
+                                  :state="destinationDistrictValidation">
                     </b-form-input>
                 </b-form-group>
 
@@ -123,7 +128,10 @@
                         id="latitude-field"
                         label="Latitude:"
                         label-for="latitude">
-                    <b-form-input id="latitude" v-model="inputDestination.latitude" type="text" trim required
+                    <b-form-input id="latitude"
+                                  v-model="inputDestination.latitude"
+                                  type="text"
+                                  trim required
                                   :state="destinationLatitudeValidation"></b-form-input>
                     <b-form-invalid-feedback :state="destinationLatitudeValidation">
                         {{latitudeErrorMessage}}
@@ -134,7 +142,10 @@
                         id="longitude-field"
                         label="Longitude:"
                         label-for="longitude">
-                    <b-form-input id="longitude" v-model="inputDestination.longitude" type="text" trim required
+                    <b-form-input id="longitude"
+                                  v-model="inputDestination.longitude"
+                                  type="text"
+                                  trim required
                                   :state="destinationLongitudeValidation"></b-form-input>
                     <b-form-invalid-feedback :state="destinationLongitudeValidation">
                         {{longitudeErrorMessage}}
@@ -228,11 +239,13 @@
             /**
              * Validates the name input field. Name is valid when it contains more than one character.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationNameValidation() {
                 if (this.inputDestination.name.length === 0) {
                     return null;
+                } else if (this.inputDestination.name.length > 100) {
+                    return false
                 }
                 return this.inputDestination.name.length > 0;
             },
@@ -241,7 +254,7 @@
             /**
              * Validates the type input field. Type is valid when the type has been selected.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationTypeValidation() {
                 if (this.inputDestination.type.id == null) {
@@ -254,11 +267,13 @@
             /**
              * Validates the district input field. District is valid when the district has been selected.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationDistrictValidation() {
                 if (this.inputDestination.district.length === 0) {
                     return null;
+                } else if (this.inputDestination.district.length > 100) {
+                    return false
                 }
                 return this.inputDestination.district.length > 0;
             },
@@ -268,7 +283,7 @@
              * Validates the latitude input field. Latitude is valid when it contains only numeric characters, is not
              * empty, and is within the range -90 to 90.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationLatitudeValidation() {
                 if (this.inputDestination.latitude === null || this.inputDestination.latitude.length === 0) {
@@ -291,7 +306,7 @@
              * Validates the longitude input field. Longitude is valid when it contains only numeric characters, is not
              * empty, and is within the range -180 to 180.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationLongitudeValidation() {
                 if (this.inputDestination.longitude === null || this.inputDestination.longitude.length === 0) {
@@ -313,7 +328,7 @@
              * Validates the country input field. Country is valid when it contains more than one character, and is not
              * a number.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationCountryValidation() {
                 if (this.inputDestination.country === null) {
@@ -326,7 +341,7 @@
             /**
              * Tells users editing a destination whether they've made the destination public or private.
              *
-             * @returns {string}    public or private depending on the input destination privacy.
+             * @return{string}    public or private depending on the input destination privacy.
              */
             isPublic() {
                 if (this.inputDestination.public) {
@@ -407,7 +422,7 @@
              * Checks whether location is duplicate and displays error if so.
              *
              * @param cb.
-             * @returns {Promise<Response | never>}.
+             * @return{Promise<Response | never>}.
              */
             addDestination(cb) {
                 let self = this;
@@ -424,12 +439,16 @@
                         "is_public": this.inputDestination.public
                     }))
                 })
-                    .then(this.checkStatus)
-                    .then(function (response) {
+                    .then(response => {
+                        self.checkStatus(response);
+                        return self.parseJSON(response);
+                    })
+                    .then(responseBody => {
                         self.resetDestForm();
                         self.showAlert();
                         self.$emit('data-changed');
-                        return JSON.parse(JSON.stringify(response));
+                        self.createPointToast(responseBody.pointsRewarded, "Destination Created");
+                        return responseBody;
                     });
             },
 
@@ -507,6 +526,21 @@
 
 
             /**
+             * Displays a toast saying they've gained a certain amount of points.
+             * @param points the points to display.
+             * @param title the title of the toast, indicating the context of the point gain.
+             */
+            createPointToast(points, title) {
+                let message = "Your points have increased by " + points;
+                this.$bvToast.toast(message, {
+                    title: title,
+                    autoHideDelay: 3000,
+                    appendToast: true
+                })
+            },
+
+
+            /**
              * Updates the latitude & longitude when emitted from the button that gets current location
              */
             setCurrentLocation(currentCoordinates) {
@@ -548,7 +582,7 @@
              * console.
              *
              * @param response, passed back to the getAllTrips function to be parsed into a Json.
-             * @returns throws the error.
+             * @returnthrows the error.
              */
             checkStatus(response) {
                 if (response.status >= 200 && response.status < 300) {
@@ -571,7 +605,7 @@
              * Converts the retrieved Http response to a Json format.
              *
              * @param response the Http response.
-             * @returns the Http response body as Json.
+             * @returnthe Http response body as Json.
              */
             parseJSON(response) {
                 return response.json();
@@ -582,7 +616,7 @@
              * Converts the given boolean value to a readable string.
              *
              * @param isPublic      boolean value false if the destination is not public, true otherwise.
-             * @returns {string}    returns a string 'Public' or 'Private' depending on the given parameter.
+             * @return{string}    returns a string 'Public' or 'Private' depending on the given parameter.
              */
             convertToPublicString(isPublic) {
                 if (isPublic) {

@@ -48,11 +48,7 @@
         props: {
             photos: Array,
             profile: Object,
-            userProfile: {
-                default: function () {
-                    return this.profile
-                }
-            },
+            userProfile: Object,
             numberOfRows: {
                 default: function () {
                     return 3
@@ -66,11 +62,6 @@
             selectedImages: {
                 default: function () {
                     return []
-                }
-            },
-            showDropdown: {
-                default: function () {
-                    return this.auth
                 }
             },
             adminView: {
@@ -90,12 +81,34 @@
             }
         },
 
+        watch: {
+            profile() {
+                this.checkAuth();
+            }
+        },
+
         computed: {
+            /**
+             * The total number of photos. Used for the table pagination.
+             */
             rows() {
                 return this.photos.length;
             },
+
+
+            /**
+             * How many photos to display on the table. Used for pagination.
+             */
             perPage() {
                 return this.numberOfRows * this.numberOfColumns;
+            },
+
+
+            /**
+             * Determines if the dropdown for photo privacy should be displayed.
+             */
+            showDropdown() {
+                return this.auth;
             }
         },
 
@@ -144,7 +157,7 @@
              * view the users private photos and can add or delete images from the media.
              */
             checkAuth() {
-                this.auth = (this.userProfile.id === this.profile.id || (this.userProfile.admin && this.adminView));
+                this.auth = (this.userProfile.id === this.profile.id || this.adminView);
             },
 
 

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="containerAdminMain">
+        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
             <h1 class="page-title">Welcome to the Admin Panel</h1>
             <p class="page-title">
                 <i>Because you are an admin, you can achieve all functionality in the application!</i>
@@ -11,8 +11,7 @@
                             header="Search for Profiles"
                             header-tag="header">
                             <!-- Display the search profiles component -->
-                            <profiles-page :adminView="true"
-                                           :containerClass="'adminProfilesContainer'"
+                            <desktop-leaderboard :minimal-info="true"
                                            :destinations="destinations"
                                            :destinationTypes="destinationTypes"
                                            :key="refreshProfiles"
@@ -21,7 +20,7 @@
                                            :profile="profile"
                                            :travTypeOptions="travTypeOptions"
                                            @admin-edit="getSingleProfile">
-                            </profiles-page>
+                            </desktop-leaderboard>
                     </b-card>
                 </b-col>
                 <b-col cols="6">
@@ -131,8 +130,8 @@
 </template>
 
 <script>
-    import ProfilesPage from '../profiles/profilesPage.vue'
     import SignUp from '../index/signup.vue'
+    import DesktopLeaderboard from "../profiles/desktopLeaderboard";
 
     export default {
         name: "adminActions",
@@ -277,7 +276,7 @@
             }
         },
         components: {
-            ProfilesPage,
+            DesktopLeaderboard,
             SignUp
         }
     }

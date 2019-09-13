@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.points.AchievementTrackerController;
 import io.ebean.ExpressionList;
 import models.profiles.TravellerType;
 import models.destinations.Type;
@@ -14,7 +15,9 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import com.google.inject.Inject;
+
 import java.util.*;
+
 import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
@@ -48,6 +51,8 @@ public class DestinationController extends Controller {
     private static final String DESTINATION_COUNT = "destination_count";
     private static final String MATCHING_TRIPS = "matching_trips";
     private static final String MATCHING_DESTINATIONS = "matching_destinations";
+    private static final String POINTS_REWARDED = "pointsRewarded";
+    private static final String DESTINATION_ID = "destinationId";
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
 
@@ -57,6 +62,7 @@ public class DestinationController extends Controller {
     private TripRepository tripRepository;
     private ObjectiveRepository objectiveRepository;
     private DestinationTypeRepository destinationTypeRepository;
+    private AchievementTrackerController achievementTrackerController;
 
     @Inject
     public DestinationController(
@@ -65,13 +71,15 @@ public class DestinationController extends Controller {
             DestinationTypeRepository destinationTypeRepository,
             TripDestinationRepository tripDestinationRepository,
             TripRepository tripRepository,
-            ObjectiveRepository objectiveRepository) {
+            ObjectiveRepository objectiveRepository,
+            AchievementTrackerController achievementTrackerController) {
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
         this.tripDestinationRepository = tripDestinationRepository;
         this.tripRepository = tripRepository;
         this.objectiveRepository = objectiveRepository;
         this.destinationTypeRepository = destinationTypeRepository;
+        this.achievementTrackerController = achievementTrackerController;
     }
 
 
@@ -79,12 +87,12 @@ public class DestinationController extends Controller {
      * Returns a Json object containing a count of trips that a specified destination is used in and how many photos
      * that destination contains. As well as a list of each trips name and owner.
      *
-     * @param request           Http request from the client containing authentication details.
-     * @param destinationId     the id of the destination to find the number of dependent trips for and photos.
-     * @return                  ok()    (Http 200) response containing the number of photos in a destination,
-     *                          trips a destination is used in as well as the list of each trips name and its owner's
-     *                          name. Otherwise, returns forbidden()
-     *                          (Http 403) if the user is not allowed to access this number.
+     * @param request       Http request from the client containing authentication details.
+     * @param destinationId the id of the destination to find the number of dependent trips for and photos.
+     * @return ok()         (Http 200) response containing the number of photos in a destination,
+     *                      trips a destination is used in as well as the list of each trips name and its owner's
+     *                      name. Otherwise, returns forbidden() (Http 403) if the user is not allowed to access
+     *                      this number.
      */
     public Result getDestinationUsage(Http.Request request, Long destinationId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -156,7 +164,7 @@ public class DestinationController extends Controller {
     /**
      * Return a Json object listing all destination types in the database.
      *
-     * @return          ok() (Http 200) response containing all the different types of destinations.
+     * @return ok() (Http 200) response containing all the different types of destinations.
      */
     public Result getTypes() {
         List<Type> destinationTypes = destinationTypeRepository.findAll();
@@ -196,11 +204,11 @@ public class DestinationController extends Controller {
         } else if (!loggedInUser.isAdmin()) {
             expressionList
                     .disjunction()
-                        .eq(IS_PUBLIC, true)
-                        .conjunction()
-                            .eq(IS_PUBLIC, false)
-                            .eq(OWNER, loggedInUser)
-                        .endJunction()
+                    .eq(IS_PUBLIC, true)
+                    .conjunction()
+                    .eq(IS_PUBLIC, false)
+                    .eq(OWNER, loggedInUser)
+                    .endJunction()
                     .endJunction();
         }
 
@@ -213,7 +221,7 @@ public class DestinationController extends Controller {
 
         destinations = expressionList
                 .order(NAME)
-                .setFirstRow(pageNumber*pageSize)
+                .setFirstRow(pageNumber * pageSize)
                 .setMaxRows(pageSize)
                 .findPagedList()
                 .getList();
@@ -226,8 +234,8 @@ public class DestinationController extends Controller {
      * Adds expressions to the expression list to search for destinations depending on values present in the query
      * string of the given request.
      *
-     * @param expressionList    the expression list used to search for destinations.
-     * @param request           the request containing the query string used to formulate the expression list.
+     * @param expressionList the expression list used to search for destinations.
+     * @param request        the request containing the query string used to formulate the expression list.
      */
     private void updateExpressionList(ExpressionList<Destination> expressionList, Http.Request request) {
         if (request.getQueryString(NAME) != null && !request.getQueryString(NAME).isEmpty()) {
@@ -257,10 +265,10 @@ public class DestinationController extends Controller {
     /**
      * Fetches all destinations by user.
      *
-     * @return          ok() (Http 200) response containing the destinations found in the response body.
-     *                  unauthorized() (Http 401) if the user is not logged in.
-     *                  badRequest() (Http 400) if the requested profile doesn't exist.
-     *                  forbidden() (Http 403) if the user is not allowed to complete this action.
+     * @return  ok() (Http 200) response containing the destinations found in the response body.
+     *          unauthorized() (Http 401) if the user is not logged in.
+     *          badRequest() (Http 400) if the requested profile doesn't exist.
+     *          forbidden() (Http 403) if the user is not allowed to complete this action.
      */
     public Result fetchByUser(Http.Request request, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -274,13 +282,13 @@ public class DestinationController extends Controller {
             return badRequest();
         }
 
-        if(!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
+        if (!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
             return forbidden();
         }
 
         List<Destination> destinations;
         ExpressionList<Destination> expressionList = destinationRepository.getExpressionList();
-        expressionList.eq(OWNER,profileToChange);
+        expressionList.eq(OWNER, profileToChange);
 
         destinations = expressionList.findList();
         return ok(Json.toJson(destinations));
@@ -290,19 +298,19 @@ public class DestinationController extends Controller {
     /**
      * Looks at all the input fields for creating a destination and determines if the input is valid or not.
      *
-     * @param json      the Json of the destination inputs.
-     * @return          a boolean true if the input is valid.
+     * @param json  the Json of the destination inputs.
+     * @return      a boolean true if the input is valid.
      */
     private boolean validInput(JsonNode json) {
-        String name =       json.get(NAME).asText();
-        String country =    json.get(COUNTRY).asText();
-        String district =   json.get(DISTRICT).asText();
-        String latitude =   json.get(LATITUDE).asText();
-        String longitude =  json.get(LONGITUDE).asText();
+        String name = json.get(NAME).asText();
+        String country = json.get(COUNTRY).asText();
+        String district = json.get(DISTRICT).asText();
+        String latitude = json.get(LATITUDE).asText();
+        String longitude = json.get(LONGITUDE).asText();
 
         // Checks all fields contain data
         if (name.length() == 0 || country.length() == 0 || district.length() == 0 ||
-                latitude.length() == 0  || longitude.length() == 0) {
+                latitude.length() == 0 || longitude.length() == 0) {
             return false;
         }
 
@@ -337,9 +345,9 @@ public class DestinationController extends Controller {
      * through the name and district of the new destination being the same as another destination that exists either in
      * the user's private destinations or the public destinations.
      *
-     * @param json              the Json of the destination inputs.
-     * @param profileToChange   the profile that the destination to be added is owned by.
-     * @return                  true if the destination does not exist in the appropriate database tables.
+     * @param json            the Json of the destination inputs.
+     * @param profileToChange the profile that the destination to be added is owned by.
+     * @return                true if the destination does not exist in the appropriate database tables.
      */
     private boolean destinationDoesNotExist(JsonNode json, Profile profileToChange) {
         Destination destinationToAdd = Json.fromJson(json, Destination.class);
@@ -356,8 +364,9 @@ public class DestinationController extends Controller {
      * Saves a new destination. Checks the destination to be saved doesn't already exist in the database.
      *
      * @param request   Http request containing a Json body of the new destination details.
-     * @return          created() (Http 201) when the destination is saved. If a destination with
-     *                  the same name and district already exists in the database, returns badRequest() (Http 400).
+     * @return          created() (Http 201) when the destination is saved.
+     *                  badRequest(Http 400) if a destination with the same name and district already exists in the
+     *                  database.
      */
     public Result save(Http.Request request, Long userId) {
         return request.session()
@@ -374,7 +383,7 @@ public class DestinationController extends Controller {
                         return unauthorized();
                     }
 
-                    if(!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
+                    if (!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
                         return forbidden();
                     }
 
@@ -392,7 +401,14 @@ public class DestinationController extends Controller {
                         profileToChange.addDestination(destination);
                         profileRepository.save(profileToChange);
 
-                        return created(Json.toJson(destination.getId()));
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        int pointsAdded = achievementTrackerController.rewardAction(loggedInUser, destination);
+                        ObjectNode returnJson = objectMapper.createObjectNode();
+                        returnJson.put(POINTS_REWARDED, pointsAdded);
+                        returnJson.put(DESTINATION_ID, destination.getId());
+
+
+                        return created(returnJson);
                     } else {
                         return badRequest("A destination with these details already exists either in your " +
                                 "destinations or public destinations lists.");
@@ -429,10 +445,11 @@ public class DestinationController extends Controller {
     /**
      * Deletes a destination from the database using the given destination id number.
      *
-     * @param destinationId     the id of the destination.
-     * @return                  notFound() (Http 404) if destination could not found, ok() (Http 200) if
-     *                          successfully deleted. unauthorized() (Http 401) if the user is not logged in.
-     *                          forbidden() (Http 403) if he user is not allowed to delete the specified destination.
+     * @param destinationId the id of the destination.
+     * @return              notFound() (Http 404) if destination could not found.
+     *                      ok() (Http 200) if successfully deleted.
+     *                      unauthorized() (Http 401) if the user is not logged in.
+     *                      forbidden() (Http 403) if he user is not allowed to delete the specified destination.
      */
     public Result destroy(Http.Request request, Long destinationId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -460,10 +477,11 @@ public class DestinationController extends Controller {
      *
      * @param id        the id of the destination.
      * @param request   Http request containing a Json body of fields to update in the destination.
-     * @return          notFound() (Http 404) if destination could not found, ok() (Http 200) if successfully updated.
-     *                  unauthorized() (Http 401) if the user is not logged in, forbidden() (Http 403) if the user
-     *                  is not allowed to edit the destination. badRequest() (Http 400) if the latitude or longitude
-     *                  values for the destination are invalid.
+     * @return          notFound() (Http 404) if destination could not found.
+     *                  ok() (Http 200) if successfully updated.
+     *                  unauthorized() (Http 401) if the user is not logged in.
+     *                  forbidden() (Http 403) if the user is not allowed to edit the destination.
+     *                  badRequest() (Http 400) if the latitude or longitude values for the destination are invalid.
      */
     public Result edit(Http.Request request, Long id) throws IllegalAccessException {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -504,16 +522,16 @@ public class DestinationController extends Controller {
     /**
      * Merges a given destination with similar destinations if required.
      *
-     * @param destinationToUpdate   the destination that needs to be merged.
+     * @param destinationToUpdate the destination that needs to be merged.
      */
     private void mergeDestinations(Destination destinationToUpdate) {
         List<Destination> similarDestinations = destinationRepository.findEqual(destinationToUpdate);
 
         if (!similarDestinations.isEmpty() && shouldMerge(destinationToUpdate, similarDestinations)) {
-                destinationRepository.transferToAdmin(destinationToUpdate);
-                for (Destination destinationToMerge: similarDestinations) {
-                    consume(destinationToUpdate, destinationToMerge);
-                }
+            destinationRepository.transferToAdmin(destinationToUpdate);
+            for (Destination destinationToMerge : similarDestinations) {
+                consume(destinationToUpdate, destinationToMerge);
+            }
         }
     }
 
@@ -521,17 +539,17 @@ public class DestinationController extends Controller {
     /**
      * Determines if the given destination and similar destinations should be merged into a single destination.
      *
-     * @param destinationToUpdate   the destination that consumes similar destinations.
-     * @param similarDestinations   the list of similar destinations to destinationToUpdate.
-     * @return                      true if destinationToUpdate is public or any destinations in similarDestinations is
-     *                              public, and false otherwise.
+     * @param destinationToUpdate the destination that consumes similar destinations.
+     * @param similarDestinations the list of similar destinations to destinationToUpdate.
+     * @return                    true if destinationToUpdate is public or any destinations in similarDestinations is
+     *                            public, and false otherwise.
      */
     private boolean shouldMerge(Destination destinationToUpdate, List<Destination> similarDestinations) {
         if (destinationToUpdate.getPublic()) {
             return true;
         }
 
-        for (Destination destination: similarDestinations) {
+        for (Destination destination : similarDestinations) {
             if (destination.getPublic()) {
                 return true;
             }
@@ -541,13 +559,12 @@ public class DestinationController extends Controller {
 
 
     /**
-     * Used to merge destinations. Will extract desired attributes from a destinationToMerge and adds them to destinationToUpdate.
-     * Then, updates each destination and deletes destinationToMerge.
-     *
+     * Used to merge destinations. Will extract desired attributes from a destinationToMerge and adds them to
+     * destinationToUpdate. Then, updates each destination and deletes destinationToMerge.
      * Will only consume if the given Destination is equal.
      *
-     * @param destinationToUpdate   destination that gains the attributes of destinationToMerge.
-     * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
+     * @param destinationToUpdate destination that gains the attributes of destinationToMerge.
+     * @param destinationToMerge  destination that is being consumed by destinationToUpdate.
      */
     private void consume(Destination destinationToUpdate, Destination destinationToMerge) {
         if (!destinationToUpdate.equals(destinationToMerge)) return;
@@ -568,8 +585,8 @@ public class DestinationController extends Controller {
      * Takes the trip destinations from the destinationToMerge and adds them to the destinationToUpdate.
      * Then removes these trip destinations from the destinationToMerge.
      *
-     * @param destinationToUpdate   destination that gains the trip destinations of destinationToMerge.
-     * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
+     * @param destinationToUpdate destination that gains the trip destinations of destinationToMerge.
+     * @param destinationToMerge  destination that is being consumed by destinationToUpdate.
      */
     private void mergeTripDestinations(Destination destinationToUpdate, Destination destinationToMerge) {
 
@@ -596,7 +613,7 @@ public class DestinationController extends Controller {
             tripDestinationsToDelete.add(tripDestination);
         }
 
-        for(TripDestination tripDestination: tripDestinationsToDelete) {
+        for (TripDestination tripDestination : tripDestinationsToDelete) {
             // Set the Trip and Destination for the TripDestination to null, removing the foreign key links.
             tripDestination.setDestination(null);
             tripDestination.setTrip(null);
@@ -604,7 +621,7 @@ public class DestinationController extends Controller {
             tripDestinationRepository.delete(tripDestination);
         }
 
-        for(TripDestination tripDestination: tripDestinationsToAdd) {
+        for (TripDestination tripDestination : tripDestinationsToAdd) {
             // Save the Trip and Destination for the TripDestination, so can be added later.
             Trip trip = tripDestination.getTrip();
             Destination destination = tripDestination.getDestination();
@@ -637,8 +654,8 @@ public class DestinationController extends Controller {
     /**
      * Takes the personal photos from the destinationToMerge and adds them to the destinationToMerge.
      *
-     * @param destinationToUpdate   destination that gains the personal photos of destinationToMerge.
-     * @param destinationToMerge    destination that is being consumed by destinationToUpdate.
+     * @param destinationToUpdate destination that gains the personal photos of destinationToMerge.
+     * @param destinationToMerge  destination that is being consumed by destinationToUpdate.
      */
     private void mergePersonalPhotos(Destination destinationToUpdate, Destination destinationToMerge) {
         // Take all PersonalPhotos
@@ -653,8 +670,8 @@ public class DestinationController extends Controller {
     /**
      * Merges all the traveller types for the destinations including proposed traveller types.
      *
-     * @param destinationToUpdate   destination that gains all of the traveller types.
-     * @param destinationToMerge    destination that is being consumed.
+     * @param destinationToUpdate destination that gains all of the traveller types.
+     * @param destinationToMerge  destination that is being consumed.
      */
     private void mergeTravellerTypes(Destination destinationToUpdate, Destination destinationToMerge) {
         // Gets the traveller types for both destinations
@@ -685,8 +702,8 @@ public class DestinationController extends Controller {
     /**
      * Merges all the objectives for the destinations.
      *
-     * @param destinationToUpdate   the destination that gains all the objectives.
-     * @param destinationToMerge    the destination that is being consumed.
+     * @param destinationToUpdate the destination that gains all the objectives.
+     * @param destinationToMerge  the destination that is being consumed.
      */
     private void mergeObjectives(Destination destinationToUpdate, Destination destinationToMerge) {
         List<Objective> mergeObjectivesList = objectiveRepository

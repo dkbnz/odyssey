@@ -2,7 +2,9 @@ package controllers.objectives;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
+import controllers.points.AchievementTrackerController;
 import models.util.ApiError;
 import models.profiles.Profile;
 import models.destinations.Destination;
@@ -25,30 +27,38 @@ public class ObjectiveController {
     private ObjectiveRepository objectiveRepository;
     private DestinationRepository destinationRepository;
     private ProfileRepository profileRepository;
+    private AchievementTrackerController achievementTrackerController;
+    private ObjectMapper objectMapper;
 
     private static final Long GLOBAL_ADMIN_ID = 1L;
     private static final String DESTINATION_ERROR = "Provided Destination not found.";
     private static final String TREASURE_HUNT_NOT_FOUND = "Objective not found.";
     private static final String INVALID_JSON_FORMAT = "Invalid Json format.";
+    private static final String POINTS_REWARDED = "pointsRewarded";
+    private static final String OBJECTIVE_ID = "newObjectiveId";
 
     @Inject
     public ObjectiveController(ObjectiveRepository objectiveRepository,
-                                  DestinationRepository destinationRepository,
-                                  ProfileRepository profileRepository) {
+                               DestinationRepository destinationRepository,
+                               ProfileRepository profileRepository,
+                               AchievementTrackerController achievementTrackerController,
+                               ObjectMapper objectMapper) {
         this.objectiveRepository = objectiveRepository;
         this.destinationRepository = destinationRepository;
         this.profileRepository = profileRepository;
+        this.achievementTrackerController = achievementTrackerController;
+        this.objectMapper = objectMapper;
     }
 
 
     /**
      * Creates and saves a new objective for a user, checking if the user is creating one for themselves or if
-     * the user is an admin. It also checks the request for validity.
+     * the user is an admin. It also checks the request for validity. Gives the user points for creating an objective.
      *
      * @param request   the Http request containing a Json body of the new objective details.
      * @param userId    the id of the user who will own the created objective.
-     * @return          created() (Http 201) response if creation is successful.
-     *                  notFound() (Http 404) response if
+     * @return          created() (Http 201) response containing the points rewarded and the objective id.
+     *                  notFound() (Http 404) response if the global admin isn't found.
      *                  forbidden() (Http 403) response if the logged in user is not the target owner or an admin.
      *                  badRequest() (Http 400) response if the request contains any errors.
      *                  unauthorized() (Http 401) response if no one is logged in.
@@ -72,13 +82,11 @@ public class ObjectiveController {
         // Create list to hold objective errors
         List<ApiError> objectiveErrors = new ArrayList<>();
 
-        ObjectMapper mapper = new ObjectMapper();
-
         Objective objective;
 
         try {
             // Attempt to turn json body into a objective object.
-            objective = mapper.readerWithView(Views.Owner.class)
+            objective = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Objective.class)
                     .readValue(request.body().asJson());
         } catch (Exception e) {
@@ -116,12 +124,19 @@ public class ObjectiveController {
             return badRequest(Json.toJson(objectiveErrors));
         }
 
+        ObjectNode returnJson = objectMapper.createObjectNode();
+
         objectiveRepository.save(objective);
+
+        int pointsAdded = achievementTrackerController.rewardAction(objectiveOwner, objective);
+        returnJson.put(POINTS_REWARDED, pointsAdded);
+        returnJson.set(OBJECTIVE_ID, Json.toJson(objective.getId()));
+
         profileRepository.update(objectiveOwner);
         destinationRepository.update(objectiveDestination);
         profileRepository.update(globalAdmin);
 
-        return created(Json.toJson(objective.getId()));
+        return created(returnJson);
     }
     
 
@@ -159,11 +174,9 @@ public class ObjectiveController {
         // Create list to hold objective errors
         List<ApiError> objectiveErrors = new ArrayList<>();
 
-        ObjectMapper mapper = new ObjectMapper();
-
         try {
             // Attempt to turn json body into a objective object.
-            objective = mapper.readerWithView(Views.Owner.class)
+            objective = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Objective.class)
                     .readValue(request.body().asJson());
         } catch (Exception e) {
@@ -254,11 +267,10 @@ public class ObjectiveController {
 
         List<Objective> objectivesQuery = objectiveRepository.findAll();
 
-        ObjectMapper mapper = new ObjectMapper();
         String result;
 
         try {
-            result = mapper
+            result = objectMapper
                     .writerWithView(Views.Public.class)
                     .writeValueAsString(objectivesQuery);
         } catch (JsonProcessingException e) {

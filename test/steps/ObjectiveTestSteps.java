@@ -6,14 +6,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import models.objectives.Objective;
 import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.objectives.ObjectiveRepository;
 
 import java.io.IOException;
 import java.util.*;
 
+import static org.junit.Assert.*;
 import static play.test.Helpers.*;
 
 public class ObjectiveTestSteps {
@@ -51,6 +54,17 @@ public class ObjectiveTestSteps {
     private static final String RIDDLE = "riddle";
     private static final String RADIUS = "radius";
     private static final String ID = "id";
+
+    /**
+     * Static variable to call the related value from the creation return Json.
+     */
+    private static final String RESULT_OBJECTIVE_ID = "newObjectiveId";
+
+    private ObjectMapper objectMapper =
+            testContext.getApplication().injector().instanceOf(ObjectMapper.class);
+
+    private ObjectiveRepository objectiveRepository =
+            testContext.getApplication().injector().instanceOf(ObjectiveRepository.class);
 
 
     /**
@@ -100,7 +114,12 @@ public class ObjectiveTestSteps {
 
         if (testContext.getStatusCode() == 200 || testContext.getStatusCode() == 201) {
             testContext.setResponseBody(Helpers.contentAsString(result));
-            objectiveId = Long.valueOf(testContext.getResponseBody());
+            try {
+                JsonNode returnJson = objectMapper.readTree(Helpers.contentAsString(result));
+                objectiveId = returnJson.get(RESULT_OBJECTIVE_ID).asLong();
+            } catch (IOException exception) {
+                fail(exception.getMessage());
+            }
         }
     }
 
@@ -185,5 +204,11 @@ public class ObjectiveTestSteps {
     public void theResponseContainsNoObjectives() throws IOException {
         int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
         Assert.assertEquals(0, responseSize);
+    }
+
+
+    @Then("the objective is successfully created")
+    public void theObjectiveIsSuccessfullyCreated() {
+        assertNotNull(objectiveRepository.findById(objectiveId));
     }
 }

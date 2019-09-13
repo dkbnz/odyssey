@@ -1,132 +1,144 @@
 <template>
-    <div class="scroll">
-        <div class="wrapper cf">
-            <div :class="containerClass">
-                <!-- The profile picture of the current profile being viewed. -->
-                <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
-                       @click="showImage" onerror="this.src = '../../../static/default_profile_picture.png'">
-                </b-img>
-                <b-alert
-                        class="m-1"
-                        :show="dismissCountDown"
-                        dismissible
-                        variant="success"
-                        @dismissed="dismissCountDown=0"
-                        @dismiss-count-down="countDownChanged"
-                > {{alertMessage}}
-                </b-alert>
-                <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
-                <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
-                <p v-if="profile.admin"><i>Administrator</i></p>
-                <p v-else><i>Regular User</i></p>
-                <h2>Personal Details</h2>
-                <p> Username: {{ profile.username }}</p>
-                <p> Date of Creation: {{ new Date(profile.dateOfCreation).toUTCString()}}</p>
-                <p> Date of Birth: {{new Date(profile.dateOfBirth).toLocaleDateString()}}</p>
-                <p> Gender: {{ profile.gender }}</p>
-                <h2> Nationalities </h2>
-                <ul>
-                    <li v-for="nationality in profile.nationalities">{{ nationality.nationality }}</li>
-                </ul>
+    <b-container fluid>
+        <b-row>
+            <b-col md="3" class="bg-white p-1 pl-3 mt-2 rounded-lg">
+                <div class="fixedElement">
+                    <!-- The profile picture of the current profile being viewed. -->
 
-                <h2> Passports </h2>
-                <ul>
-                    <li v-for="passport in profile.passports">{{ passport.country }}</li>
-                </ul>
+                    <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
+                           @click="showImage" onerror="this.src = '../../../static/default_profile_picture.png'">
+                    </b-img>
 
-                <h2> Traveller Types </h2>
-                <ul>
-                    <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
-                </ul>
-            </div>
-            <div :class="containerClassContent">
-                <div :class="'containerWithNav'">
-                    <h1 class="page-title">Quests</h1>
-                    <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
-                    <active-quest-list
-                            :quest-attempts="questAttempts"
-                            :loading-results="loadingResults"
-                            @quest-attempt-clicked="showAddQuestAttempt">
-                    </active-quest-list>
-                    <b-modal id="modal-selected-quest" centered ref="selected-quest-modal">
-                        <div v-if="selectedQuest" slot="modal-title" class="mb-1">
-                            {{selectedQuest.title}}
-                        </div>
-                        <div v-if="selectedQuest">
 
-                            <div class="d-flex w-100 justify-content-center">
-                                <p>{{new Date(selectedQuest.startDate).toLocaleDateString()}} &rarr;
-                                    {{new Date(selectedQuest.endDate).toLocaleDateString()}}</p>
-                            </div>
-                        </div>
-                        <template slot="modal-footer">
-                            <b-col>
-                                <b-button @click="$refs['selected-quest-modal'].hide()" block>
-                                    Close
-                                </b-button>
-                            </b-col>
-                            <b-col>
-                                <b-button variant="primary"
-                                          @click="addQuestToProfile" block>Add to Your Quests
-                                </b-button>
-                            </b-col>
-                        </template>
+                    <b-alert
+                            class="m-1"
+                            :show="dismissCountDown"
+                            dismissible
+                            variant="success"
+                            @dismissed="dismissCountDown=0"
+                            @dismiss-count-down="countDownChanged"
+                    > {{alertMessage}}
+                    </b-alert>
+                    <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
+                    <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
+                    <h6 v-if="profile.achievementTracker">Rank: #{{profile.achievementTracker.rank}} Points: ({{profile.achievementTracker.points}})</h6>
+                    <p v-if="profile.admin"><i>Administrator</i></p>
+                    <p v-else><i>Regular User</i></p>
+                    <h2>Personal Details</h2>
+                    <p> Username: {{ profile.username }}</p>
+                    <p> Date of Creation: {{ new Date(profile.dateOfCreation).toUTCString()}}</p>
+                    <p> Date of Birth: {{new Date(profile.dateOfBirth).toLocaleDateString()}}</p>
+                    <p> Gender: {{ profile.gender }}</p>
+                    <h2> Nationalities </h2>
+                    <ul>
+                        <li v-for="nationality in profile.nationalities">{{ nationality.nationality }}</li>
+                    </ul>
 
-                    </b-modal>
+                    <h2> Passports </h2>
+                    <ul>
+                        <li v-for="passport in profile.passports">{{ passport.country }}</li>
+                    </ul>
+
+                    <h2> Traveller Types </h2>
+                    <ul>
+                        <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
+                    </ul>
                 </div>
+                <!-- END OF THE PROFILE SECTION -->
 
-                <!-- Displays the profile's photo gallery -->
-                <photo-gallery :key="refreshPhotos"
-                               :profile="profile"
-                               :userProfile="userProfile"
-                               :adminView="adminView"
-                               @makeProfilePhoto="setProfilePhoto"
-                               @removePhoto="refreshProfilePicture"
-                               class="d-none d-lg-block">
-                </photo-gallery>
-                <!-- Displays a profile's trips -->
-                <your-trips :adminView="adminView"
-                            :destinations="destinations"
-                            :profile="profile"
-                            :userProfile="userProfile"
-                            class="d-none d-lg-block">
-                </your-trips>
-            </div>
-            <b-modal hide-footer centered ref="profilePictureModal" title="Profile Picture" size="xl">
-                <b-img-lazy :src="profileImageFull" onerror="this.src = '../../../static/default_profile_picture.png'"
-                            center fluid></b-img-lazy>
-                <b-row>
-                    <b-col>
-                        <b-button
-                                block class="mr-2"
-                                size="sm" style="margin-top: 10px"
-                                v-if="authentication" variant="info"
-                                @click="showUploader">Change my profile picture
-                        </b-button>
-                        <b-modal ref="profilePhotoUploader" id="profilePhotoUploader" hide-footer centered
-                                 title="Change Profile Photo">
-                            <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
-                            <photoUploader @save-photos="uploadProfilePhoto"
-                                           :acceptTypes="'image/jpeg, image/jpg, image/png'"
-                                           :multipleFiles="false">
-                            </photoUploader>
-                        </b-modal>
-                    </b-col>
-                    <b-col>
-                        <b-button
-                                @click="deleteProfilePhoto"
-                                block class="mr-2"
-                                size="sm" style="margin-top: 10px"
-                                v-if="authentication && profile.profilePicture !== null"
-                                variant="danger">Remove as Profile Photo
-                        </b-button>
-                    </b-col>
-                </b-row>
-            </b-modal>
+            </b-col>
+            <b-col md="9">
+                <div>
+                    <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-3 rounded-lg">
+                        <div class="upperPadding mobileMargins">
+                            <h1 class="page-title">Quests</h1>
+                            <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
+                            <active-quest-list
+                                    :quest-attempts="questAttempts"
+                                    :loading-results="loadingResults"
+                                    @quest-attempt-clicked="showAddQuestAttempt">
+                            </active-quest-list>
+                            <b-modal id="modal-selected-quest" centered ref="selected-quest-modal">
+                                <div v-if="selectedQuest" slot="modal-title" class="mb-1">
+                                    {{selectedQuest.title}}
+                                </div>
+                                <div v-if="selectedQuest">
 
-        </div>
-    </div>
+                                    <div class="d-flex w-100 justify-content-center">
+                                        <p>{{new Date(selectedQuest.startDate).toLocaleDateString()}} &rarr;
+                                            {{new Date(selectedQuest.endDate).toLocaleDateString()}}</p>
+                                    </div>
+                                </div>
+                                <template slot="modal-footer">
+                                    <b-col>
+                                        <b-button @click="$refs['selected-quest-modal'].hide()" block>
+                                            Close
+                                        </b-button>
+                                    </b-col>
+                                    <b-col>
+                                        <b-button variant="primary"
+                                                  @click="addQuestToProfile" block>Add to Your Quests
+                                        </b-button>
+                                    </b-col>
+                                </template>
+                            </b-modal>
+                        </div>
+                    </div>
 
+                    <!-- Displays the profile's photo gallery -->
+                    <photo-gallery :key="refreshPhotos"
+                                   :profile="profile"
+                                   :userProfile="userProfile"
+                                   :adminView="adminView"
+                                   @makeProfilePhoto="setProfilePhoto"
+                                   @removePhoto="refreshProfilePicture"
+                                   class="d-none d-lg-block">
+                    </photo-gallery>
+
+                    <!-- Displays a profile's trips -->
+                    <your-trips :adminView="adminView"
+                                :destinations="destinations"
+                                :profile="profile"
+                                :userProfile="userProfile"
+                                class="d-none d-lg-block">
+                    </your-trips>
+                </div>
+                <b-modal hide-footer centered ref="profilePictureModal" title="Profile Picture" size="xl">
+                    <b-img v-if="profile.profilePicture" :src="getProfilePictureFull()"
+                                onerror="this.src = '../../../static/default_profile_picture.png'"
+                                center fluid>
+                    </b-img>
+                    <b-row>
+                        <b-col>
+                            <b-button
+                                    block class="mr-2"
+                                    size="sm" style="margin-top: 10px"
+                                    v-if="authentication" variant="info"
+                                    @click="showUploader">Change my profile picture
+                            </b-button>
+                            <b-modal ref="profilePhotoUploader" id="profilePhotoUploader" hide-footer centered
+                                     title="Change Profile Photo">
+                                <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+                                <photoUploader @save-photos="uploadProfilePhoto"
+                                               :acceptTypes="'image/jpeg, image/jpg, image/png'"
+                                               :multipleFiles="false">
+                                </photoUploader>
+                            </b-modal>
+                        </b-col>
+                        <b-col>
+                            <b-button
+                                    @click="deleteProfilePhoto"
+                                    block class="mr-2"
+                                    size="sm" style="margin-top: 10px"
+                                    v-if="authentication && profile.profilePicture !== null"
+                                    variant="danger">Remove as Profile Photo
+                            </b-button>
+                        </b-col>
+                    </b-row>
+                </b-modal>
+            </b-col>
+        </b-row>
+    </b-container>
 </template>
 
 <script>
@@ -146,24 +158,30 @@
                     return this.profile;
                 }
             },
-            nationalityOptions: Array,
-            travTypeOptions: Array,
-            trips: Array,
+            nationalityOptions: {
+                default: function () {
+                    return [];
+                }
+            },
+            travTypeOptions: {
+                default: function () {
+                    return [];
+                }
+            },
+            trips: {
+                default: function () {
+                    return [];
+                }
+            },
             adminView: Boolean,
-            destinations: Array,
+            destinations: {
+                default: function () {
+                    return [];
+                }
+            },
             showSaved: {
                 default: function () {
                     return false;
-                }
-            },
-            containerClass: {
-                default: function () {
-                    return 'sidebar'
-                }
-            },
-            containerClassContent: {
-                default: function () {
-                    return 'content'
                 }
             }
         },
@@ -190,17 +208,18 @@
         watch: {
             userProfile() {
                 this.checkAuthentication();
+                this.getProfilePictureThumbnail();
             },
 
             profile() {
                 this.queryYourActiveQuests();
+                this.getProfilePictureThumbnail();
             }
         },
 
         mounted() {
             this.checkAuthentication();
             this.getProfilePictureThumbnail();
-            this.getProfilePictureFull();
             this.queryYourActiveQuests();
         },
 
@@ -241,7 +260,7 @@
             /**
              * Creates the POST request for directly uploading a new profile photo.
              *
-             * @files   the files containing the new profile photo.
+             * @param files   the files containing the new profile photo.
              */
             uploadProfilePhoto(files) {
                 let self = this;
@@ -313,10 +332,8 @@
              * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
              */
             getProfilePictureThumbnail() {
-                if (this.profile.profilePicture !== null && this.profile.profilePicture !== undefined) {
+                if (this.profile.profilePicture) {
                     this.profileImageThumb = `/v1/photos/thumb/` + this.profile.profilePicture.id;
-                } else {
-                    this.profileImageThumb = "../../../static/default_profile_picture.png";
                 }
             },
 
@@ -325,10 +342,8 @@
              * Retrieves the user's primary photo, if none is found set to the default image.
              */
             getProfilePictureFull() {
-                if (this.profile.profilePicture !== null && this.profile.profilePicture !== undefined) {
-                    this.profileImageFull = `/v1/photos/` + this.profile.profilePicture.id;
-                } else {
-                    this.profileImageFull = "../../../static/default_profile_picture.png";
+                if (this.profile.profilePicture) {
+                    return `/v1/photos/` + this.profile.profilePicture.id;
                 }
             },
 
@@ -493,3 +508,6 @@
         }
     }
 </script>
+<style scoped>
+    @import "../../css/dash.css";
+</style>

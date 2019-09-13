@@ -8,7 +8,9 @@
                     id="title-field"
                     label="Quest Title:"
                     label-for="title">
-                <b-form-input id="title" v-model="searchTitle" :state="questTitleValidation"></b-form-input>
+                <b-form-input id="title"
+                              v-model="searchTitle"
+                              :state="questTitleValidation"></b-form-input>
             </b-form-group>
 
             <p>Number of Objectives:</p>
@@ -37,7 +39,9 @@
                                 id="number-objectives-field"
                                 label="Amount:"
                                 label-for="number-objectives">
-                            <b-form-input id="number-objectives" trim v-model="searchNumberObjective"
+                            <b-form-input id="number-objectives"
+                                          trim
+                                          v-model="searchNumberObjective"
                                           :state="numberObjectiveValidation">
                             </b-form-input>
                         </b-form-group>
@@ -53,7 +57,9 @@
                                 id="created-first-field"
                                 label="First Name:"
                                 label-for="created-first">
-                            <b-form-input id="created-first" trim v-model="searchCreatedFirst"
+                            <b-form-input id="created-first"
+                                          trim
+                                          v-model="searchCreatedFirst"
                                           :state="createdFirstValidation">
                             </b-form-input>
                         </b-form-group>
@@ -64,7 +70,9 @@
                                 id="created-last-field"
                                 label="Last Name:"
                                 label-for="created-last">
-                            <b-form-input id="created-last" trim v-model="searchCreatedLast"
+                            <b-form-input id="created-last"
+                                          trim
+                                          v-model="searchCreatedLast"
                                           :state="createdLastValidation">
                             </b-form-input>
                         </b-form-group>
@@ -133,7 +141,7 @@
             /**
              * Validates the input fields based on regex.
              *
-             * @returns {*} true if input is valid.
+             * @return {*} true if input is valid.
              */
             questTitleValidation() {
                 if (this.searchTitle.length === 0) {
@@ -226,7 +234,7 @@
              * Checks each of the validation fields to ensure they are return either null (no value is given), or the
              * field is valid.
              *
-             * @returns {boolean} true if the fields are valid.
+             * @return {boolean} true if the fields are valid.
              */
             validateFields(validationField) {
                 if (validationField === null || validationField === true) {
@@ -239,7 +247,7 @@
              * Runs a query which searches through the quests in the database and returns all which
              * follow the search criteria.
              *
-             * @returns {Promise<Response | never>}
+             * @return {Promise<Response | never>}
              */
             queryQuests() {
                 let searchQuery =
@@ -282,7 +290,7 @@
              * Converts the retrieved Http response to a Json format.
              *
              * @param response the Http response.
-             * @returns the Http response body as Json.
+             * @return the Http response body as Json.
              */
             parseJSON(response) {
                 return response.json();

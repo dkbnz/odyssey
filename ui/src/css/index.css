@@ -1,11 +1,12 @@
 body {
     background-color: #e2e6ea;
-    padding-top: 0px;
+    padding-top: 0;
 
 }
 
+
 .bg {
-    /* Background image used */
+    /* Background image used. */
     background: url("../../static/background_image.jpg");
     /* Center and scale the image nicely */
     position: fixed;
@@ -17,6 +18,14 @@ body {
     height: 100vh;
 }
 
+
+.centerAlignDiv {
+    padding-top: 30vh;
+    height: 100vh;
+    position: relative;
+}
+
+
 #subtitle {
     font-family: Arial, sans-serif;
     font-style: italic;
@@ -25,22 +34,193 @@ body {
     -webkit-text-stroke-color: black;
 }
 
-/* Adds background box to Traveller Type selection */
+
+/* Adds background box to Traveller Type selection. */
 .carousel-caption {
     background: #e5e5e5e5;
     border-radius: 10px;
     color: black;
 }
 
-/* Styling for Traveller Type checkbox */
-.carousel-caption input[type='checkbox'] {
-    width: 30px;
-    height: 30px;
-    background: white;
-    border-radius: 5px;
-    border: 2px solid #555;
+.loginSignUpButtons {
+    position: relative;
+    top: 23%;
 }
 
-.carousel-caption input[type='checkbox']:checked {
-    background: #abd;
+
+@media only screen and (max-device-width: 480px) {
+    .carousel-caption p {
+        font-size: 3vw;
+        margin-bottom: 0;
+    }
+
+    .carousel-caption h3 {
+        font-size: 5vw;
+    }
+}
+
+/* Main section containing the logo and logo icon. Slides up after logos are brought in. */
+.animation {
+    position: absolute;
+    z-index: -1;
+    margin: auto;
+    left: 28%;
+    animation: moveUp 2s;
+    animation-delay: 3.15s;
+    animation-fill-mode:forwards;
+}
+
+
+@keyframes moveUp {
+    100% {
+        transform: translateY(-30%)
+    }
+}
+
+
+/* Contains the subtitle and the buttons to login and sign up. Fades in as the logos slide up. */
+.subtitleSection {
+    top: 23%;
+    width: 100vw;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeIn 3s;
+    animation-delay: 3.5s;
+    animation-fill-mode:forwards;
+    animation-iteration-count: 1;
+    text-align: center;
+}
+
+.subtitleSection h3 {
+    font-size: 2vw;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 100;
+    }
+}
+
+
+/* Translates the logo icon. */
+.logoTranslate {
+    position: absolute;
+    z-index: 1;
+    animation: slideLogo 3s;
+    animation-delay: 0.15s;
+    animation-fill-mode:forwards;
+    animation-iteration-count: 1;
+    width: 10vw;
+}
+
+
+@keyframes slideLogo {
+    100% {
+        transform: translateX(375%) rotate(360deg);;
+    }
+}
+
+
+/* Translates the text from the logo. */
+.logoTextAppear {
+    white-space: nowrap;
+    overflow: hidden;
+    width: 0;
+    animation: slideText 3s;
+    animation-delay: 0.15s;
+    animation-fill-mode:forwards;
+    animation-iteration-count: 1;
+    font-size: 10vw;
+    color: white;
+    font-weight: normal;
+}
+
+
+@keyframes slideText {
+    0% {width: 0}
+    100% {width: 100%;}
+}
+
+@media screen and (max-width: 1000px) {
+    .animation {
+        left: 15%;
+    }
+
+    .logoTextAppear {
+        font-size: 15vw;
+    }
+
+    .logoTranslate {
+        width: 15vw;
+    }
+    .subtitleSection h3 {
+        font-size: 4vw;
+    }
+}
+
+@media screen and (max-width: 780px) {
+    .animation {
+        left: 15%;
+    }
+
+    .logoTextAppear {
+        font-size: 15vw;
+    }
+
+    .logoTranslate {
+        width: 15vw;
+    }
+
+    .subtitleSection {
+        top: 15%;
+    }
+
+    .subtitleSection h3 {
+        font-size: 4vw;
+    }
+
+    .loginSignUpButtons {
+        top: 15%;
+    }
+}
+
+
+/* Handles appropriate responsiveness on small screens. */
+@media screen and (max-width: 480px) {
+    .centerAlignDiv {
+        padding-top: 60%;
+    }
+
+    .animation {
+        left: 2.5%;
+    }
+
+    .logoTextAppear {
+        font-size: 20vw;
+    }
+
+    .logoTranslate {
+        width: 20vw;
+    }
+
+    .btn-lg {
+        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1;
+        border-radius: 0.3rem;
+    }
+
+    .subtitleSection h3 {
+        font-size: 6vw;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .centerAlignDiv {
+        padding-top: 80%;
+    }
 }

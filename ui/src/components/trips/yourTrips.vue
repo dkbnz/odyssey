@@ -1,8 +1,7 @@
 <template>
-    <div :class="containerClass">
-
+    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <!-- Div for all the user's future trips -->
-        <div id="upcomingTrips">
+        <div id="upcomingTrips" class="upperPadding">
             <h1 class="page-title">Upcoming Trips</h1>
             <p class="page-title"><i>Here are your upcoming trips!</i></p>
             <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
@@ -40,7 +39,6 @@
             <!-- Modal that uses the plan a trip page to edit a selected trip -->
             <b-modal hide-footer id="editTripModal" ref="editTripModal" size="xl" title="Edit Trip">
                 <plan-a-trip
-                        :containerClass="'noMarginsContainer'"
                         :destinations="destinations"
                         :heading="'Edit a Trip'"
                         :inputTrip="selectedTrip"
@@ -68,7 +66,8 @@
                     striped
                     responsive>
                 <div class="text-center my-2" slot="table-busy">
-                    <b-spinner class="align-middle" v-if="retrievingTrips"></b-spinner>
+                    <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" src="../../../static/logo_sm.png">
+                    </b-img>
                     <strong>Can't find any trips!</strong>
                 </div>
                 <template slot="more_details" slot-scope="row">
@@ -186,6 +185,8 @@
                          responsive>
 
                     <div slot="table-busy" class="text-center my-2">
+                        <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" src="../../../static/logo_sm.png">
+                        </b-img>
                         <strong>Can't find any trips!</strong>
                     </div>
                     <template slot="more_details" slot-scope="row">
@@ -297,12 +298,7 @@
                 }
             },
             destinations: Array,
-            adminView: Boolean,
-            containerClass: {
-                default: function () {
-                    return 'containerWithNav';
-                }
-            }
+            adminView: Boolean
         },
 
         watch: {
@@ -426,6 +422,9 @@
 
             /**
              * Gathers trip dates into an array, regardless of whether they are start/end date.
+             *
+             * @param destinations  the destinations of the trip that is going to be used to display the trip dates.
+             * @return {Array}      the dates of the first and last destination in the trip.
              */
             calculateTripDates(destinations) {
                 let tripDates = [];
@@ -502,6 +501,10 @@
             /**
              * Orders the future trips by the dates. If there are no dates then they will be at the top. If there are
              * dates, then trips will be ordered chronologically.
+             *
+             * @param first     the first trip to be sorted.
+             * @param next      the next trip to be sorted.
+             * @return {Number} the index that of the trips order.
              */
             sortFutureTrips(first, next) {
                 let firstDestinationsStart = [];
@@ -541,7 +544,6 @@
                 const error = new Error(`HTTP Error ${response.statusText}`);
                 error.status = response.statusText;
                 error.response = response;
-                console.log(error);
                 throw error;
             },
 
@@ -650,4 +652,5 @@
 
 <style scoped>
     @import "../../css/yourTrips.css";
+    @import "../../css/dash.css";
 </style>

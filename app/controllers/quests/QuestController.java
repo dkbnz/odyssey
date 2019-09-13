@@ -4,18 +4,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
+import controllers.points.AchievementTrackerController;
 import io.ebean.ExpressionList;
-import models.util.ApiError;
-import models.profiles.Profile;
 import models.destinations.Destination;
 import models.objectives.Objective;
+import models.profiles.Profile;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
+import models.util.ApiError;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.profiles.ProfileRepository;
 import repositories.destinations.DestinationRepository;
+import repositories.profiles.ProfileRepository;
 import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
 import util.AuthenticationUtil;
@@ -29,15 +30,20 @@ import static util.QueryUtil.queryComparator;
 
 public class QuestController {
 
-    private static final String QUEST_ATTEMPT_EXISTS = "An attempt already exists for this quest.";
-
-    private static final String START_OWN_QUEST = "You cannot start your own quest.";
-
     private QuestRepository questRepository;
     private QuestAttemptRepository questAttemptRepository;
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
+    private AchievementTrackerController achievementTrackerController;
 
+    /**
+     * Object mapper to be used throughout the class. Handled via the Guice injector instead of us instantiating
+     * it ourselves.
+     */
+    private ObjectMapper objectMapper;
+
+    private static final String QUEST_ATTEMPT_EXISTS = "An attempt already exists for this quest.";
+    private static final String START_OWN_QUEST = "You cannot start your own quest.";
     private static final String TITLE = "title";
     private static final String OPERATOR = "operator";
     private static final String OBJECTIVE = "objective";
@@ -51,19 +57,27 @@ public class QuestController {
     private static final String OWNER = "owner";
     private static final String ATTEMPTS = "attempts";
     private static final String COUNTRY_OCCURRENCES = "objectives.destination.country";
+    private static final String NEW_QUEST = "newQuest";
     private static final String EQUAL_TO = "=";
     private static final String GREATER_THAN = ">";
     private static final String LESS_THAN = "<";
+    private static final String REWARD = "pointsRewarded";
+    private static final String COMPLETED_POINTS = "completedPoints";
+    private static final String ATTEMPT = "attempt";
 
     @Inject
     public QuestController(QuestRepository questRepository,
                            QuestAttemptRepository questAttemptRepository,
                            ProfileRepository profileRepository,
-                           DestinationRepository destinationRepository) {
+                           DestinationRepository destinationRepository,
+                           AchievementTrackerController achievementTrackerController,
+                           ObjectMapper objectMapper) {
         this.questRepository = questRepository;
         this.questAttemptRepository = questAttemptRepository;
         this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
+        this.achievementTrackerController = achievementTrackerController;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -73,7 +87,7 @@ public class QuestController {
      *
      * @param request   the Http request containing a Json body of the new quest details.
      * @param userId    the id of the user who will own the created quest.
-     * @return          created() (Http 201) response if creation is successful.
+     * @return          created() (Http 201) response containing the points rewarded and the new quest.
      *                  notFound() (Http 404) response if a quest owner profile cannot be retrieved.
      *                  forbidden() (Http 403) response if the user creating the quest is doing so incorrectly.
      *                  badRequest() (Http 400) response if the request contains any errors in its form or contents.
@@ -96,12 +110,10 @@ public class QuestController {
             return forbidden(ApiError.forbidden());
         }
 
-        ObjectMapper mapper = new ObjectMapper();
-
         Quest newQuest;
 
         try {
-            newQuest = mapper.readerWithView(Views.Owner.class)
+            newQuest = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Quest.class)
                     .readValue(request.body().asJson());
         } catch (IOException e) {
@@ -122,12 +134,19 @@ public class QuestController {
             objective.setDestination(destinationRepository.findById(objective.getDestination().getId()));
         }
 
+        ObjectNode returnJson = objectMapper.createObjectNode();
+
+        // Points for creating quest
+        int pointsAdded = achievementTrackerController.rewardAction(questOwner, newQuest, false);
+        returnJson.put(REWARD, pointsAdded);
+
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
 
         questRepository.refresh(newQuest);
 
-        return created(Json.toJson(newQuest));
+        returnJson.set(NEW_QUEST, Json.toJson(newQuest));
+        return created(returnJson);
     }
 
 
@@ -163,11 +182,10 @@ public class QuestController {
         if (questOwner == null) {
             return badRequest(ApiError.notFound());
         }
-        ObjectMapper mapper = new ObjectMapper();
 
         try {
             // Attempt to turn json body into a objective object.
-            quest = mapper.readerWithView(Views.Owner.class)
+            quest = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Quest.class)
                     .readValue(request.body().asJson());
         } catch (Exception e) {
@@ -255,11 +273,9 @@ public class QuestController {
         }
 
         Set<Quest> quests = getQuestsQuery(request, loggedInUser);
-
-        ObjectMapper mapper = new ObjectMapper();
         String result;
         try {
-            result = mapper
+            result = objectMapper
                     .writerWithView(Views.Public.class)
                     .writeValueAsString(quests);
         } catch (JsonProcessingException e) {
@@ -553,11 +569,10 @@ public class QuestController {
      *                           ok() (Http 200) containing matching data that is requested by the logged in user.
      */
     private Result getCorrectView(boolean validAccess, List requestedData) {
-        ObjectMapper mapper = new ObjectMapper();
         String result;
         if (validAccess) {
             try {
-                result = mapper
+                result = objectMapper
                         .writerWithView(Views.Owner.class)
                         .writeValueAsString(requestedData);
             } catch (JsonProcessingException e) {
@@ -565,7 +580,7 @@ public class QuestController {
             }
         } else {
             try {
-                result = mapper
+                result = objectMapper
                         .writerWithView(Views.Public.class)
                         .writeValueAsString(requestedData);
             } catch (JsonProcessingException e) {
@@ -602,23 +617,32 @@ public class QuestController {
         }
 
         Profile attemptedBy = questAttempt.getAttemptedBy();
-        if (attemptedBy != null && !AuthenticationUtil.validUser(loggedInUser, attemptedBy)) {
+        if (attemptedBy == null || !AuthenticationUtil.validUser(loggedInUser, attemptedBy)) {
             return forbidden(ApiError.forbidden());
         }
 
-        ObjectNode returnJson = new ObjectMapper().createObjectNode();
+        ObjectNode returnJson = objectMapper.createObjectNode();
+
+        boolean solveSuccess = questAttempt.solveCurrent(destinationGuess);
 
         // Attempt to solve the current objective in the quest attempt, serialize the result.
-        returnJson.put("guessResult",
-                questAttempt.solveCurrent(destinationGuess));
+        returnJson.put("guessResult", solveSuccess);
+
+
+        // Add points based on the action
+        if (solveSuccess) {
+            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), false);
+            returnJson.put(REWARD, pointsAdded);
+        }
 
         // Serialize quest attempt regardless of result.
-        returnJson.set("attempt", Json.toJson(questAttempt));
+        returnJson.set(ATTEMPT, Json.toJson(questAttempt));
 
         questAttemptRepository.update(questAttempt);
 
         return ok(returnJson);
     }
+
 
 
     /**
@@ -648,9 +672,23 @@ public class QuestController {
             return forbidden(ApiError.forbidden());
         }
 
+        Objective objectiveToCheckInTo = questAttempt.getCurrentToCheckIn(); // Used to call check in 'rewardAction' method.
         if (questAttempt.checkIn()) {
+            ObjectNode returnJson = objectMapper.createObjectNode();
+
+            Quest questAttempted = questAttempt.getQuestAttempted();
+            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, objectiveToCheckInTo, true); // Points for checking in
+
+            // If quest was completed
+            if (questAttempt.isCompleted()) {
+                int questCompletedPoints = achievementTrackerController.rewardAction(attemptedBy, questAttempted, true); // Points for completing quest
+                returnJson.put(COMPLETED_POINTS, questCompletedPoints);
+            }
+            returnJson.put(REWARD, pointsAdded);
+            returnJson.set(ATTEMPT, Json.toJson(questAttempt));
+
             questAttemptRepository.update(questAttempt);
-            return ok(Json.toJson(questAttempt));
+            return ok(returnJson);
         }
 
         // User cannot check-in for this current attempt as they have

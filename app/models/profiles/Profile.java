@@ -2,6 +2,7 @@ package models.profiles;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import models.points.AchievementTracker;
 import models.util.BaseModel;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
@@ -74,6 +75,9 @@ public class Profile extends BaseModel {
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<Quest> myQuests;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "owner")
+    private AchievementTracker achievementTracker;
 
 
     public List<Objective> getMyObjectives() {
@@ -300,4 +304,13 @@ public class Profile extends BaseModel {
         return myQuests;
     }
 
+
+    public AchievementTracker getAchievementTracker() {
+        return achievementTracker;
+    }
+
+
+    public void setAchievementTracker(AchievementTracker achievementTracker) {
+        this.achievementTracker = achievementTracker;
+    }
 }

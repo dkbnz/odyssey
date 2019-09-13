@@ -6,20 +6,26 @@
 
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/profiles'}"
-                                @click="goToPeople()">People
-                    </b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/trips'}"
+                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage ==='/trips'}"
                                 @click="goToTrips()">Trips
                     </b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/destinations'}"
+                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage ==='/destinations'}"
                                 @click="goToDestinations()">
                         Destinations
                     </b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/objectives'}" @click="goToObjectives()">Objectives
+                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage ==='/objectives'}"
+                                @click="goToObjectives()">
+                        Objectives
                     </b-nav-item>
-                    <b-nav-item :class="{active: currentPage==='/quests'}" @click="goToQuests()">Quests</b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/admin'}"
+                    <b-nav-item :class="{active: currentPage==='/quests'}"
+                                @click="goToQuests()">
+                        Quests
+                    </b-nav-item>
+                    <b-nav-item :class="{active: currentPage ==='/leaderboard'}"
+                                @click="goToLeaderboard()">
+                        Leaderboard
+                    </b-nav-item>
+                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage ==='/admin'}"
                                 @click="goToAdminPanel()"
                                 v-if="profile.admin">
                         Admin
@@ -27,7 +33,7 @@
                 </b-navbar-nav>
 
                 <b-navbar-nav class="ml-auto">
-                    <b-nav-item right :class="{active: currentPage==='/dash'}" @click="goToProfile()">
+                    <b-nav-item right :class="{active: currentPage ==='/dash'}" @click="goToProfile()">
                         {{ profile.firstName }}
                     </b-nav-item>
                     <b-nav-item @click="logout">
@@ -99,8 +105,8 @@
             /**
              * Methods to navigate to each page using the VueRouter.
              */
-            goToPeople() {
-                this.$router.push("/profiles");
+            goToLeaderboard() {
+                this.$router.push("/leaderboard");
             },
             goToTrips() {
                 this.$router.push("/trips");
