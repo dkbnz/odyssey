@@ -280,14 +280,12 @@
 </template>
 
 <script>
-    import BCol from "bootstrap-vue/es/components/layout/col";
     import AddObjective from "../objectives/objectiveItem";
 
     export default {
         name: "questItem",
 
         components: {
-            BCol,
             AddObjective
         },
 
