@@ -30,6 +30,11 @@ Vue.mixin({
         ErrorToast
     },
     methods: {
+        /**
+         * Displays a toast for each action that awards points and each badge progress achieved.
+         *
+         * @param rewardJson        the Json reward resulting from an action.
+         */
         showRewardToast(rewardJson) {
             if((rewardJson.hasOwnProperty('badgesAchieved') && rewardJson.badgesAchieved.length) || (rewardJson.hasOwnProperty('pointsRewarded'))) {
                 for (let j = 0; j < rewardJson.pointsRewarded.length; j++) {
@@ -72,6 +77,28 @@ Vue.mixin({
 
 
         /**
+         * Displays a toast on the page if the user increases their login streak.
+         *
+         * @param streakValue
+         */
+        showStreakToast(streakValue) {
+            const h = this.$createElement;
+            const toastContent = h(
+                'reward-toast',
+                {props: {streakValue: streakValue}}
+            );
+
+            this.$bvToast.toast([toastContent], {
+                title: "Congratulations!",
+                autoHideDelay: 5000,
+                appendToast: true,
+                solid: true,
+                variant: 'success'
+            });
+        },
+
+
+        /**
          * Displays a toast on the page if an error occurs in the backend.
          *
          * @param errorResponse     the Json body of the response error.
@@ -109,6 +136,43 @@ Vue.mixin({
                 errorString += responseBody[errorMessage].message + "\n";
             }
             return errorString;
+        },
+
+
+        /**
+         * Runs every five minutes to check if a user is active.
+         */
+        updateActivity() {
+            console.log("Running");
+            let self = this;
+            let time = this.MINUTE * 5;      // Runs every 5 minutes
+            this.setLastSeenDate();
+            setTimeout(function() {
+                self.updateActivity();
+            }, time)
+        },
+
+
+        /**
+         * Sets the date the user was last seen as active in the backend.
+         * Displays a toast if the user has increased their login streak or has achieved progress on their badges.
+         */
+        setLastSeenDate() {
+            let date = new Date();
+            let self = this;
+            fetch('/v1/achievementTracker/updateLastSeen', {
+                method: 'POST',
+                headers: {'content-type': 'application/json'},
+                body: JSON.stringify({clientDate: date})
+            }).then(function (response) {
+                if (response.status >= 400 && response.status <= 500) {
+                    self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                } else {
+                    self.showRewardToast(response.json().reward);
+                    if (response.json().hasOwnProperty("currentStreak")) {
+                        self.showStreakToast(response.json().currentStreak);
+                    }
+                }});
         }
     },
 
@@ -129,7 +193,8 @@ Vue.mixin({
                 CHECKED_IN: 'Checked In',
                 QUEST_COMPLETED: 'Quest Completed'
 
-            }
+            },
+            MINUTE: 60000
         }
     }
 });

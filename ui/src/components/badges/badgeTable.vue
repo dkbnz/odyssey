@@ -62,6 +62,11 @@
             profile: Object
         },
 
+        mounted() {
+            this.getProfileBadges();
+            this.getAllBadges();
+        },
+
         watch: {
             profile() {
                 this.getProfileBadges();

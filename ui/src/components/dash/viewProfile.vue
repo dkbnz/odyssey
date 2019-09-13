@@ -9,6 +9,7 @@
                            @click="showImage" onerror="this.src = '../../../static/default_profile_picture.png'">
                     </b-img>
 
+                    <streak-display class="float-right " :currentStreak="profile.achievementTracker.streak"></streak-display>
 
                     <b-alert
                             class="m-1"
@@ -152,6 +153,7 @@
     import QuestList from "../quests/questList";
     import ActiveQuestList from "../quests/activeQuestList";
     import BadgeTable from "../badges/badgeTable";
+    import StreakDisplay from "./streakDisplay";
 
     export default {
         name: "viewProfile",
@@ -541,6 +543,7 @@
         },
 
         components: {
+            StreakDisplay,
             BadgeTable,
             ActiveQuestList,
             QuestList,
