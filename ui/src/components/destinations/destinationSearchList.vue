@@ -82,10 +82,6 @@
            }
         },
 
-        mounted() {
-            this.getDestinationTypes();
-        },
-
         methods: {
            /**
             * Function to retrieve more destinations when a user reaches the bottom of the list.

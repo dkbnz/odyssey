@@ -19,7 +19,6 @@
                 this.getDestinations();
             }
             this.getDestinationTypes(destinationTypes => this.destinationTypes = destinationTypes);
-            this.updateActivity(this.profile);
         },
 
         data() {

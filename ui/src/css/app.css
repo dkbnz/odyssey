@@ -195,6 +195,11 @@ a {
     white-space:pre-wrap;
 }
 
+.wrapWhiteSpaceSmallGap {
+    white-space:pre-wrap;
+    font-size: 15px;
+}
+
 .badgesDiv {
     max-height: inherit;
     overflow: auto;
