@@ -142,14 +142,16 @@ Vue.mixin({
         /**
          * Runs every five minutes to check if a user is active.
          */
-        updateActivity() {
-            console.log("Running");
-            let self = this;
-            let time = this.MINUTE * 5;      // Runs every 5 minutes
-            this.setLastSeenDate();
-            setTimeout(function() {
-                self.updateActivity();
-            }, time)
+        updateActivity(profile) {
+            if (profile) {
+                console.log("Running");
+                let self = this;
+                let time = this.MINUTE * 5;      // Runs every 5 minutes
+                this.setLastSeenDate();
+                setTimeout(function() {
+                    self.updateActivity();
+                }, time)
+            }
         },
 
 
@@ -165,14 +167,20 @@ Vue.mixin({
                 headers: {'content-type': 'application/json'},
                 body: JSON.stringify({clientDate: date})
             }).then(function (response) {
-                if (response.status >= 400 && response.status <= 500) {
-                    self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                if (!response.ok) {
+                    throw response;
                 } else {
-                    self.showRewardToast(response.json().reward);
-                    if (response.json().hasOwnProperty("currentStreak")) {
-                        self.showStreakToast(response.json().currentStreak);
-                    }
-                }});
+                    return response.json();
+                }
+            }).then(function (responseBody) {
+                console.log(responseBody);
+                self.showRewardToast(responseBody.reward);
+                if (responseBody.hasOwnProperty("currentStreak")) {
+                    self.showStreakToast(response.json().currentStreak);
+                }
+            }).catch(function () {
+                self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+            });
         }
     },
 

@@ -9,7 +9,7 @@
                            @click="showImage" onerror="this.src = '../../../static/default_profile_picture.png'">
                     </b-img>
 
-                    <streak-display class="float-right " :currentStreak="profile.achievementTracker.streak"></streak-display>
+                    <streak-display v-if="profile.achievementTracker" class="float-right " :currentStreak="profile.achievementTracker.streak"></streak-display>
 
                     <b-alert
                             class="m-1"
@@ -45,7 +45,7 @@
                         <li v-for="travType in profile.travellerTypes">{{ travType.travellerType }}</li>
                     </ul>
                     <h3> Badges </h3>
-                    <div class="d-flex justify-content-center badgesDiv">
+                    <div v-if="profile.achievementTracker" class="d-flex justify-content-center badgesDiv">
                         <badge-table :profile="profile"></badge-table>
                     </div>
                 </div>
