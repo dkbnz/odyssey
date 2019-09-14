@@ -225,6 +225,11 @@ Feature: Profile API Endpoint
       | 4   | testuser2@email.com     |
       | 5   | testuser3@email.com     |
       | 6   | testuser4@email.com     |
+      | 7   | testuser5@email.com     |
+      | 8   | testuser6@email.com     |
+      | 9   | testuser7@email.com     |
+      | 10  | testuser8@email.com     |
+      | 11  | testuser9@email.com     |
     And the users have the following points
       | id  | points  |
       | 1   | 10      |
@@ -237,14 +242,16 @@ Feature: Profile API Endpoint
     Then the status code received is 200
     And the response contains the following profiles:
       | username                |
-      | admin@travelea.com      |
-      | guestUser@travelea.com  |
       | testuser1@email.com     |
       | testuser2@email.com     |
-    And the response does not contain the following profiles:
-      | username                |
       | testuser3@email.com     |
       | testuser4@email.com     |
+      | testuser5@email.com     |
+
+    And the response does not contain the following profiles:
+      | username                |
+      | admin@travelea.com      |
+      | guestUser@travelea.com  |
 
 
   Scenario: Searching for profiles by rank with tied profiles
@@ -269,14 +276,16 @@ Feature: Profile API Endpoint
     Then the status code received is 200
     And the response contains the following profiles:
       | username                |
-      | admin@travelea.com      |
-      | guestUser@travelea.com  |
-      | testuser1@email.com     |
-    And the response does not contain the following profiles:
-      | username                |
       | testuser2@email.com     |
       | testuser3@email.com     |
       | testuser4@email.com     |
+      | testuser5@email.com     |
+      | testuser6@email.com     |
+    And the response does not contain the following profiles:
+      | username                |
+      | admin@travelea.com      |
+      | testuser1@email.com     |
+      | guestUser@travelea.com  |
 
 
   Scenario: Searching for profiles by rank where no profiles have points
@@ -301,9 +310,6 @@ Feature: Profile API Endpoint
     Then the status code received is 200
     And the response contains the following profiles:
       | username                |
-      | admin@travelea.com      |
-      | guestUser@travelea.com  |
-      | testuser1@email.com     |
-      | testuser2@email.com     |
-      | testuser3@email.com     |
-      | testuser4@email.com     |
+      | testuser5@email.com     |
+      | testuser6@email.com     |
+      | testuser7@email.com     |

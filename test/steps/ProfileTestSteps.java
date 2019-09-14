@@ -32,12 +32,6 @@ public class ProfileTestSteps {
 
 
     /**
-     * General test steps
-     */
-    private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
-
-
-    /**
      * Authorised string variable.
      */
     private static final String AUTHORIZED = "authorized";
@@ -122,6 +116,7 @@ public class ProfileTestSteps {
      * Default page size for profile searching pagination.
      */
     private static final String DEFAULT_PAGE_SIZE = "100";
+    private static final String DEFAULT_PAGE_SIZE_SMALL = "5";
 
     /**
      * String to add the equals character (=) to build a query string.
@@ -148,6 +143,24 @@ public class ProfileTestSteps {
 
     private ProfileRepository profileRepository =
             testContext.getApplication().injector().instanceOf(ProfileRepository.class);
+
+
+    /**
+     * Gets the response as an iterator array Node from any fake request so that you can iterate over the response data.
+     *
+     * @param content   the string of the result using helper content as string.
+     * @return          an Array node iterator.
+     */
+    private Iterator<JsonNode> getTheResponseIterator(String content) {
+        JsonNode arrNode = null;
+        try {
+            arrNode = new ObjectMapper().readTree(content);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Unable to get response iterator for fake request.", e);
+        }
+        Assert.assertNotNull(arrNode);
+        return arrNode.elements();
+    }
 
 
     /**
@@ -236,7 +249,9 @@ public class ProfileTestSteps {
         String minPoints = getValue(MIN_POINTS, givenFields, givenValues);
         String maxPoints = getValue(MAX_POINTS, givenFields, givenValues);
         String rank = getValue(RANK, givenFields, givenValues);
+        String pageSize = getValue(PAGE_SIZE, givenFields, givenValues);
 
+        pageSize = pageSize.equals("") ? DEFAULT_PAGE_SIZE : pageSize;
         minAge = minAge.equals("") ? "0"    : minAge;
         maxAge = maxAge.equals("") ? "120"  : maxAge;
 
@@ -265,7 +280,7 @@ public class ProfileTestSteps {
                 + AND
                 + PAGE + EQUALS + DEFAULT_PAGE
                 + AND
-                + PAGE_SIZE + EQUALS + DEFAULT_PAGE_SIZE;
+                + PAGE_SIZE + EQUALS + pageSize;
 
     }
 
@@ -297,7 +312,7 @@ public class ProfileTestSteps {
         testContext.setStatusCode(result.status());
 
         // Gets the response
-        Iterator<JsonNode> iterator = generalTestSteps.getTheResponseIterator(Helpers.contentAsString(result));
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
 
         // Finds profile from the iterator
         boolean foundProfile = false;
@@ -323,7 +338,7 @@ public class ProfileTestSteps {
         testContext.setStatusCode(result.status());
 
         // Gets the response
-        Iterator<JsonNode> iterator = generalTestSteps.getTheResponseIterator(Helpers.contentAsString(result));
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
 
         // Finds profile from the iterator
         boolean foundProfile = false;
@@ -383,14 +398,14 @@ public class ProfileTestSteps {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
 
         for (int i = 0; i < list.size(); i++) {
-            Long userId = Long.parseLong(list.get(i).get("id"));
-            Integer points = Integer.parseInt(list.get(i).get("points"));
+            long userId = Long.parseLong(list.get(i).get("id"));
+            int points = Integer.parseInt(list.get(i).get("points"));
 
-            Profile profile = profileRepository.findById(userId.longValue());
+            Profile profile = profileRepository.findById(userId);
             AchievementTracker achievementTracker = profile.getAchievementTracker(); //Null profile fails test, which is fine
             achievementTracker.addPoints(points);
             profileRepository.update(profile);
-            Assert.assertEquals(points.longValue(), achievementTracker.getPoints());
+            Assert.assertEquals(points, achievementTracker.getPoints());
         }
 
 
@@ -406,7 +421,7 @@ public class ProfileTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
 
-        Iterator<JsonNode> iterator = generalTestSteps.getTheResponseIterator(Helpers.contentAsString(result));
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
 
         // Checks the response for admin profile and length of 2 users
         boolean passProfiles = false;
@@ -435,7 +450,7 @@ public class ProfileTestSteps {
         Result result = route(testContext.getApplication(), request);
 
         // Gets the response
-        Iterator<JsonNode> iterator = generalTestSteps.getTheResponseIterator(Helpers.contentAsString(result));
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
 
         // Checks the response for Holidaymaker and length of 7 traveller types
         boolean passTravelTypes = false;
@@ -465,7 +480,7 @@ public class ProfileTestSteps {
         Result result = route(testContext.getApplication(), request);
 
         // Gets the response
-        Iterator<JsonNode> iterator = generalTestSteps.getTheResponseIterator(Helpers.contentAsString(result));
+        Iterator<JsonNode> iterator = getTheResponseIterator(Helpers.contentAsString(result));
 
         // Checks the response for the nationality
         boolean passNationalities = false;
@@ -540,6 +555,12 @@ public class ProfileTestSteps {
         List<String> searchFields = new ArrayList<>();
         List<String> searchValues = new ArrayList<>();
 
+        if (searchField.equals(RANK)) {
+            searchFields.add(PAGE_SIZE);
+            searchValues.add(DEFAULT_PAGE_SIZE_SMALL);
+        }
+
+
         searchFields.add(searchField);
         searchValues.add(searchValue);
 
@@ -611,7 +632,6 @@ public class ProfileTestSteps {
     @Then("the response contains the following profiles:")
     public void theResponseContainsTheFollowingProfiles(DataTable dataTable) {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-
         for (int i = 0; i < list.size(); i++) {
             String username = list.get(i).get("username");
             Assert.assertTrue(testContext.getResponseBody().contains(username));

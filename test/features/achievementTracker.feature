@@ -64,29 +64,6 @@ Feature: Achievement Tracker API Endpoint
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
     Then I have gained points
 
-  Scenario: Create a Trip
-    Given the application is running
-    And I am logged in
-    And I have some starting points
-    When the following json containing a trip is sent:
-      """
-        {
-          "trip_name": "A Holiday Away",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : "1990-12-12",
-              "end_date" : "1991-12-12"
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
-    Then I have gained points
 
   Scenario: Successfully requesting all badges
     Given the application is running
