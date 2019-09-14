@@ -37,6 +37,7 @@ public class AchievementTrackerController extends Controller {
     private static final Integer LOST_STREAK = 0;
     private static final String CLIENT_DATE_FIELD = "clientDate";
     private static final String CURRENT_STREAK = "currentStreak";
+    private static final String REWARD = "reward";
 
     private static final int SINGLE_COUNTRY = 1;
     private static final int INCREMENT_ONE = 1;
@@ -491,7 +492,7 @@ public class AchievementTrackerController extends Controller {
 
         if (lastSeenDate == null) {
             profile.getAchievementTracker().setCurrentStreak(STARTING_STREAK_NUMBER);
-            responseJson = this.rewardAction(profile);
+            responseJson.set(REWARD, this.rewardAction(profile));
             responseJson.put(CURRENT_STREAK, profile.getAchievementTracker().getCurrentStreak());
 
         } else {
@@ -503,7 +504,7 @@ public class AchievementTrackerController extends Controller {
                 profile.getAchievementTracker().addToCurrentStreak();
 
 
-                responseJson = this.rewardAction(profile);
+                responseJson.set(REWARD, this.rewardAction(profile));
                 responseJson.put(CURRENT_STREAK, profile.getAchievementTracker().getCurrentStreak());
             } else if (clientDate.after(incrementDate)) {
                 // User has lost their streak
