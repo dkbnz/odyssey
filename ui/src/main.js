@@ -165,6 +165,7 @@ Vue.mixin({
             fetch('/v1/achievementTracker/updateLastSeen', {
                 method: 'POST',
                 headers: {'content-type': 'application/json'},
+                accept: 'application/json',
                 body: JSON.stringify({clientDate: date})
             }).then(function (response) {
                 if (!response.ok) {
@@ -173,13 +174,12 @@ Vue.mixin({
                     return response.json();
                 }
             }).then(function (responseBody) {
-                console.log(responseBody);
-                self.showRewardToast(responseBody.reward);
                 if (responseBody.hasOwnProperty("currentStreak")) {
-                    self.showStreakToast(response.json().currentStreak);
+                    self.showStreakToast(responseBody.currentStreak);
                 }
+                self.showRewardToast(responseBody.reward);
             }).catch(function () {
-                self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+
             });
         }
     },
