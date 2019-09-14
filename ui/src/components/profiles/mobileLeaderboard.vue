@@ -11,8 +11,8 @@
             </b-jumbotron>
         </div>
         <div v-if="page === 1">
-            <b-button @click="page = 0" block variant="primary">Search</b-button>
-            <div class="d-flex justify-content-center mb-3 buttonMarginsTop">
+            <b-button @click="page = 0" class="mt-2" block variant="primary">Return to Search</b-button>
+            <div class="d-flex justify-content-center mb-1 buttonMarginsTop">
                 <b-img alt="Loading" v-if="retrievingProfiles && initialLoad" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
             </div>
             <mobile-profile-list
@@ -22,7 +22,7 @@
             >
             </mobile-profile-list>
 
-            <div class="text-center my-2" v-if="profiles.length === 0 && !retrievingProfiles">
+            <div class="text-center" v-if="profiles.length === 0 && !retrievingProfiles">
                 <strong>Can't find any profiles!</strong>
             </div>
             <div class="flex-column justify-content-center">
@@ -168,6 +168,7 @@
                                 self.profiles = responseBody;
                             }
                         }
+                        self.retrievingProfiles = false;
                     }).catch(function (response) {
                         if (response.status > 404) {
                             self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));

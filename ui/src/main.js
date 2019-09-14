@@ -142,16 +142,14 @@ Vue.mixin({
         /**
          * Runs every five minutes to check if a user is active.
          */
-        updateActivity(profile) {
-            if (profile) {
-                console.log("Running");
-                let self = this;
-                let time = this.MINUTE * 5;      // Runs every 5 minutes
-                this.setLastSeenDate();
-                setTimeout(function() {
-                    self.updateActivity();
-                }, time)
-            }
+        updateActivity() {
+            console.log("Running");
+            let self = this;
+            let time = this.MINUTE * 5;      // Runs every 5 minutes
+            this.setLastSeenDate();
+            setTimeout(function() {
+                self.updateActivity();
+            }, time)
         },
 
 
