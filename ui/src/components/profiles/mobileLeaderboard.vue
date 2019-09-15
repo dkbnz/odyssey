@@ -42,7 +42,7 @@
             </div>
         </div>
         <div v-if="page === 2">
-            <b-button @click="page = 1" block variant="primary">Return to List</b-button>
+            <b-button @click="page = 1" block variant="primary" class="mt-2">Return to List</b-button>
             <view-profile
                     :profile="selectedProfile"
                     :user-profile="profile"
