@@ -1,5 +1,6 @@
 Feature: Achievement Tracker API Endpoint
 
+#Points
   Scenario: Viewing current point value
     Given the application is running
     And I am logged in
@@ -22,7 +23,38 @@ Feature: Achievement Tracker API Endpoint
     Then I am given their total number of points
 
 
-  Scenario: Solving a Quest riddle
+#Awarding Points
+  Scenario: Creating a destination awards points
+    Given the application is running
+    And I am logged in
+    And I have some starting points
+    When I create a new destination with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    Then I have gained points
+
+
+  Scenario: Creating a quest awards points
+    Given the application is running
+    And I am logged in
+    And I have some starting points
+    When I start to create a quest using the following values
+      | Title      | Start Date | End Date |
+      | Cool Quest |            |          |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                  | Radius |
+      | 119         | What rhymes some stuff? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    Then I have gained points
+
+
+  Scenario: Solving a quest objective awards points
     Given the application is running
     And I am logged in
     And I have some starting points
@@ -30,7 +62,7 @@ Feature: Achievement Tracker API Endpoint
     Then I have gained points
 
 
-  Scenario: Incorrectly solving a quest riddle
+  Scenario: Incorrectly solving a quest objective does not award points
     Given the application is running
     And I am logged in
     And I have some starting points
@@ -38,7 +70,7 @@ Feature: Achievement Tracker API Endpoint
     Then I have not gained points
 
 
-  Scenario: Checking in to a quest objective
+  Scenario: Checking in to a quest objective awards points
     Given the application is running
     And I am logged in
     And I have some starting points
@@ -46,7 +78,7 @@ Feature: Achievement Tracker API Endpoint
     Then I have gained points
 
 
-  Scenario: Checking in to an objective that hasn't been solved
+  Scenario: Checking in to an objective that hasn't been solved does not award points
     Given the application is running
     And I am logged in
     And I have some starting points
@@ -54,6 +86,10 @@ Feature: Achievement Tracker API Endpoint
     Then the status code received is 403
     And I have not gained points
 
+#TODO: Matilda - waiting on solver tests to be complete.
+#  Scenario: Completing a quest awards points
+#    Given the application is running
+#    And I am logged in
 
   Scenario: Creating a destination
     Given the application is running
@@ -64,7 +100,7 @@ Feature: Achievement Tracker API Endpoint
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
     Then I have gained points
 
-
+#Badges
   Scenario: Successfully requesting all badges
     Given the application is running
     And I am logged in
@@ -79,7 +115,7 @@ Feature: Achievement Tracker API Endpoint
     When I request to retrieve all badges
     Then the status code received is 401
 
-
+#Awarding Badges
   Scenario: Creating my first destination and getting a bronze level Cartographer badge
     Given the application is running
     And I am logged in as user with id "7"
@@ -89,6 +125,7 @@ Feature: Achievement Tracker API Endpoint
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
     Then the status code received is 201
     And I gain the "Cartographer" badge with level 1
+
 
   Scenario: Creating enough destinations to achieve a silver level Cartographer badge
     Given the application is running
@@ -110,6 +147,7 @@ Feature: Achievement Tracker API Endpoint
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
     Then the status code received is 201
     And I gain the "Cartographer" badge with level 3
+
 
   Scenario: Creating my first trip and getting a bronze level Planner badge
     Given the application is running
@@ -289,6 +327,7 @@ Feature: Achievement Tracker API Endpoint
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
     Then the status code received is 201
     And I gain the "Overachiever" badge with level 3
+
 
 #TODO: Joel - Waiting on backend implementation.
 #  Scenario: Getting the bronze level Streaker badge
