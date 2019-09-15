@@ -86,10 +86,14 @@ Feature: Achievement Tracker API Endpoint
     Then the status code received is 403
     And I have not gained points
 
-#TODO: Matilda - waiting on solver tests to be complete.
-#  Scenario: Completing a quest awards points
-#    Given the application is running
-#    And I am logged in
+
+  Scenario: Completing a quest awards points
+    Given the application is running
+    And I am logged in as user with id "7"
+    And a quest exists with id 6
+    When I check in for quest attempt 7
+    Then I have gained points
+
 
   Scenario: Creating a destination
     Given the application is running
