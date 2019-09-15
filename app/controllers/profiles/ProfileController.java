@@ -64,10 +64,12 @@ public class ProfileController {
     private static final String MIN_POINTS = "min_points";
     private static final String MAX_POINTS = "max_points";
     private static final String RANK = "rank";
-    private static final String ACHIEVEMENT_RANK = "achievementTracker.rank";
     private static final String AUTHORIZED = "authorized";
-    private static final String NOT_SIGNED_IN = "You are not logged in.";
-    private static final String NO_PROFILE_FOUND = "No profile found.";
+    private static final String USERNAME_OK = "Username is OK";
+    private static final String DUPLICATE_PROFILE = "Duplicate profile found.";
+    private static final String HASH_FAIL = "Unable to hash the user password";
+    private static final String INVALID_NATIONALITY_TRAVELLER_TYPES = "Invalid number of Nationalities/Traveller Types";
+    private static final String DELETING_DEFAULT_ADMIN = "You can not delete the default administrator";
     private static final long AGE_SEARCH_OFFSET = 1;
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String UPDATED = "UPDATED";
@@ -96,11 +98,13 @@ public class ProfileController {
     /**
      * Creates a user based on given Json body. All new users are not an admin by default. This is used on the Sign Up
      * page when a user is making a new profile. All parameters are compulsory, except for passport country. When a user
-     * creates a new profile, a session is made and they are automatically logged in.
+     * creates a new profile, a session is made and they are automatically logged in unless they are an admin.
      *
-     * @param request       an Http Request containing Json Body.
-     * @return              if username exists, returns badRequest() (Http 400), if user is created, sets session and
-     * returns              created() (Http 201).
+     * @param request       an Http Request containing Json Body for a new profile.
+     * @return              created() (Http 201) response for successful profile creation before setting the session.
+     *                      forbidden() (Http 403) response if a non-admin user is creating a profile while logged in.
+     *                      badRequest() (Http 400) response if the username already exists or if there are Json errors.
+     *                      internalServerError() (Http 500) response if the AuthenticationUtil can't hash the password.
      */
     public Result create(Http.Request request) {
 
@@ -109,7 +113,7 @@ public class ProfileController {
         // If the user is not logged in, then they are unauthorized so can create a profile.
         // If they are logged in, they must be an admin.
         if (userProfile != null && !userProfile.isAdmin()) {
-            return badRequest();
+            return forbidden(ApiError.forbidden());
         }
 
         JsonNode json = request.body().asJson();
@@ -121,7 +125,7 @@ public class ProfileController {
         }
 
         if (profileExists(json.get(USERNAME).asText())) {
-            return badRequest("Profile Exists");
+            return badRequest(ApiError.badRequest(DUPLICATE_PROFILE));
         }
 
         Profile newUser = new Profile();
@@ -131,7 +135,8 @@ public class ProfileController {
         try {
             newUser.setPassword(AuthenticationUtil.hashProfilePassword(json.get(PASS_FIELD).asText()));
         } catch (NoSuchAlgorithmException e) {
-            log.error("Unable to hash the user password", e);
+            log.error(HASH_FAIL, e);
+            return internalServerError(ApiError.badRequest(HASH_FAIL));
         }
 
         newUser.setUsername(json.get(USERNAME).asText());
@@ -169,6 +174,7 @@ public class ProfileController {
 
         profileRepository.save(newUser);
 
+        // Check if a logged in admin is making a profile, or if a new user is signing up for the first time.
         return (userProfile != null && userProfile.isAdmin())
                 ? created("")
                 : created().addingToSession(request, AUTHORIZED, newUser.id.toString());
@@ -324,14 +330,15 @@ public class ProfileController {
      * user when validating their email on Sign Up.
      *
      * @param request       an Http Request containing Json Body.
-     * @return              ok() (Http 200) when there is no username in the database, or a badRequest() (Http 400) when
-     *                      there is already is a user with that username in the database.
+     * @return              ok() (Http 200) response if no duplicate username is found within the database.
+     *                      notFound() (Http 404) response if the user editing their username does not exist.
+     *                      badRequest() (Http 400) response if a duplicate of the username is found in the database.
      */
     public Result checkUsername(Http.Request request) {
         JsonNode json = request.body().asJson();
 
         if (!json.has(USERNAME)) {
-            return badRequest();
+            return badRequest(ApiError.invalidJson());
         }
 
         String username = json.get(USERNAME).asText();
@@ -343,21 +350,21 @@ public class ProfileController {
                     Profile userProfile = profileRepository.findById(Long.valueOf(userId));
 
                     if (userProfile == null) {
-                        return notFound(NO_PROFILE_FOUND);
+                        return notFound(ApiError.notFound());
                     }
 
                     if (!profileExists(username) || userProfile.getUsername().equals(username)) {
-                        return ok(); // If they are checking their own username, return ok()
+                        return ok(Json.toJson(USERNAME_OK)); // If they are checking their own username, return ok()
                     } else {
-                        return badRequest();
+                        return badRequest(ApiError.badRequest(DUPLICATE_PROFILE));
                     }
                 })
                 .orElseGet(() -> {
                     //User is not logged in, used for sign-up.
                     if (!profileExists(username)) {
-                        return ok();
+                        return ok(Json.toJson(USERNAME_OK));
                     } else {
-                        return badRequest();
+                        return badRequest(ApiError.badRequest(DUPLICATE_PROFILE));
                     }
                 }); // User is not logged in
     }
@@ -369,8 +376,8 @@ public class ProfileController {
      * referenced.
      *
      * @param request      an Http Request containing Json Body.
-     * @return             if profile is successfully retrieved, returns ok() (Http 200) with the Json body of the user
-     *                     profile. Otherwise returns unauthorized() (Http 401).
+     * @return             ok() (Http 200) response containing the Json of the profile if successfully retrieved.
+     *                     unauthorized() (Http 401) response if the user is not logged in when attempting retrieval.
      */
     public Result fetch(Http.Request request) {
         return request.session()
@@ -380,7 +387,7 @@ public class ProfileController {
                     Profile userProfile = profileRepository.findById(Long.valueOf(userId));
                     return ok(Json.toJson(userProfile));
                 })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+                .orElseGet(() -> unauthorized(ApiError.unauthorized())); // User is not logged in
     }
 
 
@@ -390,14 +397,15 @@ public class ProfileController {
      * user, admin or not.
      *
      * @param request       an Http Request containing Json Body.
-     * @return              ok() (Http 200) if the profile is successfully deleted.
-     *                      unauthorized() (Http 401) if not logged in.
-     *                      forbidden() (Http 403) when the logged in user is not an admin, or they are trying to delete
-     *                      the global admin (id 1).
+     * @return              ok() (Http 200) response if the profile is deleted successfully.
+     *                      notFound() (Http 404) response if either the user or target doesn't exist.
+     *                      forbidden() (Http 403) response if the logged in user is not an admin user.
+     *                      badRequest() (Http 400) response if the global admin is the deletion target.
+     *                      unauthorized() (Http 401) response if the user attempting deletion isn't logged in.
      */
     public Result delete(Http.Request request, Long id) {
         if (id == DEFAULT_ADMIN_ID) {
-            return forbidden("You can not delete the default administrator");
+            return badRequest(ApiError.badRequest(DELETING_DEFAULT_ADMIN));
         }
         return request.session()
                 .getOptional(AUTHORIZED)
@@ -407,23 +415,23 @@ public class ProfileController {
                     Profile profileToDelete = profileRepository.findById(id);
 
                     if (userProfile == null || profileToDelete == null) {
-                        return notFound(NO_PROFILE_FOUND);
+                        return notFound(ApiError.notFound());
                     }
 
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
                         // If user is admin, they can delete other profiles
                         if (userProfile.isAdmin()) {
                             profileRepository.delete(profileToDelete);
-                            return ok("Delete successful");
+                            return ok(Json.toJson("Profile Successfully Deleted"));
                         }
-                        return forbidden("You do not have admin rights to delete other users.");
+                        return forbidden(ApiError.forbidden());
                     }
 
                     // User is deleting their own profile
                     profileRepository.delete(profileToDelete);
-                    return ok("Delete successful").withNewSession();
+                    return ok(Json.toJson("Profile Successfully Deleted")).withNewSession();
                 })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+                .orElseGet(() -> unauthorized(ApiError.unauthorized())); // User is not logged in
     }
 
 
@@ -448,18 +456,18 @@ public class ProfileController {
                 && jsonToValidate.has(PASSPORT)
                 && jsonToValidate.has(TRAVELLER_TYPE)
         )) {
-            return badRequest("Invalid Json");
+            return badRequest(ApiError.invalidJson());
         }
 
         String getError = userDataValid(jsonToValidate);
 
         if (getError != null) {
-            return badRequest(getError);
+            return badRequest(ApiError.badRequest(getError));
         }
 
         if (jsonToValidate.get(NATIONALITY).size() == 0
                 || jsonToValidate.get(TRAVELLER_TYPE).size() == 0) {
-            return badRequest("Invalid number of Nationalities/Traveller Types");
+            return badRequest(ApiError.badRequest(INVALID_NATIONALITY_TRAVELLER_TYPES));
         }
         return null;
     }
@@ -472,8 +480,12 @@ public class ProfileController {
      * If the Id is specified in the Json body, and the logged in user is an admin, then edit the specified Id.
      *
      * @param request       an Http Request containing Json Body.
-     * @return              ok() (Http 200) if the profile is successfully updated.
-     *                      unauthorized() (Http 401) if not logged in.
+     * @return              ok() (Http 200) response if the profile is successfully updated.
+     *                      notFound() (Http 404) response if the user or the target doesn't exist.
+     *                      forbidden() (Http 403) response if the user is not an admin or editing themselves.
+     *                      badRequest() (Http 400) response if the Json body contained in the request is invalid.
+     *                      unauthorized() (Http 401) response if the user attempting to make an edit is not logged in.
+     *                      internalServerError() (Http 500) response if the AuthenticationUtil can't hash the password.
      */
     public Result update(Http.Request request, Long editUserId) {
         return request.session()
@@ -483,11 +495,11 @@ public class ProfileController {
                     Profile profileToUpdate = profileRepository.findById(editUserId);
 
                     if (loggedInUser == null || profileToUpdate == null) {
-                        return notFound(NO_PROFILE_FOUND); // User does not exist in the system.
+                        return notFound(ApiError.notFound()); // User does not exist in the system.
                     }
 
                     if (!AuthenticationUtil.validUser(loggedInUser, profileToUpdate)) {
-                        return forbidden(); // User has specified an id which is not their own and is not admin
+                        return forbidden(ApiError.forbidden()); // User has specified an id which is not their own and is not admin
                     }
 
                     JsonNode json = request.body().asJson();
@@ -501,7 +513,7 @@ public class ProfileController {
                     // If the username has been changed, and the changed username exists return badRequest()
                     if (!json.get(USERNAME).asText().equals(profileToUpdate.getUsername())
                             && profileExists(json.get(USERNAME).asText())) {
-                        return badRequest("Username exists");
+                        return badRequest(ApiError.badRequest(DUPLICATE_PROFILE));
                     }
 
                     if (!json.get(PASS_FIELD).asText().isEmpty()) { // Only update password if user has typed a new one
@@ -509,7 +521,8 @@ public class ProfileController {
                         try {
                             profileToUpdate.setPassword(AuthenticationUtil.hashProfilePassword(json.get(PASS_FIELD).asText()));
                         } catch (NoSuchAlgorithmException e) {
-                            log.error("Unable to hash the user password", e);
+                            log.error(HASH_FAIL, e);
+                            return internalServerError(ApiError.badRequest(HASH_FAIL));
                         }
                     }
 
@@ -550,9 +563,9 @@ public class ProfileController {
 
                     profileRepository.update(profileToUpdate);
 
-                    return ok(UPDATED);
+                    return ok(Json.toJson(profileToUpdate));
                 })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+                .orElseGet(() -> unauthorized(ApiError.unauthorized())); // User is not logged in
     }
 
 
@@ -563,8 +576,9 @@ public class ProfileController {
      * pagination. This is used on the Search Profiles page.
      *
      * @param request           an Http Request containing Json Body.
-     * @return                  unauthorized() (Http 401) if the user is not logged in.
-     *                          ok() (Http 200) if the search is successful.
+     * @return                  ok() (Http 200) response if the search is successful.
+     *                          badRequest() (Http 400) response if the query String is invalid.
+     *                          unauthorized() (Http 401) response if no user is logged in when making this request.
      */
     public Result list(Http.Request request) {
         int pageNumber = 0;
@@ -572,7 +586,7 @@ public class ProfileController {
 
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized(NOT_SIGNED_IN);
+            return unauthorized(ApiError.unauthorized());
         }
 
         List<Profile> profiles;
@@ -590,11 +604,10 @@ public class ProfileController {
             }
         }
 
-
         String getError = validQueryString(request);
 
         if (getError != null) {
-            return badRequest(getError);
+            return badRequest(ApiError.badRequest(getError));
         }
 
         searchProfiles(expressionList, request);
@@ -744,8 +757,9 @@ public class ProfileController {
      * number of profiles in the database.
      *
      * @param request   an Http request containing the login information and authentication data.
-     * @return          unauthorized() (Http 401) if the user is not logged in.
-     *                  ok() (Http 200) containing the total number of profiles stored in the database.
+     * @return          ok() (Http 200) response containing the number of profiles in the database.
+     *                  badRequest() (Http 400) response if the query within the request is invalid.
+     *                  unauthorized() (Http 401) response if the user is not logged into the system.
      */
     public Result getTotalNumberOfProfiles(Http.Request request) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -759,7 +773,7 @@ public class ProfileController {
         String getError = validQueryString(request);
 
         if (getError != null) {
-            return badRequest(getError);
+            return badRequest(ApiError.badRequest(getError));
         }
 
         searchProfiles(expressionList, request);
@@ -774,9 +788,10 @@ public class ProfileController {
      *
      * @param request       an Http Request containing Json Body.
      * @param id            the id of the user to made an admin.
-     * @return              ok() (Http 200) if successfully making a user admin,
-     *                      unauthorized() (Http 401) if they are not logged in,
-     *                      forbidden() (Http 403) if logged in user is not an admin.
+     * @return              ok() (Http 200) response if a user is successfully made an admin.
+     *                      notFound() (Http 404) response if the target user isn't in the database.
+     *                      forbidden() (Http 403) response if a non-admin user is trying to make admins.
+     *                      unauthorized() (Http 401) response if the user trying to make admins isn't logged in.
      */
     public Result makeAdmin(Http.Request request, Long id) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -808,10 +823,10 @@ public class ProfileController {
      *
      * @param request       an Http Request containing Json Body.
      * @param id            the id of the user to be removed as an admin.
-     * @return              forbidden() (Http 403) if logged in user is not an admin or the profile trying to be changed
-     *                      is the global admin,
-     *                      unauthorized() (Http 401) if the user is not logged in,
-     *                      ok() (Http 200) if successfully updating the admin property of a profile.
+     * @return              ok() (Http 200) response if an admin is made into a normal user.
+     *                      notFound() (Http 404) response if the 'admin' being made normal doesn't exist.
+     *                      forbidden() (Http 403) response if non-admins attempt this, or the global admin's targeted.
+     *                      unauthorized() (Http 401) response if the user trying to make this request is not logged in.
      */
     public Result removeAdmin(Http.Request request, Long id) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);

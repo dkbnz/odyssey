@@ -38,6 +38,10 @@ public class Profile extends BaseModel {
     private LocalDate dateOfBirth;
     private boolean isAdmin;
 
+    @JsonIgnore
+    @Formats.DateTime(pattern = "yyyy-MM-dd")
+    private Date lastSeenDate;
+
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date dateOfCreation;
 
@@ -78,6 +82,20 @@ public class Profile extends BaseModel {
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "owner")
     private AchievementTracker achievementTracker;
+
+    @Transient
+    private int numberOfQuestsCreated;
+
+    @Transient
+    private int numberOfQuestsCompleted;
+
+    public Date getLastSeenDate() {
+        return lastSeenDate;
+    }
+
+    public void setLastSeenDate(Date lastSeenDate) {
+        this.lastSeenDate = lastSeenDate;
+    }
 
 
     public List<Objective> getMyObjectives() {
@@ -252,6 +270,26 @@ public class Profile extends BaseModel {
 
     public boolean removePhotoFromGallery(PersonalPhoto photoToRemove) {
         return photoGallery.remove(photoToRemove);
+    }
+
+    public int getNumberOfQuestsCreated() {
+        return myQuests.size();
+    }
+
+
+    /**
+     * Calculates the number of quests completed. Returns it as a Transient value, therefore doesn't need to be stored
+     * in the database.
+     *
+     * @return the total number of quests the profile has completed.
+     */
+    public int getNumberOfQuestsCompleted() {
+        for (QuestAttempt questAttempt : questAttempts) {
+            if (questAttempt.isCompleted()) {
+                numberOfQuestsCompleted+= 1;
+            }
+        }
+        return numberOfQuestsCompleted;
     }
 
 

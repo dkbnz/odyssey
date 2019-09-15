@@ -1,13 +1,16 @@
 package controllers.quests;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import controllers.points.AchievementTrackerController;
 import io.ebean.ExpressionList;
 import models.destinations.Destination;
 import models.objectives.Objective;
+import models.points.Action;
 import models.profiles.Profile;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
@@ -16,6 +19,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.destinations.DestinationRepository;
+import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
@@ -57,13 +61,16 @@ public class QuestController {
     private static final String OWNER = "owner";
     private static final String ATTEMPTS = "attempts";
     private static final String COUNTRY_OCCURRENCES = "objectives.destination.country";
-    private static final String NEW_QUEST = "newQuest";
     private static final String EQUAL_TO = "=";
     private static final String GREATER_THAN = ">";
     private static final String LESS_THAN = "<";
-    private static final String REWARD = "pointsRewarded";
-    private static final String COMPLETED_POINTS = "completedPoints";
+    private static final String REWARD = "reward";
+    private static final String NEW_QUEST = "newQuest";
+    private static final String GUESS_RESULT = "guessResult";
+    private static final String POINTS_REWARDED = "pointsRewarded";
+    private static final String BADGES_ACHIEVED = "badgesAchieved";
     private static final String ATTEMPT = "attempt";
+    private static final String QUEST_DELETED = "Quest successfully deleted";
 
     @Inject
     public QuestController(QuestRepository questRepository,
@@ -71,6 +78,7 @@ public class QuestController {
                            ProfileRepository profileRepository,
                            DestinationRepository destinationRepository,
                            AchievementTrackerController achievementTrackerController,
+                           PointRewardRepository pointRewardRepository,
                            ObjectMapper objectMapper) {
         this.questRepository = questRepository;
         this.questAttemptRepository = questAttemptRepository;
@@ -136,9 +144,8 @@ public class QuestController {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
-        // Points for creating quest
-        int pointsAdded = achievementTrackerController.rewardAction(questOwner, newQuest, false);
-        returnJson.put(REWARD, pointsAdded);
+        returnJson.set(REWARD, achievementTrackerController.rewardAction(questOwner, newQuest,
+                Action.QUEST_CREATED));   // Points for creating quest
 
         questRepository.save(newQuest);
         profileRepository.update(questOwner);
@@ -184,7 +191,7 @@ public class QuestController {
         }
 
         try {
-            // Attempt to turn json body into a objective object.
+            // Attempt to turn Json body into a objective object.
             quest = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Quest.class)
                     .readValue(request.body().asJson());
@@ -253,7 +260,7 @@ public class QuestController {
          questRepository.update(quest);
          questRepository.delete(quest);
          profileRepository.update(questOwner);
-         return ok();
+         return ok(Json.toJson(QUEST_DELETED));
     }
 
 
@@ -626,13 +633,12 @@ public class QuestController {
         boolean solveSuccess = questAttempt.solveCurrent(destinationGuess);
 
         // Attempt to solve the current objective in the quest attempt, serialize the result.
-        returnJson.put("guessResult", solveSuccess);
+        returnJson.put(GUESS_RESULT, solveSuccess);
 
 
         // Add points based on the action
         if (solveSuccess) {
-            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), false);
-            returnJson.put(REWARD, pointsAdded);
+            returnJson.set(REWARD, achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), Action.RIDDLE_SOLVED));
         }
 
         // Serialize quest attempt regardless of result.
@@ -650,7 +656,8 @@ public class QuestController {
      *
      * @param request           request containing session information.
      * @param attemptId         the id of the quest attempt to be checked in to
-     * @return                  ok() (Http 200) response containing the quest attempt if check in was successful.
+     * @return                  ok() (Http 200) response containing the quest attempt and the given awards if check in
+     *                          was successful.
      *                          notFound() (Http 404) response containing an ApiError for retrieval failure.
      *                          unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
      *                          forbidden() (Http 403) response containing an ApiError if the user is forbidden from
@@ -677,14 +684,37 @@ public class QuestController {
             ObjectNode returnJson = objectMapper.createObjectNode();
 
             Quest questAttempted = questAttempt.getQuestAttempted();
-            int pointsAdded = achievementTrackerController.rewardAction(attemptedBy, objectiveToCheckInTo, true); // Points for checking in
+
+            // ArrayNodes that will store all the points and badges rewarded from checking in.
+            ArrayNode pointsRewarded = objectMapper.createArrayNode();
+            ArrayNode badgesAchieved = objectMapper.createArrayNode();
+
+            // Objective reward result of checking in.
+            JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, objectiveToCheckInTo, Action.CHECKED_IN); // Points for checking in
+
+            // Add all objective reward points and badges to the list of achieved points.
+            pointsRewarded = achievementTrackerController.addAllAwards(pointsRewarded, objectiveRewardJson, POINTS_REWARDED);
+            badgesAchieved = achievementTrackerController.addAllAwards(badgesAchieved, objectiveRewardJson, BADGES_ACHIEVED);
+
 
             // If quest was completed
             if (questAttempt.isCompleted()) {
-                int questCompletedPoints = achievementTrackerController.rewardAction(attemptedBy, questAttempted, true); // Points for completing quest
-                returnJson.put(COMPLETED_POINTS, questCompletedPoints);
+                JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted,
+                        Action.QUEST_COMPLETED); // Awards for completing a quest
+
+                // Add all quest reward points and badges to the list of achieved points.
+                pointsRewarded = achievementTrackerController.addAllAwards(pointsRewarded, questRewardJson, POINTS_REWARDED);
+                badgesAchieved = achievementTrackerController.addAllAwards(badgesAchieved, questRewardJson, BADGES_ACHIEVED);
+
             }
-            returnJson.put(REWARD, pointsAdded);
+
+            // The reward Json part of the returned Json.
+            ObjectNode rewardJson = objectMapper.createObjectNode();
+            rewardJson.set(POINTS_REWARDED, pointsRewarded);
+            rewardJson.set(BADGES_ACHIEVED, badgesAchieved);
+
+            // Set up the return Json to contain the reward and the quest attempt.
+            returnJson.set(REWARD, rewardJson);
             returnJson.set(ATTEMPT, Json.toJson(questAttempt));
 
             questAttemptRepository.update(questAttempt);

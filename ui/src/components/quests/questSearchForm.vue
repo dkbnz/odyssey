@@ -1,7 +1,6 @@
 <template>
     <div>
         <h4 class="page-title">Search Quests</h4>
-        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
         <div>
             <!--Input fields for searching for quests-->
             <b-form-group
@@ -123,12 +122,10 @@
                 searchCreatedFirst: "",
                 searchCreatedLast: "",
                 searchCountry: "",
-                showError: false,
                 operatorOptions: [
                     {value: '>', text: "Greater than"},
                     {value: '<', text: "Less than"},
                 ],
-                errorMessage: "",
                 countryList: Array
             }
         },
@@ -211,12 +208,23 @@
             getCountries() {
                 return fetch("https://restcountries.eu/rest/v2/all", {
                     dataType: 'html'
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.countryList = data;
-                    })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.countryList = responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
             },
 
 
@@ -250,6 +258,7 @@
              * @return {Promise<Response | never>}
              */
             queryQuests() {
+                let self = this;
                 let searchQuery =
                     "?title=" + this.searchTitle +
                     "&operator=" + this.searchOperator +
@@ -258,42 +267,24 @@
                     "&last_name=" + this.searchCreatedLast +
                     "&country=" + this.searchCountry;
 
-                return fetch(`/v1/quests` + searchQuery, {
-                    dataType: 'html'
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.$emit('searched-quests', data);
-                    })
-            },
-
-
-            /**
-             * Displays an error if search failed.
-             *
-             * @param response from database search query.
-             * @throws the error if it occurs.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                throw error;
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response the Http response.
-             * @return the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
+                return fetch(`/v1/quests` + searchQuery, {})
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                        self.$emit('searched-quests', responseBody);
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
             }
         },
     }

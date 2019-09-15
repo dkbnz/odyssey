@@ -55,9 +55,31 @@ $$
 create table achievement_tracker (
   id                            bigint auto_increment not null,
   points                        integer not null,
+  current_streak                integer not null,
   owner_id                      bigint,
   constraint uq_achievement_tracker_owner_id unique (owner_id),
   constraint pk_achievement_tracker primary key (id)
+);
+
+create table badge (
+  id                            bigint auto_increment not null,
+  action_to_achieve             varchar(29) not null,
+  name                          varchar(255),
+  bronze_breakpoint             integer not null,
+  silver_breakpoint             integer not null,
+  gold_breakpoint               integer not null,
+  how_to_progress               varchar(255),
+  constraint ck_badge_action_to_achieve check ( action_to_achieve in ('DESTINATION_CREATED','TRIP_CREATED','QUEST_CREATED','OBJECTIVE_CREATED','RIDDLE_SOLVED','CHECKED_IN','POINTS_GAINED','LOGIN_STREAK','INTERNATIONAL_QUEST_COMPLETED','LARGE_QUEST_COMPLETED','DISTANCE_QUEST_COMPLETED','QUEST_COMPLETED')),
+  constraint uq_badge_action_to_achieve unique (action_to_achieve),
+  constraint pk_badge primary key (id)
+);
+
+create table badge_progress (
+  id                            bigint auto_increment not null,
+  badge_id                      bigint,
+  achievement_tracker_id        bigint,
+  progress                      integer not null,
+  constraint pk_badge_progress primary key (id)
 );
 
 create table destination (
@@ -151,9 +173,9 @@ create table photo (
 
 create table point_reward (
   id                            bigint auto_increment not null,
-  name                          varchar(19) not null,
+  name                          varchar(29) not null,
   value                         integer not null,
-  constraint ck_point_reward_name check ( name in ('DESTINATION_CREATED','QUEST_CREATED','OBJECTIVE_CREATED','RIDDLE_SOLVED','CHECKED_IN','QUEST_COMPLETED','TRIP_CREATED')),
+  constraint ck_point_reward_name check ( name in ('DESTINATION_CREATED','TRIP_CREATED','QUEST_CREATED','OBJECTIVE_CREATED','RIDDLE_SOLVED','CHECKED_IN','POINTS_GAINED','LOGIN_STREAK','INTERNATIONAL_QUEST_COMPLETED','LARGE_QUEST_COMPLETED','DISTANCE_QUEST_COMPLETED','QUEST_COMPLETED')),
   constraint uq_point_reward_name unique (name),
   constraint pk_point_reward primary key (id)
 );
@@ -168,6 +190,7 @@ create table profile (
   gender                        varchar(255),
   date_of_birth                 date,
   is_admin                      tinyint(1) default 0 not null,
+  last_seen_date                datetime(6),
   date_of_creation              datetime(6),
   profile_picture_id            bigint,
   constraint uq_profile_profile_picture_id unique (profile_picture_id),
@@ -237,6 +260,12 @@ create table destination_type (
 );
 
 alter table achievement_tracker add constraint fk_achievement_tracker_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
+
+create index ix_badge_progress_badge_id on badge_progress (badge_id);
+alter table badge_progress add constraint fk_badge_progress_badge_id foreign key (badge_id) references badge (id) on delete restrict on update restrict;
+
+create index ix_badge_progress_achievement_tracker_id on badge_progress (achievement_tracker_id);
+alter table badge_progress add constraint fk_badge_progress_achievement_tracker_id foreign key (achievement_tracker_id) references achievement_tracker (id) on delete restrict on update restrict;
 
 create index ix_destination_type_id on destination (type_id);
 alter table destination add constraint fk_destination_type_id foreign key (type_id) references destination_type (id) on delete restrict on update restrict;
@@ -332,6 +361,12 @@ alter table trip_destination add constraint fk_trip_destination_destination_id f
 
 alter table achievement_tracker drop foreign key fk_achievement_tracker_owner_id;
 
+alter table badge_progress drop foreign key fk_badge_progress_badge_id;
+drop index ix_badge_progress_badge_id on badge_progress;
+
+alter table badge_progress drop foreign key fk_badge_progress_achievement_tracker_id;
+drop index ix_badge_progress_achievement_tracker_id on badge_progress;
+
 alter table destination drop foreign key fk_destination_type_id;
 drop index ix_destination_type_id on destination;
 
@@ -422,6 +457,10 @@ alter table trip_destination drop foreign key fk_trip_destination_destination_id
 drop index ix_trip_destination_destination_id on trip_destination;
 
 drop table if exists achievement_tracker;
+
+drop table if exists badge;
+
+drop table if exists badge_progress;
 
 drop table if exists destination;
 

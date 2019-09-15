@@ -46,3 +46,16 @@ jacocoReportSettings := JacocoReportSettings()
       line = 0,
       clazz = 0)
   )
+
+// Exclude all routes and reverse routes files from testing.
+jacocoExcludes in Test := Seq(
+  "controllers.Reverse*",
+  "controllers.**.Reverse*",
+  "controllers.javascript.*",
+  "controllers.**.javascript*",
+  "jooq.*",
+  "Module",
+  "router.*",
+  "*.routes*"
+)
+

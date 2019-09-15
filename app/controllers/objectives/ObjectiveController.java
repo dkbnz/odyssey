@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import controllers.points.AchievementTrackerController;
+import models.points.Action;
+import models.quests.Quest;
 import models.util.ApiError;
 import models.profiles.Profile;
 import models.destinations.Destination;
@@ -15,11 +17,13 @@ import play.mvc.Result;
 import repositories.profiles.ProfileRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.objectives.ObjectiveRepository;
+import repositories.quests.QuestRepository;
 import util.AuthenticationUtil;
 import util.Views;
 
 import java.util.*;
 
+import static controllers.trips.TripController.REWARD;
 import static play.mvc.Results.*;
 
 public class ObjectiveController {
@@ -28,25 +32,27 @@ public class ObjectiveController {
     private DestinationRepository destinationRepository;
     private ProfileRepository profileRepository;
     private AchievementTrackerController achievementTrackerController;
+    private QuestRepository questRepository;
     private ObjectMapper objectMapper;
 
     private static final Long GLOBAL_ADMIN_ID = 1L;
     private static final String DESTINATION_ERROR = "Provided Destination not found.";
-    private static final String TREASURE_HUNT_NOT_FOUND = "Objective not found.";
     private static final String INVALID_JSON_FORMAT = "Invalid Json format.";
-    private static final String POINTS_REWARDED = "pointsRewarded";
-    private static final String OBJECTIVE_ID = "newObjectiveId";
+    private static final String OBJECTIVE_IN_USE = "Cannot delete, objective is currently used in a quest.";
+    private static final String NEW_OBJECTIVE_ID = "newObjectiveId";
 
     @Inject
     public ObjectiveController(ObjectiveRepository objectiveRepository,
                                DestinationRepository destinationRepository,
                                ProfileRepository profileRepository,
                                AchievementTrackerController achievementTrackerController,
+                               QuestRepository questRepository,
                                ObjectMapper objectMapper) {
         this.objectiveRepository = objectiveRepository;
         this.destinationRepository = destinationRepository;
         this.profileRepository = profileRepository;
         this.achievementTrackerController = achievementTrackerController;
+        this.questRepository = questRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -66,17 +72,17 @@ public class ObjectiveController {
     public Result create(Http.Request request, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Profile objectiveOwner = profileRepository.findById(userId);
 
         if (objectiveOwner == null) {
-            return badRequest();
+            return badRequest(ApiError.invalidJson());
         }
 
         if (!AuthenticationUtil.validUser(loggedInUser, objectiveOwner)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         // Create list to hold objective errors
@@ -110,7 +116,7 @@ public class ObjectiveController {
         Profile globalAdmin = profileRepository.findById(GLOBAL_ADMIN_ID);
 
         if (globalAdmin == null) {
-            return notFound();
+            return notFound(ApiError.notFound());
         }
 
         if (objectiveDestination != null) {
@@ -128,9 +134,8 @@ public class ObjectiveController {
 
         objectiveRepository.save(objective);
 
-        int pointsAdded = achievementTrackerController.rewardAction(objectiveOwner, objective);
-        returnJson.put(POINTS_REWARDED, pointsAdded);
-        returnJson.set(OBJECTIVE_ID, Json.toJson(objective.getId()));
+        returnJson.set(REWARD, achievementTrackerController.rewardAction(objectiveOwner, objective, Action.OBJECTIVE_CREATED));
+        returnJson.set(NEW_OBJECTIVE_ID, Json.toJson(objective.getId()));
 
         profileRepository.update(objectiveOwner);
         destinationRepository.update(objectiveDestination);
@@ -156,7 +161,7 @@ public class ObjectiveController {
     public Result edit(Http.Request request, Long objectiveId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Objective objective = objectiveRepository.findById(objectiveId);
@@ -205,7 +210,7 @@ public class ObjectiveController {
 
 
         objectiveRepository.update(objective);
-        return ok();
+        return ok(Json.toJson(objective));
     }
 
 
@@ -226,28 +231,34 @@ public class ObjectiveController {
     public Result delete(Http.Request request, Long objectiveId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Objective objective = objectiveRepository.findById(objectiveId);
 
         if (objective == null) {
-            return notFound(TREASURE_HUNT_NOT_FOUND);
+            return notFound(ApiError.notFound());
         }
 
         Profile objectiveOwner = objective.getOwner();
 
         if (!AuthenticationUtil.validUser(loggedInUser, objectiveOwner)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
+        }
+
+        List<Quest> quests = questRepository.findAllUsing(objective);
+
+        if (!quests.isEmpty()) {
+            return badRequest(ApiError.badRequest(OBJECTIVE_IN_USE));
         }
 
         if (objectiveOwner != null) {
             objectiveOwner.removeObjective(objective);
             objectiveRepository.delete(objective);
             profileRepository.update(objectiveOwner);
-            return ok();
+            return ok(Json.toJson(objective));
         }
-        return badRequest();
+        return badRequest(ApiError.invalidJson());
     }
 
 

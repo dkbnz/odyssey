@@ -26,7 +26,7 @@
                         <b-button class="btn btn-info btn-lg float-left" v-b-modal.modalLogin>Login</b-button>
                         <b-modal centered hide-footer id="modalLogin" title="Login">
                             <template slot="modal-title"><h2>Login</h2></template>
-                            <login></login>
+                            <login @profile-received="$emit('profile-received')"></login>
                         </b-modal>
                     </b-col>
                 </b-row>
@@ -42,7 +42,7 @@
     export default {
         name: "Index.vue",
 
-        props: ['assets', 'nationalityOptions', 'travTypeOptions', 'profile'],
+        props: ['nationalityOptions', 'travTypeOptions', 'profile'],
 
         data: function () {
             return {
@@ -57,10 +57,11 @@
              */
             profile: function () {
                 if (this.profile.id !== undefined) {
+                    this.updateActivity();
                     if (this.profile.admin) {
                         this.$router.replace("/admin");
                     } else {
-                        this.$router.replace("/dash");
+                        this.$router.replace("/profile");
                     }
                 }
             }

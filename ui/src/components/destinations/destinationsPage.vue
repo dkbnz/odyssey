@@ -26,7 +26,7 @@
                         <p>Destination Successfully {{action}}!</p>
                         <b-progress
                                 :max="dismissSeconds"
-                                :value="dismissCountDown"
+                                :value="dismissCountDown - 1"
                                 height="4px"
                                 variant="success"
                         ></b-progress>
@@ -57,7 +57,6 @@
                                 @destination-search="destinationSearch"
                                 :key="refreshDestinationData"
                                 :input-destination="destinationToAdd"
-                                @data-changed="$emit('data-changed')"
                         ></destination-sidebar>
                     </b-card>
                     <b-card v-else>

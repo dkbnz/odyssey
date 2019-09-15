@@ -134,7 +134,7 @@
 
         <!--Fields for inputting nationalities, passports & traveller types-->
         <div v-if="showSecond" id="secondSignup">
-            <b-alert v-model="showError" variant="danger" dismissible>{{alertMessage}}</b-alert>
+            <b-alert v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
             <b-form>
                 <b-row>
                     <b-col>
@@ -531,19 +531,26 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
+                    }
+                }).then(function (response) {
                     if (response.status === 201 && !self.createdByAdmin) {
-                        self.$router.go();
-                        return response.json();
+                        self.$router.push('/profile');
                     } else if (response.status === 201 && self.createdByAdmin) {
                         self.$emit('profile-created', true);
+                    }
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                     } else {
-                        self.showError = true;
-                        response.clone().text().then(text => {
-                            self.alertMessage = text;
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
                         });
                     }
-
-                })
+                });
             }
         }
     }

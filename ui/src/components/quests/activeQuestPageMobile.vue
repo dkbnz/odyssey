@@ -74,14 +74,29 @@
              * @return {Promise<Response | never>}
              */
             queryYourActiveQuests() {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
                     return fetch(`/v1/quests/profiles/` + this.profile.id, {})
-                        .then(response => response.json())
-                        .then((data) => {
-                            this.questAttempts = data;
-                            this.loadingResults = false;
-                        })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.questAttempts = responseBody;
+                            self.loadingResults = false;
+                        }).catch(function (response) {
+                            if (response.status > 404) {
+                                self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                            } else {
+                                self.loadingResults = false;
+                                response.json().then(function(responseBody) {
+                                    self.showErrorToast(responseBody);
+                                });
+                            }
+                        });
                 }
             },
 

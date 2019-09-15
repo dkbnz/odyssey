@@ -13,14 +13,13 @@
                         <p>{{alertText}}</p>
                         <b-progress
                                 :max="dismissSeconds"
-                                :value="dismissCountDown"
+                                :value="dismissCountDown - 1"
                                 height="4px"
                                 variant="success"
                         ></b-progress>
                     </b-alert>
-                    <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="creatingQuest"
-                                       draggable="false">
+                    <b-list-group-item class="flex-column justify-content-center"
+                                       v-if="creatingQuest">
                         <quest-item
                                 :selected-objective="selectedObjective"
                                 :heading="'Create'"
@@ -32,9 +31,8 @@
                                 @Your-OBJ-side-bar="showHideBar => this.showYourObjectives = showHideBar"
                         ></quest-item>
                     </b-list-group-item>
-                    <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="editingQuest"
-                                       draggable="false">
+                    <b-list-group-item class="flex-column justify-content-center"
+                                       v-if="editingQuest">
                         <quest-item
                                 :selected-objective="selectedObjective"
                                 :inputQuest="copiedQuest"
@@ -48,9 +46,8 @@
                         ></quest-item>
                     </b-list-group-item>
                     <div v-if="yourQuests">
-                        <b-list-group-item href="#" class="flex-column justify-content-center"
-                                           v-if="!creatingQuest && !editingQuest"
-                                           draggable="false">
+                        <b-list-group-item class="flex-column justify-content-center"
+                                           v-if="!creatingQuest && !editingQuest">
                             <div class="d-flex justify-content-center">
                                 <b-button variant="success" @click="addQuest" block>Add a New Quest</b-button>
                             </div>
@@ -60,7 +57,7 @@
                                        class="flex-column align-items-start"
                                        :key="quest.id"
                                        draggable="false"
-                                        v-if="!activeQuests"
+                                       v-if="!activeQuests"
                                        @click="selectedQuest = quest">
                         <template v-if="!editingQuest && !(activeId === quest.id)">
                             <b-row class="buttonMarginsTop">
@@ -161,13 +158,6 @@
                     <div class="d-block">
                         Are you sure that you want to delete this Quest?
                     </div>
-                    <!--Error when deleting quest alert-->
-                    <b-alert
-                            v-model="deleteAlertError"
-                            dismissible
-                            variant="danger">
-                        <p>{{deleteAlertMessage}}</p>
-                    </b-alert>
                     <b-button
                             class="mr-2 float-right"
                             variant="danger"
@@ -178,12 +168,12 @@
                             class="mr-2 float-right">Cancel
                     </b-button>
                 </b-modal>
-                <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
+                <b-list-group-item class="flex-column justify-content-center" v-if="loadingResults">
                     <div class="d-flex justify-content-center">
-                        <b-img alt="Loading" class="align-middle loading" src="../../../static/logo_sm.png"></b-img>
+                        <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
                     </div>
                 </b-list-group-item>
-                <b-list-group-item href="#" class="flex-column justify-content-center"
+                <b-list-group-item class="flex-column justify-content-center"
                                    v-if="!loadingResults && foundQuests.length === 0">
                     <div class="d-flex justify-content-center">
                         <strong>No Quests Found</strong>
@@ -281,8 +271,6 @@
                 dismissCountDown: 0,
                 alertText: "",
                 copiedQuest: null,
-                deleteAlertError: false,
-                deleteAlertMessage: "",
                 showDestinations: false,
                 showYourObjectives: false,
                 showQuestAttemptSolve: false,
@@ -367,21 +355,23 @@
                 fetch('/v1/quests/' + this.questId, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.getMore();
-                        self.$refs['deleteQuestModal'].hide();
-                        self.alertText = "Quest Successfully Deleted";
-                        self.showAlert();
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
                     }
-                    else {
-                        // Converts response to text, this is then displayed on the frontend.
-                        let responseBody = JSON.parse(data);
-                        let message = "";
-                        for (let i = 0; i < responseBody.length; i++) {
-                            message += responseBody[i].message + "\n";
-                        }
-                        self.deleteAlertMessage = message;
-                        self.deleteAlertError = true;
+                }).then(function () {
+                    self.getMore();
+                    self.$refs['deleteQuestModal'].hide();
+                    self.alertText = "Quest Successfully Deleted";
+                    self.showAlert();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
                     }
                 });
             },
@@ -394,15 +384,26 @@
              */
             queryQuests() {
                 this.loadingResults = true;
+                let self = this;
                 return fetch('/v1/quests', {
                     accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.foundQuests = data;
-                        this.loadingResults = false;
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.foundQuests = responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
             },
 
 
@@ -413,16 +414,30 @@
              * @return {Promise<Response | never>}
              */
             queryYourQuests() {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
                     return fetch(`/v1/quests/` + this.profile.id, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.foundQuests = data;
-                            this.loadingResults = false;
-                        })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.foundQuests = responseBody;
+                            self.loadingResults = false;
+                        }).catch(function (response) {
+                            if (response.status > 404) {
+                                self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                            } else {
+                                self.loadingResults = false;
+                                response.json().then(function(responseBody) {
+                                    self.showErrorToast(responseBody);
+                                });
+                            }
+                        });
                 }
-
             },
 
 
@@ -436,11 +451,25 @@
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
                     return fetch(`/v1/quests/profiles/` + this.profile.id, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.questAttempts = data;
-                            this.loadingResults = false;
-                        })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.questAttempts = responseBody;
+                            self.loadingResults = false;
+                        }).catch(function (response) {
+                            if (response.status > 404) {
+                                self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                            } else {
+                                self.loadingResults = false;
+                                response.json().then(function(responseBody) {
+                                    self.showErrorToast(responseBody);
+                                });
+                            }
+                        });
                 }
 
             },
@@ -452,23 +481,34 @@
              * @return {Promise<Response | never>}
              */
             createAttempt(questToAttempt, viewActive) {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     return fetch(`/v1/quests/` + questToAttempt.id + `/attempt/` + this.profile.id, {
                         method: 'POST'
-                    }).then(response => {
-                        return response;
-                    }).then(response => response.json())
-                        .then(data => {
-                            // If 'start now' is clicked
-                            if (viewActive) {
-                                this.$emit('start-quest-now', data);
-                            } else {
-                                // Refresh quests
-                                this.getMore();
-                                this.showSuccess({message: "Quest started"});
-                                this.$emit('start-quest-later', data);
-                            }
-                        });
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        if (viewActive) {
+                            self.$emit('start-quest-now', responseBody);
+                        } else {
+                            // Refresh quests
+                            self.getMore();
+                            self.showSuccess({message: "Quest started"});
+                            self.$emit('start-quest-later', responseBody);
+                        }
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
+                    });
                 }
             },
 
@@ -480,14 +520,30 @@
              * @return {Promise<Response | never>}
              */
             queryCompletedQuests() {
+                let self= this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
-                    return fetch(`/v1/quests/` + this.profile.id + `/complete`, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.foundQuests = data;
-                            this.loadingResults = false;
-                        })
+                    return fetch(`/v1/quests/` + this.profile.id + `/complete`, {
+                        accept: 'application/json'
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        self.foundQuests = responseBody;
+                        self.loadingResults = false;
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            self.loadingResults = false;
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
+                    });
                 }
 
             },
@@ -536,12 +592,23 @@
                 let self = this;
                 return fetch('/v1/quests/' + this.questId + '/profiles', {
                     accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(data => {
-                        self.activeUsers = data.length;
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.activeUsers = responseBody.length;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
             },
 
 
@@ -582,11 +649,12 @@
             /**
              * Sets the message for the success alert to the inputted message and runs showAlert to show the success
              * message.
+             *
              * @param messageObject the object to display
              */
             showSuccess(messageObject) {
                 this.getMore();
-                this.queryYourQuests();
+                this.showRewardToast(messageObject.reward);
                 this.alertText = messageObject.message;
 
                 // If points were given, also set the data value, otherwise make sure it's the default of 0 to hide it.
@@ -599,6 +667,7 @@
 
             /**
              * Displays a toast saying they've gained a certain amount of points.
+             *
              * @param points the points to display.
              * @param title the title of the toast, indicating the context of the point gain.
              */
@@ -611,15 +680,6 @@
                 })
             },
 
-            /**
-             * Converts the Http response body to a Json.
-             * @param response  the received Http response.
-             * @return {*}     the response body as a Json object.
-             */
-            parseJSON(response) {
-                return response.json();
-            },
-
 
             /**
              * Used to dismiss the delete a quest confirmation modal.
@@ -628,7 +688,6 @@
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
-                this.deleteAlertError = false;
             },
 
 

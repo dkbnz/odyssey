@@ -2,6 +2,7 @@ package controllers.photos;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import models.destinations.Destination;
+import models.util.ApiError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import models.profiles.Profile;
@@ -40,10 +41,12 @@ public class PhotoController extends Controller {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private static final Long MAX_IMG_SIZE = 5000000L;
     private static final String AUTHORIZED = "authorized";
-    private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String PHOTO_ID = "id";
     private static final String IS_PUBLIC = "public";
-    private static final String IMAGE_NOT_FOUND = "Image could not be found.";
+    private static final String PROFILE_NOT_FOUND = "Requested profile doesn't exist.";
+    private static final String PHOTO_NOT_FOUND = "Requested photo doesn't exist.";
+    private static final String INVALID_SIZE = "Invalid image size/type.";
+    private static final String NO_IMAGES = "No images to upload.";
     private static final int IMAGE_DIMENSION = 200;
 
     private ProfileRepository profileRepository;
@@ -167,20 +170,20 @@ public class PhotoController extends Controller {
     public Result destroy(Http.Request request, Long photoId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         PersonalPhoto photo = personalPhotoRepository.findById(photoId);
 
         if (photo == null) {
-            return notFound();
+            return notFound(ApiError.notFound());
         }
 
 
         Profile photoOwner = photo.getProfile();
 
         if (!AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
         if (photoOwner != null) {
             for(Destination destination : destinationRepository.fetch(photo)) {
@@ -192,9 +195,9 @@ public class PhotoController extends Controller {
             personalPhotoRepository.update(photo);
             personalPhotoRepository.delete(photo);
             profileRepository.update(photoOwner);
-            return ok();
+            return ok(Json.toJson(photo));
         }
-        return badRequest();
+        return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
     }
 
 
@@ -211,22 +214,22 @@ public class PhotoController extends Controller {
     public Result destroyProfilePhoto(Http.Request request, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Profile profileToChange = profileRepository.findById(userId);
 
         if (profileToChange == null) {
-            return badRequest();
+            return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
         }
 
         if(!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         profileToChange.setProfilePicture(null);
         profileRepository.update(profileToChange);
-        return ok();
+        return ok(Json.toJson(profileToChange));
     }
 
 
@@ -243,23 +246,23 @@ public class PhotoController extends Controller {
     public Result updateProfilePhoto(Http.Request request, Long photoId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         PersonalPhoto personalPhoto = personalPhotoRepository.findById(photoId);
 
         if (personalPhoto == null) {
-            return badRequest();
+            return badRequest(ApiError.badRequest(PHOTO_NOT_FOUND));
         }
 
         Profile owner = personalPhoto.getProfile();
 
         if (owner == null) {
-            return notFound();
+            return notFound(ApiError.notFound());
         }
 
         if(!AuthenticationUtil.validUser(loggedInUser, owner)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         // Now used as a profile photo so must be public
@@ -268,7 +271,7 @@ public class PhotoController extends Controller {
         owner.setProfilePicture(personalPhoto);
         personalPhotoRepository.update(personalPhoto);
         profileRepository.update(owner);
-        return ok();
+        return ok(Json.toJson(personalPhoto));
     }
 
 
@@ -287,13 +290,13 @@ public class PhotoController extends Controller {
     public Result changePrivacy(Http.Request request) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized(NOT_SIGNED_IN);
+            return unauthorized(ApiError.unauthorized());
         }
 
         JsonNode json = request.body().asJson();
 
         if (!(json.has(PHOTO_ID) && json.has(IS_PUBLIC))) {
-            return badRequest();
+            return badRequest(ApiError.invalidJson());
         }
 
         Long personalPhotoId = json.get(PHOTO_ID).asLong();
@@ -304,23 +307,23 @@ public class PhotoController extends Controller {
         PersonalPhoto personalPhoto = personalPhotoRepository.findById(personalPhotoId);
 
         if (personalPhoto == null) {
-            return notFound();
+            return notFound(ApiError.notFound());
         }
 
         Profile owner = personalPhoto.getProfile();
 
         if (owner == null) {
-            return notFound();
+            return notFound(ApiError.notFound());
         }
 
         if(owner.getProfilePicture() != null && owner.getProfilePicture().getId().equals(personalPhotoId)) {
-            return badRequest();
+            return badRequest(ApiError.invalidJson());
         }
 
         if(AuthenticationUtil.validUser(loggedInUser, owner)) {
             profileToChange = owner;
         } else {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         personalPhoto.setPublic(isPublic);
@@ -373,9 +376,9 @@ public class PhotoController extends Controller {
                         return ok(Json.toJson(user.getPhotoGallery()));
                     }
 
-                    return badRequest();
+                    return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
                 })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+                .orElseGet(() -> unauthorized(ApiError.unauthorized())); // User is not logged in
     }
 
 
@@ -398,16 +401,16 @@ public class PhotoController extends Controller {
                     Profile profileToAdd = profileRepository.findById(userId);
 
                     if (profileToAdd == null) {
-                        return badRequest(); // User does not exist in the system.
+                        return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND)); // User does not exist in the system.
                     }
 
                     if(loggedInUser == null) {
-                        return notFound();
+                        return notFound(ApiError.notFound());
                     }
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
                     if (!AuthenticationUtil.validUser(loggedInUser, profileToAdd)) {
-                        return forbidden();
+                        return forbidden(ApiError.forbidden());
                     }
 
                     Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
@@ -415,7 +418,7 @@ public class PhotoController extends Controller {
 
                     // Validate images
                     if (!validatePhotos(photos)) {
-                        return badRequest("Invalid image size/type.");
+                        return badRequest(ApiError.badRequest(INVALID_SIZE));
                     }
 
                     // Images are valid, if we have images, then add them to profile
@@ -424,9 +427,9 @@ public class PhotoController extends Controller {
                     }
 
                     // Images are empty
-                    return badRequest("No images to upload.");
+                    return badRequest(ApiError.badRequest(NO_IMAGES));
                 })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+                .orElseGet(() -> unauthorized(ApiError.unauthorized())); // User is not logged in
     }
 
 
@@ -527,7 +530,7 @@ public class PhotoController extends Controller {
                     PersonalPhoto personalPhoto = personalPhotoRepository.findById(personalPhotoId);
 
                     if (personalPhoto == null)
-                        return notFound(IMAGE_NOT_FOUND);
+                        return notFound(ApiError.notFound());
 
                     if (personalPhoto.getPublic())
                         return getImageResult(personalPhoto.getPhoto(), getThumbnail);
@@ -536,13 +539,14 @@ public class PhotoController extends Controller {
                     Profile owner = personalPhoto.getProfile();
 
                     if (loggedInUser == null) {
-                        return notFound();
+                        return notFound(ApiError.notFound());
                     }
-                    if(AuthenticationUtil.validUser(loggedInUser, owner))
+                    if(AuthenticationUtil.validUser(loggedInUser, owner)) {
                         return getImageResult(personalPhoto.getPhoto(), getThumbnail);
+                    }
 
-                    return forbidden();
-                }).orElseGet(() -> unauthorized());
+                    return forbidden(ApiError.forbidden());
+                }).orElseGet(() -> unauthorized(ApiError.unauthorized()));
     }
 
 
@@ -566,7 +570,7 @@ public class PhotoController extends Controller {
                     JsonNode json = request.body().asJson();
 
                     if (!(json.has(PHOTO_ID))) {
-                        return badRequest();
+                        return badRequest(ApiError.invalidJson());
                     }
 
                     PersonalPhoto personalPhoto = personalPhotoRepository.findById(
@@ -576,11 +580,11 @@ public class PhotoController extends Controller {
                     Destination destination = destinationRepository.findById(destinationId);
 
                     if (personalPhoto == null) {
-                        return notFound(IMAGE_NOT_FOUND);
+                        return notFound(ApiError.notFound());
                     }
 
                     if (destination == null) {
-                        return notFound();
+                        return notFound(ApiError.notFound());
                     }
 
                     Profile photoOwner = personalPhoto.getProfile();
@@ -588,7 +592,7 @@ public class PhotoController extends Controller {
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
 
                     if (loggedInUser == null) {
-                        return notFound();
+                        return notFound(ApiError.notFound());
                     }
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner) &&
@@ -601,8 +605,8 @@ public class PhotoController extends Controller {
                         return created(Json.toJson(destination.getPhotoGallery()));
                     }
 
-                    return forbidden();
-                }).orElseGet(() -> unauthorized());
+                    return forbidden(ApiError.forbidden());
+                }).orElseGet(() -> unauthorized(ApiError.unauthorized()));
     }
 
 
@@ -640,7 +644,7 @@ public class PhotoController extends Controller {
                     JsonNode json = request.body().asJson();
 
                     if (!(json.has(PHOTO_ID))) {
-                        return badRequest();
+                        return badRequest(ApiError.invalidJson());
                     }
 
                     Long personalPhotoId = json.get(PHOTO_ID).asLong();
@@ -648,7 +652,7 @@ public class PhotoController extends Controller {
                     PersonalPhoto personalPhoto = personalPhotoRepository.findById(personalPhotoId);
 
                     if (personalPhoto == null) {
-                        return notFound(IMAGE_NOT_FOUND);
+                        return notFound(ApiError.notFound());
                     }
 
                     Profile photoOwner = personalPhoto.getProfile();
@@ -656,7 +660,7 @@ public class PhotoController extends Controller {
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
 
                     if (loggedInUser == null) {
-                        return notFound();
+                        return notFound(ApiError.notFound());
                     }
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
@@ -666,12 +670,12 @@ public class PhotoController extends Controller {
                             destinationRepository.update(destination);
                             return ok(Json.toJson(destination.getPhotoGallery()));
                         } else {
-                            return notFound();
+                            return notFound(ApiError.notFound());
                         }
                     }
 
-                    return forbidden();
-                }).orElseGet(() -> unauthorized());
+                    return forbidden(ApiError.forbidden());
+                }).orElseGet(() -> unauthorized(ApiError.unauthorized()));
     }
 
 }

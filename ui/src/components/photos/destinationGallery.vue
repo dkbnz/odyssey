@@ -94,20 +94,29 @@
                     method: 'PATCH',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
-                }).then(response => {
-                    if (response.status === 200) {
-                        response.clone().json().then(text => {
-                            self.profile.photoGallery = text;
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
+                    }
+                }).then(function (responseBody) {
+                    self.profile.photoGallery = responseBody;
+                    let index = self.indexOfById(self.destination.photoGallery, photo);
+                    if (index !== -1) {
+                        self.destination.photoGallery[index] = photo
+                    }
+
+                    self.calculatePhotoSplit();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
                         });
                     }
                 });
-
-                let index = this.indexOfById(this.destination.photoGallery, photo);
-                if (index !== -1) {
-                    this.destination.photoGallery[index] = photo
-                }
-
-                this.calculatePhotoSplit();
             },
 
 
@@ -162,10 +171,19 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
-                }).then(response => {
-                    if (response.status !== 201) {
-                        self.showError = true;
-                        self.alertMessage = "An error occurred when adding a destination photo";
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
+                    }
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
                     }
                 });
             },
@@ -182,10 +200,19 @@
                     method: 'DELETE',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
-                }).then(response => {
-                    if (response.status !== 200) {
-                        self.showError = true;
-                        self.alertMessage = "An error occurred when deleting a destination photo";
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
+                    }
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
                     }
                 });
             },
@@ -200,6 +227,12 @@
                 this.$refs[modal].hide();
             },
 
+
+            /**
+             * Displays the specified modal.
+             *
+             * @param modal     the modal that is wanting to be displayed.
+             */
             showModal(modal) {
                 this.$refs[modal].show();
             },
