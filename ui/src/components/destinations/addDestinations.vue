@@ -484,7 +484,6 @@
                 }).then(function (responseBody) {
                     self.resetDestForm();
                     self.showAlert();
-                    self.$emit('data-changed');
                     self.createPointToast(responseBody.pointsRewarded, "Destination Created");
                     return responseBody;
                 }).catch(function (response) {

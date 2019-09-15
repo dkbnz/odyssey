@@ -25,8 +25,7 @@
                         <add-destinations :profile="profile"
                                           :destinationTypes="destinationTypes"
                                           :heading="'Add'"
-                                          :input-destination="inputDestination"
-                                          @data-changed="$emit('data-changed')">
+                                          :input-destination="inputDestination">
                         </add-destinations>
                     </b-list-group-item>
                 </b-list-group>

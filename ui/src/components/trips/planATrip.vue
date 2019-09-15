@@ -272,7 +272,6 @@
                     <destination-sidebar
                             :profile="profile"
                             @destination-click="destination => this.selectedDestination = destination"
-                            @data-changed="$emit('data-changed')"
                             :input-destination="destinationToAdd"
                             @destination-search="result => showMap(result)"
                     ></destination-sidebar>
