@@ -188,26 +188,30 @@ a {
     opacity: 0.2;
 }
 
+/* Lowers padding in b-card bodies */
 .card-body {
     padding: 10px;
 }
 
+/* Used to wrap white space in p sections */
 .wrapWhiteSpace {
     white-space:pre-wrap;
 }
 
+/* Used to wrap white space in p sections with a small gap */
 .wrapWhiteSpaceSmallGap {
     white-space:pre-wrap;
     font-size: 15px;
 }
 
+/* Contains all the badges, used to scroll the div */
 .badgesDiv {
     max-height: 60vh;
     overflow: auto;
     overflow-y: scroll;
 }
 
-/* Default margin for mobile, don't change as this can be overridden whereas bootstrap's can't. */
+/* Default margin for mobile, don't change as this can be overridden whereas bootstrap's can't */
 .questMobileContent {
     margin: 0.5em;
 }
@@ -236,6 +240,7 @@ a {
     }
 }
 
+/* Change the scrollbar */
 ::-webkit-scrollbar {
     -webkit-appearance: none;
 }
@@ -258,11 +263,13 @@ a {
     background-color: #eee;
 }
 
+/* Change contents of the mobile leaderboard so everything fits appropriately */
 .mobileLeaderboard {
     font-size: 0.99em;
     width: 65%;
 }
 
+/* Loader div that displays over the whole page */
 .loader {
     opacity:    0.9;
     background: darkgrey;
@@ -275,6 +282,7 @@ a {
     text-align: center;
 }
 
+/* Is placed inside the loader div, contains the spinning logo and the loading text */
 .loader-content {
     top: 35%;
     opacity: 1;
@@ -284,20 +292,7 @@ a {
     color: black;
 }
 
-.loading-results-content {
-    width: 100%;
-    height: 100%;
-    margin: 0 auto;
-    position: relative;
-    color: black;
-}
-
-@media (min-width: 992px) {
-    .modal-lg {
-        width: 90vw;
-    }
-}
-
+/* Changes the size of the modal on large devices */
 @media (min-width: 992px) {
     .modal-lg, .modal-xl {
         max-width: 90vw;
