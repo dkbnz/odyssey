@@ -603,7 +603,7 @@
                         }
                     }).then(function (responseBody) {
                         if (!self.adminView) {
-                            self.$router.go();
+                            self.$router.push('/dash');
                         } else {
                             self.showSuccess = true;
                             setTimeout(function() {

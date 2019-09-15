@@ -237,7 +237,6 @@
                     self.showAlert();
                     if (self.profile.id === makeAdminProfile.id) {
                         self.$router.push("/dash");
-                        self.$router.go();
                     }
                     self.showAlert();
                 }).catch(function (response) {

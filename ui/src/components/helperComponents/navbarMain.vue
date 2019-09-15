@@ -79,7 +79,6 @@
                     }
                 }).then(function (response) {
                     self.$router.push("/");
-                    self.$router.go();
                     return response;
                 }).catch(function (response) {
                     if (response.status > 404) {
