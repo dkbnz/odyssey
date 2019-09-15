@@ -106,7 +106,9 @@
                                 </b-row>
                                 <b-row>
                                     <b-button variant="primary" class="buttonMarginsTop"
-                                              @click="sendTravellerTypes(destination)" block>
+                                              @click="sendTravellerTypes(destination)" block :disabled="sendingRequest">
+                                        <b-img alt="Loading" class="align-middle loading" v-if="sendingRequest" :src="assets['loadingLogo']" height="20%">
+                                        </b-img>
                                         Submit
                                     </b-button>
                                 </b-row>
@@ -145,7 +147,8 @@
                 alertMessage: "",
                 showTravellerTypeUpdateSuccess: false,
                 showTravellerTypeUpdateFailure: false,
-                retrievingProposals: false
+                retrievingProposals: false,
+                sendingRequest: false
             }
         },
 
@@ -270,6 +273,7 @@
              */
             sendTravellerTypes(destination) {
                 let self = this;
+                this.sendingRequest = true;
                 fetch(`/v1/destinations/` + destination.id + `/travellerTypes`, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
@@ -299,6 +303,7 @@
                         });
                     }
                 });
+                this.sendingRequest = false;
             }
         },
 
