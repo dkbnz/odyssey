@@ -81,7 +81,7 @@ public class AuthenticationController extends Controller {
             if ((profile != null) && (profile.getPassword().equals(password))) {
                 // Profile was successfully fetched and password matches
                 // Set session token as id and return ok (200 response)
-                return ok(Json.toJson(LOGGED_IN)).addingToSession(request, AUTHORIZED, profile.id.toString());
+                return ok(Json.toJson(profile)).addingToSession(request, AUTHORIZED, profile.id.toString());
             }
 
             return unauthorized(ApiError.unauthorized());
@@ -95,7 +95,7 @@ public class AuthenticationController extends Controller {
                             loginJson.has(AUTHENTICATION_FIELD)))) {
                 // If JSON Object contains no user or pass key, return bad request
                 // Prevents null pointer exceptions when trying to get the values below.
-                return badRequest(ApiError.invalidJson());
+                return badRequest(Json.toJson(loggedInUser));
             }
 
             return ok(Json.toJson(ALREADY_LOGGED_IN));

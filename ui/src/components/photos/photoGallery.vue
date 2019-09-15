@@ -143,11 +143,6 @@
             }
         },
 
-        mounted() {
-            let self = this;
-            setTimeout(self.getPhotosList, 500);
-        },
-
         methods: {
             /**
              * Creates a POST request to upload photo(s) to the backend.
@@ -301,35 +296,37 @@
             getPhotosList() {
                 let self = this;
                 this.retrievingPhotos = true;
-                fetch(`/v1/photos/user/` + self.profile.id, {
-                    accept: "application/json",
-                    method: "GET"
-                }).then(function (response) {
-                    if (!response.ok) {
-                        throw response;
-                    } else {
-                        return response.json();
-                    }
-                }).then(function (responseBody) {
-                    self.photos = [];
-                    for (let i in responseBody) {
-                        if (self.authentication || responseBody[i].public || self.adminView) {
-                            self.photos.push(responseBody[i]);
-                            self.reloadPhotoTable += 1;
+                if (this.profile) {
+                    fetch(`/v1/photos/user/` + self.profile.id, {
+                        accept: "application/json",
+                        method: "GET"
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
                         }
-                    }
-                    self.showError = false;
-                    self.retrievingPhotos = false;
-                }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
+                    }).then(function (responseBody) {
+                        self.photos = [];
+                        for (let i in responseBody) {
+                            if (self.authentication || responseBody[i].public || self.adminView) {
+                                self.photos.push(responseBody[i]);
+                                self.reloadPhotoTable += 1;
+                            }
+                        }
+                        self.showError = false;
                         self.retrievingPhotos = false;
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
-                });
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            self.retrievingPhotos = false;
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
+                    });
+                }
             },
 
 
