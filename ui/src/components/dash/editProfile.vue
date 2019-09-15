@@ -255,7 +255,7 @@
         <!--Displayed if there are input errors when "Save Profile" is clicked-->
         <b-alert dismissible v-model="showError" variant="danger">The form contains errors! Please ensure that no fields are red</b-alert>
         <!--Validates inputs then updates user data if valid-->
-        <b-button :disabled="!checkSaveProfile()" @click="submitSaveProfile" block size="lg" variant="success">
+        <b-button :disabled="!checkSaveProfile() || sendingRequest" @click="submitSaveProfile" block size="lg" variant="success">
             <b-img alt="Loading" class="loading" v-if="sendingRequest" :src="assets['loadingLogo']" height="30%"></b-img>
             <p class="m-0 p-0" v-if="!sendingRequest">Save Profile</p>
         </b-button>
