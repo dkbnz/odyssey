@@ -31,9 +31,9 @@
                            :src="assets['loadingLogo']">
                     </b-img>
                 </div>
-                <div v-if="!retrievingProfiles && profiles.length > 0">
+                <div v-if="!retrievingProfiles && profiles.length > 0" class="mt-2">
                     <div v-if="moreResults">
-                        <b-button variant="success" @click="getMore" block>More</b-button>
+                        <b-button variant="success" @click="getMore" block>Load More</b-button>
                     </div>
                     <div v-else class="d-flex justify-content-center">
                         <h5 class="mb-1">No More Results</h5>

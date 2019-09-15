@@ -18,12 +18,11 @@
                     </b-col>
                     <b-col>
                         <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1"><b>{{profile.firstName}} {{profile.lastName}}</b></h5>
+                            <h5 class="mb-1 mobileLeaderboard"><b>{{profile.firstName}} {{profile.lastName}}</b></h5>
                             <small>#{{profile.achievementTracker.rank}} ({{ profile.achievementTracker.points}})</small>
                         </div>
                         <div>
                             <p class="wrapWhiteSpaceSmallGap">{{calculateNationalities(profile)}}</p>
-                            <br />
                             <small>Badges Achieved: {{profile.achievementTracker.badges.length}} <br />
                                 Points: {{profile.achievementTracker.points}} <br />
                                 Quests Created: {{profile.numberOfQuestsCreated}} <br />
