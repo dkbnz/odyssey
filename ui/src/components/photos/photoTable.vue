@@ -28,7 +28,7 @@
                 </td>
             </tr>
         </table>
-        <div class="d-flex justify-content-center w-100">
+        <div class="d-flex justify-content-center w-100 mt-1">
             <b-pagination
                     :per-page="perPage"
                     :total-rows="rows"

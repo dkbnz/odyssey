@@ -57,7 +57,8 @@
                     <div class="questMobileContent bg-white pt-3 pl-3 pr-3 pb-3 rounded-lg">
                         <div class="pt-3 mobileMargins">
                             <h1 class="page-title">Quests</h1>
-                            <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
+                            <p class="page-title" v-if="userProfile.id !== profile.id"><i>Click a quest below to add it to your list of quests!</i></p>
+                            <p class="page-title" v-else><i>Here are your currently active quests!</i></p>
                             <active-quest-list
                                     :quest-attempts="questAttempts"
                                     :loading-results="loadingResults"

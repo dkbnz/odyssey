@@ -538,7 +538,7 @@
                     }
                 }).then(function (response) {
                     if (response.status === 201 && !self.createdByAdmin) {
-                        self.$router.push('/dash');
+                        self.$router.push('/profile');
                     } else if (response.status === 201 && self.createdByAdmin) {
                         self.$emit('profile-created', true);
                     }

@@ -33,7 +33,7 @@
                 </b-navbar-nav>
 
                 <b-navbar-nav class="ml-auto">
-                    <b-nav-item right :class="{active: currentPage ==='/dash'}" @click="goToProfile()">
+                    <b-nav-item right :class="{active: currentPage ==='/profile'}" @click="goToProfile()">
                         {{ profile.firstName }}
                     </b-nav-item>
                     <b-nav-item @click="logout">
@@ -54,7 +54,7 @@
 
         data() {
             return {
-                currentPage: '/dash'
+                currentPage: '/profile'
             }
         },
 
@@ -115,7 +115,7 @@
                 this.$router.push("/destinations");
             },
             goToProfile() {
-                this.$router.push("/dash");
+                this.$router.push("/profile");
             },
             goToAdminPanel() {
                 this.$router.push("/admin");

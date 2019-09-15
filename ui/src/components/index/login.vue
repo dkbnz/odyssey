@@ -77,7 +77,7 @@
                     if (responseBody.admin) {
                         self.$router.replace("/admin");
                     } else {
-                        self.$router.replace("/dash");
+                        self.$router.replace("/profile");
                     }
                     return responseBody;
                 }).catch(function (response) {

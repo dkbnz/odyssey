@@ -37,7 +37,7 @@
             </b-modal>
 
             <!-- Modal that uses the plan a trip page to edit a selected trip -->
-            <b-modal hide-footer id="editTripModal" ref="editTripModal" size="xl" title="Edit Trip">
+            <b-modal hide-footer id="editTripModal" ref="editTripModal" size="lg" title="Edit Trip">
                 <plan-a-trip
                         :destinations="destinations"
                         :heading="'Edit a Trip'"
@@ -459,7 +459,7 @@
                         } else {
                             return response.json();
                         }
-                    }).then(function () {
+                    }).then(function (trips) {
                         self.showError = false;
                         let today = new Date();
 

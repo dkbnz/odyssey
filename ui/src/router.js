@@ -1,8 +1,8 @@
 import Index from './components/index/indexPage'
-import Dash from './components/dash/dashPage'
+import ProfilePage from './components/dash/dashPage'
 import Destinations from './components/destinations/destinationsPage'
 import Objectives from './components/objectives/objectivePage'
-import Profiles from './components/profiles/leaderboardPage'
+import Leaderboard from './components/profiles/leaderboardPage'
 import Trips from './components/trips/tripsPage'
 import AdminPanel from './components/admin/adminPanel'
 import Quests from './components/quests/questPage'
@@ -21,9 +21,9 @@ const routes = [
         }
     },
     {
-        path:"/dash",
-        name: "dash",
-        component: Dash,
+        path:"/profile",
+        name: "profile",
+        component: ProfilePage,
         meta: {
             title: "Your Profile - TravelEA"
         }
@@ -54,8 +54,8 @@ const routes = [
     },
     {
         path:"/leaderboard",
-        name: "profiles",
-        component: Profiles,
+        name: "leaderboard",
+        component: Leaderboard,
         meta: {
             title: "Leaderboard - TravelEA"
         }
@@ -86,7 +86,7 @@ const routes = [
     },
     {
         path: '*',
-        redirect: '/dash'
+        redirect: '/profile'
     }
 ];
 
