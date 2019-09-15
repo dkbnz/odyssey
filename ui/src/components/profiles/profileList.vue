@@ -70,33 +70,41 @@
             <template v-slot:row-details="row">
                 <b-card bg-variant="light">
                     <b-row>
-                        <b-col cols="3">
+                        <b-col>
                             <h3>Information</h3>
                             <p>Date of Birth: {{new Date(row.item.dateOfBirth).toLocaleDateString()}}</p>
+
+                        </b-col>
+                        <b-col>
                             <h3>Statistics</h3>
                             <p>Badges Achieved: {{row.item.achievementTracker.badges.length}} <br />
                                 Points: {{row.item.achievementTracker.points}} <br />
                                 Quests Created: {{row.item.numberOfQuestsCreated}} <br />
                                 Quests Completed: {{row.item.numberOfQuestsCompleted}} <br />
                             </p>
+
+
                         </b-col>
-                        <b-col cols="3">
+                        <b-col>
                             <h3>Nationalities</h3>
                             <ul>
                                 <li v-for="nationality in row.item.nationalities">{{nationality.nationality}}</li>
                             </ul>
+                        </b-col>
+                        <b-col>
                             <h3>Passports</h3>
                             <ul>
                                 <li v-for="passport in row.item.passports">{{passport.country}}</li>
                             </ul>
                         </b-col>
                         <b-col>
-                            <div class="h-100 d-flex">
-                                <b-list-group-item href="#" class="w-50 justify-content-center align-self-center"
-                                                   @click="$emit('show-single-profile', row.item)"
-                                                   variant="primary">
-                                    <h3>Show Full Profile</h3>
-                                </b-list-group-item>
+                            <div class="d-flex">
+                                <b-button variant="link" @click="$emit('show-single-profile', row.item)">Show Full Profile</b-button>
+<!--                                <b-list-group-item href="#" class="w-50 justify-content-center align-self-center"-->
+
+<!--                                                   >-->
+<!--                                    <h3></h3>-->
+<!--                                </b-list-group-item>-->
                             </div>
                         </b-col>
                     </b-row>
