@@ -343,7 +343,6 @@
                         self.showTravellerTypeUpdateSuccess = false;
                     }, 3000);
                     self.showEditTravellerTypes = false;
-                    self.$emit('data-changed');
                 }).catch(function (response) {
                     if (response.status > 404) {
                         self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
@@ -358,7 +357,6 @@
                             }, 3000);
                             self.showEditTravellerTypes = false;
                             self.showErrorToast(responseBody);
-                            self.$emit('data-changed');
                         });
                     }
                 });

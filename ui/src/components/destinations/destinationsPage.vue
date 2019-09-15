@@ -57,7 +57,6 @@
                                 @destination-search="destinationSearch"
                                 :key="refreshDestinationData"
                                 :input-destination="destinationToAdd"
-                                @data-changed="$emit('data-changed')"
                         ></destination-sidebar>
                     </b-card>
                     <b-card v-else>
