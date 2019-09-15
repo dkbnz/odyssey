@@ -121,7 +121,7 @@ a {
 }
 
 .profilePage {
-    max-height: 100vh;
+    max-height: 100%;
 }
 
 .profilePage p {
@@ -202,9 +202,38 @@ a {
 }
 
 .badgesDiv {
-    max-height: inherit;
+    max-height: 60vh;
     overflow: auto;
     overflow-y: scroll;
+}
+
+/* Default margin for mobile, don't change as this can be overridden whereas bootstrap's can't. */
+.questMobileContent {
+    margin: 0.5em;
+}
+
+/* Changes font size on small devices, as text is too big and breaks div */
+@media only screen and (max-device-width: 1550px) {
+    .badgesContent {
+        font-size: 0.8em;
+    }
+
+    .badgesContent p {
+        font-size: 0.99em;
+    }
+}
+
+/* Changes width of column for quests when viewing on mobile */
+@media only screen and (max-device-width: 767px) {
+    .questMobile {
+        padding: 0;
+        margin: 0;
+    }
+
+    .questMobileContent {
+        padding: 0;
+        margin: 0.5em 0 0 0;
+    }
 }
 
 ::-webkit-scrollbar {

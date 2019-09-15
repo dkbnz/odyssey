@@ -52,9 +52,9 @@
                 <!-- END OF THE PROFILE SECTION -->
 
             </b-col>
-            <b-col md="9">
+            <b-col md="9" class="questMobile">
                 <div>
-                    <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-3 rounded-lg">
+                    <div class="questMobileContent bg-white pt-3 pl-3 pr-3 pb-3 rounded-lg">
                         <div class="pt-3 mobileMargins">
                             <h1 class="page-title">Quests</h1>
                             <p class="page-title"><i>Click a quest below to add it to your list of quests.</i></p>
