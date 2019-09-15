@@ -276,11 +276,9 @@
                     self.alertMessage = "Profile picture successfully changed!";
                     self.showAlert();
                 }).catch(function (response) {
-                    console.log("HERE");
                     if (response.status > 404) {
                         self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                     } else {
-                        console.log("HERE");
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
                         });
@@ -361,7 +359,6 @@
              */
             updatePhotoPrivacy(photo) {
                 let self = this;
-                console.log(photo);
                 fetch('/v1/photos', {
                     method: 'PATCH',
                     headers: {'content-type': 'application/json'},

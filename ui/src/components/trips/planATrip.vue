@@ -259,10 +259,10 @@
                         </b-row>
                         <b-button @click="validateTrip"
                                   block class="mr-2 float-right"
-                                  variant="primary">
-                            <b-img alt="Loading" class="align-middle loading" v-if="savingTrip" src="..//../../static/tab_favicon.png" width="25%">
+                                  variant="primary" :disabled="savingTrip">
+                            <b-img alt="Loading" class="align-middle loading" v-if="savingTrip" :src="assets['loadingLogo']" height="20%">
                             </b-img>
-                            Save Trip
+                            <p class="m-0 p-0" v-if="!savingTrip">Save Trip</p>
                         </b-button>
                     </b-container>
                 </b-card>

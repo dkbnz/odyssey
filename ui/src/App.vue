@@ -1,9 +1,9 @@
 <template>
     <div class="App">
         <div>
-            <router-view v-bind:profile="profile" v-bind:destinations="destinations"
+            <router-view v-bind:profile="profile"
                          v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions"
-                         v-bind:travTypeOptions="travTypeOptions" @data-changed="refreshData"
+                         v-bind:travTypeOptions="travTypeOptions"
                          @profile-received="getProfile">
             </router-view>
         </div>
@@ -134,22 +134,6 @@
                         });
                     }
                 });
-            },
-
-
-            /**
-             * Converts the response body to a Json.
-             */
-            parseJSON(response) {
-                return response.json();
-            },
-
-
-            /**
-             * Refreshes data when data has been changed.
-             */
-            refreshData() {
-                this.getDestinations();
             }
         }
     }
