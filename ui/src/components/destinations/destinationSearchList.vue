@@ -13,7 +13,7 @@
             </b-list-group>
         </div>
         <div v-else>
-            <b-button variant="success" @click="showSearch = true" block>Back to Search</b-button>
+            <b-button variant="primary" class="mb-1" @click="showSearch = true" block>Back to Search</b-button>
             <b-list-group class="scroll">
                 <b-list-group-item v-for="destination in foundDestinations" href="#"
                                    class="flex-column align-items-start"
@@ -41,7 +41,7 @@
                     </div>
                     <div>
                         <div v-if="moreResults && !loadingResults">
-                            <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>More</b-button>
+                            <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>Load More</b-button>
                         </div>
                         <div class="d-flex justify-content-center" v-else-if="!moreResults && !loadingResults">
                             <h5 class="mb-1">No More Results</h5>

@@ -258,6 +258,11 @@ a {
     background-color: #eee;
 }
 
+.mobileLeaderboard {
+    font-size: 0.99em;
+    width: 65%;
+}
+
 .loader {
     opacity:    0.9;
     background: darkgrey;
