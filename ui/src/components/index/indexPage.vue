@@ -61,7 +61,7 @@
                     if (this.profile.admin) {
                         this.$router.replace("/admin");
                     } else {
-                        this.$router.replace("/dash");
+                        this.$router.replace("/profile");
                     }
                 }
             }

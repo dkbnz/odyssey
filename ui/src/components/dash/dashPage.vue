@@ -12,7 +12,7 @@
         <div class="loader" v-if="loadingResults">
             <div class="loader-content">
                 <b-img alt="Loading" class="loading" :src="assets['loadingLogoBig']"></b-img>
-                <h1>Loading TravelEA</h1>
+                <h1>Loading Profile Data</h1>
             </div>
         </div>
         <div :class='{opacity: loadingResults}'>

@@ -236,7 +236,7 @@
                     self.alertMessage = "Profile is no longer an admin!";
                     self.showAlert();
                     if (self.profile.id === makeAdminProfile.id) {
-                        self.$router.push("/dash");
+                        self.$router.push("/profile");
                     }
                     self.showAlert();
                 }).catch(function (response) {
