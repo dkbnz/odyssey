@@ -79,6 +79,7 @@
                     } else {
                         self.$router.replace("/profile");
                     }
+                    self.$emit('profile-received');
                     return responseBody;
                 }).catch(function (response) {
                     self.loading = false;

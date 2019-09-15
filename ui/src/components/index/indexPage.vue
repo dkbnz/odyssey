@@ -26,7 +26,7 @@
                         <b-button class="btn btn-info btn-lg float-left" v-b-modal.modalLogin>Login</b-button>
                         <b-modal centered hide-footer id="modalLogin" title="Login">
                             <template slot="modal-title"><h2>Login</h2></template>
-                            <login></login>
+                            <login @profile-received="$emit('profile-received')"></login>
                         </b-modal>
                     </b-col>
                 </b-row>
