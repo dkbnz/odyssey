@@ -38,12 +38,12 @@ Feature: Achievement Tracker API Endpoint
     Then I have not gained points
 
 
-#  Scenario: Checking in to a quest objective
-#    Given the application is running
-#    And I am logged in
-#    And I have some starting points
-#    When I check into a destination
-#    Then I have gained points
+  Scenario: Checking in to a quest objective
+    Given the application is running
+    And I am logged in
+    And I have some starting points
+    When I check into a destination
+    Then I have gained points
 
 
   Scenario: Checking in to an objective that hasn't been solved
@@ -80,7 +80,6 @@ Feature: Achievement Tracker API Endpoint
     Then the status code received is 401
 
 
-#TODO: Everyone - Waiting on backend.
   Scenario: Creating my first destination and getting a bronze level Cartographer badge
     Given the application is running
     And I am logged in as user with id "7"
@@ -227,19 +226,41 @@ Feature: Achievement Tracker API Endpoint
     And I create the quest
     Then the status code received is 201
     And I gain the "Writer" badge with level 3
-#
-#
-#  Scenario: Solving my first quest and getting a bronze level Solver badge
-#    Given the application is running
-#    And I am logged in as user with id "7"
-#    And a quest exists with id 6
-#    When I check in for quest attempt 7
-#    Then the status code received is 200
-#    And I receive a valid quest attempt in the response
-#    And I have completed the quest
-#    And I gain the "Solver" badge with level 1
-#
-#
+
+
+  Scenario: Solving enough quests to achieve bronze level Solver badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And a quest exists with id 6
+    When I check in for quest attempt 7
+    And I retrieve all my complete quests
+    Then the status code received is 200
+    And the response contains quest 6
+    And I gain the "Solver" badge with level 1
+
+
+  Scenario: Solving enough quests to achieve silver level Solver badge
+    Given the application is running
+    And I am logged in as user with id "8"
+    And a quest exists with id 6
+    When I check in for quest attempt 17
+    And I retrieve all my complete quests
+    Then the status code received is 200
+    And the response contains quest 6
+    And I gain the "Solver" badge with level 2
+
+
+  Scenario: Solving enough quests to achieve gold level Solver badge
+    Given the application is running
+    And I am logged in as user with id "9"
+    And a quest exists with id 6
+    When I check in for quest attempt 18
+    And I retrieve all my complete quests
+    Then the status code received is 200
+    And the response contains quest 6
+    And I gain the "Solver" badge with level 3
+
+
   Scenario: Gaining enough points to achieve bronze level Overachiever badge
     Given the application is running
     And I am logged in as user with id "7"
@@ -370,28 +391,28 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Explorer" badge with level 3
 
 
-#  Scenario: Gaining enough points to achieve bronze level Odyssey badge
-#    Given the application is running
-#    And I am logged in as user with id "7"
-#    And my current progress towards the "Odyssey" badge is 0
-#    When I check in for quest attempt 14
-#    Then the status code received is 200
-#    And I gain the "Odyssey" badge with level 1
-#
-#
-#  Scenario: Gaining enough points to achieve silver level Odyssey badge
-#    Given the application is running
-#    And I am logged in as user with id "8"
-#    And my current progress towards the "Odyssey" badge is 9
-#    When I check in for quest attempt 15
-#    Then the status code received is 200
-#    And I gain the "Odyssey" badge with level 2
-#
-#
-#  Scenario: Gaining enough points to achieve gold level Odyssey badge
-#    Given the application is running
-#    And I am logged in as user with id "9"
-#    And my current progress towards the "Odyssey" badge is 29
-#    When I check in for quest attempt 16
-#    Then the status code received is 200
-#    And I gain the "Odyssey" badge with level 3
+  Scenario: Gaining enough points to achieve bronze level Odyssey badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And my current progress towards the "Odyssey" badge is 0
+    When I check in for quest attempt 14
+    Then the status code received is 200
+    And I gain the "Odyssey" badge with level 1
+
+
+  Scenario: Gaining enough points to achieve silver level Odyssey badge
+    Given the application is running
+    And I am logged in as user with id "8"
+    And my current progress towards the "Odyssey" badge is 9
+    When I check in for quest attempt 15
+    Then the status code received is 200
+    And I gain the "Odyssey" badge with level 2
+
+
+  Scenario: Gaining enough points to achieve gold level Odyssey badge
+    Given the application is running
+    And I am logged in as user with id "9"
+    And my current progress towards the "Odyssey" badge is 29
+    When I check in for quest attempt 16
+    Then the status code received is 200
+    And I gain the "Odyssey" badge with level 3
