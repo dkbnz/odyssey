@@ -66,7 +66,9 @@ body {
     margin: auto;
     left: 28%;
     animation: moveUp 2s;
-    animation-delay: 3.15s;
+    -webkit-animation: moveUp 2s;
+    -webkit-animation-delay: 2.2s;
+    animation-delay: 2.2s;
     animation-fill-mode:forwards;
 }
 
@@ -85,8 +87,8 @@ body {
     position: relative;
     overflow: hidden;
     opacity: 0;
-    animation: fadeIn 3s;
-    animation-delay: 3.5s;
+    animation: fadeIn 2s;
+    animation-delay: 2.5s;
     animation-fill-mode:forwards;
     animation-iteration-count: 1;
     text-align: center;
@@ -110,7 +112,7 @@ body {
 .logoTranslate {
     position: absolute;
     z-index: 1;
-    animation: slideLogo 3s;
+    animation: slideLogo 2s;
     animation-delay: 0.15s;
     animation-fill-mode:forwards;
     animation-iteration-count: 1;
@@ -130,7 +132,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     width: 0;
-    animation: slideText 3s;
+    animation: slideText 2s;
     animation-delay: 0.15s;
     animation-fill-mode:forwards;
     animation-iteration-count: 1;

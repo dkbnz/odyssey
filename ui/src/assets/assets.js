@@ -23,5 +23,6 @@ export default {
     holidayMaker: './static/traveller_types/holidayMaker.png',
     thrillseeker: './static/traveller_types/thrillseeker.png',
     welcomePage: './static/background_image.jpg',
-    loadingLogo: './static/logo_sm.png'
+    loadingLogo: './static/logo_sm.png',
+    loadingLogoBig: './static/logo.png',
 }

@@ -2,7 +2,7 @@
     <div>
         <b-navbar class="mainNav" toggleable="lg" variant="light">
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-            <b-navbar-brand class="nav-bar-brand" @click="goToProfile()"><img :src="assets.appLogo"></b-navbar-brand>
+            <b-navbar-brand class="nav-bar-brand" @click="goToProfile()"><img :src="assets.appLogo" width="200px"></b-navbar-brand>
 
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>

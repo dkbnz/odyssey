@@ -9,26 +9,34 @@
                 <b-nav-item @click="togglePage(editProfile, 'edit')">Edit Profile</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
+        <div class="loader" v-if="loadingResults">
+            <div class="loader-content">
+                <b-img alt="Loading" class="loading" :src="assets['loadingLogoBig']"></b-img>
+                <h1>Loading TravelEA</h1>
+            </div>
+        </div>
+        <div :class='{opacity: loadingResults}'>
+            <!--Tab Elements-->
+            <view-profile
+                    :destinations="destinations"
+                    :nationalityOptions="nationalityOptions"
+                    :profile="profile"
+                    :userProfile="profile"
+                    :travTypeOptions="travTypeOptions"
+                    :trips="trips"
+                    v-if="viewProfile">
+            </view-profile>
+            <edit-profile
+                    :admin-view="adminView"
+                    :nationalityOptions="nationalityOptions"
+                    :profile="profile"
+                    :showSaved="showSaved"
+                    :travTypeOptions="travTypeOptions"
+                    @profile-saved="showSavedProfile"
+                    v-if="editProfile">
+            </edit-profile>
+        </div>
 
-        <!--Tab Elements-->
-        <view-profile
-                :destinations="destinations"
-                :nationalityOptions="nationalityOptions"
-                :profile="profile"
-                :userProfile="profile"
-                :travTypeOptions="travTypeOptions"
-                :trips="trips"
-                v-if="viewProfile">
-        </view-profile>
-        <edit-profile
-                :admin-view="adminView"
-                :nationalityOptions="nationalityOptions"
-                :profile="profile"
-                :showSaved="showSaved"
-                :travTypeOptions="travTypeOptions"
-                @profile-saved="showSavedProfile"
-                v-if="editProfile">
-        </edit-profile>
         <footer-main></footer-main>
     </div>
     <div v-else>
@@ -53,9 +61,9 @@
             return {
                 viewProfile: true,
                 editProfile: false,
-                photoGallery: false,
                 showSaved: false,
-                profile: {}
+                profile: {},
+                loadingResults: false
             }
         },
 
@@ -88,11 +96,10 @@
 
             /**
              * Retrieves the current profile in case any changes have been made.
-             *
-             * @param updateProfile     the profile to be updated.
              */
             getProfile() {
                 let self = this;
+                this.loadingResults = true;
                 return fetch(`/v1/profile`, {
                     accept: "application/json"
                 }).then(function (response) {
@@ -102,11 +109,13 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
+                    self.loadingResults = false;
                     self.profile = responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
                         self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                     } else {
+                        self.loadingResults = false;
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
                         });
