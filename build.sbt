@@ -46,3 +46,15 @@ jacocoReportSettings := JacocoReportSettings()
       line = 0,
       clazz = 0)
   )
+
+jacocoExcludes in Test := Seq(
+  "controllers.Reverse*",
+  "controllers.**.Reverse*",
+  "controllers.javascript.*",
+  "controllers.**.javascript*",
+  "jooq.*",
+  "Module",
+  "router.*",
+  "*.routes*"
+)
+
