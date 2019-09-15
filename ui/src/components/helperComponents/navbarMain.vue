@@ -13,10 +13,6 @@
                                 @click="goToDestinations()">
                         Destinations
                     </b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage ==='/objectives'}"
-                                @click="goToObjectives()">
-                        Objectives
-                    </b-nav-item>
                     <b-nav-item :class="{active: currentPage==='/quests'}"
                                 @click="goToQuests()">
                         Quests
@@ -119,9 +115,6 @@
             },
             goToAdminPanel() {
                 this.$router.push("/admin");
-            },
-            goToObjectives() {
-                this.$router.push("/objectives");
             },
             goToQuests() {
                 this.$router.push("/quests");
