@@ -3,6 +3,7 @@ package repositories.quests;
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
+import models.objectives.Objective;
 import models.profiles.Profile;
 import models.quests.QuestAttempt;
 
@@ -47,6 +48,7 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
 
     /**
      * Finds all quest attempts using the profile.
+     *
      * @param requestedProfile      the profile to get quest attempts for.
      * @return                      a list of quest attempts for the given profile.
      */
@@ -61,6 +63,7 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
 
     /**
      * Finds all quest attempts using the profile.
+     *
      * @param requestedProfile      the profile to get quest attempts for.
      * @return                      a list of quest attempts for the given profile.
      */
@@ -76,6 +79,7 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
 
     /**
      * Finds all quest attempts using the profile and quest id.
+     *
      * @param requestedProfile      the profile to get quest attempts for.
      * @param questId               the quest id to get quest attempts for.
      * @return                      a list of quest attempts for the given profile relating to the given quest id.

@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import models.profiles.Profile;
 import models.util.BaseModel;
 import repositories.points.AchievementTrackerRepository;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
+
+import javax.persistence.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -20,6 +22,17 @@ public class AchievementTracker extends BaseModel {
      */
     private int points;
 
+    @JsonIgnore
+    private int currentStreak;
+
+    @OneToMany(mappedBy = "achievementTracker", cascade = CascadeType.ALL)
+    private Set<BadgeProgress> badgeProgressSet;
+
+
+    @JsonIgnore
+    @Transient
+    private Badge recentlyAchieved;
+
 
     /**
      * The user, who the has earned set of achievements listed.
@@ -28,6 +41,28 @@ public class AchievementTracker extends BaseModel {
     @JsonIgnore
     private Profile owner;
 
+    /**
+     * gets the current streak for the user
+     * @return the integer of the users current streak
+     */
+    @JsonProperty("streak")
+    public int getCurrentStreak() {
+        return currentStreak;
+    }
+
+    /**
+     * sets the current streak for the user
+     */
+    public void setCurrentStreak(int currentStreak) {
+        this.currentStreak = currentStreak;
+    }
+
+    /**
+     * Adds to the profiles current streak
+     */
+    public void addToCurrentStreak() {
+        this.currentStreak++;
+    }
 
     /**
      * Default constructor to set the points to a not-null default value.
@@ -47,8 +82,73 @@ public class AchievementTracker extends BaseModel {
      *
      * @param pointsToAdd the points to be added to the tracker's total score.
      */
-    public void addPoints(int pointsToAdd) {
+    public int addPoints(int pointsToAdd) {
         this.points += pointsToAdd;
+        return pointsToAdd;
+    }
+
+
+    /**
+     * Add progress to the specified badge. If the profile has not achieved the badge, create it for them.
+     *
+     * @param badge     the badge to increment the progress of.
+     * @param progress  the progress to add to the badge.
+     */
+    public void addBadgeProgress(Badge badge, int progress) {
+
+        // Retrieve an optional for the badge progress.
+        // Checks if there is already a badge progress class tracking the specified badge.
+        Optional<BadgeProgress> badgeProgressOptional = badgeProgressSet.stream()
+                .filter(badgeProgress -> badge
+                        .getId()
+                        .equals(badgeProgress
+                                .getBadge()
+                                .getId()
+                        )
+                ).findFirst();
+
+        // Badge progress we are going to mutate.
+        BadgeProgress badgeToProgress;
+
+        if (badgeProgressOptional.isPresent()) {
+            // If there is a badge progress class tracking the current badge, then retrieve it.
+            badgeToProgress = badgeProgressOptional.get();
+        } else {
+            // Otherwise, create a new one and add it to the set of badges we are tracking progress of.
+            badgeToProgress = new BadgeProgress(this, badge);
+            badgeProgressSet.add(badgeToProgress);
+        }
+
+        // Check level
+        int currentLevel = badgeToProgress.getBadge().getLevel();
+
+        // Increment the progress by the specified amount.
+        badgeToProgress.addProgress(progress);
+
+        // If level increment, add to recently achieved
+        if (badgeToProgress.getBadge().getLevel() != currentLevel) {
+            recentlyAchieved = badgeToProgress.getBadge();
+        }
+
+    }
+
+    public Badge getRecentlyAchieved() {
+        return recentlyAchieved;
+    }
+
+    /**
+     * Get all of the badges held by the set of badgeprogress bridging model.
+     *
+     * @return a set of badges that the user has achieved with their corresponding progress.
+     */
+    @JsonProperty("badges")
+    public Set<Badge> getBadges() {
+
+        // Extract all of the badges out of the badge progress set and return them as a set.
+        return badgeProgressSet
+                .stream()
+                .map(BadgeProgress::getBadge)
+                .collect(Collectors.toSet());
     }
 
 

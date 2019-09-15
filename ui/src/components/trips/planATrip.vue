@@ -3,7 +3,7 @@
         <h1 class="page-title">{{ heading }}</h1>
         <p class="page-title"><i>{{ subHeading }}</i></p>
 
-        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
 
         <!-- Displays success alert and progress bar on trip creation as a loading bar
         for the trip being added to the database -->
@@ -16,7 +16,7 @@
             <p>Trip Successfully Saved</p>
             <b-progress
                     :max="dismissSecs"
-                    :value="dismissCountDown"
+                    :value="dismissCountDown - 1"
                     height="4px"
                     variant="success"
             ></b-progress>
@@ -25,7 +25,7 @@
         <!-- Modal for editing the arrival and departure dates for a destination
         Displayed when the 'Edit' button is clicked on a destination -->
         <b-modal hide-footer id="editModal" ref="editModal" title="Edit Destination">
-            <b-alert dismissible v-model="showDateError" variant="danger">{{errorMessage}}</b-alert>
+            <b-alert dismissible v-model="showDateError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
             <div class="d-block">
                 <b-form-group id="editInDate-field" label="Start Date:" label-for="editInDate">
                     <b-input :type="'date'"
@@ -87,7 +87,7 @@
                                     <b-col>
                                         <h6 class="mb-1">Selected Destination:</h6>
                                         <b-list-group>
-                                            <b-list-group-item href="#" class="flex-column align-items-start"
+                                            <b-list-group-item class="flex-column align-items-start"
                                                                id="selectedDestination"
                                                                :disabled="selectedDestination.length === '{}'">
                                                 <div class="d-flex w-100 justify-content-between">
@@ -259,10 +259,10 @@
                         </b-row>
                         <b-button @click="validateTrip"
                                   block class="mr-2 float-right"
-                                  variant="primary">
-                            <b-img alt="Loading" class="align-middle loading" v-if="savingTrip" src="..//../../static/tab_favicon.png" width="25%">
+                                  variant="primary" :disabled="savingTrip">
+                            <b-img alt="Loading" class="align-middle loading" v-if="savingTrip" :src="assets['loadingLogo']" height="20%">
                             </b-img>
-                            Save Trip
+                            <p class="m-0 p-0" v-if="!savingTrip">Save Trip</p>
                         </b-button>
                     </b-container>
                 </b-card>
@@ -272,7 +272,6 @@
                     <destination-sidebar
                             :profile="profile"
                             @destination-click="destination => this.selectedDestination = destination"
-                            @data-changed="$emit('data-changed')"
                             :input-destination="destinationToAdd"
                             @destination-search="result => showMap(result)"
                     ></destination-sidebar>
@@ -377,10 +376,6 @@
             rows() {
                 return this.inputTrip.destinations.length
             }
-        },
-
-        mounted() {
-            this.getDestinations(destinationsList => this.destinationsList = destinationsList);
         },
 
         methods: {
@@ -550,7 +545,7 @@
              * A valid trip has a name, has at least two destinations, has no duplicate destinations next to each other,
              * each destination's dates are chronologically valid compared to its previous dates.
              * If the trip is invalid, errors are shown. If the trip is valid then it is either given to the saveNewTrip
-             * method or the saveOldTrip method depending on if the trip is a new trip, or the trip is an old trip being
+             * method or the updateTrip method depending on if the trip is a new trip, or the trip is an old trip being
              * edited.
              */
             validateTrip() {
@@ -585,7 +580,7 @@
                     if (this.inputTrip.id === null) {
                         this.saveNewTrip(trip);
                     } else {
-                        this.saveOldTrip(trip, this.inputTrip.id);
+                        this.updateTrip(trip, this.inputTrip.id);
                     }
                 }
             },
@@ -670,22 +665,28 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)
                 }).then(function (response) {
-                    if (response.status === 201) {
-                        self.savingTrip = false;
-                        self.showAlert();
-                        self.$emit('tripSaved', true);
-                        self.resetDestForm();
-                        self.inputTrip.name = "";
-                        self.inputTrip.destinations = [];
-                        self.parseJSON(response).then(data => self.createPointToast(data.pointsRewarded, "Trip Created"));
-                        return JSON.parse(JSON.stringify(response));
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        throw new Error('Something went wrong, try again later.');
+                        return response.json();
                     }
-                }).catch((error) => {
-                    this.savingTrip = false;
-                    this.showError = true;
-                    this.errorMessage = (error);
+                }).then(function (responseBody) {
+                    self.savingTrip = false;
+                    self.showAlert();
+                    self.$emit('tripSaved', true);
+                    self.resetDestForm();
+                    self.inputTrip.name = "";
+                    self.inputTrip.destinations = [];
+                    self.showRewardToast(responseBody.reward)
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.savingTrip = false;
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             },
 
@@ -699,7 +700,7 @@
              * @param tripId    the id of the trip to be saved. This is required because the trip is being edited.
              * @return          a Json of the response body.
              */
-            saveOldTrip(trip, tripId) {
+            updateTrip(trip, tripId) {
                 this.savingTrip = true;
                 let self = this;
                 fetch('/v1/trips/' + tripId, {
@@ -707,36 +708,26 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(trip)
                 }).then(function (response) {
-                    if (response.status === 200) {
-                        self.savingTrip = false;
-                        self.showAlert();
-                        self.$emit('tripSaved', true);
-                        return JSON.parse(JSON.stringify(response));
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        throw new Error('Something went wrong, try again later.');
+                        return response.json();
                     }
-                }).catch((error) => {
-                    this.savingTrip = false;
-                    this.showError = true;
-                    this.errorMessage = (error);
-
+                }).then(function (responseBody) {
+                    self.savingTrip = false;
+                    self.showAlert();
+                    self.$emit('tripSaved', true);
+                    return responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.savingTrip = false;
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
-            },
-
-
-            /**
-             * Displays a toast saying they've gained a certain amount of points.
-             *
-             * @param points the points to display.
-             * @param title the title of the toast, indicating the context of the point gain.
-             */
-            createPointToast(points, title) {
-                let message = "Your points have increased by " + points;
-                this.$bvToast.toast(message, {
-                    title: title,
-                    autoHideDelay: 3000,
-                    appendToast: true
-                })
             },
 
 
@@ -755,32 +746,6 @@
              */
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
-            },
-
-
-            /**
-             * Retrieves the list of all destinations.
-             *
-             * @param updateDestinations    the list of destinations to be updated.
-             * @return {Promise <Response | never>}     the fetch method promise.
-             */
-            getDestinations(updateDestinations) {
-                return fetch(`/v1/destinations`, {
-                    accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then(updateDestinations);
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response      the Http response.
-             * @returns             the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
             },
 
 

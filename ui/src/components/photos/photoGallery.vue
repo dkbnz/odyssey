@@ -1,6 +1,6 @@
 <template>
     <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
-        <div class="upperPadding">
+        <div class="pt-3">
             <h1 class="page-title">Personal Media</h1>
         </div>
         <p v-if="authentication" class="page-title"><i>Here are your photos</i></p>
@@ -11,10 +11,10 @@
                 @dismissed="dismissCountDown=0"
                 dismissible
                 variant="success">
-            <p>Photo Successfully Added</p>
+            <p>{{alertMessage}}</p>
             <b-progress
                     :max="dismissSecs"
-                    :value="dismissCountDown"
+                    :value="dismissCountDown - 1"
                     height="4px"
                     variant="success"
             ></b-progress>
@@ -22,7 +22,7 @@
         <b-button v-if="authentication" class="btn btn-info" block v-b-modal.modalAddPhoto>Add Photo</b-button>
         <b-modal ref="uploaderModal" id="modalAddPhoto" hide-footer centered title="Add Photo">
             <template slot="modal-title"><h2>Add Photo</h2></template>
-            <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+            <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
             <photoUploader v-on:dismiss-error="showError = false"
                            v-on:save-photos="sendPhotosToBackend"
                            :acceptTypes="'image/jpeg, image/jpg, image/png'">
@@ -30,7 +30,7 @@
         </b-modal>
 
         <div class="d-flex justify-content-center mb-3">
-            <b-img alt="Loading" class="align-middle loading" v-if="retrievingPhotos" src="../../../static/logo_sm.png"></b-img>
+            <b-img alt="Loading" class="mt-3 align-middle loading" v-if="retrievingPhotos" :src="assets['loadingLogo']"></b-img>
             <p v-if="photos.length === 0 && !retrievingPhotos"><b>No photos found.</b></p>
         </div>
 
@@ -39,7 +39,7 @@
                      :profile="profile"
                      :userProfile="userProfile"
                      :adminView="adminView"
-                     :privacy-update="updatePhotoPrivacy"
+                     @privacy-update="updatePhotoPrivacy"
                      @photo-click="photoClicked"
         >
         </photo-table>
@@ -105,12 +105,19 @@
             adminView: Boolean
         },
 
+        watch: {
+            profile() {
+                this.getPhotosList();
+            }
+        },
+
         data: function () {
             return {
                 photos: [],
                 displayImage: false,
                 dismissSecs: 3,
                 dismissCountDown: 0,
+                alertMessage: "",
                 showError: false,
                 errorMessage: "",
                 photoToView: null,
@@ -136,11 +143,6 @@
             }
         },
 
-        mounted() {
-            let self = this;
-            setTimeout(self.getPhotosList, 500);
-        },
-
         methods: {
             /**
              * Creates a POST request to upload photo(s) to the backend.
@@ -155,11 +157,27 @@
                     method: 'POST',
                     body: this.getFormData(files)
 
-                }).then(response => self.checkResponse(response))
-                    .then(data => {
-                        this.addPhotos(data);
-                        this.showAlert();
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
+                    }
+                }).then(function () {
+                    self.files = null;
+                    self.$refs['uploaderModal'].hide();
+                    self.getPhotosList();
+                    self.alertMessage = "Photo Successfully Added!";
+                    self.showAlert();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
             },
 
 
@@ -185,24 +203,39 @@
                 let self = this;
                 fetch(`/v1/photos/` + this.photoToView.id, {
                     method: 'DELETE'
-                }).then(response => {
-                    self.error = (response.status === 200);
-                });
-                this.$refs['deletePhotoModal'].hide();
-                this.$refs['modalImage'].hide();
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
+                    }
+                }).then(function () {
+                    self.$refs['deletePhotoModal'].hide();
+                    self.$refs['modalImage'].hide();
 
-                let change = false;
-                for (let i = 0; i < this.photos.length; i++) {
-                    if (this.photos[i].id === this.photoToView.id || change) {
-                        change = true;
-                        if (i + 1 === this.photos.length) {
-                            this.photos.pop();
-                        } else {
-                            this.photos[i] = this.photos[i + 1];
+                    let change = false;
+                    for (let i = 0; i < self.photos.length; i++) {
+                        if (self.photos[i].id === self.photoToView.id || change) {
+                            change = true;
+                            if (i + 1 === self.photos.length) {
+                                self.photos.pop();
+                            } else {
+                                self.photos[i] = self.photos[i + 1];
+                            }
                         }
                     }
-                }
-                this.$emit("removePhoto", this.photoToView.id);
+                    self.alertMessage = "Photo Successfully Deleted!";
+                    self.showAlert();
+                    self.$emit("removePhoto", self.photoToView.id);
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
+                });
             },
 
 
@@ -225,27 +258,32 @@
              * Emits change up to view profile be able to auto update front end when changing profile picture.
              */
             setProfilePhoto() {
-
                 let self = this;
-                let currentPrivacy = this.photoToView.public;
                 this.photoToView.public = true;
-                this.updatePhotoPrivacy(this.photoToView);
                 fetch('/v1/profilePhoto/' + this.photoToView.id, {
                     method: 'PUT'
-                }).then(response => {
-                    if (response.status === 200) {
-                        self.refreshTable += 1;
-                        self.showError = false;
-                        this.$emit('makeProfilePhoto', this.photoToView.id);
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        // If the profile picture doesn't update, set back to previous value.
-                        self.photoToView.public = currentPrivacy;
-                        self.updatePhotoPrivacy(this.photoToView);
-                        self.showError = true;
-                        self.alertMessage = "An error occurred when making this your profile photo";
+                        return response;
+                    }
+                }).then(function () {
+                    self.$refs['modalImage'].hide();
+                    self.getPhotosList();
+                    self.showError = false;
+                    self.$emit('makeProfilePhoto', self.photoToView.id);
+                    self.alertMessage = "Profile picture successfully changed!";
+                    self.showAlert();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
                     }
                 });
-                this.$refs['modalImage'].hide();
             },
 
 
@@ -256,20 +294,37 @@
             getPhotosList() {
                 let self = this;
                 this.retrievingPhotos = true;
-                fetch(`/v1/photos/user/` + self.profile.id, {
-                    accept: "application/json",
-                    method: "GET"
-                })
-                    .then(response => response.json())
-                    .then(photos => {
-                        for (let i in photos) {
-                            if (this.authentication || photos[i].public || self.adminView) {
-                                self.photos.push(photos[i]);
+                if (this.profile) {
+                    fetch(`/v1/photos/user/` + self.profile.id, {
+                        accept: "application/json",
+                        method: "GET"
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        self.photos = [];
+                        for (let i in responseBody) {
+                            if (self.authentication || responseBody[i].public || self.adminView) {
+                                self.photos.push(responseBody[i]);
                                 self.reloadPhotoTable += 1;
                             }
                         }
+                        self.showError = false;
                         self.retrievingPhotos = false;
-                    })
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            self.retrievingPhotos = false;
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
+                    });
+                }
             },
 
 
@@ -302,55 +357,31 @@
              *
              * @param photo           the photo that's changing status.
              */
-            updatePhotoPrivacy: function (photo) {
+            updatePhotoPrivacy(photo) {
                 let self = this;
-
                 fetch('/v1/photos', {
                     method: 'PATCH',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
-                }).then(response => {
-                    if (response.status === 200) {
-                        response.clone().json().then(text => {
-                            self.photos = text;
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    self.photos = responseBody;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.retrievingPhotos = false;
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
                         });
                     }
                 });
-            },
-
-
-            /**
-             * When a photo is added it refreshes the photos list without needing a refresh of the page or profile.
-             *
-             * @param data      the Json response from adding photos from the backend to give id's and public status.
-             */
-            addPhotos(data) {
-                this.profile.photoGallery = data;
-                this.photos = [];
-                for (let i = 0; i < data.length; i++) {
-                    if (data[i].public || this.authentication) {
-                        this.photos.push(data[i]);
-                    }
-                }
-            },
-
-
-            /**
-             * Retrieves a Json body from a response.
-             *
-             * @param response      The response parsed into Json.
-             * @returns {*}
-             */
-            checkResponse(response) {
-                if (response.status === 201) {
-                    this.files = null;
-                    this.$refs['uploaderModal'].hide();
-                } else {
-                    this.showError = true;
-                    this.errorMessage = "Invalid image size/type"
-                }
-                return response.json();
-
             },
 
 
@@ -373,6 +404,3 @@
         }
     }
 </script>
-<style scoped>
-    @import "../../css/dash.css";
-</style>

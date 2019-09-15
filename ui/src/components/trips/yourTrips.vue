@@ -1,10 +1,10 @@
 <template>
     <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <!-- Div for all the user's future trips -->
-        <div id="upcomingTrips" class="upperPadding">
+        <div id="upcomingTrips" class="pt-3">
             <h1 class="page-title">Upcoming Trips</h1>
             <p class="page-title"><i>Here are your upcoming trips!</i></p>
-            <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+            <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
             <b-alert
                     :show="dismissCountDown"
                     @dismiss-count-down="countDownChanged"
@@ -14,7 +14,7 @@
                 <p>Trip Deleted</p>
                 <b-progress
                         :max="dismissSecs"
-                        :value="dismissCountDown"
+                        :value="dismissCountDown - 1"
                         height="4px"
                         variant="success"
                 ></b-progress>
@@ -37,7 +37,7 @@
             </b-modal>
 
             <!-- Modal that uses the plan a trip page to edit a selected trip -->
-            <b-modal hide-footer id="editTripModal" ref="editTripModal" size="xl" title="Edit Trip">
+            <b-modal hide-footer id="editTripModal" ref="editTripModal" size="lg" title="Edit Trip">
                 <plan-a-trip
                         :destinations="destinations"
                         :heading="'Edit a Trip'"
@@ -66,9 +66,9 @@
                     striped
                     responsive>
                 <div class="text-center my-2" slot="table-busy">
-                    <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" src="../../../static/logo_sm.png">
+                    <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" :src="assets['loadingLogo']">
                     </b-img>
-                    <strong>Can't find any trips!</strong>
+                    <strong v-if="!retrievingTrips && !futureTrips.length">Can't find any trips!</strong>
                 </div>
                 <template v-slot:cell(more_details)="row">
                     <b-button size="sm"
@@ -149,7 +149,7 @@
                                        trim v-model="perPageUpcoming"></b-form-select>
                     </b-form-group>
                 </b-col>
-                <b-col cols="8">
+                <b-col cols="10">
                     <b-pagination
                             :per-page="perPageUpcoming"
                             :total-rows="rowsUpcoming"
@@ -165,7 +165,7 @@
         </div>
 
         <!-- Div for all the user's past trips -->
-        <div id="pastTrips">
+        <div id="pastTrips" class="mt-3 mb-3 pt-3">
             <h1 class="page-title">Past Trips</h1>
             <p class="page-title"><i>Here are your past trips!</i></p>
 
@@ -184,9 +184,9 @@
                          responsive>
 
                     <div slot="table-busy" class="text-center my-2">
-                        <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" src="../../../static/logo_sm.png">
+                        <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" :src="assets['loadingLogo']">
                         </b-img>
-                        <strong>Can't find any trips!</strong>
+                        <strong v-if="!retrievingTrips && !pastTrips.length" >Can't find any trips!</strong>
                     </div>
                     <template v-slot:cell(more_details)="row">
                         <b-button size="sm"
@@ -264,7 +264,7 @@
                             </b-form-select>
                         </b-form-group>
                     </b-col>
-                    <b-col cols="8">
+                    <b-col cols="10">
                         <b-pagination
                                 :per-page="perPagePast"
                                 :total-rows="rowsPast"
@@ -440,8 +440,8 @@
 
 
             /**
-             * Gets all the trips for a specific profile id. Uses the checkStatus and parseJSON functions to handle the
-             * response. This function also splits up the trips into past and future trips based on their date compared
+             * Gets all the trips for a specific profile id. Checks the response status and handles appropriate errors.
+             * This function also splits up the trips into past and future trips based on their date compared
              * to today's date.
              *
              * @returns {Promise<Response | never>}     Json body of the trips belonging to the user.
@@ -449,50 +449,63 @@
             getAllTrips() {
                 let userId = this.profile.id;
                 this.retrievingTrips = true;
+                let self = this;
                 if (userId !== undefined) {
                     return fetch(`/v1/trips/` + userId, {
                         accept: "application/json"
-                    })
-                        .then(this.checkStatus)
-                        .then(this.parseJSON)
-                        .then(trips => {
-                            let today = new Date();
-                            let self = this;
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (trips) {
+                        self.showError = false;
+                        let today = new Date();
 
-                            self.futureTrips = [];
-                            self.pastTrips = [];
-                            for (let i = 0; i < trips.length; i++) {
+                        self.futureTrips = [];
+                        self.pastTrips = [];
+                        for (let i = 0; i < trips.length; i++) {
 
-                                // Sort the list of destinations of each trip using the list order
-                                trips[i].destinations.sort((a, b) => {
-                                    // This is a comparison function that .sort needs to determine how to order the list
+                            // Sort the list of destinations of each trip using the list order
+                            trips[i].destinations.sort((a, b) => {
+                                // This is a comparison function that .sort needs to determine how to order the list
 
-                                    if (a.listOrder > b.listOrder) return 1;
-                                    if (a.listOrder < b.listOrder) return -1;
-                                    return 0;
-                                });
+                                if (a.listOrder > b.listOrder) return 1;
+                                if (a.listOrder < b.listOrder) return -1;
+                                return 0;
+                            });
 
-                                let destinationDates = [];
-                                for (let j = 0; j < trips[i].destinations.length; j++) {
-                                    if (trips[i].destinations[j].startDate !== null) {
-                                        destinationDates.push(trips[i].destinations[j].startDate)
-                                    }
-                                    if (trips[i].destinations[j].endDate !== null) {
-                                        destinationDates.push(trips[i].destinations[j].endDate)
-                                    }
+                            let destinationDates = [];
+                            for (let j = 0; j < trips[i].destinations.length; j++) {
+                                if (trips[i].destinations[j].startDate !== null) {
+                                    destinationDates.push(trips[i].destinations[j].startDate)
                                 }
-                                if (destinationDates.length === 0) {
-                                    self.futureTrips.push(trips[i]);
+                                if (trips[i].destinations[j].endDate !== null) {
+                                    destinationDates.push(trips[i].destinations[j].endDate)
                                 }
-                                else if (new Date(destinationDates[destinationDates.length - 1]) < today) {
-                                    self.pastTrips.push(trips[i]);
-                                } else {
-                                    self.futureTrips.push(trips[i]);
-                                }
-                                self.futureTrips.sort(self.sortFutureTrips);
                             }
+                            if (destinationDates.length === 0) {
+                                self.futureTrips.push(trips[i]);
+                            }
+                            else if (new Date(destinationDates[destinationDates.length - 1]) < today) {
+                                self.pastTrips.push(trips[i]);
+                            } else {
+                                self.futureTrips.push(trips[i]);
+                            }
+                            self.futureTrips.sort(self.sortFutureTrips);
+                        }
+                        self.retrievingTrips = false;
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
                             self.retrievingTrips = false;
-                        });
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
+                    });
                 }
             },
 
@@ -530,35 +543,6 @@
 
 
             /**
-             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
-             * console.
-             *
-             * @param response      the response passed back to the getAllTrips function to be parsed into a Json.
-             * @returns             the response if the status is between 200 - 300. Otherwise, throws the error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                throw error;
-            },
-
-
-            /**
-             * Used to turn the response of the fetch method into a usable Json.
-             *
-             * @param response          the response of the fetch method.
-             * @returns                 the json body of the response.
-             */
-            parseJSON(response) {
-                return response.json();
-            },
-
-
-            /**
              * Used to send a selected trip to a modal that contains the plan a trip page, this is so the trip can be
              * edited.
              *
@@ -583,19 +567,26 @@
                 fetch('/v1/trips/' + trip.id, {
                     method: 'DELETE',
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.validDelete = true;
-                        self.dismissModal('deleteModal');
-                        self.getAllTrips();
-                        self.showAlert();
-                    } else if (response.status === 403) {
-                        throw new Error('You cannot delete another user\'s trips');
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        throw new Error('Something went wrong, try again later.');
+                        return response.json();
                     }
-                }).catch((error) => {
-                    this.showError = true;
-                    this.errorMessage = (error);
+                }).then(function () {
+                    self.showError = false;
+                    self.validDelete = true;
+                    self.dismissModal('deleteModal');
+                    self.getAllTrips();
+                    self.showAlert();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        self.showError = false;
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                    }
                 });
             },
 
@@ -648,8 +639,3 @@
         }
     }
 </script>
-
-<style scoped>
-    @import "../../css/yourTrips.css";
-    @import "../../css/dash.css";
-</style>

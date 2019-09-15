@@ -11,9 +11,9 @@
             </b-jumbotron>
         </div>
         <div v-if="page === 1">
-            <b-button @click="page = 0" block variant="primary">Search</b-button>
-            <div class="d-flex justify-content-center mb-3 buttonMarginsTop">
-                <b-img alt="Loading" v-if="retrievingProfiles && initialLoad" class="align-middle loading" src="../../../static/logo_sm.png"></b-img>
+            <b-button @click="page = 0" class="mt-2" block variant="primary">Return to Search</b-button>
+            <div class="d-flex justify-content-center mb-1 buttonMarginsTop">
+                <b-img alt="Loading" v-if="retrievingProfiles && initialLoad" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
             </div>
             <mobile-profile-list
                     :loading="retrievingProfiles"
@@ -22,18 +22,18 @@
             >
             </mobile-profile-list>
 
-            <div class="text-center my-2" v-if="profiles.length === 0 && !retrievingProfiles">
+            <div class="text-center" v-if="profiles.length === 0 && !retrievingProfiles">
                 <strong>Can't find any profiles!</strong>
             </div>
             <div class="flex-column justify-content-center">
                 <div class="d-flex justify-content-center">
                     <b-img alt="Loading" v-if="retrievingProfiles && !initialLoad" class="loading"
-                           src="../../../static/logo_sm.png">
+                           :src="assets['loadingLogo']">
                     </b-img>
                 </div>
-                <div v-if="!retrievingProfiles && profiles.length > 0">
+                <div v-if="!retrievingProfiles && profiles.length > 0" class="mt-2">
                     <div v-if="moreResults">
-                        <b-button variant="success" @click="getMore" block>More</b-button>
+                        <b-button variant="success" @click="getMore" block>Load More</b-button>
                     </div>
                     <div v-else class="d-flex justify-content-center">
                         <h5 class="mb-1">No More Results</h5>
@@ -42,7 +42,7 @@
             </div>
         </div>
         <div v-if="page === 2">
-            <b-button @click="page = 1" block variant="primary">Return to List</b-button>
+            <b-button @click="page = 1" block variant="primary" class="mt-2">Return to List</b-button>
             <view-profile
                     :profile="selectedProfile"
                     :user-profile="profile"
@@ -99,28 +99,6 @@
 
         methods: {
             /**
-             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
-             * console.
-             *
-             * @param response, passed back to the getAllTrips function to be parsed into a Json.
-             * @return throws the error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                this.showError = true;
-                response.clone().text().then(text => {
-                    this.alertMessage = text;
-                });
-                throw error;
-            },
-
-
-            /**
              * Function to retrieve more destinations when a user reaches the bottom of the list.
              */
             getMore() {
@@ -139,6 +117,7 @@
             queryProfiles(searchParameters) {
                 this.retrievingProfiles = true;
                 this.searchParameters = searchParameters;
+                let self = this;
                 let searchQuery = "";
                 this.page = 1;
                 if (!this.searchParameters) {
@@ -164,31 +143,42 @@
                 }
 
                 return fetch(`/v1/profiles` + searchQuery, {})
-                    .then(this.checkStatus)
-                    .then(response => response.json())
-                    .then((data) => {
-                        if (data !== null && data !== undefined) {
-                            if (data.length < 10) {
-                                this.moreResults = false;
-                                this.initialLoad = false;
-                            } else {
-                                this.moreResults = true;
-                                this.initialLoad = false;
-                            }
-                            if (!this.gettingMore && data.length === 0) {
-                                this.profiles = [];
-                            }
-                            for (let i = 0; i < data.length; i++) {
-                                if (this.gettingMore) {
-                                    this.profiles.push(data[i]);
-                                } else {
-                                    this.gettingMore = false;
-                                    this.profiles = data;
-                                }
-                            }
-                            this.retrievingProfiles = false;
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
                         }
-                    })
+                    }).then(function (responseBody) {
+                        if (responseBody.length < 10) {
+                            self.moreResults = false;
+                            self.initialLoad = false;
+                        } else {
+                            self.moreResults = true;
+                            self.initialLoad = false;
+                        }
+                        if (!self.gettingMore && responseBody.length === 0) {
+                            self.profiles = [];
+                        }
+                        for (let i = 0; i < responseBody.length; i++) {
+                            if (self.gettingMore) {
+                                self.profiles.push(responseBody[i]);
+                            } else {
+                                self.gettingMore = false;
+                                self.profiles = responseBody;
+                            }
+                        }
+                        self.retrievingProfiles = false;
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            self.retrievingProfiles = false;
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
+                    });
             },
 
 

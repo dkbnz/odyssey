@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <b-list-group class="scroll">
+    <div class="scroll">
+        <b-list-group>
             <b-list-group-item href="#"
                                class="flex-column align-items-start"
                                v-for="profile in profileList"
@@ -18,13 +18,18 @@
                     </b-col>
                     <b-col>
                         <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">{{profile.firstName}} {{profile.lastName}}</h5>
+                            <h5 class="mb-1 mobileLeaderboard"><b>{{profile.firstName}} {{profile.lastName}}</b></h5>
                             <small>#{{profile.achievementTracker.rank}} ({{ profile.achievementTracker.points}})</small>
                         </div>
+                        <div>
+                            <p class="wrapWhiteSpaceSmallGap">{{calculateNationalities(profile)}}</p>
+                            <small>Badges Achieved: {{profile.achievementTracker.badges.length}} <br />
+                                Points: {{profile.achievementTracker.points}} <br />
+                                Quests Created: {{profile.numberOfQuestsCreated}} <br />
+                                Quests Completed: {{profile.numberOfQuestsCompleted}} <br />
+                            </small>
+                        </div>
 
-                        <p class="mb-1">
-                            We need to decide what to put here, we could add some badges, or some nationalities, or traveller types. The world is our oyster. Heck, we could even put the current weather here if we wanted to.
-                        </p>
                     </b-col>
                 </b-row>
             </b-list-group-item>
@@ -57,7 +62,27 @@
                 } else {
                     return "/static/default_profile_picture.png";
                 }
-            }
+            },
+
+
+            /**
+             * Used to calculate a specific profiles nationalities from their list of nationalities. Shows all the
+             * nationalities in the row.
+             *
+             * @param profile     the profile to be calculated for nationalities.
+             */
+            calculateNationalities(profile) {
+                let nationalityList = "";
+                for (let i = 0; i < profile.nationalities.length; i++) {
+                    if (profile.nationalities[i + 1] !== undefined) {
+                        nationalityList += profile.nationalities[i].nationality + ", \n";
+                    } else {
+                        nationalityList += profile.nationalities[i].nationality;
+                    }
+
+                }
+                return nationalityList;
+            },
         }
     }
 </script>

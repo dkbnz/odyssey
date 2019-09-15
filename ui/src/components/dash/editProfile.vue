@@ -2,7 +2,8 @@
     <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <h1 class="page-title">Edit Profile</h1>
         <p class="page-title"><i>Edit your profile using the form below!</i></p>
-        <b-alert variant="success" v-model="showSuccess">Profile successfully saved!</b-alert>
+        <b-alert variant="success" v-model="showSuccess" dismissible>Profile successfully saved!</b-alert>
+        <b-alert variant="danger" v-model="showErrorResponse" dismissible><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
         <!--First name field, with default set to the user's current first name. Validates inputted text-->
         <b-row>
             <b-col>
@@ -254,7 +255,10 @@
         <!--Displayed if there are input errors when "Save Profile" is clicked-->
         <b-alert dismissible v-model="showError" variant="danger">The form contains errors! Please ensure that no fields are red</b-alert>
         <!--Validates inputs then updates user data if valid-->
-        <b-button :disabled="!checkSaveProfile()" @click="submitSaveProfile" block size="lg" variant="success">Save Profile</b-button>
+        <b-button :disabled="!checkSaveProfile() || sendingRequest" @click="submitSaveProfile" block size="lg" variant="success">
+            <b-img alt="Loading" class="loading" v-if="sendingRequest" :src="assets['loadingLogo']" height="30%"></b-img>
+            <p class="m-0 p-0" v-if="!sendingRequest">Save Profile</p>
+        </b-button>
     </div>
 </template>
 
@@ -291,6 +295,8 @@
                 validEmail: false,
                 showSuccess: false,
                 showError: false,
+                showErrorResponse: false,
+                errorMessage: "",
                 genderOptions: [
                     {value: 'Male', text: 'Male'},
                     {value: 'Female', text: 'Female'},
@@ -298,8 +304,8 @@
                 ],
                 nationalitiesSelected: [],
                 passportsSelected: [],
-                travellerTypesSelected: []
-
+                travellerTypesSelected: [],
+                sendingRequest: false
             }
         },
 
@@ -497,8 +503,23 @@
                         body: JSON.stringify({'username': this.saveProfile.username})
 
                     }).then(function (response) {
-                        self.validEmail = response.ok || (self.saveProfile.username === self.profile.username)
-                    })
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response;
+                        }
+                    }).then(function (response) {
+                        self.validEmail = response.ok || (self.saveProfile.username === self.profile.username);
+                    }).catch(function (response) {
+                        self.validEmail = false;
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
+                    });
                 }
 
             },
@@ -567,6 +588,7 @@
              */
             submitSaveProfile() {
                 let self = this;
+                this.sendingRequest = true;
                 if (this.checkSaveProfile) {
                     this.$emit('profileSaved', true);
                     this.retrieveNationalities();
@@ -578,7 +600,15 @@
                         headers: {'content-type': 'application/json'},
                         body: JSON.stringify(this.saveProfile)
                     }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        self.sendingRequest = false;
                         if (!self.adminView) {
+                            self.$router.push('/profile');
                             self.$router.go();
                         } else {
                             self.showSuccess = true;
@@ -588,8 +618,18 @@
                         }
                         self.$emit('profile-saved', self.saveProfile);
                         window.scrollTo(0, 0);
-                        return response.json();
-                    })
+                        self.showErrorResponse = false;
+                        return responseBody;
+                    }).catch(function (response) {
+                        self.validEmail = false;
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
+                    });
                 }
             }
         }

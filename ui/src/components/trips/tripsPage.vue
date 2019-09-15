@@ -40,7 +40,6 @@
 
         props: {
             profile: Object,
-            destinations: Array,
             adminView: Boolean,
         },
 

@@ -324,3 +324,4 @@
 *.z filter=lfs diff=lfs merge=lfs -text
 *.zip filter=lfs diff=lfs merge=lfs -text
 *.zipx filter=lfs diff=lfs merge=lfs -text
+ui/static/background_image.jpg filter=lfs diff=lfs merge=lfs -text

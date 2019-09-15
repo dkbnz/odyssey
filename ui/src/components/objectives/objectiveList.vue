@@ -8,16 +8,17 @@
                     @dismissed="dismissCountDown=0"
                     dismissible
                     variant="success">
-                <p>{{alertText}}</p>
+                <p>{{alertMessage}}</p>
                 <b-progress
                         :max="dismissSeconds"
-                        :value="dismissCountDown"
+                        :value="dismissCountDown - 1"
                         height="4px"
                         variant="success"
                 ></b-progress>
             </b-alert>
-            <b-list-group-item href="#" class="flex-column justify-content-center"
-                               v-if="creatingObjective" draggable="false">
+            <b-alert v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
+            <b-list-group-item class="flex-column justify-content-center"
+                               v-if="creatingObjective">
                 <!-- Adding objective component -->
                 <add-objective :profile="profile" :heading="'Create'"
                                @cancelCreate="cancelCreate"
@@ -28,8 +29,8 @@
                 </add-objective>
             </b-list-group-item>
             <div v-if="!sideBarView && yourObjectives">
-                <b-list-group-item href="#" class="flex-column justify-content-center"
-                                   v-if="!creatingObjective" draggable="false">
+                <b-list-group-item class="flex-column justify-content-center"
+                                   v-if="!creatingObjective">
                     <div class="d-flex justify-content-center">
                         <b-button variant="success"
                                   @click="addObjective" block>
@@ -81,14 +82,13 @@
                 </add-objective>
                 <!--Objective component-->
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults"
-                               draggable="false">
+            <b-list-group-item class="flex-column justify-content-center" v-if="loadingResults">
                 <div class="d-flex justify-content-center">
-                    <b-img alt="Loading" class="align-middle loading" src="../../../static/logo_sm.png"></b-img>
+                    <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
                 </div>
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center"
-                               v-if="!loadingResults && foundObjectives.length === 0" draggable="false">
+            <b-list-group-item class="flex-column justify-content-center"
+                               v-if="!loadingResults && foundObjectives.length === 0">
                 <div class="d-flex justify-content-center">
                     <strong>No Objectives</strong>
                 </div>
@@ -154,10 +154,11 @@
                 objectiveId: null,
                 dismissSeconds: 3,
                 dismissCountDown: 0,
-                alertText: "",
+                alertMessage: "",
                 copiedObjective: null,
                 deleteAlertError: false,
-                deleteAlertMessage: ""
+                deleteAlertMessage: "",
+                showError: false
             }
         },
 
@@ -201,17 +202,23 @@
                 fetch(`/v1/objectives/` + this.objectiveId, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.getMore();
-                        self.$refs['deleteObjectiveModal'].hide();
-                        self.alertText = "Objective Successfully Deleted";
-                        self.showAlert();
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
                     }
-                    else {
-                        // Converts response to text, this is then displayed on the frontend.
-                        response.text().then(data => {
-                            self.deleteAlertMessage = data;
-                            self.deleteAlertError = true;
+                }).then(function () {
+                    self.deleteAlertError = false;
+                    self.getMore();
+                    self.$refs['deleteObjectiveModal'].hide();
+                    self.alertMessage = "Objective Successfully Deleted";
+                    self.showAlert();
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
                         });
                     }
                 });
@@ -225,15 +232,29 @@
              */
             queryObjectives() {
                 this.loadingResults = true;
+                let self = this;
                 return fetch(`/v1/objectives`, {
                     accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.foundObjectives = data;
-                        this.loadingResults = false;
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.deleteAlertError = false;
+                    self.foundObjectives = responseBody;
+                    self.loadingResults = false;
+                }).catch(function (response) {
+                    if (response.status > 404) {
+                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    } else {
+                        response.json().then(function(responseBody) {
+                            self.showErrorToast(responseBody);
+                        });
+                        self.loadingResults = false;
+                    }
+                });
             },
 
 
@@ -244,17 +265,31 @@
              */
             queryYourObjectives() {
                 this.loadingResults = true;
+                let self = this;
                 if (this.profile.id !== undefined) {
                     return fetch(`/v1/objectives/` + this.profile.id, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.foundObjectives = data;
-                            this.loadingResults = false;
-                        })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.deleteAlertError = false;
+                            self.foundObjectives = responseBody;
+                            self.loadingResults = false;
+                        }).catch(function (response) {
+                            if (response.status > 404) {
+                                self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                            } else {
+                                response.json().then(function(responseBody) {
+                                    self.showErrorToast(responseBody);
+                                });
+                                self.loadingResults = false;
+                            }
+                        });
                 }
-
             },
-
 
             /**
              * Changes creatingObjective to true to show the create objective window, and calls function to close edit
@@ -318,18 +353,8 @@
             showSuccess(message) {
                 this.getMore();
                 this.queryYourObjectives();
-                this.alertText = message;
+                this.alertMessage = message;
                 this.showAlert();
-            },
-
-
-            /**
-             * Converts the Http response body to a Json.
-             * @param response  the received Http response.
-             * @return {*}     the response body as a Json object.
-             */
-            parseJSON(response) {
-                return response.json();
             },
 
 

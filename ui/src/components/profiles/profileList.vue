@@ -13,7 +13,7 @@
                  striped>
 
             <div class="text-center my-2" slot="table-busy">
-                <b-img alt="Loading" class="loading" v-if="loading" src="../../../static/logo_sm.png"></b-img>
+                <b-img alt="Loading" class="loading" v-if="loading" :src="assets['loadingLogo']"></b-img>
             </div>
 
             <template v-slot:cell(profilePhoto)="row" >
@@ -25,6 +25,14 @@
                        alt="Profile Image">
                 </b-img>
             </template>
+            <template v-slot:cell(nationalities)="row">
+                <p class="wrapWhiteSpace">{{calculateNationalities(row.item.nationalities)}}</p>
+            </template>
+
+            <template v-slot:cell(travellerTypes)="row">
+                <p class="wrapWhiteSpace">{{calculateTravellerTypes(row.item.travellerTypes)}}</p>
+            </template>
+
 
             <!--Shows more details about any profile-->
             <template v-slot:cell(actions)="row">
@@ -60,13 +68,47 @@
             </template>
 
             <template v-slot:row-details="row">
-                <b-card bg-variant="secondary">
-                    <view-profile
-                            :admin-view="false"
-                            :destinations="destinations"
-                            :profile="row.item"
-                            :userProfile="profile">
-                    </view-profile>
+                <b-card bg-variant="light">
+                    <b-row>
+                        <b-col>
+                            <h3>Information</h3>
+                            <p>Date of Birth: {{new Date(row.item.dateOfBirth).toLocaleDateString()}}</p>
+
+                        </b-col>
+                        <b-col>
+                            <h3>Statistics</h3>
+                            <p>Badges Achieved: {{row.item.achievementTracker.badges.length}} <br />
+                                Points: {{row.item.achievementTracker.points}} <br />
+                                Quests Created: {{row.item.numberOfQuestsCreated}} <br />
+                                Quests Completed: {{row.item.numberOfQuestsCompleted}} <br />
+                            </p>
+
+
+                        </b-col>
+                        <b-col>
+                            <h3>Nationalities</h3>
+                            <ul>
+                                <li v-for="nationality in row.item.nationalities">{{nationality.nationality}}</li>
+                            </ul>
+                        </b-col>
+                        <b-col>
+                            <h3>Passports</h3>
+                            <ul>
+                                <li v-for="passport in row.item.passports">{{passport.country}}</li>
+                            </ul>
+                        </b-col>
+                        <b-col>
+                            <div class="d-flex">
+                                <b-button variant="link" @click="$emit('show-single-profile', row.item)">Show Full Profile</b-button>
+<!--                                <b-list-group-item href="#" class="w-50 justify-content-center align-self-center"-->
+
+<!--                                                   >-->
+<!--                                    <h3></h3>-->
+<!--                                </b-list-group-item>-->
+                            </div>
+                        </b-col>
+                    </b-row>
+
                 </b-card>
             </template>
 
@@ -105,10 +147,12 @@
 
 <script>
     import ViewProfile from "../dash/viewProfile";
+    import BadgeList from "../badges/badgeTable";
     export default {
         name: "profileList",
 
         components: {
+            BadgeList,
             ViewProfile
         },
 
@@ -132,7 +176,8 @@
                 }
             },
             searchParameters: Object,
-            firstPage: Boolean
+            firstPage: Boolean,
+            refreshTable: Boolean
         },
 
         watch: {
@@ -154,6 +199,10 @@
             firstPage() {
                 // Reset the pagination to the first page.
                 this.currentPage = 1;
+            },
+
+            refreshTable() {
+                this.$refs['profilesTable'].refresh()
             }
         },
 
@@ -173,18 +222,71 @@
 
         computed: {
             fields() {
+                if (this.adminView) {
+                    return [
+                        {key: 'achievementTracker.rank', label: "Rank", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'achievementTracker.points', label: "Points", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'profilePhoto', label: "Photo", sortable: false, class: 'tableWidthSmall'},
+                        {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
+                        {key: 'actions', class: 'tableWidthMedium'}
+                    ]
+                }
                 return [
                     {key: 'achievementTracker.rank', label: "Rank", sortable: true, class: 'tableWidthSmall'},
                     {key: 'achievementTracker.points', label: "Points", sortable: true, class: 'tableWidthSmall'},
                     {key: 'profilePhoto', label: "Photo", sortable: false, class: 'tableWidthSmall'},
                     {key: 'firstName', label: "First Name", sortable: true, class: 'tableWidthSmall'},
                     {key: 'lastName', label: "Last Name", sortable: true, class: 'tableWidthSmall'},
+                    {key: 'nationalities', label: "Nationalities", sortable: false, class: 'tableWidthSmall'},
+                    {key: 'travellerTypes', label: "Traveller Types", sortable: false, class: 'tableWidthSmall'},
                     {key: 'actions', class: 'tableWidthMedium'}
                 ]
+
             }
         },
 
         methods: {
+            /**
+             * Used to calculate a specific rows nationalities from their list of nationalities. Shows all the
+             * nationalities in the row.
+             *
+             * @param nationalities     the row's (profile) nationalities.
+             */
+            calculateNationalities(nationalities) {
+                let nationalityList = "";
+                for (let i = 0; i < nationalities.length; i++) {
+                    if (nationalities[i + 1] !== undefined) {
+                        nationalityList += nationalities[i].nationality + ", \n";
+                    } else {
+                        nationalityList += nationalities[i].nationality;
+                    }
+
+                }
+                return nationalityList;
+            },
+
+
+            /**
+             * Used to calculate a specific rows traveller types from their list of traveller types. Shows all the
+             * traveller types in the row.
+             *
+             * @param travellerTypes     the row's (profile) traveller types.
+             */
+            calculateTravellerTypes(travellerTypes) {
+                let travTypeList = "";
+                for (let i = 0; i < travellerTypes.length; i++) {
+                    if (travellerTypes[i + 1] !== undefined) {
+                        travTypeList += travellerTypes[i].travellerType + ", \n";
+                    } else {
+                        travTypeList += travellerTypes[i].travellerType;
+                    }
+
+                }
+                return travTypeList;
+            },
+
+
             /**
              * Retrieves the user's primary photo thumbnail, if none is found set to the default image.
              *
@@ -222,6 +324,7 @@
              */
             getRows() {
                 let searchQuery = "";
+                let self = this;
                 if (!this.searchParameters) {
                     searchQuery =
                         "?name=" + "" +
@@ -249,9 +352,23 @@
                     fetch(`/v1/profiles/count` + searchQuery, {
                         method: "GET",
                         accept: "application/json"
-                    })
-                        .then(response => response.json())
-                        .then(data => this.rows = data);
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        self.rows = responseBody;
+                    }).catch(function (response) {
+                        if (response.status > 404) {
+                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        } else {
+                            response.json().then(function(responseBody) {
+                                self.showErrorToast(responseBody);
+                            });
+                        }
+                    });
                 }
             }
         }
