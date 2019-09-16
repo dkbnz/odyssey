@@ -192,7 +192,6 @@ Vue.mixin({
         return {
             possibleActions: {
                 DESTINATION_CREATED: 'Destination Created',
-                OBJECTIVE_CREATED: 'Objective Created',
                 QUEST_CREATED: 'Quest Created',
                 TRIP_CREATED: 'Trip Created',
                 RIDDLE_SOLVED: 'Riddle Solved',
