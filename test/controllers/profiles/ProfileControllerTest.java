@@ -13,6 +13,7 @@ import repositories.profiles.NationalityRepository;
 import repositories.profiles.PassportRepository;
 import repositories.profiles.ProfileRepository;
 
+import java.time.LocalDate;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static play.mvc.Http.Status.*;
@@ -22,6 +23,8 @@ public class ProfileControllerTest {
 
     private static final String AUTHORIZED = "authorized";
     private static final String USER_ID = "1";
+    private static final String ADMIN_USER = "2";
+    private static final String REGULAR_USER_ID = "3";
 
     private ProfileRepository mockProfileRepo;
     private NationalityRepository mockNationalityRepo;
@@ -32,6 +35,7 @@ public class ProfileControllerTest {
     private Profile defaultAdminUser;
     private Profile adminUser;
     private Profile regularUser;
+    private Profile fullUser;
 
     private ProfileController testProfileController;
 
@@ -60,6 +64,21 @@ public class ProfileControllerTest {
         regularUser = new Profile();
         regularUser.setId(3L);
         regularUser.setAdmin(false);
+
+        fullUser = new Profile();
+        fullUser.setId(4L);
+        fullUser.setUsername("test1@email.com");
+        fullUser.setPassword("guest123");
+        fullUser.setFirstName("Jack");
+        fullUser.setLastName("Taylor");
+        fullUser.setGender("Male");
+        fullUser.setDateOfBirth(LocalDate.now().minusYears(5));
+
+        // Mock profile fetches
+        when(mockProfileRepo.findById(1L)).thenReturn(defaultAdminUser);
+        when(mockProfileRepo.findById(2L)).thenReturn(adminUser);
+        when(mockProfileRepo.findById(3L)).thenReturn(regularUser);
+        when(mockProfileRepo.findById(4L)).thenReturn(fullUser);
     }
 
     @Test
@@ -151,6 +170,20 @@ public class ProfileControllerTest {
 
 
     @Test
+    public void fetchProfilesNotLoggedIn() {
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest();
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = testProfileController.list(request);
+
+        // Assert
+        Assert.assertEquals(UNAUTHORIZED, result.status());
+    }
+
+
+    @Test
     public void totalNumberOfProfilesInvalidQuery() {
         // Mock
         when(mockProfileRepo.findById(any(Long.class))).thenReturn(regularUser);
@@ -171,12 +204,202 @@ public class ProfileControllerTest {
     }
 
 
-    @After
-    public void tearDown() {
-        verifyNoMoreInteractions(mockProfileRepo);
-        verifyNoMoreInteractions(mockNationalityRepo);
-        verifyNoMoreInteractions(mockPassportRepo);
-        verifyNoMoreInteractions(mockTravellerTypeRepo);
-        verifyNoMoreInteractions(mockAchievementTrackerRepo);
+    @Test
+    public void validateQueryStringAgeException() {
+        // Mock
+        when(mockProfileRepo.findById(any(Long.class))).thenReturn(regularUser);
+
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID).uri("?min_age=s&max_age=s");
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = testProfileController.list(request);
+
+        // Assert
+        Assert.assertEquals(BAD_REQUEST, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(1)).findById(any(Long.class));
+        verify(mockProfileRepo, times(1)).getExpressionList();
+    }
+
+
+    @Test
+    public void validateQueryStringMinAgeSmaller() {
+        // Mock
+        when(mockProfileRepo.findById(any(Long.class))).thenReturn(regularUser);
+
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID).uri("?min_age=-1&max_age=5");
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = testProfileController.list(request);
+
+        // Assert
+        Assert.assertEquals(BAD_REQUEST, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(1)).findById(any(Long.class));
+        verify(mockProfileRepo, times(1)).getExpressionList();
+    }
+
+
+    @Test
+    public void validateQueryStringMinAgeGreater() {
+        // Mock
+        when(mockProfileRepo.findById(any(Long.class))).thenReturn(regularUser);
+
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID).uri("?min_age=125&max_age=5");
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = testProfileController.list(request);
+
+        // Assert
+        Assert.assertEquals(BAD_REQUEST, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(1)).findById(any(Long.class));
+        verify(mockProfileRepo, times(1)).getExpressionList();
+    }
+
+
+    @Test
+    public void validateQueryStringMaxAgeSmaller() {
+        // Mock
+        when(mockProfileRepo.findById(any(Long.class))).thenReturn(regularUser);
+
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID).uri("?min_age=1&max_age=-1");
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = testProfileController.list(request);
+
+        // Assert
+        Assert.assertEquals(BAD_REQUEST, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(1)).findById(any(Long.class));
+        verify(mockProfileRepo, times(1)).getExpressionList();
+    }
+
+
+    @Test
+    public void validateQueryStringMaxAgeGreater() {
+        // Mock
+        when(mockProfileRepo.findById(any(Long.class))).thenReturn(regularUser);
+
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID).uri("?min_age=1&max_age=200");
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = testProfileController.list(request);
+
+        // Assert
+        Assert.assertEquals(BAD_REQUEST, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(1)).findById(any(Long.class));
+        verify(mockProfileRepo, times(1)).getExpressionList();
+    }
+
+
+    @Test
+    public void validateQueryStringMinGreaterThanMax() {
+        // Mock
+        when(mockProfileRepo.findById(any(Long.class))).thenReturn(regularUser);
+
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID).uri("?min_age=50&max_age=10");
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = testProfileController.list(request);
+
+        // Assert
+        Assert.assertEquals(BAD_REQUEST, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(1)).findById(any(Long.class));
+        verify(mockProfileRepo, times(1)).getExpressionList();
+    }
+
+
+    @Test
+    public void makeAdminNotLoggedIn() {
+
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest();
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = testProfileController.makeAdmin(request, 3L);
+
+        // Assert
+        Assert.assertEquals(UNAUTHORIZED, result.status());
+    }
+
+
+    @Test
+    public void makeAdminForbidden() {
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID);
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = testProfileController.makeAdmin(request, 3L);
+
+        // Assert
+        Assert.assertEquals(FORBIDDEN, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(1)).findById(any(Long.class));
+    }
+
+
+    @Test
+    public void makeAdminNotFound() {
+        // Mock
+        when(mockProfileRepo.findById(1L)).thenReturn(defaultAdminUser);
+
+
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, ADMIN_USER);
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = testProfileController.makeAdmin(request, 500L);
+
+        // Assert
+        Assert.assertEquals(NOT_FOUND, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(2)).findById(any(Long.class));
+    }
+
+
+    @Test
+    public void makeAdminSuccess() {
+        // Mock
+        when(mockProfileRepo.findById(1L)).thenReturn(defaultAdminUser);
+
+
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, ADMIN_USER);
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = testProfileController.makeAdmin(request, 4L);
+
+        // Assert
+        Assert.assertEquals(OK, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(2)).findById(any(Long.class));
     }
 }

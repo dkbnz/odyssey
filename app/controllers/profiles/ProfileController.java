@@ -72,7 +72,6 @@ public class ProfileController {
     private static final String DELETING_DEFAULT_ADMIN = "You can not delete the default administrator";
     private static final long AGE_SEARCH_OFFSET = 1;
     private static final long DEFAULT_ADMIN_ID = 1;
-    private static final String UPDATED = "UPDATED";
     private static final String ID = "id";
 
     private ProfileRepository profileRepository;
