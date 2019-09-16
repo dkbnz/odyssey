@@ -30,7 +30,6 @@ import static play.test.Helpers.fakeRequest;
 public class DestinationControllerTest {
 
     private static final String AUTHORIZED = "authorized";
-    private static final String ADMIN_ID = "1";
     private static final String USER_ID = "2";
 
 
