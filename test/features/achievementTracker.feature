@@ -86,10 +86,14 @@ Feature: Achievement Tracker API Endpoint
     Then the status code received is 403
     And I have not gained points
 
-#TODO: Matilda - waiting on solver tests to be complete.
-#  Scenario: Completing a quest awards points
-#    Given the application is running
-#    And I am logged in
+
+  Scenario: Completing a quest awards points
+    Given the application is running
+    And I am logged in as user with id "7"
+    And a quest exists with id 6
+    When I check in for quest attempt 7
+    Then I have gained points
+
 
   Scenario: Creating a destination
     Given the application is running
@@ -430,28 +434,28 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Explorer" badge with level 3
 
 
-  Scenario: Gaining enough points to achieve bronze level Odyssey badge
+  Scenario: Gaining enough points to achieve bronze level Adventurer badge
     Given the application is running
     And I am logged in as user with id "7"
-    And my current progress towards the "Odyssey" badge is 0
+    And my current progress towards the "Adventurer" badge is 0
     When I check in for quest attempt 14
     Then the status code received is 200
-    And I gain the "Odyssey" badge with level 1
+    And I gain the "Adventurer" badge with level 1
 
 
-  Scenario: Gaining enough points to achieve silver level Odyssey badge
+  Scenario: Gaining enough points to achieve silver level Adventurer badge
     Given the application is running
     And I am logged in as user with id "8"
-    And my current progress towards the "Odyssey" badge is 9
+    And my current progress towards the "Adventurer" badge is 9
     When I check in for quest attempt 15
     Then the status code received is 200
-    And I gain the "Odyssey" badge with level 2
+    And I gain the "Adventurer" badge with level 2
 
 
-  Scenario: Gaining enough points to achieve gold level Odyssey badge
+  Scenario: Gaining enough points to achieve gold level Adventurer badge
     Given the application is running
     And I am logged in as user with id "9"
-    And my current progress towards the "Odyssey" badge is 29
+    And my current progress towards the "Adventurer" badge is 29
     When I check in for quest attempt 16
     Then the status code received is 200
-    And I gain the "Odyssey" badge with level 3
+    And I gain the "Adventurer" badge with level 3
