@@ -353,7 +353,7 @@ INSERT INTO `badge` (`id`, `action_to_achieve`, `name`, `bronze_breakpoint`, `si
 (3,'QUEST_CREATED', 'Writer', 1, 15, 50, 'You need to create %s more quests to achieve %s'),
 (4,'QUEST_COMPLETED', 'Solver', 1, 20, 50, 'You need to complete %s more quests to achieve %s'),
 (5,'INTERNATIONAL_QUEST_COMPLETED', 'Explorer', 1, 5, 10, 'You need to complete %s more international quests to achieve %s'),
-(6,'LARGE_QUEST_COMPLETED', 'Odyssey', 1, 10, 30, 'You need to complete %s more large quests to achieve %s'),
+(6,'LARGE_QUEST_COMPLETED', 'Adventurer', 1, 10, 30, 'You need to complete %s more large quests to achieve %s'),
 (7,'DISTANCE_QUEST_COMPLETED', 'Wayfarer', 100000, 500000, 1000000, 'You need to travel %s more metres in quests to achieve %s'),
 (8,'POINTS_GAINED', 'Overachiever', 100, 1000, 10000, 'You need to earn %s more points to achieve %s'),
 (9,'LOGIN_STREAK', 'Streaker', 1, 7, 31, 'You need to login each day %s more times to achieve %s');

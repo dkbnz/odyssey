@@ -42,7 +42,7 @@ public class AchievementTrackerController extends Controller {
     private static final int SINGLE_COUNTRY = 1;
     private static final int INCREMENT_ONE = 1;
 
-    private static final int ODYSSEY_THRESHOLD = 10;
+    private static final int ADVENTURER_THRESHOLD = 10;
 
 
     private ProfileRepository profileRepository;
@@ -294,8 +294,8 @@ public class AchievementTrackerController extends Controller {
                         Action.INTERNATIONAL_QUEST_COMPLETED, INCREMENT_ONE));
             }
 
-            // Check if quest contains enough objectives to be an odyssey.
-            if (questWorkedOn.getObjectives().size() >= ODYSSEY_THRESHOLD) {
+            // Check if quest contains enough objectives to be an adventurer.
+            if (questWorkedOn.getObjectives().size() >= ADVENTURER_THRESHOLD) {
                 badgesAchieved.add(progressBadge(actingProfile,
                         Action.LARGE_QUEST_COMPLETED, INCREMENT_ONE));
             }
