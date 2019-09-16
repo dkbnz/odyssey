@@ -210,10 +210,6 @@ public class DestinationController extends Controller {
                 return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
             }
 
-            System.out.println(destinationOwner.getId());
-            System.out.println(loggedInUser.getId());
-            System.out.println(loggedInUser.isAdmin());
-
             if (AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
                 expressionList.eq(OWNER, destinationOwner);
             } else {

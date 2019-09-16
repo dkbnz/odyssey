@@ -2,6 +2,7 @@ package controllers.destinations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import controllers.points.AchievementTrackerController;
+import models.destinations.Destination;
 import models.profiles.Profile;
 import org.junit.After;
 import org.junit.Assert;
@@ -23,8 +24,7 @@ import repositories.trips.TripRepository;
 import java.awt.*;
 
 import static org.mockito.Mockito.*;
-import static play.mvc.Http.Status.OK;
-import static play.mvc.Http.Status.UNAUTHORIZED;
+import static play.mvc.Http.Status.*;
 import static play.test.Helpers.fakeRequest;
 
 public class DestinationControllerTest {
@@ -51,6 +51,7 @@ public class DestinationControllerTest {
 
     private Profile defaultAdmin;
     private Profile regularUser;
+    private Profile requestedUser;
 
     @Before
     public void setUp() {
@@ -88,25 +89,25 @@ public class DestinationControllerTest {
         regularUser.setId(2L);
         regularUser.setAdmin(false);
 
-    }
 
-    @After
-    public void tearDown() {
-//        verifyNoMoreInteractions(mockDestinationRepository);
-//        verifyNoMoreInteractions(mockProfileRepository);
-//        verifyNoMoreInteractions(mockTripDestinationRepository);
-//        verifyNoMoreInteractions(mockTripRepository);
-//        verifyNoMoreInteractions(mockObjectiveRepository);
-//        verifyNoMoreInteractions(mockDestinationTypeRepository);
-//        verifyNoMoreInteractions(mockBadgeRepository);
-//        verifyNoMoreInteractions(mockPointRewardRepository);
-//        verifyNoMoreInteractions(mockAchievementTrackerRepository);
-//        verifyNoMoreInteractions(objectMapper);
-    }
+        requestedUser = new Profile();
+        requestedUser.setId(3L);
+        requestedUser.setAdmin(false);
 
+
+        // Mock profile fetches
+        when(mockProfileRepository.findById(1L)).thenReturn(defaultAdmin);
+        when(mockProfileRepository.findById(2L)).thenReturn(regularUser);
+        when(mockProfileRepository.findById(3L)).thenReturn(requestedUser);
+    }
 
     @Test
     public void getTypes() {
+        // Act
+        Result result = mockDestinationController.getTypes();
+
+        // Assert
+        Assert.assertEquals(OK, result.status());
     }
 
     @Test
@@ -122,29 +123,71 @@ public class DestinationControllerTest {
         Assert.assertEquals(UNAUTHORIZED, result.status());
     }
 
-    @Test
-    public void fetchByOwner() {
-        // Mock
-        when(mockProfileRepository.findById(any(Long.class))).thenReturn(regularUser);
 
+    @Test
+    public void fetchByOwnerNotExist() {
         // Arrange
-        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID).uri("?owner=3");;
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID).uri("?owner=500");
+        Http.Request request = requestBuilder.build();
+        // Act
+        Result result = mockDestinationController.fetch(request);
+
+        // Assert
+        Assert.assertEquals(BAD_REQUEST, result.status());
+    }
+
+
+    @Test
+    public void fetchByOwnerForbidden() {
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID).uri("?owner=3");
         Http.Request request = requestBuilder.build();
 
         // Act
         Result result = mockDestinationController.fetch(request);
 
-        System.out.println(Helpers.contentAsString(result));
+        // Assert
+        Assert.assertEquals(FORBIDDEN, result.status());
+    }
+
+
+    @Test
+    public void fetchByUserNotLoggedIn() {
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest();
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = mockDestinationController.fetchByUser(request, 3L);
 
         // Assert
-        Assert.assertEquals(OK, result.status());
+        Assert.assertEquals(UNAUTHORIZED, result.status());
     }
 
-    @Test
-    public void fetchByUser() {
-    }
 
     @Test
-    public void edit() {
+    public void fetchByUserProfileNotExist() {
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID);
+        Http.Request request = requestBuilder.build();
+        // Act
+        Result result = mockDestinationController.fetchByUser(request, 500L);
+
+        // Assert
+        Assert.assertEquals(BAD_REQUEST, result.status());
+    }
+
+
+    @Test
+    public void fetchByUserForbidden() {
+        // Arrange
+        Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID);
+        Http.Request request = requestBuilder.build();
+
+        // Act
+        Result result = mockDestinationController.fetchByUser(request, 3L);
+
+        // Assert
+        Assert.assertEquals(FORBIDDEN, result.status());
     }
 }
