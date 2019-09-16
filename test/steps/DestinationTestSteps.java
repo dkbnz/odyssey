@@ -804,8 +804,19 @@ public class DestinationTestSteps {
     @When("I search for a destination with name")
     public void iSearchForADestinationWithName(io.cucumber.datatable.DataTable dataTable) {
         // Set up the search fields with given name
-        String value = getValueFromDataTable("Name", dataTable);
+        String value = getValueFromDataTable(NAME_STRING, dataTable);
         String query = createSearchDestinationQueryString(NAME, value);
+
+        //Send search destinations request
+        searchDestinationsRequest(query);
+    }
+
+
+    @When("I search for a destination with type")
+    public void iSearchForADestinationWithType(io.cucumber.datatable.DataTable dataTable) {
+        // Set up the search fields with given name
+        String value = getValueFromDataTable(TYPE_STRING, dataTable);
+        String query = createSearchDestinationQueryString(TYPE, value);
 
         //Send search destinations request
         searchDestinationsRequest(query);
@@ -828,6 +839,28 @@ public class DestinationTestSteps {
         // Set up the search fields with given district
         String value = getValueFromDataTable(LATITUDE_STRING, dataTable);
         String query = createSearchDestinationQueryString(LATITUDE, value);
+
+        //Send search destinations request
+        searchDestinationsRequest(query);
+    }
+
+
+    @When("I search for a destination with longitude")
+    public void iSearchForADestinationWithLongitude(io.cucumber.datatable.DataTable dataTable) {
+        // Set up the search fields with given district
+        String value = getValueFromDataTable(LONGITUDE_STRING, dataTable);
+        String query = createSearchDestinationQueryString(LONGITUDE, value);
+
+        //Send search destinations request
+        searchDestinationsRequest(query);
+    }
+
+
+    @When("I search for a destination with country")
+    public void iSearchForADestinationWithCountry(io.cucumber.datatable.DataTable dataTable) {
+        // Set up the search fields with given district
+        String value = getValueFromDataTable(COUNTRY_STRING, dataTable);
+        String query = createSearchDestinationQueryString(COUNTRY, value);
 
         //Send search destinations request
         searchDestinationsRequest(query);
@@ -994,6 +1027,16 @@ public class DestinationTestSteps {
     }
 
 
+    @Then("the response contains at least one destination with type")
+    public void theResponseContainsAtLeastOneDestinationWithType(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        String value = getValueFromDataTable(TYPE_STRING, dataTable);
+
+        String arrNode = objectMapper.readTree(testContext.getResponseBody()).get(0).get("type").get("id").asText();
+
+        Assert.assertEquals(value, arrNode);
+    }
+
+
     @Then("the response contains at least one destination with district")
     public void theResponseContainsAtLeastOneDestinationWithDistrict(io.cucumber.datatable.DataTable dataTable) throws IOException {
         String value = getValueFromDataTable(DISTRICT_STRING, dataTable);
@@ -1007,6 +1050,24 @@ public class DestinationTestSteps {
     public void theResponseContainsAtLeastOneDestinationWithLatitude(io.cucumber.datatable.DataTable dataTable) throws IOException {
         String value = getValueFromDataTable(LATITUDE_STRING, dataTable);
         String arrNode = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(LATITUDE).asText();
+
+        Assert.assertEquals(value, arrNode);
+    }
+
+
+    @Then("the response contains at least one destination with longitude")
+    public void theResponseContainsAtLeastOneDestinationWithLongitude(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        String value = getValueFromDataTable(LONGITUDE_STRING, dataTable);
+        String arrNode = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(LONGITUDE).asText();
+
+        Assert.assertEquals(value, arrNode);
+    }
+
+
+    @Then("the response contains at least one destination with country")
+    public void theResponseContainsAtLeastOneDestinationWithCountry(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        String value = getValueFromDataTable(COUNTRY_STRING, dataTable);
+        String arrNode = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(COUNTRY).asText();
 
         Assert.assertEquals(value, arrNode);
     }
