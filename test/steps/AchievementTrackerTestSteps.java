@@ -1,33 +1,27 @@
 package steps;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.java.bs.A;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import models.points.Badge;
 import models.profiles.Profile;
 import org.joda.time.DateTime;
+
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import org.junit.Assert;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repositories.profiles.ProfileRepository;
-import repositories.quests.QuestRepository;
-import scala.Int;
 
 import java.io.IOException;
 import java.time.ZoneId;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static play.test.Helpers.*;
 
@@ -67,6 +61,12 @@ public class AchievementTrackerTestSteps {
      * The quest URI endpoint.
      */
     private static final String QUEST_URI = "/v1/quests";
+
+
+    /**
+     * Last seen URI endpoint
+     */
+    private static final String LAST_SEEN_URI = "/v1/achievementTracker/updateLastSeen";
 
 
     /**
@@ -159,8 +159,9 @@ public class AchievementTrackerTestSteps {
     private static final String LEVEL = "level";
     private static final String PROGRESS = "progress";
 
-    private static final String CURRENT_STREAK = "currentStreak";
-    private static final String LAST_LOGIN = "lastLogin";
+    private static final String CURRENT_STREAK = "streak";
+    private static final String LAST_SEEN_DATE = "lastSeenDate";
+    private static final String CLIENT_DATE_FIELD = "clientDate";
     private static final Integer DAY_IN_MS = 86400000;
     private static final String REG_AUTH_PASS = "guest123";
 
@@ -198,9 +199,9 @@ public class AchievementTrackerTestSteps {
     private int currentStreak;
 
     /**
-     * Users last login global variable
+     * Users last login date global variable
      */
-    private DateTime lastLogin;
+    private Date lastLoginDate;
 
     /**
      * Points the profile has after an action.
@@ -208,9 +209,10 @@ public class AchievementTrackerTestSteps {
     private int currentPoints;
 
     /**
-     * Repository to access the profiles in the running application.
+     * Profile repository injected
      */
-    private ProfileRepository profileRepository;
+    private ProfileRepository profileRepository =
+            testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
 
     private void getPointsRequest(String userId) {
@@ -354,18 +356,12 @@ public class AchievementTrackerTestSteps {
      * @param userId the id for the users streak check
      */
     private void getProfileStreakInformation(String userId) {
-        Http.RequestBuilder request = fakeRequest()
-                .method(GET)
-                .session(AUTHORIZED, userId)
-                .uri(PROFILE_URI);
-        Result result = route(testContext.getApplication(), request);
-        try {
-            ObjectNode profile = mapper.readTree(Helpers.contentAsString(result)).deepCopy();
-            currentStreak = profile.get(ACHIEVEMENT_TRACKER).get(CURRENT_STREAK).asInt();
-            lastLogin = new DateTime(profile.get(LAST_LOGIN).asLong());
-        } catch (Exception e) {
-            fail("Unable to retrieve streak information");
-        }
+        Profile profile = profileRepository.findById(Long.valueOf(userId));
+        System.out.println(profile.getAchievementTracker().getCurrentStreak());
+        System.out.println(profile.getAchievementTracker().getBadges());
+        System.out.println(profile.getLastSeenDate());
+        currentStreak = profile.getAchievementTracker().getCurrentStreak();
+        lastLoginDate = profile.getLastSeenDate();
     }
 
 
@@ -436,35 +432,46 @@ public class AchievementTrackerTestSteps {
 
     @Given("^the user with id \"(.*)\" last logged in (\\d+) day ago$")
     public void theUserWithIdLastLoggedInDayAgo(String userId, Integer days) {
-//        Profile profile = profileRepository.findById(Long.valueOf(userId));
-//
-//        Date daysAgoDate = new Date(System.currentTimeMillis() - (days * DAY_IN_MS));
-//
-//        LocalDate localDate = daysAgoDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//        int yearTest  = localDate.getYear();
-//        int monthTest = localDate.getMonthValue();
-//        int dayTest   = localDate.getDayOfMonth();
-//
-//        profile.setLastSeen(daysAgoDate);
-//        profileRepository.update(profile);
-//
-//        Profile profileTest = profileRepository.findById(Long.valueOf(userId));
-//
-//        LocalDate profileLastLogin = profileTest.getLastSeen().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//
-//        int yearProfile  = profileLastLogin.getYear();
-//        int monthProfile = profileLastLogin.getMonthValue();
-//        int dayProfile   = profileLastLogin.getDayOfMonth();
-//
-//        Assert.assertEquals(yearTest, yearProfile);
-//        Assert.assertEquals(monthTest, monthProfile);
-//        Assert.assertEquals(dayTest, dayProfile);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.DATE, -days);
+        Date daysAgoDate = cal.getTime();
+
+        Profile profile = profileRepository.findById(Long.valueOf(userId));
+
+        profile.setLastSeenDate(daysAgoDate);
+
+        profileRepository.update(profile);
+
+        Profile profileCheck = profileRepository.findById(Long.valueOf(userId));
+
+        System.out.println("Before test "+ profileCheck.getLastSeenDate());
+
+        Assert.assertEquals(daysAgoDate, profileCheck.getLastSeenDate());
     }
 
-    @When("^I login to the application with id \"(.*)\" and username \"(.*)\"$")
-    public void iLoginToTheApplicationWithUsername(String id, String username) {
-        generalTestSteps.loginRequest(username, REG_AUTH_PASS);
-        testContext.setLoggedInId(id);
+
+    @When("^the user with id \"(.*)\" updates their last seen to today$")
+    public void theUserWithIdUpdatesTheirLastSeenToToday(String userId) {
+        ObjectNode json = mapper.createObjectNode();
+
+        SimpleDateFormat formatNew = new SimpleDateFormat("yyyy-MM-dd");
+
+        String daysAgoDateString = (formatNew.format(new Date()));
+
+        json.put(CLIENT_DATE_FIELD, daysAgoDateString);
+
+        Http.RequestBuilder request = fakeRequest()
+                .method(POST)
+                .uri(LAST_SEEN_URI)
+                .bodyJson(json)
+                .session(AUTHORIZED, userId);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setLoggedInId(userId);
+
+        Assert.assertEquals(OK, testContext.getStatusCode());
     }
 
 
@@ -627,25 +634,28 @@ public class AchievementTrackerTestSteps {
 
 
     @Then("^my last login was (\\d+) days ago$")
-    public void myLastLoginWasHoursAgo(int days) {
-//        Profile profileTest = profileRepository.findById(Long.valueOf(testContext.getLoggedInId()));
-//
-//        LocalDate profileLastLogin = profileTest.getLastSeen().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//
-//        Date daysAgoDate = new Date(System.currentTimeMillis() - (days * DAY_IN_MS));
-//        LocalDate dayAgoTest = daysAgoDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//
-//        int yearTest  = dayAgoTest.getYear();
-//        int monthTest = dayAgoTest.getMonthValue();
-//        int dayTest   = dayAgoTest.getDayOfMonth();
-//
-//        int yearProfile  = profileLastLogin.getYear();
-//        int monthProfile = profileLastLogin.getMonthValue();
-//        int dayProfile   = profileLastLogin.getDayOfMonth();
-//
-//        Assert.assertEquals(yearTest, yearProfile);
-//        Assert.assertEquals(monthTest, monthProfile);
-//        Assert.assertEquals(dayTest, dayProfile);
+    public void myLastLoginWasHoursAgo(int days) throws IOException {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(PROFILE_URI);
+        Result result = route(testContext.getApplication(), request);
+        ObjectNode profile = mapper.readTree(Helpers.contentAsString(result)).deepCopy();
+
+        Date profileLastLogin = new Date(profile.get(LAST_SEEN_DATE).asLong());
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.DATE, -days);
+        Date daysAgoDate = cal.getTime();
+
+        SimpleDateFormat formatNew = new SimpleDateFormat("yyyy-MM-dd");
+
+        String daysAgoDateString = (formatNew.format(daysAgoDate));
+
+        String profileLastLoginDate = (formatNew.format(profileLastLogin));
+
+        Assert.assertEquals(daysAgoDateString, profileLastLoginDate);
     }
 
 

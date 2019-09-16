@@ -353,4 +353,12 @@ public class GeneralTestSteps {
 
         Assert.assertEquals(0, arrNode.size());
     }
+
+    /**
+     * Gets the profile repository that was mocked.
+     * @return the profile repository.
+     */
+    public ProfileRepository getProfileRepository() {
+        return profileRepository;
+    }
 }

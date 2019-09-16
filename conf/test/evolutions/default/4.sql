@@ -42,7 +42,7 @@ INSERT INTO `badge_progress` (`id`, `badge_id`, `achievement_tracker_id`, `progr
 (22, 8, 7, 99),
 (23, 8, 8, 999),
 (24, 8, 9, 9999),
-(25, 9, 7, 0),
+(25, 9, 7, 3),
 (26, 9, 8, 6),
 (27, 9, 9, 30),
 (28, 5, 11, 0);
