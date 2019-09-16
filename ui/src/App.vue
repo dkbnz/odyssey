@@ -1,9 +1,10 @@
 <template>
     <div class="App">
         <div>
-            <router-view v-bind:profile="profile"
-                         v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions"
-                         v-bind:travTypeOptions="travTypeOptions"
+            <router-view :profile="profile"
+                         :destinationTypes="destinationTypes"
+                         :nationalityOptions="nationalityOptions"
+                         :travTypeOptions="travTypeOptions"
                          @profile-received="getProfile">
             </router-view>
         </div>
@@ -17,7 +18,6 @@
             this.getNationalities();
             this.getTravellerTypes();
             this.getDestinationTypes();
-
         },
 
         data() {
@@ -85,7 +85,7 @@
              */
             getNationalities() {
                 let self = this;
-                return fetch(`/v1/nationalities`, {
+                fetch(`/v1/nationalities`, {
                     accept: "application/json"
                 }).then(function (response) {
                     if (!response.ok) {
