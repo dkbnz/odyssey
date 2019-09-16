@@ -34,7 +34,7 @@ public class AchievementTrackerController extends Controller {
     private static final String POINTS_REWARDED = "pointsRewarded";
     private static final String BADGES_ACHIEVED = "badgesAchieved";
     private static final Integer STARTING_STREAK_NUMBER = 1;
-    private static final Integer LOST_STREAK = 0;
+    private static final Integer LOST_STREAK = 1;
     private static final String CLIENT_DATE_FIELD = "clientDate";
     private static final String CURRENT_STREAK = "currentStreak";
     private static final String REWARD = "reward";

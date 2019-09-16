@@ -30,6 +30,10 @@ public class ProfileTestSteps {
      */
     private TestContext testContext = TestContext.getInstance();
 
+    /**
+     * An object mapper used during tests.
+     */
+    private ObjectMapper mapper = new ObjectMapper();
 
     /**
      * Authorised string variable.
@@ -40,7 +44,6 @@ public class ProfileTestSteps {
      * The profiles uri.
      */
     private static final String PROFILES_URI = "/v1/profiles";
-
 
     /**
      * The profiles uri.
@@ -503,7 +506,7 @@ public class ProfileTestSteps {
 
 
     @When("A user attempts to create a profile with the following fields:")
-    public void aUserAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) {
+    public void aUserAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) throws IOException {
         // Creates the json for the profile
         JsonNode json = convertDataTableToJsonNode(dataTable);
 
@@ -514,6 +517,7 @@ public class ProfileTestSteps {
                 .uri(PROFILES_URI);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
+
     }
 
 
