@@ -2,15 +2,12 @@ package controllers.destinations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import controllers.points.AchievementTrackerController;
-import models.destinations.Destination;
 import models.profiles.Profile;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.Helpers;
 import repositories.destinations.DestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.objectives.ObjectiveRepository;
@@ -20,9 +17,6 @@ import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import repositories.trips.TripDestinationRepository;
 import repositories.trips.TripRepository;
-
-import java.awt.*;
-
 import static org.mockito.Mockito.*;
 import static play.mvc.Http.Status.*;
 import static play.test.Helpers.fakeRequest;
@@ -31,29 +25,22 @@ public class DestinationControllerTest {
 
     private static final String AUTHORIZED = "authorized";
     private static final String USER_ID = "2";
-
-
-    private DestinationRepository mockDestinationRepository;
-    private ProfileRepository mockProfileRepository;
-    private TripDestinationRepository mockTripDestinationRepository;
-    private TripRepository mockTripRepository;
-    private ObjectiveRepository mockObjectiveRepository;
-    private DestinationTypeRepository mockDestinationTypeRepository;
-    private BadgeRepository mockBadgeRepository;
-    private PointRewardRepository mockPointRewardRepository;
-    private AchievementTrackerRepository mockAchievementTrackerRepository;
     private DestinationController mockDestinationController;
-    private AchievementTrackerController mockAchievementTrackerController;
-    private ObjectMapper objectMapper;
-
-
-
-    private Profile defaultAdmin;
-    private Profile regularUser;
-    private Profile requestedUser;
 
     @Before
     public void setUp() {
+        DestinationRepository mockDestinationRepository;
+        ProfileRepository mockProfileRepository;
+        TripDestinationRepository mockTripDestinationRepository;
+        TripRepository mockTripRepository;
+        ObjectiveRepository mockObjectiveRepository;
+        DestinationTypeRepository mockDestinationTypeRepository;
+        BadgeRepository mockBadgeRepository;
+        PointRewardRepository mockPointRewardRepository;
+        AchievementTrackerRepository mockAchievementTrackerRepository;
+        AchievementTrackerController mockAchievementTrackerController;
+        ObjectMapper objectMapper;
+
         mockDestinationRepository = mock(DestinationRepository.class);
         mockProfileRepository = mock(ProfileRepository.class);
         mockTripDestinationRepository = mock(TripDestinationRepository.class);
@@ -79,6 +66,9 @@ public class DestinationControllerTest {
                 mockObjectiveRepository,
                 mockAchievementTrackerController);
 
+        Profile defaultAdmin;
+        Profile regularUser;
+        Profile requestedUser;
 
         defaultAdmin = new Profile();
         defaultAdmin.setId(1L);
