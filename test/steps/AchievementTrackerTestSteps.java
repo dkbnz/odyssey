@@ -7,6 +7,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.profiles.Profile;
+import models.quests.Quest;
 import org.joda.time.DateTime;
 
 import java.text.SimpleDateFormat;
@@ -526,6 +527,49 @@ public class AchievementTrackerTestSteps {
     }
 
 
+    @When("I try to view my points")
+    public void iTryToViewMyPoints() {
+        String userToView = testContext.getLoggedInId();
+        getPointsRequest(userToView);
+    }
+
+
+    @When("I try to view another user's points value")
+    public void iTryToViewAnotherUsersPointsValue() {
+        String userToView = Long.toString(OTHER_USER_ID);
+        getPointsRequest(userToView);
+    }
+
+
+    @When("I incorrectly guess the answer to a quest riddle")
+    public void iIncorrectlyGuessTheAnswerToAQuestRiddle() throws IOException {
+        sendRiddleGuessRequest(TO_GUESS_RIDDLE_ID, INCORRECT_DESTINATION_GUESS);
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        Assert.assertEquals(UNSUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
+    }
+
+
+    @When("I check into a destination")
+    public void iCheckIntoADestination() {
+        sendCheckInRequest(TO_CHECK_IN_RIDDLE_ID);
+
+        Assert.assertEquals(OK, testContext.getStatusCode());
+    }
+
+
+    @Then("^the response contains quest (\\d+)$")
+    public void theResponseContainsQuest(Integer questId) throws IOException {
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        boolean hasQuest = false;
+        for (JsonNode quest : responseBody) {
+            if (quest.get("id").asInt() == questId) {
+                hasQuest = true;
+            }
+        }
+        assertTrue("Quest not in list of completed quests", hasQuest);
+    }
+
+
     @Then("I have gained points")
     public void iHaveGainedPoints() throws IOException {
         String userToView = testContext.getLoggedInId();
@@ -534,13 +578,6 @@ public class AchievementTrackerTestSteps {
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         currentPoints = responseBody.get("userPoints").asInt();
         Assert.assertTrue("Current points is not greater than starting points",currentPoints > startingPoints);
-    }
-
-
-    @When("I try to view my points")
-    public void iTryToViewMyPoints() {
-        String userToView = testContext.getLoggedInId();
-        getPointsRequest(userToView);
     }
 
 
@@ -559,13 +596,6 @@ public class AchievementTrackerTestSteps {
     }
 
 
-    @When("I try to view another user's points value")
-    public void iTryToViewAnotherUserSPointsValue() {
-        String userToView = Long.toString(OTHER_USER_ID);
-        getPointsRequest(userToView);
-    }
-
-
     @Then("I am given their total number of points")
     public void iAmGivenTheirTotalNumberOfPoints() throws IOException {
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
@@ -575,23 +605,6 @@ public class AchievementTrackerTestSteps {
 
         // Points should never be negative, so something has gone wrong.
         Assert.assertTrue("Points value is negative", currentPoints >= 0);
-    }
-
-
-    @When("I incorrectly guess the answer to a quest riddle")
-    public void iIncorrectlyGuessTheAnswerToAQuestRiddle() throws IOException {
-        sendRiddleGuessRequest(TO_GUESS_RIDDLE_ID, INCORRECT_DESTINATION_GUESS);
-        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        Assert.assertEquals(UNSUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
-    }
-
-
-    @When("I check into a destination")
-    public void iCheckIntoADestination() {
-        sendCheckInRequest(TO_CHECK_IN_RIDDLE_ID);
-
-        Assert.assertEquals(OK, testContext.getStatusCode());
-
     }
 
 

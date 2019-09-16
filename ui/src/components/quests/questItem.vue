@@ -141,13 +141,13 @@
                         <b-col>
                             <b-button v-if="!addNewObjective" variant="success" :disabled="heading === 'Edit'"
                                       @click="showObjectiveComponent" block>
-                                Add a New Objective
+                                Add a new objective
                             </b-button>
                         </b-col>
                         <b-col>
                             <b-button v-if="!addNewObjective" variant="primary" :disabled="heading === 'Edit'"
                                       @click="showYourObjectivesComponent" block>
-                                Select an Objective
+                                Select an objective
                             </b-button>
                         </b-col>
                     </b-row>

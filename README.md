@@ -3,10 +3,10 @@ See the User Manual inside the project Wiki for how to setup the the application
 
 ## Dependencies
 
-Everyware's TravelEA requires the following dependencies to run
+Everyware's Odyssey requires the following dependencies to run
 
 #### Operating system
-TravelEA may be run on Windows or Linux/OSX. The build instructions for each operating system are explained below.
+Odyssey may be run on Windows or Linux/OSX. The build instructions for each operating system are explained below.
 
 #### Programs
 * [sbt 1.2.8](https://www.scala-sbt.org/download.html)
@@ -30,8 +30,8 @@ TravelEA may be run on Windows or Linux/OSX. The build instructions for each ope
 2. Open the folder in the terminal and type `chmod +x seng302-team-100-everyware`. This enables the file to be executable. 
 3. Run the application by executing `./seng302-team-100-everyware` in the terminal.
 
-Congratulations, TravelEA should now be running!
-Your browser should open onto the TravelEA website, but if it does not navigate to `localhost:8080`.  
+Congratulations, Odyssey should now be running!
+Your browser should open onto the Odyssey website, but if it does not navigate to `localhost:8080`.  
 You can now Create a Profile or Login.  
 
 To login as an admin user use username `admin@travelea.com` and password `1nimda`.  
