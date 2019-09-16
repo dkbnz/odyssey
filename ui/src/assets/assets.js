@@ -6,7 +6,7 @@ export default {
     cartographer: './static/badges/cartographer.png',
     explorer: './static/badges/explorer.png',
     wayfarer: './static/badges/wayfarer.png',
-    odyssey: './static/badges/odyssey.png',
+    adventurer: './static/badges/adventurer.png',
     overachiever: './static/badges/overachiever.png',
     solver: './static/badges/solver.png',
     streaker: './static/badges/streaker.png',

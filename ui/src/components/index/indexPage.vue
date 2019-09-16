@@ -3,12 +3,12 @@
         <div class="bg">
             <div class="centerAlignDiv">
                 <div class="animation">
-                    <img class="logoTranslate" alt="TravelEA Logo" src="../../../static/logo.png">
-                    <h1 class="logoTextAppear">TravelEA</h1>
+                    <img class="logoTranslate" alt="Odyssey Logo" src="../../../static/logo.png">
+                    <h1 class="logoTextAppear">ODYSSEY</h1>
                 </div>
 
                 <div class="subtitleSection">
-                    <h3 id="subtitle">Your personal Travel Executive Assistant!</h3>
+                    <h4 id="subtitle">Earn points and badges by creating and solving quests as you travel around the world!</h4>
                 </div>
                 <b-row class="loginSignUpButtons">
                     <b-col>
