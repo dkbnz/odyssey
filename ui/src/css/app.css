@@ -163,7 +163,7 @@ a {
 }
 
 @keyframes rotate {
-    100% {transform: rotate(350deg);}
+    100% {transform: rotate(360deg);}
 }
 
 .row {
