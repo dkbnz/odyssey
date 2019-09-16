@@ -339,8 +339,9 @@ Feature: Achievement Tracker API Endpoint
     And The following profile does not exist with the username "TestUser123@travelea.com" within the TravelEA database
     When A user attempts to create a profile with the following fields:
       | username                 | password    | first_name | middle_name | last_name | date_of_birth | gender | nationality | traveller_type | passport_country |
-      | TestUser691@travelea.com | TestPass321 | Test       |             | Dummy     | 2000-01-01    | Other  | 1           | 1              | 1                |
-    Then the status code received is 201
+      | TestUser691@travelea.com | TestPass321 | bronzeTest |             | Dummy     | 2000-01-01    | Other  | 1           | 1              | 1                |
+    And the created user now updates their last seen date
+    Then the status code received is 200
     And I gain the "Streaker" badge with level 1
 
 
