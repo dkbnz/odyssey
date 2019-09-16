@@ -538,8 +538,10 @@
                     }
                 }).then(function (response) {
                     if (response.status === 201 && !self.createdByAdmin) {
+                        self.updateActivity();
                         self.$router.push('/profile');
                     } else if (response.status === 201 && self.createdByAdmin) {
+                        self.updateActivity();
                         self.$emit('profile-created', true);
                     }
                 }).catch(function (response) {

@@ -107,8 +107,6 @@
             /**
              * Runs a query which searches through the destinations in the database and returns all which
              * follow the search criteria.
-             *
-             * @return {Promise<Response | never>}
              */
             queryDestinations(destinationToSearch) {
                 this.loadingResults = true;
@@ -123,7 +121,7 @@
                     (this.searchPublic ? "&is_public=1" : "&owner=" + this.profile.id) +
                     "&page=" + this.queryPage;
 
-                return fetch(`/v1/destinations` + searchQuery, {})
+                fetch(`/v1/destinations` + searchQuery, {})
                 .then(function (response) {
                     if (!response.ok) {
                         throw response;
@@ -132,7 +130,6 @@
                     }
                 }).then(function (responseBody) {
                         if (responseBody !== null && responseBody !== undefined) {
-                            self.loadingResults = false;
                             self.moreResults = responseBody.length >= 50;
                             for (let i = 0; i < responseBody.length; i++) {
                                 self.foundDestinations.push(responseBody[i]);
@@ -143,12 +140,12 @@
                     if (response.status > 404) {
                         self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                     } else {
-                        self.loadingResults = false;
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
                         });
                     }
                 });
+                this.loadingResults = false;
             }
         }
     }

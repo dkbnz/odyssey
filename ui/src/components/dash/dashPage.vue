@@ -100,7 +100,7 @@
             getProfile() {
                 let self = this;
                 this.loadingResults = true;
-                return fetch(`/v1/profile`, {
+                fetch(`/v1/profile`, {
                     accept: "application/json"
                 }).then(function (response) {
                     if (!response.ok) {
@@ -109,18 +109,17 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
-                    self.loadingResults = false;
                     self.profile = responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
                         self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                     } else {
-                        self.loadingResults = false;
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
                         });
                     }
                 });
+                this.loadingResults = false;
             }
         },
 
