@@ -133,10 +133,11 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
-     * Takes a collection
-     * @param badgesAchieved
-     * @param pointsAchieved
-     * @return
+     * Builds an object node that contains the collection of given badges achieved and the given value of points achieved.
+     *
+     * @param badgesAchieved        a collection of badges achieved.
+     * @param pointsAchieved        the number of points achieved.
+     * @return                      an object node containing the badges and points achieved to return to the front end.
      */
     private ObjectNode constructRewardJson(Collection<Badge> badgesAchieved, PointReward pointsAchieved) {
 
@@ -240,18 +241,18 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
-     * Rewards the user for creating or checking into an objective.
+     * Rewards the user for checking into an objective.
      * Adds points to the given profile's AchievementTracker based on the completed action.
      *
-     * @param actingProfile     the profile receiving points.
-     * @param objective         the objective which the action was performed on.
-     * @return                  Json node of the reward result.
+     * @param actingProfile         the profile receiving points.
+     * @param objectiveCheckedIn    the objective which the action was performed on.
+     * @return                      Json node of the reward result.
      */
-    public JsonNode rewardAction(Profile actingProfile, Objective objective, Action completedAction) {
+    public JsonNode rewardAction(Profile actingProfile, Objective objectiveCheckedIn) {
         Collection<Badge> badgesAchieved = new ArrayList<>();
 
         // Award points
-        PointReward points = givePoints(actingProfile, completedAction);
+        PointReward points = givePoints(actingProfile, Action.CHECKED_IN);
         updatePointsBadge(actingProfile, badgesAchieved);
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.

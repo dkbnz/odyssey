@@ -1,7 +1,6 @@
 import Index from './components/index/indexPage'
 import ProfilePage from './components/dash/dashPage'
 import Destinations from './components/destinations/destinationsPage'
-import Objectives from './components/objectives/objectivePage'
 import Leaderboard from './components/profiles/leaderboardPage'
 import Trips from './components/trips/tripsPage'
 import AdminPanel from './components/admin/adminPanel'
@@ -34,14 +33,6 @@ const routes = [
         component: Destinations,
         meta: {
             title: "Destinations - TravelEA"
-        }
-    },
-    {
-        path:"/objectives",
-        name: "objectives",
-        component: Objectives,
-        meta: {
-            title: "Objectives - TravelEA"
         }
     },
     {
