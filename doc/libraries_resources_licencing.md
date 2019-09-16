@@ -254,7 +254,7 @@ images. Accreditation is required somewhere within credits, with the images or w
  - [Writer](https://www.flaticon.com/free-icon/map_1606528#term=map%20scroll&page=1&position=3) - Photo by Freepik
  - [Solver](https://www.flaticon.com/free-icon/loupe_751381#term=search&page=1&position=4) - Photo by Freepik
  - [Explorer](https://www.flaticon.com/free-icon/search_1150637#term=search%20map&page=1&position=16) - Photo by Freepik
- - [Odyssey](https://www.flaticon.com/free-icon/helmet_1455027#term=greece&page=1&position=8) - Photo by Freepik
+ - [Adventurer](https://www.flaticon.com/free-icon/helmet_1455027#term=greece&page=1&position=8) - Photo by Freepik
  - [Wayfarer](https://www.flaticon.com/free-icon/hiking_1706736#term=walking&page=1&position=4) - Photo by Freepik
  - [Streaker](https://www.flaticon.com/free-icon/flash_656403#term=lightning%20bolt&page=1&position=21) - Photo by Freepik
  - [Overachiever](https://www.flaticon.com/free-icon/laurel_876862#term=award&page=1&position=22) - Photo by Freepik

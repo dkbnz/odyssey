@@ -1,6 +1,6 @@
 <template>
     <footer class="d-none d-lg-block" id="footer">
-        <p>This is Everyware's TravelEA Website!<br/>
+        <p>This is Everyware's Odyssey Website!<br/>
             <b-button variant="link" class="footer-link" @click="goToCredits()">Credits</b-button>
         </p>
     </footer>
