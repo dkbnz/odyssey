@@ -56,8 +56,8 @@
                                     <p>Latitude: {{destination.latitude}}</p>
                                     <p>Longitude: {{destination.longitude}}</p>
                                 </div>
-                                <b-row>
-                                    <b-col>
+                                <b-row no-gutters>
+                                    <b-col class="pr-1" md="4" sm="12">
                                         <b-card>
                                             <h5 class="page-title">Current</h5>
                                             <div v-for="travellerType in destination.travellerTypes">
@@ -67,40 +67,37 @@
                                             </div>
                                         </b-card>
                                     </b-col>
-                                    <b-col>
+                                    <b-col class="pr-1" md="4" sm="12">
                                         <b-card>
                                             <h5 class="page-title">Additions</h5>
-                                            <div v-for="travellerType in destination.proposedTravellerTypesAdd">
-                                                <b-row>
-                                                    <b-col cols="16" md="10">
+                                            <!-- Set no gutters for the following rows, as otherwise they have a negative margin by default -->
+                                                <b-row no-gutters v-for="travellerType in destination.proposedTravellerTypesAdd">
+                                                    <b-col cols="10" sm="10">
                                                         {{travellerType.travellerType}}
                                                     </b-col>
-                                                    <b-col cols="8" md="2">
+                                                    <b-col cols="2" sm="1">
                                                         <b-button variant="success" class="proposalButton"
                                                                   @click="addTravellerTypes(destination, travellerType)">
                                                             &#10003;
                                                         </b-button>
                                                     </b-col>
                                                 </b-row>
-                                            </div>
                                         </b-card>
                                     </b-col>
-                                    <b-col>
+                                    <b-col class="pr-1" md="4" sm="12">
                                         <b-card>
                                             <h5 class="page-title">Removals</h5>
-                                            <div v-for="travellerType in destination.proposedTravellerTypesRemove">
-                                                <b-row>
-                                                    <b-col cols="16" md="10">
+                                                <b-row no-gutters v-for="travellerType in destination.proposedTravellerTypesRemove">
+                                                    <b-col cols="10" sm="10">
                                                         {{travellerType.travellerType}}
                                                     </b-col>
-                                                    <b-col cols="8" md="2">
+                                                    <b-col cols="2" sm="1">
                                                         <b-button variant="danger" class="proposalButton"
                                                                   @click="removeTravellerTypes(destination, travellerType)">
                                                             &#10003;
                                                         </b-button>
                                                     </b-col>
                                                 </b-row>
-                                            </div>
                                         </b-card>
                                     </b-col>
                                 </b-row>
