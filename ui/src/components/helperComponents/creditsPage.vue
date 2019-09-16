@@ -190,13 +190,13 @@
                         <b-list-group-item class="flex-column justify-content-center">
                             <b-row>
                                 <b-col cols="9">
-                                    <h4>Odyssey Badge</h4>
+                                    <h4>Adventurer Badge</h4>
                                     <a href="https://www.flaticon.com/free-icon/helmet_1455027#term=greece&page=1&position=8" target="_blank">Source Link</a><br/>
                                     <small>https://www.flaticon.com/free-icon/helmet_1455027#term=greece&page=1&position=8</small><br/>
                                     <small>Author: <a href="https://www.freepik.com" target="_blank">Freepik</a></small>
                                 </b-col>
                                 <b-col>
-                                    <b-img :src="assets['odyssey']" width="100%"></b-img>
+                                    <b-img :src="assets['adventurer']" width="100%"></b-img>
                                 </b-col>
                             </b-row>
                         </b-list-group-item>
