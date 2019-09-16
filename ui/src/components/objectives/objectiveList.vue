@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-list-group class="scroll">
+        <b-list-group class="scrollObjectives">
             <!--Successful objective delete alert -->
             <b-alert
                     :show="dismissCountDown"
@@ -21,11 +21,10 @@
                                v-if="creatingObjective">
                 <!-- Adding objective component -->
                 <add-objective :profile="profile" :heading="'Create'"
+                               @successCreate="showSuccess"
                                @cancelCreate="cancelCreate"
                                :selectedDestination="selectedDestination"
-                               @destination-select="$emit('destination-select')"
-                               @successCreate="message => showSuccess(message)">
-
+                               @destination-select="$emit('destination-select')">
                 </add-objective>
             </b-list-group-item>
             <div v-if="!sideBarView && yourObjectives">
@@ -342,6 +341,7 @@
             /**
              * Sets the message for the success alert to the inputted message and runs showAlert to show the success
              * message.
+             *
              * @param message to be set as the alert message.
              */
             showSuccess(message) {
@@ -349,6 +349,8 @@
                 this.queryYourObjectives();
                 this.alertMessage = message;
                 this.showAlert();
+                this.creatingObjective = false;
+                this.$emit('hide-destinations');
             },
 
 
