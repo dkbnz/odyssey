@@ -71,7 +71,7 @@
                                         <b-card>
                                             <h5 class="page-title">Additions</h5>
                                             <!-- Set no gutters for the following rows, as otherwise they have a negative margin by default -->
-                                                <b-row no-gutters v-for="travellerType in destination.proposedTravellerTypesAdd">
+                                                <b-row no-gutters v-for="travellerType in destination.proposedTravellerTypesAdd" :key="travellerType.id">
                                                     <b-col cols="10" sm="10">
                                                         {{travellerType.travellerType}}
                                                     </b-col>
@@ -87,7 +87,7 @@
                                     <b-col class="pr-1" md="4" sm="12">
                                         <b-card>
                                             <h5 class="page-title">Removals</h5>
-                                                <b-row no-gutters v-for="travellerType in destination.proposedTravellerTypesRemove">
+                                                <b-row no-gutters v-for="travellerType in destination.proposedTravellerTypesRemove" :key="travellerType.id">
                                                     <b-col cols="10" sm="10">
                                                         {{travellerType.travellerType}}
                                                     </b-col>
