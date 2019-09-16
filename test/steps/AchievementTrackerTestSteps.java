@@ -10,6 +10,7 @@ import models.profiles.Profile;
 import models.quests.Quest;
 import org.joda.time.DateTime;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import org.junit.Assert;
@@ -22,8 +23,7 @@ import java.io.IOException;
 import java.time.ZoneId;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static play.test.Helpers.*;
 
 public class AchievementTrackerTestSteps {
@@ -162,6 +162,8 @@ public class AchievementTrackerTestSteps {
 
     private static final String CURRENT_STREAK = "streak";
     private static final String LAST_SEEN_DATE = "lastSeenDate";
+    private static final String BRONZE_TEST_USER_FIRST_NAME = "bronzeTest";
+    private static final int FIRST_LEVEL_BADGE = 1;
     private static final String CLIENT_DATE_FIELD = "clientDate";
     private static final Integer DAY_IN_MS = 86400000;
     private static final String REG_AUTH_PASS = "guest123";
@@ -358,9 +360,6 @@ public class AchievementTrackerTestSteps {
      */
     private void getProfileStreakInformation(String userId) {
         Profile profile = profileRepository.findById(Long.valueOf(userId));
-        System.out.println(profile.getAchievementTracker().getCurrentStreak());
-        System.out.println(profile.getAchievementTracker().getBadges());
-        System.out.println(profile.getLastSeenDate());
         currentStreak = profile.getAchievementTracker().getCurrentStreak();
         lastLoginDate = profile.getLastSeenDate();
     }
@@ -432,7 +431,7 @@ public class AchievementTrackerTestSteps {
 
 
     @Given("^the user with id \"(.*)\" last logged in (\\d+) day ago$")
-    public void theUserWithIdLastLoggedInDayAgo(String userId, Integer days) {
+    public void theUserWithIdLastLoggedInDayAgo(String userId, Integer days) throws ParseException {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
@@ -441,15 +440,17 @@ public class AchievementTrackerTestSteps {
 
         Profile profile = profileRepository.findById(Long.valueOf(userId));
 
-        profile.setLastSeenDate(daysAgoDate);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+        Date clientDate = new SimpleDateFormat("yyyy-MM-dd").parse(format.format(daysAgoDate));
+
+        profile.setLastSeenDate(clientDate);
 
         profileRepository.update(profile);
 
         Profile profileCheck = profileRepository.findById(Long.valueOf(userId));
 
-        System.out.println("Before test "+ profileCheck.getLastSeenDate());
-
-        Assert.assertEquals(daysAgoDate, profileCheck.getLastSeenDate());
+        Assert.assertEquals(clientDate, profileCheck.getLastSeenDate());
     }
 
 
@@ -473,6 +474,43 @@ public class AchievementTrackerTestSteps {
         testContext.setLoggedInId(userId);
 
         Assert.assertEquals(OK, testContext.getStatusCode());
+    }
+
+
+    @When("the created user now updates their last seen date")
+    public void theCreatedUserNowUpdatesTheirLastSeenDate() {
+
+        Profile foundProfile = null;
+
+        List<Profile> profiles = profileRepository.findAll();
+        for (Profile profile: profiles) {
+            if (profile.getFirstName().equals(BRONZE_TEST_USER_FIRST_NAME)) {
+                foundProfile = profile;
+            }
+        }
+
+        if (foundProfile != null) {
+            testContext.setLoggedInId(foundProfile.getId().toString());
+            ObjectNode json = mapper.createObjectNode();
+
+            SimpleDateFormat formatNew = new SimpleDateFormat("yyyy-MM-dd");
+
+            String daysAgoDateString = (formatNew.format(new Date()));
+
+            json.put(CLIENT_DATE_FIELD, daysAgoDateString);
+
+            Http.RequestBuilder request = fakeRequest()
+                    .method(POST)
+                    .uri(LAST_SEEN_URI)
+                    .bodyJson(json)
+                    .session(AUTHORIZED, testContext.getLoggedInId());
+            Result result = route(testContext.getApplication(), request);
+            testContext.setStatusCode(result.status());
+
+            Assert.assertEquals(OK, testContext.getStatusCode());
+        } else {
+            fail("Profile not found");
+        }
     }
 
 
