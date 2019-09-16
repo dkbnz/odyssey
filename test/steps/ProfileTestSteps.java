@@ -441,7 +441,7 @@ public class ProfileTestSteps {
     }
 
 
-    @When("I send a GET request to the /travtypes endpoint")
+    @When("I send a GET request to the travtypes endpoint")
     public void iSendAGETRequestToTheTravTypesEndpoint() throws BeansException {
         // Does the request to back end
         Http.RequestBuilder request = fakeRequest()

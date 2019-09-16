@@ -379,13 +379,11 @@
 
             /**
              * Runs a query which searches through the quests in the database and returns all.
-             *
-             * @return {Promise<Response | never>}
              */
             queryQuests() {
                 this.loadingResults = true;
                 let self = this;
-                return fetch('/v1/quests', {
+                fetch('/v1/quests', {
                     accept: "application/json"
                 }).then(function (response) {
                     if (!response.ok) {
@@ -404,20 +402,19 @@
                         });
                     }
                 });
+                this.loadingResults = false;
             },
 
 
             /**
              * Runs a query which searches through the quests in the database and returns only
              * quests created by the profile.
-             *
-             * @return {Promise<Response | never>}
              */
             queryYourQuests() {
                 let self = this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
-                    return fetch(`/v1/quests/` + this.profile.id, {})
+                    fetch(`/v1/quests/` + this.profile.id, {})
                         .then(function (response) {
                             if (!response.ok) {
                                 throw response;
@@ -426,17 +423,16 @@
                             }
                         }).then(function (responseBody) {
                             self.foundQuests = responseBody;
-                            self.loadingResults = false;
                         }).catch(function (response) {
                             if (response.status > 404) {
                                 self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                             } else {
-                                self.loadingResults = false;
                                 response.json().then(function(responseBody) {
                                     self.showErrorToast(responseBody);
                                 });
                             }
                         });
+                    this.loadingResults = false;
                 }
             },
 
@@ -444,13 +440,12 @@
             /**
              * Runs a query which searches through the quests in the database and returns only
              * quests started by the profile.
-             *
-             * @return {Promise<Response | never>}
              */
             queryYourActiveQuests() {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
-                    return fetch(`/v1/quests/profiles/` + this.profile.id, {})
+                    fetch(`/v1/quests/profiles/` + this.profile.id, {})
                         .then(function (response) {
                             if (!response.ok) {
                                 throw response;
@@ -459,17 +454,16 @@
                             }
                         }).then(function (responseBody) {
                             self.questAttempts = responseBody;
-                            self.loadingResults = false;
                         }).catch(function (response) {
                             if (response.status > 404) {
                                 self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                             } else {
-                                self.loadingResults = false;
                                 response.json().then(function(responseBody) {
                                     self.showErrorToast(responseBody);
                                 });
                             }
                         });
+                    this.loadingResults = false;
                 }
 
             },
@@ -516,14 +510,12 @@
             /**
              * Runs a query which searches through the quests in the database and returns only
              * quests created by the profile.
-             *
-             * @return {Promise<Response | never>}
              */
             queryCompletedQuests() {
                 let self= this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
-                    return fetch(`/v1/quests/` + this.profile.id + `/complete`, {
+                    fetch(`/v1/quests/` + this.profile.id + `/complete`, {
                         accept: 'application/json'
                     }).then(function (response) {
                         if (!response.ok) {
@@ -533,17 +525,16 @@
                         }
                     }).then(function (responseBody) {
                         self.foundQuests = responseBody;
-                        self.loadingResults = false;
                     }).catch(function (response) {
                         if (response.status > 404) {
                             self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                         } else {
-                            self.loadingResults = false;
                             response.json().then(function(responseBody) {
                                 self.showErrorToast(responseBody);
                             });
                         }
                     });
+                    this.loadingResults = false;
                 }
 
             },

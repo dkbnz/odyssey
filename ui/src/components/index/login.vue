@@ -68,7 +68,6 @@
                     if (!response.ok) {
                         throw response;
                     } else {
-                        self.loading = false;
                         self.showError = false;
                         return response.json();
                     }
@@ -82,7 +81,6 @@
                     self.$emit('profile-received');
                     return responseBody;
                 }).catch(function (response) {
-                    self.loading = false;
                     if (response.status === 401) {
                         self.alertMessage = "Invalid username or password";
                         self.showError = true;
@@ -90,6 +88,7 @@
                         self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                     }
                 });
+                this.loading = false;
             }
         }
     }

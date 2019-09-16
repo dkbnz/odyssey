@@ -116,7 +116,6 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
-                    self.loadingResults = false;
                     for (let i = 0; i < responseBody.length; i++) {
                         if (!self.profileBadgesIds.includes(responseBody[i].id)) {
                             self.badges.push(responseBody[i]);
@@ -126,12 +125,12 @@
                     if (response.status > 404) {
                         self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                     } else {
-                        self.loadingResults = false;
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
                         });
                     }
                 });
+                this.loadingResults = false;
             },
 
 
