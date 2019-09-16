@@ -445,7 +445,8 @@ public class ProfileController {
      *                              null if checks pass.
      */
     private Result validateProfileJson(JsonNode jsonToValidate) {
-        if (!(jsonToValidate.has(USERNAME)
+        if (jsonToValidate == null
+                || !(jsonToValidate.has(USERNAME)
                 && jsonToValidate.has(PASS_FIELD)
                 && jsonToValidate.has(FIRST_NAME)
                 && jsonToValidate.has(MIDDLE_NAME)

@@ -227,13 +227,11 @@
 
             /**
              * Runs a query which searches through the objectives in the database and returns all.
-             *
-             * @return {Promise<Response | never>}
              */
             queryObjectives() {
                 this.loadingResults = true;
                 let self = this;
-                return fetch(`/v1/objectives`, {
+                fetch(`/v1/objectives`, {
                     accept: "application/json"
                 }).then(function (response) {
                     if (!response.ok) {
@@ -244,7 +242,6 @@
                 }).then(function (responseBody) {
                     self.deleteAlertError = false;
                     self.foundObjectives = responseBody;
-                    self.loadingResults = false;
                 }).catch(function (response) {
                     if (response.status > 404) {
                         self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
@@ -252,22 +249,20 @@
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
                         });
-                        self.loadingResults = false;
                     }
                 });
+                this.loadingResults = false;
             },
 
 
             /**
              * Runs a query which searches through the objectives in the database and returns only objectives created by the profile.
-             *
-             * @return {Promise<Response | never>}
              */
             queryYourObjectives() {
                 this.loadingResults = true;
                 let self = this;
                 if (this.profile.id !== undefined) {
-                    return fetch(`/v1/objectives/` + this.profile.id, {})
+                    fetch(`/v1/objectives/` + this.profile.id, {})
                         .then(function (response) {
                             if (!response.ok) {
                                 throw response;
@@ -277,7 +272,6 @@
                         }).then(function (responseBody) {
                             self.deleteAlertError = false;
                             self.foundObjectives = responseBody;
-                            self.loadingResults = false;
                         }).catch(function (response) {
                             if (response.status > 404) {
                                 self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
@@ -285,9 +279,9 @@
                                 response.json().then(function(responseBody) {
                                     self.showErrorToast(responseBody);
                                 });
-                                self.loadingResults = false;
                             }
                         });
+                    this.loadingResults = false;
                 }
             },
 
