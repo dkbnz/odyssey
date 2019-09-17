@@ -225,7 +225,11 @@ public class DestinationController extends Controller {
 
         // If page query is set, load said page. Otherwise, return the first page.
         if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
-            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
+            try {
+                pageNumber = Integer.parseInt(request.getQueryString(PAGE));
+            } catch (NumberFormatException e) {
+                return badRequest(ApiError.badRequest(Errors.INVALID_PAGE_SIZE_REQUESTED));
+            }
         }
 
         destinations = expressionList

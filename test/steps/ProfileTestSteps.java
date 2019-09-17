@@ -415,6 +415,13 @@ public class ProfileTestSteps {
     }
 
 
+    @Given("^at least (\\d+) profiles exist$")
+    public void profilesExist(int numberOfProfiles) {
+        int count = profileRepository.findCount();
+        Assert.assertTrue(count >= numberOfProfiles);
+    }
+
+
     @When("I send a GET request to the profiles endpoint")
     public void iSendAGETRequestToTheProfilesEndpoint() throws BeansException {
         Http.RequestBuilder request = fakeRequest()
@@ -474,7 +481,7 @@ public class ProfileTestSteps {
     }
 
 
-    @When("I send a GET request to the /nationalities endpoint")
+    @When("I send a GET request to the nationalities endpoint")
     public void iSendAGETRequestToTheNationalitiesEndpoint() {
         // Does the fake request to back end
         Http.RequestBuilder request = fakeRequest()
@@ -657,5 +664,12 @@ public class ProfileTestSteps {
     @Then("^the response does not contain the profile with username \"(.*)\"$")
     public void theResponseDoesNotContainProfile(String username) {
         Assert.assertFalse(testContext.getResponseBody().contains(username));
+    }
+
+
+    @Then("^the response contains (\\d+) profiles$")
+    public void theResponseContainsProfiles(int numberOfProfiles) throws IOException {
+        int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
+        Assert.assertEquals(numberOfProfiles, responseSize);
     }
 }

@@ -23,7 +23,8 @@ public enum Errors {
     REMOVE_DEFAULT_ADMIN_STATUS("You can not remove the default administrator as an admin"),
     START_OWN_QUEST("You cannot start your own quest"),
     QUEST_ATTEMPT_EXISTS("You have already started this quest"),
-    RIDDLE_NOT_PROVIDED("No riddle provided");
+    RIDDLE_NOT_PROVIDED("No riddle provided"),
+    INVALID_PAGE_SIZE_REQUESTED("Invalid page size provided.");
 
 
 
