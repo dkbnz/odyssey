@@ -2,6 +2,7 @@ package models.points;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.ebean.annotation.NotNull;
 import models.profiles.Profile;
 import models.util.BaseModel;
 import repositories.points.AchievementTrackerRepository;
@@ -23,6 +24,7 @@ public class AchievementTracker extends BaseModel {
     private int points;
 
     @JsonIgnore
+    @NotNull
     private int currentStreak;
 
     @OneToMany(mappedBy = "achievementTracker", cascade = CascadeType.ALL)
