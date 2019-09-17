@@ -229,8 +229,10 @@ SOFTWARE.
 
 #### Welcome Page
 
-Image is taken by Isaac Worsley, a team member of Everyware. Therefore, permission is granted by him 
-to use the image throughout the TravelEA application.
+Main image is taken by Isaac Worsley, a team member of Everyware. Therefore, permission is granted by him 
+to use the image throughout the Odyssey application.
+
+[Scroll Down Arrow](https://www.flaticon.com/free-icon/down-arrow_118738#term=down%20arrow&page=1&position=1) - Icon by [Lucy G](https://www.flaticon.com/authors/lucy-g)
 
 #### Traveller Types
 

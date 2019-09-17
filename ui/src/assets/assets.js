@@ -25,4 +25,5 @@ export default {
     welcomePage: './static/background_image.jpg',
     loadingLogo: './static/logo_sm.png',
     loadingLogoBig: './static/logo.png',
+    downArrow: './static/down_arrow.png'
 }
