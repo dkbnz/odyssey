@@ -87,13 +87,13 @@
                     <b-form-input :state="dateOfBirthValidation"
                                   :type="'date'"
                                   min="1900-01-01"
-                                  max="1999-12-31"
+                                  :max="todaysDate"
                                   id="dateOfBirth"
                                   trim
                                   v-model="saveProfile.dateOfBirth">
                     </b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
-                        You need a date of birth before today and after 01/01/1900.
+                        You can be born in the future or before 01/01/1900.
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="dateOfBirthValidation">
                         Looks Good
@@ -375,7 +375,7 @@
                     return false;
                 }
                 let minDate = "1900-01-01";
-                return this.saveProfile.dateOfBirth.length > 0 && this.saveProfile.dateOfBirth < this.todaysDate && this.saveProfile.dateOfBirth >= minDate;
+                return this.saveProfile.dateOfBirth.length > 0 && this.saveProfile.dateOfBirth <= this.todaysDate && this.saveProfile.dateOfBirth >= minDate;
             },
             genderValidation() {
                 if (this.saveProfile.gender.length === 0) {

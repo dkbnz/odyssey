@@ -41,7 +41,6 @@ public class Profile extends BaseModel {
     private LocalDate dateOfBirth;
     private boolean isAdmin;
 
-    @JsonIgnore
     @Formats.DateTime(pattern = "yyyy-MM-dd")
     private Date lastSeenDate;
 

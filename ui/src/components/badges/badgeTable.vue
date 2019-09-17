@@ -80,15 +80,15 @@
                 loadingResults: false,
                 profileBadgesIds: [],
                 requiredActions: {
-                    DESTINATION_CREATED: 'You need to create a destination!',
-                    QUEST_CREATED: 'You need to create a quest!',
-                    TRIP_CREATED: 'You need to create a trip!',
-                    QUEST_COMPLETED: 'You need to complete a quest!',
-                    INTERNATIONAL_QUEST_COMPLETED: 'You need to complete an international quest!',
-                    LARGE_QUEST_COMPLETED: 'You need to complete a large quest!',
-                    DISTANCE_QUEST_COMPLETED: 'You need to travel in a quest!',
-                    POINTS_GAINED: 'You need to earn some points!',
-                    LOGIN_STREAK: 'You need to get a login streak!',
+                    DESTINATION_CREATED: 'This badge is awarded to those who\'ve created a destination!',
+                    QUEST_CREATED: 'Create a quest of your own to earn this badge!',
+                    TRIP_CREATED: 'Make a trip, and this badge will be yours!',
+                    QUEST_COMPLETED: 'Those who have completed a quest can gain this badge!',
+                    INTERNATIONAL_QUEST_COMPLETED: 'Complete an international quest and this badge is yours!',
+                    LARGE_QUEST_COMPLETED: 'Quests come in all sizes, complete a large quest to earn this badge!',
+                    DISTANCE_QUEST_COMPLETED: 'This badge is earned by those who go the extra mile, or 60.',
+                    POINTS_GAINED: 'Gain some points to achieve this badge!',
+                    LOGIN_STREAK: 'Come back tomorrow to earn this badge!',
                 }
             }
         },
@@ -116,7 +116,6 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
-                    self.loadingResults = false;
                     for (let i = 0; i < responseBody.length; i++) {
                         if (!self.profileBadgesIds.includes(responseBody[i].id)) {
                             self.badges.push(responseBody[i]);
@@ -126,12 +125,12 @@
                     if (response.status > 404) {
                         self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
                     } else {
-                        self.loadingResults = false;
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
                         });
                     }
                 });
+                this.loadingResults = false;
             },
 
 

@@ -15,7 +15,7 @@ Feature: Profile API Endpoint
 
   Scenario: Get all traveller types
     Given the application is running
-    When I send a GET request to the /travtypes endpoint
+    When I send a GET request to the travtypes endpoint
     Then the status code received is 200
 
 

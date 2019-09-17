@@ -35,6 +35,14 @@ h1, h2, h3, h4 {
     margin: 1vh auto 1vh auto;
 }
 
+.scrollObjectives {
+    height: 90vh;
+    overflow-y: scroll;
+    padding: 0 10px;
+    width: 100%;
+    margin: 1vh auto 1vh auto;
+}
+
 .stylised-text {
     font-family: Baumans, sans-serif;
     font-weight: bold;
@@ -163,7 +171,7 @@ a {
 }
 
 @keyframes rotate {
-    100% {transform: rotate(350deg);}
+    100% {transform: rotate(360deg);}
 }
 
 .row {
