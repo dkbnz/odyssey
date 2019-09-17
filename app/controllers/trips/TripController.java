@@ -10,6 +10,7 @@ import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
 import models.util.ApiError;
+import models.util.Errors;
 import repositories.destinations.DestinationRepository;
 import repositories.profiles.ProfileRepository;
 import repositories.trips.TripRepository;
@@ -34,7 +35,6 @@ public class TripController extends Controller {
     private static final String END_DATE = "end_date";
     private static final String DESTINATION_ID = "destination_id";
     private static final String TRIP_ID = "trip_id";
-    private static final String PROFILE_NOT_FOUND = "Requested profile doesn't exist.";
     public static final String REWARD = "reward";
     private static final String NEW_TRIP_ID = "newTripId";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
@@ -81,7 +81,7 @@ public class TripController extends Controller {
         Profile affectedProfile = profileRepository.findById(affectedUserId);
 
         if (affectedProfile == null) {
-            return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
         }
 
         // If user is admin, or if they are editing their own profile then allow them to edit.
@@ -170,13 +170,13 @@ public class TripController extends Controller {
         Trip trip = tripRepository.findById(tripId);
 
         if (trip == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.TRIP_NOT_FOUND));
         }
 
         // Retrieve the profile having its trip removed from the trip id.
         Long ownerId = tripRepository.fetchTripOwner(tripId);
         if (ownerId == null) {
-            return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
         }
 
         Profile tripOwner = profileRepository.findById(ownerId);
@@ -369,7 +369,7 @@ public class TripController extends Controller {
 
         // Verifying the existence of the trip being retrieved.
         if (returnedTrip == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.TRIP_NOT_FOUND));
         }
 
         return ok(Json.toJson(returnedTrip));
@@ -431,15 +431,19 @@ public class TripController extends Controller {
         Trip trip = tripRepository.findById(tripId);
 
         if (trip == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.TRIP_NOT_FOUND));
         }
 
         // Retrieve the profile having its trip removed from the trip id.
         Long ownerId = tripRepository.fetchTripOwner(tripId);
         if (ownerId == null) {
-            return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
         }
         Profile tripOwner = profileRepository.findById(ownerId);
+
+        if (tripOwner == null) {
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
+        }
 
         if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
             return forbidden(ApiError.forbidden());

@@ -15,6 +15,7 @@ import models.profiles.Profile;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
 import models.util.ApiError;
+import models.util.Errors;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -46,8 +47,6 @@ public class QuestController {
      */
     private ObjectMapper objectMapper;
 
-    private static final String QUEST_ATTEMPT_EXISTS = "An attempt already exists for this quest.";
-    private static final String START_OWN_QUEST = "You cannot start your own quest.";
     private static final String TITLE = "title";
     private static final String OPERATOR = "operator";
     private static final String OBJECTIVE = "objective";
@@ -111,7 +110,7 @@ public class QuestController {
         Profile questOwner = profileRepository.findById(userId);
 
         if (questOwner == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         if (!AuthenticationUtil.validUser(loggedInUser, questOwner)) {
@@ -177,7 +176,7 @@ public class QuestController {
         Quest quest = questRepository.findById(questId);
 
         if (quest == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.QUEST_NOT_FOUND));
         }
 
         Profile questOwner = quest.getOwner();
@@ -187,7 +186,7 @@ public class QuestController {
         }
 
         if (questOwner == null) {
-            return badRequest(ApiError.notFound());
+            return badRequest(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         try {
@@ -243,7 +242,7 @@ public class QuestController {
          Quest quest = questRepository.findById(questId);
 
          if (quest == null) {
-             return notFound(ApiError.notFound());
+             return notFound(ApiError.notFound(Errors.QUEST_NOT_FOUND));
          }
 
          Profile questOwner = quest.getOwner();
@@ -253,7 +252,7 @@ public class QuestController {
          }
 
          if (questOwner == null) {
-             return badRequest(ApiError.notFound());
+             return badRequest(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
          }
 
          quest.clearObjectives();
@@ -312,7 +311,7 @@ public class QuestController {
         Profile requestedUser = profileRepository.findById(ownerId);
 
         if (requestedUser == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         if (!AuthenticationUtil.validUser(loggedInUser, requestedUser)) {
@@ -341,7 +340,7 @@ public class QuestController {
 
         Quest requestQuest = questRepository.findById(questId);
         if (requestQuest == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
         List<Profile> activeProfiles = profileRepository.findAllUsing(requestQuest);
 
@@ -366,20 +365,24 @@ public class QuestController {
         }
 
         Quest questToAttempt = questRepository.findById(questId);
+        if (questToAttempt == null) {
+            return notFound(ApiError.notFound(Errors.QUEST_NOT_FOUND));
+        }
+
         Profile attemptedBy = profileRepository.findById(userId);
-        if (questToAttempt == null || attemptedBy == null) {
-            return notFound(ApiError.notFound());
+        if (attemptedBy == null) {
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         if (attemptedBy.equals(questToAttempt.getOwner())) {
-            return forbidden(ApiError.forbidden(START_OWN_QUEST));
+            return forbidden(ApiError.forbidden(Errors.START_OWN_QUEST));
         }
 
         QuestAttempt attempt = new QuestAttempt(attemptedBy, questToAttempt);
 
         // Check the user has not already started a quest attempt for the given quest
         if (questAttemptRepository.exists(attempt)) {
-            return badRequest(ApiError.badRequest(QUEST_ATTEMPT_EXISTS));
+            return badRequest(ApiError.badRequest(Errors.QUEST_ATTEMPT_EXISTS));
         }
 
         questAttemptRepository.save(attempt);
@@ -407,7 +410,7 @@ public class QuestController {
 
         Profile requestedUser = profileRepository.findById(userId);
         if (requestedUser == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         List<QuestAttempt> questAttempts = questAttemptRepository.findAllUsing(requestedUser, false);
@@ -434,7 +437,7 @@ public class QuestController {
 
         Profile requestedUser = profileRepository.findById(userId);
         if (requestedUser == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         List<Quest> quests = questRepository.findAllCompleted(requestedUser);
@@ -618,9 +621,13 @@ public class QuestController {
         }
 
         QuestAttempt questAttempt = questAttemptRepository.findById(attemptId);
+        if (questAttempt == null) {
+            return notFound(ApiError.notFound(Errors.QUEST_NOT_FOUND));
+        }
+
         Destination destinationGuess = destinationRepository.findById(destinationId);
-        if (questAttempt == null || destinationGuess == null) {
-            return notFound(ApiError.notFound());
+        if (destinationGuess == null) {
+            return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
         }
 
         Profile attemptedBy = questAttempt.getAttemptedBy();
@@ -671,7 +678,7 @@ public class QuestController {
 
         QuestAttempt questAttempt = questAttemptRepository.findById(attemptId);
         if (questAttempt == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.QUEST_NOT_FOUND));
         }
 
         Profile attemptedBy = questAttempt.getAttemptedBy();
