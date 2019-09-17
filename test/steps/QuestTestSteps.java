@@ -3,7 +3,6 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import controllers.Assets;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -12,7 +11,6 @@ import models.objectives.Objective;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
 import org.junit.Assert;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -26,7 +24,6 @@ import java.util.*;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 import static play.mvc.Http.HttpVerbs.PUT;
 import static play.test.Helpers.*;
@@ -581,6 +578,12 @@ public class QuestTestSteps {
     @Given("^an objective exists with id (\\d+)$")
     public void anObjectiveExistsWithId(Integer objectiveId) {
         Assert.assertNotNull(objectiveRepository.findById(Long.valueOf(objectiveId)));
+    }
+
+
+    @Given("^an objective does not exist with id (\\d+)$")
+    public void anObjectiveDoesNotExistWithId(Integer objectiveId) {
+        Assert.assertNull(objectiveRepository.findById(Long.valueOf(objectiveId)));
     }
 
 
