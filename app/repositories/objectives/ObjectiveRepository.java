@@ -5,6 +5,7 @@ import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import models.destinations.Destination;
 import models.objectives.Objective;
+import models.profiles.Profile;
 
 import java.util.List;
 
@@ -35,4 +36,12 @@ public class ObjectiveRepository extends BeanRepository<Long, Objective> {
                 .eq(DESTINATION, destination)
                 .findList();
     }
+
+
+//    TODO: Vinnie + Matilda
+//    public List<Objective> findAllCompletedUsing(Profile profile) {
+//        return  query()
+//                .where()
+//                .eq("", profile)
+//    }
 }
