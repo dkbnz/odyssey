@@ -3,11 +3,15 @@ package models.hints;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import models.objectives.Objective;
+import models.profiles.Profile;
 import models.util.BaseModel;
 import util.Views;
 
 import javax.persistence.CascadeType;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import java.util.Collection;
 
 /**
  * Class for hints that are used to help solve an objective.
@@ -36,8 +40,21 @@ public class Hint extends BaseModel {
      * The objective the hint relates to.
      */
     @JsonIgnore
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Objective objective;
+
+    /**
+     * The user that created the hint.
+     */
+    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    private Profile creator;
+
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL)
+    private Collection<Vote> votes;
+
 
     public String getMessage() {
         return message;
@@ -55,11 +72,30 @@ public class Hint extends BaseModel {
         this.message = message;
     }
 
+
+    /**
+     * Increment up votes.
+     */
     public void upVote() {
         upVotes ++;
     }
 
+
+    /**
+     * Increment down votes.
+     */
     public void downVote() {
         downVotes ++;
     }
+
+
+    /**
+     * Calculate the vote sum by subtracting the down votes from the up votes.
+     *
+     * @return      the vote sum, which is of primitive type int.
+     */
+    public int getVoteSum() {
+        return upVotes - downVotes;
+    }
+
 }
