@@ -750,7 +750,7 @@ Feature: Quest API Endpoint
     When I start a quest with id 10000
     Then the status code received is 404
     And the following ApiErrors are returned
-    | Resource not found. |
+    | Requested quest not found |
 
 
   Scenario: Starting a quest for a user that does not exist
@@ -761,7 +761,7 @@ Feature: Quest API Endpoint
     When I start a quest with id 5 for user 10000
     Then the status code received is 404
     And the following ApiErrors are returned
-      | Resource not found. |
+      | Requested profile not found |
 
 
   Scenario: Starting a quest I have already started
@@ -772,7 +772,7 @@ Feature: Quest API Endpoint
     And I start a quest with id 5
     Then the status code received is 400
     And the following ApiErrors are returned
-      | An attempt already exists for this quest. |
+      | You have already started this quest |
 
 
   Scenario: Starting a quest when I am not logged in
@@ -793,7 +793,7 @@ Feature: Quest API Endpoint
     When I start a quest with id 4
     Then the status code received is 403
     And the following ApiErrors are returned
-      | You cannot start your own quest. |
+      | You cannot start your own quest |
 
 
   Scenario: Retrieving all quests I have marked as active
@@ -893,7 +893,7 @@ Feature: Quest API Endpoint
     When I retrieve all complete quests for user 10000
     Then the status code received is 404
     And the following ApiErrors are returned
-      | Resource not found. |
+      | Requested profile not found |
 
 
   Scenario: Retrieving all completed quests when not logged in
@@ -980,7 +980,7 @@ Feature: Quest API Endpoint
     And I guess destination id 6756
     Then the status code received is 404
     And the following ApiErrors are returned
-      | Resource not found. |
+      | Requested destination not found |
 
 
   Scenario: Checking in to an objective as a regular user
@@ -1028,4 +1028,4 @@ Feature: Quest API Endpoint
     When I check in for quest attempt 78
     Then the status code received is 404
     And the following ApiErrors are returned
-      | Resource not found. |
+      | Requested quest attempt not found |
