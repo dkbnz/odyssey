@@ -201,7 +201,7 @@
                     self.alertMessage = "Cannot retrieve traveller type proposals";
                     self.showTravellerTypeUpdateFailure = true;
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         self.showSuccess = false;
                         self.retrievingProposals = false;
@@ -291,7 +291,7 @@
                     self.removeProposed(destination);
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         self.alertMessage = "Cannot update traveller types";
                         self.showTravellerTypeUpdateFailure = true;

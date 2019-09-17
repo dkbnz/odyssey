@@ -3,6 +3,7 @@ package controllers.photos;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.destinations.Destination;
 import models.util.ApiError;
+import models.util.Errors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import models.profiles.Profile;
@@ -43,10 +44,6 @@ public class PhotoController extends Controller {
     private static final String AUTHORIZED = "authorized";
     private static final String PHOTO_ID = "id";
     private static final String IS_PUBLIC = "public";
-    private static final String PROFILE_NOT_FOUND = "Requested profile doesn't exist.";
-    private static final String PHOTO_NOT_FOUND = "Requested photo doesn't exist.";
-    private static final String INVALID_SIZE = "Invalid image size/type.";
-    private static final String NO_IMAGES = "No images to upload.";
     private static final int IMAGE_DIMENSION = 200;
 
     private ProfileRepository profileRepository;
@@ -176,7 +173,7 @@ public class PhotoController extends Controller {
         PersonalPhoto photo = personalPhotoRepository.findById(photoId);
 
         if (photo == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PHOTO_NOT_FOUND));
         }
 
 
@@ -197,7 +194,7 @@ public class PhotoController extends Controller {
             profileRepository.update(photoOwner);
             return ok(Json.toJson(photo));
         }
-        return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
+        return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
     }
 
 
@@ -220,7 +217,7 @@ public class PhotoController extends Controller {
         Profile profileToChange = profileRepository.findById(userId);
 
         if (profileToChange == null) {
-            return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
         }
 
         if(!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
@@ -252,13 +249,13 @@ public class PhotoController extends Controller {
         PersonalPhoto personalPhoto = personalPhotoRepository.findById(photoId);
 
         if (personalPhoto == null) {
-            return badRequest(ApiError.badRequest(PHOTO_NOT_FOUND));
+            return badRequest(ApiError.badRequest(Errors.PHOTO_NOT_FOUND));
         }
 
         Profile owner = personalPhoto.getProfile();
 
         if (owner == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         if(!AuthenticationUtil.validUser(loggedInUser, owner)) {
@@ -307,13 +304,13 @@ public class PhotoController extends Controller {
         PersonalPhoto personalPhoto = personalPhotoRepository.findById(personalPhotoId);
 
         if (personalPhoto == null) {
-            return notFound(ApiError.notFound());
+            return badRequest(ApiError.notFound(Errors.PHOTO_NOT_FOUND));
         }
 
         Profile owner = personalPhoto.getProfile();
 
         if (owner == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PHOTO_NOT_FOUND));
         }
 
         if(owner.getProfilePicture() != null && owner.getProfilePicture().getId().equals(personalPhotoId)) {
@@ -376,7 +373,7 @@ public class PhotoController extends Controller {
                         return ok(Json.toJson(user.getPhotoGallery()));
                     }
 
-                    return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
+                    return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
                 })
                 .orElseGet(() -> unauthorized(ApiError.unauthorized())); // User is not logged in
     }
@@ -401,11 +398,11 @@ public class PhotoController extends Controller {
                     Profile profileToAdd = profileRepository.findById(userId);
 
                     if (profileToAdd == null) {
-                        return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND)); // User does not exist in the system.
+                        return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND)); // User does not exist in the system.
                     }
 
                     if(loggedInUser == null) {
-                        return notFound(ApiError.notFound());
+                        return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
                     }
 
                     // If user is admin, or if they are editing their own profile then allow them to edit.
@@ -418,7 +415,7 @@ public class PhotoController extends Controller {
 
                     // Validate images
                     if (!validatePhotos(photos)) {
-                        return badRequest(ApiError.badRequest(INVALID_SIZE));
+                        return badRequest(ApiError.badRequest(Errors.INVALID_PHOTO_SIZE_TYPE));
                     }
 
                     // Images are valid, if we have images, then add them to profile
@@ -427,7 +424,7 @@ public class PhotoController extends Controller {
                     }
 
                     // Images are empty
-                    return badRequest(ApiError.badRequest(NO_IMAGES));
+                    return badRequest(ApiError.badRequest(Errors.INVALID_NO_IMAGES_PROVIDED));
                 })
                 .orElseGet(() -> unauthorized(ApiError.unauthorized())); // User is not logged in
     }
@@ -539,7 +536,7 @@ public class PhotoController extends Controller {
                     Profile owner = personalPhoto.getProfile();
 
                     if (loggedInUser == null) {
-                        return notFound(ApiError.notFound());
+                        return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
                     }
                     if(AuthenticationUtil.validUser(loggedInUser, owner)) {
                         return getImageResult(personalPhoto.getPhoto(), getThumbnail);
@@ -580,11 +577,11 @@ public class PhotoController extends Controller {
                     Destination destination = destinationRepository.findById(destinationId);
 
                     if (personalPhoto == null) {
-                        return notFound(ApiError.notFound());
+                        return notFound(ApiError.notFound(Errors.PHOTO_NOT_FOUND));
                     }
 
                     if (destination == null) {
-                        return notFound(ApiError.notFound());
+                        return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
                     }
 
                     Profile photoOwner = personalPhoto.getProfile();
@@ -592,7 +589,7 @@ public class PhotoController extends Controller {
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
 
                     if (loggedInUser == null) {
-                        return notFound(ApiError.notFound());
+                        return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
                     }
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner) &&
@@ -652,7 +649,7 @@ public class PhotoController extends Controller {
                     PersonalPhoto personalPhoto = personalPhotoRepository.findById(personalPhotoId);
 
                     if (personalPhoto == null) {
-                        return notFound(ApiError.notFound());
+                        return notFound(ApiError.notFound(Errors.PHOTO_NOT_FOUND));
                     }
 
                     Profile photoOwner = personalPhoto.getProfile();
@@ -660,7 +657,7 @@ public class PhotoController extends Controller {
                     Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
 
                     if (loggedInUser == null) {
-                        return notFound(ApiError.notFound());
+                        return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
                     }
 
                     if(AuthenticationUtil.validUser(loggedInUser, photoOwner)) {
@@ -670,7 +667,7 @@ public class PhotoController extends Controller {
                             destinationRepository.update(destination);
                             return ok(Json.toJson(destination.getPhotoGallery()));
                         } else {
-                            return notFound(ApiError.notFound());
+                            return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
                         }
                     }
 
