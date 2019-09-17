@@ -9,13 +9,7 @@
                 <b-nav-item @click="togglePage(editProfile, 'edit')">Edit Profile</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
-        <div class="loader" v-if="loadingResults">
-            <div class="loader-content">
-                <b-img alt="Loading" class="loading" :src="assets['loadingLogoBig']"></b-img>
-                <h1>Loading Profile Data</h1>
-            </div>
-        </div>
-        <div :class='{opacity: loadingResults}'>
+        <div>
             <!--Tab Elements-->
             <view-profile
                     :destinations="destinations"
@@ -55,20 +49,14 @@
     export default {
         name: "dashPage",
 
-        props: ['nationalityOptions', 'travTypeOptions', 'trips', 'adminView', 'destinations'],
+        props: ['nationalityOptions', 'travTypeOptions', 'profile', 'trips', 'adminView', 'destinations'],
 
         data: function () {
             return {
                 viewProfile: true,
                 editProfile: false,
-                showSaved: false,
-                profile: {},
-                loadingResults: false
+                showSaved: false
             }
-        },
-
-        mounted() {
-            this.getProfile();
         },
 
         methods: {
@@ -91,36 +79,6 @@
             showSavedProfile() {
                 this.showSaved = true;
                 this.togglePage(this.viewProfile);
-            },
-
-
-            /**
-             * Retrieves the current profile in case any changes have been made.
-             */
-            getProfile() {
-                let self = this;
-                this.loadingResults = true;
-                fetch(`/v1/profile`, {
-                    accept: "application/json"
-                }).then(function (response) {
-                    if (!response.ok) {
-                        throw response;
-                    } else {
-                        return response.json();
-                    }
-                }).then(function (responseBody) {
-                    self.loadingResults = false;
-                    self.profile = responseBody;
-                }).catch(function (response) {
-                    self.loadingResults = false;
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
-                });
             }
         },
 
