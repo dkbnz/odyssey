@@ -85,7 +85,7 @@
                         self.alertMessage = "Invalid username or password";
                         self.showError = true;
                     } else {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     }
                 });
                 this.loading = false;
