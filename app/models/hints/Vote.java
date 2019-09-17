@@ -5,8 +5,10 @@ import models.profiles.Profile;
 import models.util.BaseModel;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
+@Entity
 public class Vote extends BaseModel {
 
     /**
