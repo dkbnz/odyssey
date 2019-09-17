@@ -29,6 +29,16 @@
             }
         },
 
+        watch: {
+            /**
+             * Used to re-fetch the profile whenever the route address changes. This is to ensure any user data is
+             * updated as the navigate through the application.
+             */
+            $route () {
+                this.getProfile();
+            }
+        },
+
         methods: {
             /**
              * Retrieves all the destination types.
@@ -47,7 +57,7 @@
                     self.destinationTypes = responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -74,7 +84,7 @@
                     self.profile = responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     }
                 });
             },
@@ -97,7 +107,7 @@
                     self.nationalityOptions = responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -124,7 +134,7 @@
                     self.travTypeOptions = responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);

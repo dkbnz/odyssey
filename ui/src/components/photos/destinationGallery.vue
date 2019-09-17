@@ -9,7 +9,6 @@
         </photo-table>
 
         <h3>Your Destination Photos</h3>
-
         <photo-table :photos="personalPhotos"
                      :profile="profile"
                      :userProfile="userProfile"
@@ -110,7 +109,7 @@
                     self.calculatePhotoSplit();
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -179,7 +178,7 @@
                     }
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -208,7 +207,7 @@
                     }
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);

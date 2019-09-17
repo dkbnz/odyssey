@@ -367,7 +367,7 @@
                     self.showAlert();
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -395,7 +395,7 @@
                     self.foundQuests = responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -425,7 +425,7 @@
                             self.foundQuests = responseBody;
                         }).catch(function (response) {
                             if (response.status > 404) {
-                                self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                                self.showErrorToast([{message: "An unexpected error occurred"}]);
                             } else {
                                 response.json().then(function(responseBody) {
                                     self.showErrorToast(responseBody);
@@ -456,7 +456,7 @@
                             self.questAttempts = responseBody;
                         }).catch(function (response) {
                             if (response.status > 404) {
-                                self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                                self.showErrorToast([{message: "An unexpected error occurred"}]);
                             } else {
                                 response.json().then(function(responseBody) {
                                     self.showErrorToast(responseBody);
@@ -496,7 +496,7 @@
                         }
                     }).catch(function (response) {
                         if (response.status > 404) {
-                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                            self.showErrorToast([{message: "An unexpected error occurred"}]);
                         } else {
                             response.json().then(function(responseBody) {
                                 self.showErrorToast(responseBody);
@@ -527,7 +527,7 @@
                         self.foundQuests = responseBody;
                     }).catch(function (response) {
                         if (response.status > 404) {
-                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                            self.showErrorToast([{message: "An unexpected error occurred"}]);
                         } else {
                             response.json().then(function(responseBody) {
                                 self.showErrorToast(responseBody);
@@ -593,7 +593,7 @@
                     self.activeUsers = responseBody.length;
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -647,29 +647,9 @@
                 this.getMore();
                 this.showRewardToast(messageObject.reward);
                 this.alertText = messageObject.message;
-
-                // If points were given, also set the data value, otherwise make sure it's the default of 0 to hide it.
-                if (messageObject.pointsRewarded != null) {
-                    this.createPointToast(messageObject.pointsRewarded, "Quest Created");
-                }
                 this.showAlert();
             },
 
-
-            /**
-             * Displays a toast saying they've gained a certain amount of points.
-             *
-             * @param points the points to display.
-             * @param title the title of the toast, indicating the context of the point gain.
-             */
-            createPointToast(points, title) {
-                let message = "Your points have increased by " + points;
-                this.$bvToast.toast(message, {
-                    title: title,
-                    autoHideDelay: 3000,
-                    appendToast: true
-                })
-            },
 
 
             /**
