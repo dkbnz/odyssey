@@ -1,7 +1,7 @@
 body {
     background-color: #e2e6ea;
     padding-top: 0;
-
+    overflow-x: hidden;
 }
 
 
@@ -9,7 +9,6 @@ body {
     /* Background image used. */
     background: url("../../static/background_image.jpg");
     /* Center and scale the image nicely */
-    position: fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     background-size: cover;
@@ -62,7 +61,7 @@ body {
 /* Main section containing the logo and logo icon. Slides up after logos are brought in. */
 .animation {
     position: absolute;
-    z-index: -1;
+    z-index: 1;
     margin: auto;
     left: 25%;
     animation: moveUp 2s;
@@ -293,4 +292,29 @@ body {
         line-height: 1;
         border-radius: 0.3rem;
     }
+}
+
+.main {
+    background-color: white;
+}
+
+.ct-btn-scroll {
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    z-index: 9;
+    border-radius: 50%;
+    -webkit-transition: background-color 0.25s ease-in-out;
+    transition: background-color 0.25s ease-in-out;
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
+}
+
+img,
+figure {
+    max-width: 100%;
 }

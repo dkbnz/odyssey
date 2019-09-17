@@ -30,7 +30,31 @@
                         </b-modal>
                     </b-col>
                 </b-row>
+                <a class="ct-btn-scroll ct-js-btn-scroll" href="#section2"><b-img alt="Arrow Down Icon" :src="assets['downArrow']"></b-img></a>
             </div>
+        </div>
+        <div class="main">
+            <section id="section2">
+                <div class="container jumbo">
+                    <h2 class="page-title">About Us</h2>
+                    <div>
+                        <b-row>
+                            <b-col>
+                                <h3 class="page-title">General</h3>
+                                <p></p>
+                            </b-col>
+                            <b-col>
+                                <h3 class="page-title">Quests</h3>
+                                <p></p>
+                            </b-col>
+                            <b-col>
+                                <h3 class="page-title">The Team</h3>
+                                <p></p>
+                            </b-col>
+                        </b-row>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 </template>
