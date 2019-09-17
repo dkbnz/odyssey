@@ -9,7 +9,6 @@
         </photo-table>
 
         <h3>Your Destination Photos</h3>
-
         <photo-table :photos="personalPhotos"
                      :profile="profile"
                      :userProfile="userProfile"

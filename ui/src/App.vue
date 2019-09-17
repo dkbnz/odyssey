@@ -29,6 +29,16 @@
             }
         },
 
+        watch: {
+            /**
+             * Used to re-fetch the profile whenever the route address changes. This is to ensure any user data is
+             * updated as the navigate through the application.
+             */
+            $route () {
+                this.getProfile();
+            }
+        },
+
         methods: {
             /**
              * Retrieves all the destination types.
