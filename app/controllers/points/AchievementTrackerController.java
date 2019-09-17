@@ -15,6 +15,7 @@ import models.profiles.Profile;
 import models.quests.Quest;
 import models.trips.Trip;
 import models.util.ApiError;
+import models.util.Errors;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -327,7 +328,7 @@ public class AchievementTrackerController extends Controller {
         Profile requestedUser = profileRepository.findById(userId);
 
         if (requestedUser == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         AchievementTracker tracker = requestedUser.getAchievementTracker();
