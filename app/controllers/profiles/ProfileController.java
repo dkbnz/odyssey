@@ -60,6 +60,7 @@ public class ProfileController {
     private static final String POINTS = "points";
     private static final String PAGE = "page";
     private static final String PAGE_SIZE = "pageSize";
+    private static final int MAX_PAGE_SIZE = 100;
     private static final String SORT_BY = "sortBy";
     private static final String SORT_ORDER = "sortOrder";
     private static final String MIN_POINTS = "min_points";
@@ -578,7 +579,7 @@ public class ProfileController {
      */
     public Result list(Http.Request request) {
         int pageNumber = 0;
-        int pageSize = 100;
+        int pageSize = MAX_PAGE_SIZE;
 
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
@@ -593,10 +594,12 @@ public class ProfileController {
         }
 
         if (request.getQueryString(PAGE_SIZE) != null && !request.getQueryString(PAGE_SIZE).isEmpty()) {
-            if (request.getQueryString(PAGE_SIZE).equals("Infinity")) {
-                pageSize = Integer.MAX_VALUE;
-            } else {
+            try {
                 pageSize = Integer.parseInt(request.getQueryString(PAGE_SIZE));
+                // Restrict the page size to be no larger than the maximum page size.
+                pageSize = Math.min(pageSize, MAX_PAGE_SIZE);
+            } catch (NumberFormatException e) {
+                return badRequest(ApiError.badRequest(Errors.INVALID_PAGE_SIZE_REQUESTED));
             }
         }
 
