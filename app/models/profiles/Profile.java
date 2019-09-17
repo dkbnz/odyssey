@@ -82,12 +82,6 @@ public class Profile extends BaseModel {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "owner")
     private AchievementTracker achievementTracker;
 
-    @Transient
-    private int numberOfQuestsCreated;
-
-    @Transient
-    private int numberOfQuestsCompleted;
-
     public Date getLastSeenDate() {
         return lastSeenDate;
     }
@@ -271,24 +265,19 @@ public class Profile extends BaseModel {
         return photoGallery.remove(photoToRemove);
     }
 
+
     public int getNumberOfQuestsCreated() {
         return myQuests.size();
     }
 
 
     /**
-     * Calculates the number of quests completed. Returns it as a Transient value, therefore doesn't need to be stored
-     * in the database.
+     * Calculates the number of quests the given profile has completed using the Java streams method.
      *
      * @return the total number of quests the profile has completed.
      */
-    public int getNumberOfQuestsCompleted() {
-        for (QuestAttempt questAttempt : questAttempts) {
-            if (questAttempt.isCompleted()) {
-                numberOfQuestsCompleted+= 1;
-            }
-        }
-        return numberOfQuestsCompleted;
+    public long getNumberOfQuestsCompleted() {
+        return questAttempts.stream().filter(QuestAttempt::isCompleted).count();
     }
 
 
