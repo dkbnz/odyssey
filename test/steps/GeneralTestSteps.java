@@ -341,7 +341,6 @@ public class GeneralTestSteps {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode body = objectMapper.readTree(testContext.getResponseBody());
         List<String> expectedApiErrors = dataTable.asList();
-        System.out.println(body);
         for(JsonNode error : body){
             Assert.assertTrue(expectedApiErrors.contains(error.get("message").asText()));
         }
