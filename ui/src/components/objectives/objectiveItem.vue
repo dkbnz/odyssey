@@ -292,6 +292,9 @@
                 if (this.validateDestination && this.validateRiddle && this.validateCheckIn) {
                     if (this.heading === "Create" || this.heading === "Add") {
                         this.addObjective();
+                        if (this.heading === "Add") {
+                            this.$emit('cancelCreate');
+                        }
                     } else if (this.heading === "Edit") {
                         this.editObjective();
                     }
@@ -328,7 +331,6 @@
                 delete this.inputObjective.startDate;
                 delete this.inputObjective.endDate;
                 this.$emit('addObjective', this.inputObjective);
-                this.$emit('cancelCreate')
             },
 
 
@@ -373,11 +375,9 @@
                     } else {
                         return response.json();
                     }
-                }).then(function (responseBody) {
+                }).then(function () {
                     self.showError = false;
-                    self.showRewardToast(responseBody.reward);
                     self.$emit('successCreate', "Objective Successfully Created");
-                    self.$emit('cancelCreate')
                 }).catch(function (response) {
                     if (response.status > 404) {
                         self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));

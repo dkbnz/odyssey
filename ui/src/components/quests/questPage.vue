@@ -39,6 +39,17 @@
                                 :refresh-quests="refreshQuests"
                         ></quest-list>
                     </b-tab>
+                    <b-tab title="Your Objectives" @click="refreshObjectives = !refreshObjectives">
+                        <objective-page :profile="profile" :admin-view="false" :refresh-objectives="refreshObjectives">
+
+                        </objective-page>
+<!--                        <objective-list :profile="profile"-->
+<!--                                        :admin-view="false"-->
+<!--                                        :your-objectives="true"-->
+<!--                                        :refresh-objectives="refreshObjectives"-->
+<!--                                        @destination-select="">-->
+<!--                        </objective-list>-->
+                    </b-tab>
                 </b-tabs>
             </b-card>
             <footer-main></footer-main>
@@ -63,6 +74,8 @@
     import QuestsSolveMobile from "./activeQuestPageMobile";
     import QuestAttemptSolve from "./activeQuestSolve";
     import ActiveQuestPage from "./activeQuestPage";
+    import ObjectiveList from "../objectives/objectiveList";
+    import ObjectivePage from "../objectives/objectivePage";
 
     export default {
         name: "questPage",
@@ -102,6 +115,8 @@
         },
 
         components: {
+            ObjectivePage,
+            ObjectiveList,
             ActiveQuestPage,
             QuestAttemptSolve,
             QuestsSolveMobile,

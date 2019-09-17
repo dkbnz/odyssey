@@ -23,7 +23,6 @@ import util.Views;
 
 import java.util.*;
 
-import static controllers.trips.TripController.REWARD;
 import static play.mvc.Results.*;
 
 public class ObjectiveController {
@@ -31,7 +30,6 @@ public class ObjectiveController {
     private ObjectiveRepository objectiveRepository;
     private DestinationRepository destinationRepository;
     private ProfileRepository profileRepository;
-    private AchievementTrackerController achievementTrackerController;
     private QuestRepository questRepository;
     private ObjectMapper objectMapper;
 
@@ -45,13 +43,11 @@ public class ObjectiveController {
     public ObjectiveController(ObjectiveRepository objectiveRepository,
                                DestinationRepository destinationRepository,
                                ProfileRepository profileRepository,
-                               AchievementTrackerController achievementTrackerController,
                                QuestRepository questRepository,
                                ObjectMapper objectMapper) {
         this.objectiveRepository = objectiveRepository;
         this.destinationRepository = destinationRepository;
         this.profileRepository = profileRepository;
-        this.achievementTrackerController = achievementTrackerController;
         this.questRepository = questRepository;
         this.objectMapper = objectMapper;
     }
@@ -134,7 +130,6 @@ public class ObjectiveController {
 
         objectiveRepository.save(objective);
 
-        returnJson.set(REWARD, achievementTrackerController.rewardAction(objectiveOwner, objective, Action.OBJECTIVE_CREATED));
         returnJson.set(NEW_OBJECTIVE_ID, Json.toJson(objective.getId()));
 
         profileRepository.update(objectiveOwner);

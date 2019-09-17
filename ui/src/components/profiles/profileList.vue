@@ -100,11 +100,6 @@
                         <b-col>
                             <div class="d-flex">
                                 <b-button variant="link" @click="$emit('show-single-profile', row.item)">Show Full Profile</b-button>
-<!--                                <b-list-group-item href="#" class="w-50 justify-content-center align-self-center"-->
-
-<!--                                                   >-->
-<!--                                    <h3></h3>-->
-<!--                                </b-list-group-item>-->
                             </div>
                         </b-col>
                     </b-row>

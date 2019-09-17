@@ -34,7 +34,7 @@ public class AchievementTrackerController extends Controller {
     private static final String POINTS_REWARDED = "pointsRewarded";
     private static final String BADGES_ACHIEVED = "badgesAchieved";
     private static final Integer STARTING_STREAK_NUMBER = 1;
-    private static final Integer LOST_STREAK = 0;
+    private static final Integer LOST_STREAK = 1;
     private static final String CLIENT_DATE_FIELD = "clientDate";
     private static final String CURRENT_STREAK = "currentStreak";
     private static final String REWARD = "reward";
@@ -42,7 +42,7 @@ public class AchievementTrackerController extends Controller {
     private static final int SINGLE_COUNTRY = 1;
     private static final int INCREMENT_ONE = 1;
 
-    private static final int ODYSSEY_THRESHOLD = 10;
+    private static final int ADVENTURER_THRESHOLD = 10;
 
 
     private ProfileRepository profileRepository;
@@ -133,10 +133,11 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
-     * Takes a collection
-     * @param badgesAchieved
-     * @param pointsAchieved
-     * @return
+     * Builds an object node that contains the collection of given badges achieved and the given value of points achieved.
+     *
+     * @param badgesAchieved        a collection of badges achieved.
+     * @param pointsAchieved        the number of points achieved.
+     * @return                      an object node containing the badges and points achieved to return to the front end.
      */
     private ObjectNode constructRewardJson(Collection<Badge> badgesAchieved, PointReward pointsAchieved) {
 
@@ -240,18 +241,18 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
-     * Rewards the user for creating or checking into an objective.
+     * Rewards the user for checking into an objective.
      * Adds points to the given profile's AchievementTracker based on the completed action.
      *
-     * @param actingProfile     the profile receiving points.
-     * @param objective         the objective which the action was performed on.
-     * @return                  Json node of the reward result.
+     * @param actingProfile         the profile receiving points.
+     * @param objectiveCheckedIn    the objective which the action was performed on.
+     * @return                      Json node of the reward result.
      */
-    public JsonNode rewardAction(Profile actingProfile, Objective objective, Action completedAction) {
+    public JsonNode rewardAction(Profile actingProfile, Objective objectiveCheckedIn) {
         Collection<Badge> badgesAchieved = new ArrayList<>();
 
         // Award points
-        PointReward points = givePoints(actingProfile, completedAction);
+        PointReward points = givePoints(actingProfile, Action.CHECKED_IN);
         updatePointsBadge(actingProfile, badgesAchieved);
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
@@ -293,8 +294,8 @@ public class AchievementTrackerController extends Controller {
                         Action.INTERNATIONAL_QUEST_COMPLETED, INCREMENT_ONE));
             }
 
-            // Check if quest contains enough objectives to be an odyssey.
-            if (questWorkedOn.getObjectives().size() >= ODYSSEY_THRESHOLD) {
+            // Check if quest contains enough objectives to be an adventurer.
+            if (questWorkedOn.getObjectives().size() >= ADVENTURER_THRESHOLD) {
                 badgesAchieved.add(progressBadge(actingProfile,
                         Action.LARGE_QUEST_COMPLETED, INCREMENT_ONE));
             }

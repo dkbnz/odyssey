@@ -70,9 +70,9 @@ public class ProfileController {
     private static final String HASH_FAIL = "Unable to hash the user password";
     private static final String INVALID_NATIONALITY_TRAVELLER_TYPES = "Invalid number of Nationalities/Traveller Types";
     private static final String DELETING_DEFAULT_ADMIN = "You can not delete the default administrator";
+    private static final String REMOVE_DEFAULT_ADMIN_STATUS = "You can not remove the default administrator as an admin";
     private static final long AGE_SEARCH_OFFSET = 1;
     private static final long DEFAULT_ADMIN_ID = 1;
-    private static final String UPDATED = "UPDATED";
     private static final String ID = "id";
 
     private ProfileRepository profileRepository;
@@ -336,13 +336,11 @@ public class ProfileController {
      */
     public Result checkUsername(Http.Request request) {
         JsonNode json = request.body().asJson();
-
         if (!json.has(USERNAME)) {
             return badRequest(ApiError.invalidJson());
         }
 
         String username = json.get(USERNAME).asText();
-
         return request.session()
                 .getOptional(AUTHORIZED)
                 .map(userId -> {
@@ -445,7 +443,8 @@ public class ProfileController {
      *                              null if checks pass.
      */
     private Result validateProfileJson(JsonNode jsonToValidate) {
-        if (!(jsonToValidate.has(USERNAME)
+        if (jsonToValidate == null
+                || !(jsonToValidate.has(USERNAME)
                 && jsonToValidate.has(PASS_FIELD)
                 && jsonToValidate.has(FIRST_NAME)
                 && jsonToValidate.has(MIDDLE_NAME)
@@ -830,6 +829,10 @@ public class ProfileController {
      */
     public Result removeAdmin(Http.Request request, Long id) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+
+        if (id == DEFAULT_ADMIN_ID) {
+            return forbidden(ApiError.forbidden(REMOVE_DEFAULT_ADMIN_STATUS));
+        }
 
         if (loggedInUser == null) {
             return unauthorized(ApiError.unauthorized());

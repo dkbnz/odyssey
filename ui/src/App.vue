@@ -1,9 +1,10 @@
 <template>
     <div class="App">
         <div>
-            <router-view v-bind:profile="profile"
-                         v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions"
-                         v-bind:travTypeOptions="travTypeOptions"
+            <router-view :profile="profile"
+                         :destinationTypes="destinationTypes"
+                         :nationalityOptions="nationalityOptions"
+                         :travTypeOptions="travTypeOptions"
                          @profile-received="getProfile">
             </router-view>
         </div>
@@ -74,10 +75,6 @@
                 }).catch(function (response) {
                     if (response.status > 404) {
                         self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
                     }
                 });
             },
@@ -88,7 +85,7 @@
              */
             getNationalities() {
                 let self = this;
-                return fetch(`/v1/nationalities`, {
+                fetch(`/v1/nationalities`, {
                     accept: "application/json"
                 }).then(function (response) {
                     if (!response.ok) {
