@@ -678,7 +678,7 @@ public class QuestController {
 
         QuestAttempt questAttempt = questAttemptRepository.findById(attemptId);
         if (questAttempt == null) {
-            return notFound(ApiError.notFound(Errors.QUEST_NOT_FOUND));
+            return notFound(ApiError.notFound(Errors.QUEST_ATTEMPT_NOT_FOUND));
         }
 
         Profile attemptedBy = questAttempt.getAttemptedBy();
