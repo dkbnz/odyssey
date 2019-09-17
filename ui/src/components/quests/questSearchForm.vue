@@ -218,7 +218,7 @@
                     self.countryList = responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -278,7 +278,7 @@
                         self.$emit('searched-quests', responseBody);
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);

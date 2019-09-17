@@ -7,6 +7,7 @@ import models.profiles.Profile;
 import models.profiles.TravellerType;
 import models.destinations.Destination;
 import models.util.ApiError;
+import models.util.Errors;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -82,7 +83,7 @@ public class DestinationTravellerTypeController {
         Destination destinationToMutate = destinationRepository.findById(destinationId);
 
         if (destinationToMutate == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
         }
 
 
@@ -132,7 +133,7 @@ public class DestinationTravellerTypeController {
         Destination destinationToMutate = destinationRepository.findById(destinationId);
 
         if (destinationToMutate == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
         }
 
         JsonNode jsonBody = request.body().asJson();
