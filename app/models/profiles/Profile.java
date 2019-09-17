@@ -2,6 +2,8 @@ package models.profiles;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import models.hints.Hint;
+import models.hints.Vote;
 import models.points.AchievementTracker;
 import models.util.BaseModel;
 import models.destinations.Destination;
@@ -15,6 +17,7 @@ import play.data.format.Formats;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -82,6 +85,14 @@ public class Profile extends BaseModel {
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "owner")
     private AchievementTracker achievementTracker;
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL)
+    private Collection<Hint> hintsCreated;
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL)
+    private Collection<Vote> votesCast;
 
     @Transient
     private int numberOfQuestsCreated;
