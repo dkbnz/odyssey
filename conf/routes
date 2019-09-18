@@ -72,6 +72,7 @@ PUT     /v1/objectives/:objectiveId                    controllers.objectives.Ob
 DELETE  /v1/objectives/:objectiveId                    controllers.objectives.ObjectiveController.delete(request: Request, objectiveId: Long)
 
 # Objective Hints
+GET     /v1/objectives/:objectiveId/hints              controllers.hints.HintController.fetchAll(request: Request, objectiveId: Long)
 POST    /v1/objectives/:objectiveId/hints/:userId      controllers.hints.HintController.create(request: Request, objectiveId: Long, userId: Long)
 
 # Quests
