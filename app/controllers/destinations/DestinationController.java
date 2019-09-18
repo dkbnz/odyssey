@@ -55,6 +55,7 @@ public class DestinationController extends Controller {
     private static final String DESTINATION_COUNT = "destination_count";
     private static final String MATCHING_TRIPS = "matching_trips";
     private static final String MATCHING_DESTINATIONS = "matching_destinations";
+    private static final String COUNTRY_REGEX = "^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$";
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
 
@@ -354,10 +355,7 @@ public class DestinationController extends Controller {
             return false;
         }
 
-        // Check string inputs against regex
-        String nameRegEx = "^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$";
-
-        return country.matches(nameRegEx);
+        return country.matches(COUNTRY_REGEX);
     }
 
 
