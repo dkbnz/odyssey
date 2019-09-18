@@ -101,13 +101,14 @@ Vue.mixin({
 
 
         /**
-         * Displays a toast on the page if an error occurs in the backend. If the error is handled in backend displays
-         * response with appropriate specific error. Otherwise, displays a generic error message.
+         * Handles any unsatisfactory response from the backend after sending a request. If the response body is a Json
+         * form, then display a toast containing the response Json messages. Otherwise displays a generic error toast.
          *
          * @param errorResponse     the Json body of the response error.
          */
         handleErrorResponse(errorResponse) {
-            if (errorResponse.headers.get("content-type").indexOf("application/json") !== -1) {// checking response header
+            // Checks the response is in a Json form, otherwise show a generic message.
+            if (errorResponse.headers.get("content-type").indexOf("application/json") !== -1) {
                 errorResponse.json().then(responseBody => {
                         if(responseBody[0].hasOwnProperty('message')) {
                             for (let i = 0; i < responseBody.length; i++) {
@@ -124,6 +125,12 @@ Vue.mixin({
             }
         },
 
+
+        /**
+         * Takes a message string to display an error toast if any backend response error occurs.
+         *
+         * @param message   string message to be displayed as an error.
+         */
         showErrorToast(message) {
             const toastElement = this.$createElement;
 

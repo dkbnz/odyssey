@@ -141,15 +141,7 @@
                         "&page=" + this.queryPage +
                         "&pageSize=" + this.pageSize;
                 }
-
-    if (response.status > 404) {
-                            self.showErrorToast([{message: "An unexpected error occurred"}]);
-                        } else {
-                            self.retrievingProfiles = false;
-                            response.json().then(function(responseBody) {
-                                self.showErrorToast(responseBody);
-                            });
-                        }            return fetch(`/v1/profiles` + searchQuery, {})
+                fetch(`/v1/profiles` + searchQuery, {})
                     .then(function (response) {
                         if (!response.ok) {
                             throw response;
