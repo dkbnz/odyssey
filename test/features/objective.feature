@@ -89,7 +89,7 @@ Feature: Objective API Endpoint
       | 119         | Does this work? | 1     | 0.005  |
     Then the status code received is 403
 
-#   TODO: Vinnie & Matilda, discern the hint-based changes that are causing these to fail.
+
   Scenario: Delete an already existing Objective that I own
     Given the application is running
     And I am logged in

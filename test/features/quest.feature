@@ -574,7 +574,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with greater than 3 objectives
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 4 quests
 
 
   Scenario: Retrieve all quests that were made by the owner
