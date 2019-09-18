@@ -103,38 +103,38 @@
                                              ref="questObjective"
                                              striped>
 
-                                    <template v-slot:cell(radius)="row">
-                                        {{getRadiusValue(row.item.radius)}}
-                                    </template>
-                                </b-table>
-                                <!-- Determines pagination and number of results per row of the table -->
-                                <b-row>
-                                    <b-col cols="2">
-                                        <b-form-group
-                                                id="numItems-field"
-                                                label-for="perPage">
-                                            <b-form-select :options="optionViews"
-                                                           id="perPage"
-                                                           size="sm"
-                                                           trim v-model="perPage">
-                                            </b-form-select>
-                                        </b-form-group>
-                                    </b-col>
-                                    <b-col>
-                                        <b-pagination
-                                                :per-page="perPage"
-                                                :total-rows="rows(quest)"
-                                                align="center"
-                                                aria-controls="my-table"
-                                                first-text="First"
-                                                last-text="Last"
-                                                size="sm"
-                                                v-model="currentPage">
-                                        </b-pagination>
-                                    </b-col>
-                                </b-row>
-                            </b-container>
-                        </div>
+                                        <template v-slot:cell(radius)="row">
+                                            {{getRadiusValue(row.item.radius)}}
+                                        </template>
+                                    </b-table>
+                                    <!-- Determines pagination and number of results per row of the table -->
+                                    <b-row>
+                                        <b-col cols="2">
+                                            <b-form-group
+                                                    id="numItems-field"
+                                                    label-for="perPage">
+                                                <b-form-select :options="optionViews"
+                                                               id="perPage"
+                                                               size="sm"
+                                                               trim v-model="perPage">
+                                                </b-form-select>
+                                            </b-form-group>
+                                        </b-col>
+                                        <b-col>
+                                            <b-pagination
+                                                    :per-page="perPage"
+                                                    :total-rows="rows(quest)"
+                                                    align="center"
+                                                    aria-controls="my-table"
+                                                    first-text="First"
+                                                    last-text="Last"
+                                                    size="sm"
+                                                    v-model="currentPage">
+                                            </b-pagination>
+                                        </b-col>
+                                    </b-row>
+                                </b-container>
+                            </div>
 
                             <b-row v-if="yourQuests">
                                 <b-col>
@@ -147,6 +147,21 @@
                             </b-row>
                         </template>
                         <!--Quest component-->
+                    </b-list-group-item>
+                    <!---Load More--->
+                    <b-list-group-item class="flex-column justify-content-center" v-if="!yourQuests && !completedQuests">
+                        <div class="d-flex justify-content-center" v-if="loadingResults">
+                            <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
+                        </div>
+                        <div>
+                            <div v-if="moreResults && !loadingResults">
+                                <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>Load More</b-button>
+                            </div>
+                            <div class="d-flex justify-content-center" v-else-if="!moreResults && !loadingResults">
+                                <h5 class="mb-1">No More Results</h5>
+                            </div>
+                        </div>
+
                     </b-list-group-item>
                 </b-list-group>
                 <!-- Confirmation modal for deleting a quest. -->
@@ -304,7 +319,9 @@
                 questAttempts: [],
                 selectedQuestAttempt: {},
                 selectedQuest: {},
-                activeUsers: 0
+                activeUsers: 0,
+                queryPage: 0,
+                refreshList: false
             }
         },
 
@@ -315,6 +332,7 @@
 
         watch: {
             refreshQuests() {
+                // this.refreshList = true;
                 this.getMore();
             },
 
@@ -336,7 +354,11 @@
              * Function to retrieve more quests when a user reaches the bottom of the list.
              */
             getMore() {
-                this.foundQuests = [];
+                if (this.refreshQuests) {
+                    this.foundQuests = [];
+                    this.refreshQuests = false;
+                    this.queryPage = 0;
+                }
                 if (this.yourQuests) {
                     this.queryYourQuests();
                 } else if(this.completedQuests) {
@@ -377,7 +399,7 @@
             queryQuests() {
                 this.loadingResults = true;
                 let self = this;
-                fetch('/v1/quests', {
+                return fetch('/v1/quests' + '?page=' + this.queryPage, {
                     accept: "application/json"
                 }).then(function (response) {
                     if (!response.ok) {
@@ -387,7 +409,13 @@
                     }
                 }).then(function (responseBody) {
                     self.loadingResults = false;
-                    self.foundQuests = responseBody;
+                    console.log(responseBody)
+                    console.log(self.queryPage)
+                    if (responseBody !== null && responseBody !== undefined) {
+                        self.moreResults = responseBody.length >= 1;
+                        self.queryPage += 1;
+                        self.foundQuests = self.foundQuests.concat(responseBody)
+                    }
                 }).catch(function (response) {
                     self.loadingResults = false;
                     self.handleErrorResponse(response);
