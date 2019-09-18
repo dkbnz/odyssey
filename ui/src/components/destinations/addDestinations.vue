@@ -381,7 +381,7 @@
 
 
             /**
-             * Sets the countries list to the list of countries from the country api
+             * Sets the countries list to the list of countries from the country api.
              */
             getCountries() {
                 let self = this;
@@ -408,7 +408,7 @@
 
 
             /**
-             * Checks all of the input fields for valid input
+             * Checks all of the input fields for valid input.
              */
             validateFields() {
                 return this.destinationNameValidation && this.destinationTypeValidation
@@ -600,7 +600,7 @@
 
 
             /**
-             * Updates the latitude & longitude when emitted from the button that gets current location
+             * Updates the latitude & longitude when emitted from the button that gets current location.
              */
             setCurrentLocation(currentCoordinates) {
                 this.inputDestination.latitude = currentCoordinates.latitude;

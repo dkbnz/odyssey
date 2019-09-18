@@ -41,14 +41,7 @@
                     </b-tab>
                     <b-tab title="Your Objectives" @click="refreshObjectives = !refreshObjectives">
                         <objective-page :profile="profile" :admin-view="false" :refresh-objectives="refreshObjectives">
-
                         </objective-page>
-<!--                        <objective-list :profile="profile"-->
-<!--                                        :admin-view="false"-->
-<!--                                        :your-objectives="true"-->
-<!--                                        :refresh-objectives="refreshObjectives"-->
-<!--                                        @destination-select="">-->
-<!--                        </objective-list>-->
                     </b-tab>
                 </b-tabs>
             </b-card>
@@ -57,7 +50,6 @@
         <div class="show-only-mobile">
             <quests-solve-mobile
                     :profile="profile">
-
             </quests-solve-mobile>
         </div>
     </div>
