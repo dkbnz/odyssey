@@ -3,8 +3,8 @@ import App from './App.vue'
 import BootstrapVue from 'bootstrap-vue'
 import router from './router'
 import VueRouter from 'vue-router';
-import VueSlider from 'vue-slider-component'
-import ScrollDown from './assets/scroll-down'
+import VueSlider from 'vue-slider-component';
+import ScrollDown from './assets/scroll-down';
 
 import assets from './assets/assets';
 
@@ -16,7 +16,7 @@ import RewardToast from "./components/helperComponents/rewardToast";
 import ErrorToast from "./components/helperComponents/errorToast";
 
 Vue.use(VueRouter);
-Vue.use(ScrollDown)
+Vue.use(ScrollDown);
 
 Vue.component('VueSlider', VueSlider);
 

@@ -125,6 +125,19 @@
                                 </b-col>
                             </b-row>
                         </b-list-group-item>
+                        <b-list-group-item class="flex-column justify-content-center">
+                            <b-row>
+                                <b-col>
+                                    <h4>Team Icon</h4>
+                                    <a href="https://www.flaticon.com/free-icon/team_1189111" target="_blank">Source Link</a><br/>
+                                    <small>https://www.flaticon.com/free-icon/team_1189111</small><br />
+                                    <small>Author: <a href="https://www.freepik.com" target="_blank">Freepik</a></small><br/>
+                                </b-col>
+                                <b-col>
+                                    <b-img :src="assets['teamIcon']" width="100%"></b-img>
+                                </b-col>
+                            </b-row>
+                        </b-list-group-item>
                     </b-list-group>
                 </b-col>
                 <b-col>
