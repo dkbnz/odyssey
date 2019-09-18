@@ -392,61 +392,61 @@ Feature: Quest API Endpoint
     Then the status code received is 400
 
 
-#  Scenario: Retrieve all quests
-#    Given I am logged in as an alternate user
-#    And the application is running
-#    When I attempt to retrieve all quests
-#    Then the status code received is 200
-#    And the response contains 8 quests
-#
-#
-#  Scenario: Retrieve all quests that are available with additional invalid quest dates
-#    Given I am logged in as an alternate user
-#    And the application is running
-#    And a quest already exists with the following values
-#      | Title       | Start Date               | End Date                 |
-#      | Cool Quest  | 2019-08-16 03:02:00-0720 | 2019-08-17 03:02:00-0720 |
-#    And the quest has the following objective
-#      | Destination | Riddle                                 | Radius |
-#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-#    And the quest has the following objective
-#      | Destination | Riddle                                 | Radius |
-#      | 119         | What rhymes some stuff?                | 0.005  |
-#    And the quest has the following objective
-#      | Destination | Riddle                                 | Radius |
-#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-#    And I create the quest
-#    And the status code received is 201
-#    When I attempt to retrieve all quests
-#    Then the status code received is 200
-#    And the response contains 8 quests
-#
-#
-#  Scenario: Retrieve all quests that are available with additional valid quest dates
-#    Given I am logged in as an alternate user
-#    And the application is running
-#    And a quest already exists with the following values
-#      | Title       | Start Date               | End Date                 |
-#      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-#    And the quest has the following objective
-#      | Destination | Riddle                                 | Radius |
-#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-#    And the quest has the following objective
-#      | Destination | Riddle                                 | Radius |
-#      | 119         | What rhymes some stuff?                | 0.005  |
-#    And the quest has the following objective
-#      | Destination | Riddle                                 | Radius |
-#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-#    And I create the quest
-#    And the status code received is 201
-#    When I attempt to retrieve all quests
-#    Then the status code received is 200
-#    And the response contains 8 quests
+  Scenario: Retrieve all quests
+    Given the application is running
+    And I am logged in as an alternate user
+    When I attempt to retrieve all quests
+    Then the status code received is 200
+    And the response contains 8 quests
+
+
+  Scenario: Retrieve all quests that are available with additional invalid quest dates
+    Given the application is running
+    And I am logged in as an alternate user
+    And a quest already exists with the following values
+      | Title       | Start Date               | End Date                 |
+      | Cool Quest  | 2019-08-16 03:02:00-0720 | 2019-08-17 03:02:00-0720 |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    And the status code received is 201
+    When I attempt to retrieve all quests
+    Then the status code received is 200
+    And the response contains 8 quests
+
+
+  Scenario: Retrieve all quests that are available with additional valid quest dates
+    Given the application is running
+    And I am logged in as an alternate user
+    And a quest already exists with the following values
+      | Title       | Start Date               | End Date                 |
+      | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes some stuff?                | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    And the status code received is 201
+    When I attempt to retrieve all quests
+    Then the status code received is 200
+    And the response contains 8 quests
 
 
   Scenario: Retrieve all quests that have the title 'Cool Quest'
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest already exists with the following values
       | Title       | Start Date               | End Date                 |
       | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
@@ -482,8 +482,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieve all quests that have exactly 3 objectives
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest already exists with the following values
       | Title       | Start Date               | End Date                 |
       | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
@@ -513,8 +513,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieve all quests that have less than 3 objectives
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest already exists with the following values
       | Title       | Start Date               | End Date                 |
       | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
@@ -544,8 +544,10 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieve all quests that have greater than 3 objectives
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
+    And a quest exists with id 3
+    And a quest exists with id 9
     And a quest already exists with the following values
       | Title       | Start Date               | End Date                 |
       | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
@@ -563,23 +565,15 @@ Feature: Quest API Endpoint
       | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
     And I create the quest
     And the status code received is 201
-    And a quest already exists with the following values
-      | Title       | Start Date               | End Date                 |
-      | Qool Cuest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
-    And the quest has the following objective
-      | Destination | Riddle                                 | Radius |
-      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-    And I create the quest
-    And the status code received is 201
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with greater than 3 objectives
     Then the status code received is 200
-    And the response contains 4 quests
+    And the response contains 3 quests
 
 
   Scenario: Retrieve all quests that were made by the owner
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest already exists with the following values
       | Title       | Start Date               | End Date                 |
       | Cool Quest  | 2019-08-16 03:02:00-0720 | 9999-08-17 03:02:00-0720 |
@@ -610,6 +604,7 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieve all quests that contain the country of 'Japan'
+    Given the application is running
     And I am logged in as an admin user
     And a quest already exists with the following values
       | Title       | Start Date               | End Date                 |
@@ -626,23 +621,23 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieve all quests when I am not logged in
-    Given I am not logged in
-    And the application is running
+    Given the application is running
+    And I am not logged in
     When I attempt to retrieve all quests
     Then the status code received is 401
 
 
   Scenario: Retrieve all quests I have created
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     When I attempt to retrieve my quests
     Then the status code received is 200
     And the response contains 4 quests
 
 
   Scenario: Retrieve all quests when I have none created
-    Given I am logged in as an alternate user
-    Given I am logged in as an alternate user
+    Given the application is running
+    And I am logged in as an alternate user
     And the application is running
     When I attempt to retrieve my quests
     Then the status code received is 200
@@ -650,8 +645,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieve all quests for another user as an admin
-    Given I am logged in as an admin user
-    And the application is running
+    Given the application is running
+    And I am logged in as an admin user
     And a user exists with id 2
     When I attempt to retrieve quests for user 2
     Then the status code received is 200
@@ -659,24 +654,24 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieve all quests for another user as a regular user
-    Given I am logged in as an alternate user
-    And the application is running
+    Given the application is running
+    And I am logged in as an alternate user
     And a user exists with id 2
     When I attempt to retrieve quests for user 2
     Then the status code received is 403
 
 
   Scenario: Retrieve all quests made by a particular user when I am not logged in
-    Given I am not logged in
-    And the application is running
+    Given the application is running
+    And I am not logged in
     And a user exists with id 2
     When I attempt to retrieve quests for user 2
     Then the status code received is 401
 
 
   Scenario: Delete a quest I own
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest exists with id 5
     And an objective exists with id 10
     And an objective exists with id 11
@@ -688,16 +683,16 @@ Feature: Quest API Endpoint
 
 
   Scenario: Delete a quest I do not own
-    Given I am logged in as an alternate user
-    And the application is running
+    Given the application is running
+    And I am logged in as an alternate user
     And a quest exists with id 5
     When I delete a quest with id 5
     Then the status code received is 403
 
 
   Scenario: Delete a quest I do not own as an admin
-    Given I am logged in as an admin user
-    And the application is running
+    Given the application is running
+    And I am logged in as an admin user
     And a quest exists with id 5
     And an objective exists with id 10
     And an objective exists with id 11
@@ -709,24 +704,24 @@ Feature: Quest API Endpoint
 
 
   Scenario: Delete a quest when I am not logged in
-    Given I am not logged in
-    And the application is running
+    Given the application is running
+    And I am not logged in
     And a quest exists with id 5
     When I delete a quest with id 5
     Then the status code received is 401
 
 
   Scenario: Delete a quest that does not exist
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest does not exist with id 10000
     When I delete a quest with id 10000
     Then the status code received is 404
 
 
   Scenario: Starting a quest as a regular user
-    Given I am logged in as an alternate user
-    And the application is running
+    Given the application is running
+    And I am logged in as an alternate user
     And a quest exists with id 3
     When I start a quest with id 3
     Then the status code received is 201
@@ -734,8 +729,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Starting a quest for a regular user as an admin
-    Given I am logged in as an admin user
-    And the application is running
+    Given the application is running
+    And I am logged in as an admin user
     And a quest exists with id 5
     And a user exists with id 4
     When I start a quest with id 5 for user 4
@@ -744,8 +739,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Starting a quest that does not exist
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest does not exist with id 10000
     When I start a quest with id 10000
     Then the status code received is 404
@@ -754,8 +749,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Starting a quest for a user that does not exist
-    Given I am logged in as an admin user
-    And the application is running
+    Given the application is running
+    And I am logged in as an admin user
     And a quest exists with id 5
     And a user does not exist with id 10000
     When I start a quest with id 5 for user 10000
@@ -765,8 +760,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Starting a quest I have already started
-    Given I am logged in as an alternate user
-    And the application is running
+    Given the application is running
+    And I am logged in as an alternate user
     And a quest exists with id 5
     When I start a quest with id 5
     And I start a quest with id 5
@@ -776,8 +771,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Starting a quest when I am not logged in
-    Given I am not logged in
-    And the application is running
+    Given the application is running
+    And I am not logged in
     And a quest exists with id 5
     And a user exists with id 3
     When I start a quest with id 5 for user 3
@@ -787,8 +782,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Starting a quest that I own
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest exists with id 4
     When I start a quest with id 4
     Then the status code received is 403
@@ -797,8 +792,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieving all quests I have marked as active
-    Given I am logged in as an alternate user
-    And the application is running
+    Given the application is running
+    And I am logged in as an alternate user
     And a quest exists with id 1
     And a user exists with id 3
     When I start a quest with id 1 for user 3
@@ -808,8 +803,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieving all quests I have marked as active when not logged in
-    Given I am not logged in
-    And the application is running
+    Given the application is running
+    And I am not logged in
     And a quest exists with id 5
     And a user exists with id 2
     When I start a quest with id 5 for user 2
@@ -820,8 +815,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieving all quests marked as active for another user as admin
-    Given I am logged in as an alternate user
-    And the application is running
+    Given the application is running
+    And I am logged in as an alternate user
     And a quest exists with id 1
     And a user exists with id 3
     When I start a quest with id 1 for user 3
@@ -832,8 +827,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieving all quests marked as active for another user as an alternative user
-    Given I am logged in as an alternate user
-    And the application is running
+    Given the application is running
+    And I am logged in as an alternate user
     And a quest exists with id 1
     And a user exists with id 3
     When I start a quest with id 1 for user 3
@@ -844,8 +839,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieving all completed quests as a regular user
-    Given I am logged in as an alternate user
-    And the application is running
+    Given the application is running
+    And I am logged in as an alternate user
     And a quest exists with id 5
     And the quest with id 5 has been completed
     When I retrieve all my complete quests
@@ -855,16 +850,16 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieving all completed quests as a regular user when I have none completed
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     When I retrieve all my complete quests
     Then the status code received is 200
     And the response contains 0 quests
 
 
   Scenario: Retrieving all quests another user has completed as a regular user
-    Given I am logged in as an alternate user
-    And the application is running
+    Given the application is running
+    And I am logged in as an alternate user
     And a quest exists with id 2
     And a user exists with id 4
     And the quest with id 2 has been completed by user 4
@@ -875,8 +870,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieving all quests another user has completed as an admin
-    Given I am logged in as an admin user
-    And the application is running
+    Given the application is running
+    And I am logged in as an admin user
     And a quest exists with id 5
     And a user exists with id 3
     And the quest with id 5 has been completed by user 3
@@ -887,8 +882,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieving all quests a non existent user has completed as an admin
-    Given I am logged in as an admin user
-    And the application is running
+    Given the application is running
+    And I am logged in as an admin user
     And a user does not exist with id 10000
     When I retrieve all complete quests for user 10000
     Then the status code received is 404
@@ -897,8 +892,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Retrieving all completed quests when not logged in
-    Given I am not logged in
-    And the application is running
+    Given the application is running
+    And I am not logged in
     And a user exists with id 4
     When I retrieve all complete quests for user 4
     Then the status code received is 401
@@ -907,8 +902,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Guessing an objective as a regular user
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest exists with id 2
     When I start a quest with id 2
     And I guess destination id 858
@@ -918,8 +913,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Unsuccessfully guessing an objective as a regular user
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest exists with id 2
     When I start a quest with id 2
     And I guess destination id 1526
@@ -929,8 +924,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Guessing an objective as a regular user for another regular user
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest exists with id 2
     When I guess destination id 1526 for quest attempt 5
     Then the status code received is 403
@@ -939,8 +934,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Guessing an objective as an admin for a regular user
-    Given I am logged in as an admin user
-    And the application is running
+    Given the application is running
+    And I am logged in as an admin user
     And a quest exists with id 2
     When I start a quest with id 2 for user 3
     And I guess destination id 858
@@ -950,8 +945,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Unsuccessfully guessing an objective as an admin for a regular user
-    Given I am logged in as an admin user
-    And the application is running
+    Given the application is running
+    And I am logged in as an admin user
     And a quest exists with id 2
     When I start a quest with id 2 for user 3
     And I guess destination id 1526
@@ -961,8 +956,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Guessing an objective while not logged in
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest exists with id 2
     When I start a quest with id 2
     And I log out
@@ -973,8 +968,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Guessing an objective using a destination that does not exist
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     And a quest exists with id 2
     When I start a quest with id 2
     And I guess destination id 6756
@@ -984,38 +979,38 @@ Feature: Quest API Endpoint
 
 
   Scenario: Checking in to an objective as a regular user
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     When I check in for quest attempt 3
     Then the status code received is 200
     And I receive a valid quest attempt in the response
 
 
   Scenario: Unsuccessfully checking in to an objective as a regular user
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     When I check in for quest attempt 4
     Then the status code received is 403
 
 
   Scenario: Checking in to an objective as an admin for a regular user
-    Given I am logged in as an admin user
-    And the application is running
+    Given the application is running
+    And I am logged in as an admin user
     When I check in for quest attempt 3
     Then the status code received is 200
     And I receive a valid quest attempt in the response
 
 
   Scenario: Unsuccessfully checking in to an objective as an admin for a regular user
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     When I check in for quest attempt 4
     Then the status code received is 403
 
 
   Scenario: Checking in to an objective while not logged in
-    Given I am not logged in
-    And the application is running
+    Given the application is running
+    And I am not logged in
     When I check in for quest attempt 4
     Then the status code received is 401
     And the following ApiErrors are returned
@@ -1023,8 +1018,8 @@ Feature: Quest API Endpoint
 
 
   Scenario: Checking in to an objective for a quest attempt that does not exist
-    Given I am logged in
-    And the application is running
+    Given the application is running
+    And I am logged in
     When I check in for quest attempt 78
     Then the status code received is 404
     And the following ApiErrors are returned
