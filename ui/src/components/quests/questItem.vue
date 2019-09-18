@@ -973,6 +973,7 @@
              */
             getRadiusValue(radius) {
                 if (radius < 1) {
+                    // Convert radius value to metres by multiplying by 1000.
                     return radius * 1000 + " Meters"
                 }
                 return radius + " Km";

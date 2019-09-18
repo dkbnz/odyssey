@@ -41,9 +41,9 @@ Vue.mixin({
             if((rewardJson.hasOwnProperty('badgesAchieved') && rewardJson.badgesAchieved.length) || (rewardJson.hasOwnProperty('pointsRewarded'))) {
                 for (let j = 0; j < rewardJson.pointsRewarded.length; j++) {
                     if (rewardJson.pointsRewarded[j]) {
-                        const h = this.$createElement;
+                        const toastElement = this.$createElement;
 
-                        const toastContent = h(
+                        const toastContent = toastElement(
                             'reward-toast',
                             {props: {pointsRewarded: rewardJson.pointsRewarded[j]}}
                         );
@@ -59,8 +59,8 @@ Vue.mixin({
                 }
                 for (let i = 0; i < rewardJson.badgesAchieved.length; i++) {
                     if (rewardJson.badgesAchieved[i]) {
-                        const h = this.$createElement;
-                        const toastContent = h(
+                        const toastElement = this.$createElement;
+                        const toastContent = toastElement(
                             'reward-toast',
                             {props: {badgeAchieved: rewardJson.badgesAchieved[i]}}
                         );
@@ -81,11 +81,11 @@ Vue.mixin({
         /**
          * Displays a toast on the page if the user increases their login streak.
          *
-         * @param streakValue
+         * @param streakValue   the value of the user's current login streak to be displayed on the toast.
          */
         showStreakToast(streakValue) {
-            const h = this.$createElement;
-            const toastContent = h(
+            const toastElement = this.$createElement;
+            const toastContent = toastElement(
                 'reward-toast',
                 {props: {streakValue: streakValue}}
             );
@@ -107,9 +107,9 @@ Vue.mixin({
          */
         showErrorToast(errorResponse) {
             for (let i = 0; i < errorResponse.length; i++) {
-                const h = this.$createElement;
+                const toastElement = this.$createElement;
 
-                const toastContent = h(
+                const toastContent = toastElement(
                     'error-toast',
                     {props: {errorMessage: errorResponse[i].message}}
                 );
