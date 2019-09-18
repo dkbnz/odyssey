@@ -3,6 +3,7 @@ package controllers.destinations;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import controllers.points.AchievementTrackerController;
 import models.profiles.Profile;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,11 +27,11 @@ public class DestinationControllerTest {
     private static final String AUTHORIZED = "authorized";
     private static final String USER_ID = "2";
     private DestinationController mockDestinationController;
+    private ProfileRepository mockProfileRepository;
 
     @Before
     public void setUp() {
         DestinationRepository mockDestinationRepository;
-        ProfileRepository mockProfileRepository;
         TripDestinationRepository mockTripDestinationRepository;
         TripRepository mockTripRepository;
         ObjectiveRepository mockObjectiveRepository;
@@ -110,6 +111,9 @@ public class DestinationControllerTest {
 
         // Assert
         Assert.assertEquals(UNAUTHORIZED, result.status());
+
+        // Verify mocks
+        verify(mockProfileRepository, times(0)).findById(any(Long.class));
     }
 
 
@@ -123,6 +127,9 @@ public class DestinationControllerTest {
 
         // Assert
         Assert.assertEquals(BAD_REQUEST, result.status());
+
+        // Verify mocks
+        verify(mockProfileRepository, times(2)).findById(any(Long.class));
     }
 
 
@@ -137,6 +144,9 @@ public class DestinationControllerTest {
 
         // Assert
         Assert.assertEquals(FORBIDDEN, result.status());
+
+        // Verify mocks
+        verify(mockProfileRepository, times(2)).findById(any(Long.class));
     }
 
 
@@ -151,6 +161,9 @@ public class DestinationControllerTest {
 
         // Assert
         Assert.assertEquals(UNAUTHORIZED, result.status());
+
+        // Verify mocks
+        verify(mockProfileRepository, times(0)).findById(any(Long.class));
     }
 
 
@@ -164,6 +177,9 @@ public class DestinationControllerTest {
 
         // Assert
         Assert.assertEquals(BAD_REQUEST, result.status());
+
+        // Verify mocks
+        verify(mockProfileRepository, times(2)).findById(any(Long.class));
     }
 
 
@@ -178,5 +194,14 @@ public class DestinationControllerTest {
 
         // Assert
         Assert.assertEquals(FORBIDDEN, result.status());
+
+        // Verify mocks
+        verify(mockProfileRepository, times(2)).findById(any(Long.class));
+    }
+
+
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(mockProfileRepository);
     }
 }
