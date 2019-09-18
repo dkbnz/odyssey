@@ -1,5 +1,5 @@
 <template>
-    <div v-if="profile.length !== 0">
+    <div v-if="profile">
         <!--Shows tabs for the quest page-->
         <navbar-main v-bind:profile="profile" v-if="!adminView"></navbar-main>
         <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg d-none d-lg-block">

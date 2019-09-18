@@ -1,5 +1,5 @@
 <template>
-    <div v-if="profile.length !== 0">
+    <div v-if="profile">
 
         <!--Navigation Bar-->
         <nav-bar-main :profile="profile"></nav-bar-main>

@@ -92,3 +92,6 @@ router.afterEach((to, from) => {
 });
 export default router;
 
+$(window).bind('hashchange', function() {
+    console.log("HERE");
+});
