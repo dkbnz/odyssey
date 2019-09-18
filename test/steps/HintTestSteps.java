@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 import models.objectives.Objective;
+import models.profiles.Profile;
 import org.junit.Assert;
 import repositories.objectives.ObjectiveRepository;
+import repositories.profiles.ProfileRepository;
 
 import java.util.Collection;
 
@@ -29,6 +31,12 @@ public class HintTestSteps {
     private ObjectiveRepository objectiveRepository =
             testContext.getApplication().injector().instanceOf(ObjectiveRepository.class);
 
+    /**
+     * Repository to access the profiles in the running application.
+     */
+    private ProfileRepository profileRepository =
+            testContext.getApplication().injector().instanceOf(ProfileRepository.class);
+
 
     @Given("^I own the objective with id (\\d+)$")
     public void iOwnTheObjectiveWithId(Integer objectiveId) {
@@ -44,27 +52,23 @@ public class HintTestSteps {
 
     @Given("^I have solved the objective with id (\\d+)$")
     public void iHaveSolvedTheObjectiveWithId(Integer objectiveId) {
-//        TODO: Vinnie + Matilda
-//        Collection<Objective> solvedObjectives = objectiveRepository.findAllCompletedUsing((testContext.getLoggedInId());
-//        Objective objective = objectiveRepository.findById(Long.valueOf(objectiveId));
-//        Assert.assertTrue(solvedObjectives.contains(objective));
+        Profile loggedInUser = profileRepository.findById(Long.parseLong(testContext.getLoggedInId()));
+        Collection<Objective> solvedObjectives = objectiveRepository.findAllCompletedUsing(loggedInUser);
+        Objective objective = objectiveRepository.findById(Long.valueOf(objectiveId));
+        Assert.assertTrue(solvedObjectives.contains(objective));
     }
 
     @Given("^I have not solved the objective with id (\\d+)$")
     public void iHaveNotSolvedTheObjectiveWithId(Integer objectiveId) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+        Profile loggedInUser = profileRepository.findById(Long.parseLong(testContext.getLoggedInId()));
+        Collection<Objective> solvedObjectives = objectiveRepository.findAllCompletedUsing(loggedInUser);
+        Objective objective = objectiveRepository.findById(Long.valueOf(objectiveId));
+        Assert.assertFalse(solvedObjectives.contains(objective));
     }
 
+
     @When("^I attempt to create a hint with the following values for the objective with id (\\d+)$")
-    public void iAttemptToCreateAHintWithTheFollowingValuesForTheObjectiveWithIdNumber(io.cucumber.datatable.DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-        throw new cucumber.api.PendingException();
+    public void iAttemptToCreateAHintWithTheFollowingValuesForTheObjectiveWithId(Integer objectiveId, io.cucumber.datatable.DataTable dataTable) {
+//        throw new cucumber.api.PendingException()
     }
 }

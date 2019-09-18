@@ -1,6 +1,5 @@
-#TODO: Vinnie + Matilda
-#Feature: Hint API Endpoint.
-#
+Feature: Hint API Endpoint.
+
 #  Scenario: Successfully creating a hint as the owner of the objective
 #    Given the application is running
 #    And I am logged in
@@ -15,10 +14,10 @@
 #  Scenario: Successfully creating a hint as a regular user that has solved the objective
 #    Given the application is running
 #    And I am logged in
-#    And an objective exists with id 18
-#    And I do not own the objective with id 18
-#    And I have solved the objective with id 18
-#    When I attempt to create a hint with the following values for the objective with id 18
+#    And an objective exists with id 30
+#    And I do not own the objective with id 30
+#    And I have solved the objective with id 30
+#    When I attempt to create a hint with the following values for the objective with id 30
 #      | Message |
 #      | WEEEEST |
 #    Then the status code received is 201
@@ -30,7 +29,7 @@
 #    And an objective exists with id 18
 #    And I do not own the objective with id 18
 #    And I have not solved the objective with id 18
-#    When I attempt to create a hint with the following values for the objective with id <number>
+#    When I attempt to create a hint with the following values for the objective with id 18
 #      | Message |
 #      | WEEEEST |
 #    Then the status code received is 403
@@ -44,7 +43,7 @@
 #    And an objective exists with id 29
 #    And I do not own the objective with id 29
 #    And I have not solved the objective with id 29
-#    When I attempt to create a hint with the following values for the objective with id <number>
+#    When I attempt to create a hint with the following values for the objective with id 29
 #      | Message |
 #      | WEEEEST |
 #    Then the status code received is 201
@@ -54,7 +53,7 @@
 #    Given the application is running
 #    And I am not logged in
 #    And an objective exists with id 29
-#    When I attempt to create a hint with the following values for the objective with id <number>
+#    When I attempt to create a hint with the following values for the objective with id 29
 #      | Message |
 #      | WEEEEST |
 #    Then the status code received is 401
@@ -66,7 +65,7 @@
 #    Given the application is running
 #    And I am logged in
 #    And an objective does not exist with id 40
-#    When I attempt to create a hint with the following values for the objective with id <number>
+#    When I attempt to create a hint with the following values for the objective with id 40
 #      | Message |
 #      | WEEEEST |
 #    Then the status code received is 404
