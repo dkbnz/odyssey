@@ -54,7 +54,6 @@ public class DestinationControllerTest {
         mockAchievementTrackerController = new AchievementTrackerController(
                 mockProfileRepository,
                 mockPointRewardRepository,
-                mockAchievementTrackerRepository,
                 mockBadgeRepository,
                 objectMapper);
         mockDestinationController = new DestinationController(
