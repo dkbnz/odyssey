@@ -26,8 +26,6 @@ public class ProfileControllerTest {
     private static final String AUTHORIZED = "authorized";
     private static final String USER_ID = "1";
     private static final String ADMIN_USER = "2";
-    private static final String REGULAR_USER_ID = "3";
-    private static final String USERNAME = "username";
 
     private ProfileRepository mockProfileRepo;
     private NationalityRepository mockNationalityRepo;

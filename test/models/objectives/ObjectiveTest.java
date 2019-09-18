@@ -15,14 +15,6 @@ public class ObjectiveTest {
     private Profile objectiveOwner1;
     private Profile objectiveOwner2;
 
-    private static final String RIDDLE_STRING_256 = "JCBK810WRXUPYAXDVC1VBQPIA8FK34PXUJ89C3L84UNCJZEWQ8Z07J5MZ" +
-            "9ZE8HF8M3GMCFIALPUDUFU5ZQ9O9UH1Q1AYULO7DWIZB19RI9GVRZ16ANQ4R8AP7J4ZH5MK5BAEWZD9A14DFV48I5T60QGA4WSRW" +
-            "LU5DX0MX3DWU6DUHUAKRFILED8SU3G2BS3I7D5CGQ32G284O5N6UQB7BGRHB2YV95A00CNT53BEUQ4CRR8SUNTPQMLZD0RTF2RZ";
-
-    private static final String RIDDLE_STRING_255 = "JCBK810WRXUPYAXDVC1VBQPIA8FK34PXUJ89C3L84UNCJZEWQ8Z07J5MZ" +
-            "9ZE8HF8M3GMCFIALPUDUFU5ZQ9O9UH1Q1AYULO7DWIZB19RI9GVRZ16ANQ4R8AP7J4ZH5MK5BAEWZD9A14DFV48I5T60QGA4WSRW" +
-            "LU5DX0MX3DWU6DUHUAKRFILED8SU3G2BS3I7D5CGQ32G284O5N6UQB7BGRHB2YV95A00CNT53BEUQ4CRR8SUNTPQMLZD0RTF2R";
-
     @Before
     public void setUp() {
         testObjective1 = new Objective();
@@ -50,7 +42,8 @@ public class ObjectiveTest {
 
     @Test
     public void getErrorsRiddleMaxValue() {
-        testObjective1.setRiddle(RIDDLE_STRING_256);
+        // Generates a string of length 256.
+        testObjective1.setRiddle(new String(new char[256]).replace("\0", "S"));
         assertTrue(testObjective1.getErrors().stream().anyMatch(error
                 -> error.getMessage().equals("Objective riddles must not exceed 255 characters in length.")));
     }
@@ -58,7 +51,8 @@ public class ObjectiveTest {
 
     @Test
     public void getErrorsRiddleBoundaryMaxValue() {
-        testObjective1.setRiddle(RIDDLE_STRING_255);
+        // Generates a string of length 255.
+        testObjective1.setRiddle(new String(new char[255]).replace("\0", "S"));
         assertFalse(testObjective1.getErrors().stream().anyMatch(error
                 -> error.getMessage().equals("Objective riddles must not exceed 255 characters in length.")));
     }
