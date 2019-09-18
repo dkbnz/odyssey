@@ -55,7 +55,6 @@ public class AchievementTrackerController extends Controller {
     @Inject
     public AchievementTrackerController(ProfileRepository profileRepository,
                                         PointRewardRepository pointRewardRepository,
-                                        AchievementTrackerRepository achievementTrackerRepository,
                                         BadgeRepository badgeRepository,
                                         ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
@@ -69,9 +68,9 @@ public class AchievementTrackerController extends Controller {
      * Adds points to the given profile. The point value is determined by the action completed.
      * Progresses the Overachiever badge.
      *
-     * @param actingProfile     the profile receiving points
-     * @param action            the action being taken
-     * @return                  the number of points added, or null if none are added
+     * @param actingProfile     the profile receiving points.
+     * @param action            the action being taken.
+     * @return                  the number of points added, or null if none are added.
      */
     private PointReward givePoints(Profile actingProfile, Action action) {
 
@@ -426,12 +425,12 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
-     * Function called from the routes to update the currently logged in session's users streak
+     * Function called from the routes to update the currently logged in session's users streak.
      *
-     * @param request       contains the profile information and the client date information in the json body
-     * @return              ok if the request is fine and their is a user and the json format is correct
-     *                      badRequest if the request has invalid json
-     *                      unauthorized if there is no user in the database for the given session
+     * @param request       contains the profile information and the client date information in the json body.
+     * @return              ok if the request is fine and their is a user and the json format is correct.
+     *                      badRequest if the request has invalid json.
+     *                      unauthorized if there is no user in the database for the given session.
      */
     public Result updateLastSeen(Http.Request request) {
 
@@ -472,11 +471,11 @@ public class AchievementTrackerController extends Controller {
      * their streaker badge. If the users current date is any day after their last seen date plus one then they will
      * lose their current streak.
      *
-     * @param profile               the profile your wanting to check the streaks date for
-     * @param clientDateString      the clients date string sent from the front end of the application
-     * @return                      jsonNode containing the badge if this process was able to be achieved
-     *                              jsonNode null if the process got caught with a parsing exception and so should
-     *                              return 400 to the front end application
+     * @param profile               the profile your wanting to check the streaks date for.
+     * @param clientDateString      the clients date string sent from the front end of the application.
+     * @return                      jsonNode containing the badge if this process was able to be achieved.
+     *                              jsonNode null if the process got caught with a parsing exception and so should.
+     *                              return 400 to the front end application.
      */
     private JsonNode checkStreakIncrement(Profile profile, String clientDateString) {
 

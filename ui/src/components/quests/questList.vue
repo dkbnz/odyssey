@@ -641,7 +641,7 @@
              * Sets the message for the success alert to the inputted message and runs showAlert to show the success
              * message.
              *
-             * @param messageObject the object to display
+             * @param messageObject the object to display.
              */
             showSuccess(messageObject) {
                 this.getMore();
