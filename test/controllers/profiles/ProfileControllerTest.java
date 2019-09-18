@@ -3,6 +3,7 @@ package controllers.profiles;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.profiles.Profile;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -136,6 +137,9 @@ public class ProfileControllerTest {
 
         // Assert
         Assert.assertEquals(BAD_REQUEST, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(0)).findById(any(Long.class));
     }
 
 
@@ -150,6 +154,9 @@ public class ProfileControllerTest {
 
         // Assert
         Assert.assertEquals(UNAUTHORIZED, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(0)).findById(any(Long.class));
     }
 
 
@@ -184,6 +191,9 @@ public class ProfileControllerTest {
 
         // Assert
         Assert.assertEquals(UNAUTHORIZED, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(0)).findById(any(Long.class));
     }
 
 
@@ -345,6 +355,9 @@ public class ProfileControllerTest {
 
         // Assert
         Assert.assertEquals(UNAUTHORIZED, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(0)).findById(any(Long.class));
     }
 
 
@@ -396,6 +409,7 @@ public class ProfileControllerTest {
 
         // Verify Mocks
         verify(mockProfileRepo, times(2)).findById(any(Long.class));
+        verify(mockProfileRepo, times(1)).update(any(Profile.class));
     }
 
 
@@ -411,6 +425,9 @@ public class ProfileControllerTest {
 
         // Assert
         Assert.assertEquals(UNAUTHORIZED, result.status());
+
+        // Verify Mocks
+        verify(mockProfileRepo, times(0)).findById(any(Long.class));
     }
 
 
@@ -479,11 +496,12 @@ public class ProfileControllerTest {
 
         // Verify Mocks
         verify(mockProfileRepo, times(2)).findById(any(Long.class));
+        verify(mockProfileRepo, times(1)).update(any(Profile.class));
     }
 
 
     @Test
-    public void checkUsernameNoUsername() throws Exception {
+    public void checkUsernameNoUsername() {
         ObjectNode jsonBody = objectMapper.createObjectNode();
 
         jsonBody.put(AUTHORIZED, "");
@@ -497,5 +515,12 @@ public class ProfileControllerTest {
 
         // Assert
         Assert.assertEquals(BAD_REQUEST, result.status());
+        verify(mockProfileRepo, times(0)).findById(any(Long.class));
+    }
+
+
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(mockProfileRepo);
     }
 }
