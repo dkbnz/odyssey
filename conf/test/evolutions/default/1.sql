@@ -70,6 +70,16 @@ create table destination_proposed_traveller_type_remove (
   constraint pk_destination_proposed_traveller_type_remove primary key (destination_id,traveller_type_id)
 );
 
+create table hint (
+  id                            bigint auto_increment not null,
+  message                       varchar(255),
+  up_votes                      integer not null,
+  down_votes                    integer not null,
+  objective_id                  bigint,
+  creator_id                    bigint,
+  constraint pk_hint primary key (id)
+);
+
 create table nationality (
   id                            bigint auto_increment not null,
   nationality                   varchar(255),
@@ -210,6 +220,14 @@ create table destination_type (
   constraint pk_destination_type primary key (id)
 );
 
+create table vote (
+  id                            bigint auto_increment not null,
+  voter_id                      bigint,
+  target_hint_id                bigint,
+  is_up_vote                    boolean default false not null,
+  constraint pk_vote primary key (id)
+);
+
 alter table achievement_tracker add constraint fk_achievement_tracker_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
 
 create index ix_badge_progress_badge_id on badge_progress (badge_id);
@@ -247,6 +265,12 @@ alter table destination_proposed_traveller_type_remove add constraint fk_destina
 
 create index ix_destination_proposed_traveller_type_remove_traveller_t_2 on destination_proposed_traveller_type_remove (traveller_type_id);
 alter table destination_proposed_traveller_type_remove add constraint fk_destination_proposed_traveller_type_remove_traveller_t_2 foreign key (traveller_type_id) references traveller_type (id) on delete restrict on update restrict;
+
+create index ix_hint_objective_id on hint (objective_id);
+alter table hint add constraint fk_hint_objective_id foreign key (objective_id) references objective (id) on delete restrict on update restrict;
+
+create index ix_hint_creator_id on hint (creator_id);
+alter table hint add constraint fk_hint_creator_id foreign key (creator_id) references profile (id) on delete restrict on update restrict;
 
 create index ix_nationality_profile_nationality on nationality_profile (nationality_id);
 alter table nationality_profile add constraint fk_nationality_profile_nationality foreign key (nationality_id) references nationality (id) on delete restrict on update restrict;
@@ -307,6 +331,12 @@ alter table trip_destination add constraint fk_trip_destination_trip_id foreign 
 create index ix_trip_destination_destination_id on trip_destination (destination_id);
 alter table trip_destination add constraint fk_trip_destination_destination_id foreign key (destination_id) references destination (id) on delete restrict on update restrict;
 
+create index ix_vote_voter_id on vote (voter_id);
+alter table vote add constraint fk_vote_voter_id foreign key (voter_id) references profile (id) on delete restrict on update restrict;
+
+create index ix_vote_target_hint_id on vote (target_hint_id);
+alter table vote add constraint fk_vote_target_hint_id foreign key (target_hint_id) references hint (id) on delete restrict on update restrict;
+
 
 # --- !Downs
 
@@ -347,6 +377,12 @@ drop index if exists ix_destination_proposed_traveller_type_remove_destination;
 
 alter table destination_proposed_traveller_type_remove drop constraint if exists fk_destination_proposed_traveller_type_remove_traveller_t_2;
 drop index if exists ix_destination_proposed_traveller_type_remove_traveller_t_2;
+
+alter table hint drop constraint if exists fk_hint_objective_id;
+drop index if exists ix_hint_objective_id;
+
+alter table hint drop constraint if exists fk_hint_creator_id;
+drop index if exists ix_hint_creator_id;
 
 alter table nationality_profile drop constraint if exists fk_nationality_profile_nationality;
 drop index if exists ix_nationality_profile_nationality;
@@ -407,6 +443,12 @@ drop index if exists ix_trip_destination_trip_id;
 alter table trip_destination drop constraint if exists fk_trip_destination_destination_id;
 drop index if exists ix_trip_destination_destination_id;
 
+alter table vote drop constraint if exists fk_vote_voter_id;
+drop index if exists ix_vote_voter_id;
+
+alter table vote drop constraint if exists fk_vote_target_hint_id;
+drop index if exists ix_vote_target_hint_id;
+
 drop table if exists achievement_tracker;
 
 drop table if exists destination;
@@ -418,6 +460,8 @@ drop table if exists destination_traveller_type;
 drop table if exists destination_proposed_traveller_type_add;
 
 drop table if exists destination_proposed_traveller_type_remove;
+
+drop table if exists hint;
 
 drop table if exists nationality;
 
@@ -453,3 +497,4 @@ drop table if exists trip_destination;
 
 drop table if exists destination_type;
 
+drop table if exists vote;

@@ -209,7 +209,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Creating my first quest and getting a bronze level Writer badge
     Given the application is running
-    And I am logged in as user with id "7"
+    And I am logged in as user with id "4"
     And I currently have no "quests" created
     When I start to create a quest using the following values
       | Title      | Start Date | End Date |

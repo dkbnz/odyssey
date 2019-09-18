@@ -3,16 +3,14 @@ package models.objectives;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import models.hints.Hint;
+import models.quests.Quest;
 import models.util.ApiError;
 import models.util.BaseModel;
 import models.profiles.Profile;
 import models.destinations.Destination;
 import util.Views;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,9 +41,17 @@ public class Objective extends BaseModel {
     @JsonView(Views.Owner.class)
     private Double radius;
 
+    @ManyToMany(cascade = CascadeType.PERSIST, mappedBy = "objectives")
+    @JsonIgnore
+    private List<Quest> questsUsing;
+
     @JsonView(Views.Owner.class)
     @OneToMany(cascade = CascadeType.ALL)
-    private Collection<Hint> hints;
+    private List<Hint> hints;
+
+    public Collection<Quest> getQuestsUsing() {
+        return questsUsing;
+    }
 
     @JsonIgnore
     public Collection<ApiError> getErrors() {
