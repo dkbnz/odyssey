@@ -4,6 +4,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 import static play.mvc.Results.created;
+import static play.mvc.Results.ok;
 
 public class HintController {
 
@@ -19,5 +20,17 @@ public class HintController {
      */
     public Result create(Http.Request request, Long objectiveId, Long userId) {
         return created();
+    }
+
+
+    /**
+     * Retrieves all the hints for a given objective.
+     *
+     * @param request           the Http request containing login information.
+     * @param objectiveId       the Id of the objective having its hints retrieved.
+     * @return
+     */
+    public Result fetchAll(Http.Request request, Long objectiveId) {
+        return ok();
     }
 }
