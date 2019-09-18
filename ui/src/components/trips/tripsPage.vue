@@ -1,5 +1,5 @@
 <template>
-    <div v-if="profile.length !== 0">
+    <div v-if="profile">
         <nav-bar-main v-bind:profile="profile"></nav-bar-main>
         <b-navbar variant="light">
             <b-navbar-nav>
