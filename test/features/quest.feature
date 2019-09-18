@@ -397,7 +397,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 8 quests
+    And the response contains 9 quests
 
 
   Scenario: Retrieve all quests that are available with additional invalid quest dates
@@ -419,7 +419,7 @@ Feature: Quest API Endpoint
     And the status code received is 201
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 8 quests
+    And the response contains 9 quests
 
 
   Scenario: Retrieve all quests that are available with additional valid quest dates
@@ -441,7 +441,7 @@ Feature: Quest API Endpoint
     And the status code received is 201
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 8 quests
+    And the response contains 9 quests
 
 
   Scenario: Retrieve all quests that have the title 'Cool Quest'
@@ -540,7 +540,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with less than 3 objectives
     Then the status code received is 200
-    And the response contains 5 quests
+    And the response contains 6 quests
 
 
   Scenario: Retrieve all quests that have greater than 3 objectives
@@ -617,7 +617,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests that contain the country 'Japan'
     Then the status code received is 200
-    And the response contains 4 quests
+    And the response contains 5 quests
 
 
   Scenario: Retrieve all quests when I am not logged in
@@ -745,7 +745,7 @@ Feature: Quest API Endpoint
     When I start a quest with id 10000
     Then the status code received is 404
     And the following ApiErrors are returned
-    | Requested quest not found |
+    | Requested quest not found. |
 
 
   Scenario: Starting a quest for a user that does not exist
@@ -756,7 +756,7 @@ Feature: Quest API Endpoint
     When I start a quest with id 5 for user 10000
     Then the status code received is 404
     And the following ApiErrors are returned
-      | Requested profile not found |
+      | Requested profile not found. |
 
 
   Scenario: Starting a quest I have already started
@@ -767,7 +767,7 @@ Feature: Quest API Endpoint
     And I start a quest with id 5
     Then the status code received is 400
     And the following ApiErrors are returned
-      | You have already started this quest |
+      | You have already started this quest. |
 
 
   Scenario: Starting a quest when I am not logged in
@@ -788,7 +788,7 @@ Feature: Quest API Endpoint
     When I start a quest with id 4
     Then the status code received is 403
     And the following ApiErrors are returned
-      | You cannot start your own quest |
+      | You cannot start your own quest. |
 
 
   Scenario: Retrieving all quests I have marked as active
@@ -851,7 +851,7 @@ Feature: Quest API Endpoint
 
   Scenario: Retrieving all completed quests as a regular user when I have none completed
     Given the application is running
-    And I am logged in
+    And I am logged in as user with id "10"
     When I retrieve all my complete quests
     Then the status code received is 200
     And the response contains 0 quests
@@ -888,7 +888,7 @@ Feature: Quest API Endpoint
     When I retrieve all complete quests for user 10000
     Then the status code received is 404
     And the following ApiErrors are returned
-      | Requested profile not found |
+      | Requested profile not found. |
 
 
   Scenario: Retrieving all completed quests when not logged in
@@ -975,7 +975,7 @@ Feature: Quest API Endpoint
     And I guess destination id 6756
     Then the status code received is 404
     And the following ApiErrors are returned
-      | Requested destination not found |
+      | Requested destination not found. |
 
 
   Scenario: Checking in to an objective as a regular user
@@ -1023,4 +1023,4 @@ Feature: Quest API Endpoint
     When I check in for quest attempt 78
     Then the status code received is 404
     And the following ApiErrors are returned
-      | Requested quest attempt not found |
+      | Requested quest attempt not found. |

@@ -212,7 +212,9 @@ INSERT INTO `objective` (`id`, `destination_id`, `riddle`, `radius`, `owner_id`)
 (26, 9000, 'Earthquake 10', 10, 2),
 (27, 9000, 'Earthquake 11', 10, 2),
 (28, 9000, 'Earthquake 12', 10, 2),
-(29, 9000, 'Earthquake 13', 10, 2);
+(29, 9000, 'Earthquake 13', 10, 2),
+(30, 9000, 'Objective 1 in solved quest', 1, 10),
+(31, 9000, 'Objective 2 in solved quest', 1, 10);
 
 
 INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
@@ -224,7 +226,8 @@ INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
 (6, 'Urlaub in Europa', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 1),
 (7, 'International Quest', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 10),
 (8, 'Quest with objective to delete', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 2),
-(9, 'Odyssey Quest', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 2);
+(9, 'Odyssey Quest', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 2),
+(10, 'Quest completed by user 2', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 10);
 
 
 INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
@@ -255,7 +258,9 @@ INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
 (9, 26),
 (9, 27),
 (9, 28),
-(9, 29);
+(9, 29),
+(10, 30),
+(10, 31);
 
 
 INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `solved_current`, `checked_in_index`, `completed`) VALUES
@@ -276,7 +281,8 @@ INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `sol
 (15, 8, 9, 1, 9, 0),
 (16, 9, 9, 1, 9, 0),
 (17, 8, 6, 1, 0, 0),
-(18, 9, 6, 1, 0, 0);
+(18, 9, 6, 1, 0, 0),
+(19, 2, 10, 0, 2, 1);
 
 
 # --- !Downs
