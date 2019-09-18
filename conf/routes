@@ -71,6 +71,9 @@ POST    /v1/objectives/:userId                         controllers.objectives.Ob
 PUT     /v1/objectives/:objectiveId                    controllers.objectives.ObjectiveController.edit(request: Request, objectiveId: Long)
 DELETE  /v1/objectives/:objectiveId                    controllers.objectives.ObjectiveController.delete(request: Request, objectiveId: Long)
 
+# Objective Hints
+POST    /v1/objectives/:objectiveId/hints/:userId      controllers.hints.HintController.create(request: Request, objectiveId: Long, userId: Long)
+
 # Quests
 GET     /v1/quests                              controllers.quests.QuestController.fetchAll(request: Request)
 GET     /v1/quests/:userId                      controllers.quests.QuestController.fetchByOwner(request: Request, userId: Long)
@@ -90,6 +93,7 @@ GET     /v1/quests/profiles/:userId                            controllers.quest
 GET     /v1/achievementTracker/:userId/points                  controllers.points.AchievementTrackerController.fetchPoints(request: Request, userId: Long)
 GET     /v1/achievementTracker/badges                          controllers.points.AchievementTrackerController.fetchAllBadges(request: Request)
 POST    /v1/achievementTracker/updateLastSeen                  controllers.points.AchievementTrackerController.updateLastSeen(request: Request)
+
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production, but above redirect.
 GET     /static/*file                                  controllers.Assets.at(path="/public/static", file)
