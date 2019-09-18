@@ -54,28 +54,28 @@ Feature: Achievement Tracker API Endpoint
     Then I have gained points
 
 
-#  Scenario: Solving a quest objective awards points
-#    Given the application is running
-#    And I am logged in
-#    And I have some starting points
-#    When I solve the current riddle for a Quest
-#    Then I have gained points
-#
-#
-#  Scenario: Incorrectly solving a quest objective does not award points
-#    Given the application is running
-#    And I am logged in
-#    And I have some starting points
-#    When I incorrectly guess the answer to a quest riddle
-#    Then I have not gained points
-#
-#
-#  Scenario: Checking in to a quest objective awards points
-#    Given the application is running
-#    And I am logged in
-#    And I have some starting points
-#    When I check into a destination
-#    Then I have gained points
+  Scenario: Solving a quest objective awards points
+    Given the application is running
+    And I am logged in
+    And I have some starting points
+    When I solve the current riddle for a Quest
+    Then I have gained points
+
+
+  Scenario: Incorrectly solving a quest objective does not award points
+    Given the application is running
+    And I am logged in
+    And I have some starting points
+    When I incorrectly guess the answer to a quest riddle
+    Then I have not gained points
+
+
+  Scenario: Checking in to a quest objective awards points
+    Given the application is running
+    And I am logged in
+    And I have some starting points
+    When I check into a destination
+    Then I have gained points
 
 
   Scenario: Checking in to an objective that hasn't been solved does not award points
@@ -87,12 +87,12 @@ Feature: Achievement Tracker API Endpoint
     And I have not gained points
 
 
-#  Scenario: Completing a quest awards points
-#    Given the application is running
-#    And I am logged in as user with id "7"
-#    And a quest exists with id 6
-#    When I check in for quest attempt 7
-#    Then I have gained points
+  Scenario: Completing a quest awards points
+    Given the application is running
+    And I am logged in as user with id "7"
+    And a quest exists with id 6
+    When I check in for quest attempt 7
+    Then I have gained points
 
 
   Scenario: Creating a destination
@@ -207,25 +207,25 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Planner" badge with level 3
 
 
-#  Scenario: Creating my first quest and getting a bronze level Writer badge
-#    Given the application is running
-#    And I am logged in as user with id "7"
-#    And I currently have no "quests" created
-#    When I start to create a quest using the following values
-#      | Title      | Start Date | End Date |
-#      | Cool Quest |            |          |
-#    And the quest has the following objective
-#      | Destination | Riddle                                 | Radius |
-#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-#    And the quest has the following objective
-#      | Destination | Riddle                  | Radius |
-#      | 119         | What rhymes some stuff? | 0.005  |
-#    And the quest has the following objective
-#      | Destination | Riddle                                 | Radius |
-#      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
-#    And I create the quest
-#    Then the status code received is 201
-#    And I gain the "Writer" badge with level 1
+  Scenario: Creating my first quest and getting a bronze level Writer badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And I currently have no "quests" created
+    When I start to create a quest using the following values
+      | Title      | Start Date | End Date |
+      | Cool Quest |            |          |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                  | Radius |
+      | 119         | What rhymes some stuff? | 0.005  |
+    And the quest has the following objective
+      | Destination | Riddle                                 | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 0.005  |
+    And I create the quest
+    Then the status code received is 201
+    And I gain the "Writer" badge with level 1
 
 
   Scenario: Creating enough quests to achieve a silver level Writer badge
@@ -270,37 +270,37 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Writer" badge with level 3
 
 
-#  Scenario: Solving enough quests to achieve bronze level Solver badge
-#    Given the application is running
-#    And I am logged in as user with id "7"
-#    And a quest exists with id 6
-#    When I check in for quest attempt 7
-#    And I retrieve all my complete quests
-#    Then the status code received is 200
-#    And the response contains quest 6
-#    And I gain the "Solver" badge with level 1
-#
-#
-#  Scenario: Solving enough quests to achieve silver level Solver badge
-#    Given the application is running
-#    And I am logged in as user with id "8"
-#    And a quest exists with id 6
-#    When I check in for quest attempt 17
-#    And I retrieve all my complete quests
-#    Then the status code received is 200
-#    And the response contains quest 6
-#    And I gain the "Solver" badge with level 2
-#
-#
-#  Scenario: Solving enough quests to achieve gold level Solver badge
-#    Given the application is running
-#    And I am logged in as user with id "9"
-#    And a quest exists with id 6
-#    When I check in for quest attempt 18
-#    And I retrieve all my complete quests
-#    Then the status code received is 200
-#    And the response contains quest 6
-#    And I gain the "Solver" badge with level 3
+  Scenario: Solving enough quests to achieve bronze level Solver badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And a quest exists with id 6
+    When I check in for quest attempt 7
+    And I retrieve all my complete quests
+    Then the status code received is 200
+    And the response contains quest 6
+    And I gain the "Solver" badge with level 1
+
+
+  Scenario: Solving enough quests to achieve silver level Solver badge
+    Given the application is running
+    And I am logged in as user with id "8"
+    And a quest exists with id 6
+    When I check in for quest attempt 17
+    And I retrieve all my complete quests
+    Then the status code received is 200
+    And the response contains quest 6
+    And I gain the "Solver" badge with level 2
+
+
+  Scenario: Solving enough quests to achieve gold level Solver badge
+    Given the application is running
+    And I am logged in as user with id "9"
+    And a quest exists with id 6
+    When I check in for quest attempt 18
+    And I retrieve all my complete quests
+    Then the status code received is 200
+    And the response contains quest 6
+    And I gain the "Solver" badge with level 3
 
 
   Scenario: Gaining enough points to achieve bronze level Overachiever badge
@@ -381,82 +381,82 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Streaker" badge with level 3
 
 
-#  Scenario: Gaining enough points to achieve bronze level Wayfarer badge
-#    Given the application is running
-#    And I am logged in as user with id "7"
-#    And my current progress towards the "Wayfarer" badge is 99999
-#    When I check in for quest attempt 8
-#    Then the status code received is 200
-#    And I gain the "Wayfarer" badge with level 1
-#
-#
-#  Scenario: Gaining enough points to achieve silver level Wayfarer badge
-#    Given the application is running
-#    And I am logged in as user with id "8"
-#    And my current progress towards the "Wayfarer" badge is 499999
-#    When I check in for quest attempt 9
-#    Then the status code received is 200
-#    And I gain the "Wayfarer" badge with level 2
-#
-#
-#  Scenario: Gaining enough points to achieve gold level Wayfarer badge
-#    Given the application is running
-#    And I am logged in as user with id "9"
-#    And my current progress towards the "Wayfarer" badge is 999999
-#    When I check in for quest attempt 10
-#    Then the status code received is 200
-#    And I gain the "Wayfarer" badge with level 3
-#
-#
-#  Scenario: Completing an international quest to earn a bronze level Explorer badge
-#    Given the application is running
-#    And I am logged in as user with id "7"
-#    And my current progress towards the "Explorer" badge is 0
-#    When I check in for quest attempt 11
-#    Then the status code received is 200
-#    And I gain the "Explorer" badge with level 1
-#
-#
-#  Scenario: Completing enough international quests to earn a silver level Explorer badge
-#    Given the application is running
-#    And I am logged in as user with id "8"
-#    And my current progress towards the "Explorer" badge is 4
-#    When I check in for quest attempt 12
-#    Then the status code received is 200
-#    And I gain the "Explorer" badge with level 2
-#
-#
-#  Scenario: Completing enough international quests to earn a gold level Explorer badge
-#    Given the application is running
-#    And I am logged in as user with id "9"
-#    And my current progress towards the "Explorer" badge is 9
-#    When I check in for quest attempt 13
-#    Then the status code received is 200
-#    And I gain the "Explorer" badge with level 3
-#
-#
-#  Scenario: Gaining enough points to achieve bronze level Adventurer badge
-#    Given the application is running
-#    And I am logged in as user with id "7"
-#    And my current progress towards the "Adventurer" badge is 0
-#    When I check in for quest attempt 14
-#    Then the status code received is 200
-#    And I gain the "Adventurer" badge with level 1
-#
-#
-#  Scenario: Gaining enough points to achieve silver level Adventurer badge
-#    Given the application is running
-#    And I am logged in as user with id "8"
-#    And my current progress towards the "Adventurer" badge is 9
-#    When I check in for quest attempt 15
-#    Then the status code received is 200
-#    And I gain the "Adventurer" badge with level 2
-#
-#
-#  Scenario: Gaining enough points to achieve gold level Adventurer badge
-#    Given the application is running
-#    And I am logged in as user with id "9"
-#    And my current progress towards the "Adventurer" badge is 29
-#    When I check in for quest attempt 16
-#    Then the status code received is 200
-#    And I gain the "Adventurer" badge with level 3
+  Scenario: Gaining enough points to achieve bronze level Wayfarer badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And my current progress towards the "Wayfarer" badge is 99999
+    When I check in for quest attempt 8
+    Then the status code received is 200
+    And I gain the "Wayfarer" badge with level 1
+
+
+  Scenario: Gaining enough points to achieve silver level Wayfarer badge
+    Given the application is running
+    And I am logged in as user with id "8"
+    And my current progress towards the "Wayfarer" badge is 499999
+    When I check in for quest attempt 9
+    Then the status code received is 200
+    And I gain the "Wayfarer" badge with level 2
+
+
+  Scenario: Gaining enough points to achieve gold level Wayfarer badge
+    Given the application is running
+    And I am logged in as user with id "9"
+    And my current progress towards the "Wayfarer" badge is 999999
+    When I check in for quest attempt 10
+    Then the status code received is 200
+    And I gain the "Wayfarer" badge with level 3
+
+
+  Scenario: Completing an international quest to earn a bronze level Explorer badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And my current progress towards the "Explorer" badge is 0
+    When I check in for quest attempt 11
+    Then the status code received is 200
+    And I gain the "Explorer" badge with level 1
+
+
+  Scenario: Completing enough international quests to earn a silver level Explorer badge
+    Given the application is running
+    And I am logged in as user with id "8"
+    And my current progress towards the "Explorer" badge is 4
+    When I check in for quest attempt 12
+    Then the status code received is 200
+    And I gain the "Explorer" badge with level 2
+
+
+  Scenario: Completing enough international quests to earn a gold level Explorer badge
+    Given the application is running
+    And I am logged in as user with id "9"
+    And my current progress towards the "Explorer" badge is 9
+    When I check in for quest attempt 13
+    Then the status code received is 200
+    And I gain the "Explorer" badge with level 3
+
+
+  Scenario: Gaining enough points to achieve bronze level Adventurer badge
+    Given the application is running
+    And I am logged in as user with id "7"
+    And my current progress towards the "Adventurer" badge is 0
+    When I check in for quest attempt 14
+    Then the status code received is 200
+    And I gain the "Adventurer" badge with level 1
+
+
+  Scenario: Gaining enough points to achieve silver level Adventurer badge
+    Given the application is running
+    And I am logged in as user with id "8"
+    And my current progress towards the "Adventurer" badge is 9
+    When I check in for quest attempt 15
+    Then the status code received is 200
+    And I gain the "Adventurer" badge with level 2
+
+
+  Scenario: Gaining enough points to achieve gold level Adventurer badge
+    Given the application is running
+    And I am logged in as user with id "9"
+    And my current progress towards the "Adventurer" badge is 29
+    When I check in for quest attempt 16
+    Then the status code received is 200
+    And I gain the "Adventurer" badge with level 3

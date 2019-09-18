@@ -90,25 +90,25 @@ Feature: Objective API Endpoint
     Then the status code received is 403
 
 #   TODO: Vinnie & Matilda, discern the hint-based changes that are causing these to fail.
-#  Scenario: Delete an already existing Objective that I own
-#    Given the application is running
-#    And I am logged in
-#    And a objective already exists with the following values
-#      | Destination | Riddle                                 | Owner | Radius |
-#      | 119         | What rhymes with It's mean Kyle fleek? | 2     | 0.005  |
-#    When I attempt to delete the objective
-#    Then the status code received is 200
-#
-#
-#  Scenario: Delete an already existing Objective as an admin
-#    Given the application is running
-#    And I am logged in
-#    And a objective already exists with the following values
-#      | Destination | Riddle                                 | Owner | Radius |
-#      | 119         | What rhymes with It's mean Kyle fleek? | 2     | 0.005  |
-#    And I am logged in as an admin user
-#    When I attempt to delete the objective
-#    Then the status code received is 200
+  Scenario: Delete an already existing Objective that I own
+    Given the application is running
+    And I am logged in
+    And a objective already exists with the following values
+      | Destination | Riddle                                 | Owner | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 2     | 0.005  |
+    When I attempt to delete the objective
+    Then the status code received is 200
+
+
+  Scenario: Delete an already existing Objective as an admin
+    Given the application is running
+    And I am logged in
+    And a objective already exists with the following values
+      | Destination | Riddle                                 | Owner | Radius |
+      | 119         | What rhymes with It's mean Kyle fleek? | 2     | 0.005  |
+    And I am logged in as an admin user
+    When I attempt to delete the objective
+    Then the status code received is 200
 
 
   Scenario: Unsuccessfully delete an already existing Objective that I don't own
