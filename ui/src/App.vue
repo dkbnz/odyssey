@@ -77,7 +77,10 @@
                 }).then(function (responseBody) {
                     self.profile = responseBody;
                 }).catch(function (response) {
-                    self.handleErrorResponse(response);
+                    if (self.$router.currentRoute.name !== "index") {
+                        self.handleErrorResponse(response);
+                    }
+
                 });
             },
 
