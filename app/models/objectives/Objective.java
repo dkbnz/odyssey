@@ -41,16 +41,16 @@ public class Objective extends BaseModel {
     @JsonView(Views.Owner.class)
     private Double radius;
 
-    @ManyToMany(cascade = CascadeType.PERSIST, mappedBy = "objectives")
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JsonIgnore
-    private List<Quest> questsUsing;
+    private Quest questUsing;
 
     @JsonView(Views.Owner.class)
     @OneToMany(cascade = CascadeType.ALL)
     private List<Hint> hints;
 
-    public Collection<Quest> getQuestsUsing() {
-        return questsUsing;
+    public Quest getQuestUsing() {
+        return questUsing;
     }
 
     @JsonIgnore

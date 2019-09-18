@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * Class for hints that are used to help solve an objective.
@@ -54,7 +55,7 @@ public class Hint extends BaseModel {
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL)
-    private Collection<Vote> votes;
+    private Set<Vote> votes;
 
 
     public String getMessage() {
