@@ -83,6 +83,7 @@
                     return responseBody;
                 }).catch(function (response) {
                     self.loading = false;
+                    // If user credentials are incorrect, response is unauthorized.
                     if (response.status === 401) {
                         self.alertMessage = "Invalid username or password";
                         self.showError = true;

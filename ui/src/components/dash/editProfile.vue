@@ -93,7 +93,7 @@
                                   v-model="saveProfile.dateOfBirth">
                     </b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
-                        You can be born in the future or before 01/01/1900.
+                        You can't be born in the future or before 01/01/1900.
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="dateOfBirthValidation">
                         Looks Good
