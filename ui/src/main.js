@@ -101,27 +101,44 @@ Vue.mixin({
 
 
         /**
-         * Displays a toast on the page if an error occurs in the backend.
+         * Displays a toast on the page if an error occurs in the backend. If the error is handled in backend displays
+         * response with appropriate specific error. Otherwise, displays a generic error message.
          *
          * @param errorResponse     the Json body of the response error.
          */
-        showErrorToast(errorResponse) {
-            for (let i = 0; i < errorResponse.length; i++) {
-                const toastElement = this.$createElement;
+        handleErrorResponse(errorResponse) {
+            if (errorResponse.headers.get("content-type").indexOf("application/json") !== -1) {// checking response header
+                errorResponse.json().then(responseBody => {
+                        if(responseBody[0].hasOwnProperty('message')) {
+                            for (let i = 0; i < responseBody.length; i++) {
+                                this.showErrorToast(responseBody[i].message);
+                            }
+                        } else {
+                            this.showErrorToast("An unexpected error occurred.")
+                        }
+                    }
 
-                const toastContent = toastElement(
-                    'error-toast',
-                    {props: {errorMessage: errorResponse[i].message}}
                 );
-
-                this.$bvToast.toast([toastContent], {
-                    title: "Oh dear, an error occurred",
-                    autoHideDelay: 10000,
-                    appendToast: true,
-                    solid: true,
-                    variant: 'danger'
-                });
+            } else {
+                this.showErrorToast("An unexpected error occurred.");
             }
+        },
+
+        showErrorToast(message) {
+            const toastElement = this.$createElement;
+
+            const toastContent = toastElement(
+                'error-toast',
+                {props: {errorMessage: message}}
+            );
+
+            this.$bvToast.toast([toastContent], {
+                title: "Oh dear, an error occurred",
+                autoHideDelay: 10000,
+                appendToast: true,
+                solid: true,
+                variant: 'danger'
+            });
         },
 
 

@@ -212,13 +212,7 @@
                         }, 3000)
                     }
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -299,13 +293,7 @@
                     self.$emit('updated-quest-attempt', responseBody.attempt);
                     self.showRewardToast(responseBody.reward);
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -328,13 +316,7 @@
                 }).then(function (responseBody) {
                     self.destinationTypes =  responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 

@@ -88,7 +88,7 @@
                         self.alertMessage = "Invalid username or password";
                         self.showError = true;
                     } else {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
+                        self.handleErrorResponse(response);
                     }
                 });
             }

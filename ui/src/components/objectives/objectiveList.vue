@@ -213,13 +213,7 @@
                     self.alertMessage = "Objective Successfully Deleted";
                     self.showAlert();
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -242,15 +236,9 @@
                     self.deleteAlertError = false;
                     self.foundObjectives = responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
                 });
-                this.loadingResults = false;
             },
 
 
@@ -272,15 +260,9 @@
                             self.deleteAlertError = false;
                             self.foundObjectives = responseBody;
                         }).catch(function (response) {
-                            if (response.status > 404) {
-                                self.showErrorToast([{message: "An unexpected error occurred"}]);
-                            } else {
-                                response.json().then(function(responseBody) {
-                                    self.showErrorToast(responseBody);
-                                });
-                            }
+                            self.loadingResults = false;
+                            self.handleErrorResponse(response);
                         });
-                    this.loadingResults = false;
                 }
             },
 
