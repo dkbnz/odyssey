@@ -577,10 +577,7 @@ public class QuestTestSteps {
 
     @Given("^an objective exists with id (\\d+)$")
     public void anObjectiveExistsWithId(Integer objectiveId) {
-        Objective objective = objectiveRepository.findById(Long.valueOf(objectiveId));
-        System.out.println(objective.getQuestsUsing().size());
-
-        Assert.assertNotNull(objective);
+        Assert.assertNotNull(objectiveRepository.findById(Long.valueOf(objectiveId)));
     }
 
 
