@@ -36,23 +36,21 @@
         <div class="main">
             <section id="section2">
                 <div class="container jumbo">
-                    <h2 class="page-title">About Us</h2>
-                    <div>
-                        <b-row>
-                            <b-col>
-                                <h3 class="page-title">General</h3>
-                                <p></p>
-                            </b-col>
-                            <b-col>
-                                <h3 class="page-title">Quests</h3>
-                                <p></p>
-                            </b-col>
-                            <b-col>
-                                <h3 class="page-title">The Team</h3>
-                                <p></p>
-                            </b-col>
-                        </b-row>
-                    </div>
+                    <h2 class="page-title">About</h2>
+                    <b-row>
+                        <b-col md>
+                            <h3 class="page-title">General</h3>
+                            <p></p>
+                        </b-col>
+                        <b-col md>
+                            <h3 class="page-title">Quests</h3>
+                            <p></p>
+                        </b-col>
+                        <b-col md>
+                            <h3 class="page-title">The Team</h3>
+                            <p></p>
+                        </b-col>
+                    </b-row>
                 </div>
             </section>
         </div>
