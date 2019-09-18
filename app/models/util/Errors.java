@@ -23,7 +23,11 @@ public enum Errors {
     REMOVE_DEFAULT_ADMIN_STATUS("You can not remove the default administrator as an admin"),
     START_OWN_QUEST("You cannot start your own quest"),
     QUEST_ATTEMPT_EXISTS("You have already started this quest"),
-    RIDDLE_NOT_PROVIDED("No riddle provided"),
+    MAX_RIDDLE_LENGTH("Objective riddles must not exceed 255 characters in length"),
+    NO_OBJECTIVE_RIDDLE("A riddle must be provided"),
+    NO_OBJECTIVE_OWNER("This objective does not have an owner"),
+    NO_OBJECTIVE_DESTINATION("Objectives must have a destination"),
+    NO_OBJECTIVE_RADIUS("You must select a range for an objective destination's check in"),
     INVALID_PAGE_SIZE_REQUESTED("Invalid page size provided.");
 
 
