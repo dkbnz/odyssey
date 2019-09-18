@@ -6,6 +6,7 @@ import io.ebean.Ebean;
 import models.destinations.Destination;
 import models.objectives.Objective;
 import models.profiles.Profile;
+import models.quests.QuestAttempt;
 
 import java.util.List;
 
@@ -39,9 +40,18 @@ public class ObjectiveRepository extends BeanRepository<Long, Objective> {
 
 
 //    TODO: Vinnie + Matilda
-//    public List<Objective> findAllCompletedUsing(Profile profile) {
-//        return  query()
-//                .where()
-//                .eq("", profile)
-//    }
+
+    /**
+     * Retrieves a list of objectives completed by a user.
+     *
+     * @param profile   the user who is having their completed objectives retrieved.
+     * @return          a list of completed objectives for the profile.
+     */
+    public List<Objective> findAllCompletedUsing(Profile profile) {
+        return  query()
+                .where()
+                .eq("questsUsing.attempts.attemptedBy", profile)
+                .eq("questsUsing.attempts.completed", true)
+                .findList();
+    }
 }
