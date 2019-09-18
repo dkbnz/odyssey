@@ -679,14 +679,8 @@
                     self.inputTrip.destinations = [];
                     self.showRewardToast(responseBody.reward)
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        self.savingTrip = false;
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.savingTrip = false;
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -719,14 +713,8 @@
                     self.$emit('tripSaved', true);
                     return responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        self.savingTrip = false;
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.savingTrip = false;
+                    self.handleErrorResponse(response);
                 });
             },
 

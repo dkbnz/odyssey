@@ -29,12 +29,14 @@
 
     export default {
         name: "leaderboardPage",
+
         components: {
             UnauthorisedPrompt,
             DesktopLeaderboard,
             MobileLeaderboard,
             NavbarMain
         },
+
         props: {
             profile: Object,
             minimalInfo: {
