@@ -683,8 +683,8 @@ Feature: Quest API Endpoint
     When I delete a quest with id 4
     Then the status code received is 200
     And the quest with id 4 no longer exists
-    And the objective with id 10 still exists
-    And the objective with id 11 still exists
+    And the objective with id 8 does not exist
+    And the objective with id 9 does not exist
 
 
   Scenario: Delete a quest I do not own
@@ -704,8 +704,8 @@ Feature: Quest API Endpoint
     When I delete a quest with id 5
     Then the status code received is 200
     And the quest with id 5 no longer exists
-    And the objective with id 10 still exists
-    And the objective with id 11 still exists
+    And the objective with id 10 does not exist
+    And the objective with id 11 does not exist
 
 
   Scenario: Delete a quest when I am not logged in

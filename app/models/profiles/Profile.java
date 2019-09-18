@@ -20,6 +20,7 @@ import java.time.Period;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -87,11 +88,11 @@ public class Profile extends BaseModel {
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL)
-    private Collection<Hint> hintsCreated;
+    private Set<Hint> hintsCreated;
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL)
-    private Collection<Vote> votesCast;
+    private Set<Vote> votesCast;
 
     @Transient
     private int numberOfQuestsCreated;

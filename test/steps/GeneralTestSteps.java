@@ -103,7 +103,9 @@ public class GeneralTestSteps {
         configuration.put("play.db.config", "db");
         configuration.put("play.db.default", "default");
         configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:db;MODE=MYSQL;");
+        configuration.put("db.default.url", "jdbc:h2:mem:testDB;MODE=MYSQL;");
+        configuration.put("travelea.photos.main", "testphotos");
+        configuration.put("travelea.photos.thumbnail", "/thumb");
         configuration.put("ebean.default", "models.*");
         configuration.put("play.evolutions.db.default.enabled", "true");
         configuration.put("play.evolutions.autoApply", "false");
