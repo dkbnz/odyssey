@@ -196,8 +196,8 @@ Vue.mixin({
                 TRIP_CREATED: 'Trip Created',
                 RIDDLE_SOLVED: 'Riddle Solved',
                 CHECKED_IN: 'Checked In',
-                QUEST_COMPLETED: 'Quest Completed'
-
+                QUEST_COMPLETED: 'Quest Completed',
+                HINT_CREATED: 'Hint Created'
             },
             MINUTE: 60000
         }
