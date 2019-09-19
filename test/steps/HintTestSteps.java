@@ -8,18 +8,18 @@ import cucumber.api.java.en.When;
 import models.objectives.Objective;
 import models.profiles.Profile;
 import org.junit.Assert;
+import org.junit.Before;
+import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repositories.objectives.ObjectiveRepository;
 import repositories.profiles.ProfileRepository;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.fail;
 import static play.test.Helpers.POST;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
@@ -50,14 +50,9 @@ public class HintTestSteps {
     private static final String HINTS_URI = "/hints/";
 
 
-    /**
-     * New instance of the general test steps.
-     */
-    private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
-
 
     private static final String MESSAGE_STRING = "Message";
-    private static final String HINT = "hint";
+    private static final String MESSAGE = "message";
 
 
     /**
@@ -73,6 +68,24 @@ public class HintTestSteps {
             testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
 
+    @Before
+    public void hintSetUp() {
+        Evolutions.applyEvolutions(
+                testContext.getDatabase(),
+                Evolutions.fromClassLoader(
+                        getClass().getClassLoader(),
+                        "custom/"
+                )
+        );
+    }
+
+
+//    @After
+//    public void hintTearDown() {
+//        Evolutions.cleanupEvolutions(testContext.getDatabase());
+//    }
+
+
     /**
      * Converts a given data table containing a hint into a json node object.
      *
@@ -86,7 +99,7 @@ public class HintTestSteps {
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode json = mapper.createObjectNode();
-        json.put(HINT, hintMessage);
+        json.put(MESSAGE, hintMessage);
 
         return json;
     }
@@ -108,6 +121,18 @@ public class HintTestSteps {
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
+
+
+//    @Given("the custom hint data is added")
+//    public void theCustomHintDataIsAdded() {
+//        Evolutions.applyEvolutions(
+//                testContext.getDatabase(),
+//                Evolutions.fromClassLoader(
+//                        getClass().getClassLoader(),
+//                        "custom/"
+//                )
+//        );
+//    }
 
 
     @Given("^I own the objective with id (\\d+)$")

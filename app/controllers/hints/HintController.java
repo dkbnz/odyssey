@@ -74,7 +74,7 @@ public class HintController {
         List<Objective> solvedObjectives = objectiveRepository.findAllCompletedUsing(hintCreator);
         boolean objectiveSolved = solvedObjectives.contains(objectiveToAddHint);
 
-        if (!(AuthenticationUtil.validUser(loggedInUser, hintCreator) || objectiveSolved)) {
+        if (!(AuthenticationUtil.validUser(hintCreator, objectiveToAddHint.getOwner()) || objectiveSolved)) {
             return forbidden(ApiError.forbidden());
         }
 
