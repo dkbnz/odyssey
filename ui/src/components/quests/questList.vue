@@ -325,7 +325,6 @@
         },
 
         mounted() {
-            this.getMore();
             this.$bvToast.show('example-toast');
         },
 
