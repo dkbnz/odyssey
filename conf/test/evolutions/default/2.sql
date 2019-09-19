@@ -344,7 +344,8 @@ INSERT INTO `point_reward`(`id`, `name`, `value`) VALUES
 (3, 'DESTINATION_CREATED', 2),
 (4, 'QUEST_CREATED', 3),
 (5, 'TRIP_CREATED', 3),
-(6, 'QUEST_COMPLETED', 20);
+(6, 'QUEST_COMPLETED', 20),
+(7, 'HINT_CREATED', 1);
 
 
 INSERT INTO `badge` (`id`, `action_to_achieve`, `name`, `bronze_breakpoint`, `silver_breakpoint`, `gold_breakpoint`, `how_to_progress`) VALUES

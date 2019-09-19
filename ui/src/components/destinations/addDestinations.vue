@@ -369,19 +369,13 @@
                 }).then(function (responseBody) {
                     self.destinationTypes = responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
 
             /**
-             * Sets the countries list to the list of countries from the country api
+             * Sets the countries list to the list of countries from the country api.
              */
             getCountries() {
                 let self = this;
@@ -396,19 +390,13 @@
                 }).then(function (responseBody) {
                     self.countryList = responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
 
             /**
-             * Checks all of the input fields for valid input
+             * Checks all of the input fields for valid input.
              */
             validateFields() {
                 return this.destinationNameValidation && this.destinationTypeValidation
@@ -487,13 +475,7 @@
                     self.showRewardToast(responseBody.reward);
                     return responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -518,13 +500,7 @@
                     self.displayConfirmation();
                     return responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -547,13 +523,7 @@
                 }).then(function (responseBody) {
                     self.editDestinationConflicts = responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -588,19 +558,13 @@
                     self.dismissModal('confirmEditModal');
                     self.$emit('destination-saved', responseBody);
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
 
             /**
-             * Updates the latitude & longitude when emitted from the button that gets current location
+             * Updates the latitude & longitude when emitted from the button that gets current location.
              */
             setCurrentLocation(currentCoordinates) {
                 this.inputDestination.latitude = currentCoordinates.latitude;

@@ -157,13 +157,15 @@
                 return fetch(`/v1/travtypes`, {
                     accept: "application/json"
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.travellerTypeOptions = responseBody;
-                        } else {
-                            self.showErrorToast(responseBody);
-                        }
-                    });
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.travellerTypeOptions = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -178,13 +180,15 @@
                 return fetch(`/v1/nationalities`, {
                     accept: "application/json"
                 }).then(function (response) {
-                    response.json().then(responseBody => {
-                        if (response.ok) {
-                            self.nationalityOptions = responseBody;
-                        } else {
-                            self.showErrorToast(responseBody);
-                        }
-                    });
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.nationalityOptions = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
                 });
             },
 

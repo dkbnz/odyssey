@@ -91,4 +91,3 @@ router.afterEach((to, from) => {
     document.title = to.meta.title || defaultTitle;
 });
 export default router;
-

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="profile.length !== 0">
+    <div v-if="profile">
         <!--Shows tabs for the quest page-->
         <navbar-main v-bind:profile="profile" v-if="!adminView"></navbar-main>
         <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg d-none d-lg-block">
@@ -41,14 +41,7 @@
                     </b-tab>
                     <b-tab title="Your Objectives" @click="refreshObjectives = !refreshObjectives">
                         <objective-page :profile="profile" :admin-view="false" :refresh-objectives="refreshObjectives">
-
                         </objective-page>
-<!--                        <objective-list :profile="profile"-->
-<!--                                        :admin-view="false"-->
-<!--                                        :your-objectives="true"-->
-<!--                                        :refresh-objectives="refreshObjectives"-->
-<!--                                        @destination-select="">-->
-<!--                        </objective-list>-->
                     </b-tab>
                 </b-tabs>
             </b-card>
@@ -57,7 +50,6 @@
         <div class="show-only-mobile">
             <quests-solve-mobile
                     :profile="profile">
-
             </quests-solve-mobile>
         </div>
     </div>

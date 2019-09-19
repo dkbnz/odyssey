@@ -47,7 +47,8 @@ public class DestinationTest {
         destinationType1.setDestinationType("Stream");
         destinationType2.setDestinationType("Stream");
 
-        testDestination1.setName("River of the Great"); // Name not equal therefore Destination not equal
+        // Name not equal therefore Destination not equal
+        testDestination1.setName("River of the Great");
         testDestination1.setType(destinationType1);
         testDestination1.setDistrict("FakeVille");
         testDestination1.setCountry("Flogoria");
@@ -96,7 +97,8 @@ public class DestinationTest {
         testDestination1.setType(destinationType1);
         testDestination1.setDistrict("FakeVille");
         testDestination1.setCountry("Flogoria");
-        testDestination1.setLatitude(32.4244); // Latitude not equal therefore Destination not equal
+        // Latitude not equal therefore Destination not equal
+        testDestination1.setLatitude(32.4244);
         testDestination1.setLongitude(34.43643);
 
         testDestination2.setName("Big Stream");
@@ -137,7 +139,8 @@ public class DestinationTest {
         destinationType1.setDestinationType("Stream");
         destinationType2.setDestinationType("Stream");
 
-        testDestination1.setName("River of the Great"); // Name not equal therefore Destination not equal
+        // Name not equal therefore Destination not equal
+        testDestination1.setName("River of the Great");
         testDestination1.setType(destinationType1);
         testDestination1.setDistrict("FakeVille");
         testDestination1.setCountry("Flogoria");
@@ -186,7 +189,8 @@ public class DestinationTest {
         testDestination1.setType(destinationType1);
         testDestination1.setDistrict("FakeVille");
         testDestination1.setCountry("Flogoria");
-        testDestination1.setLatitude(32.4244); // Latitude not equal therefore Destination not equal
+        // Latitude not equal therefore Destination not equal
+        testDestination1.setLatitude(32.4244);
         testDestination1.setLongitude(34.43643);
 
         testDestination2.setName("Big Stream");
