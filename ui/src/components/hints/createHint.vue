@@ -83,7 +83,8 @@
                             return response.json();
                         }
                     }).then(function (responseBody) {
-                        self.$emit('successCreate', {message: "Quest Successfully Created", reward: responseBody.reward});
+                        self.$emit('successCreate', {message: "Hint Successfully Created"});
+                        self.showRewardToast(responseBody.reward);
                         self.$emit('cancelCreate');
                     }).catch(function (response) {
                         if (response.status > 404) {
