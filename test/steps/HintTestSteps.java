@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.objectives.Objective;
 import models.profiles.Profile;
@@ -20,9 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static play.test.Helpers.POST;
-import static play.test.Helpers.fakeRequest;
-import static play.test.Helpers.route;
+import static play.test.Helpers.*;
 
 public class HintTestSteps {
 
@@ -47,8 +46,7 @@ public class HintTestSteps {
     /**
      * The hints uri.
      */
-    private static final String HINTS_URI = "/hints/";
-
+    private static final String HINTS_URI = "/hints";
 
 
     private static final String MESSAGE_STRING = "Message";
@@ -89,9 +87,9 @@ public class HintTestSteps {
     /**
      * Converts a given data table containing a hint into a json node object.
      *
-     * @param dataTable     the data table containing the hint message.
-     * @param index         the position in the data table the json components are extracted from.
-     * @return              a JsonNode of a hint containing information extracted from the data table.
+     * @param dataTable the data table containing the hint message.
+     * @param index     the position in the data table the json components are extracted from.
+     * @return a JsonNode of a hint containing information extracted from the data table.
      */
     private JsonNode convertDataTableToHintJson(io.cucumber.datatable.DataTable dataTable, int index) {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
@@ -108,15 +106,31 @@ public class HintTestSteps {
     /**
      * Sends a request to create a hint from the given json node.
      *
-     * @param json              a JsonNode containing the body of the request.
-     * @param objectiveId       the Id of the objective the hint is created for.
+     * @param json        a JsonNode containing the body of the request.
+     * @param objectiveId the Id of the objective the hint is created for.
      */
     private void createHintRequest(JsonNode json, int objectiveId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI + testContext.getTargetId())
+                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI + "/" + testContext.getTargetId())
                 .session(AUTHORIZED, testContext.getLoggedInId());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    /**
+     * Sends a request to retrieve all hints for an objective with the Id specified.
+     *
+     * @param objectiveId the Id of of the objective that is having its hints retrieved.
+     */
+    private void fetchAllHintsRequest(int objectiveId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
@@ -183,5 +197,16 @@ public class HintTestSteps {
             JsonNode json = convertDataTableToHintJson(dataTable, i);
             createHintRequest(json, objectiveId);
         }
+    }
+
+    @When("^I attempt to retrieve all hints for the objective with id (\\d+)$")
+    public void iAttemptToRetrieveAllHintsForTheObjectiveWithId(Integer objectiveId) {
+        fetchAllHintsRequest(objectiveId);
+    }
+
+
+    @Then("^The response contains (\\d+) hints$")
+    public void theResponseContainsHints(Integer expectedNumberOfHints) {
+        assert(expectedNumberOfHints == testContext.getResponseBody().length());
     }
 }
