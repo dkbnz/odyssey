@@ -829,10 +829,10 @@ public class QuestTestSteps {
     }
 
 
-    @Then("^the objective with id (\\d+) still exists$")
-    public void theObjectiveWithIdStillExists(Integer objectiveId) {
+    @Then("^the objective with id (\\d+) does not exist$")
+    public void theObjectiveWithIdDoesNotExist(Integer objectiveId) {
         Objective objective = objectiveRepository.findById(objectiveId.longValue());
-        Assert.assertNotNull(objective);
+        Assert.assertNull(objective);
     }
 
 

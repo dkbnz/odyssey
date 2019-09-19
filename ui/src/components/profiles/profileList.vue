@@ -207,8 +207,7 @@
                 {value: 1, text: "1"},
                 {value: 5, text: "5"},
                 {value: 10, text: "10"},
-                {value: 15, text: "15"},
-                {value: Infinity, text: "All"}],
+                {value: 15, text: "15"}],
                 perPage: 5,
                 currentPage: 1,
                 rows: null
@@ -356,13 +355,7 @@
                     }).then(function (responseBody) {
                         self.rows = responseBody;
                     }).catch(function (response) {
-                        if (response.status > 404) {
-                            self.showErrorToast([{message: "An unexpected error occurred"}]);
-                        } else {
-                            response.json().then(function(responseBody) {
-                                self.showErrorToast(responseBody);
-                            });
-                        }
+                        self.handleErrorResponse(response);
                     });
                 }
             }

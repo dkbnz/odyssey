@@ -93,7 +93,7 @@
                                   v-model="saveProfile.dateOfBirth">
                     </b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
-                        You can be born in the future or before 01/01/1900.
+                        You can't be born in the future or before 01/01/1900.
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="dateOfBirthValidation">
                         Looks Good
@@ -512,13 +512,7 @@
                         self.validEmail = response.ok || (self.saveProfile.username === self.profile.username);
                     }).catch(function (response) {
                         self.validEmail = false;
-                        if (response.status > 404) {
-                            self.showErrorToast([{message: "An unexpected error occurred"}]);
-                        } else {
-                            response.json().then(function(responseBody) {
-                                self.showErrorToast(responseBody);
-                            });
-                        }
+                        self.handleErrorResponse(response);
                     });
                 }
 
@@ -622,13 +616,7 @@
                         return responseBody;
                     }).catch(function (response) {
                         self.validEmail = false;
-                        if (response.status > 404) {
-                            self.showErrorToast([{message: "An unexpected error occurred"}]);
-                        } else {
-                            response.json().then(function(responseBody) {
-                                self.showErrorToast(responseBody);
-                            });
-                        }
+                        self.handleErrorResponse(response);
                     });
                 }
             }

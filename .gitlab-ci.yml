@@ -74,4 +74,5 @@ deploy-dev:
   - mv target/universal/*.zip ${DEPLOY_DIR}/build/
   - bash scripts/deploy development
   only:
-  - dev_branch@seng302-2019/team-100
+    - story_105_hints@seng302-2019/team-100
+    - dev_branch@seng302-2019/team-100

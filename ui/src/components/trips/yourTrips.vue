@@ -497,14 +497,8 @@
                         }
                         self.retrievingTrips = false;
                     }).catch(function (response) {
-                        if (response.status > 404) {
-                            self.showErrorToast([{message: "An unexpected error occurred"}]);
-                        } else {
-                            self.retrievingTrips = false;
-                            response.json().then(function(responseBody) {
-                                self.showErrorToast(responseBody);
-                            });
-                        }
+                        self.retrievingTrips = false;
+                        self.handleErrorResponse(response);
                     });
                 }
             },
@@ -579,14 +573,7 @@
                     self.getAllTrips();
                     self.showAlert();
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        self.showError = false;
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 

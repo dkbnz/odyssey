@@ -27,7 +27,8 @@ public class BadgeProgress extends BaseModel {
 
 
     /**
-     * Progress variable to actually store the progress of the badge.
+     * Progress variable to store the progress of the tracked badge, this is directly associated with the breakpoints
+     * given in the badge class.
      */
     private int progress;
 

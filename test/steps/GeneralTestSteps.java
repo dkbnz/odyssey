@@ -18,11 +18,8 @@ import repositories.profiles.ProfileRepository;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Level;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static play.test.Helpers.*;
 
 public class GeneralTestSteps {
@@ -103,7 +100,9 @@ public class GeneralTestSteps {
         configuration.put("play.db.config", "db");
         configuration.put("play.db.default", "default");
         configuration.put("db.default.driver", "org.h2.Driver");
-        configuration.put("db.default.url", "jdbc:h2:mem:db;MODE=MYSQL;");
+        configuration.put("db.default.url", "jdbc:h2:mem:testDB;MODE=MYSQL;");
+        configuration.put("travelea.photos.main", "testphotos");
+        configuration.put("travelea.photos.thumbnail", "/thumb");
         configuration.put("ebean.default", "models.*");
         configuration.put("play.evolutions.db.default.enabled", "true");
         configuration.put("play.evolutions.autoApply", "false");
@@ -339,10 +338,9 @@ public class GeneralTestSteps {
     @Then("the following ApiErrors are returned")
     public void theFollowingApiErrorsAreReturned(io.cucumber.datatable.DataTable dataTable) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode body = objectMapper.readTree(testContext.getResponseBody());
         List<String> expectedApiErrors = dataTable.asList();
-        for(JsonNode error : body) {
-            Assert.assertTrue(expectedApiErrors.contains(error.get("message").asText()));
+        for(JsonNode errorMessage : objectMapper.readTree(testContext.getResponseBody())) {
+            Assert.assertTrue(expectedApiErrors.contains(errorMessage.get("message").asText()));
         }
     }
 
@@ -356,6 +354,7 @@ public class GeneralTestSteps {
 
     /**
      * Gets the profile repository that was mocked.
+     *
      * @return the profile repository.
      */
     public ProfileRepository getProfileRepository() {

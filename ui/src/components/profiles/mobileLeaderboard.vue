@@ -141,8 +141,7 @@
                         "&page=" + this.queryPage +
                         "&pageSize=" + this.pageSize;
                 }
-
-                return fetch(`/v1/profiles` + searchQuery, {})
+                fetch(`/v1/profiles` + searchQuery, {})
                     .then(function (response) {
                         if (!response.ok) {
                             throw response;
@@ -170,14 +169,8 @@
                         }
                         self.retrievingProfiles = false;
                     }).catch(function (response) {
-                        if (response.status > 404) {
-                            self.showErrorToast([{message: "An unexpected error occurred"}]);
-                        } else {
-                            self.retrievingProfiles = false;
-                            response.json().then(function(responseBody) {
-                                self.showErrorToast(responseBody);
-                            });
-                        }
+                        self.retrievingProfiles = false;
+                        self.handleErrorResponse(response);
                     });
             },
 

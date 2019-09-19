@@ -99,6 +99,7 @@ create table objective (
   owner_id                      bigint,
   riddle                        varchar(255),
   radius                        double,
+  quest_using_id                bigint,
   constraint pk_objective primary key (id)
 );
 
@@ -134,7 +135,7 @@ create table photo (
 
 create table point_reward (
   id                            bigint auto_increment not null,
-  name                          varchar(19) not null,
+  name                          varchar(29) not null,
   value                         integer not null,
   constraint ck_point_reward_name check ( name in ('DESTINATION_CREATED','TRIP_CREATED','QUEST_CREATED','HINT_CREATED','RIDDLE_SOLVED','CHECKED_IN','POINTS_GAINED','LOGIN_STREAK','INTERNATIONAL_QUEST_COMPLETED','LARGE_QUEST_COMPLETED','DISTANCE_QUEST_COMPLETED','QUEST_COMPLETED')),
   constraint uq_point_reward_name unique (name),
@@ -165,12 +166,6 @@ create table quest (
   end_date                      timestamp,
   owner_id                      bigint,
   constraint pk_quest primary key (id)
-);
-
-create table quest_objective (
-  quest_id                      bigint not null,
-  objective_id                  bigint not null,
-  constraint pk_quest_objective primary key (quest_id,objective_id)
 );
 
 create table quest_attempt (
@@ -284,6 +279,9 @@ alter table objective add constraint fk_objective_destination_id foreign key (de
 create index ix_objective_owner_id on objective (owner_id);
 alter table objective add constraint fk_objective_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
 
+create index ix_objective_quest_using_id on objective (quest_using_id);
+alter table objective add constraint fk_objective_quest_using_id foreign key (quest_using_id) references quest (id) on delete restrict on update restrict;
+
 create index ix_passport_profile_passport on passport_profile (passport_id);
 alter table passport_profile add constraint fk_passport_profile_passport foreign key (passport_id) references passport (id) on delete restrict on update restrict;
 
@@ -303,12 +301,6 @@ alter table profile add constraint fk_profile_profile_picture_id foreign key (pr
 
 create index ix_quest_owner_id on quest (owner_id);
 alter table quest add constraint fk_quest_owner_id foreign key (owner_id) references profile (id) on delete restrict on update restrict;
-
-create index ix_quest_objective_quest on quest_objective (quest_id);
-alter table quest_objective add constraint fk_quest_objective_quest foreign key (quest_id) references quest (id) on delete restrict on update restrict;
-
-create index ix_quest_objective_objective on quest_objective (objective_id);
-alter table quest_objective add constraint fk_quest_objective_objective foreign key (objective_id) references objective (id) on delete restrict on update restrict;
 
 create index ix_quest_attempt_attempted_by_id on quest_attempt (attempted_by_id);
 alter table quest_attempt add constraint fk_quest_attempt_attempted_by_id foreign key (attempted_by_id) references profile (id) on delete restrict on update restrict;
@@ -396,6 +388,9 @@ drop index if exists ix_objective_destination_id;
 alter table objective drop constraint if exists fk_objective_owner_id;
 drop index if exists ix_objective_owner_id;
 
+alter table objective drop constraint if exists fk_objective_quest_using_id;
+drop index if exists ix_objective_quest_using_id;
+
 alter table passport_profile drop constraint if exists fk_passport_profile_passport;
 drop index if exists ix_passport_profile_passport;
 
@@ -415,12 +410,6 @@ alter table profile drop constraint if exists fk_profile_profile_picture_id;
 
 alter table quest drop constraint if exists fk_quest_owner_id;
 drop index if exists ix_quest_owner_id;
-
-alter table quest_objective drop constraint if exists fk_quest_objective_quest;
-drop index if exists ix_quest_objective_quest;
-
-alter table quest_objective drop constraint if exists fk_quest_objective_objective;
-drop index if exists ix_quest_objective_objective;
 
 alter table quest_attempt drop constraint if exists fk_quest_attempt_attempted_by_id;
 drop index if exists ix_quest_attempt_attempted_by_id;
@@ -450,6 +439,10 @@ alter table vote drop constraint if exists fk_vote_target_hint_id;
 drop index if exists ix_vote_target_hint_id;
 
 drop table if exists achievement_tracker;
+
+drop table if exists badge;
+
+drop table if exists badge_progress;
 
 drop table if exists destination;
 
@@ -482,8 +475,6 @@ drop table if exists point_reward;
 drop table if exists profile;
 
 drop table if exists quest;
-
-drop table if exists quest_objective;
 
 drop table if exists quest_attempt;
 
