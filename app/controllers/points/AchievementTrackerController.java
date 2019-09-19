@@ -199,6 +199,10 @@ public class AchievementTrackerController extends Controller {
     public JsonNode rewardAction(Profile actingProfile, Trip tripCreated) {
         Collection<Badge> badgesAchieved = new HashSet<>();
 
+        // Award points
+        PointReward points = givePoints(actingProfile, Action.TRIP_CREATED);
+        updatePointsBadge(actingProfile, badgesAchieved);
+
         // Progress towards badge
         Badge badgeToGive = progressBadge(actingProfile, Action.TRIP_CREATED, INCREMENT_ONE);
 
@@ -208,7 +212,7 @@ public class AchievementTrackerController extends Controller {
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
-        return constructRewardJson(badgesAchieved, null);
+        return constructRewardJson(badgesAchieved, points);
     }
 
 
@@ -228,7 +232,7 @@ public class AchievementTrackerController extends Controller {
         updatePointsBadge(actingProfile, badgesAchieved);
 
         // Progress towards badge
-        Badge badgeToProgress = progressBadge(actingProfile, Action.DESTINATION_CREATED, 1);
+        Badge badgeToProgress = progressBadge(actingProfile, Action.DESTINATION_CREATED, INCREMENT_ONE);
         if (badgeToProgress != null) {
             badgesAchieved.add(badgeToProgress);
         }
