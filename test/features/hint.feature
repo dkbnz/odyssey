@@ -3,17 +3,20 @@ Feature: Hint API Endpoint.
   Scenario: Successfully creating a hint as the owner of the objective
     Given the application is running
     And I am logged in
+    And I have some starting points
     And an objective exists with id 29
     And I own the objective with id 29
     When I attempt to create a hint with the following values for the objective with id 29
       | Message |
       | WEEEEST |
     Then the status code received is 201
+    And I have gained points
 
 
   Scenario: Successfully creating a hint as a regular user that has solved the objective
     Given the application is running
     And I am logged in
+    And I have some starting points
     And an objective exists with id 30
     And I do not own the objective with id 30
     And I have solved the objective with id 30
@@ -21,6 +24,7 @@ Feature: Hint API Endpoint.
       | Message |
       | WEEEEST |
     Then the status code received is 201
+    And I have gained points
 
 #  TODO: Matilda and Vinnie
 #  Scenario: Unsuccessfully creating a hint as a regular user for an unsolved objective that I do not own
@@ -40,6 +44,7 @@ Feature: Hint API Endpoint.
   Scenario: Successfully creating a hint as an admin for an unsolved objective that I do not own
     Given the application is running
     And I am logged in as an admin user
+    And I have some starting points
     And an objective exists with id 29
     And I do not own the objective with id 29
     And I have not solved the objective with id 29
@@ -47,11 +52,11 @@ Feature: Hint API Endpoint.
       | Message |
       | WEEEEST |
     Then the status code received is 201
+    And I have gained points
 
 
   Scenario: Unsuccessfully creating a hint when I am not logged in
     Given the application is running
-    And I am not logged in
     And a user exists with id 3
     And an objective exists with id 29
     When I attempt to create a hint for user 3 with the following values for the objective with id 29
