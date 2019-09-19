@@ -50,8 +50,6 @@
                     </p>
                 </b-list-group-item>
             </b-collapse>
-
-
         </div>
 
         <create-hint v-if="showHintSideBar"
@@ -97,8 +95,13 @@
                 <b-list-group-item
                                    class="d-flex justify-content-between align-items-center"
                                    v-if="questAttempt.toSolve != null">
-                    <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
-                    <b-button size="sm" variant="primary" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
+                    <b-col cols="9">
+                        <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
+                    </b-col>
+                    <b-col cols="3">
+                        <b-button class="float-left" size="sm" variant="primary" @click="showHintConfirmModal(questAttempt.toSolve)">I need a hint!</b-button>
+                        <b-button class="float-right" size="sm" variant="warning" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
+                    </b-col>
                 </b-list-group-item>
                 <!-- If we have an objective to check in to, display it -->
                 <b-list-group-item href="#"
@@ -110,8 +113,8 @@
                             {{questAttempt.toCheckIn.destination.name}}
                         </p>
                     </div>
+                    <b-button class="no-wrap-text" size="sm" variant="primary" @click="getCurrentLocation">Add Hint</b-button>
                     <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
-                    <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Add Hint</b-button>
                 </b-list-group-item>
                 <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop" dismissible>
                     You are not at the required location, you are {{getHowClose()}} away.
@@ -125,6 +128,20 @@
                 </b-list-group-item>
             </b-list-group>
         </div>
+        <b-modal v-model="showHintAlertModal" title="Are you sure?">
+            <div>
+                <p>Are you sure you want a hint? <br />
+                You will not gain as many points for solving this objective!</p>
+            </div>
+            <template v-slot:modal-footer>
+                <b-col>
+                    <b-button @click="showHintAlertModal = false" block>Cancel</b-button>
+                </b-col>
+                <b-col>
+                    <b-button variant="warning" block @click="retrieveHint">Show Me</b-button>
+                </b-col>
+            </template>
+        </b-modal>
     </div>
 </template>
 
@@ -161,7 +178,9 @@
                 searchedRiddle: null,
                 pointsGained: Number,
                 showHintSideBar: false,
-                objective: Object
+                objective: Object,
+                showHintAlertModal: false,
+                objectiveToGetHint: null
             }
         },
 
@@ -389,6 +408,24 @@
                     }
                     return String(showDistance.toFixed(5)*1000) + " metres";
                 }
+            },
+
+
+            /**
+             * Sets the global objective to be retrieved for the hint as well as displays the hint confirmation modal.
+             */
+            showHintConfirmModal(requestedObjective) {
+                this.objectiveToGetHint = requestedObjective;
+                this.showHintAlertModal = true
+            },
+
+
+            /**
+             * Retrieves a hint for the currently viewed objective, is called after the user confirms they wish to
+             * retrieve a hint for the given objective in the popup modal.
+             */
+            retrieveHint() {
+                console.log(this.objectiveToGetHint);
             }
         }
 
