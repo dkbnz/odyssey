@@ -1,6 +1,6 @@
-# --- Created by Ebean DDL
-# To stop Ebean DDL generation, remove this comment and start using Evolutions
-
+/*
+ * Script to populate the database schema for tests. This is the first level, which is used for setting up the test app.
+ */
 # --- !Ups
 
 create table achievement_tracker (
@@ -134,7 +134,7 @@ create table photo (
 
 create table point_reward (
   id                            bigint auto_increment not null,
-  name                          varchar(29) not null,
+  name                          varchar(19) not null,
   value                         integer not null,
   constraint ck_point_reward_name check ( name in ('DESTINATION_CREATED','TRIP_CREATED','QUEST_CREATED','RIDDLE_SOLVED','CHECKED_IN','POINTS_GAINED','LOGIN_STREAK','INTERNATIONAL_QUEST_COMPLETED','LARGE_QUEST_COMPLETED','DISTANCE_QUEST_COMPLETED','QUEST_COMPLETED')),
   constraint uq_point_reward_name unique (name),
@@ -451,10 +451,6 @@ drop index if exists ix_vote_target_hint_id;
 
 drop table if exists achievement_tracker;
 
-drop table if exists badge;
-
-drop table if exists badge_progress;
-
 drop table if exists destination;
 
 drop table if exists destination_personal_photo;
@@ -502,4 +498,3 @@ drop table if exists trip_destination;
 drop table if exists destination_type;
 
 drop table if exists vote;
-
