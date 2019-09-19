@@ -70,18 +70,25 @@
             /**
              * Runs a query which searches through the quests in the database and returns only
              * quests started by the profile.
-             *
-             * @return {Promise<Response | never>}
              */
             queryYourActiveQuests() {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
-                    return fetch(`/v1/quests/profiles/` + this.profile.id, {})
-                        .then(response => response.json())
-                        .then((data) => {
-                            this.questAttempts = data;
-                            this.loadingResults = false;
-                        })
+                    fetch(`/v1/quests/profiles/` + this.profile.id, {})
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.loadingResults = false;
+                            self.questAttempts = responseBody;
+                        }).catch(function (response) {
+                            self.loadingResults = false;
+                            self.handleErrorResponse(response);
+                        });
                 }
             },
 

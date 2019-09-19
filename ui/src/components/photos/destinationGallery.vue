@@ -9,7 +9,6 @@
         </photo-table>
 
         <h3>Your Destination Photos</h3>
-
         <photo-table :photos="personalPhotos"
                      :profile="profile"
                      :userProfile="userProfile"
@@ -94,20 +93,23 @@
                     method: 'PATCH',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
-                }).then(response => {
-                    if (response.status === 200) {
-                        response.clone().json().then(text => {
-                            self.profile.photoGallery = text;
-                        });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
                     }
+                }).then(function (responseBody) {
+                    self.profile.photoGallery = responseBody;
+                    let index = self.indexOfById(self.destination.photoGallery, photo);
+                    if (index !== -1) {
+                        self.destination.photoGallery[index] = photo
+                    }
+
+                    self.calculatePhotoSplit();
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
                 });
-
-                let index = this.indexOfById(this.destination.photoGallery, photo);
-                if (index !== -1) {
-                    this.destination.photoGallery[index] = photo
-                }
-
-                this.calculatePhotoSplit();
             },
 
 
@@ -162,11 +164,14 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
-                }).then(response => {
-                    if (response.status !== 201) {
-                        self.showError = true;
-                        self.alertMessage = "An error occurred when adding a destination photo";
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
                     }
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -182,11 +187,14 @@
                     method: 'DELETE',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(photo)
-                }).then(response => {
-                    if (response.status !== 200) {
-                        self.showError = true;
-                        self.alertMessage = "An error occurred when deleting a destination photo";
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
                     }
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -200,6 +208,12 @@
                 this.$refs[modal].hide();
             },
 
+
+            /**
+             * Displays the specified modal.
+             *
+             * @param modal     the modal that is wanting to be displayed.
+             */
             showModal(modal) {
                 this.$refs[modal].show();
             },

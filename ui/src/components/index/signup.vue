@@ -101,12 +101,12 @@
                     <b-form-input :state="dateOfBirthValidation"
                                   id="dateOfBirth"
                                   min="1900-01-01"
-                                  max="1999-12-31"
+                                  :max="todaysDate"
                                   required
                                   trim
                                   type="date" v-model="dateOfBirth"></b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
-                        You need a date of birth before today and after 01/01/1900.
+                        You can't be born in the future or before 01/01/1900.
                     </b-form-invalid-feedback>
                 </b-form-group>
 
@@ -134,7 +134,7 @@
 
         <!--Fields for inputting nationalities, passports & traveller types-->
         <div v-if="showSecond" id="secondSignup">
-            <b-alert v-model="showError" variant="danger" dismissible>{{alertMessage}}</b-alert>
+            <b-alert v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
             <b-form>
                 <b-row>
                     <b-col>
@@ -364,7 +364,7 @@
                     return null;
                 }
                 let minDate = "1900-01-01";
-                return this.dateOfBirth.length > 0 && this.dateOfBirth < this.todaysDate && this.dateOfBirth >= minDate;
+                return this.dateOfBirth.length > 0 && this.dateOfBirth <= this.todaysDate && this.dateOfBirth >= minDate;
             },
 
 
@@ -531,19 +531,23 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function (response) {
-                    if (response.status === 201 && !self.createdByAdmin) {
-                        self.$router.go();
-                        return response.json();
-                    } else if (response.status === 201 && self.createdByAdmin) {
-                        self.$emit('profile-created', true);
+                    console.log(response);
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        self.showError = true;
-                        response.clone().text().then(text => {
-                            self.alertMessage = text;
-                        });
+                        return response;
                     }
-
-                })
+                }).then(function (response) {
+                    if (response.status === 201 && !self.createdByAdmin) {
+                        self.updateActivity();
+                        self.$router.push('/profile');
+                    } else if (response.status === 201 && self.createdByAdmin) {
+                        self.updateActivity();
+                        self.$emit('profile-created', true);
+                    }
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             }
         }
     }

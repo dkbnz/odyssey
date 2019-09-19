@@ -2,7 +2,7 @@
     <div>
         <b-navbar class="mainNav" toggleable="lg" variant="light">
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-            <b-navbar-brand class="nav-bar-brand" @click="goToProfile()"><img :src="assets.appLogo"></b-navbar-brand>
+            <b-navbar-brand class="nav-bar-brand" @click="goToProfile()"><img :src="assets.appLogo" width="200px"></b-navbar-brand>
 
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
@@ -12,10 +12,6 @@
                     <b-nav-item class="d-none d-lg-block" :class="{active: currentPage ==='/destinations'}"
                                 @click="goToDestinations()">
                         Destinations
-                    </b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage ==='/objectives'}"
-                                @click="goToObjectives()">
-                        Objectives
                     </b-nav-item>
                     <b-nav-item :class="{active: currentPage==='/quests'}"
                                 @click="goToQuests()">
@@ -33,7 +29,7 @@
                 </b-navbar-nav>
 
                 <b-navbar-nav class="ml-auto">
-                    <b-nav-item right :class="{active: currentPage ==='/dash'}" @click="goToProfile()">
+                    <b-nav-item right :class="{active: currentPage ==='/profile'}" @click="goToProfile()">
                         {{ profile.firstName }}
                     </b-nav-item>
                     <b-nav-item @click="logout">
@@ -47,22 +43,14 @@
 </template>
 
 <script>
-    import Assets from '../../assets/index'
-
     export default {
         name: "navbarMain",
 
         props: ['profile'],
 
-        computed: {
-            assets() {
-                return Assets
-            },
-        },
-
         data() {
             return {
-                currentPage: '/dash'
+                currentPage: '/profile'
             }
         },
 
@@ -79,18 +67,18 @@
                 fetch(`/v1/logout`, {
                     method: 'POST',
                     accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then(function (response) {
-                        if (response.ok) {
-                            self.$router.push("/");
-                            self.$router.go();
-                            return response;
-                        } else {
-                            self.$router.push("/dash");
-                            return response;
-                        }
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
+                    }
+                }).then(function (response) {
+                    self.$router.push("/");
+                    return response;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -115,13 +103,10 @@
                 this.$router.push("/destinations");
             },
             goToProfile() {
-                this.$router.push("/dash");
+                this.$router.push("/profile");
             },
             goToAdminPanel() {
                 this.$router.push("/admin");
-            },
-            goToObjectives() {
-                this.$router.push("/objectives");
             },
             goToQuests() {
                 this.$router.push("/quests");

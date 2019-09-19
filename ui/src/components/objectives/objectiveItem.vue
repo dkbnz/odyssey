@@ -2,7 +2,7 @@
     <div>
         <h1 class="page-title">{{ heading }} an Objective!</h1>
 
-        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
 
         <!-- Displays success alert and progress bar on objective creation as a loading bar
         for the objective being added to the database -->
@@ -15,7 +15,7 @@
             <p>Trip Successfully Saved</p>
             <b-progress
                     :max="dismissSecs"
-                    :value="dismissCountDown"
+                    :value="dismissCountDown - 1"
                     height="4px"
                     variant="success"
             ></b-progress>
@@ -42,12 +42,11 @@
                         <b-container fluid>
                             <p class="mb-1">Selected Destination:</p>
                             <b-list-group @click="$emit('destination-select')">
-                                <b-list-group-item href="#" class="flex-column align-items-start"
+                                <b-list-group-item class="flex-column align-items-start" href="#"
                                                    v-if="destinationSelected"
                                                    id="selectedDestination"
                                                    :disabled="destinationSelected === '{}'"
-                                                   :variant="checkDestinationState"
-                                                   draggable="false">
+                                                   :variant="checkDestinationState">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5 class="mb-1" v-if="destinationSelected.name">
                                             {{destinationSelected.name}}
@@ -187,6 +186,12 @@
         watch: {
             inputObjective() {
                 this.destinationSelected = this.inputObjective.destination;
+                // Changes the selected radius to match the given objective radius.
+                for (let i = 0; i < this.radiusList.length; i++) {
+                    if (this.radiusList[i].value === this.inputObjective.radius.value) {
+                        this.radiusSelected = this.radiusList[i];
+                    }
+                }
             },
 
             selectedDestination() {
@@ -287,6 +292,9 @@
                 if (this.validateDestination && this.validateRiddle && this.validateCheckIn) {
                     if (this.heading === "Create" || this.heading === "Add") {
                         this.addObjective();
+                        if (this.heading === "Add") {
+                            this.$emit('cancelCreate');
+                        }
                     } else if (this.heading === "Edit") {
                         this.editObjective();
                     }
@@ -323,7 +331,6 @@
                 delete this.inputObjective.startDate;
                 delete this.inputObjective.endDate;
                 this.$emit('addObjective', this.inputObjective);
-                this.$emit('cancelCreate')
             },
 
 
@@ -362,30 +369,18 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputObjective)
-                })
-                    .then(this.checkStatus)
-                    .then(function (response) {
-                        self.parseJSON(response).then(data => {
-                            self.createPointToast(data.pointsRewarded, "Objective Created");
-                        });
-                        self.$emit('successCreate', "Objective Successfully Created");
-                        self.$emit('cancelCreate')
-                    })
-            },
-
-
-            /**
-             * Displays a toast saying they've gained a certain amount of points.
-             * @param points the points to display.
-             * @param title the title of the toast, indicating the context of the point gain.
-             */
-            createPointToast(points, title) {
-                let message = "Your points have increased by " + points;
-                this.$bvToast.toast(message, {
-                    title: title,
-                    autoHideDelay: 3000,
-                    appendToast: true
-                })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.showError = false;
+                    self.$emit('successCreate', "Objective Successfully Created");
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -400,12 +395,19 @@
                     method: 'PUT',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputObjective)
-                })
-                    .then(this.checkStatus)
-                    .then(function () {
-                        self.$emit('successCreate', "Objective Successfully Edited");
-                        self.$emit('cancelCreate')
-                    })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.showError = false;
+                    self.$emit('successCreate', "Objective Successfully Edited");
+                    self.$emit('cancelCreate')
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -432,53 +434,7 @@
              */
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown
-            },
-
-
-            /**
-             * Checks the Http response for errors.
-             *
-             * @param response the retrieved Http response.
-             * @return {*} throws the Http response error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-
-                this.errorMessage = "";
-                response.clone().text().then(text => {
-                    text = JSON.parse(text);
-                    let result = [];
-                    for (let i = 0; i < text.length; i++) {
-                        if (!response.ok) {
-                            result.push(text[i].message);
-                        }
-                        else {
-                            result.push(text[i]);
-                        }
-                    }
-                    this.errorMessage = result;
-
-                    this.showError = true;
-                });
-                throw error;
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response the Http response.
-             * @return the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
             }
-
         }
     }
 </script>

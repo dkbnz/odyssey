@@ -9,6 +9,8 @@ import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
+import models.util.ApiError;
+import models.util.Errors;
 import repositories.destinations.DestinationRepository;
 import repositories.profiles.ProfileRepository;
 import repositories.trips.TripRepository;
@@ -27,17 +29,16 @@ import java.util.List;
 
 public class TripController extends Controller {
 
-    private static final String AUTHORIZED = "authorized";
     private static final String NAME = "trip_name";
     private static final String TRIP_DESTINATIONS = "trip_destinations";
     private static final String START_DATE = "start_date";
     private static final String END_DATE = "end_date";
     private static final String DESTINATION_ID = "destination_id";
     private static final String TRIP_ID = "trip_id";
+    public static final String REWARD = "reward";
+    private static final String NEW_TRIP_ID = "newTripId";
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private static final int DEFAULT_ADMIN_ID = 1;
-    private static final String REWARD = "pointsRewarded";
-    private static final String CREATED_ID = "createdId";
 
     private TripRepository tripRepository;
     private ProfileRepository profileRepository;
@@ -66,69 +67,62 @@ public class TripController extends Controller {
      *
      * @param request           Http Request containing Json Body.
      * @param affectedUserId    The user id of the user who will own the new trip.
-     * @return                  created() (Http 201) response containing the reward and trip id.
-     *                          badRequest() (Http 400).
+     * @return                  created() (Http 201) response for successful trip creation.
+     *                          badRequest() (Http 400) if the given request body is invalid.
+     *                          forbidden() (Http 403) if the user doesn't have the permissions to achieve this action.
+     *                          unauthorized() (Http 401) if the user is not logged in.
      */
     public Result create(Http.Request request, Long affectedUserId) {
-        return request.session()
-                .getOptional(AUTHORIZED)
-                .map(userId -> {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
 
-                    Profile loggedInUser = profileRepository.findById(Long.valueOf(userId));
-                    Profile affectedProfile = profileRepository.findById(affectedUserId);
+        Profile affectedProfile = profileRepository.findById(affectedUserId);
 
-                    if (loggedInUser == null) {
-                        return unauthorized();
-                    }
+        if (affectedProfile == null) {
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
+        }
 
-                    // If user is admin, or if they are editing their own profile then allow them to edit.
-                    if (!AuthenticationUtil.validUser(loggedInUser, affectedProfile)) {
-                        return forbidden();
-                    }
+        // If user is admin, or if they are editing their own profile then allow them to edit.
+        if (!AuthenticationUtil.validUser(loggedInUser, affectedProfile)) {
+            return forbidden(ApiError.forbidden());
+        }
 
-                    if (affectedProfile == null) {
-                        return badRequest();
-                    }
+        JsonNode json = request.body().asJson();
 
-                    JsonNode json = request.body().asJson();
+        if (!isValidTrip(json)) {
+            return badRequest(ApiError.invalidJson());
+        }
 
-                    if (!isValidTrip(json)) {
-                        return badRequest();
-                    }
+        // Create a trip object and give it the name extracted from the request.
+        Trip trip = new Trip();
+        trip.setName(json.get(NAME).asText());
 
-                    // Create a trip object and give it the name extracted from the request.
-                    Trip trip = new Trip();
-                    trip.setName(json.get(NAME).asText());
+        // Create a json node for the destinations contained in the trip to use for iteration.
+        ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
 
-                    // Create a json node for the destinations contained in the trip to use for iteration.
-                    ArrayNode tripDestinations = (ArrayNode) json.get(TRIP_DESTINATIONS);
+        // Create an empty List for TripDestination objects to be populated from the request.
+        List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
 
-                    // Create an empty List for TripDestination objects to be populated from the request.
-                    List<TripDestination> destinationList = parseTripDestinations(tripDestinations);
+        // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return 201.
+        if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
+            trip.setDestinations(destinationList);
+            affectedProfile.addTrip(trip);
+            profileRepository.save(affectedProfile);
+            for (TripDestination tripDestination: destinationList) {
+                determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
+            }
+            tripRepository.save(trip);
 
-                    // Set the trip destinations to be the array of TripDestination parsed, save the trip, and return 201.
-                    if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
-                        trip.setDestinations(destinationList);
-                        affectedProfile.addTrip(trip);
-                        profileRepository.save(affectedProfile);
-                        for (TripDestination tripDestination: destinationList) {
-                            determineDestinationOwnershipTransfer(affectedProfile, tripDestination);
-                        }
-                        tripRepository.save(trip);
+            ObjectNode returnJson = objectMapper.createObjectNode();
+            returnJson.set(REWARD, achievementTrackerController.rewardAction(affectedProfile, trip));
+            returnJson.put(NEW_TRIP_ID, trip.getId());
 
-                        ObjectNode returnJson = objectMapper.createObjectNode();
-
-                        int pointsAdded = achievementTrackerController.rewardAction(affectedProfile, trip);
-                        returnJson.put(REWARD, pointsAdded);
-                        returnJson.put(CREATED_ID, trip.getId());
-
-                        return created(returnJson);
-                    } else {
-                        return badRequest();
-                    }
-
-                })
-                .orElseGet(() -> unauthorized());
+            return created(returnJson);
+        } else {
+            return badRequest(ApiError.invalidJson());
+        }
     }
 
 
@@ -153,10 +147,7 @@ public class TripController extends Controller {
         }
 
         // Check if the array of destinations in the request contains at least two destinations.
-        if (!(json.get(TRIP_DESTINATIONS) == null || json.get(TRIP_DESTINATIONS).size() >= MINIMUM_TRIP_DESTINATIONS)) {
-            return false;
-        }
-        return true;
+        return (json.get(TRIP_DESTINATIONS) == null || json.get(TRIP_DESTINATIONS).size() >= MINIMUM_TRIP_DESTINATIONS);
     }
 
 
@@ -172,32 +163,32 @@ public class TripController extends Controller {
     public Result edit(Http.Request request, Long tripId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         // Retrieve the individual trip being deleted by its id.
         Trip trip = tripRepository.findById(tripId);
 
         if (trip == null) {
-            return notFound();
+            return notFound(ApiError.notFound(Errors.TRIP_NOT_FOUND));
         }
 
         // Retrieve the profile having its trip removed from the trip id.
         Long ownerId = tripRepository.fetchTripOwner(tripId);
         if (ownerId == null) {
-            return badRequest();
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
         }
 
         Profile tripOwner = profileRepository.findById(ownerId);
 
         if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         JsonNode json = request.body().asJson();
 
         if (!isValidTrip(json)) {
-            return badRequest();
+            return badRequest(ApiError.invalidJson());
         }
 
 
@@ -214,9 +205,9 @@ public class TripController extends Controller {
 
         if (!destinationList.isEmpty() && isValidDateOrder(destinationList)) {
             tripRepository.updateTrip(tripOwner, trip, destinationList);
-            return ok();
+            return ok(Json.toJson(trip));
         } else {
-            return badRequest();
+            return badRequest(ApiError.invalidJson());
         }
     }
 
@@ -370,7 +361,7 @@ public class TripController extends Controller {
         try {
             parsedTripId = Integer.parseInt(json.get(TRIP_ID).asText());
         } catch (NumberFormatException e) {
-            return badRequest();
+            return badRequest(ApiError.invalidJson());
         }
 
         // Retrieving the trip which corresponds to the id parsed.
@@ -378,7 +369,7 @@ public class TripController extends Controller {
 
         // Verifying the existence of the trip being retrieved.
         if (returnedTrip == null) {
-            return notFound();
+            return notFound(ApiError.notFound(Errors.TRIP_NOT_FOUND));
         }
 
         return ok(Json.toJson(returnedTrip));
@@ -433,30 +424,34 @@ public class TripController extends Controller {
     public Result destroy(Http.Request request, Long tripId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         // Retrieve the individual trip being deleted by its id.
         Trip trip = tripRepository.findById(tripId);
 
         if (trip == null) {
-            return notFound();
+            return notFound(ApiError.notFound(Errors.TRIP_NOT_FOUND));
         }
 
         // Retrieve the profile having its trip removed from the trip id.
         Long ownerId = tripRepository.fetchTripOwner(tripId);
         if (ownerId == null) {
-            return badRequest();
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
         }
         Profile tripOwner = profileRepository.findById(ownerId);
 
+        if (tripOwner == null) {
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
+        }
+
         if (!AuthenticationUtil.validUser(loggedInUser, tripOwner)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         // Repository method handling the database and object manipulation.
         tripRepository.deleteTripFromProfile(tripOwner, trip);
         // Deletion successful.
-        return ok();
+        return ok(Json.toJson(trip));
     }
 }

@@ -38,6 +38,9 @@ public class Profile extends BaseModel {
     private LocalDate dateOfBirth;
     private boolean isAdmin;
 
+    @Formats.DateTime(pattern = "yyyy-MM-dd")
+    private Date lastSeenDate;
+
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date dateOfCreation;
 
@@ -78,6 +81,14 @@ public class Profile extends BaseModel {
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "owner")
     private AchievementTracker achievementTracker;
+
+    public Date getLastSeenDate() {
+        return lastSeenDate;
+    }
+
+    public void setLastSeenDate(Date lastSeenDate) {
+        this.lastSeenDate = lastSeenDate;
+    }
 
 
     public List<Objective> getMyObjectives() {
@@ -252,6 +263,27 @@ public class Profile extends BaseModel {
 
     public boolean removePhotoFromGallery(PersonalPhoto photoToRemove) {
         return photoGallery.remove(photoToRemove);
+    }
+
+
+    public int getNumberOfQuestsCreated() {
+        if (myQuests == null) {
+            return 0;
+        }
+        return myQuests.size();
+    }
+
+
+    /**
+     * Calculates the number of quests the given profile has completed using the Java streams method.
+     *
+     * @return the total number of quests the profile has completed.
+     */
+    public long getNumberOfQuestsCompleted() {
+        if (questAttempts == null) {
+            return 0;
+        }
+        return questAttempts.stream().filter(QuestAttempt::isCompleted).count();
     }
 
 

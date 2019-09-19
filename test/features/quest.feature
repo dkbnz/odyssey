@@ -397,7 +397,7 @@ Feature: Quest API Endpoint
     And the application is running
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 5 quests
+    And the response contains 8 quests
 
 
   Scenario: Retrieve all quests that are available with additional invalid quest dates
@@ -419,7 +419,7 @@ Feature: Quest API Endpoint
     And the status code received is 201
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 5 quests
+    And the response contains 8 quests
 
 
   Scenario: Retrieve all quests that are available with additional valid quest dates
@@ -441,7 +441,7 @@ Feature: Quest API Endpoint
     And the status code received is 201
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 5 quests
+    And the response contains 8 quests
 
 
   Scenario: Retrieve all quests that have the title 'Cool Quest'
@@ -509,7 +509,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with exactly 3 objectives
     Then the status code received is 200
-    And the response contains 2 quests
+    And the response contains 3 quests
 
 
   Scenario: Retrieve all quests that have less than 3 objectives
@@ -540,7 +540,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with less than 3 objectives
     Then the status code received is 200
-    And the response contains 4 quests
+    And the response contains 5 quests
 
 
   Scenario: Retrieve all quests that have greater than 3 objectives
@@ -574,7 +574,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with greater than 3 objectives
     Then the status code received is 200
-    And the response contains 2 quests
+    And the response contains 3 quests
 
 
   Scenario: Retrieve all quests that were made by the owner
@@ -606,10 +606,10 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests created by the user 'Dave' 'McInloch'
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 5 quests
 
 
-  Scenario: Retrieve all quests that are contained the country of 'Japan'
+  Scenario: Retrieve all quests that contain the country of 'Japan'
     And I am logged in as an admin user
     And a quest already exists with the following values
       | Title       | Start Date               | End Date                 |
@@ -622,7 +622,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests that contain the country 'Japan'
     Then the status code received is 200
-    And the response contains 1 quests
+    And the response contains 4 quests
 
 
   Scenario: Retrieve all quests when I am not logged in
@@ -637,7 +637,7 @@ Feature: Quest API Endpoint
     And the application is running
     When I attempt to retrieve my quests
     Then the status code received is 200
-    And the response contains 2 quests
+    And the response contains 4 quests
 
 
   Scenario: Retrieve all quests when I have none created
@@ -655,7 +655,7 @@ Feature: Quest API Endpoint
     And a user exists with id 2
     When I attempt to retrieve quests for user 2
     Then the status code received is 200
-    And the response contains 2 quests
+    And the response contains 4 quests
 
 
   Scenario: Retrieve all quests for another user as a regular user
@@ -719,8 +719,8 @@ Feature: Quest API Endpoint
   Scenario: Delete a quest that does not exist
     Given I am logged in
     And the application is running
-    And a quest does not exist with id 7
-    When I delete a quest with id 7
+    And a quest does not exist with id 10000
+    When I delete a quest with id 10000
     Then the status code received is 404
 
 
@@ -746,22 +746,22 @@ Feature: Quest API Endpoint
   Scenario: Starting a quest that does not exist
     Given I am logged in
     And the application is running
-    And a quest does not exist with id 7
-    When I start a quest with id 7
+    And a quest does not exist with id 10000
+    When I start a quest with id 10000
     Then the status code received is 404
     And the following ApiErrors are returned
-    | Resource not found. |
+    | Requested quest not found |
 
 
   Scenario: Starting a quest for a user that does not exist
     Given I am logged in as an admin user
     And the application is running
     And a quest exists with id 5
-    And a user does not exist with id 10
-    When I start a quest with id 5 for user 10
+    And a user does not exist with id 10000
+    When I start a quest with id 5 for user 10000
     Then the status code received is 404
     And the following ApiErrors are returned
-      | Resource not found. |
+      | Requested profile not found |
 
 
   Scenario: Starting a quest I have already started
@@ -772,7 +772,7 @@ Feature: Quest API Endpoint
     And I start a quest with id 5
     Then the status code received is 400
     And the following ApiErrors are returned
-      | An attempt already exists for this quest. |
+      | You have already started this quest |
 
 
   Scenario: Starting a quest when I am not logged in
@@ -793,7 +793,7 @@ Feature: Quest API Endpoint
     When I start a quest with id 4
     Then the status code received is 403
     And the following ApiErrors are returned
-      | You cannot start your own quest. |
+      | You cannot start your own quest |
 
 
   Scenario: Retrieving all quests I have marked as active
@@ -889,11 +889,11 @@ Feature: Quest API Endpoint
   Scenario: Retrieving all quests a non existent user has completed as an admin
     Given I am logged in as an admin user
     And the application is running
-    And a user does not exist with id 10
-    When I retrieve all complete quests for user 10
+    And a user does not exist with id 10000
+    When I retrieve all complete quests for user 10000
     Then the status code received is 404
     And the following ApiErrors are returned
-      | Resource not found. |
+      | Requested profile not found |
 
 
   Scenario: Retrieving all completed quests when not logged in
@@ -980,7 +980,7 @@ Feature: Quest API Endpoint
     And I guess destination id 6756
     Then the status code received is 404
     And the following ApiErrors are returned
-      | Resource not found. |
+      | Requested destination not found |
 
 
   Scenario: Checking in to an objective as a regular user
@@ -1028,4 +1028,4 @@ Feature: Quest API Endpoint
     When I check in for quest attempt 78
     Then the status code received is 404
     And the following ApiErrors are returned
-      | Resource not found. |
+      | Requested quest attempt not found |

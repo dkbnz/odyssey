@@ -106,6 +106,21 @@ Feature: Destination API Endpoint
       | ASB  |
 
 
+  Scenario: Search for a destination by type that exists
+    Given the application is running
+    And I am logged in
+    And a destination already exists with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    When I search for a destination with type
+      | Type |
+      | 3    |
+    Then the status code received is 200
+    And the response contains at least one destination with type
+      | Type |
+      | 3    |
+
+
   Scenario: Search for a destination by district that exists
     Given the application is running
     And I am logged in
@@ -134,6 +149,36 @@ Feature: Destination API Endpoint
     And the response contains at least one destination with latitude
       | Latitude |
       | 24.5     |
+
+
+  Scenario: Search for a destination by longitude that exists
+    Given the application is running
+    And I am logged in
+    And a destination already exists with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    When I search for a destination with longitude
+      | Longitude |
+      | 34.6      |
+    Then the status code received is 200
+    And the response contains at least one destination with longitude
+      | Longitude |
+      | 34.6      |
+
+
+  Scenario: Search for a destination by country that exists
+    Given the application is running
+    And I am logged in
+    And a destination already exists with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | Germany     |
+    When I search for a destination with country
+      | Country       |
+      | Germany       |
+    Then the status code received is 200
+    And the response contains at least one destination with country
+      | Country       |
+      | Germany       |
 
 
   Scenario: Search for a private destinations

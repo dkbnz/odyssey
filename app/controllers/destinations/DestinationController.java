@@ -10,12 +10,15 @@ import models.profiles.TravellerType;
 import models.destinations.Type;
 import models.photos.PersonalPhoto;
 import models.objectives.Objective;
+import models.util.ApiError;
+import models.util.Errors;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import com.google.inject.Inject;
 
+import java.text.Normalizer;
 import java.util.*;
 
 import models.profiles.Profile;
@@ -30,11 +33,13 @@ import repositories.destinations.DestinationTypeRepository;
 import repositories.objectives.ObjectiveRepository;
 import util.AuthenticationUtil;
 
+import static controllers.trips.TripController.REWARD;
 import static util.QueryUtil.queryComparator;
 
 
 public class DestinationController extends Controller {
 
+    private static final String DESTINATION_ID = "destinationId";
     private static final String NAME = "name";
     private static final String TYPE = "type_id";
     private static final String COUNTRY = "country";
@@ -45,14 +50,12 @@ public class DestinationController extends Controller {
     private static final String IS_PUBLIC = "is_public";
     private static final String PAGE = "page";
     private static final String AUTHORIZED = "authorized";
-    private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String TRIP_COUNT = "trip_count";
     private static final String PHOTO_COUNT = "photo_count";
     private static final String DESTINATION_COUNT = "destination_count";
     private static final String MATCHING_TRIPS = "matching_trips";
     private static final String MATCHING_DESTINATIONS = "matching_destinations";
-    private static final String POINTS_REWARDED = "pointsRewarded";
-    private static final String DESTINATION_ID = "destinationId";
+    private static final String COUNTRY_REGEX = "^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$";
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
 
@@ -89,26 +92,28 @@ public class DestinationController extends Controller {
      *
      * @param request       Http request from the client containing authentication details.
      * @param destinationId the id of the destination to find the number of dependent trips for and photos.
-     * @return ok()         (Http 200) response containing the number of photos in a destination,
+     * @return              ok() (Http 200) response containing the number of photos in a destination,
      *                      trips a destination is used in as well as the list of each trips name and its owner's
-     *                      name. Otherwise, returns forbidden() (Http 403) if the user is not allowed to access
-     *                      this number.
+     *                      name.
+     *                      unauthorized() (Http 401) if the user is not logged in.
+     *                      notFound() (Http 404) if the requested destination doesn't exist.
+     *                      forbidden() (Http 403) if the user doesn't have the permissions to complete this action.
      */
     public Result getDestinationUsage(Http.Request request, Long destinationId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Destination destination = destinationRepository.findById(destinationId);
         if (destination == null) {
-            return notFound();
+            return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
         }
 
         Profile destinationOwner = destination.getOwner();
 
         if (!AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         Set<Trip> matchingTrips = tripRepository.fetch(destination);
@@ -134,21 +139,21 @@ public class DestinationController extends Controller {
      * Uses a Json body containing a destination to check any matching destinations upon editing a destination.
      *
      * @param request   Http request from the client containing authentication details and the given destination.
-     * @return          unauthorized() (Http 401) if the user is not logged in.
-     *                  forbidden() (Http 403) if the logged in user is not the owner of the destination.
-     *                  ok() (Http 200) containing a Json list of the matching destinations.
+     * @return          ok() (Http 200) containing a Json list of the matching destinations.
+     *                  unauthorized() (Http 401) if the user is not logged in.
+     *                  forbidden() (Http 403) if the user doesn't have the permissions to complete this action.
      */
     public Result getDestinationUsageEdited(Http.Request request) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         JsonNode destination = request.body().asJson();
         Destination foundDestination = Json.fromJson(destination, Destination.class);
 
         if (!AuthenticationUtil.validUser(loggedInUser, foundDestination.getOwner())) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         ObjectMapper mapper = new ObjectMapper();
@@ -176,14 +181,15 @@ public class DestinationController extends Controller {
      * Fetches all destinations based on Http request query parameters. This also includes pagination, destination
      * ownership and the public or private query.
      *
-     * @param request   an Http request containing query parameters to filter results.
-     * @return          ok() (Http 200) response containing the destinations found in the response body, forbidden()
-     *                  (Http 403) if the user has tried to access destinations they are not authorised for.
+     * @param request   a Http request containing query parameters to filter results.
+     * @return          ok() (Http 200) response containing the destinations found in the response body.
+     *                  unauthorized (Http 401) if the user is not logged in.
+     *                  forbidden() (Http 403) if the user doesn't have the permissions to complete this action.
      */
     public Result fetch(Http.Request request) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         int pageNumber = 0;
@@ -196,10 +202,14 @@ public class DestinationController extends Controller {
         if (request.getQueryString(OWNER) != null && !request.getQueryString(OWNER).isEmpty()) {
             Profile destinationOwner = profileRepository.findById(Long.valueOf(request.getQueryString(OWNER)));
 
+            if (destinationOwner == null) {
+                return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
+            }
+
             if (AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
                 expressionList.eq(OWNER, destinationOwner);
             } else {
-                return forbidden();
+                return forbidden(ApiError.forbidden());
             }
         } else if (!loggedInUser.isAdmin()) {
             expressionList
@@ -216,7 +226,11 @@ public class DestinationController extends Controller {
 
         // If page query is set, load said page. Otherwise, return the first page.
         if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
-            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
+            try {
+                pageNumber = Integer.parseInt(request.getQueryString(PAGE));
+            } catch (NumberFormatException e) {
+                return badRequest(ApiError.badRequest(Errors.INVALID_PAGE_SIZE_REQUESTED));
+            }
         }
 
         destinations = expressionList
@@ -265,25 +279,27 @@ public class DestinationController extends Controller {
     /**
      * Fetches all destinations by user.
      *
-     * @return  ok() (Http 200) response containing the destinations found in the response body.
-     *          unauthorized() (Http 401) if the user is not logged in.
-     *          badRequest() (Http 400) if the requested profile doesn't exist.
-     *          forbidden() (Http 403) if the user is not allowed to complete this action.
+     * @param request   a Http request containing the necessary authentication parameters.
+     * @param userId    the id of the user who's destinations are being requested.
+     * @return          ok() (Http 200) response containing the destinations found in the response body.
+     *                  unauthorized() (Http 401) if the user is not logged in.
+     *                  badRequest() (Http 400) if the requested profile doesn't exist.
+     *                  forbidden() (Http 403) if the user doesn't have the permissions to complete this action.
      */
     public Result fetchByUser(Http.Request request, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Profile profileToChange = profileRepository.findById(userId);
 
         if (profileToChange == null) {
-            return badRequest();
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
         }
 
         if (!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         List<Destination> destinations;
@@ -307,6 +323,12 @@ public class DestinationController extends Controller {
         String district = json.get(DISTRICT).asText();
         String latitude = json.get(LATITUDE).asText();
         String longitude = json.get(LONGITUDE).asText();
+
+        // Used to remove all accents and diacritics from destination name and country.
+        name = Normalizer.normalize(name, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        country = Normalizer.normalize(country, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 
         // Checks all fields contain data
         if (name.length() == 0 || country.length() == 0 || district.length() == 0 ||
@@ -333,10 +355,7 @@ public class DestinationController extends Controller {
             return false;
         }
 
-        // Check string inputs against regex
-        String nameRegEx = "^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$";
-
-        return country.matches(nameRegEx);
+        return country.matches(COUNTRY_REGEX);
     }
 
 
@@ -365,8 +384,11 @@ public class DestinationController extends Controller {
      *
      * @param request   Http request containing a Json body of the new destination details.
      * @return          created() (Http 201) when the destination is saved.
-     *                  badRequest(Http 400) if a destination with the same name and district already exists in the
-     *                  database.
+     *                  badRequest() (Http 400) if a duplicate destination exists in the database, or the requested
+     *                  profile doesn't exist, or the given destination is invalid.
+     *                  unauthorized() (Http 401) if the user is not logged in.
+     *                  forbidden() (Http 403) if the user doesn't have the permissions to complete this action.
+     *
      */
     public Result save(Http.Request request, Long userId) {
         return request.session()
@@ -376,22 +398,22 @@ public class DestinationController extends Controller {
                     Profile profileToChange = profileRepository.findById(userId);
 
                     if (profileToChange == null) {
-                        return badRequest("Profile not found");
+                        return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
                     }
 
                     if (loggedInUser == null) {
-                        return unauthorized();
+                        return unauthorized(ApiError.unauthorized());
                     }
 
                     if (!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
-                        return forbidden();
+                        return forbidden(ApiError.forbidden());
                     }
 
 
                     JsonNode json = request.body().asJson();
 
                     if (!validInput(json)) {
-                        return badRequest("Invalid input.");
+                        return badRequest(ApiError.invalidJson());
                     }
 
                     if (destinationDoesNotExist(json, profileToChange)) {
@@ -402,19 +424,15 @@ public class DestinationController extends Controller {
                         profileRepository.save(profileToChange);
 
                         ObjectMapper objectMapper = new ObjectMapper();
-                        int pointsAdded = achievementTrackerController.rewardAction(loggedInUser, destination);
                         ObjectNode returnJson = objectMapper.createObjectNode();
-                        returnJson.put(POINTS_REWARDED, pointsAdded);
+                        returnJson.set(REWARD, achievementTrackerController.rewardAction(loggedInUser, destination));
                         returnJson.put(DESTINATION_ID, destination.getId());
-
-
                         return created(returnJson);
                     } else {
-                        return badRequest("A destination with these details already exists either in your " +
-                                "destinations or public destinations lists.");
+                        return badRequest(ApiError.badRequest(Errors.DUPLICATE_DESTINATION));
                     }
                 })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+                .orElseGet(() -> unauthorized(ApiError.unauthorized())); // User is not logged in
     }
 
 
@@ -445,30 +463,30 @@ public class DestinationController extends Controller {
     /**
      * Deletes a destination from the database using the given destination id number.
      *
-     * @param destinationId the id of the destination.
-     * @return              notFound() (Http 404) if destination could not found.
-     *                      ok() (Http 200) if successfully deleted.
-     *                      unauthorized() (Http 401) if the user is not logged in.
-     *                      forbidden() (Http 403) if he user is not allowed to delete the specified destination.
+     * @param destinationId     the id of the destination.
+     * @return                  notFound() (Http 404) if destination could not found.
+     *                          ok() (Http 200) if successfully deleted.
+     *                          unauthorized() (Http 401) if the user is not logged in.
+     *                          forbidden() (Http 403) if he user is not allowed to delete the specified destination.
      */
     public Result destroy(Http.Request request, Long destinationId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Destination destination = destinationRepository.findById(destinationId);
 
         if (destination == null) {
-            return notFound();
+            return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
         }
 
         if (!AuthenticationUtil.validUser(loggedInUser, destination.getOwner())) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         destinationRepository.delete(destination);
-        return ok("Deleted");
+        return ok(Json.toJson(destination));
     }
 
 
@@ -477,7 +495,7 @@ public class DestinationController extends Controller {
      *
      * @param id        the id of the destination.
      * @param request   Http request containing a Json body of fields to update in the destination.
-     * @return          notFound() (Http 404) if destination could not found.
+     * @return          notFound() (Http 404) if destination could not found,.
      *                  ok() (Http 200) if successfully updated.
      *                  unauthorized() (Http 401) if the user is not logged in.
      *                  forbidden() (Http 403) if the user is not allowed to edit the destination.
@@ -486,18 +504,18 @@ public class DestinationController extends Controller {
     public Result edit(Http.Request request, Long id) throws IllegalAccessException {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Destination currentDestination = destinationRepository.findById(id);
 
         if (currentDestination == null) {
-            return notFound();
+            return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
         }
 
 
         if (!AuthenticationUtil.validUser(loggedInUser, currentDestination.getOwner())) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         JsonNode json = request.body().asJson();
@@ -505,11 +523,11 @@ public class DestinationController extends Controller {
         currentDestination.updateFromObject(Json.fromJson(json, Destination.class));
 
         if (currentDestination.getLongitude() > LONGITUDE_LIMIT || currentDestination.getLongitude() < -LONGITUDE_LIMIT) {
-            return badRequest();
+            return badRequest(ApiError.badRequest(Errors.INVALID_LONGITUDE));
         }
 
         if (currentDestination.getLatitude() > LATITUDE_LIMIT || currentDestination.getLatitude() < -LATITUDE_LIMIT) {
-            return badRequest();
+            return badRequest(ApiError.badRequest(Errors.INVALID_LATITUDE));
         }
 
         mergeDestinations(currentDestination);
@@ -559,8 +577,8 @@ public class DestinationController extends Controller {
 
 
     /**
-     * Used to merge destinations. Will extract desired attributes from a destinationToMerge and adds them to
-     * destinationToUpdate. Then, updates each destination and deletes destinationToMerge.
+     * Used to merge destinations. Will extract desired attributes from a destinationToMerge and adds them to destinationToUpdate.
+     * Then, updates each destination and deletes destinationToMerge.
      * Will only consume if the given Destination is equal.
      *
      * @param destinationToUpdate destination that gains the attributes of destinationToMerge.

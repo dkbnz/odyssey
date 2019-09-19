@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-alert dismissible v-model="showError" variant="danger">{{alertMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
 
         <b-form @submit.prevent="searchProfiles">
             <!--Input fields for searching for destinations-->
@@ -153,11 +153,20 @@
              * @return {Promise <Response | never>}     the fetch method promise.
              */
             getTravellerTypes() {
+                let self = this;
                 return fetch(`/v1/travtypes`, {
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(travellerTypes => this.travellerTypeOptions = travellerTypes);
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.travellerTypeOptions = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -167,11 +176,20 @@
              * @return {Promise <Response | never>}     the fetch method promise.
              */
             getNationalities() {
+                let self = this;
                 return fetch(`/v1/nationalities`, {
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(nationalities => this.nationalityOptions = nationalities);
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.nationalityOptions = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 

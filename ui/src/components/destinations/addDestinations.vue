@@ -1,7 +1,7 @@
 <template>
     <div>
         <h4 class="page-title">{{heading}} a Destination</h4>
-        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act
         as a buffer for destination being added-->
@@ -14,7 +14,7 @@
             <p>Destination Successfully {{heading}}ed</p>
             <b-progress
                     :max="dismissSecs"
-                    :value="dismissCountDown"
+                    :value="dismissCountDown - 1"
                     height="4px"
                     variant="success"
             ></b-progress>
@@ -196,7 +196,6 @@
 
         props: {
             profile: Object,
-            destinationTypes: Array,
             heading: String,
             inputDestination: {
                 default: function () {
@@ -227,12 +226,14 @@
                 longitudeErrorMessage: "",
                 destinationConflicts: [],
                 editDestinationConflicts: [],
-                countryList: Array
+                countryList: [],
+                destinationTypes: []
             }
         },
 
         mounted() {
             this.getCountries();
+            this.getDestinationTypes();
         },
 
         computed: {
@@ -353,22 +354,49 @@
 
         methods: {
             /**
-             * Sets the countries list to the list of countries from the country api
+             * Retrieves the different destination types from the backend.
              */
-            getCountries() {
-                return fetch("https://restcountries.eu/rest/v2/all", {
-                    dataType: 'html'
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.countryList = data;
-                    })
+            getDestinationTypes() {
+                let self = this;
+                fetch(`/v1/destinationTypes`, {
+                    accept: "application/json"
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.destinationTypes = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
             /**
-             * Checks all of the input fields for valid input
+             * Sets the countries list to the list of countries from the country api.
+             */
+            getCountries() {
+                let self = this;
+                return fetch("https://restcountries.eu/rest/v2/all", {
+                    dataType: 'html'
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.countryList = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
+            },
+
+
+            /**
+             * Checks all of the input fields for valid input.
              */
             validateFields() {
                 return this.destinationNameValidation && this.destinationTypeValidation
@@ -420,11 +448,8 @@
             /**
              * Adds new destination to database, then resets form and shows success alert.
              * Checks whether location is duplicate and displays error if so.
-             *
-             * @param cb.
-             * @return{Promise<Response | never>}.
              */
-            addDestination(cb) {
+            addDestination() {
                 let self = this;
                 fetch(`/v1/destinations/` + this.profile.id, {
                     method: 'POST',
@@ -438,53 +463,68 @@
                         "country": this.inputDestination.country,
                         "is_public": this.inputDestination.public
                     }))
-                })
-                    .then(response => {
-                        self.checkStatus(response);
-                        return self.parseJSON(response);
-                    })
-                    .then(responseBody => {
-                        self.resetDestForm();
-                        self.showAlert();
-                        self.$emit('data-changed');
-                        self.createPointToast(responseBody.pointsRewarded, "Destination Created");
-                        return responseBody;
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.resetDestForm();
+                    self.showAlert();
+                    self.showRewardToast(responseBody.reward);
+                    return responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
             /**
              * Checks whether the destination being edited is present in any other parts of the application.
              * This is to display a confirmation message to the user.
-             *
              */
             validateEdit() {
                 let self = this;
                 fetch(`/v1/destinations/` + this.inputDestination.id + `/checkDuplicates`, {
                     accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
-                    .then(function (response) {
-                        self.getMatchingEditedDestination();
-                        self.displayConfirmation();
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.destinationConflicts = responseBody;
+                    self.getMatchingEditedDestination();
+                    self.displayConfirmation();
+                    return responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
+            /**
+             * Retrieves all the destinations that match the requested destination after it has been modified.
+             */
             getMatchingEditedDestination() {
                 let self = this;
                 fetch(`/v1/destinationsCheckEdit`, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: (JSON.stringify(this.inputDestination))
-                })
-                    .then(function (response) {
-                        response.json().then(data => {
-                            self.editDestinationConflicts = data;
-                        })
-                    })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.editDestinationConflicts = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -508,40 +548,23 @@
                     headers: {'content-type': 'application/json'},
                     body: jsonBody
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.showAlert();
-                        self.dismissModal('confirmEditModal');
-                        response.json().then(data => {
-                            self.$emit('destination-saved', data);
-                        });
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        self.errorMessage = "";
-                        self.showError = true;
-                        response.clone().text().then(text => {
-                            self.errorMessage = text;
-                        });
+                        return response.json();
                     }
+                }).then(function (responseBody) {
+                    self.showAlert();
+                    self.dismissModal('confirmEditModal');
+                    self.$emit('destination-saved', responseBody);
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
                 });
             },
 
 
             /**
-             * Displays a toast saying they've gained a certain amount of points.
-             * @param points the points to display.
-             * @param title the title of the toast, indicating the context of the point gain.
-             */
-            createPointToast(points, title) {
-                let message = "Your points have increased by " + points;
-                this.$bvToast.toast(message, {
-                    title: title,
-                    autoHideDelay: 3000,
-                    appendToast: true
-                })
-            },
-
-
-            /**
-             * Updates the latitude & longitude when emitted from the button that gets current location
+             * Updates the latitude & longitude when emitted from the button that gets current location.
              */
             setCurrentLocation(currentCoordinates) {
                 this.inputDestination.latitude = currentCoordinates.latitude;
@@ -574,41 +597,6 @@
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
-            },
-
-
-            /**
-             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
-             * console.
-             *
-             * @param response, passed back to the getAllTrips function to be parsed into a Json.
-             * @returnthrows the error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-
-                this.errorMessage = "";
-                response.clone().text().then(text => {
-                    this.errorMessage = text;
-                    this.showError = true;
-                });
-                throw error;
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response the Http response.
-             * @returnthe Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
             },
 
 

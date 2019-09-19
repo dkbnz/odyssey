@@ -3,7 +3,6 @@ package steps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import controllers.Assets;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -12,7 +11,6 @@ import models.objectives.Objective;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
 import org.junit.Assert;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -237,11 +235,11 @@ public class QuestTestSteps {
         String endDate           = list.get(index).get(END_DATE_STRING);
 
         if (startDate.isEmpty()) {
-            startDate = generalTestSteps.getDateBuffer(true);
+            startDate = generalTestSteps.getDateTimeBuffer(true);
         }
 
         if (endDate.isEmpty()) {
-            endDate = generalTestSteps.getDateBuffer(false);
+            endDate = generalTestSteps.getDateTimeBuffer(false);
         }
 
         //Add values to a JsonNode

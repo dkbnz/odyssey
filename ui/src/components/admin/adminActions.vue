@@ -25,7 +25,7 @@
                 </b-col>
                 <b-col cols="6">
                     <b-card header="Create a Profile">
-                        <b-alert v-model="showSuccess" variant="success">Profile successfully created</b-alert>
+                        <b-alert v-model="showSuccess" variant="success" dismissible>Profile successfully created</b-alert>
                         <b-button @click="showCollapse = !showCollapse" block variant="success">
                             Create a New Profile</b-button>
                         <!-- The collapsible that uses the sign up page to create a new profile -->
@@ -38,32 +38,26 @@
                         </b-collapse>
                     </b-card>
                     <b-card header="Destination Traveller Types">
-                        <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
-                        <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
+                        <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
+                        <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
                         <!-- Loop through the list of proposals and generate an area to accept/reject for each one -->
                         <div v-if="travellerTypeProposals.length > 0" class="proposalDiv">
                             <b-card v-for="destination in travellerTypeProposals"
                                     class="proposals" :key="destination.id">
-                                <b-row>
-                                    <b-col>
-                                        <h5 class="mb-1">{{destination.name}}</h5>
-                                    </b-col>
-                                    <b-col>
-                                        <b-button size="sm" class="buttonMarginsBottom"
-                                                  variant="warning"
-                                                  @click="showDestinationDetails = !showDestinationDetails">
-                                            Show More Details
-                                        </b-button>
-                                    </b-col>
-                                </b-row>
+                                <h5 class="mb-1">{{destination.name}}</h5>
+                                <b-button size="sm" class="buttonMarginsBottom"
+                                          variant="warning"
+                                          @click="showDestinationDetails = !showDestinationDetails">
+                                    Show More Details
+                                </b-button>
                                 <div v-if="showDestinationDetails">
                                     <p>Type: {{destination.type.destinationType}}</p>
                                     <p>District: {{destination.district}}</p>
                                     <p>Latitude: {{destination.latitude}}</p>
                                     <p>Longitude: {{destination.longitude}}</p>
                                 </div>
-                                <b-row>
-                                    <b-col>
+                                <b-row no-gutters>
+                                    <b-col class="pr-1" md="4" sm="12">
                                         <b-card>
                                             <h5 class="page-title">Current</h5>
                                             <div v-for="travellerType in destination.travellerTypes">
@@ -73,54 +67,54 @@
                                             </div>
                                         </b-card>
                                     </b-col>
-                                    <b-col>
+                                    <b-col class="pr-1" md="4" sm="12">
                                         <b-card>
                                             <h5 class="page-title">Additions</h5>
-                                            <div v-for="travellerType in destination.proposedTravellerTypesAdd">
-                                                <b-row>
-                                                    <b-col cols="16" md="10">
+                                            <!-- Set no gutters for the following rows, as otherwise they have a negative margin by default -->
+                                                <b-row no-gutters v-for="travellerType in destination.proposedTravellerTypesAdd" :key="travellerType.id">
+                                                    <b-col cols="10" sm="10">
                                                         {{travellerType.travellerType}}
                                                     </b-col>
-                                                    <b-col cols="8" md="2">
+                                                    <b-col cols="2" sm="1">
                                                         <b-button variant="success" class="proposalButton"
                                                                   @click="addTravellerTypes(destination, travellerType)">
                                                             &#10003;
                                                         </b-button>
                                                     </b-col>
                                                 </b-row>
-                                            </div>
                                         </b-card>
                                     </b-col>
-                                    <b-col>
+                                    <b-col class="pr-1" md="4" sm="12">
                                         <b-card>
                                             <h5 class="page-title">Removals</h5>
-                                            <div v-for="travellerType in destination.proposedTravellerTypesRemove">
-                                                <b-row>
-                                                    <b-col cols="16" md="10">
+                                                <b-row no-gutters v-for="travellerType in destination.proposedTravellerTypesRemove" :key="travellerType.id">
+                                                    <b-col cols="10" sm="10">
                                                         {{travellerType.travellerType}}
                                                     </b-col>
-                                                    <b-col cols="8" md="2">
+                                                    <b-col cols="2" sm="1">
                                                         <b-button variant="danger" class="proposalButton"
                                                                   @click="removeTravellerTypes(destination, travellerType)">
                                                             &#10003;
                                                         </b-button>
                                                     </b-col>
                                                 </b-row>
-                                            </div>
                                         </b-card>
                                     </b-col>
                                 </b-row>
                                 <b-row>
                                     <b-button variant="primary" class="buttonMarginsTop"
-                                              @click="sendTravellerTypes(destination)" block>
+                                              @click="sendTravellerTypes(destination)" block :disabled="sendingRequest">
+                                        <b-img alt="Loading" class="align-middle loading" v-if="sendingRequest" :src="assets['loadingLogo']" height="20%">
+                                        </b-img>
                                         Submit
                                     </b-button>
                                 </b-row>
                             </b-card>
                         </div>
-
-                        <div v-else>
-                            <p>No proposals could be found.</p>
+                        <div v-else class="text-center my-2">
+                            <b-img alt="Loading" class="align-middle loading" v-if="retrievingProposals" :src="assets['loadingLogo']">
+                            </b-img>
+                            <p v-if="!retrievingProposals && !travellerTypeProposals.length">No proposals could be found.</p>
                         </div>
                     </b-card>
                 </b-col>
@@ -149,13 +143,14 @@
                 showDestinationDetails: false,
                 alertMessage: "",
                 showTravellerTypeUpdateSuccess: false,
-                showTravellerTypeUpdateFailure: false
+                showTravellerTypeUpdateFailure: false,
+                retrievingProposals: false,
+                sendingRequest: false
             }
         },
 
         mounted() {
-            this.getTravellerTypeProposals(travellerTypeProposals =>
-                this.travellerTypeProposals = travellerTypeProposals);
+            this.getTravellerTypeProposals();
         },
 
         methods: {
@@ -173,6 +168,7 @@
 
             /**
              * Emits the selected profile to the adminPanel page, this is so an admin can modify the profile.
+             *
              * @param editProfile   the selected profile to be modified by an admin.
              */
             getSingleProfile(editProfile) {
@@ -184,14 +180,30 @@
              * Retrieves the list of traveller type proposals to display on the frontend. Admin can then accept/reject
              * proposals.
              *
-             *@param updateTravellerTypeProposals   the variable to update the list of traveller type proposals.
+             * @param updateTravellerTypeProposals   the variable to update the list of traveller type proposals.
              */
             getTravellerTypeProposals(updateTravellerTypeProposals) {
+                let self = this;
+                this.retrievingProposals = true;
                 return fetch(`/v1/destinations/proposals`, {
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(updateTravellerTypeProposals);
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showTravellerTypeUpdateFailure = false;
+                    self.retrievingProposals = false;
+                    self.travellerTypeProposals = responseBody;
+                }).catch(function (response) {
+                    self.alertMessage = "Cannot retrieve traveller type proposals";
+                    self.showTravellerTypeUpdateFailure = true;
+                    self.showSuccess = false;
+                    self.retrievingProposals = false;
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -247,54 +259,46 @@
 
             /**
              * Sends a request to the back end, which contains all the traveller types.
+             *
              * @param destination   the destination to have the traveller types added to.
              */
             sendTravellerTypes(destination) {
                 let self = this;
+                this.sendingRequest = true;
                 fetch(`/v1/destinations/` + destination.id + `/travellerTypes`, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(destination.travellerTypes)
-                })
-                    .then(function(response) {
-                        if (response.ok) {
-                            self.alertMessage = "Destination traveller types updated";
-                            self.showTravellerTypeUpdateSuccess = true;
-                            setTimeout(function () {
-                                self.showTravellerTypeUpdateSuccess = false;
-                            }, 3000);
-                            self.removeProposed(destination);
-                        } else {
-                            self.alertMessage = "Cannot update traveller types";
-                            self.showTravellerTypeUpdateFailure = true;
-                            setTimeout(function () {
-                                self.showTravellerTypeUpdateFailure = false;
-                            }, 3000);
-                        }
-                        return JSON.parse(JSON.stringify(response));
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.showTravellerTypeUpdateFailure = false;
+                    self.alertMessage = "Destination traveller types updated";
+                    self.showTravellerTypeUpdateSuccess = true;
+                    setTimeout(function () {
+                        self.showTravellerTypeUpdateSuccess = false;
+                    }, 3000);
+                    self.removeProposed(destination);
+                }).catch(function (response) {
+                    self.sendingRequest = false;
+                    self.alertMessage = "Cannot update traveller types";
+                    self.showTravellerTypeUpdateFailure = true;
+                    self.handleErrorResponse(response);
+                });
             }
         },
+
         components: {
             DesktopLeaderboard,
             SignUp
         }
     }
 </script>
-<style>
-    .proposals {
-        margin: 1vh 0 2vh 0;
-    }
 
-    .proposalButton {
-        height: 20px;
-        width: 20px;
-        font-size: 12px;
-        padding: 0
-    }
-
-    .proposalDiv {
-        max-height: 100vh;
-        overflow: scroll;
-    }
+<style scoped>
+    @import "../../css/admin.css";
 </style>

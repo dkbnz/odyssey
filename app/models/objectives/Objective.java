@@ -6,6 +6,7 @@ import models.util.ApiError;
 import models.util.BaseModel;
 import models.profiles.Profile;
 import models.destinations.Destination;
+import models.util.Errors;
 import util.Views;
 
 import javax.persistence.CascadeType;
@@ -14,6 +15,7 @@ import javax.persistence.ManyToOne;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -45,21 +47,21 @@ public class Objective extends BaseModel {
         List<ApiError> errors = new ArrayList<>();
 
         if (riddle == null || riddle.isEmpty()) {
-            errors.add(new ApiError("A riddle must be provided."));
+            errors.add(new ApiError(Errors.NO_OBJECTIVE_RIDDLE.toString()));
         } else if (riddle.length() > MAX_RIDDLE_SIZE) {
-            errors.add(new ApiError("Objective riddles must not exceed 255 characters in length."));
+            errors.add(new ApiError(Errors.MAX_RIDDLE_LENGTH.toString()));
         }
 
         if (owner == null) {
-            errors.add(new ApiError("This objective does not have an owner."));
+            errors.add(new ApiError(Errors.NO_OBJECTIVE_OWNER.toString()));
         }
 
         if (destination == null || destination.getId() == null) {
-            errors.add(new ApiError("Objectives must have a destination."));
+            errors.add(new ApiError(Errors.NO_OBJECTIVE_DESTINATION.toString()));
         }
 
         if (radius == null || radius <= MIN_RADIUS_VALUE) {
-            errors.add(new ApiError("You must select a range for an objective destination's check in"));
+            errors.add(new ApiError(Errors.NO_OBJECTIVE_RADIUS.toString()));
         }
 
         return errors;
@@ -95,6 +97,44 @@ public class Objective extends BaseModel {
 
     public void setRadius(Double radius) {
         this.radius = radius;
+    }
+
+
+    /**
+     * Checks if an Object is equal to this instance of Objective.
+     * A Objective is considered equal if:
+     * riddle, radius, destination and owner are equal.
+     *
+     * @param obj   other object which this instance is being compared to.
+     * @return      true if this object is equal to obj.
+     */
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj == this) return true;
+        if (!(obj instanceof Objective)) return false;
+
+        Objective other = (Objective) obj;
+
+        return other.getRiddle().equals(this.riddle) &&
+                other.getRadius().equals(this.radius) &&
+                other.getDestination().equals(this.destination) &&
+                other.getOwner().equals(this.owner);
+    }
+
+
+    /**
+     * Calculates the hashcode of this Objective using:
+     * riddle, radius, destination and owner.
+     *
+     * @return  hashcode of the object.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.riddle,
+                this.radius,
+                this.destination,
+                this.owner);
     }
 }
 

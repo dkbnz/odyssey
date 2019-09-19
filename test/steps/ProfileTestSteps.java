@@ -30,6 +30,10 @@ public class ProfileTestSteps {
      */
     private TestContext testContext = TestContext.getInstance();
 
+    /**
+     * An object mapper used during tests.
+     */
+    private ObjectMapper mapper = new ObjectMapper();
 
     /**
      * Authorised string variable.
@@ -40,7 +44,6 @@ public class ProfileTestSteps {
      * The profiles uri.
      */
     private static final String PROFILES_URI = "/v1/profiles";
-
 
     /**
      * The profiles uri.
@@ -90,7 +93,7 @@ public class ProfileTestSteps {
     /**
      * The number of profiles expected.
      */
-    private static final int NUMBER_OF_PROFILES = 6;
+    private static final int NUMBER_OF_PROFILES = 11;
 
     private static final String NAME = "name";
     private static final String NATIONALITY = "nationalities";
@@ -116,6 +119,7 @@ public class ProfileTestSteps {
      * Default page size for profile searching pagination.
      */
     private static final String DEFAULT_PAGE_SIZE = "100";
+    private static final String DEFAULT_PAGE_SIZE_SMALL = "5";
 
     /**
      * String to add the equals character (=) to build a query string.
@@ -157,6 +161,7 @@ public class ProfileTestSteps {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Unable to get response iterator for fake request.", e);
         }
+        Assert.assertNotNull(arrNode);
         return arrNode.elements();
     }
 
@@ -247,7 +252,9 @@ public class ProfileTestSteps {
         String minPoints = getValue(MIN_POINTS, givenFields, givenValues);
         String maxPoints = getValue(MAX_POINTS, givenFields, givenValues);
         String rank = getValue(RANK, givenFields, givenValues);
+        String pageSize = getValue(PAGE_SIZE, givenFields, givenValues);
 
+        pageSize = pageSize.equals("") ? DEFAULT_PAGE_SIZE : pageSize;
         minAge = minAge.equals("") ? "0"    : minAge;
         maxAge = maxAge.equals("") ? "120"  : maxAge;
 
@@ -276,7 +283,7 @@ public class ProfileTestSteps {
                 + AND
                 + PAGE + EQUALS + DEFAULT_PAGE
                 + AND
-                + PAGE_SIZE + EQUALS + DEFAULT_PAGE_SIZE;
+                + PAGE_SIZE + EQUALS + pageSize;
 
     }
 
@@ -394,17 +401,24 @@ public class ProfileTestSteps {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
 
         for (int i = 0; i < list.size(); i++) {
-            Long userId = Long.parseLong(list.get(i).get("id"));
-            Integer points = Integer.parseInt(list.get(i).get("points"));
+            long userId = Long.parseLong(list.get(i).get("id"));
+            int points = Integer.parseInt(list.get(i).get("points"));
 
-            Profile profile = profileRepository.findById(userId.longValue());
+            Profile profile = profileRepository.findById(userId);
             AchievementTracker achievementTracker = profile.getAchievementTracker(); //Null profile fails test, which is fine
             achievementTracker.addPoints(points);
             profileRepository.update(profile);
-            Assert.assertEquals(points.longValue(), achievementTracker.getPoints());
+            Assert.assertEquals(points, achievementTracker.getPoints());
         }
 
 
+    }
+
+
+    @Given("^at least (\\d+) profiles exist$")
+    public void profilesExist(int numberOfProfiles) {
+        int count = profileRepository.findCount();
+        Assert.assertTrue(count >= numberOfProfiles);
     }
 
 
@@ -437,7 +451,7 @@ public class ProfileTestSteps {
     }
 
 
-    @When("I send a GET request to the /travtypes endpoint")
+    @When("I send a GET request to the travtypes endpoint")
     public void iSendAGETRequestToTheTravTypesEndpoint() throws BeansException {
         // Does the request to back end
         Http.RequestBuilder request = fakeRequest()
@@ -467,7 +481,7 @@ public class ProfileTestSteps {
     }
 
 
-    @When("I send a GET request to the /nationalities endpoint")
+    @When("I send a GET request to the nationalities endpoint")
     public void iSendAGETRequestToTheNationalitiesEndpoint() {
         // Does the fake request to back end
         Http.RequestBuilder request = fakeRequest()
@@ -499,7 +513,7 @@ public class ProfileTestSteps {
 
 
     @When("A user attempts to create a profile with the following fields:")
-    public void aUserAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) {
+    public void aUserAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) throws IOException {
         // Creates the json for the profile
         JsonNode json = convertDataTableToJsonNode(dataTable);
 
@@ -510,6 +524,7 @@ public class ProfileTestSteps {
                 .uri(PROFILES_URI);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
+
     }
 
 
@@ -550,6 +565,12 @@ public class ProfileTestSteps {
         searchValue = searchValue.replace(" ", "%20");
         List<String> searchFields = new ArrayList<>();
         List<String> searchValues = new ArrayList<>();
+
+        if (searchField.equals(RANK)) {
+            searchFields.add(PAGE_SIZE);
+            searchValues.add(DEFAULT_PAGE_SIZE_SMALL);
+        }
+
 
         searchFields.add(searchField);
         searchValues.add(searchValue);
@@ -622,7 +643,6 @@ public class ProfileTestSteps {
     @Then("the response contains the following profiles:")
     public void theResponseContainsTheFollowingProfiles(DataTable dataTable) {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-
         for (int i = 0; i < list.size(); i++) {
             String username = list.get(i).get("username");
             Assert.assertTrue(testContext.getResponseBody().contains(username));
@@ -644,5 +664,12 @@ public class ProfileTestSteps {
     @Then("^the response does not contain the profile with username \"(.*)\"$")
     public void theResponseDoesNotContainProfile(String username) {
         Assert.assertFalse(testContext.getResponseBody().contains(username));
+    }
+
+
+    @Then("^the response contains (\\d+) profiles$")
+    public void theResponseContainsProfiles(int numberOfProfiles) throws IOException {
+        int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
+        Assert.assertEquals(numberOfProfiles, responseSize);
     }
 }

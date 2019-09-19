@@ -1,7 +1,21 @@
 <template>
     <div>
-        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
-            <b-alert v-model="showError">{{alertMessage}}</b-alert>
+        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg" v-if="!showSingleProfilePage">
+            <b-alert v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
+            <b-alert
+                    :show="dismissCountDown"
+                    @dismiss-count-down="countDownChanged"
+                    @dismissed="dismissCountDown=0"
+                    dismissible
+                    variant="success">
+                <p>{{alertMessage}}</p>
+                <b-progress
+                        :max="dismissSecs"
+                        :value="dismissCountDown - 1"
+                        height="4px"
+                        variant="success"
+                ></b-progress>
+            </b-alert>
             <!-- Confirmation modal for deleting a profile. -->
             <b-modal ref="deleteProfileModal" id="deleteProfileModal" hide-footer title="Delete Profile">
                 <div class="d-block">
@@ -34,6 +48,7 @@
                 <b-col sm="8">
                     <!--Displays results from profile search in a table format-->
                     <profile-list
+                            :refresh-table="refreshTable"
                             :first-page = "firstPage"
                             :more-results="moreResults"
                             :searching-profiles="searchingProfiles"
@@ -50,6 +65,7 @@
                             @get-more="getMore"
                             @clear-profiles="clearProfiles"
                             @sort-table="sortTable"
+                            @show-single-profile="showSingleProfile"
                     >
                     </profile-list>
                 </b-col>
@@ -61,6 +77,7 @@
                         @cleared-form="clearForm">
                 </profile-search-form>
                 <profile-list
+                        :refresh-table = "refreshTable"
                         :firstPage = "firstPage"
                         :more-results="moreResults"
                         :searching-profiles="searchingProfiles"
@@ -77,11 +94,25 @@
                         @get-more="getMore"
                         @clear-profiles="this.profiles = []"
                         @sort-table="sortTable"
+                        @show-single-profile="showSingleProfile"
                 >
                 </profile-list>
             </div>
         </div>
-        <footer-main></footer-main>
+        <div v-if="showSingleProfilePage" class="align-content-center">
+            <b-row>
+                <b-col>
+                    <div class="p-3">
+                        <b-button @click="showSingleProfilePage = false" variant="primary">Go Back</b-button>
+                    </div>
+                </b-col>
+                <b-col cols="11">
+                    <view-profile :admin-view="false" :destinations="destinations" :userProfile="profile"
+                                  :profile="selectedProfileToView"></view-profile>
+                </b-col>
+            </b-row>
+        </div>
+        <footer-main v-if="!minimalInfo"></footer-main>
     </div>
 </template>
 
@@ -132,7 +163,12 @@
                 searchParameters: null,
                 searchingProfiles: false,
                 columnSortBy: {sortBy: "", order: ""},
-                firstPage: false
+                firstPage: false,
+                showSingleProfilePage: false,
+                selectedProfileToView: null,
+                refreshTable: false,
+                dismissSecs: 3,
+                dismissCountDown: 0
             }
         },
 
@@ -141,46 +177,6 @@
         },
 
         methods: {
-            /**
-             * Used to calculate a specific rows nationalities from their list of nationalities. Shows all the
-             * nationalities in the row.
-             *
-             * @param nationalities     the row's (profile) nationalities.
-             */
-            calculateNationalities(nationalities) {
-                let nationalityList = "";
-                for (let i = 0; i < nationalities.length; i++) {
-                    if (nationalities[i + 1] !== undefined) {
-                        nationalityList += nationalities[i].nationality + ", ";
-                    } else {
-                        nationalityList += nationalities[i].nationality;
-                    }
-
-                }
-                return nationalityList;
-            },
-
-
-            /**
-             * Used to calculate a specific rows traveller types from their list of traveller types. Shows all the
-             * traveller types in the row.
-             *
-             * @param travellerTypes     the row's (profile) traveller types.
-             */
-            calculateTravTypes(travellerTypes) {
-                let travTypeList = "";
-                for (let i = 0; i < travellerTypes.length; i++) {
-                    if (travellerTypes[i + 1] !== undefined) {
-                        travTypeList += travellerTypes[i].travellerType + ", ";
-                    } else {
-                        travTypeList += travellerTypes[i].travellerType;
-                    }
-
-                }
-                return travTypeList;
-            },
-
-
             /**
              * Method to make a user an admin. This method is only available if the currently logged in user is an
              * admin. Backend validation ensures a user cannot bypass this.
@@ -191,9 +187,22 @@
                 let self = this;
                 fetch('/v1/makeAdmin/' + makeAdminProfile.id, {
                     method: 'POST',
-                }).then(function () {
-                    self.searchProfiles();
-                })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    let index = self.profiles.indexOf(makeAdminProfile);
+                    self.profiles[index] = responseBody;
+                    self.refreshTable = !self.refreshTable;
+                    self.alertMessage = "Profile is now an admin!";
+                    self.showAlert();
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -207,14 +216,26 @@
                 let self = this;
                 fetch('/v1/removeAdmin/' + makeAdminProfile.id, {
                     method: 'POST',
-                }).then(function () {
-                    self.searchProfiles();
-                }).then(function () {
-                    if (self.profile.id === makeAdminProfile.id) {
-                        self.$router.push("/dash");
-                        self.$router.go();
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
                     }
-                })
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    let index = self.profiles.indexOf(makeAdminProfile);
+                    self.profiles[index] = responseBody;
+                    self.refreshTable = !self.refreshTable;
+                    self.alertMessage = "Profile is no longer an admin!";
+                    self.showAlert();
+                    if (self.profile.id === makeAdminProfile.id) {
+                        self.$router.push("/profile");
+                    }
+                    self.showAlert();
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -228,9 +249,21 @@
                 let self = this;
                 fetch('/v1/profile/' + deleteUser.id, {
                     method: 'DELETE',
-                }).then(function () {
-                    self.searchProfiles();
-                })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    let index = self.profiles.indexOf(deleteUser);
+                    self.profiles.splice(index, 1);
+                    self.alertMessage = responseBody;
+                    self.showAlert()
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -290,6 +323,7 @@
              */
             queryProfiles() {
                 this.retrievingProfiles = true;
+                let self = this;
                 let searchQuery = "";
                 if (!this.searchParameters) {
                     searchQuery =
@@ -323,46 +357,20 @@
                 }
                 return fetch(`/v1/profiles` +  searchQuery, {
                     method: "GET"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.profiles = data;
-                        this.retrievingProfiles = false;
-                    })
-            },
-
-
-            /**
-             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
-             * console.
-             *
-             * @param response, passed back to the getAllTrips function to be parsed into a Json.
-             * @return throws the error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                this.showError = true;
-                response.clone().text().then(text => {
-                    this.alertMessage = text;
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    self.profiles = responseBody;
+                    self.retrievingProfiles = false;
+                }).catch(function (response) {
+                    self.retrievingProfiles = false;
+                    self.handleErrorResponse(response);
                 });
-                throw error;
-            },
-
-
-            /**
-             * Used to turn the response of the fetch method into a usable Json.
-             *
-             * @param response of the fetch method.
-             * @return the Json body of the response.
-             */
-            parseJSON(response) {
-                return response.json();
             },
 
 
@@ -414,8 +422,37 @@
              */
             clearProfiles() {
                 this.profiles = [];
-            }
+            },
 
+
+            /**
+             * Displays the profile page using the given profile.
+             *
+             * @param profile   the profile to be displayed.
+             */
+            showSingleProfile(profile) {
+                window.scrollTo(0, 0);
+                this.selectedProfileToView = profile;
+                this.showSingleProfilePage = true;
+            },
+
+
+            /**
+             * Used to allow an alert to countdown on the successful action.
+             *
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown
+            },
+
+
+            /**
+             * Displays the countdown alert on the successful action.
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
+            }
         }
     }
 </script>

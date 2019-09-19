@@ -2,7 +2,7 @@
     <div>
         <h1 class="page-title">{{ heading }} a Quest!</h1>
 
-        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
 
         <b-alert dismissible v-model="showSuccessObjective" variant="success">{{successMessage}}</b-alert>
 
@@ -17,7 +17,7 @@
             <p>Quest Successfully Saved</p>
             <b-progress
                     :max="dismissSecs"
-                    :value="dismissCountDown"
+                    :value="dismissCountDown - 1"
                     height="4px"
                     variant="success"
             ></b-progress>
@@ -141,13 +141,13 @@
                         <b-col>
                             <b-button v-if="!addNewObjective" variant="success" :disabled="heading === 'Edit'"
                                       @click="showObjectiveComponent" block>
-                                Add a New Objective
+                                Add a new objective
                             </b-button>
                         </b-col>
                         <b-col>
                             <b-button v-if="!addNewObjective" variant="primary" :disabled="heading === 'Edit'"
                                       @click="showYourObjectivesComponent" block>
-                                Select an Objective
+                                Select an objective
                             </b-button>
                         </b-col>
                     </b-row>
@@ -610,29 +610,20 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputQuest)
-                }).then(response => {
-                    // If an error occurred, the process it.
-                    if (response.status >= 400) {
-                        // Ensures the start and end date fields are not wiped after an error occurs.
-                        self.splitDates();
-                        // Converts response to text, this is then displayed on the frontend.
-                        response.text().then(data => {
-                            let responseBody = JSON.parse(data);
-                            let message = "";
-                            for (let i = 0; i < responseBody.length; i++) {
-                                message += responseBody[i].message + "\n";
-                            }
-                            self.errorMessage = message;
-                            self.showError = true;
-                        });
+                }).then(function (response) {
+                    self.splitDates();
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        self.parseJSON(response).then(body => {
-                            self.pointsRewarded = body.pointsRewarded;
-                            self.$emit('successCreate', {message: "Quest Successfully Created", pointsRewarded: self.pointsRewarded});
-                            self.$emit('cancelCreate');
-                        });
-
+                        return response.json();
                     }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    self.$emit('successCreate', {message: "Quest Successfully Created", reward: responseBody.reward});
+                    self.$emit('cancelCreate');
+                }).catch(function (response) {
+                    self.splitDates();
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -643,14 +634,21 @@
              * @return {Promise <Response | never>}     the fetch method promise.
              */
             getActiveUsers() {
+                let self = this;
                 return fetch('/v1/quests/' + this.inputQuest.id + '/profiles', {
                     accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(data => {
-                        this.activeUsers = data.length;
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    self.activeUsers = responseBody.length;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -667,23 +665,19 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputQuest)
                 }).then(function (response) {
-                    if (response.status >= 400) {
-                        // Ensures the start and end date fields are not wiped after an error occurs.
-                        self.splitDates();
-                        // Converts response to text, this is then displayed on the frontend.
-                        response.text().then(data => {
-                            let responseBody = JSON.parse(data);
-                            let message = "";
-                            for (let i = 0; i < responseBody.length; i++) {
-                                message += responseBody[i].message + "\n";
-                            }
-                            self.errorMessage = message;
-                            self.showError = true;
-                        });
+                    self.splitDates();
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        self.$emit('successEdit', "Quest Successfully Edited");
-                        self.$emit('cancelCreate')
+                        return response.json();
                     }
+                }).then(function () {
+                    self.showError = false;
+                    self.$emit('successEdit', "Quest Successfully Edited");
+                    self.$emit('cancelCreate')
+                }).catch(function (response) {
+                    self.splitDates();
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -964,20 +958,11 @@
              */
             getRadiusValue(radius) {
                 if (radius < 1) {
+                    // Convert radius value to metres by multiplying by 1000.
                     return radius * 1000 + " Meters"
                 }
                 return radius + " Km";
-            },
-
-
-            /**
-             * Converts the Http response body to a Json.
-             * @param response  the received Http response.
-             * @return {*}     the response body as a Json object.
-             */
-            parseJSON(response) {
-                return response.json();
-            },
+            }
         }
     }
 </script>

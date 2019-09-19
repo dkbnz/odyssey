@@ -13,14 +13,13 @@
                         <p>{{alertText}}</p>
                         <b-progress
                                 :max="dismissSeconds"
-                                :value="dismissCountDown"
+                                :value="dismissCountDown - 1"
                                 height="4px"
                                 variant="success"
                         ></b-progress>
                     </b-alert>
-                    <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="creatingQuest"
-                                       draggable="false">
+                    <b-list-group-item class="flex-column justify-content-center"
+                                       v-if="creatingQuest">
                         <quest-item
                                 :selected-objective="selectedObjective"
                                 :heading="'Create'"
@@ -32,9 +31,8 @@
                                 @Your-OBJ-side-bar="showHideBar => this.showYourObjectives = showHideBar"
                         ></quest-item>
                     </b-list-group-item>
-                    <b-list-group-item href="#" class="flex-column justify-content-center"
-                                       v-if="editingQuest"
-                                       draggable="false">
+                    <b-list-group-item class="flex-column justify-content-center"
+                                       v-if="editingQuest">
                         <quest-item
                                 :selected-objective="selectedObjective"
                                 :inputQuest="copiedQuest"
@@ -48,9 +46,8 @@
                         ></quest-item>
                     </b-list-group-item>
                     <div v-if="yourQuests">
-                        <b-list-group-item href="#" class="flex-column justify-content-center"
-                                           v-if="!creatingQuest && !editingQuest"
-                                           draggable="false">
+                        <b-list-group-item class="flex-column justify-content-center"
+                                           v-if="!creatingQuest && !editingQuest">
                             <div class="d-flex justify-content-center">
                                 <b-button variant="success" @click="addQuest" block>Add a New Quest</b-button>
                             </div>
@@ -60,7 +57,7 @@
                                        class="flex-column align-items-start"
                                        :key="quest.id"
                                        draggable="false"
-                                        v-if="!activeQuests"
+                                       v-if="!activeQuests"
                                        @click="selectedQuest = quest">
                         <template v-if="!editingQuest && !(activeId === quest.id)">
                             <b-row class="buttonMarginsTop">
@@ -106,38 +103,38 @@
                                              ref="questObjective"
                                              striped>
 
-                                    <template v-slot:cell(radius)="row">
-                                        {{getRadiusValue(row.item.radius)}}
-                                    </template>
-                                </b-table>
-                                <!-- Determines pagination and number of results per row of the table -->
-                                <b-row>
-                                    <b-col cols="2">
-                                        <b-form-group
-                                                id="numItems-field"
-                                                label-for="perPage">
-                                            <b-form-select :options="optionViews"
-                                                           id="perPage"
-                                                           size="sm"
-                                                           trim v-model="perPage">
-                                            </b-form-select>
-                                        </b-form-group>
-                                    </b-col>
-                                    <b-col>
-                                        <b-pagination
-                                                :per-page="perPage"
-                                                :total-rows="rows(quest)"
-                                                align="center"
-                                                aria-controls="my-table"
-                                                first-text="First"
-                                                last-text="Last"
-                                                size="sm"
-                                                v-model="currentPage">
-                                        </b-pagination>
-                                    </b-col>
-                                </b-row>
-                            </b-container>
-                        </div>
+                                        <template v-slot:cell(radius)="row">
+                                            {{getRadiusValue(row.item.radius)}}
+                                        </template>
+                                    </b-table>
+                                    <!-- Determines pagination and number of results per row of the table -->
+                                    <b-row>
+                                        <b-col cols="2">
+                                            <b-form-group
+                                                    id="numItems-field"
+                                                    label-for="perPage">
+                                                <b-form-select :options="optionViews"
+                                                               id="perPage"
+                                                               size="sm"
+                                                               trim v-model="perPage">
+                                                </b-form-select>
+                                            </b-form-group>
+                                        </b-col>
+                                        <b-col>
+                                            <b-pagination
+                                                    :per-page="perPage"
+                                                    :total-rows="rows(quest)"
+                                                    align="center"
+                                                    aria-controls="my-table"
+                                                    first-text="First"
+                                                    last-text="Last"
+                                                    size="sm"
+                                                    v-model="currentPage">
+                                            </b-pagination>
+                                        </b-col>
+                                    </b-row>
+                                </b-container>
+                            </div>
 
                             <b-row v-if="yourQuests">
                                 <b-col>
@@ -151,6 +148,21 @@
                         </template>
                         <!--Quest component-->
                     </b-list-group-item>
+                    <!---Load More--->
+                    <b-list-group-item class="flex-column justify-content-center" v-if="!yourQuests && !completedQuests">
+                        <div class="d-flex justify-content-center" v-if="loadingResults">
+                            <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
+                        </div>
+                        <div>
+                            <div v-if="moreResults && !loadingResults">
+                                <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>Load More</b-button>
+                            </div>
+                            <div class="d-flex justify-content-center" v-else-if="!moreResults && !loadingResults">
+                                <h5 class="mb-1">No More Results</h5>
+                            </div>
+                        </div>
+
+                    </b-list-group-item>
                 </b-list-group>
                 <!-- Confirmation modal for deleting a quest. -->
                 <b-modal hide-footer id="deleteQuestModal" ref="deleteQuestModal" title="Delete Quest">
@@ -161,13 +173,6 @@
                     <div class="d-block">
                         Are you sure that you want to delete this Quest?
                     </div>
-                    <!--Error when deleting quest alert-->
-                    <b-alert
-                            v-model="deleteAlertError"
-                            dismissible
-                            variant="danger">
-                        <p>{{deleteAlertMessage}}</p>
-                    </b-alert>
                     <b-button
                             class="mr-2 float-right"
                             variant="danger"
@@ -178,12 +183,12 @@
                             class="mr-2 float-right">Cancel
                     </b-button>
                 </b-modal>
-                <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults">
+                <b-list-group-item class="flex-column justify-content-center" v-if="loadingResults">
                     <div class="d-flex justify-content-center">
-                        <b-img alt="Loading" class="align-middle loading" src="../../../static/logo_sm.png"></b-img>
+                        <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
                     </div>
                 </b-list-group-item>
-                <b-list-group-item href="#" class="flex-column justify-content-center"
+                <b-list-group-item class="flex-column justify-content-center"
                                    v-if="!loadingResults && foundQuests.length === 0">
                     <div class="d-flex justify-content-center">
                         <strong>No Quests Found</strong>
@@ -281,8 +286,6 @@
                 dismissCountDown: 0,
                 alertText: "",
                 copiedQuest: null,
-                deleteAlertError: false,
-                deleteAlertMessage: "",
                 showDestinations: false,
                 showYourObjectives: false,
                 showQuestAttemptSolve: false,
@@ -316,18 +319,19 @@
                 questAttempts: [],
                 selectedQuestAttempt: {},
                 selectedQuest: {},
-                activeUsers: 0
+                activeUsers: 0,
+                queryPage: 0
             }
         },
 
         mounted() {
-            this.getMore();
             this.$bvToast.show('example-toast');
         },
 
         watch: {
             refreshQuests() {
-                this.getMore();
+                this.refreshList();
+                this.getMore()
             },
 
             profile() {
@@ -336,6 +340,14 @@
         },
 
         methods: {
+            /**
+             * Resets the foundQuests array and the query page for tab switching and lazy loading
+             */
+            refreshList() {
+                this.foundQuests = [];
+                this.queryPage = 0;
+            },
+
             /**
              * Used to convert the quest object into a Json object.
              */
@@ -348,7 +360,6 @@
              * Function to retrieve more quests when a user reaches the bottom of the list.
              */
             getMore() {
-                this.foundQuests = [];
                 if (this.yourQuests) {
                     this.queryYourQuests();
                 } else if(this.completedQuests) {
@@ -367,80 +378,97 @@
                 fetch('/v1/quests/' + this.questId, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.getMore();
-                        self.$refs['deleteQuestModal'].hide();
-                        self.alertText = "Quest Successfully Deleted";
-                        self.showAlert();
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
                     }
-                    else {
-                        // Converts response to text, this is then displayed on the frontend.
-                        let responseBody = JSON.parse(data);
-                        let message = "";
-                        for (let i = 0; i < responseBody.length; i++) {
-                            message += responseBody[i].message + "\n";
-                        }
-                        self.deleteAlertMessage = message;
-                        self.deleteAlertError = true;
-                    }
+                }).then(function () {
+                    self.getMore();
+                    self.$refs['deleteQuestModal'].hide();
+                    self.alertText = "Quest Successfully Deleted";
+                    self.showAlert();
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
                 });
             },
 
 
             /**
              * Runs a query which searches through the quests in the database and returns all.
-             *
-             * @return {Promise<Response | never>}
              */
             queryQuests() {
                 this.loadingResults = true;
-                return fetch('/v1/quests', {
+                let self = this;
+                return fetch('/v1/quests' + '?page=' + this.queryPage, {
                     accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.foundQuests = data;
-                        this.loadingResults = false;
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.loadingResults = false;
+                    if (responseBody !== null && responseBody !== undefined) {
+                        self.moreResults = responseBody.length > 0;
+                        self.queryPage += 1;
+                        self.foundQuests = self.foundQuests.concat(responseBody)
+                    }
+                }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
+                });
             },
 
 
             /**
              * Runs a query which searches through the quests in the database and returns only
              * quests created by the profile.
-             *
-             * @return {Promise<Response | never>}
              */
             queryYourQuests() {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
-                    return fetch(`/v1/quests/` + this.profile.id, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.foundQuests = data;
-                            this.loadingResults = false;
-                        })
+                    fetch(`/v1/quests/` + this.profile.id, {})
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.loadingResults = false;
+                            self.foundQuests = responseBody;
+                        }).catch(function (response) {
+                            self.loadingResults = false;
+                            self.handleErrorResponse(response);
+                        });
                 }
-
             },
 
 
             /**
              * Runs a query which searches through the quests in the database and returns only
              * quests started by the profile.
-             *
-             * @return {Promise<Response | never>}
              */
             queryYourActiveQuests() {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
-                    return fetch(`/v1/quests/profiles/` + this.profile.id, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.questAttempts = data;
-                            this.loadingResults = false;
-                        })
+                    fetch(`/v1/quests/profiles/` + this.profile.id, {})
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.loadingResults = false;
+                            self.questAttempts = responseBody;
+                        }).catch(function (response) {
+                            self.handleErrorResponse(response);
+                        });
                 }
 
             },
@@ -452,23 +480,28 @@
              * @return {Promise<Response | never>}
              */
             createAttempt(questToAttempt, viewActive) {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     return fetch(`/v1/quests/` + questToAttempt.id + `/attempt/` + this.profile.id, {
                         method: 'POST'
-                    }).then(response => {
-                        return response;
-                    }).then(response => response.json())
-                        .then(data => {
-                            // If 'start now' is clicked
-                            if (viewActive) {
-                                this.$emit('start-quest-now', data);
-                            } else {
-                                // Refresh quests
-                                this.getMore();
-                                this.showSuccess({message: "Quest started"});
-                                this.$emit('start-quest-later', data);
-                            }
-                        });
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        if (viewActive) {
+                            self.$emit('start-quest-now', responseBody);
+                        } else {
+                            // Refresh quests
+                            self.getMore();
+                            self.showSuccess({message: "Quest started"});
+                            self.$emit('start-quest-later', responseBody);
+                        }
+                    }).catch(function (response) {
+                        self.handleErrorResponse(response);
+                    });
                 }
             },
 
@@ -476,18 +509,26 @@
             /**
              * Runs a query which searches through the quests in the database and returns only
              * quests created by the profile.
-             *
-             * @return {Promise<Response | never>}
              */
             queryCompletedQuests() {
+                let self= this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
-                    return fetch(`/v1/quests/` + this.profile.id + `/complete`, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.foundQuests = data;
-                            this.loadingResults = false;
-                        })
+                    fetch(`/v1/quests/` + this.profile.id + `/complete`, {
+                        accept: 'application/json'
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        self.loadingResults = false;
+                        self.foundQuests = responseBody;
+                    }).catch(function (response) {
+                        self.loadingResults = false;
+                        self.handleErrorResponse(response);
+                    });
                 }
 
             },
@@ -536,12 +577,17 @@
                 let self = this;
                 return fetch('/v1/quests/' + this.questId + '/profiles', {
                     accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(data => {
-                        self.activeUsers = data.length;
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.activeUsers = responseBody.length;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -582,43 +628,16 @@
             /**
              * Sets the message for the success alert to the inputted message and runs showAlert to show the success
              * message.
-             * @param messageObject the object to display
+             *
+             * @param messageObject the object to display.
              */
             showSuccess(messageObject) {
                 this.getMore();
-                this.queryYourQuests();
+                this.showRewardToast(messageObject.reward);
                 this.alertText = messageObject.message;
-
-                // If points were given, also set the data value, otherwise make sure it's the default of 0 to hide it.
-                if (messageObject.pointsRewarded != null) {
-                    this.createPointToast(messageObject.pointsRewarded, "Quest Created");
-                }
                 this.showAlert();
             },
 
-
-            /**
-             * Displays a toast saying they've gained a certain amount of points.
-             * @param points the points to display.
-             * @param title the title of the toast, indicating the context of the point gain.
-             */
-            createPointToast(points, title) {
-                let message = "Your points have increased by " + points;
-                this.$bvToast.toast(message, {
-                    title: title,
-                    autoHideDelay: 3000,
-                    appendToast: true
-                })
-            },
-
-            /**
-             * Converts the Http response body to a Json.
-             * @param response  the received Http response.
-             * @return {*}     the response body as a Json object.
-             */
-            parseJSON(response) {
-                return response.json();
-            },
 
 
             /**
@@ -628,7 +647,6 @@
              */
             dismissModal(modal) {
                 this.$refs[modal].hide();
-                this.deleteAlertError = false;
             },
 
 
