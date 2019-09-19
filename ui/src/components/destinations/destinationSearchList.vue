@@ -129,23 +129,18 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
-                        if (responseBody !== null && responseBody !== undefined) {
-                            self.moreResults = responseBody.length >= 50;
-                            for (let i = 0; i < responseBody.length; i++) {
-                                self.foundDestinations.push(responseBody[i]);
-                            }
-                            self.$emit('destination-search', self.foundDestinations);
+                    self.loadingResults = false;
+                    if (responseBody !== null && responseBody !== undefined) {
+                        self.moreResults = responseBody.length >= 50;
+                        for (let i = 0; i < responseBody.length; i++) {
+                            self.foundDestinations.push(responseBody[i]);
                         }
-                }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
+                        self.$emit('destination-search', self.foundDestinations);
                     }
+                }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
                 });
-                this.loadingResults = false;
             }
         }
     }

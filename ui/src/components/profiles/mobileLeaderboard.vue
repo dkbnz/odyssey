@@ -12,6 +12,9 @@
         </div>
         <div v-if="page === 1">
             <b-button @click="page = 0" class="mt-2" block variant="primary">Return to Search</b-button>
+            <div class="d-flex justify-content-center mb-1 buttonMarginsTop">
+                <b-img alt="Loading" v-if="retrievingProfiles && initialLoad" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
+            </div>
             <mobile-profile-list
                     :loading="retrievingProfiles"
                     :profile-list="profiles"
@@ -22,13 +25,13 @@
             <div class="text-center" v-if="profiles.length === 0 && !retrievingProfiles">
                 <strong>Can't find any profiles!</strong>
             </div>
-            <div class="flex-column justify-content-center" v-else>
-                <div class="d-flex justify-content-center" v-if="retrievingProfiles">
-                    <b-img alt="Loading" class="loading"
+            <div class="flex-column justify-content-center">
+                <div class="d-flex justify-content-center">
+                    <b-img alt="Loading" v-if="retrievingProfiles && !initialLoad" class="loading"
                            :src="assets['loadingLogo']">
                     </b-img>
                 </div>
-                <div class="mt-2" v-else>
+                <div v-if="!retrievingProfiles && profiles.length > 0" class="mt-2">
                     <div v-if="moreResults">
                         <b-button variant="success" @click="getMore" block>Load More</b-button>
                     </div>
@@ -86,9 +89,11 @@
                 profiles: [],
                 selectedProfile: {},
                 moreResults: true,
-                searchParameters: null,
+                initialLoad: true,
                 queryPage: 0,
-                pageSize: 50,
+                pageSize: 10,
+                gettingMore: false,
+                searchParameters: null
             }
         },
 
@@ -99,6 +104,7 @@
             getMore() {
                 this.queryPage += 1;
                 this.queryProfiles(this.searchParameters);
+                this.gettingMore = true;
             },
 
 
@@ -109,10 +115,23 @@
              * @return {Promise <Response | never>}        the fetch method to retrieve profiles.
              */
             queryProfiles(searchParameters) {
-                this.searchParameters = searchParameters;
                 this.retrievingProfiles = true;
+                this.searchParameters = searchParameters;
+                let self = this;
+                let searchQuery = "";
                 this.page = 1;
-                let searchQuery =
+                if (!this.searchParameters) {
+                    searchQuery =
+                        "?name=" + "" +
+                        "&nationalities=" + "" +
+                        "&gender=" + "" +
+                        "&min_age=" + "" +
+                        "&max_age=" + "" +
+                        "&travellerTypes=" + "" +
+                        "&page=" + this.queryPage +
+                        "&pageSize=" + this.pageSize;
+                } else {
+                    searchQuery =
                         "?name=" + this.searchParameters.name +
                         "&nationalities=" + this.searchParameters.nationality +
                         "&gender=" + this.searchParameters.gender +
@@ -121,8 +140,7 @@
                         "&travellerTypes=" + this.searchParameters.travellerType +
                         "&page=" + this.queryPage +
                         "&pageSize=" + this.pageSize;
-
-                let self = this;
+                }
                 fetch(`/v1/profiles` + searchQuery, {})
                     .then(function (response) {
                         if (!response.ok) {
@@ -131,23 +149,29 @@
                             return response.json();
                         }
                     }).then(function (responseBody) {
-                        // If the response body is of size 50, we are not at the last page, more results available.
-                        self.moreResults = (responseBody.length === 50);
-
-                        for (let i = 0; i < responseBody.length; i++) {
-                            self.profiles.push(responseBody[i]);
-                        }
-                    }).catch(function (response) {
-                        if (response.status > 404) {
-                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        if (responseBody.length < 10) {
+                            self.moreResults = false;
+                            self.initialLoad = false;
                         } else {
-                            response.json().then(function(responseBody) {
-                                self.showErrorToast(responseBody);
-                            });
+                            self.moreResults = true;
+                            self.initialLoad = false;
                         }
+                        if (!self.gettingMore && responseBody.length === 0) {
+                            self.profiles = [];
+                        }
+                        for (let i = 0; i < responseBody.length; i++) {
+                            if (self.gettingMore) {
+                                self.profiles.push(responseBody[i]);
+                            } else {
+                                self.gettingMore = false;
+                                self.profiles = responseBody;
+                            }
+                        }
+                        self.retrievingProfiles = false;
+                    }).catch(function (response) {
+                        self.retrievingProfiles = false;
+                        self.handleErrorResponse(response);
                     });
-
-                this.retrievingProfiles = false;
             },
 
 

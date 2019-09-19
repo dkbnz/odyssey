@@ -1,7 +1,8 @@
 body {
     background-color: #e2e6ea;
     padding-top: 0;
-
+    overflow-x: hidden;
+    height: 100%;
 }
 
 
@@ -9,12 +10,10 @@ body {
     /* Background image used. */
     background: url("../../static/background_image.jpg");
     /* Center and scale the image nicely */
-    position: fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     background-size: cover;
     -o-background-size: cover;
-    width: 100vw;
     height: 100vh;
 }
 
@@ -62,7 +61,7 @@ body {
 /* Main section containing the logo and logo icon. Slides up after logos are brought in. */
 .animation {
     position: absolute;
-    z-index: -1;
+    z-index: 1;
     margin: auto;
     left: 25%;
     animation: moveUp 2s;
@@ -292,5 +291,81 @@ body {
         font-size: 0.8rem;
         line-height: 1;
         border-radius: 0.3rem;
+    }
+}
+
+.main {
+    background-color: white;
+    height: 100%;
+}
+
+.ct-btn-scroll {
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    z-index: 9;
+    border-radius: 50%;
+    -webkit-transition: background-color 0.25s ease-in-out;
+    transition: background-color 0.25s ease-in-out;
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
+}
+
+.jumbo {
+    padding-top: 10%;
+}
+
+img,
+figure {
+    max-width: 100%;
+}
+
+/* Animates the home page arrow to bounce up and down */
+.animatedArrow {
+    animation: bounce 2s infinite;
+    -webkit-animation: bounce 2s infinite;
+}
+
+.animatedArrow:hover {
+    width: 80px;
+    height: 80px;
+}
+
+@-webkit-keyframes bounce {
+    0%, 100% {
+        -webkit-transform: translateY(10px);
+    }
+    50% {
+        -webkit-transform: translateY(-10px);
+    }
+}
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(10px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.blurbFont {
+    font-size: 1.2em;
+}
+
+.blurbFontTitle {
+    font-size: 3em;
+}
+
+@media screen and (max-width: 766px) {
+    .blurbFont {
+        font-size: 1em;
+    }
+
+    .blurbFontTitle {
+        font-size: 2em;
     }
 }

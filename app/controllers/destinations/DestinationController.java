@@ -11,6 +11,7 @@ import models.destinations.Type;
 import models.photos.PersonalPhoto;
 import models.objectives.Objective;
 import models.util.ApiError;
+import models.util.Errors;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -49,17 +50,12 @@ public class DestinationController extends Controller {
     private static final String IS_PUBLIC = "is_public";
     private static final String PAGE = "page";
     private static final String AUTHORIZED = "authorized";
-    private static final String NOT_SIGNED_IN = "You are not logged in.";
     private static final String TRIP_COUNT = "trip_count";
     private static final String PHOTO_COUNT = "photo_count";
     private static final String DESTINATION_COUNT = "destination_count";
     private static final String MATCHING_TRIPS = "matching_trips";
     private static final String MATCHING_DESTINATIONS = "matching_destinations";
-    private static final String PROFILE_NOT_FOUND = "Requested profile not found";
-    private static final String LONGITUDE_INVALID = "Given longitude is not valid";
-    private static final String LATITUDE_INVALID = "Given latitude is not valid";
-    private static final String DUPLICATE_DESTINATION = "A destination with these details already exists either in " +
-            "your destinations or public destinations lists";
+    private static final String COUNTRY_REGEX = "^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$";
     private static final Double LATITUDE_LIMIT = 90.0;
     private static final Double LONGITUDE_LIMIT = 180.0;
 
@@ -111,7 +107,7 @@ public class DestinationController extends Controller {
 
         Destination destination = destinationRepository.findById(destinationId);
         if (destination == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
         }
 
         Profile destinationOwner = destination.getOwner();
@@ -207,7 +203,7 @@ public class DestinationController extends Controller {
             Profile destinationOwner = profileRepository.findById(Long.valueOf(request.getQueryString(OWNER)));
 
             if (destinationOwner == null) {
-                return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
+                return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
             }
 
             if (AuthenticationUtil.validUser(loggedInUser, destinationOwner)) {
@@ -230,7 +226,11 @@ public class DestinationController extends Controller {
 
         // If page query is set, load said page. Otherwise, return the first page.
         if (request.getQueryString(PAGE) != null && !request.getQueryString(PAGE).isEmpty()) {
-            pageNumber = Integer.parseInt(request.getQueryString(PAGE));
+            try {
+                pageNumber = Integer.parseInt(request.getQueryString(PAGE));
+            } catch (NumberFormatException e) {
+                return badRequest(ApiError.badRequest(Errors.INVALID_PAGE_SIZE_REQUESTED));
+            }
         }
 
         destinations = expressionList
@@ -295,7 +295,7 @@ public class DestinationController extends Controller {
         Profile profileToChange = profileRepository.findById(userId);
 
         if (profileToChange == null) {
-            return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
         }
 
         if (!AuthenticationUtil.validUser(loggedInUser, profileToChange)) {
@@ -355,10 +355,7 @@ public class DestinationController extends Controller {
             return false;
         }
 
-        // Check string inputs against regex
-        String nameRegEx = "^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$";
-
-        return country.matches(nameRegEx);
+        return country.matches(COUNTRY_REGEX);
     }
 
 
@@ -401,7 +398,7 @@ public class DestinationController extends Controller {
                     Profile profileToChange = profileRepository.findById(userId);
 
                     if (profileToChange == null) {
-                        return badRequest(ApiError.badRequest(PROFILE_NOT_FOUND));
+                        return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
                     }
 
                     if (loggedInUser == null) {
@@ -432,10 +429,10 @@ public class DestinationController extends Controller {
                         returnJson.put(DESTINATION_ID, destination.getId());
                         return created(returnJson);
                     } else {
-                        return badRequest(ApiError.badRequest(DUPLICATE_DESTINATION));
+                        return badRequest(ApiError.badRequest(Errors.DUPLICATE_DESTINATION));
                     }
                 })
-                .orElseGet(() -> unauthorized(NOT_SIGNED_IN)); // User is not logged in
+                .orElseGet(() -> unauthorized(ApiError.unauthorized())); // User is not logged in
     }
 
 
@@ -481,7 +478,7 @@ public class DestinationController extends Controller {
         Destination destination = destinationRepository.findById(destinationId);
 
         if (destination == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
         }
 
         if (!AuthenticationUtil.validUser(loggedInUser, destination.getOwner())) {
@@ -513,7 +510,7 @@ public class DestinationController extends Controller {
         Destination currentDestination = destinationRepository.findById(id);
 
         if (currentDestination == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
         }
 
 
@@ -526,11 +523,11 @@ public class DestinationController extends Controller {
         currentDestination.updateFromObject(Json.fromJson(json, Destination.class));
 
         if (currentDestination.getLongitude() > LONGITUDE_LIMIT || currentDestination.getLongitude() < -LONGITUDE_LIMIT) {
-            return badRequest(ApiError.badRequest(LONGITUDE_INVALID));
+            return badRequest(ApiError.badRequest(Errors.INVALID_LONGITUDE));
         }
 
         if (currentDestination.getLatitude() > LATITUDE_LIMIT || currentDestination.getLatitude() < -LATITUDE_LIMIT) {
-            return badRequest(ApiError.badRequest(LATITUDE_INVALID));
+            return badRequest(ApiError.badRequest(Errors.INVALID_LATITUDE));
         }
 
         mergeDestinations(currentDestination);

@@ -247,16 +247,8 @@
                     self.dismissModal('deleteDestinationModal');
                     self.$emit('destination-deleted');
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        self.loadingResults = false;
-                        response.json().then(function(responseBody) {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -277,16 +269,8 @@
                 }).then(function () {
                     self.destinationUsage = responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        self.loadingResults = false;
-                        response.json().then(function(responseBody) {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -344,21 +328,15 @@
                     }, 3000);
                     self.showEditTravellerTypes = false;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        self.loadingResults = false;
-                        response.json().then(function(responseBody) {
-                            self.showTravellerTypeUpdateSuccess = false;
-                            self.showError = false;
-                            self.showTravellerTypeUpdateFailure = true;
-                            setTimeout(function () {
-                                self.showTravellerTypeUpdateFailure = false;
-                            }, 3000);
-                            self.showEditTravellerTypes = false;
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.loadingResults = false;
+                    self.showTravellerTypeUpdateSuccess = false;
+                    self.showError = false;
+                    self.showTravellerTypeUpdateFailure = true;
+                    setTimeout(function () {
+                        self.showTravellerTypeUpdateFailure = false;
+                    }, 3000);
+                    self.showEditTravellerTypes = false;
+                    self.handleErrorResponse(response);
                 });
             }
         }

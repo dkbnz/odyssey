@@ -4,13 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
-import controllers.points.AchievementTrackerController;
-import models.points.Action;
 import models.quests.Quest;
 import models.util.ApiError;
 import models.profiles.Profile;
 import models.destinations.Destination;
 import models.objectives.Objective;
+import models.util.Errors;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -36,7 +35,6 @@ public class ObjectiveController {
     private static final Long GLOBAL_ADMIN_ID = 1L;
     private static final String DESTINATION_ERROR = "Provided Destination not found.";
     private static final String INVALID_JSON_FORMAT = "Invalid Json format.";
-    private static final String OBJECTIVE_IN_USE = "Cannot delete, objective is currently used in a quest.";
     private static final String NEW_OBJECTIVE_ID = "newObjectiveId";
 
     @Inject
@@ -74,7 +72,7 @@ public class ObjectiveController {
         Profile objectiveOwner = profileRepository.findById(userId);
 
         if (objectiveOwner == null) {
-            return badRequest(ApiError.invalidJson());
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
         }
 
         if (!AuthenticationUtil.validUser(loggedInUser, objectiveOwner)) {
@@ -112,7 +110,7 @@ public class ObjectiveController {
         Profile globalAdmin = profileRepository.findById(GLOBAL_ADMIN_ID);
 
         if (globalAdmin == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         if (objectiveDestination != null) {
@@ -162,7 +160,7 @@ public class ObjectiveController {
         Objective objective = objectiveRepository.findById(objectiveId);
 
         if (objective == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.OBJECTIVE_NOT_FOUND));
         }
 
         Profile objectiveOwner = objective.getOwner();
@@ -232,7 +230,7 @@ public class ObjectiveController {
         Objective objective = objectiveRepository.findById(objectiveId);
 
         if (objective == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.OBJECTIVE_NOT_FOUND));
         }
 
         Profile objectiveOwner = objective.getOwner();
@@ -244,7 +242,7 @@ public class ObjectiveController {
         List<Quest> quests = questRepository.findAllUsing(objective);
 
         if (!quests.isEmpty()) {
-            return badRequest(ApiError.badRequest(OBJECTIVE_IN_USE));
+            return badRequest(ApiError.badRequest(Errors.OBJECTIVE_IN_USE));
         }
 
         if (objectiveOwner != null) {
@@ -293,8 +291,8 @@ public class ObjectiveController {
      * @param request   the request from the front end of the application containing login information.
      * @return          ok() (Http 200) containing a Json body of the retrieved objectives.
      *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
-     *      *           forbidden() (Http 401) response containing an ApiError for disallowed retrieval.
-     *      *           unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
+     *                  forbidden() (Http 401) response containing an ApiError for disallowed retrieval.
+     *                  unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
      *
      */
     public Result fetchByOwner(Http.Request request, Long ownerId) {
@@ -306,7 +304,7 @@ public class ObjectiveController {
         Profile requestedUser = profileRepository.findById(ownerId);
 
         if (requestedUser == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         if (!AuthenticationUtil.validUser(loggedInUser, requestedUser)) {

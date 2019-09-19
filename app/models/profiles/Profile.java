@@ -283,24 +283,25 @@ public class Profile extends BaseModel {
         return photoGallery.remove(photoToRemove);
     }
 
+
     public int getNumberOfQuestsCreated() {
+        if (myQuests == null) {
+            return 0;
+        }
         return myQuests.size();
     }
 
 
     /**
-     * Calculates the number of quests completed. Returns it as a Transient value, therefore doesn't need to be stored
-     * in the database.
+     * Calculates the number of quests the given profile has completed using the Java streams method.
      *
      * @return the total number of quests the profile has completed.
      */
-    public int getNumberOfQuestsCompleted() {
-        for (QuestAttempt questAttempt : questAttempts) {
-            if (questAttempt.isCompleted()) {
-                numberOfQuestsCompleted+= 1;
-            }
+    public long getNumberOfQuestsCompleted() {
+        if (questAttempts == null) {
+            return 0;
         }
-        return numberOfQuestsCompleted;
+        return questAttempts.stream().filter(QuestAttempt::isCompleted).count();
     }
 
 

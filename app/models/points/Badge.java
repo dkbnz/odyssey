@@ -12,16 +12,26 @@ public class Badge extends BaseModel {
     private static final String MAX_LEVEL = "You have fully achieved this badge!";
     private static final ImmutableList<String> LEVELS = ImmutableList.of("bronze", "silver", "gold", "max");
 
-    @Column(unique = true, nullable = false, name = "action_to_achieve")    // Declares that the name needs to be unique through the database.
+    // Unique value declares that the name needs to be unique through the database.
+    @Column(unique = true, nullable = false, name = "action_to_achieve")
     @Enumerated(EnumType.STRING)
     private Action actionToAchieve;
 
     private String name;
 
+    /**
+     * Required progress to achieve the bronze level for the badge.
+     */
     private int bronzeBreakpoint;
 
+    /**
+     * Required progress to achieve the silver level for the badge.
+     */
     private int silverBreakpoint;
 
+    /**
+     * Required progress to achieve the gold level for the badge.
+     */
     private int goldBreakpoint;
 
     private String howToProgress;

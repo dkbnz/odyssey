@@ -18,14 +18,25 @@
             this.getNationalities();
             this.getTravellerTypes();
             this.getDestinationTypes();
+            this.handleRedirect();
         },
 
         data() {
             return {
-                profile: {},
+                profile: null,
                 nationalityOptions: [],
                 travTypeOptions: [],
                 destinationTypes: []
+            }
+        },
+
+        watch: {
+            /**
+             * Used to re-fetch the profile whenever the route address changes. This is to ensure any user data is
+             * updated as the navigate through the application.
+             */
+            $route () {
+                this.getProfile();
             }
         },
 
@@ -46,13 +57,7 @@
                 }).then(function (responseBody) {
                     self.destinationTypes = responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -73,8 +78,8 @@
                 }).then(function (responseBody) {
                     self.profile = responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                    if (self.$router.currentRoute.name !== "index") {
+                        self.handleErrorResponse(response);
                     }
                 });
             },
@@ -96,13 +101,7 @@
                 }).then(function (responseBody) {
                     self.nationalityOptions = responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -123,14 +122,18 @@
                 }).then(function (responseBody) {
                     self.travTypeOptions = responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
+            },
+
+
+            /**
+             * When the user manually changes the router, handles redirect to the index page if they are not logged in.
+             */
+            handleRedirect() {
+                if (this.$router.currentRoute.name !== 'index' && !this.profile) {
+                    this.$router.replace('/');
+                }
             }
         }
     }
