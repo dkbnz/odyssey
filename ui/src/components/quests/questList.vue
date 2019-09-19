@@ -43,6 +43,7 @@
                                 :selectedDestination="destinationSelected"
                                 @OBJ-side-bar="showHideBar => this.showDestinations = showHideBar"
                                 @Your-OBJ-side-bar="showHideBar => this.showYourObjectives = showHideBar"
+                                @add-hint-side-bar="showHintSidebar"
                         ></quest-item>
                     </b-list-group-item>
                     <div v-if="yourQuests">
@@ -204,6 +205,11 @@
                             v-if="completedQuests"
                             :quest="selectedQuest">
                     </completed-quest-details>
+                    <create-hint
+                            v-if="showHintSideBar"
+                            :profile="profile"
+                            :objective="currentObjective">
+                    </create-hint>
                 </b-card>
             </b-col>
         </b-row>
@@ -218,6 +224,7 @@
     import QuestAttemptSolve from "./activeQuestSolve";
     import ActiveQuestList from "./activeQuestPage";
     import CompletedQuestDetails from "./completedQuestDetails";
+    import CreateHint from "../hints/createHint";
 
     export default {
         name: "questList",
@@ -274,6 +281,8 @@
                 showDestinations: false,
                 showYourObjectives: false,
                 showQuestAttemptSolve: false,
+                showHintSideBar: false,
+                currentObjective: "",
                 selectedObjectiveTemplate: {
                     id: null,
                     destination: null,
@@ -651,6 +660,14 @@
             },
 
 
+            /**
+             * Show the hint sidebar for adding a hint to an objective
+             */
+            showHintSidebar(objective) {
+                this.showHintSideBar = true;
+                this.currentObjective = objective;
+            },
+
 
             /**
              * Used to dismiss the delete a quest confirmation modal.
@@ -774,6 +791,7 @@
         },
 
         components: {
+            CreateHint,
             CompletedQuestDetails,
             ActiveQuestList,
             QuestAttemptSolve,
