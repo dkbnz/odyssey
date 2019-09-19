@@ -106,7 +106,7 @@
                                   trim
                                   type="date" v-model="dateOfBirth"></b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
-                        You can be born in the future or before 01/01/1900.
+                        You can't be born in the future or before 01/01/1900.
                     </b-form-invalid-feedback>
                 </b-form-group>
 
@@ -531,6 +531,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function (response) {
+                    console.log(response);
                     if (!response.ok) {
                         throw response;
                     } else {
@@ -545,13 +546,7 @@
                         self.$emit('profile-created', true);
                     }
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             }
         }

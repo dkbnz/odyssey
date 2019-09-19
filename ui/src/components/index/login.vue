@@ -28,13 +28,13 @@
             <b-button block id="sign-in" type="submit" variant="primary">
                 Sign In
             </b-button>
-            <div class="loader" v-if="loading">
-                <div class="loader-content">
-                    <b-img alt="Loading" class="loading" :src="assets['loadingLogoBig']"></b-img>
-                    <h1>Checking login details...</h1>
-                </div>
-            </div>
         </b-form>
+        <div class="loader" v-if="loading">
+            <div class="loader-content">
+                <b-img alt="Loading" class="loading" :src="assets['loadingLogoBig']"></b-img>
+                <h1>Checking login details...</h1>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -58,8 +58,8 @@
              * (HTTP 200), then an error is shown.
              */
             login() {
-                this.loading = true;
                 let self = this;
+                this.loading = true;
                 fetch('/v1/login', {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
@@ -72,6 +72,7 @@
                         return response.json();
                     }
                 }).then(function(responseBody) {
+                    self.loading = false;
                     self.updateActivity();
                     if (responseBody.admin) {
                         self.$router.replace("/admin");
@@ -81,14 +82,15 @@
                     self.$emit('profile-received');
                     return responseBody;
                 }).catch(function (response) {
+                    self.loading = false;
+                    // If user credentials are incorrect, response is unauthorized.
                     if (response.status === 401) {
                         self.alertMessage = "Invalid username or password";
                         self.showError = true;
                     } else {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.handleErrorResponse(response);
                     }
                 });
-                this.loading = false;
             }
         }
     }

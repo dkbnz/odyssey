@@ -3,7 +3,8 @@ import App from './App.vue'
 import BootstrapVue from 'bootstrap-vue'
 import router from './router'
 import VueRouter from 'vue-router';
-import VueSlider from 'vue-slider-component'
+import VueSlider from 'vue-slider-component';
+import ScrollDown from './assets/scroll-down';
 
 import assets from './assets/assets';
 
@@ -15,6 +16,7 @@ import RewardToast from "./components/helperComponents/rewardToast";
 import ErrorToast from "./components/helperComponents/errorToast";
 
 Vue.use(VueRouter);
+Vue.use(ScrollDown);
 
 Vue.component('VueSlider', VueSlider);
 
@@ -39,9 +41,9 @@ Vue.mixin({
             if((rewardJson.hasOwnProperty('badgesAchieved') && rewardJson.badgesAchieved.length) || (rewardJson.hasOwnProperty('pointsRewarded'))) {
                 for (let j = 0; j < rewardJson.pointsRewarded.length; j++) {
                     if (rewardJson.pointsRewarded[j]) {
-                        const h = this.$createElement;
+                        const toastElement = this.$createElement;
 
-                        const toastContent = h(
+                        const toastContent = toastElement(
                             'reward-toast',
                             {props: {pointsRewarded: rewardJson.pointsRewarded[j]}}
                         );
@@ -57,8 +59,8 @@ Vue.mixin({
                 }
                 for (let i = 0; i < rewardJson.badgesAchieved.length; i++) {
                     if (rewardJson.badgesAchieved[i]) {
-                        const h = this.$createElement;
-                        const toastContent = h(
+                        const toastElement = this.$createElement;
+                        const toastContent = toastElement(
                             'reward-toast',
                             {props: {badgeAchieved: rewardJson.badgesAchieved[i]}}
                         );
@@ -79,11 +81,11 @@ Vue.mixin({
         /**
          * Displays a toast on the page if the user increases their login streak.
          *
-         * @param streakValue
+         * @param streakValue   the value of the user's current login streak to be displayed on the toast.
          */
         showStreakToast(streakValue) {
-            const h = this.$createElement;
-            const toastContent = h(
+            const toastElement = this.$createElement;
+            const toastContent = toastElement(
                 'reward-toast',
                 {props: {streakValue: streakValue}}
             );
@@ -99,27 +101,51 @@ Vue.mixin({
 
 
         /**
-         * Displays a toast on the page if an error occurs in the backend.
+         * Handles any unsatisfactory response from the backend after sending a request. If the response body is a Json
+         * form, then display a toast containing the response Json messages. Otherwise displays a generic error toast.
          *
          * @param errorResponse     the Json body of the response error.
          */
-        showErrorToast(errorResponse) {
-            for (let i = 0; i < errorResponse.length; i++) {
-                const h = this.$createElement;
+        handleErrorResponse(errorResponse) {
+            // Checks the response is in a Json form, otherwise show a generic message.
+            if (errorResponse.headers.get("content-type").indexOf("application/json") !== -1) {
+                errorResponse.json().then(responseBody => {
+                        if(responseBody[0].hasOwnProperty('message')) {
+                            for (let i = 0; i < responseBody.length; i++) {
+                                this.showErrorToast(responseBody[i].message);
+                            }
+                        } else {
+                            this.showErrorToast("An unexpected error occurred.")
+                        }
+                    }
 
-                const toastContent = h(
-                    'error-toast',
-                    {props: {errorMessage: errorResponse[i].message}}
                 );
-
-                this.$bvToast.toast([toastContent], {
-                    title: "Oh dear, an error occurred",
-                    autoHideDelay: 10000,
-                    appendToast: true,
-                    solid: true,
-                    variant: 'danger'
-                });
+            } else {
+                this.showErrorToast("An unexpected error occurred.");
             }
+        },
+
+
+        /**
+         * Takes a message string to display an error toast if any backend response error occurs.
+         *
+         * @param message   string message to be displayed as an error.
+         */
+        showErrorToast(message) {
+            const toastElement = this.$createElement;
+
+            const toastContent = toastElement(
+                'error-toast',
+                {props: {errorMessage: message}}
+            );
+
+            this.$bvToast.toast([toastContent], {
+                title: "Oh dear, an error occurred",
+                autoHideDelay: 10000,
+                appendToast: true,
+                solid: true,
+                variant: 'danger'
+            });
         },
 
 
@@ -196,8 +222,8 @@ Vue.mixin({
                 TRIP_CREATED: 'Trip Created',
                 RIDDLE_SOLVED: 'Riddle Solved',
                 CHECKED_IN: 'Checked In',
-                QUEST_COMPLETED: 'Quest Completed'
-
+                QUEST_COMPLETED: 'Quest Completed',
+                HINT_CREATED: 'Hint Created'
             },
             MINUTE: 60000
         }

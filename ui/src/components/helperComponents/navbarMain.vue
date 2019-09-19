@@ -77,15 +77,7 @@
                     self.$router.push("/");
                     return response;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.errorMessage = self.getErrorMessage(responseBody);
-                            self.showError = true;
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 

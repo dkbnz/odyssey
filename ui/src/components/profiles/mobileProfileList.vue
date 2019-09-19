@@ -1,5 +1,5 @@
 <template>
-    <div class="scroll">
+    <div>
         <b-list-group>
             <b-list-group-item href="#"
                                class="flex-column align-items-start"

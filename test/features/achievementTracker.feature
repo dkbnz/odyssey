@@ -104,6 +104,24 @@ Feature: Achievement Tracker API Endpoint
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
     Then I have gained points
 
+
+  Scenario: Creating a trip
+    Given the application is running
+    And I am logged in
+    And I have some starting points
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    Then the status code received is 201
+    Then I have gained points
+
 #Badges
   Scenario: Successfully requesting all badges
     Given the application is running
@@ -209,7 +227,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Creating my first quest and getting a bronze level Writer badge
     Given the application is running
-    And I am logged in as user with id "7"
+    And I am logged in as user with id "4"
     And I currently have no "quests" created
     When I start to create a quest using the following values
       | Title      | Start Date | End Date |

@@ -29,16 +29,12 @@
             </photoUploader>
         </b-modal>
 
-        <div class="d-flex justify-content-center mb-3">
-            <b-img alt="Loading" class="mt-3 align-middle loading" v-if="retrievingPhotos" :src="assets['loadingLogo']"></b-img>
-            <p v-if="photos.length === 0 && !retrievingPhotos"><b>No photos found.</b></p>
-        </div>
-
         <photo-table :photos="photos"
                      :key="reloadPhotoTable"
                      :profile="profile"
                      :userProfile="userProfile"
                      :adminView="adminView"
+                     :retrieving-photos="retrievingPhotos"
                      @privacy-update="updatePhotoPrivacy"
                      @photo-click="photoClicked"
         >
@@ -170,13 +166,7 @@
                     self.alertMessage = "Photo Successfully Added!";
                     self.showAlert();
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -228,13 +218,7 @@
                     self.showAlert();
                     self.$emit("removePhoto", self.photoToView.id);
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -276,13 +260,7 @@
                     self.alertMessage = "Profile picture successfully changed!";
                     self.showAlert();
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -315,14 +293,7 @@
                         self.showError = false;
                         self.retrievingPhotos = false;
                     }).catch(function (response) {
-                        if (response.status > 404) {
-                            self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                        } else {
-                            self.retrievingPhotos = false;
-                            response.json().then(function(responseBody) {
-                                self.showErrorToast(responseBody);
-                            });
-                        }
+                        self.handleErrorResponse(response);
                     });
                 }
             },
@@ -373,14 +344,7 @@
                     self.showError = false;
                     self.photos = responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
-                    } else {
-                        self.retrievingPhotos = false;
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
