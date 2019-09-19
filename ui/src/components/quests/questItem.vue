@@ -212,6 +212,7 @@
                                       block>Delete
                             </b-button>
                             <b-button size="sm"
+                                      v-if="heading === 'Edit'"
                                       @click="addHint(row.item)"
                                       variant="primary"
                                       class="mr-2"

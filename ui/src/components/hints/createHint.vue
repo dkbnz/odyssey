@@ -23,7 +23,7 @@
                     </b-button>
                 </b-col>
                 <b-col>
-                    <b-button @click="createHint" block variant="primary">
+                    <b-button @click="createHint" block variant="primary" :disabled="!this.hintValidation">
                         Submit
                     </b-button>
                 </b-col>
@@ -70,14 +70,14 @@
              * Creates the hint.
              */
             createHint() {
+                let self = this;
                 if (this.validateFields) {
-                    console.log(this.hint)
                     fetch('/v1/objectives/' + this.objective.id + '/hints/' + this.profile.id, {
                         method: 'POST',
                         headers: {'content-type': 'application/json'},
                         body: JSON.stringify(this.hint)
                     }).then(function (response) {
-                        if (!response.ok) {
+                        if (response.status !== 201) {
                             throw response;
                         } else {
                             return response.json();
@@ -99,7 +99,15 @@
 
 
             /**
-             * Checks the validation fields for hint creation
+             * Cancels the creation of a hint and emits to hide the create sidebar component.
+             */
+            cancelHint() {
+                this.$emit('cancelCreate');
+            },
+
+
+            /**
+             * Checks the validation fields for hint creation.
              *
              * @return {boolean} true if the fields are valid.
              */
