@@ -643,9 +643,11 @@
             /**
              * Success create hint show
              */
-            successCreateHint() {
+            successCreateHint(responseBody) {
                 this.alertText = "Hint successfully created!";
                 this.showAlert();
+                this.showRewardToast(responseBody.reward);
+                this.showHintSideBar = false;
             },
 
 
