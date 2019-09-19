@@ -370,7 +370,7 @@
                     self.destinationTypes = responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -397,7 +397,7 @@
                     self.countryList = responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -484,11 +484,11 @@
                 }).then(function (responseBody) {
                     self.resetDestForm();
                     self.showAlert();
-                    self.createPointToast(responseBody.pointsRewarded, "Destination Created");
+                    self.showRewardToast(responseBody.reward);
                     return responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -519,7 +519,7 @@
                     return responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -548,7 +548,7 @@
                     self.editDestinationConflicts = responseBody;
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
@@ -589,29 +589,13 @@
                     self.$emit('destination-saved', responseBody);
                 }).catch(function (response) {
                     if (response.status > 404) {
-                        self.showErrorToast(JSON.parse(JSON.stringify([{message: "An unexpected error occurred"}])));
+                        self.showErrorToast([{message: "An unexpected error occurred"}]);
                     } else {
                         response.json().then(function(responseBody) {
                             self.showErrorToast(responseBody);
                         });
                     }
                 });
-            },
-
-
-            /**
-             * Displays a toast saying they've gained a certain amount of points.
-             *
-             * @param points the points to display.
-             * @param title the title of the toast, indicating the context of the point gain.
-             */
-            createPointToast(points, title) {
-                let message = "Your points have increased by " + points;
-                this.$bvToast.toast(message, {
-                    title: title,
-                    autoHideDelay: 3000,
-                    appendToast: true
-                })
             },
 
 
