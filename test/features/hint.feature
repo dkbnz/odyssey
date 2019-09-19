@@ -13,20 +13,21 @@ Feature: Hint API Endpoint
     And I have gained points
 
 
-  Scenario: Successfully creating a hint as a regular user that has solved the objective
-    Given the application is running
-    And I am logged in
-    And I have some starting points
-    And an objective exists with id 30
-    And I do not own the objective with id 30
-    And I have solved the objective with id 30
-    When I attempt to create a hint with the following values for the objective with id 30
-      | Message |
-      | WEEEEST |
-    Then the status code received is 201
-    And I have gained points
+#  Scenario: Successfully creating a hint as a regular user that has solved the objective
+#    Given the application is running
+#    And I am logged in
+#    And I have some starting points
+#    And an objective exists with id 30
+#    And I do not own the objective with id 30
+#    And I have solved the objective with id 30
+#    When I attempt to create a hint with the following values for the objective with id 30
+#      | Message |
+#      | WEEEEST |
+#    Then the status code received is 201
+#    And I have gained points
 
     #  TODO: Vinnie and Matilda, rework the test database insertions so these can pass without affecting older tests
+#      TODO: Also add points.
 #  Scenario: Successfully creating a hint as a regular user that has solved the objective in a completed quest
 #    Given the application is running
 #    And I am logged in
