@@ -104,38 +104,38 @@
                                              ref="questObjective"
                                              striped>
 
-                                    <template v-slot:cell(radius)="row">
-                                        {{getRadiusValue(row.item.radius)}}
-                                    </template>
-                                </b-table>
-                                <!-- Determines pagination and number of results per row of the table -->
-                                <b-row>
-                                    <b-col cols="2">
-                                        <b-form-group
-                                                id="numItems-field"
-                                                label-for="perPage">
-                                            <b-form-select :options="optionViews"
-                                                           id="perPage"
-                                                           size="sm"
-                                                           trim v-model="perPage">
-                                            </b-form-select>
-                                        </b-form-group>
-                                    </b-col>
-                                    <b-col>
-                                        <b-pagination
-                                                :per-page="perPage"
-                                                :total-rows="rows(quest)"
-                                                align="center"
-                                                aria-controls="my-table"
-                                                first-text="First"
-                                                last-text="Last"
-                                                size="sm"
-                                                v-model="currentPage">
-                                        </b-pagination>
-                                    </b-col>
-                                </b-row>
-                            </b-container>
-                        </div>
+                                        <template v-slot:cell(radius)="row">
+                                            {{getRadiusValue(row.item.radius)}}
+                                        </template>
+                                    </b-table>
+                                    <!-- Determines pagination and number of results per row of the table -->
+                                    <b-row>
+                                        <b-col cols="2">
+                                            <b-form-group
+                                                    id="numItems-field"
+                                                    label-for="perPage">
+                                                <b-form-select :options="optionViews"
+                                                               id="perPage"
+                                                               size="sm"
+                                                               trim v-model="perPage">
+                                                </b-form-select>
+                                            </b-form-group>
+                                        </b-col>
+                                        <b-col>
+                                            <b-pagination
+                                                    :per-page="perPage"
+                                                    :total-rows="rows(quest)"
+                                                    align="center"
+                                                    aria-controls="my-table"
+                                                    first-text="First"
+                                                    last-text="Last"
+                                                    size="sm"
+                                                    v-model="currentPage">
+                                            </b-pagination>
+                                        </b-col>
+                                    </b-row>
+                                </b-container>
+                            </div>
 
                             <b-row v-if="yourQuests">
                                 <b-col>
@@ -148,6 +148,21 @@
                             </b-row>
                         </template>
                         <!--Quest component-->
+                    </b-list-group-item>
+                    <!---Load More--->
+                    <b-list-group-item class="flex-column justify-content-center" v-if="!yourQuests && !completedQuests">
+                        <div class="d-flex justify-content-center" v-if="loadingResults">
+                            <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
+                        </div>
+                        <div>
+                            <div v-if="moreResults && !loadingResults">
+                                <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>Load More</b-button>
+                            </div>
+                            <div class="d-flex justify-content-center" v-else-if="!moreResults && !loadingResults">
+                                <h5 class="mb-1">No More Results</h5>
+                            </div>
+                        </div>
+
                     </b-list-group-item>
                 </b-list-group>
                 <!-- Confirmation modal for deleting a quest. -->
@@ -317,18 +332,19 @@
                 questAttempts: [],
                 selectedQuestAttempt: {},
                 selectedQuest: {},
-                activeUsers: 0
+                activeUsers: 0,
+                queryPage: 0
             }
         },
 
         mounted() {
-            this.getMore();
             this.$bvToast.show('example-toast');
         },
 
         watch: {
             refreshQuests() {
-                this.getMore();
+                this.refreshList();
+                this.getMore()
             },
 
             profile() {
@@ -337,6 +353,14 @@
         },
 
         methods: {
+            /**
+             * Resets the foundQuests array and the query page for tab switching and lazy loading
+             */
+            refreshList() {
+                this.foundQuests = [];
+                this.queryPage = 0;
+            },
+
             /**
              * Used to convert the quest object into a Json object.
              */
@@ -349,7 +373,6 @@
              * Function to retrieve more quests when a user reaches the bottom of the list.
              */
             getMore() {
-                this.foundQuests = [];
                 if (this.yourQuests) {
                     this.queryYourQuests();
                 } else if(this.completedQuests) {
@@ -379,13 +402,7 @@
                     self.alertText = "Quest Successfully Deleted";
                     self.showAlert();
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -396,7 +413,7 @@
             queryQuests() {
                 this.loadingResults = true;
                 let self = this;
-                fetch('/v1/quests', {
+                return fetch('/v1/quests' + '?page=' + this.queryPage, {
                     accept: "application/json"
                 }).then(function (response) {
                     if (!response.ok) {
@@ -405,17 +422,16 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
-                    self.foundQuests = responseBody;
-                }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
+                    self.loadingResults = false;
+                    if (responseBody !== null && responseBody !== undefined) {
+                        self.moreResults = responseBody.length > 0;
+                        self.queryPage += 1;
+                        self.foundQuests = self.foundQuests.concat(responseBody)
                     }
+                }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
                 });
-                this.loadingResults = false;
             },
 
 
@@ -435,17 +451,12 @@
                                 return response.json();
                             }
                         }).then(function (responseBody) {
+                            self.loadingResults = false;
                             self.foundQuests = responseBody;
                         }).catch(function (response) {
-                            if (response.status > 404) {
-                                self.showErrorToast([{message: "An unexpected error occurred"}]);
-                            } else {
-                                response.json().then(function(responseBody) {
-                                    self.showErrorToast(responseBody);
-                                });
-                            }
+                            self.loadingResults = false;
+                            self.handleErrorResponse(response);
                         });
-                    this.loadingResults = false;
                 }
             },
 
@@ -466,17 +477,11 @@
                                 return response.json();
                             }
                         }).then(function (responseBody) {
+                            self.loadingResults = false;
                             self.questAttempts = responseBody;
                         }).catch(function (response) {
-                            if (response.status > 404) {
-                                self.showErrorToast([{message: "An unexpected error occurred"}]);
-                            } else {
-                                response.json().then(function(responseBody) {
-                                    self.showErrorToast(responseBody);
-                                });
-                            }
+                            self.handleErrorResponse(response);
                         });
-                    this.loadingResults = false;
                 }
 
             },
@@ -508,13 +513,7 @@
                             self.$emit('start-quest-later', responseBody);
                         }
                     }).catch(function (response) {
-                        if (response.status > 404) {
-                            self.showErrorToast([{message: "An unexpected error occurred"}]);
-                        } else {
-                            response.json().then(function(responseBody) {
-                                self.showErrorToast(responseBody);
-                            });
-                        }
+                        self.handleErrorResponse(response);
                     });
                 }
             },
@@ -537,17 +536,12 @@
                             return response.json();
                         }
                     }).then(function (responseBody) {
+                        self.loadingResults = false;
                         self.foundQuests = responseBody;
                     }).catch(function (response) {
-                        if (response.status > 404) {
-                            self.showErrorToast([{message: "An unexpected error occurred"}]);
-                        } else {
-                            response.json().then(function(responseBody) {
-                                self.showErrorToast(responseBody);
-                            });
-                        }
+                        self.loadingResults = false;
+                        self.handleErrorResponse(response);
                     });
-                    this.loadingResults = false;
                 }
 
             },
@@ -605,13 +599,7 @@
                 }).then(function (responseBody) {
                     self.activeUsers = responseBody.length;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -665,7 +653,7 @@
              * Sets the message for the success alert to the inputted message and runs showAlert to show the success
              * message.
              *
-             * @param messageObject the object to display
+             * @param messageObject the object to display.
              */
             showSuccess(messageObject) {
                 this.getMore();

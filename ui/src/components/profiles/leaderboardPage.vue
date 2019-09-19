@@ -1,5 +1,5 @@
 <template>
-    <div v-if="profile.length !== 0">
+    <div v-if="profile">
         <navbar-main v-bind:profile="profile" v-if="!minimalInfo"></navbar-main>
 
         <div class="d-block d-lg-none">
@@ -29,12 +29,14 @@
 
     export default {
         name: "leaderboardPage",
+
         components: {
             UnauthorisedPrompt,
             DesktopLeaderboard,
             MobileLeaderboard,
             NavbarMain
         },
+
         props: {
             profile: Object,
             minimalInfo: {
