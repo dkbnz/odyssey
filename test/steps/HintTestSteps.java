@@ -190,6 +190,7 @@ public class HintTestSteps {
         }
     }
 
+
     @When("^I attempt to create a hint for user (\\d+) with the following values for the objective with id (\\d+)$")
     public void iAttemptToCreateAHintWithTheFollowingValuesForTheObjectiveWithId(Integer userId, Integer objectiveId, io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(userId.toString());
@@ -198,6 +199,7 @@ public class HintTestSteps {
             createHintRequest(json, objectiveId);
         }
     }
+
 
     @When("^I attempt to retrieve all hints for the objective with id (\\d+)$")
     public void iAttemptToRetrieveAllHintsForTheObjectiveWithId(Integer objectiveId) {
