@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import models.destinations.Destination;
+import models.hints.Hint;
 import models.objectives.Objective;
 import models.points.AchievementTracker;
 import models.points.Action;
@@ -20,7 +21,6 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.points.AchievementTrackerRepository;
 import repositories.points.BadgeRepository;
 import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
@@ -42,8 +42,8 @@ public class AchievementTrackerController extends Controller {
 
     private static final int SINGLE_COUNTRY = 1;
     private static final int INCREMENT_ONE = 1;
-
     private static final int ADVENTURER_THRESHOLD = 10;
+    private static final int RADIUS_OF_THE_EARTH = 6371;
 
 
     private ProfileRepository profileRepository;
@@ -55,7 +55,6 @@ public class AchievementTrackerController extends Controller {
     @Inject
     public AchievementTrackerController(ProfileRepository profileRepository,
                                         PointRewardRepository pointRewardRepository,
-                                        AchievementTrackerRepository achievementTrackerRepository,
                                         BadgeRepository badgeRepository,
                                         ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
@@ -69,9 +68,9 @@ public class AchievementTrackerController extends Controller {
      * Adds points to the given profile. The point value is determined by the action completed.
      * Progresses the Overachiever badge.
      *
-     * @param actingProfile     the profile receiving points
-     * @param action            the action being taken
-     * @return                  the number of points added, or null if none are added
+     * @param actingProfile     the profile receiving points.
+     * @param action            the action being taken.
+     * @return                  the number of points added, or null if none are added.
      */
     private PointReward givePoints(Profile actingProfile, Action action) {
 
@@ -201,6 +200,10 @@ public class AchievementTrackerController extends Controller {
     public JsonNode rewardAction(Profile actingProfile, Trip tripCreated) {
         Collection<Badge> badgesAchieved = new HashSet<>();
 
+        // Award points
+        PointReward points = givePoints(actingProfile, Action.TRIP_CREATED);
+        updatePointsBadge(actingProfile, badgesAchieved);
+
         // Progress towards badge
         Badge badgeToGive = progressBadge(actingProfile, Action.TRIP_CREATED, INCREMENT_ONE);
 
@@ -210,7 +213,24 @@ public class AchievementTrackerController extends Controller {
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
-        return constructRewardJson(badgesAchieved, null);
+        return constructRewardJson(badgesAchieved, points);
+    }
+
+
+    /**
+     * Rewards the user for creating a hint by adding points for creating a hint.
+     *
+     * @param actingProfile         the profile that performed the action.
+     * @param hintCreated           the hint that was created.
+     * @return                      Json node of the reward result.
+     */
+    public JsonNode rewardAction(Profile actingProfile, Hint hintCreated) {
+        Collection<Badge> badgesAchieved = new HashSet<>();
+        // Award points
+        PointReward points = givePoints(actingProfile, Action.HINT_CREATED);
+        profileRepository.update(actingProfile);    // Update the tracker stored in the database.
+
+        return constructRewardJson(badgesAchieved, points);
     }
 
 
@@ -230,7 +250,7 @@ public class AchievementTrackerController extends Controller {
         updatePointsBadge(actingProfile, badgesAchieved);
 
         // Progress towards badge
-        Badge badgeToProgress = progressBadge(actingProfile, Action.DESTINATION_CREATED, 1);
+        Badge badgeToProgress = progressBadge(actingProfile, Action.DESTINATION_CREATED, INCREMENT_ONE);
         if (badgeToProgress != null) {
             badgesAchieved.add(badgeToProgress);
         }
@@ -409,16 +429,13 @@ public class AchievementTrackerController extends Controller {
      * @return              a double containing the distance between the two points.
      */
     private double calculateDistance(double latitude1, double latitude2, double longitude1, double longitude2) {
-
-        final int R = 6371; // Radius of the earth
-
-        double latDistance = Math.toRadians(latitude2 - latitude1);
-        double lonDistance = Math.toRadians(longitude2 - longitude1);
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+        double latitudeDistance = Math.toRadians(latitude2 - latitude1);
+        double longitudeDistance = Math.toRadians(longitude2 - longitude1);
+        double a = Math.sin(latitudeDistance / 2) * Math.sin(latitudeDistance / 2)
                 + Math.cos(Math.toRadians(latitude1)) * Math.cos(Math.toRadians(latitude2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+                * Math.sin(longitudeDistance / 2) * Math.sin(longitudeDistance / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = R * c * 1000; // convert to meters
+        double distance = RADIUS_OF_THE_EARTH * c * 1000; // convert to meters
         distance = Math.pow(distance, 2);
 
         return Math.sqrt(distance);
@@ -426,12 +443,12 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
-     * Function called from the routes to update the currently logged in session's users streak
+     * Function called from the routes to update the currently logged in session's users streak.
      *
-     * @param request       contains the profile information and the client date information in the json body
-     * @return              ok if the request is fine and their is a user and the json format is correct
-     *                      badRequest if the request has invalid json
-     *                      unauthorized if there is no user in the database for the given session
+     * @param request       contains the profile information and the client date information in the json body.
+     * @return              ok if the request is fine and their is a user and the json format is correct.
+     *                      badRequest if the request has invalid json.
+     *                      unauthorized if there is no user in the database for the given session.
      */
     public Result updateLastSeen(Http.Request request) {
 
@@ -472,11 +489,11 @@ public class AchievementTrackerController extends Controller {
      * their streaker badge. If the users current date is any day after their last seen date plus one then they will
      * lose their current streak.
      *
-     * @param profile               the profile your wanting to check the streaks date for
-     * @param clientDateString      the clients date string sent from the front end of the application
-     * @return                      jsonNode containing the badge if this process was able to be achieved
-     *                              jsonNode null if the process got caught with a parsing exception and so should
-     *                              return 400 to the front end application
+     * @param profile               the profile your wanting to check the streaks date for.
+     * @param clientDateString      the clients date string sent from the front end of the application.
+     * @return                      jsonNode containing the badge if this process was able to be achieved.
+     *                              jsonNode null if the process got caught with a parsing exception and so should.
+     *                              return 400 to the front end application.
      */
     private JsonNode checkStreakIncrement(Profile profile, String clientDateString) {
 

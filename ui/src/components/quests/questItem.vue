@@ -211,6 +211,13 @@
                                       :disabled="heading === 'Edit'"
                                       block>Delete
                             </b-button>
+                            <b-button size="sm"
+                                      v-if="heading === 'Edit'"
+                                      @click="addHint(row.item)"
+                                      variant="primary"
+                                      class="mr-2"
+                                      block>Add Hint
+                            </b-button>
                         </template>
 
                         <!-- Buttons to shift objectives up/down in table -->
@@ -611,6 +618,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputQuest)
                 }).then(function (response) {
+                    self.splitDates();
                     if (!response.ok) {
                         throw response;
                     } else {
@@ -621,13 +629,8 @@
                     self.$emit('successCreate', {message: "Quest Successfully Created", reward: responseBody.reward});
                     self.$emit('cancelCreate');
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.splitDates();
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -651,13 +654,7 @@
                     self.showError = false;
                     self.activeUsers = responseBody.length;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -675,6 +672,7 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.inputQuest)
                 }).then(function (response) {
+                    self.splitDates();
                     if (!response.ok) {
                         throw response;
                     } else {
@@ -686,13 +684,7 @@
                     self.$emit('cancelCreate')
                 }).catch(function (response) {
                     self.splitDates();
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -786,6 +778,14 @@
                 setTimeout(function () {
                     self.showSuccessObjective = false;
                 }, 3000);
+            },
+
+
+            /**
+             * Sends the emit to the quest list to view the add hint side bar
+             */
+            addHint(objective) {
+                this.$emit('add-hint-side-bar', objective);
             },
 
 
@@ -973,6 +973,7 @@
              */
             getRadiusValue(radius) {
                 if (radius < 1) {
+                    // Convert radius value to metres by multiplying by 1000.
                     return radius * 1000 + " Meters"
                 }
                 return radius + " Km";

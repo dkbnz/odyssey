@@ -81,17 +81,12 @@
                                 return response.json();
                             }
                         }).then(function (responseBody) {
+                            self.loadingResults = false;
                             self.questAttempts = responseBody;
                         }).catch(function (response) {
-                            if (response.status > 404) {
-                                self.showErrorToast([{message: "An unexpected error occurred"}]);
-                            } else {
-                                response.json().then(function(responseBody) {
-                                    self.showErrorToast(responseBody);
-                                });
-                            }
+                            self.loadingResults = false;
+                            self.handleErrorResponse(response);
                         });
-                    this.loadingResults = false;
                 }
             },
 

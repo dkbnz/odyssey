@@ -19,9 +19,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static play.test.Helpers.*;
 
 public class GeneralTestSteps {
@@ -338,10 +336,9 @@ public class GeneralTestSteps {
     @Then("the following ApiErrors are returned")
     public void theFollowingApiErrorsAreReturned(io.cucumber.datatable.DataTable dataTable) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode body = objectMapper.readTree(testContext.getResponseBody());
         List<String> expectedApiErrors = dataTable.asList();
-        for(JsonNode error : body) {
-            Assert.assertTrue(expectedApiErrors.contains(error.get("message").asText()));
+        for(JsonNode errorMessage : objectMapper.readTree(testContext.getResponseBody())) {
+            Assert.assertTrue(expectedApiErrors.contains(errorMessage.get("message").asText()));
         }
     }
 
@@ -355,6 +352,7 @@ public class GeneralTestSteps {
 
     /**
      * Gets the profile repository that was mocked.
+     *
      * @return the profile repository.
      */
     public ProfileRepository getProfileRepository() {

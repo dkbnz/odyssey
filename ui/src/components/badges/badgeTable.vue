@@ -63,13 +63,11 @@
         },
 
         mounted() {
-            this.getProfileBadges();
             this.getAllBadges();
         },
 
         watch: {
             profile() {
-                this.getProfileBadges();
                 this.getAllBadges();
             }
         },
@@ -116,37 +114,18 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
-                    for (let i = 0; i < responseBody.length; i++) {
-                        if (!self.profileBadgesIds.includes(responseBody[i].id)) {
-                            self.badges.push(responseBody[i]);
-                        }
-                    }
+                    self.badges = responseBody.filter(emptyBadge => (
+                        // For any given badge check if it is not in the profile badge list.
+                        // If it is not, this function will return true and the parent filter
+                        // function will add it to the return array
+                        self.profile.achievementTracker.badges.filter(profileBadge =>
+                            (profileBadge.id === emptyBadge.id)).length === 0)
+                    );
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
                 });
-                this.loadingResults = false;
-            },
-
-
-            /**
-             * Gets all the profile badges id number to work out what badges to be displayed as disabled.
-             */
-            getProfileBadges() {
-                let profileBadges = this.profile.achievementTracker.badges;
-                for (let i = 0; i < profileBadges.length; i++) {
-                    this.profileBadgesIds.push(profileBadges[i].id)
-                }
             }
         }
     }
 </script>
-
-<style scoped>
-
-</style>

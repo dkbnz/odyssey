@@ -206,7 +206,8 @@
              * Sets the countries list to the list of countries from the country api
              */
             getCountries() {
-                return fetch("https://restcountries.eu/rest/v2/all", {
+                let self = this;
+                fetch("https://restcountries.eu/rest/v2/all", {
                     dataType: 'html'
                 }).then(function (response) {
                     if (!response.ok) {
@@ -217,13 +218,7 @@
                 }).then(function (responseBody) {
                     self.countryList = responseBody;
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -267,8 +262,8 @@
                     "&last_name=" + this.searchCreatedLast +
                     "&country=" + this.searchCountry;
 
-                return fetch(`/v1/quests` + searchQuery, {})
-                .then(function (response) {
+                return fetch(`/v1/quests` + searchQuery, {
+                }).then(function (response) {
                     if (!response.ok) {
                         throw response;
                     } else {
@@ -277,13 +272,7 @@
                 }).then(function (responseBody) {
                         self.$emit('searched-quests', responseBody);
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                        self.handleErrorResponse(response);
                 });
             }
         },
