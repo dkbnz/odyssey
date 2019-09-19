@@ -211,6 +211,12 @@
                                       :disabled="heading === 'Edit'"
                                       block>Delete
                             </b-button>
+                            <b-button size="sm"
+                                      @click="addHint(row.item)"
+                                      variant="primary"
+                                      class="mr-2"
+                                      block>Add Hint
+                            </b-button>
                         </template>
 
                         <!-- Buttons to shift objectives up/down in table -->
@@ -786,6 +792,14 @@
                 setTimeout(function () {
                     self.showSuccessObjective = false;
                 }, 3000);
+            },
+
+
+            /**
+             * Sends the emit to the quest list to view the add hint side bar
+             */
+            addHint(objective) {
+                this.$emit('add-hint-side-bar', objective);
             },
 
 
