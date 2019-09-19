@@ -23,8 +23,7 @@ public enum Errors {
     REMOVE_DEFAULT_ADMIN_STATUS("You can not remove the default administrator as an admin."),
     START_OWN_QUEST("You cannot start your own quest."),
     QUEST_ATTEMPT_EXISTS("You have already started this quest."),
-    RIDDLE_NOT_PROVIDED("No riddle provided."),
-    INVALID_JSON_FORMAT("Invalid Json format.");
+    INVALID_JSON_FORMAT("Invalid Json format."),
     MAX_RIDDLE_LENGTH("Objective riddles must not exceed 255 characters in length"),
     NO_OBJECTIVE_RIDDLE("A riddle must be provided"),
     NO_OBJECTIVE_OWNER("This objective does not have an owner"),
