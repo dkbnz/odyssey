@@ -17,8 +17,8 @@ import java.util.List;
 public class ObjectiveRepository extends BeanRepository<Long, Objective> {
 
     private static final String DESTINATION = "destination";
-    private static final String QUESTS_ATTEMPTED_BY_PROFILE = "questsUsing.attempts.attemptedBy";
-    private static final String QUESTS_ATTEMPTED_COMPLETE = "questsUsing.attempts.completed";
+    private static final String QUESTS_ATTEMPTED_BY_PROFILE = "questUsing.attempts.attemptedBy";
+    private static final String QUESTS_ATTEMPTED_COMPLETE = "questUsing.attempts.completed";
 
     @Inject
     public ObjectiveRepository() {
