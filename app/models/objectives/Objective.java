@@ -8,6 +8,7 @@ import models.util.ApiError;
 import models.util.BaseModel;
 import models.profiles.Profile;
 import models.destinations.Destination;
+import models.util.Errors;
 import util.Views;
 
 import javax.persistence.*;
@@ -41,16 +42,16 @@ public class Objective extends BaseModel {
     @JsonView(Views.Owner.class)
     private Double radius;
 
-    @ManyToMany(cascade = CascadeType.PERSIST, mappedBy = "objectives")
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JsonIgnore
-    private List<Quest> questsUsing;
+    private Quest questUsing;
 
     @JsonView(Views.Owner.class)
     @OneToMany(cascade = CascadeType.ALL)
     private List<Hint> hints;
 
-    public Collection<Quest> getQuestsUsing() {
-        return questsUsing;
+    public Quest getQuestUsing() {
+        return questUsing;
     }
 
     @JsonIgnore
@@ -58,21 +59,21 @@ public class Objective extends BaseModel {
         List<ApiError> errors = new ArrayList<>();
 
         if (riddle == null || riddle.isEmpty()) {
-            errors.add(new ApiError("A riddle must be provided."));
+            errors.add(new ApiError(Errors.NO_OBJECTIVE_RIDDLE.toString()));
         } else if (riddle.length() > MAX_RIDDLE_SIZE) {
-            errors.add(new ApiError("Objective riddles must not exceed 255 characters in length."));
+            errors.add(new ApiError(Errors.MAX_RIDDLE_LENGTH.toString()));
         }
 
         if (owner == null) {
-            errors.add(new ApiError("This objective does not have an owner."));
+            errors.add(new ApiError(Errors.NO_OBJECTIVE_OWNER.toString()));
         }
 
         if (destination == null || destination.getId() == null) {
-            errors.add(new ApiError("Objectives must have a destination."));
+            errors.add(new ApiError(Errors.NO_OBJECTIVE_DESTINATION.toString()));
         }
 
         if (radius == null || radius <= MIN_RADIUS_VALUE) {
-            errors.add(new ApiError("You must select a range for an objective destination's check in"));
+            errors.add(new ApiError(Errors.NO_OBJECTIVE_RADIUS.toString()));
         }
 
         return errors;
@@ -109,6 +110,8 @@ public class Objective extends BaseModel {
     public void setRadius(Double radius) {
         this.radius = radius;
     }
+
+    public List<Hint> getHints() { return hints; }
 
 
     /**

@@ -1,4 +1,4 @@
-package repositories.objectives;
+package repositories.hints;
 
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;

@@ -4,25 +4,24 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.objectives.Objective;
 import models.profiles.Profile;
 import org.junit.Assert;
+import org.junit.Before;
+import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repositories.objectives.ObjectiveRepository;
 import repositories.profiles.ProfileRepository;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.fail;
-import static play.test.Helpers.POST;
-import static play.test.Helpers.fakeRequest;
-import static play.test.Helpers.route;
+import static play.test.Helpers.*;
 
 public class HintTestSteps {
 
@@ -47,17 +46,11 @@ public class HintTestSteps {
     /**
      * The hints uri.
      */
-    private static final String HINTS_URI = "/hints/";
-
-
-    /**
-     * New instance of the general test steps.
-     */
-    private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
+    private static final String HINTS_URI = "/hints";
 
 
     private static final String MESSAGE_STRING = "Message";
-    private static final String HINT = "hint";
+    private static final String MESSAGE = "message";
 
 
     /**
@@ -73,12 +66,30 @@ public class HintTestSteps {
             testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
 
+    @Before
+    public void hintSetUp() {
+        Evolutions.applyEvolutions(
+                testContext.getDatabase(),
+                Evolutions.fromClassLoader(
+                        getClass().getClassLoader(),
+                        "custom/"
+                )
+        );
+    }
+
+
+//    @After
+//    public void hintTearDown() {
+//        Evolutions.cleanupEvolutions(testContext.getDatabase());
+//    }
+
+
     /**
      * Converts a given data table containing a hint into a json node object.
      *
-     * @param dataTable     the data table containing the hint message.
-     * @param index         the position in the data table the json components are extracted from.
-     * @return              a JsonNode of a hint containing information extracted from the data table.
+     * @param dataTable the data table containing the hint message.
+     * @param index     the position in the data table the json components are extracted from.
+     * @return a JsonNode of a hint containing information extracted from the data table.
      */
     private JsonNode convertDataTableToHintJson(io.cucumber.datatable.DataTable dataTable, int index) {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
@@ -86,7 +97,7 @@ public class HintTestSteps {
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode json = mapper.createObjectNode();
-        json.put(HINT, hintMessage);
+        json.put(MESSAGE, hintMessage);
 
         return json;
     }
@@ -95,19 +106,47 @@ public class HintTestSteps {
     /**
      * Sends a request to create a hint from the given json node.
      *
-     * @param json              a JsonNode containing the body of the request.
-     * @param objectiveId       the Id of the objective the hint is created for.
+     * @param json        a JsonNode containing the body of the request.
+     * @param objectiveId the Id of the objective the hint is created for.
      */
     private void createHintRequest(JsonNode json, int objectiveId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
                 .bodyJson(json)
-                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI + testContext.getTargetId())
+                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI + "/" + testContext.getTargetId())
                 .session(AUTHORIZED, testContext.getLoggedInId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
+
+
+    /**
+     * Sends a request to retrieve all hints for an objective with the Id specified.
+     *
+     * @param objectiveId the Id of of the objective that is having its hints retrieved.
+     */
+    private void fetchAllHintsRequest(int objectiveId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+//    @Given("the custom hint data is added")
+//    public void theCustomHintDataIsAdded() {
+//        Evolutions.applyEvolutions(
+//                testContext.getDatabase(),
+//                Evolutions.fromClassLoader(
+//                        getClass().getClassLoader(),
+//                        "custom/"
+//                )
+//        );
+//    }
 
 
     @Given("^I own the objective with id (\\d+)$")
@@ -151,6 +190,7 @@ public class HintTestSteps {
         }
     }
 
+
     @When("^I attempt to create a hint for user (\\d+) with the following values for the objective with id (\\d+)$")
     public void iAttemptToCreateAHintWithTheFollowingValuesForTheObjectiveWithId(Integer userId, Integer objectiveId, io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(userId.toString());
@@ -158,5 +198,17 @@ public class HintTestSteps {
             JsonNode json = convertDataTableToHintJson(dataTable, i);
             createHintRequest(json, objectiveId);
         }
+    }
+
+
+    @When("^I attempt to retrieve all hints for the objective with id (\\d+)$")
+    public void iAttemptToRetrieveAllHintsForTheObjectiveWithId(Integer objectiveId) {
+        fetchAllHintsRequest(objectiveId);
+    }
+
+
+    @Then("^The response contains (\\d+) hints$")
+    public void theResponseContainsHints(Integer expectedNumberOfHints) {
+        assert(expectedNumberOfHints == testContext.getResponseBody().length());
     }
 }

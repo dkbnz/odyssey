@@ -439,16 +439,16 @@ public class AchievementTrackerTestSteps {
         Date daysAgoDate = cal.getTime();
 
         Profile profile = profileRepository.findById(Long.valueOf(userId));
-
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
         Date clientDate = new SimpleDateFormat("yyyy-MM-dd").parse(format.format(daysAgoDate));
 
+        assertNotNull(profile);
+
         profile.setLastSeenDate(clientDate);
-
         profileRepository.update(profile);
-
         Profile profileCheck = profileRepository.findById(Long.valueOf(userId));
+
+        assertNotNull(profileCheck);
 
         Assert.assertEquals(clientDate, profileCheck.getLastSeenDate());
     }
