@@ -1,4 +1,4 @@
-#Feature: Hint API Endpoint.
+Feature: Hint API Endpoint.
 #
 #  Scenario: Successfully creating a hint as the owner of the objective
 #    Given the application is running
@@ -71,3 +71,43 @@
 #    Then the status code received is 404
 #    And the following ApiErrors are returned
 #      | Resource not found. |
+
+
+
+  Scenario: Successfully retrieving all hints for an objective I have completed
+    Given the application is running
+    And I am logged in
+    And an objective exists with id 29
+    And I have completed the objective with id 29
+    When I attempt to retrieve all hints for the objective with id 29
+    Then the status code received is 200
+    And the response contains n hints
+
+
+  Scenario: Successfully retrieving all hints for an objective I have completed with no hints
+    Given the application is running
+    And I am logged in
+    And an objective exists with id 29
+    And I have completed the objective with id 29
+    When I attempt to retrieve all hints for the objective with id 29
+    Then the status code received is 200
+    And the response contains 0 hints
+
+
+  Scenario: Successfully retrieving all hints for an objective I have not completed as an admin
+    Given the application is running
+    And I am logged in as an admin user
+    And an objective exists with id 29
+    And I have not completed the objective with id 29
+    When I attempt to retrieve all hints for the objective with id 29
+    Then the status code received is 200
+    And the response contains n hints
+
+
+  Scenario: Unsuccessfully retrieving all hints for an objective I have not completed
+
+  Scenario: Unsuccessfully retrieving all hints for an objective that does not exist
+
+  Scenario: Unsuccessfully retrieving all hints for an objective when not logged in
+
+
