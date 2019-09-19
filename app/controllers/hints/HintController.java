@@ -2,6 +2,7 @@ package controllers.hints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.points.AchievementTrackerController;
 import models.hints.Hint;
 import models.objectives.Objective;
 import models.profiles.Profile;
@@ -27,21 +28,25 @@ public class HintController {
     private ProfileRepository profileRepository;
     private HintRepository hintRepository;
     private ObjectiveRepository objectiveRepository;
+    private AchievementTrackerController achievementTrackerController;
     private ObjectMapper objectMapper;
 
     /**
      * String constants for json creation.
      */
     private static final String NEW_HINT_ID = "newHintId";
+    private static final String REWARD = "reward";
 
     @Inject
     public HintController(ProfileRepository profileRepository,
                           HintRepository hintRepository,
                           ObjectiveRepository objectiveRepository,
+                          AchievementTrackerController achievementTrackerController,
                           ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
         this.hintRepository = hintRepository;
         this.objectiveRepository = objectiveRepository;
+        this.achievementTrackerController = achievementTrackerController;
         this.objectMapper = objectMapper;
     }
 
@@ -92,6 +97,8 @@ public class HintController {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
+        // Points for creating a hint.
+        returnJson.set(REWARD, achievementTrackerController.rewardAction(hintCreator, hint));
         hintRepository.save(hint);
 
         returnJson.set(NEW_HINT_ID, Json.toJson(hint.getId()));

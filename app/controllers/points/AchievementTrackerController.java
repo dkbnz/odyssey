@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import models.destinations.Destination;
+import models.hints.Hint;
 import models.objectives.Objective;
 import models.points.AchievementTracker;
 import models.points.Action;
@@ -211,6 +212,23 @@ public class AchievementTrackerController extends Controller {
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
         return constructRewardJson(badgesAchieved, null);
+    }
+
+
+    /**
+     * Rewards the user for creating a hint by adding points for creating a hint.
+     *
+     * @param actingProfile         the profile that performed the action.
+     * @param hintCreated           the hint that was created.
+     * @return                      Json node of the reward result.
+     */
+    public JsonNode rewardAction(Profile actingProfile, Hint hintCreated) {
+        Collection<Badge> badgesAchieved = new HashSet<>();
+        // Award points
+        PointReward points = givePoints(actingProfile, Action.HINT_CREATED);
+        profileRepository.update(actingProfile);    // Update the tracker stored in the database.
+
+        return constructRewardJson(badgesAchieved, points);
     }
 
 
