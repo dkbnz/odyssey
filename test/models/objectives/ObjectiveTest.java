@@ -2,6 +2,7 @@ package models.objectives;
 
 import models.destinations.Destination;
 import models.profiles.Profile;
+import models.util.Errors;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -14,14 +15,6 @@ public class ObjectiveTest {
     private Destination destination1;
     private Profile objectiveOwner1;
     private Profile objectiveOwner2;
-
-    private static final String RIDDLE_STRING_256 = "JCBK810WRXUPYAXDVC1VBQPIA8FK34PXUJ89C3L84UNCJZEWQ8Z07J5MZ" +
-            "9ZE8HF8M3GMCFIALPUDUFU5ZQ9O9UH1Q1AYULO7DWIZB19RI9GVRZ16ANQ4R8AP7J4ZH5MK5BAEWZD9A14DFV48I5T60QGA4WSRW" +
-            "LU5DX0MX3DWU6DUHUAKRFILED8SU3G2BS3I7D5CGQ32G284O5N6UQB7BGRHB2YV95A00CNT53BEUQ4CRR8SUNTPQMLZD0RTF2RZ";
-
-    private static final String RIDDLE_STRING_255 = "JCBK810WRXUPYAXDVC1VBQPIA8FK34PXUJ89C3L84UNCJZEWQ8Z07J5MZ" +
-            "9ZE8HF8M3GMCFIALPUDUFU5ZQ9O9UH1Q1AYULO7DWIZB19RI9GVRZ16ANQ4R8AP7J4ZH5MK5BAEWZD9A14DFV48I5T60QGA4WSRW" +
-            "LU5DX0MX3DWU6DUHUAKRFILED8SU3G2BS3I7D5CGQ32G284O5N6UQB7BGRHB2YV95A00CNT53BEUQ4CRR8SUNTPQMLZD0RTF2R";
 
     @Before
     public void setUp() {
@@ -36,7 +29,7 @@ public class ObjectiveTest {
     @Test
     public void getErrorsRiddleNull() {
         assertTrue(testObjective1.getErrors().stream().anyMatch(error
-                -> error.getMessage().equals("A riddle must be provided.")));
+                -> error.getMessage().equals(Errors.NO_OBJECTIVE_RIDDLE.toString())));
     }
 
 
@@ -44,44 +37,46 @@ public class ObjectiveTest {
     public void getErrorsRiddleEmpty() {
         testObjective1.setRiddle("");
         assertTrue(testObjective1.getErrors().stream().anyMatch(error
-                -> error.getMessage().equals("A riddle must be provided.")));
+                -> error.getMessage().equals(Errors.NO_OBJECTIVE_RIDDLE.toString())));
     }
 
 
     @Test
     public void getErrorsRiddleMaxValue() {
-        testObjective1.setRiddle(RIDDLE_STRING_256);
+        // Generates a string of length 256.
+        testObjective1.setRiddle(new String(new char[256]).replace("\0", "S"));
         assertTrue(testObjective1.getErrors().stream().anyMatch(error
-                -> error.getMessage().equals("Objective riddles must not exceed 255 characters in length.")));
+                -> error.getMessage().equals(Errors.MAX_RIDDLE_LENGTH.toString())));
     }
 
 
     @Test
     public void getErrorsRiddleBoundaryMaxValue() {
-        testObjective1.setRiddle(RIDDLE_STRING_255);
+        // Generates a string of length 255.
+        testObjective1.setRiddle(new String(new char[255]).replace("\0", "S"));
         assertFalse(testObjective1.getErrors().stream().anyMatch(error
-                -> error.getMessage().equals("Objective riddles must not exceed 255 characters in length.")));
+                -> error.getMessage().equals(Errors.MAX_RIDDLE_LENGTH.toString())));
     }
 
 
     @Test
     public void getErrorsOwnerNull() {
         assertTrue(testObjective1.getErrors().stream().anyMatch(error
-                -> error.getMessage().equals("This objective does not have an owner.")));
+                -> error.getMessage().equals(Errors.NO_OBJECTIVE_OWNER.toString())));
     }
 
 
     @Test
     public void getErrorsDestinationNull() {
         assertTrue(testObjective1.getErrors().stream().anyMatch(error
-                -> error.getMessage().equals("Objectives must have a destination.")));
+                -> error.getMessage().equals(Errors.NO_OBJECTIVE_DESTINATION.toString())));
     }
 
 
     @Test
     public void getErrorsRadiusNull() {
         assertTrue(testObjective1.getErrors().stream().anyMatch(error
-                -> error.getMessage().equals("You must select a range for an objective destination's check in")));
+                -> error.getMessage().equals(Errors.NO_OBJECTIVE_RADIUS.toString())));
     }
 
 
@@ -89,7 +84,7 @@ public class ObjectiveTest {
     public void getErrorsRadiusMinValue() {
         testObjective1.setRadius(0.0);
         assertTrue(testObjective1.getErrors().stream().anyMatch(error
-                -> error.getMessage().equals("You must select a range for an objective destination's check in")));
+                -> error.getMessage().equals(Errors.NO_OBJECTIVE_RADIUS.toString())));
     }
 
 
@@ -141,8 +136,9 @@ public class ObjectiveTest {
 
     @Test
     public void testRiddleNotEqual() {
+        // Riddle not equal, therefore objective not equal.
         testObjective1.setRiddle("Stream by the lake");
-        testObjective2.setRiddle("Stream by the sea"); // Riddle not equal, therefore objective not equal.
+        testObjective2.setRiddle("Stream by the sea");
 
         testObjective1.setRadius(0.1);
         testObjective2.setRadius(0.1);
@@ -162,8 +158,9 @@ public class ObjectiveTest {
         testObjective1.setRiddle("Stream by the sea");
         testObjective2.setRiddle("Stream by the sea");
 
+        // Radius not equal, therefore objective not equal.
         testObjective1.setRadius(0.5);
-        testObjective2.setRadius(0.1); // Radius not equal, therefore objective not equal.
+        testObjective2.setRadius(0.1);
 
         testObjective1.setDestination(destination1);
         testObjective2.setDestination(destination1);
@@ -186,8 +183,9 @@ public class ObjectiveTest {
         testObjective1.setDestination(destination1);
         testObjective2.setDestination(destination1);
 
+        // Owner not equal, therefore objective not equal.
         testObjective1.setOwner(objectiveOwner1);
-        testObjective2.setOwner(objectiveOwner2); // Owner not equal, therefore objective not equal.
+        testObjective2.setOwner(objectiveOwner2);
 
         assertNotEquals(testObjective1, testObjective2);
     }
@@ -213,8 +211,9 @@ public class ObjectiveTest {
 
     @Test
     public void testRiddleNotEqualHashCode() {
+        // Riddle not equal, therefore objective not equal.
         testObjective1.setRiddle("Stream by the lake");
-        testObjective2.setRiddle("Stream by the sea"); // Riddle not equal, therefore objective not equal.
+        testObjective2.setRiddle("Stream by the sea");
 
         testObjective1.setRadius(0.1);
         testObjective2.setRadius(0.1);
@@ -234,8 +233,9 @@ public class ObjectiveTest {
         testObjective1.setRiddle("Stream by the sea");
         testObjective2.setRiddle("Stream by the sea");
 
+        // Radius not equal, therefore objective not equal.
         testObjective1.setRadius(0.5);
-        testObjective2.setRadius(0.1); // Radius not equal, therefore objective not equal.
+        testObjective2.setRadius(0.1);
 
         testObjective1.setDestination(destination1);
         testObjective2.setDestination(destination1);
@@ -258,8 +258,9 @@ public class ObjectiveTest {
         testObjective1.setDestination(destination1);
         testObjective2.setDestination(destination1);
 
+        // Owner not equal, therefore objective not equal.
         testObjective1.setOwner(objectiveOwner1);
-        testObjective2.setOwner(objectiveOwner2); // Owner not equal, therefore objective not equal.
+        testObjective2.setOwner(objectiveOwner2);
 
         assertNotEquals(testObjective1.hashCode(), testObjective2.hashCode());
     }

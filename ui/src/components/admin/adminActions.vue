@@ -200,15 +200,9 @@
                 }).catch(function (response) {
                     self.alertMessage = "Cannot retrieve traveller type proposals";
                     self.showTravellerTypeUpdateFailure = true;
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        self.showSuccess = false;
-                        self.retrievingProposals = false;
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.showSuccess = false;
+                    self.retrievingProposals = false;
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -290,17 +284,11 @@
                     }, 3000);
                     self.removeProposed(destination);
                 }).catch(function (response) {
-                    if (response.status > 404) {
-                        self.showErrorToast([{message: "An unexpected error occurred"}]);
-                    } else {
-                        self.alertMessage = "Cannot update traveller types";
-                        self.showTravellerTypeUpdateFailure = true;
-                        response.json().then(function(responseBody) {
-                            self.showErrorToast(responseBody);
-                        });
-                    }
+                    self.sendingRequest = false;
+                    self.alertMessage = "Cannot update traveller types";
+                    self.showTravellerTypeUpdateFailure = true;
+                    self.handleErrorResponse(response);
                 });
-                this.sendingRequest = false;
             }
         },
 

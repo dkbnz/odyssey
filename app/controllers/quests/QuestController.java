@@ -57,6 +57,7 @@ public class QuestController {
     private static final String COUNTRY = "country";
     private static final String START_DATE = "startDate";
     private static final String END_DATE = "endDate";
+    private static final String QUERY_PAGE = "page";
     private static final String OWNER = "owner";
     private static final String ATTEMPTS = "attempts";
     private static final String COUNTRY_OCCURRENCES = "objectives.destination.country";
@@ -503,6 +504,18 @@ public class QuestController {
         expressionList.gt(END_DATE, new Date());
 
         /*
+        Gets first 50 quests from index query * 50
+         */
+        int pageNumber = 0;
+        int pageSize = 50;
+        String queryPageString = request.getQueryString(QUERY_PAGE);
+
+        if (queryPageString != null && !queryPageString.isEmpty()) {
+            pageNumber = Integer.parseInt(queryPageString);
+        }
+
+
+        /*
         Removes all quests that the profile has an attempt for
          */
         ExpressionList<Quest> expressionListActiveQuests = questRepository.getExpressionList();
@@ -511,7 +524,11 @@ public class QuestController {
 
         Set<Quest> profilesActiveQuests = expressionListActiveQuests.findSet();
 
-        quests = expressionList.findSet();
+        quests = expressionList
+                .where()
+                .setFirstRow(pageNumber*pageSize)
+                .setMaxRows(pageSize)
+                .findSet();
 
         quests.removeAll(profilesActiveQuests);
 
