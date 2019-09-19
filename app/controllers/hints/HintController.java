@@ -12,7 +12,7 @@ import models.util.Errors;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.objectives.HintRepository;
+import repositories.hints.HintRepository;
 import repositories.objectives.ObjectiveRepository;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
