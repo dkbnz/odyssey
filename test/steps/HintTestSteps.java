@@ -84,7 +84,6 @@ public class HintTestSteps {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         String hintMessage = list.get(index).get(MESSAGE_STRING);
 
-
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode json = mapper.createObjectNode();
         json.put(HINT, hintMessage);
@@ -107,6 +106,7 @@ public class HintTestSteps {
                 .session(AUTHORIZED, testContext.getLoggedInId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
 
@@ -145,6 +145,15 @@ public class HintTestSteps {
     @When("^I attempt to create a hint with the following values for the objective with id (\\d+)$")
     public void iAttemptToCreateAHintWithTheFollowingValuesForTheObjectiveWithId(Integer objectiveId, io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(testContext.getLoggedInId());
+        for (int i = 0; i < dataTable.height() - 1; i++) {
+            JsonNode json = convertDataTableToHintJson(dataTable, i);
+            createHintRequest(json, objectiveId);
+        }
+    }
+
+    @When("^I attempt to create a hint for user (\\d+) with the following values for the objective with id (\\d+)$")
+    public void iAttemptToCreateAHintWithTheFollowingValuesForTheObjectiveWithId(Integer userId, Integer objectiveId, io.cucumber.datatable.DataTable dataTable) {
+        testContext.setTargetId(userId.toString());
         for (int i = 0; i < dataTable.height() - 1; i++) {
             JsonNode json = convertDataTableToHintJson(dataTable, i);
             createHintRequest(json, objectiveId);

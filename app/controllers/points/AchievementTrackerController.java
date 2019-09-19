@@ -15,6 +15,7 @@ import models.profiles.Profile;
 import models.quests.Quest;
 import models.trips.Trip;
 import models.util.ApiError;
+import models.util.Errors;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -166,7 +167,7 @@ public class AchievementTrackerController extends Controller {
 
         int currentStreak = actingProfile.getAchievementTracker().getCurrentStreak();
 
-        Collection<Badge> badgesAchieved = new ArrayList<>();
+        Collection<Badge> badgesAchieved = new HashSet<>();
 
         Set<Badge> badges = actingProfile.getAchievementTracker().getBadges();
 
@@ -198,7 +199,7 @@ public class AchievementTrackerController extends Controller {
      * @return                      Json node of the reward result.
      */
     public JsonNode rewardAction(Profile actingProfile, Trip tripCreated) {
-        Collection<Badge> badgesAchieved = new ArrayList<>();
+        Collection<Badge> badgesAchieved = new HashSet<>();
 
         // Progress towards badge
         Badge badgeToGive = progressBadge(actingProfile, Action.TRIP_CREATED, INCREMENT_ONE);
@@ -222,7 +223,7 @@ public class AchievementTrackerController extends Controller {
      * @return                      Json node of the reward result.
      */
     public JsonNode rewardAction(Profile actingProfile, Destination destinationCreated) {
-        Collection<Badge> badgesAchieved = new ArrayList<>();
+        Collection<Badge> badgesAchieved = new HashSet<>();
 
         // Award points
         PointReward points = givePoints(actingProfile, Action.DESTINATION_CREATED);
@@ -249,7 +250,7 @@ public class AchievementTrackerController extends Controller {
      * @return                      Json node of the reward result.
      */
     public JsonNode rewardAction(Profile actingProfile, Objective objectiveCheckedIn) {
-        Collection<Badge> badgesAchieved = new ArrayList<>();
+        Collection<Badge> badgesAchieved = new HashSet<>();
 
         // Award points
         PointReward points = givePoints(actingProfile, Action.CHECKED_IN);
@@ -271,7 +272,7 @@ public class AchievementTrackerController extends Controller {
      * @return                  Json node of the reward result.
      */
     public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, Action completedAction) {
-        Collection<Badge> badgesAchieved = new ArrayList<>();
+        Collection<Badge> badgesAchieved = new HashSet<>();
 
         // Award points
         PointReward points = givePoints(actingProfile, completedAction);
@@ -327,7 +328,7 @@ public class AchievementTrackerController extends Controller {
         Profile requestedUser = profileRepository.findById(userId);
 
         if (requestedUser == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         AchievementTracker tracker = requestedUser.getAchievementTracker();

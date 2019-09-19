@@ -28,6 +28,10 @@
                 </td>
             </tr>
         </table>
+        <div class="d-flex justify-content-center mb-3">
+            <b-img alt="Loading" class="mt-3 align-middle loading" v-if="retrievingPhotos" :src="assets['loadingLogo']"></b-img>
+            <p v-if="!photos.length && !retrievingPhotos"><b>No photos found.</b></p>
+        </div>
         <div class="d-flex justify-content-center w-100 mt-1">
             <b-pagination
                     :per-page="perPage"
@@ -69,7 +73,8 @@
                 default: function() {
                     return false;
                 }
-            }
+            },
+            retrievingPhotos: Boolean
         },
 
         data: function () {

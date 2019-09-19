@@ -8,6 +8,7 @@ import models.profiles.Passport;
 import models.profiles.Profile;
 import models.profiles.TravellerType;
 import models.util.ApiError;
+import models.util.Errors;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.libs.Json;
@@ -66,11 +67,6 @@ public class ProfileController {
     private static final String RANK = "rank";
     private static final String AUTHORIZED = "authorized";
     private static final String USERNAME_OK = "Username is OK";
-    private static final String DUPLICATE_PROFILE = "Duplicate profile found.";
-    private static final String HASH_FAIL = "Unable to hash the user password";
-    private static final String INVALID_NATIONALITY_TRAVELLER_TYPES = "Invalid number of Nationalities/Traveller Types";
-    private static final String DELETING_DEFAULT_ADMIN = "You can not delete the default administrator";
-    private static final String REMOVE_DEFAULT_ADMIN_STATUS = "You can not remove the default administrator as an admin";
     private static final long AGE_SEARCH_OFFSET = 1;
     private static final long DEFAULT_ADMIN_ID = 1;
     private static final String ID = "id";
@@ -125,7 +121,7 @@ public class ProfileController {
         }
 
         if (profileExists(json.get(USERNAME).asText())) {
-            return badRequest(ApiError.badRequest(DUPLICATE_PROFILE));
+            return badRequest(ApiError.badRequest(Errors.DUPLICATE_PROFILE));
         }
 
         Profile newUser = new Profile();
@@ -135,8 +131,8 @@ public class ProfileController {
         try {
             newUser.setPassword(AuthenticationUtil.hashProfilePassword(json.get(PASS_FIELD).asText()));
         } catch (NoSuchAlgorithmException e) {
-            log.error(HASH_FAIL, e);
-            return internalServerError(ApiError.badRequest(HASH_FAIL));
+            log.error(Errors.HASH_FAIL.toString(), e);
+            return internalServerError(ApiError.badRequest(Errors.HASH_FAIL));
         }
 
         newUser.setUsername(json.get(USERNAME).asText());
@@ -348,13 +344,13 @@ public class ProfileController {
                     Profile userProfile = profileRepository.findById(Long.valueOf(userId));
 
                     if (userProfile == null) {
-                        return notFound(ApiError.notFound());
+                        return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
                     }
 
                     if (!profileExists(username) || userProfile.getUsername().equals(username)) {
                         return ok(Json.toJson(USERNAME_OK)); // If they are checking their own username, return ok()
                     } else {
-                        return badRequest(ApiError.badRequest(DUPLICATE_PROFILE));
+                        return badRequest(ApiError.badRequest(Errors.DUPLICATE_PROFILE));
                     }
                 })
                 .orElseGet(() -> {
@@ -362,7 +358,7 @@ public class ProfileController {
                     if (!profileExists(username)) {
                         return ok(Json.toJson(USERNAME_OK));
                     } else {
-                        return badRequest(ApiError.badRequest(DUPLICATE_PROFILE));
+                        return badRequest(ApiError.badRequest(Errors.DUPLICATE_PROFILE));
                     }
                 }); // User is not logged in
     }
@@ -403,7 +399,7 @@ public class ProfileController {
      */
     public Result delete(Http.Request request, Long id) {
         if (id == DEFAULT_ADMIN_ID) {
-            return badRequest(ApiError.badRequest(DELETING_DEFAULT_ADMIN));
+            return badRequest(ApiError.badRequest(Errors.DELETING_DEFAULT_ADMIN));
         }
         return request.session()
                 .getOptional(AUTHORIZED)
@@ -413,7 +409,7 @@ public class ProfileController {
                     Profile profileToDelete = profileRepository.findById(id);
 
                     if (userProfile == null || profileToDelete == null) {
-                        return notFound(ApiError.notFound());
+                        return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
                     }
 
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
@@ -466,7 +462,7 @@ public class ProfileController {
 
         if (jsonToValidate.get(NATIONALITY).size() == 0
                 || jsonToValidate.get(TRAVELLER_TYPE).size() == 0) {
-            return badRequest(ApiError.badRequest(INVALID_NATIONALITY_TRAVELLER_TYPES));
+            return badRequest(ApiError.badRequest(Errors.INVALID_NATIONALITY_TRAVELLER_TYPES));
         }
         return null;
     }
@@ -494,11 +490,11 @@ public class ProfileController {
                     Profile profileToUpdate = profileRepository.findById(editUserId);
 
                     if (loggedInUser == null || profileToUpdate == null) {
-                        return notFound(ApiError.notFound()); // User does not exist in the system.
+                        return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
                     }
 
                     if (!AuthenticationUtil.validUser(loggedInUser, profileToUpdate)) {
-                        return forbidden(ApiError.forbidden()); // User has specified an id which is not their own and is not admin
+                        return forbidden(ApiError.forbidden());
                     }
 
                     JsonNode json = request.body().asJson();
@@ -512,16 +508,17 @@ public class ProfileController {
                     // If the username has been changed, and the changed username exists return badRequest()
                     if (!json.get(USERNAME).asText().equals(profileToUpdate.getUsername())
                             && profileExists(json.get(USERNAME).asText())) {
-                        return badRequest(ApiError.badRequest(DUPLICATE_PROFILE));
+                        return badRequest(ApiError.badRequest(Errors.DUPLICATE_PROFILE));
                     }
 
-                    if (!json.get(PASS_FIELD).asText().isEmpty()) { // Only update password if user has typed a new one
+                    // Only update password if user has typed a new one
+                    if (!json.get(PASS_FIELD).asText().isEmpty()) {
                         // Uses the hashProfilePassword() method to hash the given password.
                         try {
                             profileToUpdate.setPassword(AuthenticationUtil.hashProfilePassword(json.get(PASS_FIELD).asText()));
                         } catch (NoSuchAlgorithmException e) {
-                            log.error(HASH_FAIL, e);
-                            return internalServerError(ApiError.badRequest(HASH_FAIL));
+                            log.error(Errors.HASH_FAIL.toString(), e);
+                            return internalServerError(ApiError.badRequest(Errors.HASH_FAIL));
                         }
                     }
 
@@ -806,7 +803,7 @@ public class ProfileController {
         Profile requestedUser = profileRepository.findById(id);
 
         if (requestedUser == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         requestedUser.setAdmin(true);
@@ -831,7 +828,7 @@ public class ProfileController {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
 
         if (id == DEFAULT_ADMIN_ID) {
-            return forbidden(ApiError.forbidden(REMOVE_DEFAULT_ADMIN_STATUS));
+            return forbidden(ApiError.forbidden(Errors.REMOVE_DEFAULT_ADMIN_STATUS));
         }
 
         if (loggedInUser == null) {

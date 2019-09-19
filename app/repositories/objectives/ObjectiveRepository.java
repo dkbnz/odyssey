@@ -6,7 +6,6 @@ import io.ebean.Ebean;
 import models.destinations.Destination;
 import models.objectives.Objective;
 import models.profiles.Profile;
-import models.quests.QuestAttempt;
 
 import java.util.List;
 
@@ -18,6 +17,8 @@ import java.util.List;
 public class ObjectiveRepository extends BeanRepository<Long, Objective> {
 
     private static final String DESTINATION = "destination";
+    private static final String QUESTS_ATTEMPTED_BY_PROFILE = "questsUsing.attempts.attemptedBy";
+    private static final String QUESTS_ATTEMPTED_COMPLETE = "questsUsing.attempts.completed";
 
     @Inject
     public ObjectiveRepository() {
@@ -39,8 +40,6 @@ public class ObjectiveRepository extends BeanRepository<Long, Objective> {
     }
 
 
-//    TODO: Vinnie + Matilda
-
     /**
      * Retrieves a list of objectives completed by a user.
      *
@@ -48,10 +47,11 @@ public class ObjectiveRepository extends BeanRepository<Long, Objective> {
      * @return          a list of completed objectives for the profile.
      */
     public List<Objective> findAllCompletedUsing(Profile profile) {
+//        TODO: Matilda + Vinnie Include the return of objectives that are up to the checked in index.
         return  query()
                 .where()
-                .eq("questsUsing.attempts.attemptedBy", profile)
-                .eq("questsUsing.attempts.completed", true)
+                .eq(QUESTS_ATTEMPTED_BY_PROFILE, profile)
+                .eq(QUESTS_ATTEMPTED_COMPLETE, true)
                 .findList();
     }
 }
