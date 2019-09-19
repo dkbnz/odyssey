@@ -13,7 +13,7 @@
             </b-list-group>
         </div>
         <div v-else>
-            <b-button variant="success" @click="showSearch = true" block>Search</b-button>
+            <b-button variant="primary" class="mb-1" @click="showSearch = true" block>Back to Search</b-button>
             <b-list-group class="scroll">
                 <b-list-group-item v-for="destination in foundDestinations" href="#"
                                    class="flex-column align-items-start"
@@ -35,13 +35,13 @@
                     </p>
 
                 </b-list-group-item>
-                <b-list-group-item href="#" class="flex-column justify-content-center">
+                <b-list-group-item class="flex-column justify-content-center">
                     <div class="d-flex justify-content-center" v-if="loadingResults">
-                        <b-img alt="Loading" class="align-middle loading" src="../../../static/logo_sm.png"></b-img>
+                        <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
                     </div>
                     <div>
                         <div v-if="moreResults && !loadingResults">
-                            <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>More</b-button>
+                            <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>Load More</b-button>
                         </div>
                         <div class="d-flex justify-content-center" v-else-if="!moreResults && !loadingResults">
                             <h5 class="mb-1">No More Results</h5>
@@ -67,7 +67,6 @@
                     return null;
                 }
             },
-            destinationTypes: Array,
             searchPublic: Boolean
         },
 
@@ -78,7 +77,8 @@
                loadingResults: false,
                moreResults: true,
                destToSearch: {},
-               queryPage: 0
+               queryPage: 0,
+               destinationTypes: []
            }
         },
 
@@ -107,11 +107,10 @@
             /**
              * Runs a query which searches through the destinations in the database and returns all which
              * follow the search criteria.
-             *
-             * @return {Promise<Response | never>}
              */
             queryDestinations(destinationToSearch) {
                 this.loadingResults = true;
+                let self = this;
                 let searchQuery =
                     "?name=" + destinationToSearch.name +
                     "&type_id=" + destinationToSearch.type +
@@ -122,49 +121,26 @@
                     (this.searchPublic ? "&is_public=1" : "&owner=" + this.profile.id) +
                     "&page=" + this.queryPage;
 
-                return fetch(`/v1/destinations` + searchQuery, {
-                    dataType: 'html'
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        if (data !== null && data !== undefined) {
-                            this.moreResults = data.length >= 50;
-                            for (let i = 0; i < data.length; i++) {
-                                this.foundDestinations.push(data[i]);
-                            }
-                            this.$emit('destination-search', this.foundDestinations);
-                            this.loadingResults = false;
+                fetch(`/v1/destinations` + searchQuery, {})
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.loadingResults = false;
+                    if (responseBody !== null && responseBody !== undefined) {
+                        self.moreResults = responseBody.length >= 50;
+                        for (let i = 0; i < responseBody.length; i++) {
+                            self.foundDestinations.push(responseBody[i]);
                         }
-
-                    })
-            },
-
-
-            /**
-             * Checks the Http response for errors.
-             *
-             * @param response the retrieved Http response.
-             * @return {*} throws the Http response error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                throw error;
-            },
-
-
-            /**
-             * Converts the Http response body to a Json.
-             * @param response  the received Http response.
-             * @return {*}     the response body as a Json object.
-             */
-            parseJSON(response) {
-                return response.json();
+                        self.$emit('destination-search', self.foundDestinations);
+                    }
+                }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
+                });
             }
         }
     }

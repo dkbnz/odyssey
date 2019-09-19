@@ -123,6 +123,13 @@ Feature: Objective API Endpoint
     Then the status code received is 403
 
 
+  Scenario: Unsuccessfully delete an already existing Objective that is used in a quest
+    Given the application is running
+    And I am logged in
+    When I attempt to delete the objective with id 19
+    Then the status code received is 400
+
+
   Scenario: Unsuccessfully delete an already existing Objective and I am not logged in
     Given the application is running
     And I am logged in

@@ -39,10 +39,23 @@ javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
 jacocoReportSettings := JacocoReportSettings()
   .withThresholds(
     JacocoThresholds(
-      instruction = 0,
-      method = 0,
-      branch = 0,
-      complexity = 0,
-      line = 0,
-      clazz = 0)
+      instruction = 70,
+      method = 80,
+      branch = 55,
+      complexity = 60,
+      line = 80,
+      clazz = 95)
   )
+
+// Exclude all routes and reverse routes files from testing.
+jacocoExcludes in Test := Seq(
+  "controllers.Reverse*",
+  "controllers.**.Reverse*",
+  "controllers.javascript.*",
+  "controllers.**.javascript*",
+  "jooq.*",
+  "Module",
+  "router.*",
+  "*.routes*"
+)
+

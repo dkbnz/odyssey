@@ -1,6 +1,6 @@
 <template>
     <div>
-        <table ref="gallery" style="margin-top:20px">
+        <table ref="gallery" class="mt-3">
             <!--Table containing the rows of photos to be displayed-->
             <tr v-for="rowNumber in (numberOfRows)">
                 <td v-for="photo in getRowPhotos(rowNumber)">
@@ -15,8 +15,7 @@
                               v-if="showDropdown"
                               v-model="photo.public"
                               :class="{colorBlue: userProfile.profilePicture === null
-                              || (userProfile.profilePicture !== null
-                              && userProfile.profilePicture.id !== photo.id),
+                              || (userProfile.profilePicture.id !== photo.id),
                               colorDisabled: (userProfile.profilePicture !== null
                               && userProfile.profilePicture.id === photo.id)}">
                         <option value="true">
@@ -29,15 +28,21 @@
                 </td>
             </tr>
         </table>
-        <b-pagination
-                :per-page="perPage"
-                :total-rows="rows"
-                ref="navigationGallery"
-                v-model="currentPage"
-        ></b-pagination>
-    <b-alert v-model="showError" dismissible variant="danger">
-        {{alertMessage}}
-    </b-alert>
+        <div class="d-flex justify-content-center mb-3">
+            <b-img alt="Loading" class="mt-3 align-middle loading" v-if="retrievingPhotos" :src="assets['loadingLogo']"></b-img>
+            <p v-if="!photos.length && !retrievingPhotos"><b>No photos found.</b></p>
+        </div>
+        <div class="d-flex justify-content-center w-100 mt-1">
+            <b-pagination
+                    :per-page="perPage"
+                    :total-rows="rows"
+                    ref="navigationGallery"
+                    size="sm"
+                    first-text="First"
+                    last-text="Last"
+                    v-model="currentPage"
+            ></b-pagination>
+        </div>
     </div>
 </template>
 
@@ -68,15 +73,14 @@
                 default: function() {
                     return false;
                 }
-            }
+            },
+            retrievingPhotos: Boolean
         },
 
         data: function () {
             return {
                 currentPage: 1,
                 auth: false,
-                showError: false,
-                alertMessage: "",
                 publicDestinationPhotos: []
             }
         },

@@ -16,10 +16,10 @@ public class PointRewardRepository extends BeanRepository<Long, PointReward> {
     }
 
     /**
-     * Fetches the point reward correlating the given.
+     * Fetches the point reward correlating the given action.
      *
-     * @param action the action that the points are being awarded for.
-     * @return the PointReward object relating to that action.
+     * @param action    the action that the points are being awarded for.
+     * @return          the PointReward object relating to that action.
      */
     public PointReward findUsing(Action action) {
         return query().where()

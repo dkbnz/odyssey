@@ -24,7 +24,7 @@
             </b-alert>
 
             <b-collapse v-model="showSelectedDestination" id="selected-destination-collapse">
-                <b-list-group-item href="#" class="flex-column align-items-start"
+                <b-list-group-item class="flex-column align-items-start"
                                    id="selectedDestination"
                                    :disabled="selectedDestination === {}">
                     <div class="d-flex w-100 justify-content-between">
@@ -53,6 +53,7 @@
 
 
         </div>
+
         <div v-else>
             <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom show-only-mobile" size="sm">Back</b-button>
             <h2 class="page-title" v-if="questAttempt.questAttempted">{{questAttempt.questAttempted.title}}</h2>
@@ -71,10 +72,9 @@
             <b-list-group>
 
                 <!-- List the solved objectives in the quest attempt -->
-                <b-list-group-item v-for="objective in questAttempt.solved" href="#"
+                <b-list-group-item v-for="objective in questAttempt.solved"
                                    class="flex-column align-items-start"
-                                   :key="objective.id"
-                                   draggable="false">
+                                   :key="objective.id">
                     <div class="d-flex w-100 justify-content-between">
                         <p class="mb-1 mobile-text font-weight-bold">{{objective.riddle}}</p>
                         <small>
@@ -87,16 +87,16 @@
                 </b-list-group-item>
 
                 <!-- If we have an objective to solve, display it -->
-                <b-list-group-item href="#"
+                <b-list-group-item
                                    class="d-flex justify-content-between align-items-center"
-                                   draggable="false" v-if="questAttempt.toSolve != null">
+                                   v-if="questAttempt.toSolve != null">
                     <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
                     <b-button size="sm" variant="primary" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
                 </b-list-group-item>
                 <!-- If we have an objective to check in to, display it -->
                 <b-list-group-item href="#"
                                    class="d-flex justify-content-between align-items-center"
-                                   draggable="false" v-if="questAttempt.toCheckIn != null">
+                                   v-if="questAttempt.toCheckIn != null">
                     <div>
                     <span class="mobile-text font-weight-bold">{{questAttempt.toCheckIn.riddle}}</span>
                         <p class="mb-1 mobile-text">
@@ -105,15 +105,14 @@
                     </div>
                     <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
                 </b-list-group-item>
-                <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop">
+                <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop" dismissible>
                     You are not at the required location, you are {{getHowClose()}} away.
                 </b-alert>
 
                 <!-- List the remaining unsolved objectives in the quest attempt -->
-                <b-list-group-item v-for="objective in questAttempt.unsolved" href="#"
+                <b-list-group-item v-for="objective in questAttempt.unsolved"
                                    class="d-flex justify-content-between align-items-center"
-                                   :key="objective.id"
-                                   draggable="false" disabled>
+                                   :key="objective.id" disabled>
                     <span class="mobile-text font-weight-bold">{{objective.riddle}}</span>
                 </b-list-group-item>
             </b-list-group>
@@ -175,7 +174,7 @@
         },
 
         mounted() {
-            this.getDestinationTypes(destinationTypesTemp => this.destinationTypes = destinationTypesTemp);
+            this.getDestinationTypes();
         },
 
         methods: {
@@ -190,42 +189,31 @@
                 return fetch('/v1/quests/attempt/' + this.questAttempt.id + '/guess/' + this.selectedDestination.id, {
                     method: "POST",
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then((data) => {
-                        // If successful guess
-                        if (data.guessResult) {
-                            self.goBack();
-                            self.guessSuccess = true;
-                            self.$emit('updated-quest-attempt', data.attempt);
-                            setTimeout(function() {
-                                self.guessSuccess = false;
-                            }, 3000);
-                            self.createPointToast(data.pointsRewarded, "Riddle Solved")
-                        } else {
-                            // If unsuccessful guess
-                            self.showError = true;
-                            setTimeout(function() {
-                                self.showError = false;
-                            }, 3000)
-                        }
-                    })
-            },
-
-
-            /**
-             * Displays a toast saying they've gained a certain amount of points.
-             *
-             * @param points the points to display.
-             * @param title the title of the toast, indicating the context of the point gain.
-             */
-            createPointToast(points, title) {
-                let message = "Your points have increased by " + points;
-                this.$bvToast.toast(message, {
-                    title: title,
-                    autoHideDelay: 3000,
-                    appendToast: true
-                })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    if (responseBody.guessResult) {
+                        self.goBack();
+                        self.guessSuccess = true;
+                        self.$emit('updated-quest-attempt', responseBody.attempt);
+                        setTimeout(function() {
+                            self.guessSuccess = false;
+                        }, 3000);
+                        self.showRewardToast(responseBody.reward);
+                    } else {
+                        // If unsuccessful guess
+                        self.showError = true;
+                        setTimeout(function() {
+                            self.showError = false;
+                        }, 3000)
+                    }
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -292,20 +280,21 @@
              */
             sendCheckInRequest() {
                 let self = this;
-                return fetch('/v1/quests/attempt/' + this.questAttempt.id + '/checkIn', {
+                fetch('/v1/quests/attempt/' + this.questAttempt.id + '/checkIn', {
                     method: "POST",
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        self.createPointToast(data.pointsRewarded, "Checked In");
-                        if (data.completedPoints != null) {
-                            setTimeout(points => {
-                                self.createPointToast(points, "Quest Complete")
-                            }, 500, data.completedPoints);
-                        }
-                        self.$emit('updated-quest-attempt', data.attempt);
-                    })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.$emit('updated-quest-attempt', responseBody.attempt);
+                    self.showRewardToast(responseBody.reward);
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -313,14 +302,22 @@
              * Retrieves the different destination types from the backend.
              *
              * @param updateDestinationTypes    the list to be updated with the specified destination types.
-             * @return {Promise<any | never>}   the returned promise.
              */
             getDestinationTypes(updateDestinationTypes) {
-                return fetch(`/v1/destinationTypes`, {
+                let self = this;
+                fetch(`/v1/destinationTypes`, {
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(updateDestinationTypes);
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.destinationTypes =  responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -354,11 +351,12 @@
              * @return a string value containing the total distance from the user to the objective destination.
              */
             getHowClose() {
-                if (this.totalDistance) {
-                    if (this.totalDistance >= 1) {
-                        return String(this.totalDistance.toFixed(3)) + " kms";
+                if (this.totalDistance && this.questAttempt.toCheckIn) {
+                    let showDistance = this.totalDistance - this.questAttempt.toCheckIn.radius;
+                    if (showDistance >= 1) {
+                        return String(showDistance.toFixed(3)) + " kms";
                     }
-                    return String(this.totalDistance.toFixed(5)*1000) + " metres";
+                    return String(showDistance.toFixed(5)*1000) + " metres";
                 }
             }
         }

@@ -1,122 +1,139 @@
 <template>
     <div class="App">
         <div>
-            <router-view v-bind:profile="profile" v-bind:destinations="destinations"
-                         v-bind:destinationTypes="destinationTypes" v-bind:nationalityOptions="nationalityOptions"
-                         v-bind:travTypeOptions="travTypeOptions" @data-changed="refreshData">
+            <router-view :profile="profile"
+                         :destinationTypes="destinationTypes"
+                         :nationalityOptions="nationalityOptions"
+                         :travTypeOptions="travTypeOptions"
+                         @profile-received="getProfile">
             </router-view>
         </div>
     </div>
 </template>
 
 <script>
-    import assets from './assets'
-
     export default {
-        computed: {
-            assets() {
-                return assets
-            }
-        },
-
         mounted() {
-            this.getProfile(profile => this.profile = profile);
-            this.getNationalities(nationalities => this.nationalityOptions = nationalities);
-            this.getTravellerTypes(travellerTypes => this.travTypeOptions = travellerTypes);
-            if (this.profile.id !== undefined) {
-                this.getDestinations();
-            }
-            this.getDestinationTypes(destinationTypes => this.destinationTypes = destinationTypes);
+            this.getProfile();
+            this.getNationalities();
+            this.getTravellerTypes();
+            this.getDestinationTypes();
+            this.handleRedirect();
         },
 
         data() {
             return {
-                profile: {},
+                profile: null,
                 nationalityOptions: [],
                 travTypeOptions: [],
-                destinations: [],
-                destinationTypes: [],
-                trips: []
+                destinationTypes: []
+            }
+        },
+
+        watch: {
+            /**
+             * Used to re-fetch the profile whenever the route address changes. This is to ensure any user data is
+             * updated as the navigate through the application.
+             */
+            $route () {
+                this.getProfile();
             }
         },
 
         methods: {
             /**
-             * Retrieves all the destinations.
-             */
-            getDestinations() {
-                let self = this;
-                return fetch(`/v1/destinations`, {
-                    accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then(function(response) {
-                        self.destinations = (response.sort(self.compare));
-                    });
-            },
-
-
-            /**
              * Retrieves all the destination types.
              */
-            getDestinationTypes(updateDestinationTypes) {
-                return fetch(`/v1/destinationTypes`, {
+            getDestinationTypes() {
+                let self = this;
+                fetch(`/v1/destinationTypes`, {
                     accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then(updateDestinationTypes);
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.destinationTypes = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
             /**
              * Retrieves the current profile.
              */
-            getProfile(updateProfile) {
-                return fetch(`/v1/profile`, {
+            getProfile() {
+                let self = this;
+                fetch(`/v1/profile`, {
                     accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then(updateProfile);
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.profile = responseBody;
+                }).catch(function (response) {
+                    if (self.$router.currentRoute.name !== "index") {
+                        self.handleErrorResponse(response);
+                    }
+                });
             },
 
 
             /**
              * Retrieves all the nationalities.
              */
-            getNationalities(updateNationalities) {
-                return fetch(`/v1/nationalities`, {
+            getNationalities() {
+                let self = this;
+                fetch(`/v1/nationalities`, {
                     accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then(updateNationalities);
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.nationalityOptions = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
             /**
              * Retrieves all the traveller types.
              */
-            getTravellerTypes(updateTravellerTypes) {
-                return fetch(`/v1/travtypes`, {
+            getTravellerTypes() {
+                let self = this;
+                fetch(`/v1/travtypes`, {
                     accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then(updateTravellerTypes);
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.travTypeOptions = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
             /**
-             * Converts the response body to a Json.
+             * When the user manually changes the router, handles redirect to the index page if they are not logged in.
              */
-            parseJSON(response) {
-                return response.json();
-            },
-
-
-            /**
-             * Refreshes data when data has been changed.
-             */
-            refreshData() {
-                this.getDestinations();
+            handleRedirect() {
+                if (this.$router.currentRoute.name !== 'index' && !this.profile) {
+                    this.$router.replace('/');
+                }
             }
         }
     }

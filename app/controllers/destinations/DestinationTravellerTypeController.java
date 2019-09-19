@@ -6,6 +6,8 @@ import com.google.inject.Inject;
 import models.profiles.Profile;
 import models.profiles.TravellerType;
 import models.destinations.Destination;
+import models.util.ApiError;
+import models.util.Errors;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -75,18 +77,18 @@ public class DestinationTravellerTypeController {
     public Result addTravellerTypes(Http.Request request, Long destinationId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Destination destinationToMutate = destinationRepository.findById(destinationId);
 
         if (destinationToMutate == null) {
-            return notFound();
+            return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
         }
 
 
         if (!AuthenticationUtil.validUser(loggedInUser, destinationToMutate.getOwner())) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         JsonNode jsonBody = request.body().asJson();
@@ -125,19 +127,19 @@ public class DestinationTravellerTypeController {
     public Result propose(Http.Request request, Long destinationId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Destination destinationToMutate = destinationRepository.findById(destinationId);
 
         if (destinationToMutate == null) {
-            return notFound();
+            return notFound(ApiError.notFound(Errors.DESTINATION_NOT_FOUND));
         }
 
         JsonNode jsonBody = request.body().asJson();
 
-        if(jsonBody == null || !jsonBody.isArray()) {
-            return badRequest();
+        if (jsonBody == null || !jsonBody.isArray()) {
+            return badRequest(ApiError.invalidJson());
         }
 
         Set<TravellerType> currentTravellerTypes = destinationToMutate.getTravellerTypes();
@@ -176,11 +178,11 @@ public class DestinationTravellerTypeController {
     public Result fetchProposedDestinations(Http.Request request) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         if (!loggedInUser.isAdmin()) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         return ok(Json.toJson(destinationRepository.fetchProposed()));

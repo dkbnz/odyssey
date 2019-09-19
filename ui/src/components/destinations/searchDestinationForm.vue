@@ -2,7 +2,6 @@
     <div>
         <h4 class="page-title" v-if="searchPublic">Search Public Destinations</h4>
         <h4 class="page-title" v-else>Search Your Destinations</h4>
-        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
         <b-form @submit.prevent="searchDestinations">
             <!--Input fields for searching for destinations-->
             <b-form-group
@@ -102,7 +101,6 @@
 
         props: {
             searchPublic: Boolean,
-            destinationTypes: Array,
             profile: Object,
             userProfile: {
                 default: function () {
@@ -113,6 +111,7 @@
 
         mounted() {
             this.getCountries();
+            this.getDestinationTypes();
         },
 
         data() {
@@ -126,7 +125,6 @@
                 searchLatitude: "",
                 searchLongitude: "",
                 searchCountry: "",
-                showError: false,
                 optionViews: [
                     {value: 1, text: "1"},
                     {value: 5, text: "5"},
@@ -144,11 +142,11 @@
                     {key: 'country', value: 'country', sortable: true}
                 ],
                 searchDestination: "",
-                errorMessage: "",
                 retrievingDestinations: false,
                 longitudeErrorMessage: "",
                 latitudeErrorMessage: "",
-                countryList: Array
+                countryList: [],
+                destinationTypes: []
             }
         },
 
@@ -220,6 +218,27 @@
 
         methods: {
             /**
+             * Retrieves the different destination types from the backend.
+             */
+            getDestinationTypes() {
+                let self = this;
+                fetch(`/v1/destinationTypes`, {
+                    accept: "application/json"
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.destinationTypes = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
+            },
+
+
+            /**
              * Sets values for search.
              */
             searchDestinations() {
@@ -243,17 +262,22 @@
 
 
             /**
-             * Sets the countries list to the list of countries from the country api
+             * Sets the countries list to the list of countries from the country api.
              */
             getCountries() {
-                return fetch("https://restcountries.eu/rest/v2/all", {
-                    dataType: 'html'
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.countryList = data;
-                    })
+                let self = this;
+                fetch("https://restcountries.eu/rest/v2/all", {})
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.countryList = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -267,65 +291,6 @@
                 if (validationField === null || validationField === true) {
                     return true;
                 }
-            },
-
-
-            /**
-             * Runs a query which searches through the destinations in the database and returns all which
-             * follow the search criteria.
-             *
-             * @return {Promise<Response | never>}
-             */
-            queryDestinations() {
-                this.retrievingDestinations = true;
-                if (this.searchType === "Any") {
-                    this.searchType = "";
-                }
-                let searchQuery =
-                    "?name=" + this.searchName +
-                    "&type_id=" + this.searchType +
-                    "&district=" + this.searchDistrict +
-                    "&latitude=" + this.searchLatitude +
-                    "&longitude=" + this.searchLongitude +
-                    "&country=" + this.searchCountry;
-
-                return fetch(`/v1/destinations` + searchQuery, {
-                    dataType: 'html'
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.$emit('searched-destinations', data);
-                        this.retrievingDestinations = false;
-                    })
-            },
-
-
-            /**
-             * Displays an error if search failed.
-             *
-             * @param response from database search query.
-             * @throws the error if it occurs.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                throw error;
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response the Http response.
-             * @return the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
             }
         },
 

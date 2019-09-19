@@ -5,7 +5,6 @@
                 <destination-search-list
                         :search-public="false"
                         :profile="profile"
-                        :destinationTypes="destinationTypes"
                         @destination-click="destination => $emit('destination-click', destination)"
                         @destination-search="foundDestinations => foundDestinationUpdate(false, foundDestinations)"
                         @destination-reset="$emit('destination-reset')">
@@ -15,7 +14,6 @@
                 <destination-search-list
                         :search-public="true"
                         :profile="profile"
-                        :destinationTypes="destinationTypes"
                         @destination-click="destination => $emit('destination-click', destination)"
                         @destination-search="foundDestinations => foundDestinationUpdate(true, foundDestinations)"
                         @destination-reset="$emit('destination-reset')">
@@ -27,8 +25,7 @@
                         <add-destinations :profile="profile"
                                           :destinationTypes="destinationTypes"
                                           :heading="'Add'"
-                                          :input-destination="inputDestination"
-                                          @data-changed="$emit('data-changed')">
+                                          :input-destination="inputDestination">
                         </add-destinations>
                     </b-list-group-item>
                 </b-list-group>
@@ -57,26 +54,7 @@
             }
         },
 
-        mounted() {
-            this.getDestinationTypes(destinationTypesTemp => this.destinationTypes = destinationTypesTemp);
-        },
-
         methods: {
-            /**
-             * Retrieves the different destination types from the backend.
-             *
-             * @param updateDestinationTypes    the list to be updated with the specified destination types.
-             * @return {Promise<any | never>}  the returned promise.
-             */
-            getDestinationTypes(updateDestinationTypes) {
-                return fetch(`/v1/destinationTypes`, {
-                    accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(updateDestinationTypes);
-            },
-
-
             /**
              * Updates the destinations to be displayed on the destinations page. These are destinations to be displayed
              * on the map.
