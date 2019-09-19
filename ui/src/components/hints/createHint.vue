@@ -83,9 +83,7 @@
                             return response.json();
                         }
                     }).then(function (responseBody) {
-                        self.$emit('successCreate', {message: "Hint Successfully Created"});
-                        self.showRewardToast(responseBody.reward);
-                        self.$emit('cancelCreate');
+                        self.$emit('successCreate', responseBody);
                     }).catch(function (response) {
                         if (response.status > 404) {
                             self.showErrorToast([{message: "An unexpected error occurred"}]);
