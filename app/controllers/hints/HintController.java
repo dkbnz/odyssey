@@ -1,5 +1,6 @@
 package controllers.hints;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.hints.Hint;
@@ -18,6 +19,7 @@ import util.Views;
 
 import javax.inject.Inject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static play.mvc.Results.*;
@@ -108,9 +110,49 @@ public class HintController {
      *
      * @param request           the Http request containing login information.
      * @param objectiveId       the Id of the objective having its hints retrieved.
-     * @return
+     * @return                  ok() (Http 200) response containing retrieved hints.
+     *                          notFound() (Http 404) response if the objective doesn't exist.
+     *                          forbidden() (Http 403) response if the user is not allowed to retrieve.
+     *                          badRequest() (Http 400) response if there is an issue converting to Json.
+     *                          unauthorized() (Http 401) response if the user is not logged into the system.
      */
     public Result fetchAll(Http.Request request, Long objectiveId) {
-        return ok();
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        Objective targetObjective = objectiveRepository.findById(objectiveId);
+        if (targetObjective == null) {
+            return notFound(ApiError.notFound(Errors.OBJECTIVE_NOT_FOUND));
+        }
+
+        // Check if the user has completed the objective, and can therefore view its hints.
+        List<Objective> userCompletedObjectives = objectiveRepository.findAllCompletedUsing(loggedInUser);
+        boolean isPermittedToRetrieve = userCompletedObjectives.contains(targetObjective);
+
+        if (!AuthenticationUtil.validUser(loggedInUser, targetObjective.getOwner()) || !isPermittedToRetrieve) {
+            return forbidden(ApiError.forbidden());
+        }
+
+        // Handle the case of there being no hints.
+        List<Hint> objectiveHints;
+        if (targetObjective.getHints() == null) {
+            objectiveHints = new ArrayList<>();
+        } else {
+            objectiveHints = targetObjective.getHints();
+        }
+
+        // Convert the result to Json.
+        String result;
+        try {
+            result = objectMapper
+                    .writerWithView(Views.Public.class)
+                    .writeValueAsString(objectiveHints);
+        } catch (JsonProcessingException e) {
+            return badRequest(ApiError.invalidJson());
+        }
+
+        return ok(result);
     }
 }

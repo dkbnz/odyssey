@@ -110,6 +110,8 @@ public class Objective extends BaseModel {
         this.radius = radius;
     }
 
+    public List<Hint> getHints() { return hints; }
+
 
     /**
      * Checks if an Object is equal to this instance of Objective.
