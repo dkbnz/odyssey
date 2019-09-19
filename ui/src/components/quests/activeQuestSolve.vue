@@ -54,6 +54,13 @@
 
         </div>
 
+        <create-hint v-if="showHintSideBar"
+                     :profile="profile"
+                     :objective="objective"
+                     @successCreate="successCreateHint"
+                     @cancelCreate="showHintSideBar = false">
+        </create-hint>
+
         <div v-else>
             <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom show-only-mobile" size="sm">Back</b-button>
             <h2 class="page-title" v-if="questAttempt.questAttempted">{{questAttempt.questAttempted.title}}</h2>
@@ -104,6 +111,7 @@
                         </p>
                     </div>
                     <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
+                    <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Add Hint</b-button>
                 </b-list-group-item>
                 <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop" dismissible>
                     You are not at the required location, you are {{getHowClose()}} away.
@@ -122,11 +130,14 @@
 
 <script>
     import FoundDestinations from "../destinations/destinationSearchList";
+    import CreateHint from "../hints/createHint"
+
     export default {
         name: "activeQuestSolve",
 
         props: {
-            questAttempt: Object
+            questAttempt: Object,
+            profile: Object
         },
 
         data() {
@@ -148,7 +159,9 @@
                 showNotValidCheckIn: false,
                 totalDistance: null,
                 searchedRiddle: null,
-                pointsGained: Number
+                pointsGained: Number,
+                showHintSideBar: false,
+                objective: Object
             }
         },
 
@@ -170,7 +183,7 @@
         },
 
         components: {
-            FoundDestinations
+            FoundDestinations, CreateHint
         },
 
         mounted() {
