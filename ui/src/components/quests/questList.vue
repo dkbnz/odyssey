@@ -320,8 +320,7 @@
                 selectedQuestAttempt: {},
                 selectedQuest: {},
                 activeUsers: 0,
-                queryPage: 0,
-                refreshList: false
+                queryPage: 0
             }
         },
 
@@ -332,8 +331,8 @@
 
         watch: {
             refreshQuests() {
-                // this.refreshList = true;
-                this.getMore();
+                this.refreshList();
+                this.getMore()
             },
 
             profile() {
@@ -342,6 +341,14 @@
         },
 
         methods: {
+            /**
+             * Resets the foundQuests array and the query page for tab switching and lazy loading
+             */
+            refreshList() {
+                this.foundQuests = [];
+                this.queryPage = 0;
+            },
+
             /**
              * Used to convert the quest object into a Json object.
              */
@@ -354,11 +361,6 @@
              * Function to retrieve more quests when a user reaches the bottom of the list.
              */
             getMore() {
-                if (this.refreshQuests) {
-                    this.foundQuests = [];
-                    this.refreshQuests = false;
-                    this.queryPage = 0;
-                }
                 if (this.yourQuests) {
                     this.queryYourQuests();
                 } else if(this.completedQuests) {
@@ -409,10 +411,8 @@
                     }
                 }).then(function (responseBody) {
                     self.loadingResults = false;
-                    console.log(responseBody)
-                    console.log(self.queryPage)
                     if (responseBody !== null && responseBody !== undefined) {
-                        self.moreResults = responseBody.length >= 1;
+                        self.moreResults = responseBody.length > 0;
                         self.queryPage += 1;
                         self.foundQuests = self.foundQuests.concat(responseBody)
                     }
