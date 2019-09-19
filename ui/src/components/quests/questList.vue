@@ -203,12 +203,16 @@
                     </quest-search-form>
                     <completed-quest-details
                             v-if="completedQuests"
-                            :quest="selectedQuest">
+                            :profile="profile"
+                            :quest="selectedQuest"
+                            @successCreate="successCreateHint">
                     </completed-quest-details>
                     <create-hint
                             v-if="showHintSideBar"
                             :profile="profile"
-                            :objective="currentObjective">
+                            :objective="currentObjective"
+                            @successCreate="successCreateHint"
+                            @cancelCreate="showHintSideBar = false">
                     </create-hint>
                 </b-card>
             </b-col>
@@ -632,6 +636,15 @@
                 this.activeId = 0;
                 this.showDestinations = false;
                 this.alertText = "Quest successfully edited";
+                this.showAlert();
+            },
+
+
+            /**
+             * Success create hint show
+             */
+            successCreateHint() {
+                this.alertText = "Hint successfully created!";
                 this.showAlert();
             },
 
