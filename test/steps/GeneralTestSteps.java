@@ -298,10 +298,10 @@ public class GeneralTestSteps {
     }
 
 
-    @Given("^I am logged in as user with id \"(.*)\"$")
-    public void iAmLoggedInAsUserWithId(String userId) {
+    @Given("^I am logged in as user with id (\\d+)$")
+    public void iAmLoggedInAsUserWithId(Integer userId) {
         // Write code here that turns the phrase above into concrete actions
-        testContext.setLoggedInId(userId);
+        testContext.setLoggedInId(userId.toString());
     }
 
 

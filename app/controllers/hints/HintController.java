@@ -55,10 +55,9 @@ public class HintController {
     /**
      * Creates a new hint for an objective in a quest.
      *
-     * @param request           the Http request containing a Json body of the new hint.
-     * @param objectiveId       the Id of the objective the hint will be created for.
-     * @param userId            the Id of the user who will own the hint created.
-     *
+     * @param request     the Http request containing a Json body of the new hint.
+     * @param objectiveId the Id of the objective the hint will be created for.
+     * @param userId      the Id of the user who will own the hint created.
      * @return
      */
     public Result create(Http.Request request, Long objectiveId, Long userId) {
@@ -78,12 +77,11 @@ public class HintController {
         }
 
         // Can create a hint if an admin, the owner, or have solved the objective
-        List<Objective> solvedObjectives = objectiveRepository.findAllCompletedUsing(hintCreator);
-        boolean objectiveSolved = solvedObjectives.contains(objectiveToAddHint);
-
-        if (!(AuthenticationUtil.validUser(hintCreator, objectiveToAddHint.getOwner()) || objectiveSolved)) {
+        if (!(objectiveRepository.hasSolved(loggedInUser, objectiveToAddHint)
+                || AuthenticationUtil.validUser(loggedInUser, objectiveToAddHint.getOwner()))) {
             return forbidden(ApiError.forbidden());
         }
+
 
         Hint hint;
 
@@ -134,48 +132,21 @@ public class HintController {
             return notFound(ApiError.notFound(Errors.OBJECTIVE_NOT_FOUND));
         }
 
-        // Check if the user has completed the objective, and can therefore view its hints.
-        List<Objective> userCompletedObjectives = objectiveRepository.findAllCompletedUsing(loggedInUser);
-        boolean isPermittedToRetrieve = userCompletedObjectives.contains(targetObjective);
-
-
-        System.out.println("============================================PERMITTED?=======================================");
-        System.out.println(isPermittedToRetrieve);
-        System.out.println("================================CAN THEY OVERRIDE THE PERMISSION?============================");
-        System.out.println(AuthenticationUtil.validUser(loggedInUser, targetObjective.getOwner()));
-        System.out.println("=============================================================================================");
-
-
-//        if (!AuthenticationUtil.validUser(loggedInUser, targetObjective.getOwner()) && !isPermittedToRetrieve) {
-//            return forbidden(ApiError.forbidden());
-//        }
-
-        if (!isPermittedToRetrieve) {
-            if (!AuthenticationUtil.validUser(loggedInUser, targetObjective.getOwner())) {
-                return forbidden(ApiError.forbidden());
-            }
+        // Check if the user has completed the objective, is an admin or owner of the objective.
+        if (!(objectiveRepository.hasSolved(loggedInUser, targetObjective)
+                || AuthenticationUtil.validUser(loggedInUser, targetObjective.getOwner()))) {
+            return forbidden(ApiError.forbidden());
         }
 
-
-
-        // Can retrieve if they're a normal user who's completed the objective, or if they're an admin or owner
-        // cannot retriev
-
-        // Handle the case of there being no hints.
-        List<Hint> objectiveHints;
-        if (targetObjective.getHints() == null) {
-            objectiveHints = new ArrayList<>();
-        } else {
-            objectiveHints = targetObjective.getHints();
-        }
-
-        // Convert the result to Json.
         String result;
+
         try {
+            // Convert hints to a Json string
             result = objectMapper
                     .writerWithView(Views.Public.class)
-                    .writeValueAsString(objectiveHints);
+                    .writeValueAsString(targetObjective.getHints());
         } catch (JsonProcessingException e) {
+            // Issues with serialisation
             return badRequest(ApiError.invalidJson());
         }
 
