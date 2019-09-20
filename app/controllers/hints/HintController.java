@@ -36,7 +36,7 @@ public class HintController {
     /**
      * String constants for json creation.
      */
-    private static final String NEW_HINT_ID = "newHintId";
+    private static final String NEW_HINT = "newHint";
     private static final String REWARD = "reward";
 
     @Inject
@@ -95,13 +95,13 @@ public class HintController {
             return badRequest(ApiError.badRequest(Errors.INVALID_JSON_FORMAT));
         }
 
+        objectiveToAddHint.addHint(hint);
+
         ObjectNode returnJson = objectMapper.createObjectNode();
 
         // Points for creating a hint.
         returnJson.set(REWARD, achievementTrackerController.rewardAction(hintCreator, hint));
-        hintRepository.save(hint);
-
-        returnJson.set(NEW_HINT_ID, Json.toJson(hint.getId()));
+        returnJson.set(NEW_HINT, Json.toJson(hint));
 
         profileRepository.update(hintCreator);
         objectiveRepository.update(objectiveToAddHint);
