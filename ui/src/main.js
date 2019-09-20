@@ -27,10 +27,23 @@ Vue.use(BootstrapVue);
  * Allows use of these methods in every single component.
  */
 Vue.mixin({
+    /** Handles the events for if the user is viewing on mobile **/
+    created() {
+        window.addEventListener("resize", this.handleViewOnMobile);
+    },
+    destroyed() {
+        window.removeEventListener("resize", this.handleViewOnMobile);
+    },
+
     components: {
         RewardToast,
         ErrorToast
     },
+
+    mounted() {
+        this.handleViewOnMobile();
+    },
+
     methods: {
         /**
          * Displays a toast for each action that awards points and each badge progress achieved.
@@ -205,6 +218,14 @@ Vue.mixin({
             }).catch(function () {
 
             });
+        },
+
+
+        /**
+         * Handles if the user if viewing the page on a mobile device.
+         */
+        handleViewOnMobile() {
+            this.onMobile = window.innerWidth <= 991;
         }
     },
 
@@ -225,7 +246,8 @@ Vue.mixin({
                 QUEST_COMPLETED: 'Quest Completed',
                 HINT_CREATED: 'Hint Created'
             },
-            MINUTE: 60000
+            MINUTE: 60000,
+            onMobile: false
         }
     }
 });
@@ -236,3 +258,20 @@ new Vue({
     template: '<App/>',
     components: { App }
 });
+
+let restrictedPages = ['/destinations','/admin', '/trips'];
+
+router.beforeEach((to, from, next) => {
+    if (restrictedPages.includes(to.path) && viewingOnMobile()) {
+        router.push(from.path);
+    } else {
+        next();
+    }
+});
+
+
+/* Detects if the user is viewing on a mobile device (width is 991) */
+$(window).on("resize", viewingOnMobile);
+function viewingOnMobile( e ) {
+    return $(window).width() <= 991;
+}
