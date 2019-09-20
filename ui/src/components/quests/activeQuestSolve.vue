@@ -95,13 +95,18 @@
                 <b-list-group-item
                                    class="d-flex justify-content-between align-items-center"
                                    v-if="questAttempt.toSolve != null">
-                    <b-col cols="9">
-                        <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
-                    </b-col>
-                    <b-col cols="3">
-                        <b-button class="float-left" size="sm" variant="primary" @click="showHintConfirmModal(questAttempt.toSolve)">I need a hint!</b-button>
-                        <b-button class="float-right" size="sm" variant="warning" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
-                    </b-col>
+                    <b-row class="w-100">
+                        <b-col md="7">
+                            <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
+                        </b-col>
+                        <b-col md="5">
+                            <div class="float-right">
+                                <b-button size="sm" variant="primary" @click="showHintConfirmModal(questAttempt.toSolve)">I need a hint!</b-button>
+                                <b-button size="sm" variant="warning" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
+                            </div>
+                        </b-col>
+                    </b-row>
+
                 </b-list-group-item>
                 <!-- If we have an objective to check in to, display it -->
                 <b-list-group-item href="#"
@@ -176,7 +181,6 @@
                 showNotValidCheckIn: false,
                 totalDistance: null,
                 searchedRiddle: null,
-                pointsGained: Number,
                 showHintSideBar: false,
                 objective: Object,
                 showHintAlertModal: false,
