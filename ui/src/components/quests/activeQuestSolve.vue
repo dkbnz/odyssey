@@ -60,6 +60,22 @@
         </create-hint>
 
         <div v-else>
+            <!--Successful quest alert -->
+            <b-alert
+                    :show="dismissCountDown"
+                    @dismiss-count-down="countDownChanged"
+                    @dismissed="dismissCountDown=0"
+                    dismissible
+                    variant="success">
+                <p>{{alertText}}</p>
+                <b-progress
+                        :max="dismissSeconds"
+                        :value="dismissCountDown - 1"
+                        height="4px"
+                        variant="success"
+                ></b-progress>
+            </b-alert>
+
             <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom show-only-mobile" size="sm">Back</b-button>
             <h2 class="page-title" v-if="questAttempt.questAttempted">{{questAttempt.questAttempted.title}}</h2>
 
@@ -112,14 +128,31 @@
                 <b-list-group-item href="#"
                                    class="d-flex justify-content-between align-items-center"
                                    v-if="questAttempt.toCheckIn != null">
-                    <div>
-                    <span class="mobile-text font-weight-bold">{{questAttempt.toCheckIn.riddle}}</span>
-                        <p class="mb-1 mobile-text">
-                            {{questAttempt.toCheckIn.destination.name}}
-                        </p>
-                    </div>
-                    <b-button class="no-wrap-text" size="sm" variant="primary" @click="getCurrentLocation">Add Hint</b-button>
-                    <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
+                <b-col class="w-100">
+                    <b-row>
+                        <b-col md="7">
+                            <span class="mobile-text font-weight-bold">{{questAttempt.toCheckIn.riddle}}</span>
+                            <p class="mb-1 mobile-text">
+                                {{questAttempt.toCheckIn.destination.name}}
+                            </p>
+                        </b-col>
+                        <b-col md="5">
+                            <div class="float-right">
+                                <b-button class="no-wrap-text" size="sm" variant="primary" @click="showOrHideHints">{{showOrHide}} Hints</b-button>
+                                <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
+                            </div>
+                        </b-col>
+                    </b-row>
+                    <b-row v-if="showOrHide === 'Hide'">
+                        <list-hints
+                                :objective="questAttempt.toCheckIn"
+                                :profile="profile"
+                                :hints="questAttempt.toCheckIn.hints"
+                                :solved="true"
+                                @showAddHint="showAddHint(questAttempt.toCheckIn)">
+                        </list-hints>
+                    </b-row>
+                </b-col>
                 </b-list-group-item>
                 <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop" dismissible>
                     You are not at the required location, you are {{getHowClose()}} away.
@@ -153,6 +186,7 @@
 <script>
     import FoundDestinations from "../destinations/destinationSearchList";
     import CreateHint from "../hints/createHint"
+    import ListHints from "../hints/listHints";
 
     export default {
         name: "activeQuestSolve",
@@ -183,8 +217,13 @@
                 searchedRiddle: null,
                 showHintSideBar: false,
                 objective: Object,
+                showOrHide: "Show",
                 showHintAlertModal: false,
-                objectiveToGetHint: null
+                objectiveToGetHint: null,
+                showHintInObjective: false,
+                dismissSeconds: 3,
+                dismissCountDown: 0,
+                alertText: ""
             }
         },
 
@@ -206,6 +245,7 @@
         },
 
         components: {
+            ListHints,
             FoundDestinations, CreateHint
         },
 
@@ -214,6 +254,53 @@
         },
 
         methods: {
+            /**
+             * Shows or hides the hints for a given objective
+             */
+            showOrHideHints() {
+                if (this.showOrHide === "Show") {
+                    this.showOrHide = "Hide";
+                } else {
+                    this.showOrHide = "Show";
+                }
+            },
+
+
+            /**
+             * Showing the create hint and setting the objective for the hint creation
+             */
+            showAddHint(objective) {
+                this.objective = objective;
+                this.showHintSideBar = true;
+            },
+
+
+            successCreateHint(responseBody) {
+                this.alertText = "Hint successfully created!";
+                this.showAlert();
+                this.showRewardToast(responseBody.reward);
+                this.showHintSideBar = false;
+            },
+
+
+            /**
+             * Displays the countdown alert on the successful deletion of a quest.
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSeconds;
+            },
+
+
+            /**
+             * Used to countdown the progress bar on an alert to countdown.
+             *
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown;
+            },
+
+
             /**
              * Sends a request to check the users guess for a given quest attempt.
              * Displays appropriate messages upon receiving a response.
