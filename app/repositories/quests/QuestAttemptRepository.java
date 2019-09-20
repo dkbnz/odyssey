@@ -23,6 +23,7 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
     private static final String QUEST_ATTEMPTED = "questAttempted";
     private static final String COMPLETED = "completed";
     private static final String QUEST_ATTEMPTED_ID = "questAttempted.id";
+    private static final String QUEST_ATTEMPTED_OBJECTIVES = "questAttempted.objectives";
 
     @Inject
     public QuestAttemptRepository() {
@@ -91,5 +92,20 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
                 .lt(START_DATE, new Date())
                 .gt(END_DATE, new Date())
                 .findList();
+    }
+
+
+    /**
+     * Finds all quest attempts of a profile that contain the given objective.
+     *
+     * @param profile      the profile to get quest attempt for.
+     * @param objective    the objective in the quest of the quest attempt.
+     * @return             a quest attempt for the given profile relating to the given objective.
+     */
+    public QuestAttempt findUsing(Profile profile, Objective objective) {
+        return query().where()
+                .eq(ATTEMPTED_PROFILE, profile)
+                .eq(QUEST_ATTEMPTED_OBJECTIVES, objective)
+                .findOne();
     }
 }
