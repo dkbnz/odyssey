@@ -18,13 +18,13 @@
 
             <b-row class="buttonMarginsTop">
                 <b-col>
-                    <b-button @click="cancelHint" block>
-                        Cancel
+                    <b-button @click="createHint" block variant="primary" :disabled="!this.hintValidation">
+                        Submit
                     </b-button>
                 </b-col>
                 <b-col>
-                    <b-button @click="createHint" block variant="primary" :disabled="!this.hintValidation">
-                        Submit
+                    <b-button @click="cancelHint" block>
+                        Cancel
                     </b-button>
                 </b-col>
             </b-row>
