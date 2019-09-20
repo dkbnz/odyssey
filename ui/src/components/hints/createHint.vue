@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h4 class="page-title">New Hint for:</h4>
+        <h4 class="page-title">New Hint</h4>
         <h5>Riddle: {{objective.riddle}}</h5>
         <h5>Destination: {{objective.destination.name}}</h5>
         <b-form @submit.prevent="createHint">
