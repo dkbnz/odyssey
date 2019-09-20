@@ -207,7 +207,7 @@ public class HintTestSteps {
     }
 
 
-    @Then("^The response contains (\\d+) hints$")
+    @Then("^the response contains (\\d+) hints$")
     public void theResponseContainsHints(Integer expectedNumberOfHints) {
         assert(expectedNumberOfHints == testContext.getResponseBody().length());
     }

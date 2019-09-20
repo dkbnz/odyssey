@@ -118,34 +118,34 @@ Feature: Hint API Endpoint
 
 
 #  TODO: Vinnie, determine why these cases are failing (most probably database-related)
-#  Scenario: Successfully retrieving all hints for an objective I have completed
-#    Given the application is running
-#    And I am logged in
-#    And an objective exists with id 29
-#    And I have solved the objective with id 29
-#    When I attempt to retrieve all hints for the objective with id 29
-#    Then the status code received is 200
-#    And the response contains 2 hints
-#
-#
-#  Scenario: Successfully retrieving all hints for an objective I have completed with no hints
-#    Given the application is running
-#    And I am logged in
-#    And an objective exists with id 29
-#    And I have solved the objective with id 29
-#    When I attempt to retrieve all hints for the objective with id 29
-#    Then the status code received is 200
-#    And the response contains 0 hints
-#
-#
-#  Scenario: Successfully retrieving all hints for an objective I have not completed as an admin
-#    Given the application is running
-#    And I am logged in as an admin user
-#    And an objective exists with id 29
-#    And I have not solved the objective with id 29
-#    When I attempt to retrieve all hints for the objective with id 29
-#    Then the status code received is 200
-#    And the response contains 2 hints
+  Scenario: Successfully retrieving all hints for an objective I have completed
+    Given the application is running
+    And I am logged in
+    And an objective exists with id 29
+    And I have solved the objective with id 29
+    When I attempt to retrieve all hints for the objective with id 29
+    Then the status code received is 200
+    And the response contains 2 hints
+
+
+  Scenario: Successfully retrieving all hints for an objective I have completed with no hints
+    Given the application is running
+    And I am logged in
+    And an objective exists with id 29
+    And I have solved the objective with id 29
+    When I attempt to retrieve all hints for the objective with id 29
+    Then the status code received is 200
+    And the response contains 0 hints
+
+
+  Scenario: Successfully retrieving all hints for an objective I have not completed as an admin
+    Given the application is running
+    And I am logged in as an admin user
+    And an objective exists with id 29
+    And I have not solved the objective with id 29
+    When I attempt to retrieve all hints for the objective with id 29
+    Then the status code received is 200
+    And the response contains 2 hints
 
 
   Scenario: Unsuccessfully retrieving all hints for an objective I have not completed
