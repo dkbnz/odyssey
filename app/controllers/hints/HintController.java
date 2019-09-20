@@ -138,9 +138,28 @@ public class HintController {
         List<Objective> userCompletedObjectives = objectiveRepository.findAllCompletedUsing(loggedInUser);
         boolean isPermittedToRetrieve = userCompletedObjectives.contains(targetObjective);
 
-        if (!AuthenticationUtil.validUser(loggedInUser, targetObjective.getOwner()) || !isPermittedToRetrieve) {
-            return forbidden(ApiError.forbidden());
+
+        System.out.println("============================================PERMITTED?=======================================");
+        System.out.println(isPermittedToRetrieve);
+        System.out.println("================================CAN THEY OVERRIDE THE PERMISSION?============================");
+        System.out.println(AuthenticationUtil.validUser(loggedInUser, targetObjective.getOwner()));
+        System.out.println("=============================================================================================");
+
+
+//        if (!AuthenticationUtil.validUser(loggedInUser, targetObjective.getOwner()) && !isPermittedToRetrieve) {
+//            return forbidden(ApiError.forbidden());
+//        }
+
+        if (!isPermittedToRetrieve) {
+            if (!AuthenticationUtil.validUser(loggedInUser, targetObjective.getOwner())) {
+                return forbidden(ApiError.forbidden());
+            }
         }
+
+
+
+        // Can retrieve if they're a normal user who's completed the objective, or if they're an admin or owner
+        // cannot retriev
 
         // Handle the case of there being no hints.
         List<Hint> objectiveHints;
