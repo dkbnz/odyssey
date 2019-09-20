@@ -101,13 +101,13 @@
                                         </b-card>
                                     </b-col>
                                 </b-row>
-                                <b-row>
-                                    <b-button variant="primary" class="buttonMarginsTop"
-                                              @click="sendTravellerTypes(destination)" block :disabled="sendingRequest">
-                                        <b-img alt="Loading" class="align-middle loading" v-if="sendingRequest" :src="assets['loadingLogo']" height="20%">
-                                        </b-img>
-                                        Submit
-                                    </b-button>
+                                <b-row no-gutters>
+                                    <b-col>
+                                        <b-button variant="primary" class="buttonMarginsTop p-0 w-100"
+                                                  @click="sendTravellerTypes(destination)" block :disabled="sendingRequest">
+                                            Submit
+                                        </b-button>
+                                    </b-col>
                                 </b-row>
                             </b-card>
                         </div>
