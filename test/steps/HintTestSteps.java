@@ -8,6 +8,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.objectives.Objective;
 import models.profiles.Profile;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import play.db.evolutions.Evolutions;
@@ -66,18 +67,18 @@ public class HintTestSteps {
             testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
 
-    @Before
-    public void hintSetUp() {
-        Evolutions.applyEvolutions(
-                testContext.getDatabase(),
-                Evolutions.fromClassLoader(
-                        getClass().getClassLoader(),
-                        "custom/"
-                )
-        );
-    }
-
-
+//    @Before
+//    public void hintSetUp() {
+//        Evolutions.applyEvolutions(
+//                testContext.getDatabase(),
+//                Evolutions.fromClassLoader(
+//                        getClass().getClassLoader(),
+//                        "test/hints/"
+//                )
+//        );
+//    }
+//
+//
 //    @After
 //    public void hintTearDown() {
 //        Evolutions.cleanupEvolutions(testContext.getDatabase());
@@ -166,18 +167,16 @@ public class HintTestSteps {
     @Given("^I have solved the objective with id (\\d+)$")
     public void iHaveSolvedTheObjectiveWithId(Integer objectiveId) {
         Profile loggedInUser = profileRepository.findById(Long.parseLong(testContext.getLoggedInId()));
-        Collection<Objective> solvedObjectives = objectiveRepository.findAllCompletedUsing(loggedInUser);
         Objective objective = objectiveRepository.findById(Long.valueOf(objectiveId));
-        Assert.assertTrue(solvedObjectives.contains(objective));
+        Assert.assertTrue(objectiveRepository.hasSolved(loggedInUser, objective));
     }
 
 
     @Given("^I have not solved the objective with id (\\d+)$")
     public void iHaveNotSolvedTheObjectiveWithId(Integer objectiveId) {
         Profile loggedInUser = profileRepository.findById(Long.parseLong(testContext.getLoggedInId()));
-        Collection<Objective> solvedObjectives = objectiveRepository.findAllCompletedUsing(loggedInUser);
         Objective objective = objectiveRepository.findById(Long.valueOf(objectiveId));
-        Assert.assertFalse(solvedObjectives.contains(objective));
+        Assert.assertFalse(objectiveRepository.hasSolved(loggedInUser, objective));
     }
 
 
