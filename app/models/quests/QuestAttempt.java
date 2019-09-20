@@ -77,7 +77,7 @@ public class QuestAttempt extends BaseModel {
      * @return  list of objectives the user has solved for this particular quest attempt.
      */
     @JsonProperty("solved")
-    public List<Objective> getSolved() {
+    public List<Objective> getCheckedIn() {
         return questAttempted
                 .getObjectives()
                 .subList(0, checkedInIndex);

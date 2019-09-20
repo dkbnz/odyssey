@@ -128,7 +128,7 @@ public class GeneralTestSteps {
                 testContext.getDatabase(),
                 Evolutions.fromClassLoader(
                         getClass().getClassLoader(),
-                        "test/"
+                        "test/original/"
                 )
         );
     }
