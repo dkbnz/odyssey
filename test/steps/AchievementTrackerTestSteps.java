@@ -367,10 +367,11 @@ public class AchievementTrackerTestSteps {
 
     @Given("I have some starting points")
     public void iHaveSomeStartingPoints() throws IOException {
-        String userToView = testContext.getLoggedInId();
-        getPointsRequest(userToView);
-        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        startingPoints = responseBody.get("userPoints").asInt();
+        startingPoints = profileRepository.findById(
+                Long.valueOf(
+                        testContext.getLoggedInId()
+                )
+        ).getAchievementTracker().getPoints();
     }
 
 

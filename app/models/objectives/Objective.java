@@ -50,8 +50,8 @@ public class Objective extends BaseModel {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Hint> hints;
 
-    public Quest getQuestUsing() {
-        return questUsing;
+    public boolean addHint(Hint hint) {
+        return hints.add(hint);
     }
 
     @JsonIgnore

@@ -89,7 +89,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Completing a quest awards points
     Given the application is running
-    And I am logged in as user with id "7"
+    And I am logged in as user with id 7
     And a quest exists with id 6
     When I check in for quest attempt 7
     Then I have gained points
@@ -140,7 +140,7 @@ Feature: Achievement Tracker API Endpoint
 #Awarding Badges
   Scenario: Creating my first destination and getting a bronze level Cartographer badge
     Given the application is running
-    And I am logged in as user with id "7"
+    And I am logged in as user with id 7
     And my current progress towards the "Cartographer" badge is 0
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
@@ -151,7 +151,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Creating enough destinations to achieve a silver level Cartographer badge
     Given the application is running
-    And I am logged in as user with id "8"
+    And I am logged in as user with id 8
     And my current progress towards the "Cartographer" badge is 9
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
@@ -162,7 +162,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Creating enough destinations to achieve a gold level Cartographer badge
     Given the application is running
-    And I am logged in as user with id "9"
+    And I am logged in as user with id 9
     And my current progress towards the "Cartographer" badge is 49
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
@@ -173,7 +173,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Creating my first trip and getting a bronze level Planner badge
     Given the application is running
-    And I am logged in as user with id "7"
+    And I am logged in as user with id 7
     And my current progress towards the "Planner" badge is 0
     When I create a new trip with the following values
       | Name       |
@@ -191,7 +191,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Creating enough trips to achieve a silver level Planner badge
     Given the application is running
-    And I am logged in as user with id "8"
+    And I am logged in as user with id 8
     And my current progress towards the "Planner" badge is 9
     When I create a new trip with the following values
       | Name       |
@@ -209,7 +209,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Creating enough trips to achieve a gold level Planner badge
     Given the application is running
-    And I am logged in as user with id "9"
+    And I am logged in as user with id 9
     And my current progress towards the "Planner" badge is 29
     When I create a new trip with the following values
       | Name       |
@@ -227,7 +227,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Creating my first quest and getting a bronze level Writer badge
     Given the application is running
-    And I am logged in as user with id "4"
+    And I am logged in as user with id 4
     And I currently have no "quests" created
     When I start to create a quest using the following values
       | Title      | Start Date | End Date |
@@ -248,7 +248,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Creating enough quests to achieve a silver level Writer badge
     Given the application is running
-    And I am logged in as user with id "8"
+    And I am logged in as user with id 8
     And I currently have no "quests" created
     When I start to create a quest using the following values
       | Title      | Start Date | End Date |
@@ -269,7 +269,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Creating enough quests to achieve a gold level Writer badge
     Given the application is running
-    And I am logged in as user with id "9"
+    And I am logged in as user with id 9
     And I currently have no "quests" created
     When I start to create a quest using the following values
       | Title      | Start Date | End Date |
@@ -290,7 +290,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Solving enough quests to achieve bronze level Solver badge
     Given the application is running
-    And I am logged in as user with id "7"
+    And I am logged in as user with id 7
     And a quest exists with id 6
     When I check in for quest attempt 7
     And I retrieve all my complete quests
@@ -301,7 +301,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Solving enough quests to achieve silver level Solver badge
     Given the application is running
-    And I am logged in as user with id "8"
+    And I am logged in as user with id 8
     And a quest exists with id 6
     When I check in for quest attempt 17
     And I retrieve all my complete quests
@@ -312,7 +312,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Solving enough quests to achieve gold level Solver badge
     Given the application is running
-    And I am logged in as user with id "9"
+    And I am logged in as user with id 9
     And a quest exists with id 6
     When I check in for quest attempt 18
     And I retrieve all my complete quests
@@ -323,7 +323,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Gaining enough points to achieve bronze level Overachiever badge
     Given the application is running
-    And I am logged in as user with id "7"
+    And I am logged in as user with id 7
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
@@ -333,7 +333,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Gaining enough points to achieve silver level Overachiever badge
     Given the application is running
-    And I am logged in as user with id "8"
+    And I am logged in as user with id 8
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
@@ -343,7 +343,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Gaining enough points to achieve gold level Overachiever badge
     Given the application is running
-    And I am logged in as user with id "9"
+    And I am logged in as user with id 9
     When I create a new destination with the following values
       | Name | Type | District | Latitude | Longitude | Country     |
       | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
@@ -351,7 +351,6 @@ Feature: Achievement Tracker API Endpoint
     And I gain the "Overachiever" badge with level 3
 
 
-#TODO: Joel - Waiting on backend implementation.
   Scenario: Getting the bronze level Streaker badge
     Given the application is running
     And The following profile does not exist with the username "TestUser123@travelea.com" within the TravelEA database
@@ -401,7 +400,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Gaining enough points to achieve bronze level Wayfarer badge
     Given the application is running
-    And I am logged in as user with id "7"
+    And I am logged in as user with id 7
     And my current progress towards the "Wayfarer" badge is 99999
     When I check in for quest attempt 8
     Then the status code received is 200
@@ -410,7 +409,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Gaining enough points to achieve silver level Wayfarer badge
     Given the application is running
-    And I am logged in as user with id "8"
+    And I am logged in as user with id 8
     And my current progress towards the "Wayfarer" badge is 499999
     When I check in for quest attempt 9
     Then the status code received is 200
@@ -419,7 +418,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Gaining enough points to achieve gold level Wayfarer badge
     Given the application is running
-    And I am logged in as user with id "9"
+    And I am logged in as user with id 9
     And my current progress towards the "Wayfarer" badge is 999999
     When I check in for quest attempt 10
     Then the status code received is 200
@@ -428,7 +427,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Completing an international quest to earn a bronze level Explorer badge
     Given the application is running
-    And I am logged in as user with id "7"
+    And I am logged in as user with id 7
     And my current progress towards the "Explorer" badge is 0
     When I check in for quest attempt 11
     Then the status code received is 200
@@ -437,7 +436,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Completing enough international quests to earn a silver level Explorer badge
     Given the application is running
-    And I am logged in as user with id "8"
+    And I am logged in as user with id 8
     And my current progress towards the "Explorer" badge is 4
     When I check in for quest attempt 12
     Then the status code received is 200
@@ -446,7 +445,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Completing enough international quests to earn a gold level Explorer badge
     Given the application is running
-    And I am logged in as user with id "9"
+    And I am logged in as user with id 9
     And my current progress towards the "Explorer" badge is 9
     When I check in for quest attempt 13
     Then the status code received is 200
@@ -455,7 +454,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Gaining enough points to achieve bronze level Adventurer badge
     Given the application is running
-    And I am logged in as user with id "7"
+    And I am logged in as user with id 7
     And my current progress towards the "Adventurer" badge is 0
     When I check in for quest attempt 14
     Then the status code received is 200
@@ -464,7 +463,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Gaining enough points to achieve silver level Adventurer badge
     Given the application is running
-    And I am logged in as user with id "8"
+    And I am logged in as user with id 8
     And my current progress towards the "Adventurer" badge is 9
     When I check in for quest attempt 15
     Then the status code received is 200
@@ -473,7 +472,7 @@ Feature: Achievement Tracker API Endpoint
 
   Scenario: Gaining enough points to achieve gold level Adventurer badge
     Given the application is running
-    And I am logged in as user with id "9"
+    And I am logged in as user with id 9
     And my current progress towards the "Adventurer" badge is 29
     When I check in for quest attempt 16
     Then the status code received is 200

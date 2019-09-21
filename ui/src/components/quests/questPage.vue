@@ -45,14 +45,16 @@
                     </b-tab>
                 </b-tabs>
             </b-card>
-            <footer-main></footer-main>
         </div>
-        <div class="show-only-mobile">
+        <div class="show-only-mobile" v-if="onMobile">
             <quests-solve-mobile
                     :profile="profile">
             </quests-solve-mobile>
         </div>
+
+        <footer-main></footer-main>
     </div>
+
     <div v-else>
         <unauthorised-prompt-page></unauthorised-prompt-page>
     </div>

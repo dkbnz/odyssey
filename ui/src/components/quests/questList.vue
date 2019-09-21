@@ -612,6 +612,7 @@
                 this.editingQuest = false;
                 this.activeId = 0;
                 this.showDestinations = false;
+                this.showHintSideBar = false;
             },
 
 

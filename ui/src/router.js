@@ -9,7 +9,6 @@ import Credits from './components/helperComponents/creditsPage'
 
 import VueRouter from 'vue-router';
 
-
 const routes = [
     {
         path:"/",
