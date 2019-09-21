@@ -479,7 +479,8 @@
                     if (showDistance >= 1) {
                         return String(showDistance.toFixed(3)) + " kms";
                     }
-                    return String(showDistance.toFixed(5)*1000) + " metres";
+
+                    return String((showDistance*1000).toFixed(0)) + " metres";
                 }
             },
 
