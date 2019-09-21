@@ -1,5 +1,5 @@
 <template>
-    <div v-if="profile">
+    <div v-if="profile" class="pb-5">
         <navbar-main v-bind:profile="profile" v-if="!minimalInfo"></navbar-main>
 
         <div class="d-block d-lg-none">

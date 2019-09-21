@@ -2,7 +2,7 @@
     <div v-if="profile">
         <!--Shows tabs for destination page-->
         <nav-bar-main :profile="profile" v-if="!adminView"></nav-bar-main>
-        <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-3 rounded-lg">
+        <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-5 rounded-lg">
             <h1 class="page-title">Destinations</h1>
             <p class="page-title">
                 <i>Here you can add destinations, search destinations or view destinations on a map!</i>
@@ -71,8 +71,8 @@
                     </b-card>
                 </b-col>
             </b-row>
-            <footer-main></footer-main>
         </div>
+        <footer-main></footer-main>
     </div>
     <div v-else>
         <unauthorised-prompt></unauthorised-prompt>
