@@ -51,9 +51,6 @@ public class HintRepository extends BeanRepository<Long, Hint> {
      */
     public Hint findAHint(Objective objectiveUsed, Profile hintUser) {
         List<Hint> orderedHints = findOrderedUnseenHints(objectiveUsed, hintUser);
-        for (Hint hint : orderedHints) {
-            System.out.println(hint.getId());
-        }
         // TODO Matthew || Matilda: Sort out bug with tests later :)
         Hint unseenHint = orderedHints.get(0);
         //hintUser.addSeenHint(unseenHint);
