@@ -85,6 +85,8 @@ public class Hint extends BaseModel {
         return creator;
     }
 
+    public void setCreator(Profile creator) { this.creator = creator; }
+
     /**
      * Increment up votes.
      */
