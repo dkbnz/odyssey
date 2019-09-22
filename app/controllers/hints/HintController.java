@@ -101,10 +101,10 @@ public class HintController {
 
         // Points for creating a hint.
         returnJson.set(REWARD, achievementTrackerController.rewardAction(hintCreator, hint));
-        returnJson.set(NEW_HINT, Json.toJson(hint));
 
         profileRepository.update(hintCreator);
         objectiveRepository.update(objectiveToAddHint);
+        returnJson.set(NEW_HINT, Json.toJson(hint));
 
         return created(returnJson);
     }
