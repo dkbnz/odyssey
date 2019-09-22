@@ -1,5 +1,5 @@
 <template>
-    <div v-if="profile">
+    <div v-if="profile" class="pb-5">
         <b-row>
             <b-col cols="8">
                 <b-card>
