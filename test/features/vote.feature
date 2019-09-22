@@ -5,7 +5,7 @@ Feature: Voting on hints
     Given the application is running
     And I am logged in
     And a hint with id 100 does not exist
-    When I attempt to upvote a hint with id 100
+    When I attempt to upvote a hint with id 100 for user with id 2
     Then the status code received is 404
     And the following ApiErrors are returned
       | Resource not found. |
@@ -18,7 +18,7 @@ Feature: Voting on hints
     And I do not own the objective with id 18
     And I have not solved the objective with id 18
     And a hint with id 1 exists for objective with id 18
-    When I attempt to upvote a hint with id 1
+    When I attempt to upvote a hint with id 1 for user with id 2
     Then the status code received is 403
     And the following ApiErrors are returned
       | You are not authorized to access this resource. |
@@ -31,7 +31,7 @@ Feature: Voting on hints
     And I do not own the objective with id 18
     And a hint with id 1 exists for objective with id 18
     And the hint with id 1 has 10 upvotes
-    When I attempt to upvote a hint with id 1
+    When I attempt to upvote a hint with id 1 for user with id 2
     Then the status code received is 401
     And the following ApiErrors are returned
       | You are not logged in. |
@@ -47,7 +47,7 @@ Feature: Voting on hints
     And a hint with id 1 exists for objective with id 18
     And the hint with id 1 has 10 upvotes
     And I have already upvoted the hint with id 1
-    When I attempt to upvote a hint with id 1
+    When I attempt to upvote a hint with id 1 for user with id 2
     Then the status code received is 403
     And the following ApiErrors are returned
       | You are not authorized to access this resource. |
@@ -63,7 +63,7 @@ Feature: Voting on hints
     And I have solved the objective with id 18
     And a hint with id 1 exists for objective with id 18
     And the hint with id 1 has 10 downvotes
-    When I attempt to downvote a hint with id 1
+    When I attempt to downvote a hint with id 1 for user with id 8
     Then the status code received is 200
     And the hint with id 1 has 11 downvotes
 
@@ -73,7 +73,7 @@ Feature: Voting on hints
     Given the application is running
     And I am logged in
     And a hint with id 100 does not exist
-    When I attempt to downvote a hint with id 100
+    When I attempt to downvote a hint with id 100 for user with id 2
     Then the status code received is 404
     And the following ApiErrors are returned
       | Resource not found. |
@@ -86,7 +86,7 @@ Feature: Voting on hints
     And I do not own the objective with id 18
     And I have not solved the objective with id 18
     And a hint with id 1 exists for objective with id 18
-    When I attempt to downvote a hint with id 1
+    When I attempt to downvote a hint with id 1 for user with id 2
     Then the status code received is 403
     And the following ApiErrors are returned
       | You are not authorized to access this resource. |
@@ -99,7 +99,7 @@ Feature: Voting on hints
     And I do not own the objective with id 18
     And a hint with id 1 exists for objective with id 18
     And the hint with id 1 has 10 downvotes
-    When I attempt to downvote a hint with id 1
+    When I attempt to downvote a hint with id 1 for user with id 2
     Then the status code received is 401
     And the following ApiErrors are returned
       | You are not logged in. |
@@ -115,7 +115,7 @@ Feature: Voting on hints
     And a hint with id 1 exists for objective with id 18
     And the hint with id 1 has 10 downvotes
     And I have already downvoted the hint with id 1
-    When I attempt to downvote a hint with id 1
+    When I attempt to downvote a hint with id 1 for user with id 8
     Then the status code received is 403
     And the following ApiErrors are returned
       | You are not authorized to access this resource. |
@@ -131,6 +131,6 @@ Feature: Voting on hints
     And I have solved the objective with id 18
     And a hint with id 1 exists for objective with id 18
     And the hint with id 1 has 10 downvotes
-    When I attempt to downvote a hint with id 1
+    When I attempt to downvote a hint with id 1 for user with id 8
     Then the status code received is 200
     And the hint with id 1 has 11 downvotes
