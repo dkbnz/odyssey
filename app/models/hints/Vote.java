@@ -29,4 +29,8 @@ public class Vote extends BaseModel {
      * Determines the type of vote.
      */
     private boolean isUpVote;
+
+    public boolean isUpVote() {
+        return isUpVote;
+    }
 }
