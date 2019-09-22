@@ -309,6 +309,19 @@ public class TripController extends Controller {
 
 
     /**
+     * Adds the given date to the list of dates if it is not null.
+     *
+     * @param dateToAdd     the date to be added to the list.
+     * @param allDates      the list containing all dates.
+     */
+    private void addDate(LocalDate dateToAdd, List<LocalDate> allDates) {
+        if (dateToAdd != null) {
+            allDates.add(dateToAdd);
+        }
+    }
+
+
+    /**
      * Checks if all of the start/end dates within a trip are in valid order, to be called after saving a reorder.
      *
      * @param tripDestinations  array of all the destinations in the trip in the new order.
@@ -318,24 +331,18 @@ public class TripController extends Controller {
     private boolean isValidDateOrder(List<TripDestination> tripDestinations) {
         // Adds all dates within the list of trip destinations to an array if they aren't null
         List<LocalDate> allDates = new ArrayList<LocalDate>() {};
-        for (int i = 0; i < tripDestinations.size(); i++) {
-            LocalDate startDate = tripDestinations.get(i).getStartDate();
-            LocalDate endDate = tripDestinations.get(i).getEndDate();
-            if (startDate != null) {
-                allDates.add(startDate);
-            }
-            if (endDate != null) {
-                allDates.add(endDate);
-            }
+        for (TripDestination tripDestination : tripDestinations) {
+            addDate(tripDestination.getStartDate(), allDates);
+            addDate(tripDestination.getEndDate(), allDates);
         }
+
         // Iterate through from item 1 and 2 to n-1 and n. return false if any pair is not in order
         for (int j = 0; j < (allDates.size() - 1); j++) {
-            if (!(allDates.get(j) == null || (allDates.get(j + 1) == null))) {
-                if ((allDates.get(j).isAfter(allDates.get(j + 1)))) {
-                    if (!(allDates.get(j).equals(allDates.get(j + 1)))) {
-                        return false;
-                    }
-                }
+            boolean nullDates = allDates.get(j) == null || allDates.get(j + 1) == null;
+            boolean invalidOrder = allDates.get(j).isAfter(allDates.get(j + 1));
+            boolean areEqual = allDates.get(j).equals(allDates.get(j + 1));
+            if (!nullDates && invalidOrder && !areEqual) {
+                return false;
             }
         }
         return true;
