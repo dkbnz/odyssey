@@ -1,5 +1,6 @@
 package controllers.hints;
 
+import controllers.points.AchievementTrackerController;
 import models.hints.Hint;
 import models.hints.Vote;
 import models.profiles.Profile;
@@ -24,18 +25,22 @@ public class VoteController {
     private HintRepository hintRepository;
     private ObjectiveRepository objectiveRepository;
     private VoteRepository voteRepository;
+    private AchievementTrackerController achievementTrackerController;
 
 
     @Inject
     public VoteController(ProfileRepository profileRepository,
                           HintRepository hintRepository,
                           VoteRepository voteRepository,
+                          AchievementTrackerController achievementTrackerController,
                           ObjectiveRepository objectiveRepository) {
         this.profileRepository = profileRepository;
         this.hintRepository = hintRepository;
+        this.achievementTrackerController = achievementTrackerController;
         this.objectiveRepository = objectiveRepository;
         this.voteRepository = voteRepository;
     }
+
 
     /**
      * Controller method to handle the upvote or downvote of a given hint.
@@ -79,6 +84,7 @@ public class VoteController {
             } else if (isUpvote) {
                 hintToVoteOn.removeDownVote();
             } else {
+                achievementTrackerController.handleHintUpvote(hintToVoteOn, false);
                 hintToVoteOn.removeUpVote();
             }
         } else if (objectiveRepository.hasSolved(targetUser, hintToVoteOn.getObjective())) {
@@ -93,6 +99,7 @@ public class VoteController {
 
         // Increment upvote or downvote
         if (isUpvote) {
+            achievementTrackerController.handleHintUpvote(hintToVoteOn, true);
             hintToVoteOn.upVote();
         } else {
             hintToVoteOn.downVote();
