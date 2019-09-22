@@ -154,7 +154,12 @@
                     </b-row>
                 </b-col>
                 </b-list-group-item>
-                <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop" dismissible>
+                <b-alert
+                        :show="showNotValidCheckIn"
+                        @dismiss-count-down="countDownChangedCheckIn"
+                        @dismissed="showNotValidCheckIn=0"
+                        dismissible
+                        variant="warning" class="mt-2">
                     You are not at the required location, you are {{getHowClose()}} away.
                 </b-alert>
 
@@ -212,7 +217,7 @@
                 },
                 foundLocation: false,
                 validCheckIn: false,
-                showNotValidCheckIn: false,
+                showNotValidCheckIn: 0,
                 totalDistance: null,
                 searchedRiddle: null,
                 showHintSideBar: false,
@@ -233,11 +238,7 @@
                     if (this.validCheckIn) {
                         this.sendCheckInRequest();
                     } else {
-                        this.showNotValidCheckIn = true;
-                        let self = this;
-                        setTimeout(function() {
-                            self.showNotValidCheckIn = false;
-                        }, 3000);
+                        this.showAlertNotValidCheckIn();
                     }
                     this.foundLocation = false;
                 }
@@ -500,6 +501,25 @@
              */
             retrieveHint() {
                 console.log(this.objectiveToGetHint);
+            },
+
+
+            /**
+             * Displays the countdown alert on being unable to check in to an objective.
+             */
+            showAlertNotValidCheckIn() {
+                this.showNotValidCheckIn = this.dismissSeconds
+            },
+
+
+            /**
+             * Used to allow an alert to countdown on being unable to check in to an objective.
+             *
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChangedCheckIn(dismissCountDown) {
+                console.log("WHAT");
+                this.showNotValidCheckIn = dismissCountDown
             }
         }
 
