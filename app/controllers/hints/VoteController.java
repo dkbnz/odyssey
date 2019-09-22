@@ -80,7 +80,11 @@ public class VoteController {
 
             // If they do, check if current vote is same as new vote
             if (vote.isUpVote() == isUpvote) {
-                return badRequest(ApiError.badRequest(Errors.VOTE_ALREADY_EXISTS));
+                if (isUpvote) {
+                    hintToVoteOn.removeUpVote();
+                } else {
+                    hintToVoteOn.removeDownVote();
+                }
             } else if (isUpvote) {
                 hintToVoteOn.removeDownVote();
             } else {

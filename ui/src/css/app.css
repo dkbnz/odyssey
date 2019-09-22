@@ -220,6 +220,11 @@ a {
     padding: 10px;
 }
 
+/* Adds a margin for vote sum values */
+.vote-value {
+    margin: 10px;
+}
+
 /* Used to wrap white space in p sections */
 .wrapWhiteSpace {
     white-space:pre-wrap;
