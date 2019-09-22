@@ -4,9 +4,22 @@
             <b-list-group-item v-for="hint in hints"
                                class="flex-column align-items-start"
                                :key="hint.message">
-                <b-col class="w-100">
-                    <p>{{hint.message}}</p>
-                </b-col>
+                <b-row>
+                    <b-col class="w-100">
+                        <p>{{hint.message}}</p>
+                    </b-col>
+                    <div class="vote-value">
+                        {{hint.voteSum}}
+                    </div>
+                    <b-button @click="upVote"
+                              class="mr-3"
+                              size="sm">&uarr;
+                    </b-button>
+                    <b-button @click="downVote"
+                              class="mr-3"
+                              size="sm">&darr;
+                    </b-button>
+                </b-row>
             </b-list-group-item>
             <b-row no-gutters class="mt-2">
                 <b-col>
@@ -33,6 +46,14 @@
         },
 
         methods: {
+
+            upVote() {
+
+            },
+
+            downVote() {
+
+            },
 
             /**
              * Emits to the above layer to show the create hint instead of the main group
