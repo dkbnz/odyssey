@@ -233,6 +233,11 @@
         },
 
         watch: {
+            questAttempt() {
+                this.showDestinationSearch = false;
+            },
+
+
             foundLocation() {
                 if (this.foundLocation) {
                     if (this.validCheckIn) {
