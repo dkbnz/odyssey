@@ -478,10 +478,10 @@
                 if (this.totalDistance && this.questAttempt.toCheckIn) {
                     let showDistance = this.totalDistance - this.questAttempt.toCheckIn.radius;
                     if (showDistance >= 1) {
-                        return String(showDistance.toFixed(3)) + " kms";
+                        return String(showDistance.toFixed(2)) + " kms";
                     }
 
-                    return String((showDistance*1000).toFixed(0)) + " metres";
+                    return (Math.round(showDistance * 1000) + " metres");
                 }
             },
 
