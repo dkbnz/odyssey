@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.points.AchievementTrackerController;
+import io.ebean.ExpressionList;
 import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
@@ -24,6 +25,7 @@ import com.google.inject.Inject;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,6 +39,13 @@ public class TripController extends Controller {
     private static final String TRIP_ID = "trip_id";
     public static final String REWARD = "reward";
     private static final String NEW_TRIP_ID = "newTripId";
+    private static final String PAGE = "page";
+    private static final String PAGE_SIZE = "pageSize";
+    private static final String PROFILE_ID = "profile.id";
+    private static final String FUTURE_TRIPS = "futureTrips";
+    private static final String PAST_TRIPS = "pastTrips";
+    private static final String DESTINATIONS_START_DATE = "destinations.startDate";
+    private static final int MAX_PAGE_SIZE = 100;
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private static final int DEFAULT_ADMIN_ID = 1;
 
@@ -406,14 +415,91 @@ public class TripController extends Controller {
 
 
     /**
-     * Fetches all the trips for a specified user.
+     * Fetches all the trips for a specified user, using pagination for retrieving trips based on the requested page.
      *
-     * @param id    the id of the user requested.
-     * @return      the list of trips as a Json.
+     * @param request   the Http request containing the relevant authentication values.
+     * @param id        the id of the user requested.
+     * @return          unauthorized() (Http 401) if the user is not logged in
+     *                  ok() (Http 200) containing the list of trips as a Json.
      */
-    public Result fetchAll(Long id) {
-        List<Trip> trips = tripRepository.fetchAllTrips(id);
-        return ok(Json.toJson(trips));
+    public Result fetchAllTrips(Http.Request request, Long id) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        int pageNumber = 0;
+        int pageSize = MAX_PAGE_SIZE;
+
+        ExpressionList<Trip> expressionListFuture = tripRepository.getExpressionList();
+        ExpressionList<Trip> expressionListPast = tripRepository.getExpressionList();
+
+        if (request.getQueryString(PAGE_SIZE) != null && !request.getQueryString(PAGE_SIZE).isEmpty()) {
+            try {
+                pageSize = Integer.parseInt(request.getQueryString(PAGE_SIZE));
+                // Restrict the page size to be no larger than the maximum page size.
+                pageSize = Math.min(pageSize, MAX_PAGE_SIZE);
+            } catch (NumberFormatException e) {
+                return badRequest(ApiError.badRequest(Errors.INVALID_PAGE_SIZE_REQUESTED));
+            }
+        }
+
+        LocalDate today = LocalDate.now();
+
+        List<Trip> futureTrips = expressionListFuture
+                .where()
+                .eq(PROFILE_ID, loggedInUser.getId())
+                .disjunction()
+                    .ge(DESTINATIONS_START_DATE, today)
+                    .isNull(DESTINATIONS_START_DATE)
+                .endJunction()
+                .setFirstRow(pageNumber * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
+
+        List<Trip> pastTrips = expressionListPast
+                .where()
+                .eq(PROFILE_ID, loggedInUser.getId())
+                .lt(DESTINATIONS_START_DATE, today)
+                .setFirstRow(pageNumber * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
+
+        ObjectNode returnJson = objectMapper.createObjectNode();
+
+        returnJson.set(FUTURE_TRIPS, Json.toJson(futureTrips));
+        returnJson.set(PAST_TRIPS, Json.toJson(pastTrips));
+
+        return ok(returnJson);
+    }
+
+
+    /**
+     * Retrieves the total number of trips the user has. This is so the frontend can determine the appropriate
+     * pagination for the trip tables.
+     *
+     * @param request   the Http request containing the relevant authentication values.
+     * @param id        the id of the user requested.
+     * @return          unauthorized() (Http 401) if the user is not logged in
+     *                  ok() (Http 200) total number of trip the specified user has.
+     */
+    public Result getTotalNumberOfTrips(Http.Request request, Long id) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        int totalNumberOfFutureTrips = tripRepository.fetchAllFutureTripsCount(id);
+        int totalNumberOfPastTrips = tripRepository.fetchAllPastTripsCount(id);
+
+        ObjectNode returnJson = objectMapper.createObjectNode();
+
+        returnJson.set(FUTURE_TRIPS, Json.toJson(totalNumberOfFutureTrips));
+        returnJson.set(PAST_TRIPS, Json.toJson(totalNumberOfPastTrips));
+
+        return ok(returnJson);
     }
 
 
