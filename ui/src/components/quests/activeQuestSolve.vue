@@ -111,18 +111,28 @@
                 <b-list-group-item
                                    class="d-flex justify-content-between align-items-center"
                                    v-if="questAttempt.toSolve != null">
-                    <b-row class="w-100">
-                        <b-col md="7">
-                            <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
-                        </b-col>
-                        <b-col md="5">
-                            <div class="float-right">
-                                <b-button size="sm" variant="primary" @click="showHintConfirmModal(questAttempt.toSolve)">I need a hint!</b-button>
-                                <b-button size="sm" variant="warning" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
-                            </div>
-                        </b-col>
-                    </b-row>
-
+                    <b-col>
+                        <b-row class="w-100">
+                            <b-col md="7">
+                                <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
+                            </b-col>
+                            <b-col md="5">
+                                <div class="float-right">
+                                    <b-button size="sm" variant="primary" @click="showOrHideHints">{{showOrHide}} Hints</b-button>
+                                    <b-button size="sm" variant="warning" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
+                                </div>
+                            </b-col>
+                        </b-row>
+                        <b-row v-if="showOrHide === 'Hide'">
+                            <list-hints
+                                    :objective="questAttempt.toCheckIn"
+                                    :profile="profile"
+                                    :hints="questAttempt.toSolve.hints"
+                                    :solved="false"
+                                    @hintRequested="showHintConfirmModal(questAttempt.toSolve)">
+                            </list-hints>
+                        </b-row>
+                    </b-col>
                 </b-list-group-item>
                 <!-- If we have an objective to check in to, display it -->
                 <b-list-group-item href="#"
@@ -233,6 +243,11 @@
         },
 
         watch: {
+            questAttempt() {
+                this.showDestinationSearch = false;
+            },
+
+
             foundLocation() {
                 if (this.foundLocation) {
                     if (this.validCheckIn) {
@@ -478,10 +493,10 @@
                 if (this.totalDistance && this.questAttempt.toCheckIn) {
                     let showDistance = this.totalDistance - this.questAttempt.toCheckIn.radius;
                     if (showDistance >= 1) {
-                        return String(showDistance.toFixed(3)) + " kms";
+                        return String(showDistance.toFixed(2)) + " kms";
                     }
 
-                    return String((showDistance*1000).toFixed(0)) + " metres";
+                    return (Math.round(showDistance * 1000) + " metres");
                 }
             },
 
@@ -518,7 +533,6 @@
              * @param dismissCountDown      the name of the alert.
              */
             countDownChangedCheckIn(dismissCountDown) {
-                console.log("WHAT");
                 this.showNotValidCheckIn = dismissCountDown
             }
         }
