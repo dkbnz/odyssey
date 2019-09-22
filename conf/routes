@@ -73,6 +73,7 @@ DELETE  /v1/objectives/:objectiveId                    controllers.objectives.Ob
 
 # Objective Hints
 GET     /v1/objectives/:objectiveId/hints              controllers.hints.HintController.fetchAll(request: Request, objectiveId: Long)
+GET     /v1/objectives/:objectiveId/hints/:userId/new  controllers.hints.HintController.fetchNew(request: Request, objectiveId: Long, userId: Long)
 POST    /v1/objectives/:objectiveId/hints/:userId      controllers.hints.HintController.create(request: Request, objectiveId: Long, userId: Long)
 
 POST    /v1/hints/:hintId/upvote/:userId        controllers.hints.VoteController.vote(request: Request, hintId: Long, userId: Long, isUpvote:Boolean ?= true)
