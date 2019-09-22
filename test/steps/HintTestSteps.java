@@ -53,7 +53,6 @@ public class HintTestSteps {
     private static final String MESSAGE_STRING = "Message";
     private static final String MESSAGE = "message";
 
-
     /**
      * Repository to access the objectives in the running application.
      */
@@ -65,24 +64,6 @@ public class HintTestSteps {
      */
     private ProfileRepository profileRepository =
             testContext.getApplication().injector().instanceOf(ProfileRepository.class);
-
-
-//    @Before
-//    public void hintSetUp() {
-//        Evolutions.applyEvolutions(
-//                testContext.getDatabase(),
-//                Evolutions.fromClassLoader(
-//                        getClass().getClassLoader(),
-//                        "test/hints/"
-//                )
-//        );
-//    }
-//
-//
-//    @After
-//    public void hintTearDown() {
-//        Evolutions.cleanupEvolutions(testContext.getDatabase());
-//    }
 
 
     /**
@@ -136,18 +117,6 @@ public class HintTestSteps {
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
-
-
-//    @Given("the custom hint data is added")
-//    public void theCustomHintDataIsAdded() {
-//        Evolutions.applyEvolutions(
-//                testContext.getDatabase(),
-//                Evolutions.fromClassLoader(
-//                        getClass().getClassLoader(),
-//                        "custom/"
-//                )
-//        );
-//    }
 
 
     @Given("^I own the objective with id (\\d+)$")
