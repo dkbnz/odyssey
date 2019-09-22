@@ -75,6 +75,9 @@ DELETE  /v1/objectives/:objectiveId                    controllers.objectives.Ob
 GET     /v1/objectives/:objectiveId/hints              controllers.hints.HintController.fetchAll(request: Request, objectiveId: Long)
 POST    /v1/objectives/:objectiveId/hints/:userId      controllers.hints.HintController.create(request: Request, objectiveId: Long, userId: Long)
 
+POST    /v1/hints/:hintId/upvote/:userId        controllers.hints.VoteController.vote(request: Request, hintId: Long, userId: Long, isUpvote:Boolean ?= true)
+POST    /v1/hints/:hintId/downvote/:userId      controllers.hints.VoteController.vote(request: Request, hintId: Long, userId: Long, isUpvote:Boolean ?= false)
+
 # Quests
 GET     /v1/quests                              controllers.quests.QuestController.fetchAll(request: Request)
 GET     /v1/quests/:userId                      controllers.quests.QuestController.fetchByOwner(request: Request, userId: Long)

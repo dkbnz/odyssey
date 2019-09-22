@@ -39,11 +39,11 @@ javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
 jacocoReportSettings := JacocoReportSettings()
   .withThresholds(
     JacocoThresholds(
-      instruction = 70,
+      line = 85,
+      instruction = 75,
+      branch = 60,
       method = 80,
-      branch = 55,
       complexity = 60,
-      line = 80,
       clazz = 95)
   )
 

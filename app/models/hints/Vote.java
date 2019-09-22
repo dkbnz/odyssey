@@ -29,4 +29,17 @@ public class Vote extends BaseModel {
      * Determines the type of vote.
      */
     private boolean isUpVote;
+
+    public Vote(Profile voter, Hint targetHint) {
+        this.voter = voter;
+        this.targetHint = targetHint;
+    }
+
+    public boolean isUpVote() {
+        return isUpVote;
+    }
+
+    public void setUpVote(boolean upVote) {
+        isUpVote = upVote;
+    }
 }

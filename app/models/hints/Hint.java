@@ -11,7 +11,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -74,12 +73,23 @@ public class Hint extends BaseModel {
         this.message = message;
     }
 
+    public Objective getObjective() {
+        return objective;
+    }
+
+    public void setObjective(Objective objective) {
+        this.objective = objective;
+    }
+
+    public Profile getCreator() {
+        return creator;
+    }
 
     /**
      * Increment up votes.
      */
     public void upVote() {
-        upVotes ++;
+        upVotes++;
     }
 
 
@@ -87,9 +97,22 @@ public class Hint extends BaseModel {
      * Increment down votes.
      */
     public void downVote() {
-        downVotes ++;
+        downVotes++;
     }
 
+    /**
+     * Decrement up votes.
+     */
+    public void removeUpVote() {
+        upVotes--;
+    }
+
+    /**
+     * Decrement down votes.
+     */
+    public void removeDownVote() {
+        downVotes--;
+    }
 
     /**
      * Calculate the vote sum by subtracting the down votes from the up votes.
