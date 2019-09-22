@@ -81,6 +81,10 @@ public class Hint extends BaseModel {
         this.objective = objective;
     }
 
+    public Profile getCreator() {
+        return creator;
+    }
+
     /**
      * Increment up votes.
      */
@@ -109,7 +113,6 @@ public class Hint extends BaseModel {
     public void removeDownVote() {
         downVotes--;
     }
-
 
     /**
      * Calculate the vote sum by subtracting the down votes from the up votes.
