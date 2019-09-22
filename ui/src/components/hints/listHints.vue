@@ -5,7 +5,7 @@
                                class="flex-column align-items-start"
                                :key="hint.message">
                 <b-col class="w-100">
-                    <p>{{hints.message}}</p>
+                    <p>{{hint.message}}</p>
                 </b-col>
             </b-list-group-item>
             <b-row no-gutters class="mt-2">
@@ -28,7 +28,7 @@
         props: {
             objective: Object,
             profile: Object,
-            hints: Object,
+            hints: Array,
             solved: false
         },
 
