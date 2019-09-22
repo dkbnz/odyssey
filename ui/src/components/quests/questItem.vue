@@ -610,7 +610,9 @@
             assembleQuest() {
                 this.joinDates();
                 for (let i = 0; i < this.inputQuest.objectives.length; i++) {
-                    this.inputQuest.objectives[i].id = null;
+                    if (this.heading !== "Edit") {
+                        this.inputQuest.objectives[i].id = null;
+                    }
                     this.inputQuest.objectives[i].destination = {
                         "id": this.inputQuest.objectives[i].destination.id,
                         "country": this.inputQuest.objectives[i].destination.country
