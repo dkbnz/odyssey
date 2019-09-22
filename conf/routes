@@ -43,7 +43,8 @@ POST    /v1/destinations/:destinationId/travellerTypes              controllers.
 POST    /v1/destinations/:destinationId/travellerTypes/propose      controllers.destinations.DestinationTravellerTypeController.propose(request: Request, destinationId: Long)
 
 # Trips
-GET     /v1/trips/:userId                       controllers.trips.TripController.fetchAll(userId: Long)
+GET     /v1/trips/:userId                       controllers.trips.TripController.fetchAllTrips(request: Request, userId: Long)
+GET     /v1/trips/:userId/count                 controllers.trips.TripController.getTotalNumberOfTrips(request: Request, userId: Long)
 POST    /v1/trips/:userId                       controllers.trips.TripController.create(request: Request, userId: Long)
 DELETE  /v1/trips/:tripId                       controllers.trips.TripController.destroy(request: Request, tripId: Long)
 PATCH   /v1/trips/:tripId                       controllers.trips.TripController.edit(request: Request, tripId: Long)

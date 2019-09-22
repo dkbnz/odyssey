@@ -118,14 +118,14 @@
                             </b-col>
                             <b-col md="5">
                                 <div class="float-right">
-                                    <b-button size="sm" variant="primary" @click="showOrHideHints">{{showOrHide}} Hints</b-button>
+                                    <b-button size="sm" variant="primary" @click="showOrHideHints(false, questAttempt.toSolve)">{{showOrHide}} Hints</b-button>
                                     <b-button size="sm" variant="warning" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
                                 </div>
                             </b-col>
                         </b-row>
                         <b-row v-if="showOrHide === 'Hide'">
                             <list-hints
-                                    :objective="questAttempt.toCheckIn"
+                                    :objective="questAttempt.toSolve"
                                     :profile="profile"
                                     :hints="questAttempt.toSolve.hints"
                                     :solved="false"
@@ -148,7 +148,7 @@
                         </b-col>
                         <b-col md="5">
                             <div class="float-right">
-                                <b-button class="no-wrap-text" size="sm" variant="primary" @click="showOrHideHints">{{showOrHide}} Hints</b-button>
+                                <b-button class="no-wrap-text" size="sm" variant="primary" @click="showOrHideHints(true, questAttempt.toCheckIn)">{{showOrHide}} Hints</b-button>
                                 <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
                             </div>
                         </b-col>
@@ -188,10 +188,10 @@
             </div>
             <template v-slot:modal-footer>
                 <b-col>
-                    <b-button @click="showHintAlertModal = false" block>Cancel</b-button>
+                    <b-button variant="warning" block @click="retrieveHint">Show Me</b-button>
                 </b-col>
                 <b-col>
-                    <b-button variant="warning" block @click="retrieveHint">Show Me</b-button>
+                    <b-button @click="showHintAlertModal = false" block>Cancel</b-button>
                 </b-col>
             </template>
         </b-modal>
@@ -273,9 +273,14 @@
             /**
              * Shows or hides the hints for a given objective
              */
-            showOrHideHints() {
+            showOrHideHints(solved, objective) {
                 if (this.showOrHide === "Show") {
                     this.showOrHide = "Hide";
+                    if(solved) {
+                        this.getHintsForObjective(objective);
+                    } else {
+                        this.getHintsUserHasSeen(objective);
+                    }
                 } else {
                     this.showOrHide = "Show";
                 }
@@ -296,6 +301,7 @@
                 this.showAlert();
                 this.showRewardToast(responseBody.reward);
                 this.showHintSideBar = false;
+                this.objective.hints.push(responseBody.newHint);
             },
 
 
@@ -534,8 +540,40 @@
              */
             countDownChangedCheckIn(dismissCountDown) {
                 this.showNotValidCheckIn = dismissCountDown
-            }
-        }
+            },
 
+
+            /**
+             * Get the hint the user has seen.
+             */
+            getHintsUserHasSeen(objective) {
+                objective.hints = [{message:"Hint usee has seen"}]
+            },
+
+
+            /**
+             * Gets the hints for an objective from the backend.
+             * @param objective     the objective your fetching the hints for.
+             * @returns {[]}        a List of hints.
+             */
+            getHintsForObjective(objective) {
+                let self = this;
+                fetch(`/v1/objectives/` + objective.id + `/hints`, {})
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                    console.log(responseBody)
+                    self.loadingResults = false;
+                    objective.hints = responseBody;
+                }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
+                });
+            },
+        },
     }
 </script>
