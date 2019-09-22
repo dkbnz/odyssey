@@ -140,13 +140,13 @@
                 <div v-if="!editCurrentObjective">
                     <b-row>
                         <b-col>
-                            <b-button v-if="!addNewObjective" variant="success" :hidden="heading === 'Edit'"
+                            <b-button v-if="!addNewObjective" variant="success" :hidden="activeUsers > 0"
                                       @click="showObjectiveComponent" block>
                                 Add a new objective
                             </b-button>
                         </b-col>
                         <b-col>
-                            <b-button v-if="!addNewObjective" variant="primary" :hidden="heading === 'Edit'"
+                            <b-button v-if="!addNewObjective" variant="primary" :hidden="activeUsers > 0"
                                       @click="showYourObjectivesComponent" block>
                                 Select an objective
                             </b-button>
@@ -209,7 +209,7 @@
                                       @click="deleteObjective(row.item)"
                                       variant="danger"
                                       class="mr-2"
-                                      :hidden="heading === 'Edit'"
+                                      :hidden="activeUsers > 0"
                                       block>Delete
                             </b-button>
                             <b-button size="sm"
@@ -225,7 +225,7 @@
                         <template v-slot:cell(order)="row">
                             <b-button :disabled="inputQuest.objectives.length === 1
                                       || row.index === 0
-                                      || heading === 'Edit'"
+                                      || activeUsers > 0"
                                       @click="moveUp(row.index)"
                                       class="mr-2"
                                       size="sm"
@@ -234,7 +234,7 @@
                             <b-button
                                     :disabled="inputQuest.objectives.length === 1
                                     || row.index === inputQuest.objectives.length-1
-                                    || heading === 'Edit'"
+                                    || activeUsers > 0"
                                     @click="moveDown(row.index)"
                                     class="mr-2"
                                     size="sm"
@@ -343,13 +343,6 @@
                 addNewObjective: false,
                 showSuccessObjective: false,
                 successMessage: '',
-                fields: [
-                    'order',
-                    {key: 'riddle', label: 'Riddle'},
-                    {key: 'destination.name', label: 'Destination'},
-                    {key: 'radius', label: 'Radius'},
-                    'actions'
-                ],
                 optionViews: [
                     {value: 1, text: "1"},
                     {value: 5, text: "5"},
@@ -373,30 +366,27 @@
                     riddle: "",
                     radius: null
                 },
-                activeUsers: null,
+                activeUsers: 0,
                 pointsRewarded: Number
             }
         },
 
         watch: {
             selectedDestination() {
-                if (this.heading !== "Edit") {
-                    this.destinationSelected = this.selectedDestination;
-                    this.inputQuest.destination = this.selectedDestination;
-                    this.displayedDestination = this.selectedDestination;
-                }
+                this.destinationSelected = this.selectedDestination;
+                this.inputQuest.destination = this.selectedDestination;
+                this.displayedDestination = this.selectedDestination;
             },
 
             selectedObjective() {
-                if (this.heading !== "Edit") {
-                    this.objectiveSelected = this.selectedObjective;
-                }
+                this.objectiveSelected = this.selectedObjective;
             }
         },
 
         mounted() {
             this.splitDates();
             this.setDateTimeString();
+            this.getActiveUsers();
         },
 
         computed: {
@@ -516,6 +506,25 @@
              */
             rows() {
                 return this.inputQuest.objectives.length
+            },
+
+
+            fields() {
+                if (this.activeUsers > 0) {
+                    return [
+                        {key: 'riddle', label: 'Riddle'},
+                        {key: 'destination.name', label: 'Destination'},
+                        {key: 'radius', label: 'Radius'},
+                        'actions'
+                    ]
+                }
+                return [
+                    'order',
+                    {key: 'riddle', label: 'Riddle'},
+                    {key: 'destination.name', label: 'Destination'},
+                    {key: 'radius', label: 'Radius'},
+                    'actions'
+                ]
             }
         },
 
@@ -642,25 +651,26 @@
 
             /**
              * Gets all users that are currently using the given quest.
-             *
-             * @return {Promise <Response | never>}     the fetch method promise.
              */
             getActiveUsers() {
                 let self = this;
-                return fetch('/v1/quests/' + this.inputQuest.id + '/profiles', {
-                    accept: "application/json"
-                }).then(function (response) {
-                    if (!response.ok) {
-                        throw response;
-                    } else {
-                        return response.json();
-                    }
-                }).then(function (responseBody) {
-                    self.showError = false;
-                    self.activeUsers = responseBody.length;
-                }).catch(function (response) {
-                    self.handleErrorResponse(response);
-                });
+                if (this.inputQuest.id) {
+                    fetch('/v1/quests/' + this.inputQuest.id + '/profiles', {
+                        accept: "application/json"
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        self.showError = false;
+                        self.activeUsers = responseBody.length;
+                    }).catch(function (response) {
+                        self.handleErrorResponse(response);
+                    });
+                }
+
             },
 
 
