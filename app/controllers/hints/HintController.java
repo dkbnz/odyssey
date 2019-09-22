@@ -95,6 +95,8 @@ public class HintController {
             return badRequest(ApiError.badRequest(Errors.INVALID_JSON_FORMAT));
         }
 
+        hint.setCreator(hintCreator);
+
         objectiveToAddHint.addHint(hint);
 
         ObjectNode returnJson = objectMapper.createObjectNode();
