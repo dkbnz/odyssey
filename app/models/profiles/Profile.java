@@ -87,11 +87,11 @@ public class Profile extends BaseModel {
     private AchievementTracker achievementTracker;
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "creator")
     private Set<Hint> hintsCreated;
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.PERSIST, mappedBy = "profilesSeen")
     private Set<Hint> hintsSeen;
 
     @JsonIgnore

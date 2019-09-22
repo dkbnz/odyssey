@@ -191,6 +191,7 @@ public class HintTestSteps {
 
     @When("^I requests a new hint for objective with id (\\d+)$")
     public void iRequestsANewHintForObjectiveWithId(Integer objectiveId) {
+        testContext.setTargetId(testContext.getLoggedInId());
         fetchNewHintRequest(objectiveId);
     }
 
