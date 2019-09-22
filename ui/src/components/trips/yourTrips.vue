@@ -54,8 +54,6 @@
             <b-table
                     :items="futureTrips"
                     :fields="fields"
-                    :per-page="perPageUpcoming"
-                    :current-page="currentPageUpcoming"
                     :busy="futureTrips.length === 0"
                     :sort-by.sync="sortBy"
                     :sort-desc.sync="sortDesc"
@@ -171,9 +169,8 @@
 
             <b-container fluid>
                 <!-- Table to show all a profile's past trips -->
-                <b-table :busy="pastTrips.length === 0" :current-page="currentPagePast" :fields="fields"
+                <b-table :busy="pastTrips.length === 0" :fields="fields"
                          :items="pastTrips"
-                         :per-page="perPagePast"
                          :sort-by="sortBy"
                          :sort-desc="sortDescPast"
                          hover
@@ -303,6 +300,27 @@
         watch: {
             profile() {
                 this.getAllTrips();
+                this.retrieveTripCount()
+            },
+
+
+            perPageUpcoming() {
+                this.getAllTrips();
+            },
+
+
+            perPagePast() {
+                this.getAllTrips();
+            },
+
+
+            currentPageUpcoming() {
+                this.getAllTrips();
+            },
+
+
+            currentPagePast() {
+                this.getAllTrips();
             }
         },
 
@@ -312,12 +330,14 @@
 
         data: function () {
             return {
-                optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
-                    value: 15,
-                    text: "15"
-                }],
-                perPageUpcoming: 10,
-                perPagePast: 10,
+                optionViews: [
+                    {value: 1, text: "1"},
+                    {value: 5, text: "5"},
+                    {value: 10, text: "10"},
+                    {value: 15, text: "15"}
+                ],
+                perPageUpcoming: 5,
+                perPagePast: 5,
                 sortBy: 'destinations[0].startDate',
                 sortDesc: false,
                 sortDescPast: true,
@@ -343,6 +363,8 @@
                 retrievingTrips: false,
                 dismissSecs: 3,
                 dismissCountDown: 0,
+                rowsUpcoming: 0,
+                rowsPast: 0
             }
         },
 
@@ -351,6 +373,12 @@
              *  Mounted function that uses the getAllTrips method to populate all a users trips on the page.
              */
             this.getAllTrips();
+
+
+            /**
+             * Retrieves the total number of trips a profile has to determine the table pagination.
+             */
+            this.retrieveTripCount();
 
 
             /**
@@ -368,22 +396,6 @@
         },
 
         computed: {
-            /**
-             *  Computed function to calculate the length of the future trips, this is used for the pagination.
-             */
-            rowsUpcoming() {
-                return this.futureTrips.length
-            },
-
-
-            /**
-             *  Computed function to calculate the length of the past trips, this is used for the pagination.
-             */
-            rowsPast() {
-                return this.pastTrips.length
-            },
-
-
             /**
              * The fields that will displayed in the trips tables.
              */
@@ -448,8 +460,15 @@
                 let userId = this.profile.id;
                 this.retrievingTrips = true;
                 let self = this;
+                let futurePage = Number(this.currentPageUpcoming) - 1;
+                let pastPage = Number(this.currentPagePast) - 1;
+                let queryString =
+                    "?pageSizeFuture=" + this.perPageUpcoming +
+                    "&pageSizePast=" + this.perPagePast +
+                    "&pageFuture=" + futurePage +
+                    "&pagePast=" + pastPage;
                 if (userId !== undefined) {
-                    fetch(`/v1/trips/` + userId, {
+                    fetch(`/v1/trips/` + userId + queryString, {
                         accept: "application/json"
                     }).then(function (response) {
                         if (!response.ok) {
@@ -488,6 +507,8 @@
                 }).then(function (responseBody) {
                     self.showError = false;
                     self.retrievingTrips = false;
+                    self.rowsUpcoming = responseBody.futureTrips;
+                    self.rowsPast = responseBody.pastTrips;
                 }).catch(function (response) {
                     self.showError = false;
                     self.retrievingTrips = false;

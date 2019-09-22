@@ -8,18 +8,12 @@ import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
 import models.trips.TripDestination;
-import models.util.ApiError;
-import models.util.Errors;
 import repositories.profiles.ProfileRepository;
-import util.AuthenticationUtil;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static play.mvc.Results.badRequest;
-import static play.mvc.Results.unauthorized;
 
 
 /**
