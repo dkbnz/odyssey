@@ -30,7 +30,16 @@ public class Vote extends BaseModel {
      */
     private boolean isUpVote;
 
+    public Vote(Profile voter, Hint targetHint) {
+        this.voter = voter;
+        this.targetHint = targetHint;
+    }
+
     public boolean isUpVote() {
         return isUpVote;
+    }
+
+    public void setUpVote(boolean upVote) {
+        isUpVote = upVote;
     }
 }
