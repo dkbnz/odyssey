@@ -33,6 +33,7 @@ public enum Errors {
     HINT_NOT_FOUND("The requested hint is not found."),
     VOTE_ALREADY_EXISTS("You already have voted on this hint."),
     HINT_OBJECTIVE_SOLVED("You cannot request a hint for an objective you have already solved."),
+    QUEST_CANNOT_BE_EDITED("You cannot edit this part of the quest as it has been started"),
     HINT_OBJECTIVE_OWNER("You cannot request a hint for an objective you own.");
 
 
