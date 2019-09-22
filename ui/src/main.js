@@ -269,6 +269,10 @@ router.beforeEach((to, from, next) => {
     }
 });
 
+/* If the user is viewing a page on mobile that is restricted, redirect them to the profile page. */
+if (restrictedPages.includes(window.location.pathname) && viewingOnMobile()) {
+    router.push("/profile");
+}
 
 /* Detects if the user is viewing on a mobile device (width is 991) */
 $(window).on("resize", viewingOnMobile);

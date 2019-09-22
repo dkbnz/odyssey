@@ -14,6 +14,7 @@
                     <b-form-input :state="firstNameValidation"
                                   id="firstName"
                                   trim
+                                  autocomplete="new-password"
                                   type="text" v-model="saveProfile.firstName">
                     </b-form-input>
                     <b-form-invalid-feedback :state="firstNameValidation">
@@ -130,6 +131,7 @@
                                   id="password"
                                   placeholder="Unchanged"
                                   trim
+                                  autocomplete="new-password"
                                   type="password" v-model="saveProfile.password">
                     </b-form-input>
                     <b-form-invalid-feedback :state="passwordValidation">
@@ -152,6 +154,7 @@
                             id="passwordRe"
                             placeholder="Unchanged"
                             trim
+                            autocomplete="new-password"
                             type="password" v-model="rePassword">
                     </b-form-input>
                     <b-form-invalid-feedback :state="rePasswordValidation">
