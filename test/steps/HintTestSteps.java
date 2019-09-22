@@ -18,6 +18,7 @@ import play.test.Helpers;
 import repositories.objectives.ObjectiveRepository;
 import repositories.profiles.ProfileRepository;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ public class HintTestSteps {
      * The hints uri.
      */
     private static final String HINTS_URI = "/hints";
+    private static final String NEW_HINT_URI = "/new";
 
 
     private static final String MESSAGE_STRING = "Message";
@@ -65,6 +67,8 @@ public class HintTestSteps {
     private ProfileRepository profileRepository =
             testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
+    private ObjectMapper objectMapper =
+            testContext.getApplication().injector().instanceOf(ObjectMapper.class);
 
     /**
      * Converts a given data table containing a hint into a json node object.
@@ -113,6 +117,17 @@ public class HintTestSteps {
                 .method(GET)
                 .session(AUTHORIZED, testContext.getLoggedInId())
                 .uri(OBJECTIVE_URI + objectiveId + HINTS_URI);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    private void fetchNewHintRequest(int objectiveId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI + "/" + testContext.getTargetId() + NEW_HINT_URI);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
@@ -174,9 +189,20 @@ public class HintTestSteps {
         fetchAllHintsRequest(objectiveId);
     }
 
+    @When("^I requests a new hint for objective with id (\\d+)$")
+    public void iRequestsANewHintForObjectiveWithId(Integer objectiveId) {
+        fetchNewHintRequest(objectiveId);
+    }
+
 
     @Then("^the response contains (\\d+) hints$")
     public void theResponseContainsHints(Integer expectedNumberOfHints) {
-        assert(expectedNumberOfHints == testContext.getResponseBody().length());
+        assert (expectedNumberOfHints == testContext.getResponseBody().length());
+    }
+
+    @Then("^I receive a hint with id (\\d+)$")
+    public void iReceiveAHintWithId(Integer expectedHintId) throws IOException {
+        Integer actualHintId = objectMapper.readTree(testContext.getResponseBody()).get("id").asInt();
+        Assert.assertEquals(expectedHintId, actualHintId);
     }
 }

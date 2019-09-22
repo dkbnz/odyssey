@@ -92,6 +92,10 @@ public class Profile extends BaseModel {
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL)
+    private Set<Hint> hintsSeen;
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL)
     private Set<Vote> votesCast;
 
     @Transient
@@ -362,5 +366,19 @@ public class Profile extends BaseModel {
 
     public void setAchievementTracker(AchievementTracker achievementTracker) {
         this.achievementTracker = achievementTracker;
+    }
+
+    public Set<Hint> getHintsSeen() {
+        return hintsSeen;
+    }
+
+    /**
+     * Adds a new hint to the user's set of seen hints.
+     *
+     * @param seenHint      the new hint the user has seen.
+     * @return              true if new hint was added, false if the hint is already in the set.
+     */
+    public boolean addSeenHint(Hint seenHint) {
+        return hintsSeen.add(seenHint);
     }
 }

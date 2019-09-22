@@ -152,4 +152,33 @@ public class HintController {
 
         return ok(result);
     }
+
+    public Result fetchNew(Http.Request request, Long objectiveId, Long userId) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        Objective targetObjective = objectiveRepository.findById(objectiveId);
+        if (targetObjective == null) {
+            return notFound(ApiError.notFound(Errors.OBJECTIVE_NOT_FOUND));
+        }
+
+        Profile hintUser = profileRepository.findById(userId);
+        if (hintUser == null) {
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
+        }
+
+        // Can request a hint if an admin, or have not solved the objective
+        if (hintUser.equals(targetObjective.getOwner())) {
+            return forbidden(ApiError.forbidden(Errors.HINT_OBJECTIVE_OWNER));
+        }
+        if (objectiveRepository.hasSolved(hintUser, targetObjective)) {
+            return forbidden(ApiError.forbidden(Errors.HINT_OBJECTIVE_SOLVED));
+        }
+
+        Hint newHint = hintRepository.findAHint(targetObjective, hintUser);
+
+        return ok(Json.toJson(newHint));
+    }
 }

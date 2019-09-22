@@ -254,7 +254,10 @@ INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `sol
 INSERT INTO `hint` (`id`, `message`, `up_votes`, `down_votes`, `objective_id`, `creator_id`) VALUES
 (1, 'This is a hint', 10, 3, 18, 7),
 (2, 'This is also a hint', 4, 10, 24, 7),
-(3, 'Think about the first word carefully', 45, 38, 31, 8);
+(3, 'Think about the first word carefully', 45, 38, 31, 8),
+(4, 'The most up-voted hint', 100, 1, 18, 1),
+(5, 'The second most up-voted hint', 99, 1, 18, 1),
+(6, 'The second-equal up-voted hint', 100, 2, 18, 1);
 
 
 INSERT INTO `vote` (`id`, `voter_id`, `target_hint_id`, `is_up_vote`) VALUES
