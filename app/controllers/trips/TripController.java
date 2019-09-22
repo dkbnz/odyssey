@@ -25,7 +25,6 @@ import com.google.inject.Inject;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,8 +38,10 @@ public class TripController extends Controller {
     private static final String TRIP_ID = "trip_id";
     public static final String REWARD = "reward";
     private static final String NEW_TRIP_ID = "newTripId";
-    private static final String PAGE = "page";
-    private static final String PAGE_SIZE = "pageSize";
+    private static final String PAGE_FUTURE = "pageFuture";
+    private static final String PAGE_PAST = "pagePast";
+    private static final String PAGE_SIZE_FUTURE = "pageSizeFuture";
+    private static final String PAGE_SIZE_PAST = "pageSizePast";
     private static final String PROFILE_ID = "profile.id";
     private static final String FUTURE_TRIPS = "futureTrips";
     private static final String PAST_TRIPS = "pastTrips";
@@ -428,21 +429,26 @@ public class TripController extends Controller {
             return unauthorized(ApiError.unauthorized());
         }
 
-        int pageNumber = 0;
-        int pageSize = MAX_PAGE_SIZE;
+        int pageNumberFuture = 0;
+        int pageNumberPast = 0;
 
         ExpressionList<Trip> expressionListFuture = tripRepository.getExpressionList();
         ExpressionList<Trip> expressionListPast = tripRepository.getExpressionList();
 
-        if (request.getQueryString(PAGE_SIZE) != null && !request.getQueryString(PAGE_SIZE).isEmpty()) {
-            try {
-                pageSize = Integer.parseInt(request.getQueryString(PAGE_SIZE));
-                // Restrict the page size to be no larger than the maximum page size.
-                pageSize = Math.min(pageSize, MAX_PAGE_SIZE);
-            } catch (NumberFormatException e) {
-                return badRequest(ApiError.badRequest(Errors.INVALID_PAGE_SIZE_REQUESTED));
-            }
+        if (request.getQueryString(PAGE_FUTURE) != null && !request.getQueryString(PAGE_FUTURE).isEmpty()) {
+            pageNumberFuture = Integer.parseInt(request.getQueryString(PAGE_FUTURE));
         }
+
+        if (request.getQueryString(PAGE_PAST) != null && !request.getQueryString(PAGE_PAST).isEmpty()) {
+            pageNumberPast = Integer.parseInt(request.getQueryString(PAGE_PAST));
+        }
+
+        if (determinePageSize(request, PAGE_SIZE_FUTURE) == null || determinePageSize(request, PAGE_SIZE_PAST) == null) {
+            return badRequest(ApiError.badRequest(Errors.INVALID_PAGE_SIZE_REQUESTED));
+        }
+
+        int pageSizeFuture = determinePageSize(request, PAGE_SIZE_FUTURE);
+        int pageSizePast = determinePageSize(request, PAGE_SIZE_PAST);
 
         LocalDate today = LocalDate.now();
 
@@ -453,8 +459,8 @@ public class TripController extends Controller {
                     .ge(DESTINATIONS_START_DATE, today)
                     .isNull(DESTINATIONS_START_DATE)
                 .endJunction()
-                .setFirstRow(pageNumber * pageSize)
-                .setMaxRows(pageSize)
+                .setFirstRow(pageNumberFuture * pageSizeFuture)
+                .setMaxRows(pageSizeFuture)
                 .findPagedList()
                 .getList();
 
@@ -462,8 +468,8 @@ public class TripController extends Controller {
                 .where()
                 .eq(PROFILE_ID, loggedInUser.getId())
                 .lt(DESTINATIONS_START_DATE, today)
-                .setFirstRow(pageNumber * pageSize)
-                .setMaxRows(pageSize)
+                .setFirstRow(pageNumberPast * pageSizePast)
+                .setMaxRows(pageSizePast)
                 .findPagedList()
                 .getList();
 
@@ -473,6 +479,30 @@ public class TripController extends Controller {
         returnJson.set(PAST_TRIPS, Json.toJson(pastTrips));
 
         return ok(returnJson);
+    }
+
+
+    /**
+     * Determines the page size from the given query string inside the request. Is used to calculate the future and past
+     * trip pages.
+     *
+     * @param request           the Http request containing the query string.
+     * @param pageSizeRequested the page being requested, whether it be future or past page size.
+     * @return                  null if the requested page cannot be passed as an integer,
+     *                          otherwise returns the requested page size
+     */
+    private Integer determinePageSize(Http.Request request, String pageSizeRequested) {
+        int pageSize = 0;
+        if (request.getQueryString(pageSizeRequested) != null && !request.getQueryString(pageSizeRequested).isEmpty()) {
+            try {
+                pageSize = Integer.parseInt(request.getQueryString(pageSizeRequested));
+                // Restrict the page size to be no larger than the maximum page size.
+                pageSize = Math.min(pageSize, MAX_PAGE_SIZE);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return pageSize;
     }
 
 
