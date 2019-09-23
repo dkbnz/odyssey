@@ -313,7 +313,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @return {number}    the number of rows required in the table based on number of profiles to be
+             * @returns {number}    the number of rows required in the table based on number of profiles to be
              *                      displayed.
              */
             getRows() {

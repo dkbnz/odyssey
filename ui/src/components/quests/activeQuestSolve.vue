@@ -188,7 +188,7 @@
             </div>
             <template v-slot:modal-footer>
                 <b-col>
-                    <b-button variant="warning" block @click="retrieveHint">Show Me</b-button>
+                    <b-button variant="warning" block @click="getSingleHint">Show Me</b-button>
                 </b-col>
                 <b-col>
                     <b-button @click="showHintAlertModal = false" block>Cancel</b-button>
@@ -328,7 +328,7 @@
              * Sends a request to check the users guess for a given quest attempt.
              * Displays appropriate messages upon receiving a response.
              *
-             * @return {Promise <Response | never>}     the fetch method promise.
+             * @returns {Promise <Response | never>}     the fetch method promise.
              */
             checkGuess() {
                 let self = this;
@@ -422,7 +422,7 @@
             /**
              * Sends the request to check in to the current objective.
              *
-             * @return {Promise <Response | never>}     the fetch method promise.
+             * @returns {Promise <Response | never>}     the fetch method promise.
              */
             sendCheckInRequest() {
                 let self = this;
@@ -494,7 +494,7 @@
              * Returns a string value for the distance from the user's current location to the location of the
              * objective destination.
              *
-             * @return a string value containing the total distance from the user to the objective destination.
+             * @returns a string value containing the total distance from the user to the objective destination.
              */
             getHowClose() {
                 if (this.totalDistance && this.questAttempt.toCheckIn) {
@@ -512,7 +512,7 @@
              * Sets the global objective to be retrieved for the hint as well as displays the hint confirmation modal.
              */
             showHintConfirmModal(requestedObjective) {
-                this.objectiveToGetHint = requestedObjective;
+                this.objective = requestedObjective;
                 this.showHintAlertModal = true
             },
 
@@ -521,8 +521,24 @@
              * Retrieves a hint for the currently viewed objective, is called after the user confirms they wish to
              * retrieve a hint for the given objective in the popup modal.
              */
-            retrieveHint() {
-                console.log(this.objectiveToGetHint);
+            getSingleHint() {
+                let self = this;
+                fetch("/v1/objectives/" + this.objective.id + "/hints/" + this.profile.id + "/new", {
+                    accept: "application/json"
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    if (responseBody.message !== "No hints available.") {
+                        self.objective.hints.push(responseBody);
+                    }
+                    self.showHintAlertModal = false;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -545,17 +561,36 @@
 
 
             /**
-             * Get the hint the user has seen.
+             * Gets the hints the user has requested for an unsolved objective from the backend.
+             *
+             * @param objective     the objective your fetching the hints for.
+             * @returns {[]}        a list of hints.
              */
             getHintsUserHasSeen(objective) {
-                objective.hints = [{message:"Hint user has seen"}]
+                let self = this;
+                fetch("/v1/objectives/" + objective.id + "/hints/" + this.profile.id + "/seen", {
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                })
+                    .then(function (responseBody) {
+                        self.loadingResults = false;
+                        objective.hints = responseBody;
+                    }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
+                });
             },
 
 
             /**
              * Gets the hints for an objective from the backend.
+             *
              * @param objective     the objective your fetching the hints for.
-             * @returns {[]}        a List of hints.
+             * @returns {[]}        a list of hints.
              */
             getHintsForObjective(objective) {
                 let self = this;
@@ -566,7 +601,8 @@
                         } else {
                             return response.json();
                         }
-                    }).then(function (responseBody) {
+                    })
+                .then(function (responseBody) {
                     self.loadingResults = false;
                     objective.hints = responseBody;
                 }).catch(function (response) {

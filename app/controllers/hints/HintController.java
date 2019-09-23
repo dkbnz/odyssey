@@ -170,7 +170,8 @@ public class HintController {
      * @return                  ok() (Http 200) response containing retrieved hint.
      *                          badRequest() (Http 400) response if there is an issue converting to Json.
      *                          unauthorized() (Http 401) response if the user is not logged into the system.
-     *                          forbidden() (Http 403) response if the user is the owner or has not solved the objective.
+     *                          forbidden() (Http 403) response if the user is the owner or has not solved the
+     *                          objective.
      *                          notFound() (Http 404) response if the objective or profile doesn't exist, or no hint is
      *                          found for the objective.
      */

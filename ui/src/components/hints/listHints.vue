@@ -2,7 +2,7 @@
     <b-col class="w-100 buttonMarginsTop">
         <b-list-group>
             <h4 v-if="hints.length > 0">Hints:</h4>
-            <h4 v-if="!hints.length > 0">No Hints for this Objective</h4>
+            <p v-if="!hints.length > 0">No Hints for this Objective</p>
             <b-list-group-item v-for="hint in hints"
                                class="flex-column align-items-start"
                                :key="hint.message">
@@ -27,7 +27,11 @@
                 <b-col>
                     <div class="float-right">
                         <b-button class="no-wrap-text" size="sm" variant="primary" @click="addHint" v-if="solved">Add Hint</b-button>
-                        <b-button size="sm" variant="primary" @click="requestHint" v-if="!solved">I need {{hints.length ? "another" : "a"}} hint!</b-button>
+                        <b-button size="sm" variant="primary"
+                                  @click="requestHint"
+                                  v-if="!solved && objective.numberOfHints > objective.hints.length">
+                            I need {{hints.length ? "another" : "a"}} hint!
+                        </b-button>
                     </div>
                 </b-col>
             </b-row>

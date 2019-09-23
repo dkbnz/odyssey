@@ -111,6 +111,10 @@ public class Objective extends BaseModel {
         this.radius = radius;
     }
 
+    public Integer getNumberOfHints() {
+        return this.hints.size();
+    }
+
     /**
      * Returns an empty list if hints is null, otherwise returns the list of hints for the objective.
      *

@@ -478,7 +478,7 @@
             /**
              * Sorts nationality options by their country value for passports.
              *
-             * @return a list of sorted nationalities.
+             * @returns a list of sorted nationalities.
              */
             passportsSorted() {
                 let passportOptions = JSON.parse(JSON.stringify(this.nationalityOptions));
