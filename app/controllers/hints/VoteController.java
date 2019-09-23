@@ -75,11 +75,16 @@ public class VoteController {
 
         Vote vote = voteRepository.findUsing(targetUser, hintToVoteOn);
 
-        // Check if they have an existing vote
-        if (vote != null) {
+        boolean isDeleted = false;
 
-            // If they do, check if current vote is same as new vote
-            if (vote.isUpVote() == isUpvote) {
+        // Check if they have an existing vote
+        if (vote == null) {
+            vote = new Vote(targetUser, hintToVoteOn);
+        } else {
+            // Remove upvotes/downvotes when the user has already voted
+            if (isUpvote == vote.isUpVote()) {
+                // If the user clicks the same button twice, remove the vote
+                isDeleted = voteRepository.delete(vote);
                 if (isUpvote) {
                     hintToVoteOn.removeUpVote();
                 } else {
@@ -88,25 +93,18 @@ public class VoteController {
             } else if (isUpvote) {
                 hintToVoteOn.removeDownVote();
             } else {
-                achievementTrackerController.handleHintUpvote(hintToVoteOn, false);
                 hintToVoteOn.removeUpVote();
             }
-        } else if (objectiveRepository.hasSolved(targetUser, hintToVoteOn.getObjective())) {
-            // User does not have an existing vote and they are allowed to vote.
-            vote = new Vote(targetUser, hintToVoteOn);
-        } else {
-            // Votes do not exist and the user is not allowed to vote.
-            return forbidden(ApiError.forbidden());
         }
 
-        vote.setUpVote(isUpvote);
-
-        // Increment upvote or downvote
-        if (isUpvote) {
-            achievementTrackerController.handleHintUpvote(hintToVoteOn, true);
-            hintToVoteOn.upVote();
-        } else {
-            hintToVoteOn.downVote();
+        if (!isDeleted) {
+            // Add a vote for the button pressed
+            vote.setUpVote(isUpvote);
+            if (isUpvote) {
+                hintToVoteOn.upVote();
+            } else {
+                hintToVoteOn.downVote();
+            }
         }
 
         hintRepository.save(hintToVoteOn);

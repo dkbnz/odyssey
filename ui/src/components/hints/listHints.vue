@@ -11,11 +11,11 @@
                     <div class="vote-value">
                         {{hint.voteSum}}
                     </div>
-                    <b-button @click="upVote"
+                    <b-button @click="upVote(hint)"
                               class="mr-3"
                               size="sm">&uarr;
                     </b-button>
-                    <b-button @click="downVote"
+                    <b-button @click="downVote(hint)"
                               class="mr-3"
                               size="sm">&darr;
                     </b-button>
@@ -47,12 +47,42 @@
 
         methods: {
 
-            upVote() {
-
+            upVote(hint) {
+                let hintId = hint.id;
+                let self = this;
+                fetch('/v1/hints/' + hintId + '/upvote/' + this.profile.id, {
+                    method: 'POST'
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    hint.voteSum = responseBody.voteSum;
+                }).catch(function (response) {
+                    self.savingTrip = false;
+                    self.handleErrorResponse(response);
+                });
             },
 
-            downVote() {
-
+            downVote(hint) {
+                let hintId = hint.id;
+                let self = this;
+                fetch('/v1/hints/' + hintId + '/downvote/' + this.profile.id, {
+                    method: 'POST'
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    hint.voteSum = responseBody.voteSum;
+                }).catch(function (response) {
+                    self.savingTrip = false;
+                    self.handleErrorResponse(response);
+                });
             },
 
             /**

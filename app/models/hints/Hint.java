@@ -1,6 +1,7 @@
 package models.hints;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import models.objectives.Objective;
 import models.profiles.Profile;
