@@ -183,7 +183,7 @@ Feature: Hint API Endpoint
       | You are not logged in. |
 
 
-  Scenario: Successfully retrieving a single hint for an objective
+  Scenario: Successfully retrieving a single hint for an objective as a regular user
     Given the application is running
     And I am logged in
     And an objective exists with id 18
@@ -192,12 +192,12 @@ Feature: Hint API Endpoint
     And a hint with id 4 exists for objective with id 18
     And a hint with id 5 exists for objective with id 18
     And a hint with id 6 exists for objective with id 18
-    When I requests a new hint for objective with id 18
+    When I request a new hint for objective with id 18
     Then the status code received is 200
     And I receive a hint with id 4
 
 
-  Scenario: Successfully requesting two hints for an objective
+  Scenario: Successfully requesting another hint for an objective as a regular user
     Given the application is running
     And I am logged in
     And an objective exists with id 18
@@ -206,12 +206,116 @@ Feature: Hint API Endpoint
     And a hint with id 4 exists for objective with id 18
     And a hint with id 5 exists for objective with id 18
     And a hint with id 6 exists for objective with id 18
-    When I requests a new hint for objective with id 18
-    When I requests a new hint for objective with id 18
+    When I request a new hint for objective with id 18
+    When I request a new hint for objective with id 18
     Then the status code received is 200
     And I receive a hint with id 5
+
+
+  Scenario: Successfully retrieving a single hint for an objective as an admin
+    Given the application is running
+    And I am logged in as an admin user
+    And an objective exists with id 18
+    And I do not own the objective with id 18
+    And I have not solved the objective with id 18
+    And a hint with id 4 exists for objective with id 18
+    And a hint with id 5 exists for objective with id 18
+    And a hint with id 6 exists for objective with id 18
+    When I request a new hint for objective with id 18
+    Then the status code received is 200
+    And I receive a hint with id 4
     
     
+  Scenario: Successfully requesting a hint for an objective that has no hints
+    Given the application is running
+    And I am logged in
+    And an objective exists with id 3
+    And I do not own the objective with id 3
+    And I have not solved the objective with id 3
+    And no hints exist for the objective with id 3
+    When I request a new hint for objective with id 3
+    Then the status code received is 200
+    And the response contains 0 hints
+    And the response contains the following message
+    | No hints available. |
+
+
+  Scenario: Successfully requesting a hint when I have already seen all the hints for the objective
+    Given the application is running
+    And I am logged in
+    And an objective exists with id 18
+    And I do not own the objective with id 18
+    And I have not solved the objective with id 18
+    And a hint with id 1 exists for objective with id 18
+    And a hint with id 4 exists for objective with id 18
+    And a hint with id 5 exists for objective with id 18
+    And a hint with id 6 exists for objective with id 18
+    When I request a new hint for objective with id 18
+    And I request a new hint for objective with id 18
+    And I request a new hint for objective with id 18
+    And I request a new hint for objective with id 18
+    And I request a new hint for objective with id 18
+    Then the status code received is 200
+    And the response contains 0 hints
+    And the response contains the following message
+      | No hints available. |
+    
+  Scenario: Unsuccessfully requesting a hint for an objective when I am not logged in
+    Given the application is running
+    And I am not logged in
+    And a user exists with id 2
+    And an objective exists with id 18
+    When I request a new hint for user 2 for objective with id 18
+    Then the status code received is 401
+    And the following ApiErrors are returned
+      | You are not logged in. |
+
+
+  Scenario: Unsuccessfully requesting a hint for an objective that does not exist
+    Given the application is running
+    And I am logged in
+    And an objective does not exist with id 50
+    When I request a new hint for objective with id 50
+    Then the status code received is 404
+    And the following ApiErrors are returned
+      | Requested objective not found. |
+    
+    
+  Scenario: Unsuccessfully requesting a hint for a user that does not exist
+    Given the application is running
+    And I am logged in
+    And a user does not exist with id 50
+    And an objective exists with id 18
+    When I request a new hint for user 50 for objective with id 18
+    Then the status code received is 404
+    And the following ApiErrors are returned
+      | Requested profile not found. |
+    
+    
+  Scenario: Unsuccessfully requesting a hint for an objective I own
+    Given the application is running
+    And I am logged in
+    And an objective exists with id 1
+    And I have not solved the objective with id 1
+    And I own the objective with id 1
+    When I request a new hint for objective with id 1
+    Then the status code received is 403
+    And the following ApiErrors are returned
+    | You cannot request a hint for an objective you own. |
+    
+    
+  Scenario: Unsuccessfully requesting a hint for an objective I have solved
+    Given the application is running
+    And I am logged in as user with id 3
+    And an objective exists with id 10
+    And I do not own the objective with id 10
+    And I have solved the objective with id 10
+    When I request a new hint for objective with id 10
+    Then the status code received is 403
+    And the following ApiErrors are returned
+      | You cannot request a hint for an objective you have already solved. |
+
+
   Scenario: Successfully requesting all seen hints for an objective as a regular user
     Given the application is running
     And I am logged in
@@ -219,8 +323,8 @@ Feature: Hint API Endpoint
     And a hint with id 4 exists for objective with id 18
     And a hint with id 5 exists for objective with id 18
     And a hint with id 6 exists for objective with id 18
-    When I requests a new hint for objective with id 18
-    And I requests a new hint for objective with id 18
+    When I request a new hint for objective with id 18
+    And I request a new hint for objective with id 18
     And I request all the hints that I have seen for objective with id 18
     Then the status code received is 200
     And the response contains 2 hints
@@ -245,8 +349,8 @@ Feature: Hint API Endpoint
     And a hint with id 4 exists for objective with id 18
     And a hint with id 5 exists for objective with id 18
     And a hint with id 6 exists for objective with id 18
-    When I requests a new hint for objective with id 18
-    And I requests a new hint for objective with id 18
+    When I request a new hint for objective with id 18
+    And I request a new hint for objective with id 18
     And I request all the hints that I have seen for objective with id 18
     Then the status code received is 200
     And the response contains 2 hints
@@ -263,7 +367,7 @@ Feature: Hint API Endpoint
       | You are not logged in. |
 
 
-  Scenario: Unsuccessfully requesting all seen hints for an objective that doesn't exist
+  Scenario: Unsuccessfully requesting all seen hints for an objective that does not exist
     Given the application is running
     And I am logged in
     And an objective does not exist with id 50
@@ -273,7 +377,7 @@ Feature: Hint API Endpoint
       | Requested objective not found. |
 
 
-  Scenario: Unsuccessfully requesting all seen hints for a user that doesn't exist
+  Scenario: Unsuccessfully requesting all seen hints for a user that does not exist
     Given the application is running
     And I am logged in
     And a user does not exist with id 50
