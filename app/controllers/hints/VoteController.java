@@ -79,7 +79,13 @@ public class VoteController {
 
         // Check if they have an existing vote
         if (vote == null) {
-            vote = new Vote(targetUser, hintToVoteOn);
+            if (objectiveRepository.hasSolved(targetUser, hintToVoteOn.getObjective())) {
+                // User does not have an existing vote and they are allowed to vote.
+                vote = new Vote(targetUser, hintToVoteOn);
+            } else {
+                // Votes do not exist and the user is not allowed to vote.
+                return forbidden(ApiError.forbidden());
+            }
         } else {
             // Remove upvotes/downvotes when the user has already voted
             if (isUpvote == vote.isUpVote()) {
