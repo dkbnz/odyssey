@@ -8,10 +8,7 @@ import models.profiles.Profile;
 import models.util.BaseModel;
 import util.Views;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.Set;
 
 /**
@@ -52,11 +49,13 @@ public class Hint extends BaseModel {
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Profile creator;
 
-
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Vote> votes;
 
+    @JsonIgnore
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    private Set<Profile> profilesSeen;
 
     public String getMessage() {
         return message;

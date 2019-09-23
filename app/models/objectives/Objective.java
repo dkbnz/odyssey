@@ -111,7 +111,14 @@ public class Objective extends BaseModel {
         this.radius = radius;
     }
 
-    public List<Hint> getHints() { return hints; }
+    /**
+     * Returns an empty list if hints is null, otherwise returns the list of hints for the objective.
+     *
+     * @return      a list of hints.
+     */
+    public List<Hint> getHints() {
+        return hints == null ? new ArrayList<>() : hints;
+    }
 
 
     /**

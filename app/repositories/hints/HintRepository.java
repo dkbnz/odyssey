@@ -3,9 +3,11 @@ package repositories.hints;
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
+import io.ebean.Expr;
 import models.hints.Hint;
 import models.objectives.Objective;
 import models.profiles.Profile;
+import repositories.profiles.ProfileRepository;
 
 import java.util.List;
 
@@ -19,9 +21,52 @@ public class HintRepository extends BeanRepository<Long, Hint> {
 
     private static final String NET_VOTES = "upVotes - downVotes";
 
+    private static final String PROFILES_SEEN = "profilesSeen";
+
+    private static final int TOP_HINT = 0;
+
+    private ProfileRepository profileRepository;
+
     @Inject
-    public HintRepository() {
+    public HintRepository(ProfileRepository profileRepository) {
         super(Hint.class, Ebean.getDefaultServer());
+        this.profileRepository = profileRepository;
+    }
+
+
+    /**
+     * Retrieves all distinct hints that a profile has seen for a given objective.
+     *
+     * @param objective     the objective that the hint is for.
+     * @param hintUser      the user that is requesting the hints.
+     * @return              a list of hint ids that the user has seen.
+     */
+    public List<Hint> findSeenHints(Objective objective, Profile hintUser) {
+        return query()
+                .where()
+                .eq(PROFILES_SEEN, hintUser)
+                .eq(OBJECTIVE, objective)
+                .orderBy()
+                    .asc(NET_VOTES)
+                .setDistinct(true)
+                .findList();
+    }
+
+
+    /**
+     * Retrieves ids of all distinct hints that a profile has seen for a given objective.
+     *
+     * @param objective     the objective that the hint is for.
+     * @param hintUser      the user that is requesting the hints.
+     * @return              a list of hint ids that the user has seen.
+     */
+    private List<Long> findSeenHintIds(Objective objective, Profile hintUser) {
+        return query()
+                .where()
+                .eq(PROFILES_SEEN, hintUser)
+                .eq(OBJECTIVE, objective)
+                .setDistinct(true)
+                .findIds();
     }
 
 
@@ -29,31 +74,39 @@ public class HintRepository extends BeanRepository<Long, Hint> {
      * Queries the database for all the hints the given user has not yet used, and returns
      * those hints as a list.
      *
-     * @param objective         the objective for which the hints are retrieved.
-     * @param hintUser          the user who is requesting the hint(s).
+     * @param objective         the objective that the hint is for.
+     * @param hintUser          the user that is requesting the hints.
      * @return                  the list of hints the user has not yet seen.
      */
     private List<Hint> findOrderedUnseenHints(Objective objective, Profile hintUser) {
-        // TODO Matthew || Matilda: filter out all hints the user has currently seen
+        List<Long> hintsSeenByProfile = findSeenHintIds(objective, hintUser);
+
         return query()
                 .where()
                 .eq(OBJECTIVE, objective)
+                .not(Expr.in("id", hintsSeenByProfile))
                 .orderBy()
                     .desc(NET_VOTES)
                 .findList();
     }
 
+
     /**
      * Given an objective, retrieves the hint with the greatest net value of votes (up-votes - down-votes).
+     * Returns null if no hint can be found for the given objective.
      *
-     * @param objectiveUsed     the objective that the hint is wanted for.
+     * @param objectiveUsed     the objective that the hint is for.
+     * @param hintUser          the user that is requesting the hint.
      * @return                  the first hint with the greatest net up-votes.
      */
     public Hint findAHint(Objective objectiveUsed, Profile hintUser) {
         List<Hint> orderedHints = findOrderedUnseenHints(objectiveUsed, hintUser);
-        // TODO Matthew || Matilda: Sort out bug with tests later :)
-        Hint unseenHint = orderedHints.get(0);
-        //hintUser.addSeenHint(unseenHint);
+        if (orderedHints.isEmpty()) {
+            return null;
+        }
+        Hint unseenHint = orderedHints.get(TOP_HINT);
+        hintUser.addSeenHint(unseenHint);
+        profileRepository.save(hintUser);
         return unseenHint;
     }
 }
