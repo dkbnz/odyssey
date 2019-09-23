@@ -2,7 +2,8 @@
     <div>
         <h1 class="page-title">{{ heading }} a Quest!</h1>
 
-        <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
+        <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p>
+        </b-alert>
 
         <b-alert dismissible v-model="showSuccessObjective" variant="success">{{successMessage}}</b-alert>
 
@@ -139,13 +140,13 @@
                 <div v-if="!editCurrentObjective">
                     <b-row>
                         <b-col>
-                            <b-button v-if="!addNewObjective" variant="success" :disabled="heading === 'Edit'"
+                            <b-button v-if="!addNewObjective" variant="success" :hidden="heading === 'Edit'"
                                       @click="showObjectiveComponent" block>
                                 Add a new objective
                             </b-button>
                         </b-col>
                         <b-col>
-                            <b-button v-if="!addNewObjective" variant="primary" :disabled="heading === 'Edit'"
+                            <b-button v-if="!addNewObjective" variant="primary" :hidden="heading === 'Edit'"
                                       @click="showYourObjectivesComponent" block>
                                 Select an objective
                             </b-button>
@@ -208,7 +209,7 @@
                                       @click="deleteObjective(row.item)"
                                       variant="danger"
                                       class="mr-2"
-                                      :disabled="heading === 'Edit'"
+                                      :hidden="heading === 'Edit'"
                                       block>Delete
                             </b-button>
                             <b-button size="sm"
@@ -222,18 +223,22 @@
 
                         <!-- Buttons to shift objectives up/down in table -->
                         <template v-slot:cell(order)="row">
-                            <b-button :disabled="inputQuest.objectives.length === 1 || row.index === 0 || heading === 'Edit'"
+                            <b-button :disabled="inputQuest.objectives.length === 1
+                                      || row.index === 0
+                                      || heading === 'Edit'"
                                       @click="moveUp(row.index)"
                                       class="mr-2"
                                       size="sm"
                                       variant="success">&uarr;
                             </b-button>
-                            <b-button :disabled="inputQuest.objectives.length === 1 ||
-                           row.index === inputQuest.objectives.length-1 || heading === 'Edit'"
-                                      @click="moveDown(row.index)"
-                                      class="mr-2"
-                                      size="sm"
-                                      variant="success">&darr;
+                            <b-button
+                                    :disabled="inputQuest.objectives.length === 1
+                                    || row.index === inputQuest.objectives.length-1
+                                    || heading === 'Edit'"
+                                    @click="moveDown(row.index)"
+                                    class="mr-2"
+                                    size="sm"
+                                    variant="success">&darr;
                             </b-button>
                         </template>
                         <template v-slot:cell(radius)="row">
@@ -407,7 +412,7 @@
                     return false;
                 }
 
-                if(this.inputQuest.startDate.length < 6) {
+                if (this.inputQuest.startDate.length < 6) {
                     return null;
                 }
 
@@ -974,9 +979,9 @@
             getRadiusValue(radius) {
                 if (radius < 1) {
                     // Convert radius value to metres by multiplying by 1000.
-                    return radius * 1000 + " Meters"
+                    return radius * 1000 + " m"
                 }
-                return radius + " Km";
+                return radius + " km";
             }
         }
     }

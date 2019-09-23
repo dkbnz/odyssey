@@ -127,6 +127,7 @@
                         "&gender=" + "" +
                         "&min_age=" + "" +
                         "&max_age=" + "" +
+                        "&rank=" +
                         "&travellerTypes=" + "" +
                         "&page=" + this.queryPage +
                         "&pageSize=" + this.pageSize;
@@ -138,6 +139,7 @@
                         "&min_age=" + this.searchParameters.age[0] +
                         "&max_age=" + this.searchParameters.age[1] +
                         "&travellerTypes=" + this.searchParameters.travellerType +
+                        "&rank=" + this.searchParameters.rank +
                         "&page=" + this.queryPage +
                         "&pageSize=" + this.pageSize;
                 }
