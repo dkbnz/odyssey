@@ -179,6 +179,10 @@ public class HintController {
 
         Hint newHint = hintRepository.findAHint(targetObjective, hintUser);
 
+        if (newHint == null) {
+            return notFound(ApiError.notFound(Errors.NO_HINT_AVAILABLE));
+        }
+
         return ok(Json.toJson(newHint));
     }
 }
