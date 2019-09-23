@@ -482,25 +482,12 @@ public class QuestController {
 
 
     /**
-     * Fetches all destinations based on Http request query parameters. This also includes pagination, destination
-     * ownership and the public or private query.
+     * Adds all fields in the given request query string to the given expression list.
      *
-     * @param request   Http request containing query parameters to filter results.
-     * @param profile   The profile of the user logged in.
-     * @return          ok() (Http 200) response containing the destinations found in the response body,
-     *                  forbidden() (Http 403) if the user has tried to access destinations they are not authorised for.
+     * @param expressionList        the expression list for fetching quests.
+     * @param request               the request sent containing the query fields.
      */
-    private Set<Quest> getQuestsQuery(Http.Request request, Profile profile) {
-
-        Set<Quest> quests;
-
-        ExpressionList<Quest> expressionList = questRepository.getExpressionList();
-
-        /*
-        Does not include quest that the profile has created
-         */
-        expressionList.ne(OWNER, profile);
-
+    private void addQueryFields(ExpressionList expressionList, Http.Request request) {
         /*
         Joins all similar quest titles
          */
@@ -534,10 +521,31 @@ public class QuestController {
          */
         expressionList.lt(START_DATE, new Date());
         expressionList.gt(END_DATE, new Date());
+    }
 
-        /*
-        Gets first 50 quests from index query * 50
-         */
+
+    /**
+     * Fetches all destinations based on Http request query parameters. This also includes pagination, destination
+     * ownership and the public or private query.
+     *
+     * @param request   Http request containing query parameters to filter results.
+     * @param profile   The profile of the user logged in.
+     * @return          ok() (Http 200) response containing the destinations found in the response body,
+     *                  forbidden() (Http 403) if the user has tried to access destinations they are not authorised for.
+     */
+    private Set<Quest> getQuestsQuery(Http.Request request, Profile profile) {
+
+        Set<Quest> quests;
+
+        ExpressionList<Quest> expressionList = questRepository.getExpressionList();
+
+        // Does not include quest that the profile has created
+        expressionList.ne(OWNER, profile);
+
+        // Add all fields provided in the query string of the request
+        addQueryFields(expressionList, request);
+
+        // Gets first 50 quests from index query * 50
         int pageNumber = 0;
         int pageSize = 50;
         String queryPageString = request.getQueryString(QUERY_PAGE);
@@ -545,7 +553,6 @@ public class QuestController {
         if (queryPageString != null && !queryPageString.isEmpty()) {
             pageNumber = Integer.parseInt(queryPageString);
         }
-
 
         /*
         Removes all quests that the profile has an attempt for
