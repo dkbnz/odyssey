@@ -66,7 +66,7 @@
                         </b-col>
                     </b-row>
                     <b-row>
-                        <div class="w-100 text-center">
+                        <div class="w-100 text-center mt-5 pt-5">
                             <h4>So, what are you waiting for?</h4>
                             <div>
                                 <b-button id="get-started" variant="link">Get Started!</b-button>
