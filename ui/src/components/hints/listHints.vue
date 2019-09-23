@@ -1,6 +1,8 @@
 <template>
     <b-col class="w-100 buttonMarginsTop">
         <b-list-group>
+            <h4 v-if="hints.length > 0">Hints:</h4>
+            <h4 v-if="!hints.length > 0">No Hints for this Objective</h4>
             <b-list-group-item v-for="hint in hints"
                                class="flex-column align-items-start"
                                :key="hint.message">

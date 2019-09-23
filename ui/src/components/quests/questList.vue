@@ -222,12 +222,25 @@
                             :quest="selectedQuest"
                             @successCreate="successCreateHint">
                     </completed-quest-details>
-                    <create-hint
-                            v-if="showHintSideBar"
-                            :profile="profile"
-                            :objective="currentObjective"
-                            @successCreate="successCreateHint"
-                            @cancelCreate="showHintSideBar = false">
+                    <div v-if="showHintSideBar === 'Hints'">
+                        <p class="mb-1 mobile-text font-weight-bold">Riddle: {{currentObjective.riddle}}</p>
+                        <p class="mb-1 mobile-text">
+                            Destination: {{currentObjective.destination.name}}
+                        </p>
+                        <list-hints
+                                :objective="currentObjective"
+                                :profile="profile"
+                                :hints="currentObjective.hints"
+                                :solved="true"
+                                @showAddHint="showAddHint()">
+                        </list-hints>
+                    </div>
+
+                    <create-hint v-else-if="showHintSideBar === 'Create Hint'"
+                                 :profile="profile"
+                                 :objective="currentObjective"
+                                 @successCreate="successCreateHint"
+                                 @cancelCreate="show = 'Hints'">
                     </create-hint>
                 </b-card>
             </b-col>
@@ -244,6 +257,7 @@
     import ActiveQuestList from "./activeQuestPage";
     import CompletedQuestDetails from "./completedQuestDetails";
     import CreateHint from "../hints/createHint";
+    import ListHints from "../hints/listHints";
 
     export default {
         name: "questList",
@@ -300,7 +314,7 @@
                 showDestinations: false,
                 showYourObjectives: false,
                 showQuestAttemptSolve: false,
-                showHintSideBar: false,
+                showHintSideBar: 'hide',
                 currentObjective: "",
                 selectedObjectiveTemplate: {
                     id: null,
@@ -636,7 +650,13 @@
                 this.alertText = "Hint successfully created!";
                 this.showAlert();
                 this.showRewardToast(responseBody.reward);
-                this.showHintSideBar = false;
+                this.currentObjective.hints.push(responseBody.newHint);
+                this.showHintSideBar = 'Hints';
+            },
+
+
+            showAddHint() {
+                this.showHintSideBar = 'Create Hint';
             },
 
 
@@ -668,8 +688,33 @@
              * Show the hint sidebar for adding a hint to an objective
              */
             showHintSidebar(objective) {
-                this.showHintSideBar = true;
+                this.getHintsForObjective(objective);
+                this.showHintSideBar = "Hints";
                 this.currentObjective = objective;
+            },
+
+
+            /**
+             * Gets the hints for an objective from the backend.
+             * @param objective     the objective your fetching the hints for.
+             * @returns {[]}        a List of hints.
+             */
+            getHintsForObjective(objective) {
+                let self = this;
+                fetch(`/v1/objectives/` + objective.id + `/hints`, {})
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                    self.loadingResults = false;
+                    objective.hints = responseBody;
+                }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -795,6 +840,7 @@
         },
 
         components: {
+            ListHints,
             CreateHint,
             CompletedQuestDetails,
             ActiveQuestList,

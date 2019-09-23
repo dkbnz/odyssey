@@ -245,6 +245,7 @@
         watch: {
             questAttempt() {
                 this.showDestinationSearch = false;
+                this.showOrHide = "Show";
             },
 
 
@@ -547,7 +548,7 @@
              * Get the hint the user has seen.
              */
             getHintsUserHasSeen(objective) {
-                objective.hints = [{message:"Hint usee has seen"}]
+                objective.hints = [{message:"Hint user has seen"}]
             },
 
 
@@ -566,7 +567,6 @@
                             return response.json();
                         }
                     }).then(function (responseBody) {
-                    console.log(responseBody)
                     self.loadingResults = false;
                     objective.hints = responseBody;
                 }).catch(function (response) {

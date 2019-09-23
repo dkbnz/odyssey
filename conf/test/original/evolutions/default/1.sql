@@ -20,7 +20,7 @@ create table badge (
   silver_breakpoint             integer not null,
   gold_breakpoint               integer not null,
   how_to_progress               varchar(255),
-  constraint ck_badge_action_to_achieve check ( action_to_achieve in ('DESTINATION_CREATED','TRIP_CREATED','QUEST_CREATED','HINT_CREATED','RIDDLE_SOLVED','CHECKED_IN','POINTS_GAINED','LOGIN_STREAK','INTERNATIONAL_QUEST_COMPLETED','LARGE_QUEST_COMPLETED','DISTANCE_QUEST_COMPLETED','QUEST_COMPLETED')),
+  constraint ck_badge_action_to_achieve check ( action_to_achieve in ('DESTINATION_CREATED','TRIP_CREATED','QUEST_CREATED','HINT_CREATED','RIDDLE_SOLVED','CHECKED_IN','POINTS_GAINED','LOGIN_STREAK','INTERNATIONAL_QUEST_COMPLETED','LARGE_QUEST_COMPLETED','DISTANCE_QUEST_COMPLETED','QUEST_COMPLETED', 'HINT_UPVOTED', 'HINT_UPVOTE_REMOVED')),
   constraint uq_badge_action_to_achieve unique (action_to_achieve),
   constraint pk_badge primary key (id)
 );
@@ -78,6 +78,12 @@ create table hint (
   objective_id                  bigint,
   creator_id                    bigint,
   constraint pk_hint primary key (id)
+);
+
+create table hint_profile (
+  hint_id                       bigint not null,
+  profile_id                    bigint not null,
+  constraint pk_hint_profile primary key (hint_id,profile_id)
 );
 
 create table nationality (
@@ -267,6 +273,12 @@ alter table hint add constraint fk_hint_objective_id foreign key (objective_id) 
 create index ix_hint_creator_id on hint (creator_id);
 alter table hint add constraint fk_hint_creator_id foreign key (creator_id) references profile (id) on delete restrict on update restrict;
 
+create index ix_hint_profile_hint on hint_profile (hint_id);
+alter table hint_profile add constraint fk_hint_profile_hint foreign key (hint_id) references hint (id) on delete restrict on update restrict;
+
+create index ix_hint_profile_profile on hint_profile (profile_id);
+alter table hint_profile add constraint fk_hint_profile_profile foreign key (profile_id) references profile (id) on delete restrict on update restrict;
+
 create index ix_nationality_profile_nationality on nationality_profile (nationality_id);
 alter table nationality_profile add constraint fk_nationality_profile_nationality foreign key (nationality_id) references nationality (id) on delete restrict on update restrict;
 
@@ -376,6 +388,12 @@ drop index if exists ix_hint_objective_id;
 alter table hint drop constraint if exists fk_hint_creator_id;
 drop index if exists ix_hint_creator_id;
 
+alter table hint_profile drop constraint if exists fk_hint_profile_hint;
+drop index ix_hint_profile_hint on hint_profile;
+
+alter table hint_profile drop constraint if exists fk_hint_profile_profile;
+drop index ix_hint_profile_profile on hint_profile;
+
 alter table nationality_profile drop constraint if exists fk_nationality_profile_nationality;
 drop index if exists ix_nationality_profile_nationality;
 
@@ -455,6 +473,8 @@ drop table if exists destination_proposed_traveller_type_add;
 drop table if exists destination_proposed_traveller_type_remove;
 
 drop table if exists hint;
+
+drop table if exists hint_profile;
 
 drop table if exists nationality;
 

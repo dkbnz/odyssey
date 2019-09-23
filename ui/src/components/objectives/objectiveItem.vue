@@ -41,11 +41,11 @@
                     <b-form>
                         <b-container fluid>
                             <p class="mb-1">Selected Destination:</p>
-                            <b-list-group @click="$emit('destination-select')">
+                            <b-list-group @click="editingActiveQuest ? '' : $emit('destination-select')">
                                 <b-list-group-item class="flex-column align-items-start" href="#"
                                                    v-if="destinationSelected"
                                                    id="selectedDestination"
-                                                   :disabled="destinationSelected === '{}'"
+                                                   :disabled="destinationSelected === '{}' || editingActiveQuest"
                                                    :variant="checkDestinationState">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5 class="mb-1" v-if="destinationSelected.name">
@@ -142,7 +142,8 @@
             },
             newDestination: Object,
             selectedDestination: {},
-            heading: String
+            heading: String,
+            editingActiveQuest: Boolean
         },
 
         data() {

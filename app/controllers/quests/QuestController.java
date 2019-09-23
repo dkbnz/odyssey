@@ -190,19 +190,20 @@ public class QuestController {
             return badRequest(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
+        Quest newQuest;
         try {
             // Attempt to turn Json body into a objective object.
-            quest = objectMapper.readerWithView(Views.Owner.class)
+            newQuest = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Quest.class)
                     .readValue(request.body().asJson());
         } catch (Exception e) {
             return badRequest(ApiError.invalidJson());
         }
 
-        quest.setOwner(questOwner);
-        quest.setId(questId);
+        newQuest.setOwner(questOwner);
+        newQuest.setId(questId);
 
-        for(Objective newObjective : quest.getObjectives()) {
+        for(Objective newObjective : newQuest.getObjectives()) {
             newObjective.setOwner(questOwner);
             if (newObjective.getDestination().getId() == null) {
                 return badRequest(ApiError.invalidJson());
@@ -210,16 +211,19 @@ public class QuestController {
             newObjective.setDestination(destinationRepository.findById(newObjective.getDestination().getId()));
         }
 
+        if (!canEditQuest(quest, newQuest)) {
+            return badRequest(ApiError.badRequest(Errors.QUEST_CANNOT_BE_EDITED));
+        }
 
-        Collection<ApiError> questEditErrors = quest.getErrors();
+        Collection<ApiError> questEditErrors = newQuest.getErrors();
 
         if (!questEditErrors.isEmpty()) {
             return badRequest(Json.toJson(questEditErrors));
         }
 
-        questRepository.update(quest);
+        questRepository.update(newQuest);
 
-        return ok(Json.toJson(quest));
+        return ok(Json.toJson(newQuest));
     }
 
 
@@ -261,6 +265,34 @@ public class QuestController {
          questRepository.delete(quest);
          profileRepository.update(questOwner);
          return ok(Json.toJson(QUEST_DELETED));
+    }
+
+
+    /**
+     * Determines if the user is able to edit the quest freely. This is determined by if the quest has been started by
+     * other users. If there are users that have started the quest, then they can't edit the objective destinations in
+     * the quest. Otherwise, they are free to edit.
+     *
+     * @param questToEdit    the quest to be edited, before it has been edited.
+     * @param editedQuest    the quest after it has been edited.
+     * @return               boolean true if they can edit the quest freely, false otherwise.
+     */
+    private boolean canEditQuest(Quest questToEdit, Quest editedQuest) {
+        List<Objective> questToEditObjectives = questToEdit.getObjectives();
+        List<Objective> editedQuestObjectives = editedQuest.getObjectives();
+        boolean canEditQuest = false;
+
+        List<Profile> activeUsers = profileRepository.findAllUsing(questToEdit);
+        for (int i = 0; i < questToEditObjectives.size(); i++) {
+            if (questToEditObjectives.get(i).getDestination().getId()
+                    .equals(editedQuestObjectives.get(i).getDestination().getId())
+                    || activeUsers.isEmpty()) {
+                canEditQuest = true;
+                break;
+            }
+        }
+
+        return canEditQuest;
     }
 
 
@@ -546,9 +578,8 @@ public class QuestController {
                 }
             }
             return allQuests;
-        } else {
-            return quests;
         }
+        return quests;
     }
 
 
