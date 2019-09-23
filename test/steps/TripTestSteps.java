@@ -10,7 +10,6 @@ import models.destinations.Destination;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.trips.TripRepository;
 import repositories.destinations.DestinationRepository;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,8 +35,10 @@ public class TripTestSteps {
     private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
 
 
+    /**
+     * Indicates the authorized parameter when sending a request.
+     */
     private static final String AUTHORIZED = "authorized";
-
 
 
     /**
@@ -46,24 +47,34 @@ public class TripTestSteps {
     private static final String TRIPS_URI = "/v1/trips/";
 
 
+    /**
+     * The trips count endpoint uri.
+     */
+    private static final String TRIPS_COUNT_URI = "/count";
+
 
     /**
-     * The field for the trip id.
+     * String to add the equals character (=) to build a query string.
      */
-    private static final String TRIP_ID_FIELD = "id";
+    private static final String EQUALS = "=";
 
 
     /**
-     * The field for the trip name.
+     * String to add the ampersand character (&) to build a query string.
      */
-    private static final String TRIP_NAME_FIELD = "name";
+    private static final String AND = "&";
+
+
+    /**
+     * String to add the question mark character (?) to build a query string.
+     */
+    private static final String QUESTION_MARK = "?";
 
 
     /**
      * The static Json variable keys for a trip.
      */
     private static final String NAME = "trip_name";
-    private static final String ID = "id";
     private static final String TRIP_DESTINATIONS = "trip_destinations";
     private static final String DESTINATION = "destination_id";
     private static final String START_DATE = "start_date";
@@ -77,35 +88,27 @@ public class TripTestSteps {
 
     private static final String NEW_TRIP_ID = "newTripId";
 
+    private static final String PAGE_FUTURE = "pageFuture";
+    private static final String PAGE_PAST = "pagePast";
+    private static final String PAGE_SIZE_FUTURE = "pageSizeFuture";
+    private static final String PAGE_SIZE_PAST = "pageSizePast";
+    private static final String DEFAULT_PAGE = "0";
+    private static final String DEFAULT_PAGE_SIZE = "50";
+
 
     private DestinationRepository destinationRepository =
             testContext.getApplication().injector().instanceOf(DestinationRepository.class);
-    private TripRepository tripRepository =
-            testContext.getApplication().injector().instanceOf(TripRepository.class);
 
-
+    /**
+     * Used to construct the trip and it's destinations when creating and editing trips.
+     */
     private ObjectNode tripJson;
     private List<ObjectNode> tripDestinations = new ArrayList<>();
 
+    /**
+     * The id of the newly created trip.
+     */
     private Long tripId;
-
-
-//    /**
-//     * Sends a request to create a trip with the given trip data.
-//     *
-//     * @param docString     the string containing the trip data.
-//     * @throws IOException  if the docString is formatted incorrectly.
-//     */
-//    @When("the following json containing a trip is sent:")
-//    public void theFollowingJsonContainingATripIsSent(String docString) throws IOException {
-//        Http.RequestBuilder request = fakeRequest()
-//                .method(POST)
-//                .session(AUTHORIZED, testContext.getLoggedInId())
-//                .bodyJson(convertTripStringToJson(docString))
-//                .uri(TRIPS_URI + testContext.getLoggedInId());
-//        Result result = route(testContext.getApplication(), request);
-//        testContext.setStatusCode(result.status());
-//    }
 
 
     /**
@@ -173,7 +176,7 @@ public class TripTestSteps {
                 .method(POST)
                 .session(AUTHORIZED, testContext.getLoggedInId())
                 .bodyJson(json)
-                .uri(TRIPS_URI + testContext.getLoggedInId());
+                .uri(TRIPS_URI + testContext.getTargetId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
         tripDestinations.clear();
@@ -209,153 +212,6 @@ public class TripTestSteps {
     }
 
 
-//    /**
-//     * Converts a string value of a trip to a Json format using an ObjectMapper.
-//     *
-//     * @param docString     the string value of the trip to be converted.
-//     * @return              the Json string of a trip.
-//     * @throws IOException  if an error happens in conversion.
-//     */
-//    private JsonNode convertTripStringToJson(String docString) throws IOException {
-//        ObjectMapper mapper = new ObjectMapper();
-//        return mapper.readTree(docString);
-//    }
-//
-//
-//    /**
-//     * Gets the trip name from a given data table.
-//     *
-//     * @param dataTable     the data table containing the trip name.
-//     * @return              a string of the trip name.
-//     */
-//    private String getTripNameFromDataTable(io.cucumber.datatable.DataTable dataTable) {
-//        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-//        return list.get(0).get("Name");
-//    }
-
-
-    @Given("the trip exists with the following values")
-    public void theTripExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        testContext.setTargetId(testContext.getLoggedInId());
-        iCreateANewTripWithTheFollowingValues(dataTable);
-    }
-
-
-    @Given("^the trip exists with the following values for user with id (.*)$")
-    public void theTripExistsWithTheFollowingValuesForAnotherUser(String userId, io.cucumber.datatable.DataTable dataTable) {
-        testContext.setTargetId(userId);
-        iCreateANewTripWithTheFollowingValues(dataTable);
-    }
-
-
-
-
-//    /**
-//     * Creates a new trip with the data given for another user.
-//     *
-//     * @param trip              the string containing the trip data.
-//     * @throws IOException      if the trip is formatted incorrectly.
-//     */
-//    @Given("I do not own the trip with the following data")
-//    public void iDoNotOwnTheTripWithTheFollowingName(String trip) throws IOException {
-//        String ownerId = "3";
-//        createTripGenericRequest(trip, ownerId);
-//    }
-
-
-//    /**
-//     * Creates a trip with the given data and for the given user.
-//     *
-//     * @param tripData          the data for the new trip to create.
-//     * @param ownerId           the id for the owner of the new trip.
-//     * @throws IOException      if the trip is formatted incorrectly.
-//     */
-//    private void createTripGenericRequest(String tripData, String ownerId) throws IOException {
-//        Http.RequestBuilder request = fakeRequest()
-//                .method(POST)
-//                .session(AUTHORIZED, ownerId)
-//                .bodyJson(convertTripStringToJson(tripData))
-//                .uri(TRIPS_URI + ownerId);
-//        route(testContext.getApplication(), request);
-//    }
-
-
-//    /**
-//     * Sends a request to delete the trip with the name specified in the data table.
-//     *
-//     * @param dataTable     the data table containing the trip name to delete.
-//     */
-//    @When("I delete the trip with the following name")
-//    public void iDeleteTheTripWithTheFollowingName(io.cucumber.datatable.DataTable dataTable) {
-//        String tripName = getTripNameFromDataTable(dataTable);
-//        Integer tripId = getTripIdFromTripName(tripName).intValue();
-//        deleteTripRequest(tripId);
-//    }
-
-
-    @When("I create a new trip with the following values")
-    public void iCreateANewTripWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            convertDataTableTripJson(dataTable, i);
-        }
-    }
-
-
-    @When("the trip has a destination with the following values")
-    public void theTripHasADestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            convertDataTableToTripDestinationJson(dataTable, i);
-            tripJson.putArray(TRIP_DESTINATIONS).addAll(tripDestinations);
-        }
-    }
-
-    @When("I create the trip")
-    public void ICreateTheTrip() {
-        try {
-            createTripRequest(tripJson);
-        } catch (IOException e) {
-            fail();
-        }
-    }
-
-    @When("the trip exists")
-    public void theTripExists() {
-        try {
-            createGenericTripRequest(tripJson);
-        } catch (IOException e) {
-            fail();
-        }
-    }
-
-
-//    /**
-//     * Gets the trip id for the trip with the given name.
-//     *
-//     * @param tripName  the name of the trip to get the id for.
-//     * @return          the id of the trip.
-//     */
-//    private Long getTripIdFromTripName(String tripName) {
-//        return tripRepository
-//                .getExpressionList()
-//                .select(TRIP_ID_FIELD)
-//                .where().eq(TRIP_NAME_FIELD, tripName)
-//                .findSingleAttribute();
-//    }
-
-    /**
-     * Sends a delete trip request for a given trip id. The session is set to the currently logged in user.
-     */
-    @When("I delete the trip")
-    public void whenIDeleteTheTrip() {
-        Http.RequestBuilder request = fakeRequest()
-                .method(DELETE)
-                .session(AUTHORIZED, testContext.getLoggedInId())
-                .uri(TRIPS_URI + tripId.toString());
-        Result result = route(testContext.getApplication(), request);
-        testContext.setStatusCode(result.status());
-    }
-
-
     /**
      * Sends an edit trip request for a given trip id. The session is set to the currently logged in user.
      *
@@ -372,6 +228,111 @@ public class TripTestSteps {
     }
 
 
+    /**
+     * Sends a request for the trips for a given user. The session is set to the currently logged in user.
+     */
+    private void requestTrips() {
+        String queryString =
+                QUESTION_MARK + PAGE_FUTURE + EQUALS + DEFAULT_PAGE
+                + AND + PAGE_SIZE_FUTURE + EQUALS + DEFAULT_PAGE_SIZE
+                + AND + PAGE_PAST + EQUALS + DEFAULT_PAGE
+                + AND + PAGE_SIZE_PAST + EQUALS + DEFAULT_PAGE_SIZE;
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(TRIPS_URI + testContext.getTargetId() + queryString);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+    }
+
+
+    /**
+     * Sends to retrieve the total number of trips a given user has.
+     */
+    private void requestTripCount() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(TRIPS_URI + testContext.getTargetId() + TRIPS_COUNT_URI);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+    }
+
+
+    @Given("the trip exists with the following values")
+    public void theTripExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        testContext.setTargetId(testContext.getLoggedInId());
+        iCreateANewTripWithTheFollowingValues(dataTable);
+    }
+
+
+    @Given("^the trip exists with the following values for user with id (.*)$")
+    public void theTripExistsWithTheFollowingValuesForUserWithId(String userId, io.cucumber.datatable.DataTable dataTable) {
+        testContext.setTargetId(userId);
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            convertDataTableTripJson(dataTable, i);
+        }
+    }
+
+
+    @Given("^I create the trip with the following values for user with id (.*)$")
+    public void iCreateTheTripWithTheFollowingValuesForUserWithId(String userId, io.cucumber.datatable.DataTable dataTable) {
+        testContext.setTargetId(userId);
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            convertDataTableTripJson(dataTable, i);
+        }
+    }
+
+
+    @When("I create a new trip with the following values")
+    public void iCreateANewTripWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        testContext.setTargetId(testContext.getLoggedInId());
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            convertDataTableTripJson(dataTable, i);
+        }
+    }
+
+
+    @When("the trip has a destination with the following values")
+    public void theTripHasADestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
+        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+            convertDataTableToTripDestinationJson(dataTable, i);
+            tripJson.putArray(TRIP_DESTINATIONS).addAll(tripDestinations);
+        }
+    }
+
+
+    @When("I create the trip")
+    public void ICreateTheTrip() {
+        try {
+            createTripRequest(tripJson);
+        } catch (IOException e) {
+            fail();
+        }
+    }
+
+
+    @When("the trip exists")
+    public void theTripExists() {
+        try {
+            createGenericTripRequest(tripJson);
+        } catch (IOException e) {
+            fail();
+        }
+    }
+
+
+    @When("I delete the trip")
+    public void whenIDeleteTheTrip() {
+        Http.RequestBuilder request = fakeRequest()
+                .method(DELETE)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(TRIPS_URI + tripId.toString());
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+    }
+
+
     @When("I change the trip to the following trip")
     public void iChangeTheTripToTheFollowingTrip(io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(testContext.getLoggedInId());
@@ -382,6 +343,20 @@ public class TripTestSteps {
     @When("I update the trip")
     public void iUpdateTheTrip() {
         editTripRequest(tripJson);
+    }
+
+
+    @When("^I request all trips for user with id (.*)$")
+    public void requestAllTripsForUserWithId(String requestedUserId) {
+        testContext.setTargetId(requestedUserId);
+        requestTrips();
+    }
+
+
+    @When("^I request the number of trips for user with id (.*)$")
+    public void requestTheNumberOfTripsForUserWithId(String requestedUserId) {
+        testContext.setTargetId(requestedUserId);
+        requestTripCount();
     }
 
 

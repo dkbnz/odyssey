@@ -142,8 +142,6 @@ public class AchievementTrackerTestSteps {
      * The static Json variable keys for a trip.
      */
     private static final String NAME = "trip_name";
-    private static final String ID = "id";
-    private static final String TRIP_DESTINATIONS = "trip_destinations";
     private static final String DESTINATION = "destination_id";
     private static final String START_DATE = "start_date";
     private static final String END_DATE = "end_date";
@@ -532,24 +530,6 @@ public class AchievementTrackerTestSteps {
     }
 
 
-    @When("I create a new trip with the following values")
-    public void iCreateANewTripWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        testContext.setTargetId(testContext.getLoggedInId());
-        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            convertDataTableTripJson(dataTable, i);
-        }
-    }
-
-
-    @When("the trip has a destination with the following values")
-    public void theTripHasADestinationWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
-            convertDataTableToObjectiveJson(dataTable, i);
-            tripJson.putArray(TRIP_DESTINATIONS).addAll(tripDestinations);
-        }
-    }
-
-
     @When("I request to retrieve all badges")
     public void iRequestToRetrieveAllBadges() {
         Http.RequestBuilder request = fakeRequest()
@@ -559,12 +539,6 @@ public class AchievementTrackerTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
-    }
-
-
-    @When("I create the trip")
-    public void ICreateTheTrip() {
-        createTripRequest(tripJson);
     }
 
 
