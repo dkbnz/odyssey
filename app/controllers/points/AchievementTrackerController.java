@@ -582,4 +582,21 @@ public class AchievementTrackerController extends Controller {
         cal.add(Calendar.DATE, INCREMENT_ONE);
         return cal.getTime();
     }
+
+
+    /**
+     * Removes or awards points for a hint creator depending on if a upvoted has been added or removed.
+     *
+     * @param hint          the hint that has been upvoted.
+     * @param upvoteAdded   boolean value to dictate if a upvote has been added or removed.
+     */
+    public void handleHintUpvote(Hint hint, boolean upvoteAdded) {
+        Profile hintCreator = hint.getCreator();
+        Action action = upvoteAdded ? Action.HINT_UPVOTED : Action.HINT_UPVOTE_REMOVED;
+
+        PointReward pointReward = givePoints(hintCreator, action);
+        if(pointReward != null) {
+            progressBadge(hintCreator, Action.POINTS_GAINED, pointReward.getValue());
+        }
+    }
 }

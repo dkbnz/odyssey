@@ -141,7 +141,7 @@ def generateUsers(userDict):
     profile_file = open(OUTPUT_DIR + 'profile.sql', 'w')
     achievement_tracker_file = open(OUTPUT_DIR + 'achievement_tracker.sql', 'w')
     profile_file.write('SET FOREIGN_KEY_CHECKS = 0; INSERT INTO `profile` (`id`, `username`, `password`, `first_name`, `middle_name`, `last_name`, `gender`, `date_of_birth`, `date_of_creation`, `is_admin`, `profile_picture_id`) VALUES ');
-    achievement_tracker_file.write('SET FOREIGN_KEY_CHECKS = 0; INSERT INTO `profile` (`id`, `username`, `password`, `first_name`, `middle_name`, `last_name`, `gender`, `date_of_birth`, `date_of_creation`, `is_admin`, `profile_picture_id`) VALUES ');
+    achievement_tracker_file.write('SET FOREIGN_KEY_CHECKS = 0; INSERT INTO `achievement_tracker` (`id`, `points`, `owner_id`, `current_streak`) VALUES ');
 
     for i, user in enumerate(userDict):
         id = i + ID_OFFSET
@@ -156,16 +156,22 @@ def generateUsers(userDict):
         registered = registered.replace('T', ' ')
         registered = registered.replace('Z', '.579000')
 
+        points = random.randint(0, 500)
+        streak = random.randint(0, 50)
+
         user_sql = f"({id}, '{username}', '{password}', '{firstname}', '', '{lastname}', '{gender}', '{dob}', '{registered}', 0, {id}), "
-        achievement_tracker_sql = f"({id}, '{username}', '{password}', '{firstname}', '', '{lastname}', '{gender}', '{dob}', '{registered}', 0, {id}), "
+        achievement_tracker_sql = f"({id}, '{points}', '{id}', '{streak}'), "
 
         profile_file.write(user_sql)
-        achievement_tracker_file.write(user_sql)
+        achievement_tracker_file.write(achievement_tracker_sql)
 
     profile_file.seek(profile_file.tell() - 2, os.SEEK_SET)
-
     profile_file.write('; SET FOREIGN_KEY_CHECKS = 1;');
     profile_file.close();
+
+    achievement_tracker_file.seek(achievement_tracker_file.tell() - 2, os.SEEK_SET)
+    achievement_tracker_file.write('; SET FOREIGN_KEY_CHECKS = 1;');
+    achievement_tracker_file.close();
 
     print("Done.")
 
