@@ -162,7 +162,7 @@
                                     :heading="'Add'"
                                     @addObjective="addObjective"
                                     @cancelCreate="cancelObjectiveCreate"
-                                    @destination-select="$emit('destination-select')"
+                                    @destination-select="$emit('OBJ-side-bar', true)"
                                     :selectedDestination="destinationSelected">
                             </add-objective>
                         </b-card>
@@ -175,10 +175,11 @@
                                     :inputObjective="objectiveSelected"
                                     :profile="profile"
                                     :heading="'Edit'"
+                                    :editing-active-quest="activeUsers > 0"
                                     @addObjective="addObjective"
                                     @editObjective="objectiveEdited"
                                     @cancelCreate="cancelObjectiveCreate"
-                                    @destination-select="$emit('destination-select')"
+                                    @destination-select="$emit('OBJ-side-bar', true)"
                                     :selectedDestination="destinationSelected">
                             </add-objective>
                         </b-card>
