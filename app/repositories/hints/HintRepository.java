@@ -46,6 +46,8 @@ public class HintRepository extends BeanRepository<Long, Hint> {
                 .where()
                 .eq(PROFILES_SEEN, hintUser)
                 .eq(OBJECTIVE, objective)
+                .orderBy()
+                    .asc(NET_VOTES)
                 .setDistinct(true)
                 .findList();
     }

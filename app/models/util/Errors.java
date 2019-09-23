@@ -34,7 +34,6 @@ public enum Errors {
     VOTE_ALREADY_EXISTS("You already have voted on this hint."),
     HINT_OBJECTIVE_SOLVED("You cannot request a hint for an objective you have already solved."),
     HINT_OBJECTIVE_OWNER("You cannot request a hint for an objective you own."),
-    NO_HINT_AVAILABLE("No more hints!"),
     QUEST_CANNOT_BE_EDITED("You cannot edit this part of the quest as it has been started");
 
 
