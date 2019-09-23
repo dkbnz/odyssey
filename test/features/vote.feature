@@ -1,4 +1,4 @@
-Feature: Voting on hints
+Feature: Voting API Endpoint
 
   # Unsuccessful cases for upvoting
   Scenario: Upvoting a hint that does not exist
@@ -48,10 +48,8 @@ Feature: Voting on hints
     And the hint with id 3 has 45 upvotes
     And I have already upvoted the hint with id 3
     When I attempt to upvote a hint with id 3 for user with id 7
-    Then the status code received is 400
-    And the following ApiErrors are returned
-      | You already have voted on this hint. |
-    And the hint with id 3 has 45 upvotes
+    Then the status code received is 200
+    And the hint with id 3 has 44 upvotes
 
 
   # Successful cases for upvoting
@@ -116,10 +114,8 @@ Feature: Voting on hints
     And the hint with id 2 has 10 downvotes
     And I have already downvoted the hint with id 2
     When I attempt to downvote a hint with id 2 for user with id 9
-    Then the status code received is 400
-    And the following ApiErrors are returned
-      | You already have voted on this hint. |
-    And the hint with id 2 has 10 downvotes
+    Then the status code received is 200
+    And the hint with id 2 has 9 downvotes
 
 
   # Successful cases for downvoting
