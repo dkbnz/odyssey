@@ -165,6 +165,7 @@ public class AchievementTrackerTestSteps {
     private static final String BRONZE_TEST_USER_FIRST_NAME = "bronzeTest";
     private static final int FIRST_LEVEL_BADGE = 1;
     private static final String CLIENT_DATE_FIELD = "clientDate";
+    private static final String CLIENT_DATE_OFFSET = "dateOffset";
     private static final Integer DAY_IN_MS = 86400000;
     private static final String REG_AUTH_PASS = "guest123";
 
@@ -459,11 +460,12 @@ public class AchievementTrackerTestSteps {
     public void theUserWithIdUpdatesTheirLastSeenToToday(String userId) {
         ObjectNode json = mapper.createObjectNode();
 
-        SimpleDateFormat formatNew = new SimpleDateFormat("yyyy-MM-dd");
 
-        String daysAgoDateString = (formatNew.format(new Date()));
+        String daysAgoDateString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                .format(new Date());
 
         json.put(CLIENT_DATE_FIELD, daysAgoDateString);
+        json.put(CLIENT_DATE_OFFSET, 0);
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
@@ -494,11 +496,11 @@ public class AchievementTrackerTestSteps {
             testContext.setLoggedInId(foundProfile.getId().toString());
             ObjectNode json = mapper.createObjectNode();
 
-            SimpleDateFormat formatNew = new SimpleDateFormat("yyyy-MM-dd");
-
-            String daysAgoDateString = (formatNew.format(new Date()));
+            String daysAgoDateString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                    .format(new Date());
 
             json.put(CLIENT_DATE_FIELD, daysAgoDateString);
+            json.put(CLIENT_DATE_OFFSET, 0);
 
             Http.RequestBuilder request = fakeRequest()
                     .method(POST)
