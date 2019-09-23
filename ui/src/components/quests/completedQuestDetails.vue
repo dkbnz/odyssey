@@ -1,5 +1,5 @@
 <template>
-    <b-list-group v-if="!showHintSideBar">
+    <b-list-group v-if="show === 'Objectives'">
         <h3>{{quest.title}}</h3>
         <b-list-group-item v-for="objective in quest.objectives"
                            class="flex-column align-items-start"
@@ -7,10 +7,10 @@
             <div class="d-flex justify-content-between align-items-center">
                 <p class="mb-1 mobile-text font-weight-bold">{{objective.riddle}}</p>
                 <b-button size="sm"
-                          @click="addHint(objective)"
+                          @click="showHints(objective)"
                           variant="primary"
                           class="no-wrap-text">
-                    Add Hint
+                    Show Hints
                 </b-button>
             </div>
             <p class="mb-1 mobile-text">
@@ -20,46 +20,81 @@
         </b-list-group-item>
 
     </b-list-group>
-    <create-hint v-else
+
+    <div v-else-if="show === 'Hints'">
+        <b-button size="sm"
+                  @click="show = 'Objectives'"
+                  class="no-wrap-text">
+            Back
+        </b-button>
+        <p class="mb-1 mobile-text font-weight-bold">{{objective.riddle}}</p>
+        <p class="mb-1 mobile-text">
+            {{objective.destination.name}}
+        </p>
+        <list-hints
+                    :objective="objective"
+                    :profile="profile"
+                    :hints="objective.hints"
+                    :solved="true"
+                    @showAddHint="showAddHint()">
+        </list-hints>
+    </div>
+
+    <create-hint v-else-if="show === 'Create Hint'"
                 :profile="profile"
                 :objective="objective"
                  @successCreate="successCreateHint"
-                 @cancelCreate="showHintSideBar = false">
+                 @cancelCreate="show = 'Hints'">
     </create-hint>
 </template>
 
 <script>
     import CreateHint from "../hints/createHint"
+    import ListHints from "../hints/listHints";
 
     export default {
         name: "completedQuestDetails",
-        components: {CreateHint},
+        components: {ListHints, CreateHint},
         props: {
             quest: Object,
-            profile: Object,
-            showHintSideBar: false
+            profile: Object
         },
 
         data() {
             return {
-                objective: Object
+                objective: Object,
+                show: "Objectives"
+            }
+        },
+
+        watch: {
+            quest() {
+                this.show = "Objectives";
             }
         },
 
         methods: {
             /**
-             * Sends the emit to the quest list to view the add hint side bar
+             * Shows the hints for the given
              */
-            addHint(objective) {
-                this.showHintSideBar = true;
+            showHints(objective) {
+                this.show = "Hints";
                 this.objective = objective;
+            },
+
+
+            showAddHint() {
+                this.show = "Create Hint";
             },
 
 
             /**
              * Successfully created the hint and display the success message to the user.
              */
-            successCreateHint() {
+            successCreateHint(responseBody) {
+                this.showRewardToast(responseBody.reward);
+                this.show = "Hints";
+                this.objective.hints.push(responseBody.newHint);
                 this.$emit("successCreate");
             }
         }
