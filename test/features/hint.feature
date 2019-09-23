@@ -182,6 +182,7 @@ Feature: Hint API Endpoint
     And the following ApiErrors are returned
       | You are not logged in. |
 
+
   Scenario: Successfully retrieving a single hint for an objective
     Given the application is running
     And I am logged in
@@ -194,3 +195,18 @@ Feature: Hint API Endpoint
     When I requests a new hint for objective with id 18
     Then the status code received is 200
     And I receive a hint with id 4
+
+
+  Scenario: Successfully requesting two hints for an objective
+    Given the application is running
+    And I am logged in
+    And an objective exists with id 18
+    And I do not own the objective with id 18
+    And I have not solved the objective with id 18
+    And a hint with id 4 exists for objective with id 18
+    And a hint with id 5 exists for objective with id 18
+    And a hint with id 6 exists for objective with id 18
+    When I requests a new hint for objective with id 18
+    When I requests a new hint for objective with id 18
+    Then the status code received is 200
+    And I receive a hint with id 5

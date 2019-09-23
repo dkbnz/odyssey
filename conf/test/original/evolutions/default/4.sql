@@ -264,4 +264,11 @@ INSERT INTO `vote` (`id`, `voter_id`, `target_hint_id`, `is_up_vote`) VALUES
 (1, 9, 2, false),
 (2, 7, 3, true);
 
+INSERT INTO `hint_profile` (`hint_id`, `profile_id`) VALUES
+(2, 2),
+(2, 3),
+(4, 8),
+(4, 7),
+(3, 3);
+
 # --- !Downs
