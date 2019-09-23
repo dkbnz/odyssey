@@ -50,6 +50,7 @@ public class HintTestSteps {
      */
     private static final String HINTS_URI = "/hints";
     private static final String NEW_HINT_URI = "/new";
+    private static final String SEEN_HINTS_URI = "/seen";
 
 
     private static final String MESSAGE_STRING = "Message";
@@ -108,9 +109,9 @@ public class HintTestSteps {
 
 
     /**
-     * Sends a request to retrieve all hints for an objective with the Id specified.
+     * Sends a request to retrieve all hints for an objective with the id specified.
      *
-     * @param objectiveId the Id of of the objective that is having its hints retrieved.
+     * @param objectiveId       the id of of the objective that is having its hints retrieved.
      */
     private void fetchAllHintsRequest(int objectiveId) {
         Http.RequestBuilder request = fakeRequest()
@@ -123,6 +124,28 @@ public class HintTestSteps {
     }
 
 
+    /**
+     * Sends a request to retrieve all hints seen by the target user for an objective with the given id.
+     *
+     * @param objectiveId       the id of of the objective that is having its hints retrieved.
+     */
+    private void fetchSeenHintRequest(int objectiveId) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI + "/" + testContext.getTargetId() + SEEN_HINTS_URI);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    /**
+     * Sends a request to retrieve one new hint for target user for an objective with the given id.
+     * This hint has not been previously seen by the user.
+     *
+     * @param objectiveId       the id of of the objective that the retrieved hint is for.
+     */
     private void fetchNewHintRequest(int objectiveId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
@@ -189,6 +212,7 @@ public class HintTestSteps {
         fetchAllHintsRequest(objectiveId);
     }
 
+
     @When("^I requests a new hint for objective with id (\\d+)$")
     public void iRequestsANewHintForObjectiveWithId(Integer objectiveId) {
         testContext.setTargetId(testContext.getLoggedInId());
@@ -196,10 +220,25 @@ public class HintTestSteps {
     }
 
 
+    @When("^I request all the hints for user (\\d+) that I have seen for objective with id (\\d+)$")
+    public void iRequestAllTheHintsForUserThatIHaveSeenForObjectiveWithId(Integer userId, Integer objectiveId) {
+        testContext.setTargetId(userId.toString());
+        fetchSeenHintRequest(objectiveId);
+    }
+
+
+    @When("^I request all the hints that I have seen for objective with id (\\d+)$")
+    public void iRequestAllTheHintsThatIHaveSeenForObjectiveWithId(Integer objectiveId) {
+        testContext.setTargetId(testContext.getLoggedInId());
+        fetchSeenHintRequest(objectiveId);
+    }
+
+
     @Then("^the response contains (\\d+) hints$")
     public void theResponseContainsHints(Integer expectedNumberOfHints) {
         assert (expectedNumberOfHints == testContext.getResponseBody().length());
     }
+
 
     @Then("^I receive a hint with id (\\d+)$")
     public void iReceiveAHintWithId(Integer expectedHintId) throws IOException {

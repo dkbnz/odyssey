@@ -255,9 +255,9 @@ INSERT INTO `hint` (`id`, `message`, `up_votes`, `down_votes`, `objective_id`, `
 (1, 'This is a hint', 10, 3, 18, 7),
 (2, 'This is also a hint', 4, 10, 24, 7),
 (3, 'Think about the first word carefully', 45, 38, 31, 8),
-(4, 'The most up-voted hint', 100, 1, 18, 1),
-(5, 'The second most up-voted hint', 99, 1, 18, 1),
-(6, 'The second-equal up-voted hint', 100, 2, 18, 1);
+(4, 'The most up-voted hint', 100, 1, 18, 7),
+(5, 'The second most up-voted hint', 99, 1, 18, 7),
+(6, 'The second-equal up-voted hint', 100, 2, 18, 7);
 
 
 INSERT INTO `vote` (`id`, `voter_id`, `target_hint_id`, `is_up_vote`) VALUES
