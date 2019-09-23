@@ -35,6 +35,8 @@ public class HintController {
      */
     private static final String NEW_HINT = "newHint";
     private static final String REWARD = "reward";
+    private static final String MESSAGE = "message";
+    private static final String NO_HINT_MESSAGE = "No hints available.";
 
     @Inject
     public HintController(ProfileRepository profileRepository,
@@ -197,7 +199,9 @@ public class HintController {
         Hint newHint = hintRepository.findAHint(targetObjective, hintUser);
 
         if (newHint == null) {
-            return notFound(ApiError.notFound(Errors.NO_HINT_AVAILABLE));
+            ObjectNode returnJson = objectMapper.createObjectNode();
+            returnJson.put(MESSAGE, NO_HINT_MESSAGE);
+            return ok(returnJson);
         }
 
         return ok(Json.toJson(newHint));
