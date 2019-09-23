@@ -435,7 +435,7 @@
              * Gathers trip dates into an array, regardless of whether they are start/end date.
              *
              * @param destinations  the destinations of the trip that is going to be used to display the trip dates.
-             * @return {Array}      the dates of the first and last destination in the trip.
+             * @returns {Array}      the dates of the first and last destination in the trip.
              */
             calculateTripDates(destinations) {
                 let tripDates = [];

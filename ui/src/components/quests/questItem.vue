@@ -395,7 +395,7 @@
              * For new quest, checks the start date is after the current date.
              * For all other quests, checks the start date is either the same as or before the end date.
              *
-             * @return {boolean} true if start date is valid, or a null if entry length isn't big enough.
+             * @returns {boolean} true if start date is valid, or a null if entry length isn't big enough.
              */
             validateStartDate() {
                 // For a new hunt, the start date must be after today.
@@ -416,7 +416,7 @@
              * Checks that the start time is not after or the same as the end time if the dates are the same,
              * and that the start time is not before the current time if the current date is today.
              *
-             * @return {boolean} true if start time is valid, null if entry length isn't big enough.
+             * @returns {boolean} true if start time is valid, null if entry length isn't big enough.
              */
             validateStartTime() {
                 // For new quests, check the start time is after the current time.
@@ -441,7 +441,7 @@
             /**
              * Checks that the end time is not before or the same as the start time if the dates are the same.
              *
-             * @return {boolean} true if end time is valid.
+             * @returns {boolean} true if end time is valid.
              */
             validateEndTime() {
                 if (this.inputQuest.startDate === this.inputQuest.endDate) {
@@ -457,7 +457,7 @@
              * For new quests, checks the end date is after the current date.
              * For all other quests, checks the end date is either the same as or after the start date.
              *
-             * @return {boolean} true if end date is valid.
+             * @returns {boolean} true if end date is valid.
              */
             validateEndDate() {
                 // For a new quests, the end date must be after today.
@@ -475,7 +475,7 @@
             /**
              * Returns true if the inputted title has length greater than 0.
              *
-             * @return {Boolean} true if validated.
+             * @returns {Boolean} true if validated.
              */
             validateTitle() {
                 if (this.inputQuest.title.length > 0) {
@@ -490,7 +490,7 @@
             /**
              * Used to validate that there are enough objectives in the quest.
              *
-             * @return {Boolean} true if validated.
+             * @returns {Boolean} true if validated.
              */
             validateObjectives() {
                 if (this.inputQuest.objectives.length > 0) {
@@ -502,7 +502,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @return {number}    the number of rows required in the table based on number of objectives to be
+             * @returns {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
             rows() {
@@ -533,7 +533,7 @@
             /**
              * Gets the current date+time as a Date object.
              *
-             * @return Current Datetime.
+             * @returns Current Datetime.
              */
             getCurrentDate() {
                 return new Date();
@@ -555,7 +555,7 @@
             /**
              * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day.
              *
-             * @return Current Date in YYYY-MM-DD String Format.
+             * @returns Current Date in YYYY-MM-DD String Format.
              */
             getDateString() {
                 let today = this.getCurrentDate();
@@ -570,7 +570,7 @@
             /**
              * Gets the current time as a string in HH:MM format, including padding O's.
              *
-             * @return Current Time in HH:MM String Format.
+             * @returns Current Time in HH:MM String Format.
              */
             getTimeString() {
                 let today = this.getCurrentDate();

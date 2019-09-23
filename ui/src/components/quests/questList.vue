@@ -504,7 +504,7 @@
             /**
              * Creates a new quest attempt for the selected quest and current user.
              *
-             * @return {Promise<Response | never>}
+             * @returns {Promise<Response | never>}
              */
             createAttempt(questToAttempt, viewActive) {
                 let self = this;
@@ -812,7 +812,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @return {number}    the number of rows required in the table based on number of objectives to be
+             * @returns {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
             rows(quest) {
