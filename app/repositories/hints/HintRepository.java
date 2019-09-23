@@ -35,6 +35,23 @@ public class HintRepository extends BeanRepository<Long, Hint> {
 
 
     /**
+     * Retrieves all distinct hints that a profile has seen for a given objective.
+     *
+     * @param objective     the objective that the hint is for.
+     * @param hintUser      the user that is requesting the hints.
+     * @return              a list of hint ids that the user has seen.
+     */
+    public List<Hint> findSeenHints(Objective objective, Profile hintUser) {
+        return query()
+                .where()
+                .eq(PROFILES_SEEN, hintUser)
+                .eq(OBJECTIVE, objective)
+                .setDistinct(true)
+                .findList();
+    }
+
+
+    /**
      * Retrieves ids of all distinct hints that a profile has seen for a given objective.
      *
      * @param objective     the objective that the hint is for.

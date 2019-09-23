@@ -20,9 +20,6 @@ import util.Views;
 
 import javax.inject.Inject;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static play.mvc.Results.*;
 
 public class HintController {
@@ -52,13 +49,19 @@ public class HintController {
         this.objectMapper = objectMapper;
     }
 
+
     /**
      * Creates a new hint for an objective in a quest.
      *
-     * @param request     the Http request containing a Json body of the new hint.
-     * @param objectiveId the Id of the objective the hint will be created for.
-     * @param userId      the Id of the user who will own the hint created.
-     * @return
+     * @param request           the Http request containing a Json body of the new hint.
+     * @param objectiveId       the id of the objective the hint will be created for.
+     * @param userId            the id of the user who will own the hint created.
+     * @return                  created() (Http 201) response containing the newly created hint.
+     *                          badRequest() (Http 400) response if there is an issue creating a hint from the given
+     *                          Json body or when converting to Json for the response.
+     *                          unauthorized() (Http 401) response if the user is not logged into the system.
+     *                          forbidden() (Http 403) response if the user is the owner or has not solved the objective.
+     *                          notFound() (Http 404) response if the objective or the profile does not exist.
      */
     public Result create(Http.Request request, Long objectiveId, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -114,12 +117,12 @@ public class HintController {
      * Retrieves all the hints for a given objective.
      *
      * @param request           the Http request containing login information.
-     * @param objectiveId       the Id of the objective having its hints retrieved.
+     * @param objectiveId       the id of the objective having its hints retrieved.
      * @return                  ok() (Http 200) response containing retrieved hints.
-     *                          notFound() (Http 404) response if the objective doesn't exist.
-     *                          forbidden() (Http 403) response if the user is not allowed to retrieve.
      *                          badRequest() (Http 400) response if there is an issue converting to Json.
      *                          unauthorized() (Http 401) response if the user is not logged into the system.
+     *                          forbidden() (Http 403) response if the user is not allowed to retrieve.
+     *                          notFound() (Http 404) response if the objective doesn't exist.
      */
     public Result fetchAll(Http.Request request, Long objectiveId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -153,6 +156,20 @@ public class HintController {
         return ok(result);
     }
 
+
+    /**
+     * Retrieves a new, unseen hint for a given objective for the user.
+     *
+     * @param request           the Http request containing login information.
+     * @param objectiveId       the id of the objective that the hint is for.
+     * @param userId            the user that is requesting the hint.
+     * @return                  ok() (Http 200) response containing retrieved hint.
+     *                          badRequest() (Http 400) response if there is an issue converting to Json.
+     *                          unauthorized() (Http 401) response if the user is not logged into the system.
+     *                          forbidden() (Http 403) response if the user is the owner or has not solved the objective.
+     *                          notFound() (Http 404) response if the objective or profile doesn't exist, or no hint is
+     *                          found for the objective.
+     */
     public Result fetchNew(Http.Request request, Long objectiveId, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
@@ -184,5 +201,36 @@ public class HintController {
         }
 
         return ok(Json.toJson(newHint));
+    }
+
+
+    /**
+     * Retrieves all hints for a given objective that the user has seen.
+     *
+     * @param request           the Http request containing login information.
+     * @param objectiveId       the id of the objective that the hints are for.
+     * @param userId            the user that is requesting the hints.
+     * @return                  ok() (Http 200) response containing retrieved hints.
+     *                          badRequest() (Http 400) response if there is an issue converting to Json.
+     *                          unauthorized() (Http 401) response if the user is not logged into the system.
+     *                          notFound() (Http 404) response if the objective or profile doesn't exist.
+     */
+    public Result fetchSeen(Http.Request request, Long objectiveId, Long userId) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        Objective targetObjective = objectiveRepository.findById(objectiveId);
+        if (targetObjective == null) {
+            return notFound(ApiError.notFound(Errors.OBJECTIVE_NOT_FOUND));
+        }
+
+        Profile hintUser = profileRepository.findById(userId);
+        if (hintUser == null) {
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
+        }
+
+        return ok(Json.toJson(hintRepository.findSeenHints(targetObjective, hintUser)));
     }
 }
