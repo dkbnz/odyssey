@@ -105,7 +105,7 @@ Vue.mixin({
 
             this.$bvToast.toast([toastContent], {
                 title: "Congratulations!",
-                autoHideDelay: 5000,
+                autoHideDelay: 40000,
                 appendToast: true,
                 solid: true,
                 variant: 'success'
@@ -212,7 +212,6 @@ Vue.mixin({
                     return response.json();
                 }
             }).then(function (responseBody) {
-                console.log(responseBody);
                 if (responseBody.hasOwnProperty("currentStreak")) {
                     self.showStreakToast(responseBody.currentStreak);
                 }
@@ -261,8 +260,10 @@ new Vue({
     components: { App }
 });
 
+/* Pages that are not to be displayed on mobile. */
 let restrictedPages = ['/destinations','/admin', '/trips'];
 
+/* If the user is viewing a page on mobile that is restricted, redirect them to the profile page. */
 router.beforeEach((to, from, next) => {
     if (restrictedPages.includes(to.path) && viewingOnMobile()) {
         router.push(from.path);
