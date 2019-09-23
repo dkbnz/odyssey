@@ -198,12 +198,13 @@ Vue.mixin({
          */
         setLastSeenDate() {
             let date = new Date();
+            let offset = new Date().getTimezoneOffset();
             let self = this;
             fetch('/v1/achievementTracker/updateLastSeen', {
                 method: 'POST',
                 headers: {'content-type': 'application/json'},
                 accept: 'application/json',
-                body: JSON.stringify({clientDate: date})
+                body: JSON.stringify({clientDate: date, dateOffset: offset})
             }).then(function (response) {
                 if (!response.ok) {
                     throw response;
@@ -211,6 +212,7 @@ Vue.mixin({
                     return response.json();
                 }
             }).then(function (responseBody) {
+                console.log(responseBody);
                 if (responseBody.hasOwnProperty("currentStreak")) {
                     self.showStreakToast(responseBody.currentStreak);
                 }

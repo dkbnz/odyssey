@@ -28,6 +28,7 @@ import util.AuthenticationUtil;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
 import java.util.*;
 
 public class AchievementTrackerController extends Controller {
@@ -37,6 +38,7 @@ public class AchievementTrackerController extends Controller {
     private static final Integer STARTING_STREAK_NUMBER = 1;
     private static final Integer LOST_STREAK = 1;
     private static final String CLIENT_DATE_FIELD = "clientDate";
+    private static final String CLIENT_DATE_OFFSET = "dateOffset";
     private static final String CURRENT_STREAK = "currentStreak";
     private static final String REWARD = "reward";
 
@@ -44,6 +46,8 @@ public class AchievementTrackerController extends Controller {
     private static final int INCREMENT_ONE = 1;
     private static final int ADVENTURER_THRESHOLD = 10;
     private static final int RADIUS_OF_THE_EARTH = 6371;
+    private static final int SECONDS_IN_MINUTES = 60;
+    private static final int MILLISECONDS_IN_SECONDS = 1000;
 
 
     private ProfileRepository profileRepository;
@@ -460,14 +464,16 @@ public class AchievementTrackerController extends Controller {
 
             // Check if a body was given and has required fields
             if (lastSeenJson == null ||
-                    (!lastSeenJson.has(CLIENT_DATE_FIELD))) {
+                    (!lastSeenJson.has(CLIENT_DATE_FIELD) ||
+                            (!lastSeenJson.has(CLIENT_DATE_OFFSET)))) {
                 // If JSON Object contains no time or time offset key, return bad request
                 // Prevents null pointer exceptions when trying to get the values below.
                 return badRequest(ApiError.invalidJson());
             } else {
                 String clientDate = lastSeenJson.get(CLIENT_DATE_FIELD).asText();
+                Long dateOffset = lastSeenJson.get(CLIENT_DATE_OFFSET).asLong();
 
-                JsonNode responseJson = checkStreakIncrement(loggedInUser, clientDate);
+                JsonNode responseJson = checkStreakIncrement(loggedInUser, clientDate, dateOffset);
 
                 if (responseJson != null) {
                     return ok(responseJson);
@@ -495,20 +501,28 @@ public class AchievementTrackerController extends Controller {
      *                              jsonNode null if the process got caught with a parsing exception and so should.
      *                              return 400 to the front end application.
      */
-    private JsonNode checkStreakIncrement(Profile profile, String clientDateString) {
+    private JsonNode checkStreakIncrement(Profile profile, String clientDateString, Long dateOffset) {
 
         Date clientDate;
 
         ObjectNode responseJson = objectMapper.createObjectNode();
 
         try {
-            clientDate = new SimpleDateFormat("yyyy-MM-dd").parse(clientDateString);
+            clientDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(clientDateString);
+
+            // Adds the client's local date offset to the date
+            clientDate = addTimeZone(clientDate, dateOffset * -1);
+
+            clientDate = new SimpleDateFormat("yyyy-MM-dd").parse(
+                    new SimpleDateFormat("yyyy-MM-dd").format(clientDate));
+
         } catch (ParseException e) {
             return null;
         }
 
-        Date lastSeenDate = profile.getLastSeenDate();
 
+
+        Date lastSeenDate = profile.getLastSeenDate();
         if (lastSeenDate == null) {
             profile.getAchievementTracker().setCurrentStreak(STARTING_STREAK_NUMBER);
             responseJson.set(REWARD, this.rewardAction(profile));
@@ -536,6 +550,23 @@ public class AchievementTrackerController extends Controller {
         profileRepository.update(profile);
 
         return responseJson;
+    }
+
+
+    /**
+     * Adds time from the given date
+     *
+     * @param clientDate    date to add time to
+     * @param dateOffset    time to add, in minutes
+     * @return              the initial date, with the time offset add
+     */
+    private Date addTimeZone(Date clientDate, Long dateOffset) {
+        Long dateMilliseconds   = clientDate.getTime();
+        Long offsetMilliseconds = dateOffset * SECONDS_IN_MINUTES * MILLISECONDS_IN_SECONDS;
+
+        long localMilliseconds  = dateMilliseconds + offsetMilliseconds;
+
+        return new Date(localMilliseconds);
     }
 
 
