@@ -47,6 +47,13 @@
 
         methods: {
 
+            /**
+             * Uses a fetch method (POST) to upvote a hint. If there is an error for some reason, this is shown to the
+             * user.
+             * If the vote is changed, updates the hint's vote sum
+             *
+             * @param hint      the hint being voted upon
+             */
             upVote(hint) {
                 let hintId = hint.id;
                 let self = this;
@@ -66,6 +73,14 @@
                 });
             },
 
+
+            /**
+             * Uses a fetch method (POST) to downvote a hint. If there is an error for some reason, this is shown to the
+             * user.
+             * If the vote is changed, updates the hint's vote sum
+             *
+             * @param hint      the hint being voted upon
+             */
             downVote(hint) {
                 let hintId = hint.id;
                 let self = this;
