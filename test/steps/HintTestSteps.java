@@ -15,6 +15,7 @@ import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.hints.HintRepository;
 import repositories.objectives.ObjectiveRepository;
 import repositories.profiles.ProfileRepository;
 
@@ -68,8 +69,13 @@ public class HintTestSteps {
     private ProfileRepository profileRepository =
             testContext.getApplication().injector().instanceOf(ProfileRepository.class);
 
+
+    /**
+     * Object mapper for creating and reading Json objects.
+     */
     private ObjectMapper objectMapper =
             testContext.getApplication().injector().instanceOf(ObjectMapper.class);
+
 
     /**
      * Converts a given data table containing a hint into a json node object.
@@ -187,6 +193,14 @@ public class HintTestSteps {
     }
 
 
+    @Given("^no hints exist for the objective with id (\\d+)$")
+    public void noHintsExistForTheObjectiveWithId(Integer objectiveId) {
+        Objective objective = objectiveRepository.findById(Long.valueOf(objectiveId));
+        Assert.assertNotNull(objective);
+        Assert.assertTrue(objective.getHints().isEmpty());
+    }
+
+
     @When("^I attempt to create a hint with the following values for the objective with id (\\d+)$")
     public void iAttemptToCreateAHintWithTheFollowingValuesForTheObjectiveWithId(Integer objectiveId, io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(testContext.getLoggedInId());
@@ -213,9 +227,16 @@ public class HintTestSteps {
     }
 
 
-    @When("^I requests a new hint for objective with id (\\d+)$")
-    public void iRequestsANewHintForObjectiveWithId(Integer objectiveId) {
+    @When("^I request a new hint for objective with id (\\d+)$")
+    public void iRequestANewHintForObjectiveWithId(Integer objectiveId) {
         testContext.setTargetId(testContext.getLoggedInId());
+        fetchNewHintRequest(objectiveId);
+    }
+
+
+    @When("^I request a new hint for user (\\d+) for objective with id (\\d+)$")
+    public void iRequestANewHintForUserForObjectiveWithId(Integer userId, Integer objectiveId) {
+        testContext.setTargetId(userId.toString());
         fetchNewHintRequest(objectiveId);
     }
 
@@ -244,5 +265,13 @@ public class HintTestSteps {
     public void iReceiveAHintWithId(Integer expectedHintId) throws IOException {
         Integer actualHintId = objectMapper.readTree(testContext.getResponseBody()).get("id").asInt();
         Assert.assertEquals(expectedHintId, actualHintId);
+    }
+
+
+    @Then("the response contains the following message")
+    public void theResponseContainsTheFollowingMessage(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        String expectedMessage = dataTable.asList().get(0);
+        String message = objectMapper.readTree(testContext.getResponseBody()).get("message").asText();
+        Assert.assertTrue(expectedMessage.contains(message));
     }
 }
