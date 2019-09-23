@@ -215,10 +215,10 @@
                             </b-button>
                             <b-button size="sm"
                                       v-if="heading === 'Edit'"
-                                      @click="addHint(row.item)"
+                                      @click="viewHints(row.item)"
                                       variant="primary"
                                       class="mr-2"
-                                      block>Add Hint
+                                      block>View Hints
                             </b-button>
                         </template>
 
@@ -800,9 +800,9 @@
 
 
             /**
-             * Sends the emit to the quest list to view the add hint side bar
+             * Sends an emit to the quest list to view the hints for an objective
              */
-            addHint(objective) {
+            viewHints(objective) {
                 this.$emit('add-hint-side-bar', objective);
             },
 
@@ -816,7 +816,7 @@
 
 
             /**
-             * Cancels the current creation of an objective addition to a quest
+             * Cancels the current creation of an objective addition to a quest.
              */
             cancelObjectiveCreate() {
                 this.addNewObjective = false;

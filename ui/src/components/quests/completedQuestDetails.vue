@@ -27,9 +27,9 @@
                   class="no-wrap-text">
             Back
         </b-button>
-        <p class="mb-1 mobile-text font-weight-bold">{{objective.riddle}}</p>
+        <p class="mb-1 mobile-text font-weight-bold">Riddle: {{objective.riddle}}</p>
         <p class="mb-1 mobile-text">
-            {{objective.destination.name}}
+            Destination: {{objective.destination.name}}
         </p>
         <list-hints
                     :objective="objective"
