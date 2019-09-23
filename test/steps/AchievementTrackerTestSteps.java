@@ -373,6 +373,13 @@ public class AchievementTrackerTestSteps {
                         testContext.getLoggedInId()
                 )
         ).getAchievementTracker().getPoints();
+        System.out.println("STARTING POINTS: " + startingPoints);
+    }
+
+
+    @Given("^the user with id (\\d+) has some starting points$")
+    public void theUserWithIdHasSomeStartingPoints(Integer userId) {
+        startingPoints = profileRepository.findById(Long.valueOf(userId)).getAchievementTracker().getPoints();
     }
 
 
@@ -619,6 +626,16 @@ public class AchievementTrackerTestSteps {
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         currentPoints = responseBody.get("userPoints").asInt();
         Assert.assertTrue("Current points is not greater than starting points",currentPoints > startingPoints);
+    }
+
+
+    @Then("^the user with id (\\d+) has gained points$")
+    public void theUserWithIdHasGainedPoints(Integer userId) throws IOException {
+        getPointsRequest(userId.toString());
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        currentPoints = responseBody.get("userPoints").asInt();
+        System.out.println("CURRENT POINTS: " + currentPoints);
+        Assert.assertTrue("Current points is not greater than starting points", currentPoints > startingPoints);
     }
 
 
