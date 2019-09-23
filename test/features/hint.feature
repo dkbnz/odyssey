@@ -152,6 +152,38 @@ Feature: Hint API Endpoint
     And the response contains 2 hints
 
 
+  Scenario: Successfully retrieving all hints for an objective I have completed with valid pagination
+    Given the application is running
+    And I am logged in as user with id 7
+    And an objective exists with id 29
+    And I have solved the objective with id 29
+    When I attempt to retrieve all hints for the objective with id 29 with page size "1" and page number "1"
+    Then the status code received is 200
+    And the response contains 1 hints
+
+
+  Scenario: Unsuccessfully retrieving all hints for an objective I have completed with invalid page size
+    Given the application is running
+    And I am logged in as user with id 7
+    And an objective exists with id 29
+    And I have solved the objective with id 29
+    When I attempt to retrieve all hints for the objective with id 29 with page size "hello" and page number "1"
+    Then the status code received is 400
+    And the following ApiErrors are returned
+      | Invalid page size provided. |s
+
+
+  Scenario: Unsuccessfully retrieving all hints for an objective I have completed with invalid page number
+    Given the application is running
+    And I am logged in as user with id 7
+    And an objective exists with id 29
+    And I have solved the objective with id 29
+    When I attempt to retrieve all hints for the objective with id 29 with page size "3" and page number "hello"
+    Then the status code received is 400
+    And the following ApiErrors are returned
+      | Invalid page number provided. |
+
+
   Scenario: Unsuccessfully retrieving all hints for an objective I have not completed
     Given the application is running
     And I am logged in

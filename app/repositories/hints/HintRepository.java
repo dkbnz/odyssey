@@ -109,4 +109,15 @@ public class HintRepository extends BeanRepository<Long, Hint> {
         profileRepository.save(hintUser);
         return unseenHint;
     }
+
+
+    public List<Hint> findAllUsing(Objective objective, int pageSize, int pageNumber) {
+        return query()
+                .where()
+                .eq(OBJECTIVE, objective)
+                .setFirstRow(pageNumber * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
+    }
 }

@@ -1,6 +1,5 @@
 package controllers.hints;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.points.AchievementTrackerController;
@@ -20,6 +19,8 @@ import util.Views;
 
 import javax.inject.Inject;
 
+import java.util.List;
+
 import static play.mvc.Results.*;
 
 public class HintController {
@@ -31,12 +32,19 @@ public class HintController {
     private ObjectMapper objectMapper;
 
     /**
-     * String constants for json creation.
+     * String constants for json reading and creation.
      */
     private static final String NEW_HINT = "newHint";
     private static final String REWARD = "reward";
     private static final String MESSAGE = "message";
     private static final String NO_HINT_MESSAGE = "No hints available.";
+    private static final String PAGE_NUMBER = "pageNumber";
+    private static final String PAGE_SIZE = "pageSize";
+
+    /**
+     * The maximum number of hints allowed per page.
+     */
+    private static final int MAX_PAGE_SIZE = 100;
 
     @Inject
     public HintController(ProfileRepository profileRepository,
@@ -119,11 +127,13 @@ public class HintController {
 
     /**
      * Retrieves all the hints for a given objective.
+     * Includes pagination if provided in the query string.
      *
      * @param request           the Http request containing login information.
      * @param objectiveId       the id of the objective having its hints retrieved.
      * @return                  ok() (Http 200) response containing retrieved hints.
-     *                          badRequest() (Http 400) response if there is an issue converting to Json.
+     *                          badRequest() (Http 400) response if there is an issue converting to Json, or if the
+     *                          provided page size or number cannot be converted to a valid integer.
      *                          unauthorized() (Http 401) response if the user is not logged into the system.
      *                          forbidden() (Http 403) response if the user is not allowed to retrieve.
      *                          notFound() (Http 404) response if the objective doesn't exist.
@@ -139,25 +149,37 @@ public class HintController {
             return notFound(ApiError.notFound(Errors.OBJECTIVE_NOT_FOUND));
         }
 
-        // Check if the user has completed the objective, is an admin or owner of the objective.
+        // Check if the user has completed the objective, is an admin, or owner of the objective.
         if (!(objectiveRepository.hasSolved(loggedInUser, targetObjective)
                 || AuthenticationUtil.validUser(loggedInUser, targetObjective.getOwner()))) {
             return forbidden(ApiError.forbidden());
         }
 
-        String result;
-
-        try {
-            // Convert hints to a Json string
-            result = objectMapper
-                    .writerWithView(Views.Public.class)
-                    .writeValueAsString(targetObjective.getHints());
-        } catch (JsonProcessingException e) {
-            // Issues with serialisation
-            return badRequest(ApiError.invalidJson());
+        int pageNumber = 0;
+        String pageNumberRequested = request.getQueryString(PAGE_NUMBER);
+        if (pageNumberRequested != null && !pageNumberRequested.isEmpty()) {
+            try {
+                pageNumber = Integer.parseInt(pageNumberRequested);
+            } catch (NumberFormatException e) {
+                return badRequest(ApiError.badRequest(Errors.INVALID_PAGE_NUMBER_REQUESTED));
+            }
         }
 
-        return ok(result);
+        int pageSize = MAX_PAGE_SIZE;
+        String pageSizeRequested = request.getQueryString(PAGE_SIZE);
+
+        if (pageSizeRequested != null && !pageSizeRequested.isEmpty()) {
+            try {
+                pageSize = Integer.parseInt(pageSizeRequested);
+                // Restrict the page size to be no larger than the maximum page size.
+                pageSize = Math.min(pageSize, MAX_PAGE_SIZE);
+            } catch (NumberFormatException e) {
+                return badRequest(ApiError.badRequest(Errors.INVALID_PAGE_SIZE_REQUESTED));
+            }
+        }
+
+        List<Hint> hints = hintRepository.findAllUsing(targetObjective, pageSize, pageNumber);
+        return ok(Json.toJson(hints));
     }
 
 
