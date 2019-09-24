@@ -108,11 +108,10 @@
                 </b-list-group-item>
 
                 <!-- If we have an objective to solve, display it -->
-                <b-list-group-item
-                                   class="d-flex justify-content-between align-items-center"
+                <b-list-group-item class="d-flex justify-content-between align-items-center"
                                    v-if="questAttempt.toSolve != null">
-                    <b-col>
-                        <b-row class="w-100">
+                    <b-col class="w-100">
+                        <b-row class="pb-1">
                             <b-col md="7">
                                 <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
                             </b-col>
@@ -134,12 +133,13 @@
                         </b-row>
                     </b-col>
                 </b-list-group-item>
+
+
                 <!-- If we have an objective to check in to, display it -->
-                <b-list-group-item href="#"
-                                   class="d-flex justify-content-between align-items-center"
+                <b-list-group-item class="d-flex justify-content-between align-items-center"
                                    v-if="questAttempt.toCheckIn != null">
                 <b-col class="w-100">
-                    <b-row>
+                    <b-row class="pb-1">
                         <b-col md="7">
                             <span class="mobile-text font-weight-bold">{{questAttempt.toCheckIn.riddle}}</span>
                             <p class="mb-1 mobile-text">
@@ -165,6 +165,7 @@
                     </b-row>
                 </b-col>
                 </b-list-group-item>
+
                 <b-alert
                         :show="showNotValidCheckIn"
                         @dismiss-count-down="countDownChangedCheckIn"
