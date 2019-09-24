@@ -41,7 +41,7 @@
         </photo-table>
         <b-modal centered hide-footer ref="modalImage" size="xl">
             <b-img v-if="photoToView !== null" :src="getFullPhoto()" alt="Image couldn't be retrieved"
-                        onerror="this.src = '../../../static/default_image.png'" center fluid>
+                        onerror="this.onerror= null; this.src = '../../../static/default_image.png'" center fluid>
             </b-img>
             <b-row>
                 <b-col>

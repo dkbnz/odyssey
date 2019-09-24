@@ -6,7 +6,7 @@
                     <!-- The profile picture of the current profile being viewed. -->
 
                     <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
-                           @click="showImage" onerror="this.src = '../../../static/default_profile_picture.png'">
+                           @click="showImage" onerror="this.onerror= null; this.src = '../../../static/default_profile_picture.png'">
                     </b-img>
 
                     <streak-display v-if="profile.achievementTracker" class="float-right " :currentStreak="profile.achievementTracker.streak"></streak-display>
@@ -111,7 +111,7 @@
                 </div>
                 <b-modal hide-footer centered ref="profilePictureModal" title="Profile Picture" size="xl">
                     <b-img v-if="profile.profilePicture" :src="getProfilePictureFull()"
-                                onerror="this.src = '../../../static/default_profile_picture.png'"
+                                onerror="this.onerror= null; this.src = '../../../static/default_profile_picture.png'"
                                 center fluid>
                     </b-img>
                     <b-row>
