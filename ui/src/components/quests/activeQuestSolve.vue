@@ -594,7 +594,7 @@
              */
             getHintsForObjective(objective) {
                 let self = this;
-                fetch(`/v1/objectives/` + objective.id + `/hints`, {})
+                fetch(`/v1/objectives/` + objective.id + `/hints/` + this.profile.id, {})
                     .then(function (response) {
                         if (!response.ok) {
                             throw response;

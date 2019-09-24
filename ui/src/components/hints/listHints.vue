@@ -10,17 +10,23 @@
                     <b-col class="w-100">
                         <p>{{hint.message}}</p>
                     </b-col>
-                    <b-row v-if="solved" class="vote" style="vertical-align: middle;">
+                    <b-row v-if="solved" class="vote">
                         <b-col cols="4">
                             <div>
                                 {{hint.voteSum}}
                             </div>
                         </b-col>
-                        <b-col cols="2">
-                            <b-img class="vote blue" height="30%" :src="assets['arrowUp']" @click="upVote(hint)"></b-img>
+                        <b-col cols="4" @click="upVote(hint)" class="vote greenHover"
+                               :class="{'vote green': hint.vote != null && hint.vote.upVote}">
+                            <b-img
+                                   height="20%"
+                                   :src="assets['arrowUp']"></b-img>
                         </b-col>
-                        <b-col cols="2">
-                            <b-img class="vote red" height="30%" :src="assets['arrowDown']" @click="downVote(hint)"></b-img>
+                        <b-col cols="4" @click="downVote(hint)" class="vote redHover"
+                               :class="{'vote red': hint.vote != null && !hint.vote.upVote}">
+                            <b-img
+                                   height="20%"
+                                   :src="assets['arrowDown']"></b-img>
                         </b-col>
                     </b-row>
                 </b-row>
@@ -74,6 +80,7 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
+                    hint.vote = responseBody.vote;
                     hint.voteSum = responseBody.voteSum;
                 }).catch(function (response) {
                     self.savingTrip = false;
@@ -101,6 +108,7 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
+                    hint.vote = responseBody.vote;
                     hint.voteSum = responseBody.voteSum;
                 }).catch(function (response) {
                     self.savingTrip = false;

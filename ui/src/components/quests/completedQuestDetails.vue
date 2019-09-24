@@ -80,6 +80,7 @@
             showHints(objective) {
                 this.show = "Hints";
                 this.objective = objective;
+                this.getHintsForObjective(objective);
             },
 
 
@@ -96,7 +97,32 @@
                 this.show = "Hints";
                 this.objective.hints.push(responseBody.newHint);
                 this.$emit("successCreate");
-            }
+            },
+
+
+            /**
+             * Gets the hints for an objective from the backend.
+             *
+             * @param objective     the objective your fetching the hints for.
+             * @returns {[]}        a List of hints.
+             */
+            getHintsForObjective(objective) {
+                let self = this;
+                fetch(`/v1/objectives/` + objective.id + `/hints/` + this.profile.id, {})
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                    self.loadingResults = false;
+                    objective.hints = responseBody;
+                }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
+                });
+            },
         }
 
     }
