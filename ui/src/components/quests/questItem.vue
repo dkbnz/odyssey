@@ -23,7 +23,6 @@
                     variant="success"
             ></b-progress>
         </b-alert>
-{{endTime}}
         <!-- Confirmation modal for deleting a quest. -->
         <b-modal hide-footer id="editQuestModal" ref="editQuestModal" title="Edit Quest">
             <div v-if="activeUsers > 0"
