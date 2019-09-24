@@ -52,7 +52,7 @@ public class Hint extends BaseModel {
      * The votes cast for this hint.
      */
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "targetHint")
     private Set<Vote> votes;
 
     /**
