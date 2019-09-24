@@ -7,12 +7,10 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.profiles.Profile;
-import models.quests.Quest;
-import org.joda.time.DateTime;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+
 import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -20,7 +18,6 @@ import play.test.Helpers;
 import repositories.profiles.ProfileRepository;
 
 import java.io.IOException;
-import java.time.ZoneId;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -120,7 +117,7 @@ public class AchievementTrackerTestSteps {
 
 
     private static final long TO_CHECK_IN_RIDDLE_ID = 3L;
-    private static final long TO_GUESS_RIDDLE_ID = 4L;
+    private static final long QUEST_ATTEMPT_ID = 4L;
     private static final long DESTINATION_TO_GUESS = 1834L;
     private static final long INCORRECT_DESTINATION_GUESS = 6024L;
 
@@ -524,7 +521,15 @@ public class AchievementTrackerTestSteps {
 
     @When("I solve the current riddle for a Quest")
     public void iSolveTheFirstRiddleOfTheQuestWithID() throws IOException {
-        sendRiddleGuessRequest(TO_GUESS_RIDDLE_ID, DESTINATION_TO_GUESS);
+        sendRiddleGuessRequest(QUEST_ATTEMPT_ID, DESTINATION_TO_GUESS);
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        Assert.assertEquals(SUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
+    }
+
+
+    @When("^I solve the current riddle for quest attempt with id (.*)$")
+    public void iSolveTheFirstRiddleOfTheQuestAttemptId(Long questAttemptId) throws IOException {
+        sendRiddleGuessRequest(questAttemptId, DESTINATION_TO_GUESS);
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         Assert.assertEquals(SUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
     }
@@ -558,7 +563,7 @@ public class AchievementTrackerTestSteps {
 
     @When("I incorrectly guess the answer to a quest riddle")
     public void iIncorrectlyGuessTheAnswerToAQuestRiddle() throws IOException {
-        sendRiddleGuessRequest(TO_GUESS_RIDDLE_ID, INCORRECT_DESTINATION_GUESS);
+        sendRiddleGuessRequest(QUEST_ATTEMPT_ID, INCORRECT_DESTINATION_GUESS);
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         Assert.assertEquals(UNSUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
     }
@@ -630,7 +635,7 @@ public class AchievementTrackerTestSteps {
 
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         currentPoints = responseBody.get("userPoints").asInt();
-        Assert.assertEquals("Starting and end point values are not equal", currentPoints, startingPoints);
+        Assert.assertEquals("Starting and end point values are not equal", startingPoints, currentPoints);
     }
 
 
