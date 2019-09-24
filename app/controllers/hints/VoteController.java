@@ -2,6 +2,7 @@ package controllers.hints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.points.AchievementTrackerController;
 import models.hints.Hint;
 import models.hints.Vote;
 import models.profiles.Profile;
@@ -26,6 +27,7 @@ public class VoteController {
     private HintRepository hintRepository;
     private ObjectiveRepository objectiveRepository;
     private VoteRepository voteRepository;
+    private AchievementTrackerController achievementTrackerController;
     private ObjectMapper objectMapper;
 
 
@@ -38,6 +40,7 @@ public class VoteController {
     public VoteController(ProfileRepository profileRepository,
                           HintRepository hintRepository,
                           VoteRepository voteRepository,
+                          AchievementTrackerController achievementTrackerController,
                           ObjectiveRepository objectiveRepository,
                           ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
@@ -106,6 +109,7 @@ public class VoteController {
             vote.setUpVote(isUpvote);
             if (isUpvote) {
                 hintToVoteOn.upVote();
+                achievementTrackerController.handleHintUpvote(hintToVoteOn, true);
             } else {
                 hintToVoteOn.downVote();
             }
@@ -138,6 +142,7 @@ public class VoteController {
             isDeleted = voteRepository.delete(vote);
             if (isUpvote) {
                 hintToVoteOn.removeUpVote();
+                achievementTrackerController.handleHintUpvote(hintToVoteOn, false);
             } else {
                 hintToVoteOn.removeDownVote();
             }
@@ -145,6 +150,7 @@ public class VoteController {
             hintToVoteOn.removeDownVote();
         } else {
             hintToVoteOn.removeUpVote();
+            achievementTrackerController.handleHintUpvote(hintToVoteOn, false);
         }
 
         return isDeleted;
