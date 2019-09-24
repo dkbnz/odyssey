@@ -21,6 +21,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import repositories.hints.HintRepository;
 import repositories.points.BadgeRepository;
 import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
@@ -53,6 +54,7 @@ public class AchievementTrackerController extends Controller {
     private ProfileRepository profileRepository;
     private PointRewardRepository pointRewardRepository;
     private BadgeRepository badgeRepository;
+    private HintRepository hintRepository;
     private ObjectMapper objectMapper;
 
 
@@ -60,10 +62,12 @@ public class AchievementTrackerController extends Controller {
     public AchievementTrackerController(ProfileRepository profileRepository,
                                         PointRewardRepository pointRewardRepository,
                                         BadgeRepository badgeRepository,
+                                        HintRepository hintRepository,
                                         ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
         this.pointRewardRepository = pointRewardRepository;
         this.badgeRepository = badgeRepository;
+        this.hintRepository = hintRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -326,6 +330,47 @@ public class AchievementTrackerController extends Controller {
             }
 
         }
+
+        profileRepository.update(actingProfile);    // Update the tracker stored in the database.
+
+        return constructRewardJson(badgesAchieved, points);
+    }
+
+
+    /**
+     * Rewards the acting profile with points for solving an objective.
+     * The points are determined by the number of hints a user has requested for said objective.
+     *
+     * @param actingProfile     the profile that completed the action.
+     * @param objectiveSolved   the objective that was solved.
+     * @return                  Json node of the reward result.
+     */
+    public JsonNode rewardObjectiveSolved(Profile actingProfile, Objective objectiveSolved) {
+        Collection<Badge> badgesAchieved = new HashSet<>();
+
+        // Get number of hints requested for the objective.
+        PointReward points;
+
+        int hintsSeen = hintRepository.findSeenHints(objectiveSolved, actingProfile).size();
+
+        switch(hintsSeen) {
+            case 0:
+                points = givePoints(actingProfile, Action.RIDDLE_SOLVED_NO_HINT);
+                break;
+
+            case 1:
+                points = givePoints(actingProfile, Action.RIDDLE_SOLVED_ONE_HINT);
+                break;
+
+            case 2:
+                points = givePoints(actingProfile, Action.RIDDLE_SOLVED_TWO_HINT);
+                break;
+
+            default:
+                points = null;
+        }
+
+        updatePointsBadge(actingProfile, badgesAchieved);
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 

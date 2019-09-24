@@ -477,3 +477,48 @@ Feature: Achievement Tracker API Endpoint
     When I check in for quest attempt 16
     Then the status code received is 200
     And I gain the "Adventurer" badge with level 3
+
+
+  Scenario: Solving a quest objective awards points having requested 1 hint
+    Given the application is running
+    And I am logged in as user with id 5
+    And I have some starting points
+    When I request a new hint for objective with id 9
+    And I solve the current riddle for quest attempt with id 19
+    Then I have gained points
+
+
+  Scenario: Solving a quest objective awards points having requested 2 hints
+    Given the application is running
+    And I am logged in as user with id 5
+    And I have some starting points
+    When I request a new hint for objective with id 9
+    And I request a new hint for objective with id 9
+    And I solve the current riddle for quest attempt with id 19
+    Then I have gained points
+
+
+  Scenario: Solving a quest objective awards points having requested 3 hints
+    Given the application is running
+    And I am logged in as user with id 5
+    And I have some starting points
+    And a hint with id 7 exists for objective with id 9
+    And a hint with id 8 exists for objective with id 9
+    And a hint with id 9 exists for objective with id 9
+    When I request a new hint for objective with id 9
+    And I request a new hint for objective with id 9
+    And I request a new hint for objective with id 9
+    And I solve the current riddle for quest attempt with id 19
+    Then I have not gained points
+
+
+  Scenario: Solving a quest objective awards points having requested 4 hints
+    Given the application is running
+    And I am logged in as user with id 5
+    And I have some starting points
+    When I request a new hint for objective with id 9
+    And I request a new hint for objective with id 9
+    And I request a new hint for objective with id 9
+    And I request a new hint for objective with id 9
+    And I solve the current riddle for quest attempt with id 19
+    Then I have not gained points

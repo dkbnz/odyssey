@@ -26,5 +26,7 @@ export default {
     loadingLogo: './static/logo_sm.png',
     loadingLogoBig: './static/logo.png',
     downArrow: './static/down_arrow.png',
-    teamIcon: './static/team.png'
+    teamIcon: './static/team.png',
+    arrowUp: './static/arrow_up.png',
+    arrowDown: './static/arrow_down.png'
 }
