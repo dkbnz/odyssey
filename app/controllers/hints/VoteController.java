@@ -93,7 +93,8 @@ public class VoteController {
 
         // Check if they have an existing vote
         if (vote == null) {
-            if (objectiveRepository.hasSolved(targetUser, hintToVoteOn.getObjective())) {
+            if (objectiveRepository.hasSolved(targetUser, hintToVoteOn.getObjective())
+                    || hintToVoteOn.getObjective().getOwner().getId().equals(targetUser.getId())) {
                 // User does not have an existing vote and they are allowed to vote.
                 vote = new Vote(targetUser, hintToVoteOn);
             } else {
@@ -129,7 +130,7 @@ public class VoteController {
 
         hintRepository.save(hintToVoteOn);
         voteRepository.save(vote);
-        Vote changedVote = voteRepository.findUsing(loggedInUser, hintToVoteOn);
+        Vote changedVote = voteRepository.findUsing(targetUser, hintToVoteOn);
 
         ObjectNode hintObject = objectMapper.valueToTree(hintToVoteOn);
         hintObject.set(VOTE, Json.toJson(changedVote));
