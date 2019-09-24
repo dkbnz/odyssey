@@ -48,6 +48,7 @@ public class VoteController {
         this.objectiveRepository = objectiveRepository;
         this.voteRepository = voteRepository;
         this.objectMapper = objectMapper;
+        this.achievementTrackerController = achievementTrackerController;
     }
 
 
