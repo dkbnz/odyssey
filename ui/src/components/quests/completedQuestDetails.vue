@@ -113,8 +113,6 @@
              * @param perPage               The amount to view on a page.
              */
             getPageHints(currentPage, perPage) {
-                console.log(currentPage);
-                console.log(perPage);
                 let self = this;
                 let currentPageQuery = currentPage - 1;
                 fetch(`/v1/objectives/` + self.objective.id +
