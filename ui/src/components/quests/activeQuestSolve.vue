@@ -159,7 +159,8 @@
                                 :profile="profile"
                                 :hints="questAttempt.toCheckIn.hints"
                                 :solved="true"
-                                @showAddHint="showAddHint(questAttempt.toCheckIn)">
+                                @showAddHint="showAddHint(questAttempt.toCheckIn)"
+                                @request-new-hints-page="getPageHints">
                         </list-hints>
                     </b-row>
                 </b-col>
@@ -275,10 +276,13 @@
              * Shows or hides the hints for a given objective
              */
             showOrHideHints(solved, objective) {
+                let defaultPerPage = 5;
+                let defaultCurrentPage = 1;
+                this.objective = objective;
                 if (this.showOrHide === "Show") {
                     this.showOrHide = "Hide";
                     if(solved) {
-                        this.getHintsForObjective(objective);
+                        this.getPageHints(defaultCurrentPage, defaultPerPage);
                     } else {
                         this.getHintsUserHasSeen(objective);
                     }
@@ -587,14 +591,17 @@
 
 
             /**
-             * Gets the hints for an objective from the backend.
-             *
-             * @param objective     the objective your fetching the hints for.
-             * @returns {[]}        a list of hints.
+             * Gets the hints to display from the backend for all hints for an objective but paginated based on
+             * current page and the per page variables.
+             * @param currentPage           The current viewing page.
+             * @param perPage               The amount to view on a page.
              */
-            getHintsForObjective(objective) {
+            getPageHints(currentPage, perPage) {
                 let self = this;
-                fetch(`/v1/objectives/` + objective.id + `/hints`, {})
+                let currentPageQuery = currentPage - 1;
+                fetch(`/v1/objectives/` + self.objective.id +
+                    `/hints?pageNumber=` + currentPageQuery +
+                    `&pageSize=` + perPage, {})
                     .then(function (response) {
                         if (!response.ok) {
                             throw response;
@@ -602,14 +609,14 @@
                             return response.json();
                         }
                     })
-                .then(function (responseBody) {
-                    self.loadingResults = false;
-                    objective.hints = responseBody;
-                }).catch(function (response) {
+                    .then(function (responseBody) {
+                        self.loadingResults = false;
+                        self.objective.hints = responseBody;
+                    }).catch(function (response) {
                     self.loadingResults = false;
                     self.handleErrorResponse(response);
                 });
-            },
+            }
         },
     }
 </script>
