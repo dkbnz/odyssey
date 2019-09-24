@@ -692,15 +692,16 @@ public class QuestController {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
+        Objective objectiveSolved = questAttempt.getCurrentToSolve();
+
         boolean solveSuccess = questAttempt.solveCurrent(destinationGuess);
 
         // Attempt to solve the current objective in the quest attempt, serialize the result.
         returnJson.put(GUESS_RESULT, solveSuccess);
 
-
         // Add points based on the action
         if (solveSuccess) {
-            returnJson.set(REWARD, achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), Action.RIDDLE_SOLVED));
+            returnJson.set(REWARD, achievementTrackerController.rewardObjectiveSolved(attemptedBy, objectiveSolved));
         }
 
         // Serialize quest attempt regardless of result.

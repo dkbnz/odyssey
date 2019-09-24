@@ -11,6 +11,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repositories.destinations.DestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
+import repositories.hints.HintRepository;
 import repositories.objectives.ObjectiveRepository;
 import repositories.points.AchievementTrackerRepository;
 import repositories.points.BadgeRepository;
@@ -37,9 +38,9 @@ public class DestinationControllerTest {
         ObjectiveRepository mockObjectiveRepository;
         DestinationTypeRepository mockDestinationTypeRepository;
         BadgeRepository mockBadgeRepository;
-        PointRewardRepository mockPointRewardRepository;
-        AchievementTrackerRepository mockAchievementTrackerRepository;
+        PointRewardRepository mockPointRewardRepository;;
         AchievementTrackerController mockAchievementTrackerController;
+        HintRepository mockHintRepository;
         ObjectMapper objectMapper;
 
         mockDestinationRepository = mock(DestinationRepository.class);
@@ -50,13 +51,16 @@ public class DestinationControllerTest {
         mockDestinationTypeRepository = mock(DestinationTypeRepository.class);
         mockBadgeRepository = mock(BadgeRepository.class);
         mockPointRewardRepository = mock(PointRewardRepository.class);
-        mockAchievementTrackerRepository = mock(AchievementTrackerRepository.class);
+        mockHintRepository = mock(HintRepository.class);
         objectMapper = mock(ObjectMapper.class);
+
         mockAchievementTrackerController = new AchievementTrackerController(
                 mockProfileRepository,
                 mockPointRewardRepository,
                 mockBadgeRepository,
+                mockHintRepository,
                 objectMapper);
+
         mockDestinationController = new DestinationController(
                 mockProfileRepository,
                 mockDestinationRepository,

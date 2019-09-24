@@ -339,15 +339,17 @@ INSERT INTO passport (`id`, `country`) VALUES
 
 
 INSERT INTO `point_reward`(`id`, `name`, `value`) VALUES
-(1, 'RIDDLE_SOLVED', 5),
-(2, 'CHECKED_IN', 10),
-(3, 'DESTINATION_CREATED', 2),
-(4, 'QUEST_CREATED', 3),
-(5, 'TRIP_CREATED', 3),
-(6, 'QUEST_COMPLETED', 20),
-(7, 'HINT_CREATED', 1),
-(8, 'HINT_UPVOTED', 1),
-(9, 'HINT_UPVOTE_REMOVED', -1);
+(1, 'RIDDLE_SOLVED_NO_HINT', 5),
+(2, 'RIDDLE_SOLVED_ONE_HINT', 3),
+(3, 'RIDDLE_SOLVED_TWO_HINT', 1),
+(4, 'CHECKED_IN', 10),
+(5, 'DESTINATION_CREATED', 2),
+(6, 'QUEST_CREATED', 3),
+(7, 'TRIP_CREATED', 3),
+(8, 'QUEST_COMPLETED', 20),
+(9, 'HINT_CREATED', 1),
+(10, 'HINT_UPVOTED', 1),
+(11, 'HINT_UPVOTE_REMOVED', -1);
 
 
 INSERT INTO `badge` (`id`, `action_to_achieve`, `name`, `bronze_breakpoint`, `silver_breakpoint`, `gold_breakpoint`, `how_to_progress`) VALUES
