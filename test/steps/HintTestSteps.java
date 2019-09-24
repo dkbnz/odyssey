@@ -8,19 +8,14 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.objectives.Objective;
 import models.profiles.Profile;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import play.db.evolutions.Evolutions;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repositories.hints.HintRepository;
 import repositories.objectives.ObjectiveRepository;
 import repositories.profiles.ProfileRepository;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -54,8 +49,20 @@ public class HintTestSteps {
     private static final String SEEN_HINTS_URI = "/seen";
 
 
+    /**
+     * String constants for reading data from data tables and json.
+     */
     private static final String MESSAGE_STRING = "Message";
     private static final String MESSAGE = "message";
+    private static final String PAGE_SIZE = "pageSize";
+    private static final String PAGE_NUMBER = "pageNumber";
+
+    /**
+     * String constants for creating a query string.
+     */
+    private static final String QUESTION_MARK = "?";
+    private static final String AND = "&";
+    private static final String EQUALS = "=";
 
     /**
      * Repository to access the objectives in the running application.
@@ -131,6 +138,23 @@ public class HintTestSteps {
 
 
     /**
+     * Sends a request to retrieve all hints for an objective with the id specified.
+     * Includes the addition of a search query.
+     *
+     * @param objectiveId       the id of of the objective that is having its hints retrieved.
+     */
+    private void fetchAllHintsRequest(int objectiveId, String searchQuery) {
+        Http.RequestBuilder request = fakeRequest()
+                .method(GET)
+                .session(AUTHORIZED, testContext.getLoggedInId())
+                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI + searchQuery);
+        Result result = route(testContext.getApplication(), request);
+        testContext.setStatusCode(result.status());
+        testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+
+    /**
      * Sends a request to retrieve all hints seen by the target user for an objective with the given id.
      *
      * @param objectiveId       the id of of the objective that is having its hints retrieved.
@@ -160,6 +184,20 @@ public class HintTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
+    }
+
+    /**
+     * Creates a search query to contain pagination information.
+     *
+     * @param pageSize      the page size requested.
+     * @param pageNumber    the page number requested.
+     * @return              a string containing the page size and number for a query string.
+     */
+    private String createSearchQuery(String pageSize, String pageNumber) {
+        return QUESTION_MARK
+                + PAGE_SIZE + EQUALS + pageSize
+                + AND
+                + PAGE_NUMBER + EQUALS + pageNumber;
     }
 
 
@@ -224,6 +262,12 @@ public class HintTestSteps {
     @When("^I attempt to retrieve all hints for the objective with id (\\d+)$")
     public void iAttemptToRetrieveAllHintsForTheObjectiveWithId(Integer objectiveId) {
         fetchAllHintsRequest(objectiveId);
+    }
+
+
+    @When("^I attempt to retrieve all hints for the objective with id (\\d+) with page size \"(.*)\" and page number \"(.*)\"$")
+    public void iAttemptToRetrieveAllHintsForTheObjectiveWithIdWithPageSizeAndPageNumber(Integer objectiveId, String pageSize, String pageNumber) {
+        fetchAllHintsRequest(objectiveId, createSearchQuery(pageSize, pageNumber));
     }
 
 

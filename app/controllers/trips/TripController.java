@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.points.AchievementTrackerController;
-import io.ebean.ExpressionList;
 import models.profiles.Profile;
 import models.destinations.Destination;
 import models.trips.Trip;
@@ -42,10 +41,8 @@ public class TripController extends Controller {
     private static final String PAGE_PAST = "pagePast";
     private static final String PAGE_SIZE_FUTURE = "pageSizeFuture";
     private static final String PAGE_SIZE_PAST = "pageSizePast";
-    private static final String PROFILE_ID = "profile.id";
     private static final String FUTURE_TRIPS = "futureTrips";
     private static final String PAST_TRIPS = "pastTrips";
-    private static final String DESTINATIONS_START_DATE = "destinations.startDate";
     private static final int MAX_PAGE_SIZE = 100;
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private static final int DEFAULT_ADMIN_ID = 1;
@@ -395,11 +392,13 @@ public class TripController extends Controller {
             return unauthorized(ApiError.unauthorized());
         }
 
+        Profile owner = profileRepository.findById(id);
+        if (owner == null) {
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
+        }
+
         int pageNumberFuture = 0;
         int pageNumberPast = 0;
-
-        ExpressionList<Trip> expressionListFuture = tripRepository.getExpressionList();
-        ExpressionList<Trip> expressionListPast = tripRepository.getExpressionList();
 
         if (request.getQueryString(PAGE_FUTURE) != null && !request.getQueryString(PAGE_FUTURE).isEmpty()) {
             pageNumberFuture = Integer.parseInt(request.getQueryString(PAGE_FUTURE));
@@ -409,35 +408,15 @@ public class TripController extends Controller {
             pageNumberPast = Integer.parseInt(request.getQueryString(PAGE_PAST));
         }
 
-        if (determinePageSize(request, PAGE_SIZE_FUTURE) == null || determinePageSize(request, PAGE_SIZE_PAST) == null) {
+        Integer pageSizeFuture = determinePageSize(request, PAGE_SIZE_FUTURE);
+        Integer pageSizePast = determinePageSize(request, PAGE_SIZE_PAST);
+
+        if (pageSizeFuture == null || pageSizePast == null) {
             return badRequest(ApiError.badRequest(Errors.INVALID_PAGE_SIZE_REQUESTED));
         }
 
-        int pageSizeFuture = determinePageSize(request, PAGE_SIZE_FUTURE);
-        int pageSizePast = determinePageSize(request, PAGE_SIZE_PAST);
-
-        LocalDate today = LocalDate.now();
-
-        List<Trip> futureTrips = expressionListFuture
-                .where()
-                .eq(PROFILE_ID, loggedInUser.getId())
-                .disjunction()
-                    .ge(DESTINATIONS_START_DATE, today)
-                    .isNull(DESTINATIONS_START_DATE)
-                .endJunction()
-                .setFirstRow(pageNumberFuture * pageSizeFuture)
-                .setMaxRows(pageSizeFuture)
-                .findPagedList()
-                .getList();
-
-        List<Trip> pastTrips = expressionListPast
-                .where()
-                .eq(PROFILE_ID, loggedInUser.getId())
-                .lt(DESTINATIONS_START_DATE, today)
-                .setFirstRow(pageNumberPast * pageSizePast)
-                .setMaxRows(pageSizePast)
-                .findPagedList()
-                .getList();
+        List<Trip> futureTrips = tripRepository.fetchFuture(owner, pageSizeFuture, pageNumberFuture);
+        List<Trip> pastTrips = tripRepository.fetchPast(owner, pageSizePast, pageNumberPast);
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
@@ -458,7 +437,7 @@ public class TripController extends Controller {
      *                          otherwise returns the requested page size
      */
     private Integer determinePageSize(Http.Request request, String pageSizeRequested) {
-        int pageSize = 0;
+        int pageSize = MAX_PAGE_SIZE;
         if (request.getQueryString(pageSizeRequested) != null && !request.getQueryString(pageSizeRequested).isEmpty()) {
             try {
                 pageSize = Integer.parseInt(request.getQueryString(pageSizeRequested));

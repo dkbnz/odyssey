@@ -1,7 +1,6 @@
 package models.hints;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import models.objectives.Objective;
 import models.profiles.Profile;
@@ -49,10 +48,16 @@ public class Hint extends BaseModel {
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Profile creator;
 
+    /**
+     * The votes cast for this hint.
+     */
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Vote> votes;
 
+    /**
+     * The profiles that have seen this hint.
+     */
     @JsonIgnore
     @ManyToMany(cascade = CascadeType.PERSIST)
     private Set<Profile> profilesSeen;
