@@ -150,7 +150,7 @@
             /**
              * Retrieves all the traveller types.
              *
-             * @return {Promise <Response | never>}     the fetch method promise.
+             * @returns {Promise <Response | never>}     the fetch method promise.
              */
             getTravellerTypes() {
                 let self = this;
@@ -173,7 +173,7 @@
             /**
              * Retrieves all the nationalities.
              *
-             * @return {Promise <Response | never>}     the fetch method promise.
+             * @returns {Promise <Response | never>}     the fetch method promise.
              */
             getNationalities() {
                 let self = this;

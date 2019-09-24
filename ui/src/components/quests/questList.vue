@@ -232,7 +232,8 @@
                                 :profile="profile"
                                 :hints="currentObjective.hints"
                                 :solved="true"
-                                @showAddHint="showAddHint()">
+                                @showAddHint="showAddHint"
+                                @request-new-hints-page="getPageHints">
                         </list-hints>
                     </div>
 
@@ -240,7 +241,7 @@
                                  :profile="profile"
                                  :objective="currentObjective"
                                  @successCreate="successCreateHint"
-                                 @cancelCreate="show = 'Hints'">
+                                 @cancelCreate="cancelCreateHint">
                     </create-hint>
                 </b-card>
             </b-col>
@@ -347,7 +348,9 @@
                 selectedQuestAttempt: {},
                 selectedQuest: {},
                 activeUsers: 0,
-                queryPage: 0
+                queryPage: 0,
+                hintsDefaultPerPage: 5,
+                hintsDefaultCurrentPage: 1
             }
         },
 
@@ -504,7 +507,7 @@
             /**
              * Creates a new quest attempt for the selected quest and current user.
              *
-             * @return {Promise<Response | never>}
+             * @returns {Promise<Response | never>}
              */
             createAttempt(questToAttempt, viewActive) {
                 let self = this;
@@ -644,17 +647,31 @@
 
 
             /**
-             * Success create hint show
+             * Success create hint show.
              */
             successCreateHint(responseBody) {
                 this.alertText = "Hint successfully created!";
                 this.showAlert();
                 this.showRewardToast(responseBody.reward);
-                this.currentObjective.hints.push(responseBody.newHint);
                 this.showHintSideBar = 'Hints';
+                this.currentObjective.numberOfHints += 1;
+                this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
             },
 
 
+            /**
+             * When the user cancels the creation of a hint.
+             */
+            cancelCreateHint() {
+                this.showHintSideBar = 'Hints';
+                this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
+            },
+
+
+            /**
+             * Shows the add hints component and sets the current page and per page to keep the users viewing preference
+             * for after the additional hint being added.
+             */
             showAddHint() {
                 this.showHintSideBar = 'Create Hint';
             },
@@ -688,30 +705,35 @@
              * Show the hint sidebar for adding a hint to an objective
              */
             showHintSidebar(objective) {
-                this.getHintsForObjective(objective);
                 this.showHintSideBar = "Hints";
                 this.currentObjective = objective;
+                this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
             },
 
 
             /**
-             * Gets the hints for an objective from the backend.
-             * @param objective     the objective your fetching the hints for.
-             * @returns {[]}        a List of hints.
+             * Gets the hints to display from the backend for all hints for an objective but paginated based on
+             * current page and the per page variables.
+             * @param currentPage           The current viewing page.
+             * @param perPage               The amount to view on a page.
              */
-            getHintsForObjective(objective) {
+            getPageHints(currentPage, perPage) {
                 let self = this;
-                fetch(`/v1/objectives/` + objective.id + `/hints`, {})
+                let currentPageQuery = currentPage - 1;
+                fetch(`/v1/objectives/` + self.currentObjective.id +
+                    `/hints?pageNumber=` + currentPageQuery +
+                    `&pageSize=` + perPage, {})
                     .then(function (response) {
                         if (!response.ok) {
                             throw response;
                         } else {
                             return response.json();
                         }
-                    }).then(function (responseBody) {
-                    self.loadingResults = false;
-                    objective.hints = responseBody;
-                }).catch(function (response) {
+                    })
+                    .then(function (responseBody) {
+                        self.loadingResults = false;
+                        self.currentObjective.hints = responseBody;
+                    }).catch(function (response) {
                     self.loadingResults = false;
                     self.handleErrorResponse(response);
                 });
@@ -812,7 +834,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @return {number}    the number of rows required in the table based on number of objectives to be
+             * @returns {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
             rows(quest) {

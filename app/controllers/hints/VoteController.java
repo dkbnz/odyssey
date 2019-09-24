@@ -73,6 +73,10 @@ public class VoteController {
             return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
+        if (!AuthenticationUtil.validUser(loggedInUser, targetUser)) {
+            return forbidden(ApiError.forbidden());
+        }
+
         Vote vote = voteRepository.findUsing(targetUser, hintToVoteOn);
 
         boolean isDeleted = false;

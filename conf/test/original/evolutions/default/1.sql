@@ -143,7 +143,7 @@ create table point_reward (
   id                            bigint auto_increment not null,
   name                          varchar(29) not null,
   value                         integer not null,
-  constraint ck_point_reward_name check ( name in ('DESTINATION_CREATED','TRIP_CREATED','QUEST_CREATED','HINT_CREATED','RIDDLE_SOLVED','CHECKED_IN','POINTS_GAINED','LOGIN_STREAK','INTERNATIONAL_QUEST_COMPLETED','LARGE_QUEST_COMPLETED','DISTANCE_QUEST_COMPLETED','QUEST_COMPLETED','HINT_UPVOTED','HINT_UPVOTE_REMOVED')),
+  constraint ck_point_reward_name check ( name in ('DESTINATION_CREATED','TRIP_CREATED','QUEST_CREATED','HINT_CREATED','RIDDLE_SOLVED_NO_HINT','RIDDLE_SOLVED_ONE_HINT','RIDDLE_SOLVED_TWO_HINT','CHECKED_IN','POINTS_GAINED','LOGIN_STREAK','INTERNATIONAL_QUEST_COMPLETED','LARGE_QUEST_COMPLETED','DISTANCE_QUEST_COMPLETED','QUEST_COMPLETED','HINT_UPVOTED','HINT_UPVOTE_REMOVED')),
   constraint uq_point_reward_name unique (name),
   constraint pk_point_reward primary key (id)
 );

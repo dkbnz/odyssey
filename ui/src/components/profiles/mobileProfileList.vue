@@ -9,7 +9,7 @@
                 <b-row>
                     <b-col cols="4">
                         <b-img :src="getProfilePictureThumbnail(profile.profilePicture)"
-                               onerror="this.src = '../../../static/default_profile_picture.png'"
+                               onerror="this.onerror= null; this.src = '../../../static/default_profile_picture.png'"
                                fluid
                                rounded="circle"
                                thumbnail

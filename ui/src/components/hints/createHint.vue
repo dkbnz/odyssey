@@ -54,7 +54,7 @@
             /**
              * Validates the input fields based on regex.
              *
-             * @return {*} true if input is valid.
+             * @returns {*} true if input is valid.
              */
             hintValidation() {
                 if (this.hint.message.length === 0) {
@@ -108,7 +108,7 @@
             /**
              * Checks the validation fields for hint creation.
              *
-             * @return {boolean} true if the fields are valid.
+             * @returns {boolean} true if the fields are valid.
              */
             validateFields() {
                 if (this.hintValidation === true) {

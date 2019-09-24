@@ -15,14 +15,14 @@ public class Vote extends BaseModel {
      * The user voting.
      */
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     private Profile voter;
 
     /**
      * The hint receiving the vote.
      */
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     private Hint targetHint;
 
     /**
