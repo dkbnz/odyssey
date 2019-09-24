@@ -17,7 +17,6 @@ import play.data.format.Formats;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;

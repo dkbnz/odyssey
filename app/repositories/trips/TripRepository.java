@@ -130,6 +130,53 @@ public class TripRepository extends BeanRepository<Long, Trip> {
 
 
     /**
+     * Returns a list of trips for a given owner that occur in the future.
+     * Trips either have a start date greater than today or null.
+     *
+     * @param owner             the user to request the trips for.
+     * @param pageSize          the page size of trips requested from the front end.
+     * @param pageNumber        the page number requested from the front end.
+     * @return                  a list of trips.
+     */
+    public List<Trip> fetchFuture(Profile owner, int pageSize, int pageNumber) {
+        LocalDate today = LocalDate.now();
+        return query()
+                .where()
+                .eq(PROFILE_ID, owner.getId())
+                .disjunction()
+                    .ge(DESTINATIONS_START_DATE, today)
+                    .isNull(DESTINATIONS_START_DATE)
+                .endJunction()
+                .setFirstRow(pageNumber * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
+    }
+
+
+    /**
+     * Returns a list of trips for a given owner that occur in the past.
+     * Trips have a start date less than today.
+     *
+     * @param owner             the user to request the trips for.
+     * @param pageSize          the page size of trips requested from the front end.
+     * @param pageNumber        the page number requested from the front end.
+     * @return                  a list of trips.
+     */
+    public List<Trip> fetchPast(Profile owner, int pageSize, int pageNumber) {
+        LocalDate today = LocalDate.now();
+        return query()
+                .where()
+                .eq(PROFILE_ID, owner.getId())
+                .lt(DESTINATIONS_START_DATE, today)
+                .setFirstRow(pageNumber * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
+    }
+
+
+    /**
      * Finds the profile id of the trip's owner.
      *
      * @param tripId        the id of the trip.
