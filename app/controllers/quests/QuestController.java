@@ -223,6 +223,8 @@ public class QuestController {
 
         questRepository.update(newQuest);
 
+        questRepository.refresh(newQuest);
+
         return ok(Json.toJson(newQuest));
     }
 

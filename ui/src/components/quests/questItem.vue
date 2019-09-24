@@ -23,7 +23,7 @@
                     variant="success"
             ></b-progress>
         </b-alert>
-
+{{endTime}}
         <!-- Confirmation modal for deleting a quest. -->
         <b-modal hide-footer id="editQuestModal" ref="editQuestModal" title="Edit Quest">
             <div v-if="activeUsers > 0"
@@ -423,11 +423,7 @@
                 if (this.startTime === "" || this.startTime === undefined) {
                     return false
                 }
-                if (this.inputQuest.startDate === this.inputQuest.endDate) {
-                    if (this.startTime >= this.endTime) {
-                        return false;
-                    }
-                }
+
                 // If the dates are the same, check the start time is before the end time.
                 if (this.inputQuest.startDate === this.inputQuest.endDate) {
                     if (this.startTime >= this.endTime) {
@@ -872,8 +868,6 @@
              * Combines dates and times together from input fields and adds :00 on the end for seconds.
              */
             joinDates() {
-                let timeOffset = this.formatOffset();
-
                 if (this.startTime.length === 5) {
                     this.startTime += ":00";
                 }
@@ -883,10 +877,10 @@
                 }
 
                 this.inputQuest.startDate = this.inputQuest.startDate + " "
-                    + this.startTime + timeOffset;
+                    + this.startTime + this.formatOffset(this.inputQuest.startDate);
 
                 this.inputQuest.endDate = this.inputQuest.endDate + " "
-                    + this.endTime + timeOffset;
+                    + this.endTime + this.formatOffset(this.inputQuest.endDate);
 
                 delete this.inputQuest.startTime;
                 delete this.inputQuest.endTime;
@@ -896,13 +890,13 @@
             /**
              * Gets the local time offset and pads it to be 4 numbers long.
              */
-            formatOffset() {
-                let timeOffset = (Math.abs(new Date().getTimezoneOffset() / 60)).toString();
+            formatOffset(date) {
+                let timeOffset = (Math.abs(new Date(date).getTimezoneOffset() / 60)).toString();
 
                 let fullNumber = timeOffset.padStart(2, '0');
                 fullNumber = fullNumber.padEnd(4, '0');
 
-                let sign = (new Date().getTimezoneOffset() >= 0) ? "-" : "+";
+                let sign = (new Date(date).getTimezoneOffset() >= 0) ? "-" : "+";
 
                 return sign + fullNumber;
             },
