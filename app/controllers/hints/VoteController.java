@@ -1,5 +1,7 @@
 package controllers.hints;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.points.AchievementTrackerController;
 import models.hints.Hint;
 import models.hints.Vote;
@@ -26,19 +28,27 @@ public class VoteController {
     private ObjectiveRepository objectiveRepository;
     private VoteRepository voteRepository;
     private AchievementTrackerController achievementTrackerController;
+    private ObjectMapper objectMapper;
 
+
+    /**
+     * String constants for json reading and creation.
+     */
+    private static final String VOTE = "vote";
 
     @Inject
     public VoteController(ProfileRepository profileRepository,
                           HintRepository hintRepository,
                           VoteRepository voteRepository,
                           AchievementTrackerController achievementTrackerController,
-                          ObjectiveRepository objectiveRepository) {
+                          ObjectiveRepository objectiveRepository,
+                          ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
         this.hintRepository = hintRepository;
         this.achievementTrackerController = achievementTrackerController;
         this.objectiveRepository = objectiveRepository;
         this.voteRepository = voteRepository;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -115,7 +125,11 @@ public class VoteController {
 
         hintRepository.save(hintToVoteOn);
         voteRepository.save(vote);
+        Vote changedVote = voteRepository.findUsing(loggedInUser, hintToVoteOn);
 
-        return ok(Json.toJson(hintToVoteOn));
+        ObjectNode hintObject = objectMapper.valueToTree(hintToVoteOn);
+        hintObject.set(VOTE, Json.toJson(changedVote));
+
+        return ok(hintObject);
     }
 }

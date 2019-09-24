@@ -696,12 +696,13 @@
 
             /**
              * Gets the hints for an objective from the backend.
+             *
              * @param objective     the objective your fetching the hints for.
              * @returns {[]}        a List of hints.
              */
             getHintsForObjective(objective) {
                 let self = this;
-                fetch(`/v1/objectives/` + objective.id + `/hints`, {})
+                fetch(`/v1/objectives/` + objective.id + `/hints/` + this.profile.id, {})
                     .then(function (response) {
                         if (!response.ok) {
                             throw response;

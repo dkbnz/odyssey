@@ -1,9 +1,11 @@
 package controllers.hints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.points.AchievementTrackerController;
 import models.hints.Hint;
+import models.hints.Vote;
 import models.objectives.Objective;
 import models.profiles.Profile;
 import models.util.ApiError;
@@ -12,13 +14,13 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.hints.HintRepository;
+import repositories.hints.VoteRepository;
 import repositories.objectives.ObjectiveRepository;
 import repositories.profiles.ProfileRepository;
 import util.AuthenticationUtil;
 import util.Views;
 
 import javax.inject.Inject;
-
 import java.util.List;
 
 import static play.mvc.Results.*;
@@ -28,6 +30,7 @@ public class HintController {
     private ProfileRepository profileRepository;
     private HintRepository hintRepository;
     private ObjectiveRepository objectiveRepository;
+    private VoteRepository voteRepository;
     private AchievementTrackerController achievementTrackerController;
     private ObjectMapper objectMapper;
 
@@ -40,6 +43,7 @@ public class HintController {
     private static final String NO_HINT_MESSAGE = "No hints available.";
     private static final String PAGE_NUMBER = "pageNumber";
     private static final String PAGE_SIZE = "pageSize";
+    private static final String VOTE = "vote";
 
     /**
      * The maximum number of hints allowed per page.
@@ -50,11 +54,13 @@ public class HintController {
     public HintController(ProfileRepository profileRepository,
                           HintRepository hintRepository,
                           ObjectiveRepository objectiveRepository,
+                          VoteRepository voteRepository,
                           AchievementTrackerController achievementTrackerController,
                           ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
         this.hintRepository = hintRepository;
         this.objectiveRepository = objectiveRepository;
+        this.voteRepository = voteRepository;
         this.achievementTrackerController = achievementTrackerController;
         this.objectMapper = objectMapper;
     }
@@ -131,6 +137,7 @@ public class HintController {
      *
      * @param request           the Http request containing login information.
      * @param objectiveId       the id of the objective having its hints retrieved.
+     * @param userId            the id of the user requesting the list of hints.
      * @return                  ok() (Http 200) response containing retrieved hints.
      *                          badRequest() (Http 400) response if there is an issue converting to Json, or if the
      *                          provided page size or number cannot be converted to a valid integer.
@@ -138,15 +145,25 @@ public class HintController {
      *                          forbidden() (Http 403) response if the user is not allowed to retrieve.
      *                          notFound() (Http 404) response if the objective doesn't exist.
      */
-    public Result fetchAll(Http.Request request, Long objectiveId) {
+    public Result fetchAll(Http.Request request, Long objectiveId, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
             return unauthorized(ApiError.unauthorized());
         }
 
+        Profile requestedUser = profileRepository.findById(userId);
+        if (requestedUser == null) {
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
+        }
+
         Objective targetObjective = objectiveRepository.findById(objectiveId);
         if (targetObjective == null) {
             return notFound(ApiError.notFound(Errors.OBJECTIVE_NOT_FOUND));
+        }
+
+        // Can fetch hints if admin, or requestedUser has solved the objective
+        if (!AuthenticationUtil.validUser(loggedInUser, requestedUser)) {
+            return forbidden(ApiError.forbidden());
         }
 
         // Check if the user has completed the objective, is an admin, or owner of the objective.
@@ -179,7 +196,15 @@ public class HintController {
         }
 
         List<Hint> hints = hintRepository.findAllUsing(targetObjective, pageSize, pageNumber);
-        return ok(Json.toJson(hints));
+        ArrayNode voteHints = objectMapper.createArrayNode();
+        for (Hint hint : hints) {
+            Vote vote = voteRepository.findUsing(requestedUser, hint);
+            ObjectNode hintObject = objectMapper.valueToTree(hint);
+            hintObject.set(VOTE, Json.toJson(vote));
+            voteHints.add(hintObject);
+        }
+
+        return ok(voteHints);
     }
 
 
