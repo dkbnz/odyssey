@@ -220,11 +220,6 @@ a {
     padding: 10px;
 }
 
-/* Adds a margin for vote sum values */
-.vote-value {
-    margin: 10px;
-}
-
 /* Used to wrap white space in p sections */
 .wrapWhiteSpace {
     white-space:pre-wrap;
@@ -329,5 +324,19 @@ a {
     .modal-lg, .modal-xl {
         max-width: 90vw;
     }
+}
+
+.vote:hover {
+    cursor: pointer;
+}
+
+.vote:hover.red {
+    -webkit-filter: invert(40%) grayscale(100%) brightness(40%) sepia(100%) hue-rotate(-50deg) saturate(400%) contrast(2);
+    filter: grayscale(100%) brightness(40%) sepia(100%) hue-rotate(-50deg) saturate(600%) contrast(0.8);
+}
+
+.vote:hover.blue {
+    -webkit-filter: grayscale(100%) brightness(40%) sepia(100%) hue-rotate(50deg) saturate(1000%) contrast(0.8);
+    filter: grayscale(100%) brightness(40%) sepia(100%) hue-rotate(50deg) saturate(1000%) contrast(0.8);
 }
 
