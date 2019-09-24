@@ -97,6 +97,7 @@ public class VoteController {
                 isDeleted = voteRepository.delete(vote);
                 if (isUpvote) {
                     hintToVoteOn.removeUpVote();
+                    achievementTrackerController.handleHintUpvote(hintToVoteOn, false);
                 } else {
                     hintToVoteOn.removeDownVote();
                 }
@@ -104,6 +105,7 @@ public class VoteController {
                 hintToVoteOn.removeDownVote();
             } else {
                 hintToVoteOn.removeUpVote();
+                achievementTrackerController.handleHintUpvote(hintToVoteOn, false);
             }
         }
 
