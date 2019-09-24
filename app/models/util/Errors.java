@@ -30,6 +30,7 @@ public enum Errors {
     NO_OBJECTIVE_DESTINATION("Objectives must have a destination"),
     NO_OBJECTIVE_RADIUS("You must select a range for an objective destination's check in"),
     INVALID_PAGE_SIZE_REQUESTED("Invalid page size provided."),
+    INVALID_PAGE_NUMBER_REQUESTED("Invalid page number provided."),
     HINT_NOT_FOUND("The requested hint is not found."),
     VOTE_ALREADY_EXISTS("You already have voted on this hint."),
     HINT_OBJECTIVE_SOLVED("You cannot request a hint for an objective you have already solved."),

@@ -68,14 +68,7 @@
                     </b-img>
                     <strong v-if="!retrievingTrips && !futureTrips.length">Can't find any trips!</strong>
                 </div>
-                <template v-slot:cell(more_details)="row">
-                    <b-button size="sm"
-                              @click="row.toggleDetails"
-                              variant="warning"
-                              class="mr-2"
-                              block>
-                        Show Details
-                    </b-button>
+                <template v-slot:cell(actions)="row">
                     <b-button size="sm"
                               v-model="editButton"
                               v-b-modal.editTripModal
@@ -95,6 +88,13 @@
                               v-if="hasPermission"
                               block>
                         Delete
+                    </b-button>
+                    <b-button size="sm"
+                              @click="row.toggleDetails"
+                              variant="warning"
+                              class="mr-2"
+                              block>
+                        {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                     </b-button>
                 </template>
 
@@ -185,14 +185,7 @@
                         </b-img>
                         <strong v-if="!retrievingTrips && !pastTrips.length" >Can't find any trips!</strong>
                     </div>
-                    <template v-slot:cell(more_details)="row">
-                        <b-button size="sm"
-                                  @click="row.toggleDetails"
-                                  variant="warning"
-                                  class="mr-2"
-                                  block>
-                            {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
-                        </b-button>
+                    <template v-slot:cell(actions)="row">
                         <b-button size="sm"
                                   v-model="editButton"
                                   v-b-modal.editTripModal
@@ -213,10 +206,17 @@
                                   block>
                             Delete
                         </b-button>
+                        <b-button size="sm"
+                                  @click="row.toggleDetails"
+                                  variant="warning"
+                                  class="mr-2"
+                                  block>
+                            {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+                        </b-button>
                     </template>
 
                     <!-- Shows all the trip destinations in a separate nested table -->
-                    <template v-slot:cell(row-details)="row">
+                    <template v-slot:row-details="row">
                         <b-card>
                             <b-table
                                     :fields="subFields"
@@ -407,7 +407,7 @@
                     {key: 'tripEndDate', label: 'End Date'},
                     {key: 'tripEndDest', label: 'End Destination'},
                     {key: 'duration', label: 'Duration'},
-                    'more_details'
+                    'actions'
                 ]
             },
 
@@ -435,7 +435,7 @@
              * Gathers trip dates into an array, regardless of whether they are start/end date.
              *
              * @param destinations  the destinations of the trip that is going to be used to display the trip dates.
-             * @return {Array}      the dates of the first and last destination in the trip.
+             * @returns {Array}      the dates of the first and last destination in the trip.
              */
             calculateTripDates(destinations) {
                 let tripDates = [];

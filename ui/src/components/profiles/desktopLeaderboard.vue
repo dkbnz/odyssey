@@ -319,7 +319,7 @@
             /**
              * Queries database for profiles which fit search criteria.
              *
-             * @return {Promise <Response | never>}    the fetch method to retrieve profiles.
+             * @returns {Promise <Response | never>}    the fetch method to retrieve profiles.
              */
             queryProfiles() {
                 this.retrievingProfiles = true;

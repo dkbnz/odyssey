@@ -18,7 +18,7 @@
 
             <template v-slot:cell(profilePhoto)="row" >
                 <b-img :src="getProfilePictureThumbnail(row.item.profilePicture)"
-                       onerror="this.src = '../../../static/default_profile_picture.png'"
+                       onerror="this.onerror= null; this.src = '../../../static/default_profile_picture.png'"
                        fluid
                        rounded="circle"
                        thumbnail
@@ -313,7 +313,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @return {number}    the number of rows required in the table based on number of profiles to be
+             * @returns {number}    the number of rows required in the table based on number of profiles to be
              *                      displayed.
              */
             getRows() {

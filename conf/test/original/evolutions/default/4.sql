@@ -248,7 +248,8 @@ INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `sol
 (15, 8, 9, 1, 9, 0),
 (16, 9, 9, 1, 9, 0),
 (17, 8, 6, 1, 0, 0),
-(18, 9, 6, 1, 0, 0);
+(18, 9, 6, 1, 0, 0),
+(19, 5, 4, 0, 1, 0);
 
 
 INSERT INTO `hint` (`id`, `message`, `up_votes`, `down_votes`, `objective_id`, `creator_id`) VALUES
@@ -257,7 +258,11 @@ INSERT INTO `hint` (`id`, `message`, `up_votes`, `down_votes`, `objective_id`, `
 (3, 'Think about the first word carefully', 45, 38, 31, 8),
 (4, 'The most up-voted hint', 100, 1, 18, 7),
 (5, 'The second most up-voted hint', 99, 1, 18, 7),
-(6, 'The second-equal up-voted hint', 100, 2, 18, 7);
+(6, 'The second-equal up-voted hint', 100, 2, 18, 7),
+(7, 'First requested hint', 70, 2, 9, 7),
+(8, 'Second requested hint', 60, 2, 9, 7),
+(9, 'Third requested hint', 50, 2, 9, 7),
+(10, 'Fourth requested hint', 40, 2, 9, 7);
 
 
 INSERT INTO `vote` (`id`, `voter_id`, `target_hint_id`, `is_up_vote`) VALUES

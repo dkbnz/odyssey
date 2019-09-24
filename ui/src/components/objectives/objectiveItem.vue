@@ -209,7 +209,7 @@
             /**
              * Returns true if the inputted riddle has length greater than 0.
              *
-             * @return {Boolean} true if validated.
+             * @returns {Boolean} true if validated.
              */
             validateRiddle() {
                 if (this.inputObjective.riddle.length > 0) {
@@ -224,7 +224,7 @@
             /**
              * Returns true if the user has selected a check in radius
              *
-             * @return {boolean} true if validated.
+             * @returns {boolean} true if validated.
              */
             validateCheckIn() {
                 if (this.radiusSelected.value === null) {
@@ -237,7 +237,7 @@
             /**
              * Returns true if the input destination exists and matches the one selected in the sidebar and isn't empty.
              *
-             * @return {boolean} true if valid.
+             * @returns {boolean} true if valid.
              */
             validateDestination() {
                 return (this.inputObjective.destination !== null

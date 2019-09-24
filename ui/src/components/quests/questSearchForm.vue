@@ -138,7 +138,7 @@
             /**
              * Validates the input fields based on regex.
              *
-             * @return {*} true if input is valid.
+             * @returns {*} true if input is valid.
              */
             questTitleValidation() {
                 if (this.searchTitle.length === 0) {
@@ -237,7 +237,7 @@
              * Checks each of the validation fields to ensure they are return either null (no value is given), or the
              * field is valid.
              *
-             * @return {boolean} true if the fields are valid.
+             * @returns {boolean} true if the fields are valid.
              */
             validateFields(validationField) {
                 if (validationField === null || validationField === true) {
@@ -250,7 +250,7 @@
              * Runs a query which searches through the quests in the database and returns all which
              * follow the search criteria.
              *
-             * @return {Promise<Response | never>}
+             * @returns {Promise<Response | never>}
              */
             queryQuests() {
                 let self = this;
