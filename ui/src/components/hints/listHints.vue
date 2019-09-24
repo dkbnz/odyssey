@@ -10,17 +10,19 @@
                     <b-col class="w-100">
                         <p>{{hint.message}}</p>
                     </b-col>
-                    <div class="vote-value">
-                        {{hint.voteSum}}
-                    </div>
-                    <b-button @click="upVote(hint)"
-                              class="mr-3"
-                              size="sm">&uarr;
-                    </b-button>
-                    <b-button @click="downVote(hint)"
-                              class="mr-3"
-                              size="sm">&darr;
-                    </b-button>
+                    <b-row v-if="solved" class="vote" style="vertical-align: middle;">
+                        <b-col cols="4">
+                            <div>
+                                {{hint.voteSum}}
+                            </div>
+                        </b-col>
+                        <b-col cols="2">
+                            <b-img class="vote blue" height="30%" :src="assets['arrowUp']" @click="upVote(hint)"></b-img>
+                        </b-col>
+                        <b-col cols="2">
+                            <b-img class="vote red" height="30%" :src="assets['arrowDown']" @click="downVote(hint)"></b-img>
+                        </b-col>
+                    </b-row>
                 </b-row>
             </b-list-group-item>
             <b-row no-gutters class="mt-2">
