@@ -5,7 +5,8 @@
             <tr v-for="rowNumber in (numberOfRows)">
                 <td v-for="photo in getRowPhotos(rowNumber)">
                     <b-container class="p-1" :class="{colorBlue: selected(photo)}">
-                        <b-img :src="getThumbImage(photo.id)" @click="$emit('photo-click', photo)" @error="imageAlt"
+                        <b-img :src="getThumbImage(photo.id)" @click="$emit('photo-click', photo)"
+                               onerror="this.onerror = null; this.src='../../../static/default_image.png'"
                                alt="Image not Found" thumbnail>
                         </b-img>
                     </b-container>
@@ -145,14 +146,6 @@
              */
             getThumbImage(id) {
                 return 'v1/photos/thumb/' + id;
-            },
-
-
-            /**
-             * When an image isn't shown show this default profile image.
-             */
-            imageAlt(event) {
-                event.target.src = "../../../static/default_image.png"
             },
 
 

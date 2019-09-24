@@ -429,16 +429,6 @@
 
 
             /**
-             * Displays default image when no image is found.
-             *
-             * @param event     image error event.
-             */
-            imageAlt(event) {
-                event.target.src = "../../../static/default_profile_picture.png"
-            },
-
-
-            /**
              * Runs a query which searches through the quests in the database and returns only
              * quests started by the profile.
              */
