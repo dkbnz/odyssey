@@ -15,6 +15,7 @@ import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.hints.HintRepository;
 import repositories.profiles.ProfileRepository;
 
 import java.io.IOException;
@@ -29,12 +30,6 @@ public class AchievementTrackerTestSteps {
      * Singleton class which stores generally used variables
      */
     private TestContext testContext = TestContext.getInstance();
-
-
-    /**
-     * New instance of the general test steps.
-     */
-    private GeneralTestSteps generalTestSteps = new GeneralTestSteps();
 
 
     /**
@@ -134,21 +129,6 @@ public class AchievementTrackerTestSteps {
     private static final String TRIPS = "trips";
     private static final String QUESTS = "quests";
 
-
-    /**
-     * The static Json variable keys for a trip.
-     */
-    private static final String NAME = "trip_name";
-    private static final String DESTINATION = "destination_id";
-    private static final String START_DATE = "start_date";
-    private static final String END_DATE = "end_date";
-
-
-    private static final String NAME_STRING = "Name";
-    private static final String DESTINATION_STRING = "Destination";
-    private static final String START_DATE_STRING = "Start Date";
-    private static final String END_DATE_STRING = "End Date";
-
     private static final String ACHIEVEMENT_TRACKER = "achievementTracker";
     private static final String BADGES = "badges";
     private static final String BADGE_NAME = "name";
@@ -164,54 +144,67 @@ public class AchievementTrackerTestSteps {
     private static final Integer DAY_IN_MS = 86400000;
     private static final String REG_AUTH_PASS = "guest123";
 
-    private ObjectNode tripJson;
-    private List<ObjectNode> tripDestinations = new ArrayList<>();
 
     /**
      * Global variable for the person's badges.
      */
     private JsonNode badges;
 
+
     /**
      * Global variable for the requested badge's progress.
      */
     private int currentBadgeProgress = 0;
+
 
     /**
      * Global variable for the requested badge's level.
      */
     private int currentBadgeLevel = 0;
 
+
     /**
      * An object mapper used during tests.
      */
     private ObjectMapper mapper = new ObjectMapper();
+
 
     /**
      * Points the profile started with.
      */
     private int startingPoints;
 
+
     /**
-     * Users current streak global variable
+     * Users current streak global variable.
      */
     private int currentStreak;
 
+
     /**
-     * Users last login date global variable
+     * Users last login date global variable.
      */
     private Date lastLoginDate;
+
 
     /**
      * Points the profile has after an action.
      */
     private int currentPoints;
 
+
     /**
-     * Profile repository injected
+     * Profile repository injected.
      */
     private ProfileRepository profileRepository =
             testContext.getApplication().injector().instanceOf(ProfileRepository.class);
+
+
+    /**
+     * Hint repository injected.
+     */
+    private HintRepository hintRepository =
+            testContext.getApplication().injector().instanceOf(HintRepository.class);
 
 
     private void getPointsRequest(String userId) {
@@ -243,80 +236,6 @@ public class AchievementTrackerTestSteps {
                 .session(AUTHORIZED, testContext.getLoggedInId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
-        testContext.setResponseBody(Helpers.contentAsString(result));
-    }
-
-
-    /**
-     * Converts a given data table of trip values to a Json node object of this trip.
-     *
-     * @param dataTable     the data table containing values of a trip.
-     */
-    private void convertDataTableTripJson(io.cucumber.datatable.DataTable dataTable, int index) {
-        //Get all input from the data table
-        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String name       = list.get(index).get(NAME_STRING);
-
-        //Add values to a JsonNode
-        ObjectMapper mapper = new ObjectMapper();
-        tripJson = mapper.createObjectNode();
-        tripJson.put(NAME, name);
-    }
-
-
-    /**
-     * Converts a given data table of trip destination values to a Json node object of this trip.
-     *
-     * @param dataTable     the data table containing values of a trip destination.
-     */
-    private void convertDataTableToObjectiveJson(io.cucumber.datatable.DataTable dataTable, int index) {
-        //Get all input from the data table
-        List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String destination         = list.get(index).get(DESTINATION_STRING);
-        String startDate           = list.get(index).get(START_DATE_STRING);
-        String endDate             = list.get(index).get(END_DATE_STRING);
-
-        // If there is already destinations in the trip, then we need the dates to be spaced out.
-        int dateBuffer = 0;
-        if (!tripDestinations.isEmpty()) {
-            dateBuffer += 10;
-        }
-
-        if (startDate.isEmpty()) {
-            startDate = generalTestSteps.getDateBuffer(true, dateBuffer);
-        }
-
-        if (endDate.isEmpty()) {
-            endDate = generalTestSteps.getDateBuffer(false, dateBuffer);
-        }
-
-
-        //Add values to a JsonNode
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode json = mapper.createObjectNode();
-
-        json.put(DESTINATION, destination);
-        json.put(START_DATE, startDate);
-        json.put(END_DATE, endDate);
-        tripDestinations.add(json);
-    }
-
-
-    /**
-     * Sends the backend request to create a trip.
-     *
-     * @param json  the given Json body containing a trip.
-     */
-    private void createTripRequest(JsonNode json) {
-        Http.RequestBuilder request = fakeRequest()
-                .method(POST)
-                .session(AUTHORIZED, testContext.getLoggedInId())
-                .bodyJson(json)
-                .uri(TRIP_URI + "/" + testContext.getLoggedInId());
-        Result result = route(testContext.getApplication(), request);
-        testContext.setStatusCode(result.status());
-        tripDestinations.clear();
-
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
@@ -368,6 +287,13 @@ public class AchievementTrackerTestSteps {
                         testContext.getLoggedInId()
                 )
         ).getAchievementTracker().getPoints();
+    }
+
+
+    @Given("^the owner of the hint with id (\\d+) has some starting points$")
+    public void theOwnerOfTheHintWithIdHasSomeStartingPoints(Integer hintId) {
+        startingPoints = hintRepository.findById(hintId.longValue()).getCreator().getAchievementTracker().getPoints();
+        System.out.println("STARTING POINTS: " + startingPoints);
     }
 
 
@@ -598,6 +524,27 @@ public class AchievementTrackerTestSteps {
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         currentPoints = responseBody.get("userPoints").asInt();
         Assert.assertTrue("Current points is not greater than starting points",currentPoints > startingPoints);
+    }
+
+
+    @Then("^the owner of the hint with id (\\d+) has gained points$")
+    public void theOwnerOfTheHintWithIdHasGainedPoints(Integer hintId) throws IOException {
+        Profile hintOwner = hintRepository.findById(hintId.longValue()).getCreator();
+        getPointsRequest(hintOwner.getId().toString());
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        currentPoints = responseBody.get("userPoints").asInt();
+        Assert.assertTrue("Current points is not greater than starting points", currentPoints > startingPoints);
+    }
+
+
+    @Then("^the owner of the hint with id (\\d+) has lost points$")
+    public void theOwnerOfTheHintWithIdHasLostPoints(Integer hintId) throws IOException {
+        Profile hintOwner = hintRepository.findById(hintId.longValue()).getCreator();
+        getPointsRequest(hintOwner.getId().toString());
+        JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
+        currentPoints = responseBody.get("userPoints").asInt();
+        System.out.println("CURRENT POINTS: " + currentPoints);
+        Assert.assertTrue("Current points is not less than starting points", currentPoints < startingPoints);
     }
 
 
