@@ -308,14 +308,6 @@
 
 
             /**
-             * When an image isn't shown show this default profile image.
-             */
-            imageAlt(event) {
-                event.target.src = "../../../static/default_image.png"
-            },
-
-
-            /**
              * Closes the delete photo modal.
              */
             dismissConfirmDelete() {
