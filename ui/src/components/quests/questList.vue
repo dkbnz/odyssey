@@ -721,7 +721,7 @@
                 let self = this;
                 let currentPageQuery = currentPage - 1;
                 fetch(`/v1/objectives/` + self.currentObjective.id +
-                    `/hints?pageNumber=` + currentPageQuery +
+                    `/hints/` + this.profile.id + `?pageNumber=` + currentPageQuery +
                     `&pageSize=` + perPage, {})
                     .then(function (response) {
                         if (!response.ok) {

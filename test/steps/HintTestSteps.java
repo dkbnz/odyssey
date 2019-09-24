@@ -127,10 +127,13 @@ public class HintTestSteps {
      * @param objectiveId       the id of of the objective that is having its hints retrieved.
      */
     private void fetchAllHintsRequest(int objectiveId) {
+        // If user is not logged in, id is required for url
+        String targetId = testContext.getLoggedInId() != null ? testContext.getLoggedInId() : "1";
+
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .session(AUTHORIZED, testContext.getLoggedInId())
-                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI);
+                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI + "/" + targetId);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
@@ -147,7 +150,7 @@ public class HintTestSteps {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
                 .session(AUTHORIZED, testContext.getLoggedInId())
-                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI + searchQuery);
+                .uri(OBJECTIVE_URI + objectiveId + HINTS_URI + "/" + testContext.getLoggedInId() + searchQuery);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
         testContext.setResponseBody(Helpers.contentAsString(result));
