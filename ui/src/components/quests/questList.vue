@@ -241,7 +241,7 @@
                                  :profile="profile"
                                  :objective="currentObjective"
                                  @successCreate="successCreateHint"
-                                 @cancelCreate="show = 'Hints'">
+                                 @cancelCreate="cancelCreateHint">
                     </create-hint>
                 </b-card>
             </b-col>
@@ -647,7 +647,7 @@
 
 
             /**
-             * Success create hint show
+             * Success create hint show.
              */
             successCreateHint(responseBody) {
                 this.alertText = "Hint successfully created!";
@@ -655,6 +655,15 @@
                 this.showRewardToast(responseBody.reward);
                 this.showHintSideBar = 'Hints';
                 this.currentObjective.numberOfHints += 1;
+                this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
+            },
+
+
+            /**
+             * When the user cancels the creation of a hint.
+             */
+            cancelCreateHint() {
+                this.showHintSideBar = 'Hints';
                 this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
             },
 

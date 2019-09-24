@@ -45,7 +45,7 @@
                 :profile="profile"
                 :objective="objective"
                  @successCreate="successCreateHint"
-                 @cancelCreate="show = 'Hints'">
+                 @cancelCreate="cancelCreateHint">
     </create-hint>
 </template>
 
@@ -71,6 +71,9 @@
         },
 
         watch: {
+            /**
+             * Watches the quest to see if it updates and if so then show the objectives.
+             */
             quest() {
                 this.show = "Objectives";
             }
@@ -101,8 +104,18 @@
             successCreateHint(responseBody) {
                 this.showRewardToast(responseBody.reward);
                 this.show = "Hints";
-                this.objective.hints.push(responseBody.newHint);
+                this.objective.numberOfHints += 1;
+                this.getPageHints(this.defaultCurrentPage, this.defaultPerPage);
                 this.$emit("successCreate");
+            },
+
+
+            /**
+             * When the user cancels the creation of a hint.
+             */
+            cancelCreateHint() {
+                this.show = "Hints";
+                this.getPageHints(this.defaultCurrentPage, this.defaultPerPage);
             },
 
 
