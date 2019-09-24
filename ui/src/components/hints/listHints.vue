@@ -1,35 +1,32 @@
 <template>
-    <b-col class="w-100 buttonMarginsTop">
+    <div class="w-100 buttonMarginsTop">
         <b-list-group>
-            <h4 v-if="hints.length > 0">Hints:</h4>
             <p v-if="!hints.length > 0">No Hints for this Objective</p>
             <b-list-group-item v-for="hint in getHints"
                                class="flex-column align-items-start"
+                               draggable="false"
                                :key="hint.message">
-                <b-row>
-                    <b-col class="w-100">
-                        <p>{{hint.message}}</p>
+                <b-form-row>
+                    <b-col md="10" cols="8" class="d-inline text-wrap text-break">
+                        {{hint.message}}
                     </b-col>
-                    <b-row v-if="solved" class="vote">
-                        <b-col cols="4">
-                            <div>
-                                {{hint.voteSum}}
-                            </div>
-                        </b-col>
-                        <b-col cols="4" @click="upVote(hint)" class="vote greenHover"
-                               :class="{'vote green': hint.vote != null && hint.vote.upVote}">
+                    <b-col @click="upVote(hint)" class="vote greenHover d-inline text-center"
+                               :class="{'vote green': hint.vote != null && hint.vote.upVote}" v-if="solved">
                             <b-img
-                                   height="20%"
-                                   :src="assets['arrowUp']"></b-img>
+                                    height="15%"
+                                    :src="assets['arrowUp']"></b-img>
                         </b-col>
-                        <b-col cols="4" @click="downVote(hint)" class="vote redHover"
-                               :class="{'vote red': hint.vote != null && !hint.vote.upVote}">
+                        <b-col v-if="solved" class="d-inline text-center">
+                            {{roundVoteSum(hint.voteSum)}}
+                        </b-col>
+                        <b-col @click="downVote(hint)" class="vote redHover d-inline text-center"
+                               :class="{'vote red': hint.vote != null && !hint.vote.upVote}" v-if="solved">
                             <b-img
-                                   height="20%"
-                                   :src="assets['arrowDown']"></b-img>
+                                    height="15%"
+                                    :src="assets['arrowDown']"></b-img>
                         </b-col>
-                    </b-row>
-                </b-row>
+                </b-form-row>
+
             </b-list-group-item>
             <b-row no-gutters class="mt-2" v-if="hints.length > 0">
                 <b-col cols="3">
@@ -66,7 +63,7 @@
                 </b-col>
             </b-row>
         </b-list-group>
-    </b-col>
+    </div>
 </template>
 
 <script>
@@ -181,6 +178,16 @@
                     self.savingTrip = false;
                     self.handleErrorResponse(response);
                 });
+            },
+
+
+            /**
+             * Round the number of votes for a given hint to a human readable format.
+             *
+             * @param votes     the number of votes for a given hint.
+             */
+            roundVoteSum(votes) {
+                return votes >= 1000 ? (votes/1000).toFixed(1) + 'k' : votes;
             },
 
 
