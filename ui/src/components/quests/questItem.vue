@@ -533,7 +533,7 @@
             /**
              * Gets the current date+time as a Date object.
              *
-             * @returns Current Datetime.
+             * @returns Date    today's date.
              */
             getCurrentDate() {
                 return new Date();
