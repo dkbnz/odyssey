@@ -17,6 +17,8 @@ import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.hints.HintRepository;
+import repositories.objectives.ObjectiveRepository;
 import repositories.profiles.ProfileRepository;
 
 import java.io.IOException;
@@ -198,12 +200,12 @@ public class AchievementTrackerTestSteps {
     private int startingPoints;
 
     /**
-     * Users current streak global variable
+     * Users current streak global variable.
      */
     private int currentStreak;
 
     /**
-     * Users last login date global variable
+     * Users last login date global variable.
      */
     private Date lastLoginDate;
 
@@ -213,10 +215,17 @@ public class AchievementTrackerTestSteps {
     private int currentPoints;
 
     /**
-     * Profile repository injected
+     * Profile repository injected.
      */
     private ProfileRepository profileRepository =
             testContext.getApplication().injector().instanceOf(ProfileRepository.class);
+
+
+    /**
+     * Hint repository injected.
+     */
+    private HintRepository hintRepository =
+            testContext.getApplication().injector().instanceOf(HintRepository.class);
 
 
     private void getPointsRequest(String userId) {
@@ -373,13 +382,13 @@ public class AchievementTrackerTestSteps {
                         testContext.getLoggedInId()
                 )
         ).getAchievementTracker().getPoints();
-        System.out.println("STARTING POINTS: " + startingPoints);
     }
 
 
-    @Given("^the user with id (\\d+) has some starting points$")
-    public void theUserWithIdHasSomeStartingPoints(Integer userId) {
-        startingPoints = profileRepository.findById(Long.valueOf(userId)).getAchievementTracker().getPoints();
+    @Given("^the owner of the hint with id (\\d+) has some starting points$")
+    public void theOwnerOfTheHintWithIdHasSomeStartingPoints(Integer hintId) {
+        startingPoints = hintRepository.findById(hintId.longValue()).getCreator().getAchievementTracker().getPoints();
+        System.out.println("STARTING POINTS: " + startingPoints);
     }
 
 
@@ -629,12 +638,12 @@ public class AchievementTrackerTestSteps {
     }
 
 
-    @Then("^the user with id (\\d+) has gained points$")
-    public void theUserWithIdHasGainedPoints(Integer userId) throws IOException {
-        getPointsRequest(userId.toString());
+    @Then("^the owner of the hint with id (\\d+) has gained points$")
+    public void theOwnerOfTheHintWithIdHasGainedPoints(Integer hintId) throws IOException {
+        Profile hintOwner = hintRepository.findById(hintId.longValue()).getCreator();
+        getPointsRequest(hintOwner.getId().toString());
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         currentPoints = responseBody.get("userPoints").asInt();
-        System.out.println("CURRENT POINTS: " + currentPoints);
         Assert.assertTrue("Current points is not greater than starting points", currentPoints > startingPoints);
     }
 

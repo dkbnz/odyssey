@@ -55,20 +55,23 @@ Feature: Voting API Endpoint
 
 
 
+
   # Successful cases for upvoting
   Scenario: Upvoting a hint for an objective I have solved
     Given the application is running
     And I am logged in as user with id 8
     And an objective exists with id 18
-    And the user with id 10 has some starting points
     And I do not own the objective with id 18
     And I have solved the objective with id 18
     And a hint with id 1 exists for objective with id 18
+    And the owner of the hint with id 1 has some starting points
     And the hint with id 1 has 10 upvotes
     When I attempt to upvote a hint with id 1 for user with id 8
     Then the status code received is 200
     And the hint with id 1 has 11 upvotes
-    And the user with id 10 has gained points
+    And the owner of the hint with id 1 has gained points
+
+
 
 
 

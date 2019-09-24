@@ -108,6 +108,7 @@ public class VoteController {
             vote.setUpVote(isUpvote);
             if (isUpvote) {
                 hintToVoteOn.upVote();
+                achievementTrackerController.handleHintUpvote(hintToVoteOn, true);
             } else {
                 hintToVoteOn.downVote();
             }
