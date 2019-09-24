@@ -360,40 +360,6 @@ public class TripController extends Controller {
 
 
     /**
-     * Fetches a single trip from the database for a logged in user.
-     *
-     * @param request   Http request from client
-     * @return          an ok() (Http 200) response rendering the fetched trip onto the page. If requested trip not
-     *                  valid then returns a badRequest() (Http 400). If the trip is not found then returns notFound()
-     *                  (Http 404).
-     */
-    public Result fetch(Http.Request request) {
-
-        JsonNode json = request.body().asJson();
-
-        // The id taken from the json node, initialised as null for validation purposes.
-        long parsedTripId;
-
-        // Retrieving the id of the trip being fetched
-        try {
-            parsedTripId = Integer.parseInt(json.get(TRIP_ID).asText());
-        } catch (NumberFormatException e) {
-            return badRequest(ApiError.invalidJson());
-        }
-
-        // Retrieving the trip which corresponds to the id parsed.
-        Trip returnedTrip = tripRepository.findById(parsedTripId);
-
-        // Verifying the existence of the trip being retrieved.
-        if (returnedTrip == null) {
-            return notFound(ApiError.notFound(Errors.TRIP_NOT_FOUND));
-        }
-
-        return ok(Json.toJson(returnedTrip));
-    }
-
-
-    /**
      * Determines if any of the destinations in a trip need to have their ownership changed. This is if the destination
      * is public, not owned by the global admin and the affected profile is not the owner of the public destination.
      *
