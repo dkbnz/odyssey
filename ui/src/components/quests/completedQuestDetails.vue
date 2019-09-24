@@ -36,7 +36,8 @@
                     :profile="profile"
                     :hints="objective.hints"
                     :solved="true"
-                    @showAddHint="showAddHint()">
+                    @showAddHint="showAddHint()"
+                    @request-new-hints-page="getPageHints">
         </list-hints>
     </div>
 
@@ -63,7 +64,9 @@
         data() {
             return {
                 objective: Object,
-                show: "Objectives"
+                show: "Objectives",
+                defaultPerPage: 5,
+                defaultCurrentPage: 1
             }
         },
 
@@ -75,14 +78,18 @@
 
         methods: {
             /**
-             * Shows the hints for the given
+             * Shows the hints for the given.
              */
             showHints(objective) {
                 this.show = "Hints";
                 this.objective = objective;
+                this.getPageHints(this.defaultCurrentPage, this.defaultPerPage);
             },
 
 
+            /**
+             * Shows the create hint component.
+             */
             showAddHint() {
                 this.show = "Create Hint";
             },
@@ -96,6 +103,37 @@
                 this.show = "Hints";
                 this.objective.hints.push(responseBody.newHint);
                 this.$emit("successCreate");
+            },
+
+
+            /**
+             * Gets the hints to display from the backend for all hints for an objective but paginated based on
+             * current page and the per page variables.
+             * @param currentPage           The current viewing page.
+             * @param perPage               The amount to view on a page.
+             */
+            getPageHints(currentPage, perPage) {
+                console.log(currentPage);
+                console.log(perPage);
+                let self = this;
+                let currentPageQuery = currentPage - 1;
+                fetch(`/v1/objectives/` + self.objective.id +
+                    `/hints?pageNumber=` + currentPageQuery +
+                    `&pageSize=` + perPage, {})
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    })
+                    .then(function (responseBody) {
+                        self.loadingResults = false;
+                        self.objective.hints = responseBody;
+                    }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
+                });
             }
         }
 
