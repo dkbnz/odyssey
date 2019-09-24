@@ -56,7 +56,7 @@
                      :profile="profile"
                      :objective="objective"
                      @successCreate="successCreateHint"
-                     @cancelCreate="showHintSideBar = false">
+                     @cancelCreate="cancelCreateHint">
         </create-hint>
 
         <div v-else>
@@ -239,17 +239,26 @@
                 showHintInObjective: false,
                 dismissSeconds: 3,
                 dismissCountDown: 0,
-                alertText: ""
+                alertText: "",
+                hintsDefaultPerPage: 5,
+                hintsDefaultCurrentPage: 1
             }
         },
 
         watch: {
+            /**
+             * Watches the quest attempt to see if it updates and if so then hide the destination search and change
+             * show or hide to show.
+             */
             questAttempt() {
                 this.showDestinationSearch = false;
                 this.showOrHide = "Show";
             },
 
 
+            /**
+             * Watching the found location variable to then do the checkin request once the user has been found.
+             */
             foundLocation() {
                 if (this.foundLocation) {
                     if (this.validCheckIn) {
@@ -293,7 +302,7 @@
 
 
             /**
-             * Showing the create hint and setting the objective for the hint creation
+             * Showing the create hint and setting the objective for the hint creation.
              */
             showAddHint(objective) {
                 this.objective = objective;
@@ -301,12 +310,26 @@
             },
 
 
+            /**
+             * Function from the emit of a successfully created hint and shows the rewards and resets the list hints
+             * component.
+             */
             successCreateHint(responseBody) {
                 this.alertText = "Hint successfully created!";
                 this.showAlert();
                 this.showRewardToast(responseBody.reward);
                 this.showHintSideBar = false;
-                this.objective.hints.push(responseBody.newHint);
+                this.objective.numberOfHints += 1;
+                this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
+            },
+
+
+            /**
+             * When the user cancels the creation of a hint.
+             */
+            cancelCreateHint() {
+                this.showHintSideBar = false;
+                this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
             },
 
 
