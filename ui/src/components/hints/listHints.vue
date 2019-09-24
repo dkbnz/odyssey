@@ -181,6 +181,11 @@
             },
 
 
+            /**
+             * Round the number of votes for a given hint to a human readable format.
+             *
+             * @param votes     the number of votes for a given hint.
+             */
             roundVoteSum(votes) {
                 return votes >= 1000 ? (votes/1000).toFixed(1) + 'k' : votes;
             },
