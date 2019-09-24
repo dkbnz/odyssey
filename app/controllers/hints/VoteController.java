@@ -2,7 +2,6 @@ package controllers.hints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import controllers.points.AchievementTrackerController;
 import models.hints.Hint;
 import models.hints.Vote;
 import models.profiles.Profile;
@@ -27,7 +26,6 @@ public class VoteController {
     private HintRepository hintRepository;
     private ObjectiveRepository objectiveRepository;
     private VoteRepository voteRepository;
-    private AchievementTrackerController achievementTrackerController;
     private ObjectMapper objectMapper;
 
 
@@ -40,12 +38,10 @@ public class VoteController {
     public VoteController(ProfileRepository profileRepository,
                           HintRepository hintRepository,
                           VoteRepository voteRepository,
-                          AchievementTrackerController achievementTrackerController,
                           ObjectiveRepository objectiveRepository,
                           ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
         this.hintRepository = hintRepository;
-        this.achievementTrackerController = achievementTrackerController;
         this.objectiveRepository = objectiveRepository;
         this.voteRepository = voteRepository;
         this.objectMapper = objectMapper;
@@ -102,20 +98,7 @@ public class VoteController {
                 return forbidden(ApiError.forbidden());
             }
         } else {
-            // Remove upvotes/downvotes when the user has already voted
-            if (isUpvote == vote.isUpVote()) {
-                // If the user clicks the same button twice, remove the vote
-                isDeleted = voteRepository.delete(vote);
-                if (isUpvote) {
-                    hintToVoteOn.removeUpVote();
-                } else {
-                    hintToVoteOn.removeDownVote();
-                }
-            } else if (isUpvote) {
-                hintToVoteOn.removeDownVote();
-            } else {
-                hintToVoteOn.removeUpVote();
-            }
+            isDeleted = processVote(vote, hintToVoteOn, isUpvote);
         }
 
         if (!isDeleted) {
@@ -136,5 +119,34 @@ public class VoteController {
         hintObject.set(VOTE, Json.toJson(changedVote));
 
         return ok(hintObject);
+    }
+
+
+    /**
+     * Process the user's vote in relation to their previous vote
+     *
+     * @param vote              the previous vote on the hint.
+     * @param hintToVoteOn      the hint being voted on.
+     * @param isUpvote          the user's new vote. True is upvote, False is downvote
+     * @return                  a boolean determining whether the vote was deleted (For toggling votes)
+     */
+    private boolean processVote(Vote vote, Hint hintToVoteOn, boolean isUpvote) {
+        // Remove upvotes/downvotes when the user has already voted
+        boolean isDeleted = false;
+        if (isUpvote == vote.isUpVote()) {
+            // If the user clicks the same button twice, remove the vote
+            isDeleted = voteRepository.delete(vote);
+            if (isUpvote) {
+                hintToVoteOn.removeUpVote();
+            } else {
+                hintToVoteOn.removeDownVote();
+            }
+        } else if (isUpvote) {
+            hintToVoteOn.removeDownVote();
+        } else {
+            hintToVoteOn.removeUpVote();
+        }
+
+        return isDeleted;
     }
 }
