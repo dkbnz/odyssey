@@ -431,6 +431,13 @@ Feature: Trip API Endpoint
     Then the status code received is 401
 
 
+  Scenario: Unsuccessfully fetching all trips for a non existent user
+    Given the application is running
+    And I am logged in
+    When I request all trips for user with id 500
+    Then the status code received is 400
+
+
   Scenario: Successfully fetching the number of trips for a specified user
     Given the application is running
     And I am logged in
