@@ -27,7 +27,7 @@ Vue.use(BootstrapVue);
  * Allows use of these methods in every single component.
  */
 Vue.mixin({
-    /** Handles the events for if the user is viewing on mobile **/
+    /** Handles the events for if the user is viewing on mobile. **/
     created() {
         window.addEventListener("resize", this.handleViewOnMobile);
     },
