@@ -27,10 +27,12 @@ Vue.use(BootstrapVue);
  * Allows use of these methods in every single component.
  */
 Vue.mixin({
-    /** Handles the events for if the user is viewing on mobile **/
+    /** Handles the events for if the user is viewing on mobile. **/
     created() {
         window.addEventListener("resize", this.handleViewOnMobile);
     },
+
+    /** Handles the events for if the user is no longer viewing on mobile. **/
     destroyed() {
         window.removeEventListener("resize", this.handleViewOnMobile);
     },
@@ -182,7 +184,6 @@ Vue.mixin({
          * Runs every five minutes to check if a user is active.
          */
         updateActivity() {
-            console.log("Running");
             let self = this;
             let time = this.MINUTE * 5;      // Runs every 5 minutes
             this.setLastSeenDate();
@@ -277,7 +278,7 @@ if (restrictedPages.includes(window.location.pathname) && viewingOnMobile()) {
     router.push("/profile");
 }
 
-/* Detects if the user is viewing on a mobile device (width is 991) */
+/* Detects if the user is viewing on a mobile device (width is 991). */
 $(window).on("resize", viewingOnMobile);
 function viewingOnMobile( e ) {
     return $(window).width() <= 991;
