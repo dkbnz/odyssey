@@ -134,10 +134,10 @@ Feature: Hint API Endpoint
 
   Scenario: Successfully retrieving all hints for an objective I have completed with no hints
     Given the application is running
-    And I am logged in as user with id 7
-    And an objective exists with id 29
-    And I have solved the objective with id 29
-    When I attempt to retrieve all hints for the objective with id 29
+    And I am logged in as user with id 2
+    And an objective exists with id 19
+    And I have solved the objective with id 19
+    When I attempt to retrieve all hints for the objective with id 19
     Then the status code received is 200
     And the response contains 0 hints
 
@@ -170,7 +170,7 @@ Feature: Hint API Endpoint
     When I attempt to retrieve all hints for the objective with id 29 with page size "hello" and page number "1"
     Then the status code received is 400
     And the following ApiErrors are returned
-      | Invalid page size provided. |s
+      | Invalid page size provided. |
 
 
   Scenario: Unsuccessfully retrieving all hints for an objective I have completed with invalid page number
@@ -268,8 +268,6 @@ Feature: Hint API Endpoint
     When I request a new hint for objective with id 3
     Then the status code received is 200
     And the response contains 0 hints
-    And the response contains the following message
-    | No hints available. |
 
 
   Scenario: Successfully requesting a hint when I have already seen all the hints for the objective
@@ -289,8 +287,6 @@ Feature: Hint API Endpoint
     And I request a new hint for objective with id 18
     Then the status code received is 200
     And the response contains 0 hints
-    And the response contains the following message
-      | No hints available. |
     
   Scenario: Unsuccessfully requesting a hint for an objective when I am not logged in
     Given the application is running

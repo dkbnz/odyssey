@@ -39,8 +39,6 @@ public class HintController {
      */
     private static final String NEW_HINT = "newHint";
     private static final String REWARD = "reward";
-    private static final String MESSAGE = "message";
-    private static final String NO_HINT_MESSAGE = "No hints available.";
     private static final String PAGE_NUMBER = "pageNumber";
     private static final String PAGE_SIZE = "pageSize";
     private static final String VOTE = "vote";
@@ -249,8 +247,7 @@ public class HintController {
         Hint newHint = hintRepository.findAHint(targetObjective, hintUser);
 
         if (newHint == null) {
-            ObjectNode returnJson = objectMapper.createObjectNode();
-            returnJson.put(MESSAGE, NO_HINT_MESSAGE);
+            ArrayNode returnJson = objectMapper.createArrayNode();
             return ok(returnJson);
         }
 

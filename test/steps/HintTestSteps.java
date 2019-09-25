@@ -303,8 +303,8 @@ public class HintTestSteps {
 
 
     @Then("^the response contains (\\d+) hints$")
-    public void theResponseContainsHints(Integer expectedNumberOfHints) {
-        Integer responseLength = testContext.getResponseBody().length();
+    public void theResponseContainsHints(Integer expectedNumberOfHints) throws IOException {
+        Integer responseLength = objectMapper.readTree(testContext.getResponseBody()).size();
         Assert.assertEquals(expectedNumberOfHints, responseLength);
     }
 
