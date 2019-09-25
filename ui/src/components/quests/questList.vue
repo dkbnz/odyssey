@@ -61,7 +61,7 @@
                                        draggable="false"
                                        v-if="!activeQuests"
                                        @click="selectedQuest = quest">
-                        <template v-if="!editingQuest && !(activeId === quest.id)">
+                        <template v-if="!editingQuest && !(activeId === quest.id) && !creatingQuest">
                             <b-row class="buttonMarginsTop">
                                 <b-col :cols="availableQuests ? 5 : ''">
                                     <h4>Title</h4>
@@ -568,6 +568,7 @@
              */
             addQuest() {
                 this.creatingQuest = true;
+                this.editingQuest = false;
                 this.cancelEdit();
             },
 
