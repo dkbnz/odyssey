@@ -198,6 +198,11 @@ public class AchievementTrackerTestSteps {
             testContext.getApplication().injector().instanceOf(HintRepository.class);
 
 
+    /**
+     * Sends a request to the backend using a fake request for the number of points for the given profile.
+     *
+     * @param userId    the id of the profile to be checked for points.
+     */
     private void getPointsRequest(String userId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
@@ -209,6 +214,12 @@ public class AchievementTrackerTestSteps {
     }
 
 
+    /**
+     * Sends a request to the backend using a fake request for guessing the answer to a riddle.
+     *
+     * @param attemptId         the id of the user's current quest progress.
+     * @param destinationId     the id of the guessed destination.
+     */
     private void sendRiddleGuessRequest(long attemptId, long destinationId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
@@ -220,6 +231,11 @@ public class AchievementTrackerTestSteps {
     }
 
 
+    /**
+     * Sends a request to the backend using a fake request for checking in to the current location in a quest.
+     *
+     * @param attemptId     the id of the user's current quest progress.
+     */
     private void sendCheckInRequest(long attemptId) {
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)

@@ -8,11 +8,17 @@ public class HintTest {
 
     private Hint hint;
 
+    private static final String UP_VOTE_NOT_INCREASE = "Up votes did not increase.";
+    private static final String DOWN_VOTE_NOT_INCREASE = "Down votes did not increase.";
+    private static final String VOTE_SUM_CALCULATION_INCORRECT = "The vote sum calculation was incorrect.";
+
+
     @Before
     public void setUp() {
         // Arrange
         hint = new Hint();
     }
+
 
     @Test
     public void testUpVote() {
@@ -20,7 +26,7 @@ public class HintTest {
         hint.upVote();
 
         // Assert
-        Assert.assertEquals("Up votes did not increase.",1, hint.getUpVotes());
+        Assert.assertEquals(UP_VOTE_NOT_INCREASE,1, hint.getUpVotes());
     }
 
 
@@ -31,7 +37,7 @@ public class HintTest {
         hint.downVote();
 
         // Assert
-        Assert.assertEquals("Down votes did not increase.", 2, hint.getDownVotes());
+        Assert.assertEquals(DOWN_VOTE_NOT_INCREASE, 2, hint.getDownVotes());
     }
 
 
@@ -52,7 +58,7 @@ public class HintTest {
         int voteSum = hint.getVoteSum();
 
         // Assert
-        Assert.assertEquals("The vote sum calculation was incorrect.", 2, voteSum);
+        Assert.assertEquals(VOTE_SUM_CALCULATION_INCORRECT, 2, voteSum);
     }
 
 }
