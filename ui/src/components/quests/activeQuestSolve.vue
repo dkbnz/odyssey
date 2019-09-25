@@ -93,18 +93,34 @@
             <b-list-group>
 
                 <!-- List the solved objectives in the quest attempt -->
-                <b-list-group-item v-for="objective in questAttempt.solved"
+                <b-list-group-item v-for="solvedObjective in questAttempt.solved"
                                    class="flex-column align-items-start"
-                                   :key="objective.id">
-                    <div class="d-flex w-100 justify-content-between">
-                        <p class="mb-1 mobile-text font-weight-bold">{{objective.riddle}}</p>
-                        <small>
-                            <b-img src="../../../static/check_mark.png" fluid></b-img>
-                        </small>
-                    </div>
-                    <p class="mb-1 mobile-text">
-                        {{objective.destination.name}}
-                    </p>
+                                   :key="solvedObjective.id">
+                    <b-col class="w-100">
+                        <b-row class="pb-1">
+                            <b-col md="7">
+                                <span class="mobile-text font-weight-bold">{{solvedObjective.riddle}}</span>
+                                <p class="mb-1 mobile-text">
+                                    {{solvedObjective.destination.name}}
+                                </p>
+                            </b-col>
+                            <b-col md="5">
+                                <div class="float-right">
+                                    <b-button size="sm" variant="primary" @click="showOrHideHints(true, solvedObjective)">{{solvedObjective.id === objective.id ? "Hide" : "Show"}} Hints</b-button>
+                                    <b-img src="../../../static/check_mark.png" fluid></b-img>
+                                </div>
+                            </b-col>
+                        </b-row>
+                        <b-row v-if="solvedObjective.id === objective.id && hintsReceived">
+                            <list-hints
+                                    :objective="objective"
+                                    :profile="profile"
+                                    :solved="true"
+                                    @showAddHint="showAddHint(objective)"
+                                    @request-new-hints-page="getPageHints">
+                            </list-hints>
+                        </b-row>
+                    </b-col>
                 </b-list-group-item>
 
                 <!-- If we have an objective to solve, display it -->
@@ -117,18 +133,17 @@
                             </b-col>
                             <b-col md="5">
                                 <div class="float-right">
-                                    <b-button size="sm" variant="primary" @click="showOrHideHints(false, questAttempt.toSolve)">{{showOrHide}} Hints</b-button>
+                                    <b-button size="sm" variant="primary" @click="showOrHideHints(false, questAttempt.toSolve)">{{questAttempt.toSolve.id === objective.id ? "Hide" : "Show"}} Hints</b-button>
                                     <b-button size="sm" variant="warning" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
                                 </div>
                             </b-col>
                         </b-row>
-                        <b-row v-if="showOrHide === 'Hide'">
+                        <b-row v-if="questAttempt.toSolve.id  === objective.id && hintsReceived">
                             <list-hints
-                                    :objective="questAttempt.toSolve"
+                                    :objective="objective"
                                     :profile="profile"
-                                    :hints="questAttempt.toSolve.hints"
                                     :solved="false"
-                                    @hintRequested="showHintConfirmModal(questAttempt.toSolve)">
+                                    @hintRequested="showHintConfirmModal(objective)">
                             </list-hints>
                         </b-row>
                     </b-col>
@@ -148,18 +163,21 @@
                         </b-col>
                         <b-col md="5">
                             <div class="float-right">
-                                <b-button class="no-wrap-text" size="sm" variant="primary" @click="showOrHideHints(true, questAttempt.toCheckIn)">{{showOrHide}} Hints</b-button>
+                                <b-button class="no-wrap-text" size="sm" variant="primary"
+                                          @click="showOrHideHints(true, questAttempt.toCheckIn)">
+                                    {{questAttempt.toCheckIn.id === objective.id ? "Hide" : "Show"}} Hints
+                                </b-button>
                                 <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
                             </div>
                         </b-col>
                     </b-row>
-                    <b-row v-if="showOrHide === 'Hide'">
+                    <b-row v-if="questAttempt.toCheckIn.id  === objective.id && hintsReceived">
                         <list-hints
-                                :objective="questAttempt.toCheckIn"
+                                :objective="objective"
                                 :profile="profile"
-                                :hints="questAttempt.toCheckIn.hints"
                                 :solved="true"
-                                @showAddHint="showAddHint(questAttempt.toCheckIn)"
+                                :refresh="refreshHints"
+                                @showAddHint="showAddHint(objective)"
                                 @request-new-hints-page="getPageHints">
                         </list-hints>
                     </b-row>
@@ -233,7 +251,9 @@
                 totalDistance: null,
                 searchedRiddle: null,
                 showHintSideBar: false,
-                objective: Object,
+                objective: {
+                    id: -1
+                },
                 showOrHide: "Show",
                 showHintAlertModal: false,
                 objectiveToGetHint: null,
@@ -242,7 +262,10 @@
                 dismissCountDown: 0,
                 alertText: "",
                 hintsDefaultPerPage: 5,
-                hintsDefaultCurrentPage: 1
+                hintsDefaultCurrentPage: 1,
+                hintsReceived: false,
+                checkInHints: 0,
+                refreshHints: false
             }
         },
 
@@ -269,6 +292,10 @@
                     }
                     this.foundLocation = false;
                 }
+            },
+
+            hintsReceived() {
+                this.refreshHints = !this.refreshHints;
             }
         },
 
@@ -288,16 +315,17 @@
             showOrHideHints(solved, objective) {
                 let defaultPerPage = 5;
                 let defaultCurrentPage = 1;
-                this.objective = objective;
-                if (this.showOrHide === "Show") {
-                    this.showOrHide = "Hide";
-                    if(solved) {
+
+                if (this.objective.id === objective.id) {
+                    this.objective.id = -1;
+                    this.hintsReceived = false;
+                } else {
+                    this.objective = JSON.parse(JSON.stringify(objective));
+                    if (solved) {
                         this.getPageHints(defaultCurrentPage, defaultPerPage);
                     } else {
                         this.getHintsUserHasSeen(objective);
                     }
-                } else {
-                    this.showOrHide = "Show";
                 }
             },
 
@@ -603,12 +631,10 @@
                     } else {
                         return response.json();
                     }
-                })
-                    .then(function (responseBody) {
-                        self.loadingResults = false;
-                        objective.hints = responseBody;
-                    }).catch(function (response) {
-                    self.loadingResults = false;
+                }).then(function (responseBody) {
+                    objective.hints = responseBody;
+                    self.hintsReceived = true;
+                }).catch(function (response) {
                     self.handleErrorResponse(response);
                 });
             },
@@ -623,21 +649,20 @@
             getPageHints(currentPage, perPage) {
                 let self = this;
                 let currentPageQuery = currentPage - 1;
-                fetch(`/v1/objectives/` + self.objective.id +
+                fetch(`/v1/objectives/` + this.objective.id +
                     `/hints/` + this.profile.id + `?pageNumber=` + currentPageQuery +
-                    `&pageSize=` + perPage, {})
-                    .then(function (response) {
-                        if (!response.ok) {
-                            throw response;
-                        } else {
-                            return response.json();
-                        }
-                    })
-                    .then(function (responseBody) {
-                        self.loadingResults = false;
-                        self.objective.hints = responseBody;
-                    }).catch(function (response) {
-                    self.loadingResults = false;
+                    `&pageSize=` + perPage, {
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.objective.hints = responseBody;
+                    self.hintsReceived = true;
+                    self.refreshHints = !self.refreshHints;
+                }).catch(function (response) {
                     self.handleErrorResponse(response);
                 });
             }
