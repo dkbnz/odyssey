@@ -1,6 +1,5 @@
 package steps;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 import models.hints.Hint;

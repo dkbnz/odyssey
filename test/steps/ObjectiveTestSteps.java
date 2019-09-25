@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import models.objectives.Objective;
 import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;

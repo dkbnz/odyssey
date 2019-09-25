@@ -16,8 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static play.mvc.Http.HttpVerbs.PATCH;
 import static play.test.Helpers.*;
 
@@ -303,7 +302,7 @@ public class TripTestSteps {
 
 
     @When("I create the trip")
-    public void ICreateTheTrip() {
+    public void iCreateTheTrip() {
         try {
             createTripRequest(tripJson);
         } catch (IOException e) {
@@ -363,6 +362,7 @@ public class TripTestSteps {
     @Then("^the destination with id (\\d+) ownership changes to the user with id (\\d+)$")
     public void theDestinationOwnershipChangesToTheGlobalAdminWithId(Integer destinationId, Integer profileId) {
         Destination destination = destinationRepository.findById(destinationId.longValue());
+        assertNotNull(destination);
         assertEquals(profileId.longValue(), destination.getOwner().getId().longValue());
     }
 }

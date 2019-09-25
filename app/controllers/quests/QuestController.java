@@ -20,7 +20,6 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.destinations.DestinationRepository;
-import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
@@ -78,7 +77,6 @@ public class QuestController {
                            ProfileRepository profileRepository,
                            DestinationRepository destinationRepository,
                            AchievementTrackerController achievementTrackerController,
-                           PointRewardRepository pointRewardRepository,
                            ObjectMapper objectMapper) {
         this.questRepository = questRepository;
         this.questAttemptRepository = questAttemptRepository;

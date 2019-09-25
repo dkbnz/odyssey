@@ -165,7 +165,6 @@ public class PhotoTestSteps {
 
         if (!file.delete())
             log.error("Unable to delete test file");
-
     }
 
 
