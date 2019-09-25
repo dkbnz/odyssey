@@ -24,7 +24,6 @@ public class AuthenticationController extends Controller {
     private static final String USERNAME = "username";
     private static final String AUTHENTICATION_FIELD = "password";
     private static final String AUTHORIZED = "authorized";
-    private static final String LOGGED_IN = "OK, logged In";
     private static final String ALREADY_LOGGED_IN = "OK, Already Logged In";
     private static final String LOGGED_OUT = "OK, Logged out";
     private static final String HASH_FAIL = "Invalid JSON: JSON Object contains no user or password key";

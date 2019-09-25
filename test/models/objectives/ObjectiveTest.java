@@ -16,6 +16,10 @@ public class ObjectiveTest {
     private Profile objectiveOwner1;
     private Profile objectiveOwner2;
 
+    private static final String RIDDLE_STREAM = "Stream";
+    private static final String RIDDLE_STREAM_LAKE = "Stream by the lake";
+    private static final String RIDDLE_STREAM_SEA = "Stream by the sea";
+
     @Before
     public void setUp() {
         testObjective1 = new Objective();
@@ -118,8 +122,8 @@ public class ObjectiveTest {
 
     @Test
     public void testEqual() {
-        testObjective1.setRiddle("Stream");
-        testObjective2.setRiddle("Stream");
+        testObjective1.setRiddle(RIDDLE_STREAM);
+        testObjective2.setRiddle(RIDDLE_STREAM);
 
         testObjective1.setRadius(0.1);
         testObjective2.setRadius(0.1);
@@ -137,8 +141,8 @@ public class ObjectiveTest {
     @Test
     public void testRiddleNotEqual() {
         // Riddle not equal, therefore objective not equal.
-        testObjective1.setRiddle("Stream by the lake");
-        testObjective2.setRiddle("Stream by the sea");
+        testObjective1.setRiddle(RIDDLE_STREAM_LAKE);
+        testObjective2.setRiddle(RIDDLE_STREAM_SEA);
 
         testObjective1.setRadius(0.1);
         testObjective2.setRadius(0.1);
@@ -155,8 +159,8 @@ public class ObjectiveTest {
 
     @Test
     public void testRadiusNotEqual() {
-        testObjective1.setRiddle("Stream by the sea");
-        testObjective2.setRiddle("Stream by the sea");
+        testObjective1.setRiddle(RIDDLE_STREAM_SEA);
+        testObjective2.setRiddle(RIDDLE_STREAM_SEA);
 
         // Radius not equal, therefore objective not equal.
         testObjective1.setRadius(0.5);
@@ -174,8 +178,8 @@ public class ObjectiveTest {
 
     @Test
     public void testOwnerNotEqual() {
-        testObjective1.setRiddle("Stream by the sea");
-        testObjective2.setRiddle("Stream by the sea");
+        testObjective1.setRiddle(RIDDLE_STREAM_SEA);
+        testObjective2.setRiddle(RIDDLE_STREAM_SEA);
 
         testObjective1.setRadius(0.1);
         testObjective2.setRadius(0.1);
@@ -193,8 +197,8 @@ public class ObjectiveTest {
 
     @Test
     public void testEqualHashCode() {
-        testObjective1.setRiddle("Stream");
-        testObjective2.setRiddle("Stream");
+        testObjective1.setRiddle(RIDDLE_STREAM);
+        testObjective2.setRiddle(RIDDLE_STREAM);
 
         testObjective1.setRadius(0.1);
         testObjective2.setRadius(0.1);
@@ -212,8 +216,8 @@ public class ObjectiveTest {
     @Test
     public void testRiddleNotEqualHashCode() {
         // Riddle not equal, therefore objective not equal.
-        testObjective1.setRiddle("Stream by the lake");
-        testObjective2.setRiddle("Stream by the sea");
+        testObjective1.setRiddle(RIDDLE_STREAM_LAKE);
+        testObjective2.setRiddle(RIDDLE_STREAM_SEA);
 
         testObjective1.setRadius(0.1);
         testObjective2.setRadius(0.1);
@@ -230,8 +234,8 @@ public class ObjectiveTest {
 
     @Test
     public void testRadiusNotEqualHashCode() {
-        testObjective1.setRiddle("Stream by the sea");
-        testObjective2.setRiddle("Stream by the sea");
+        testObjective1.setRiddle(RIDDLE_STREAM_SEA);
+        testObjective2.setRiddle(RIDDLE_STREAM_SEA);
 
         // Radius not equal, therefore objective not equal.
         testObjective1.setRadius(0.5);
@@ -249,8 +253,8 @@ public class ObjectiveTest {
 
     @Test
     public void testOwnerNotEqualHashCode() {
-        testObjective1.setRiddle("Stream by the sea");
-        testObjective2.setRiddle("Stream by the sea");
+        testObjective1.setRiddle(RIDDLE_STREAM_SEA);
+        testObjective2.setRiddle(RIDDLE_STREAM_SEA);
 
         testObjective1.setRadius(0.1);
         testObjective2.setRadius(0.1);

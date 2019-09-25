@@ -13,7 +13,6 @@ import repositories.destinations.DestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
 import repositories.hints.HintRepository;
 import repositories.objectives.ObjectiveRepository;
-import repositories.points.AchievementTrackerRepository;
 import repositories.points.BadgeRepository;
 import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
