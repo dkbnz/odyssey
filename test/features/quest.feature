@@ -131,7 +131,7 @@ Feature: Quest API Endpoint
     And I create the quest
     Then the status code received is 400
     And the following ApiErrors are returned
-      | You must provide at least one Objective for a quest. |
+      | You must provide at least one objective for a quest. |
 
 
   Scenario: Unsuccessfully creating a quest with no objectives for a regular user as an admin
@@ -143,7 +143,7 @@ Feature: Quest API Endpoint
     And I create the quest
     Then the status code received is 400
     And the following ApiErrors are returned
-      | You must provide at least one Objective for a quest. |
+      | You must provide at least one objective for a quest. |
 
 
   Scenario: Unsuccessfully creating a quest for a regular user as an alternate user

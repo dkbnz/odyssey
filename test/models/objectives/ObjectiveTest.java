@@ -20,6 +20,7 @@ public class ObjectiveTest {
     private static final String RIDDLE_STREAM_LAKE = "Stream by the lake";
     private static final String RIDDLE_STREAM_SEA = "Stream by the sea";
 
+
     @Before
     public void setUp() {
         testObjective1 = new Objective();
