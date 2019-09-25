@@ -576,6 +576,7 @@
             /**
              * Changes the active quest id to the inputted one, and sets creatingQuest to false to hide creation
              * box.
+             *
              * @param quest     the quest to be changed to.
              */
             setActiveId(quest) {
@@ -590,6 +591,7 @@
              * Changes the quest id to the currently selected quest id.
              * Dismisses the delete quest modal.
              *
+             * @param quest         the quest to be checked for active users.
              */
             setQuest(quest) {
                 this.questId = quest.id;
@@ -701,7 +703,9 @@
 
 
             /**
-             * Show the hint sidebar for adding a hint to an objective
+             * Show the hint sidebar for adding a hint to an objective.
+             *
+             * @param objective         the current objective the user is looking at hints for.
              */
             showHintSidebar(objective) {
                 this.showHintSideBar = "Hints";
@@ -713,8 +717,9 @@
             /**
              * Gets the hints to display from the backend for all hints for an objective but paginated based on
              * current page and the per page variables.
-             * @param currentPage           The current viewing page.
-             * @param perPage               The amount to view on a page.
+             *
+             * @param currentPage           the current viewing page.
+             * @param perPage               the amount to view on a page.
              */
             getPageHints(currentPage, perPage) {
                 let self = this;
@@ -843,7 +848,7 @@
 
             /**
              * Hides or shows the quest locations given by the quest location id parameter.
-             *
+             *`
              * @param quest      the quest locations to hide.
              */
             showHideLocations(quest) {
