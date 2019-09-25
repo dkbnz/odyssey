@@ -116,6 +116,7 @@
                                     :objective="objective"
                                     :profile="profile"
                                     :solved="true"
+                                    :refresh="refreshHints"
                                     @showAddHint="showAddHint(objective)"
                                     @request-new-hints-page="getPageHints">
                             </list-hints>
@@ -143,6 +144,7 @@
                                     :objective="objective"
                                     :profile="profile"
                                     :solved="false"
+                                    :refresh="refreshHints"
                                     @hintRequested="showHintConfirmModal(objective)">
                             </list-hints>
                         </b-row>
@@ -324,7 +326,7 @@
                     if (solved) {
                         this.getPageHints(defaultCurrentPage, defaultPerPage);
                     } else {
-                        this.getHintsUserHasSeen(objective);
+                        this.getHintsUserHasSeen();
                     }
                 }
             },
@@ -619,12 +621,11 @@
             /**
              * Gets the hints the user has requested for an unsolved objective from the backend.
              *
-             * @param objective     the objective your fetching the hints for.
              * @returns {[]}        a list of hints.
              */
-            getHintsUserHasSeen(objective) {
+            getHintsUserHasSeen() {
                 let self = this;
-                fetch("/v1/objectives/" + objective.id + "/hints/" + this.profile.id + "/seen", {
+                fetch("/v1/objectives/" + this.objective.id + "/hints/" + this.profile.id + "/seen", {
                 }).then(function (response) {
                     if (!response.ok) {
                         throw response;
@@ -632,8 +633,9 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
-                    objective.hints = responseBody;
+                    self.objective.hints = responseBody;
                     self.hintsReceived = true;
+                    self.refreshHints = !self.refreshHints;
                 }).catch(function (response) {
                     self.handleErrorResponse(response);
                 });

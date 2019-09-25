@@ -230,7 +230,7 @@
                         <list-hints
                                 :objective="currentObjective"
                                 :profile="profile"
-                                :hints="currentObjective.hints"
+                                :refresh="refreshHints"
                                 :solved="true"
                                 @showAddHint="showAddHint"
                                 @request-new-hints-page="getPageHints">
@@ -350,12 +350,9 @@
                 activeUsers: 0,
                 queryPage: 0,
                 hintsDefaultPerPage: 5,
-                hintsDefaultCurrentPage: 1
+                hintsDefaultCurrentPage: 1,
+                refreshHints: false
             }
-        },
-
-        mounted() {
-            this.$bvToast.show('example-toast');
         },
 
         watch: {
@@ -722,19 +719,19 @@
                 let currentPageQuery = currentPage - 1;
                 fetch(`/v1/objectives/` + self.currentObjective.id +
                     `/hints/` + this.profile.id + `?pageNumber=` + currentPageQuery +
-                    `&pageSize=` + perPage, {})
-                    .then(function (response) {
-                        if (!response.ok) {
-                            throw response;
-                        } else {
-                            return response.json();
-                        }
-                    })
-                    .then(function (responseBody) {
-                        self.loadingResults = false;
-                        self.currentObjective.hints = responseBody;
-                    }).catch(function (response) {
-                    self.loadingResults = false;
+                    `&pageSize=` + perPage, {
+
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(function (responseBody) {
+                    self.currentObjective.hints = responseBody;
+                    self.refreshHints = !self.refreshHints;
+                }).catch(function (response) {
                     self.handleErrorResponse(response);
                 });
             },
