@@ -560,7 +560,7 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
-                    if (responseBody.length) {
+                    if (responseBody) {
                         self.objective.hints.push(responseBody);
                     }
                     self.showHintAlertModal = false;
