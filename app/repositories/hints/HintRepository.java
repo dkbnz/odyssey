@@ -48,7 +48,6 @@ public class HintRepository extends BeanRepository<Long, Hint> {
                 .eq(OBJECTIVE, objective)
                 .orderBy()
                     .asc(NET_VOTES)
-                .setDistinct(true)
                 .findList();
     }
 
