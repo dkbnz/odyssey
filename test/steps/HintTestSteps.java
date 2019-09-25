@@ -304,7 +304,8 @@ public class HintTestSteps {
 
     @Then("^the response contains (\\d+) hints$")
     public void theResponseContainsHints(Integer expectedNumberOfHints) {
-        assert (expectedNumberOfHints == testContext.getResponseBody().length());
+        Integer responseLength = testContext.getResponseBody().length();
+        Assert.assertEquals(expectedNumberOfHints, responseLength);
     }
 
 
@@ -318,7 +319,7 @@ public class HintTestSteps {
     @Then("the response contains the following message")
     public void theResponseContainsTheFollowingMessage(io.cucumber.datatable.DataTable dataTable) throws IOException {
         String expectedMessage = dataTable.asList().get(0);
-        String message = objectMapper.readTree(testContext.getResponseBody()).get("message").asText();
+        String message = objectMapper.readTree(testContext.getResponseBody()).get(MESSAGE).asText();
         Assert.assertTrue(expectedMessage.contains(message));
     }
 }

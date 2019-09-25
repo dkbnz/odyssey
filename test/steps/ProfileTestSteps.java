@@ -30,10 +30,10 @@ public class ProfileTestSteps {
      */
     private TestContext testContext = TestContext.getInstance();
 
-    /**
-     * An object mapper used during tests.
-     */
-    private ObjectMapper mapper = new ObjectMapper();
+//    /**
+//     * An object mapper used during tests.
+//     */
+//    private ObjectMapper mapper = new ObjectMapper();
 
     /**
      * Authorised string variable.
@@ -74,6 +74,16 @@ public class ProfileTestSteps {
      * The password string variable.
      */
     private static final String PASS_FIELD = "password";
+
+    /**
+     * JSON variables
+     */
+    private static final String ID = "id";
+    private static final String FIRST_NAME = "firstName";
+    private static final String MIDDLE_NAME = "middleName";
+    private static final String LAST_NAME = "lastName";
+    private static final String DATE_OF_BIRTH = "dateOfBirth";
+    private static final String PASSPORTS = "passports";
 
     /**
      * A valid username for login credentials for admin user.
@@ -175,12 +185,12 @@ public class ProfileTestSteps {
     private JsonNode convertDataTableToJsonNode(io.cucumber.datatable.DataTable dataTable) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String username = list.get(0).get("username");
-        String password = list.get(0).get("password");
+        String username = list.get(0).get(USERNAME);
+        String password = list.get(0).get(PASS_FIELD);
         String firstName = list.get(0).get("first_name");
         String middleName = list.get(0).get("middle_name");
         String lastName = list.get(0).get("last_name");
-        String gender = list.get(0).get("gender");
+        String gender = list.get(0).get(GENDER);
         String dateOfBirth = list.get(0).get("date_of_birth");
 
         // complex json
@@ -190,24 +200,24 @@ public class ProfileTestSteps {
         ObjectNode json = mapper.createObjectNode();
 
         ObjectNode nationalityNode = mapper.createObjectNode();
-        nationalityNode.put("id", Integer.valueOf(list.get(0).get("nationality")));
+        nationalityNode.put(ID, Integer.valueOf(list.get(0).get("nationality")));
 
         ObjectNode travellerTypeNode = mapper.createObjectNode();
-        travellerTypeNode.put("id", Integer.valueOf(list.get(0).get("traveller_type")));
+        travellerTypeNode.put(ID, Integer.valueOf(list.get(0).get("traveller_type")));
 
         ObjectNode passportNode = mapper.createObjectNode();
-        passportNode.put("id", Integer.valueOf(list.get(0).get("passport_country")));
+        passportNode.put(ID, Integer.valueOf(list.get(0).get("passport_country")));
 
-        json.put("username", username);
-        json.put("password", password);
-        json.put("firstName", firstName);
-        json.put("middleName", middleName);
-        json.put("lastName", lastName);
-        json.put("gender", gender);
-        json.put("dateOfBirth", dateOfBirth);
-        json.putArray("nationalities").add(nationalityNode);
-        json.putArray("travellerTypes").add(travellerTypeNode);
-        json.putArray("passports").add(passportNode);
+        json.put(USERNAME, username);
+        json.put(PASS_FIELD, password);
+        json.put(FIRST_NAME, firstName);
+        json.put(MIDDLE_NAME, middleName);
+        json.put(LAST_NAME, lastName);
+        json.put(GENDER, gender);
+        json.put(DATE_OF_BIRTH, dateOfBirth);
+        json.putArray(NATIONALITY).add(nationalityNode);
+        json.putArray(TRAVELLER_TYPE).add(travellerTypeNode);
+        json.putArray(PASSPORTS).add(passportNode);
         return json;
     }
 
