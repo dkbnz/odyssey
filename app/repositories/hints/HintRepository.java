@@ -23,6 +23,8 @@ public class HintRepository extends BeanRepository<Long, Hint> {
 
     private static final String PROFILES_SEEN = "profilesSeen";
 
+    private static final String ID = "id";
+
     private static final int TOP_HINT = 0;
 
     private ProfileRepository profileRepository;
@@ -83,7 +85,7 @@ public class HintRepository extends BeanRepository<Long, Hint> {
         return query()
                 .where()
                 .eq(OBJECTIVE, objective)
-                .not(Expr.in("id", hintsSeenByProfile))
+                .not(Expr.in(ID, hintsSeenByProfile))
                 .orderBy()
                     .desc(NET_VOTES)
                 .findList();
