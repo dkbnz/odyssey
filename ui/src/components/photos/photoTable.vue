@@ -10,7 +10,7 @@
                                alt="Image not Found" thumbnail>
                         </b-img>
                     </b-container>
-                    <b-select @change="$emit('privacy-update', photo)" style="width: 100%"
+                    <b-select @change="$emit('privacy-update', photo)" class="w-100"
                               :disabled="userProfile.profilePicture !== null
                                && userProfile.profilePicture.id === photo.id"
                               v-if="showDropdown"
@@ -30,7 +30,8 @@
             </tr>
         </table>
         <div class="d-flex justify-content-center mb-3">
-            <b-img alt="Loading" class="mt-3 align-middle loading" v-if="retrievingPhotos" :src="assets['loadingLogo']"></b-img>
+            <b-img alt="Loading" class="mt-3 align-middle loading" v-if="retrievingPhotos" :src="assets['loadingLogo']">
+            </b-img>
             <p v-if="!photos.length && !retrievingPhotos"><b>No photos found.</b></p>
         </div>
         <div class="d-flex justify-content-center w-100 mt-1">
