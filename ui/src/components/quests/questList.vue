@@ -44,6 +44,7 @@
                                 @OBJ-side-bar="showHideBar => this.showDestinations = showHideBar"
                                 @Your-OBJ-side-bar="showHideBar => this.showYourObjectives = showHideBar"
                                 @add-hint-side-bar="showHintSidebar"
+                                @hide-hint-side-bar="showHideBar => this.showHintSideBar = showHideBar"
                         ></quest-item>
                     </b-list-group-item>
                     <div v-if="yourQuests">
