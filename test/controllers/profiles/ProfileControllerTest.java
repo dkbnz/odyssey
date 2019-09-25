@@ -28,27 +28,17 @@ public class ProfileControllerTest {
     private static final String ADMIN_USER = "2";
 
     private ProfileRepository mockProfileRepo;
-    private NationalityRepository mockNationalityRepo;
-    private PassportRepository mockPassportRepo;
-    private TravellerTypeRepository mockTravellerTypeRepo;
-    private AchievementTrackerRepository mockAchievementTrackerRepo;
-
-    private Profile defaultAdminUser;
-    private Profile adminUser;
     private Profile regularUser;
-    private Profile fullUser;
-
     private ProfileController testProfileController;
-
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
     public void setUp() {
         mockProfileRepo = mock(ProfileRepository.class);
-        mockNationalityRepo = mock(NationalityRepository.class);
-        mockPassportRepo = mock(PassportRepository.class);
-        mockTravellerTypeRepo = mock(TravellerTypeRepository.class);
-        mockAchievementTrackerRepo = mock(AchievementTrackerRepository.class);
+        NationalityRepository mockNationalityRepo = mock(NationalityRepository.class);
+        PassportRepository mockPassportRepo = mock(PassportRepository.class);
+        TravellerTypeRepository mockTravellerTypeRepo = mock(TravellerTypeRepository.class);
+        AchievementTrackerRepository mockAchievementTrackerRepo = mock(AchievementTrackerRepository.class);
 
         testProfileController = new ProfileController(mockProfileRepo,
                 mockNationalityRepo,
@@ -56,11 +46,11 @@ public class ProfileControllerTest {
                 mockTravellerTypeRepo,
                 mockAchievementTrackerRepo);
 
-        defaultAdminUser = new Profile();
+        Profile defaultAdminUser = new Profile();
         defaultAdminUser.setId(1L);
         defaultAdminUser.setAdmin(false);
 
-        adminUser = new Profile();
+        Profile adminUser = new Profile();
         adminUser.setId(2L);
         adminUser.setAdmin(true);
 
@@ -68,7 +58,7 @@ public class ProfileControllerTest {
         regularUser.setId(3L);
         regularUser.setAdmin(false);
 
-        fullUser = new Profile();
+        Profile fullUser = new Profile();
         fullUser.setId(4L);
         fullUser.setUsername("test1@email.com");
         fullUser.setPassword("guest123");

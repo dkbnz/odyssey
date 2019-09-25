@@ -24,15 +24,13 @@ public class PhotoControllerTest {
     private PhotoController testPhotoController;
     private ProfileRepository mockProfileRepo;
     private PersonalPhotoRepository mockPersonalPhotoRepo;
-    private DestinationRepository mockDestinationRepo;
-    private Config mockConfig;
 
     @Before
     public void setUp() {
+        DestinationRepository mockDestinationRepo = mock(DestinationRepository.class);
+        Config mockConfig = mock(Config.class);
         mockProfileRepo = mock(ProfileRepository.class);
         mockPersonalPhotoRepo = mock(PersonalPhotoRepository.class);
-        mockDestinationRepo = mock(DestinationRepository.class);
-        mockConfig = mock(Config.class);
         testPhotoController = new PhotoController(mockProfileRepo, mockPersonalPhotoRepo, mockDestinationRepo, mockConfig);
     }
 
