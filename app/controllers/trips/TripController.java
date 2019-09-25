@@ -18,6 +18,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import scala.xml.dtd.EMPTY;
 import util.AuthenticationUtil;
 
 import com.google.inject.Inject;
@@ -42,6 +43,10 @@ public class TripController extends Controller {
     private static final String PAGE_SIZE_PAST = "pageSizePast";
     private static final String FUTURE_TRIPS = "futureTrips";
     private static final String PAST_TRIPS = "pastTrips";
+    private static final String EMPTY_STRING = "";
+    private static final String NULL = "null";
+    private static final String DESTINATION_OWNERSHIP_CHANGED = "Destination ownership changed";
+    private static final String DESTNATON_OWNERSHIP_NO_CHANGE = "Destination ownership doesn't need to be changed";
     private static final int MAX_PAGE_SIZE = 100;
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private static final int DEFAULT_ADMIN_ID = 1;
@@ -153,7 +158,7 @@ public class TripController extends Controller {
         }
 
         // Check if the array of destinations in the request contains at least two destinations.
-        return (json.get(TRIP_DESTINATIONS) == null || json.get(TRIP_DESTINATIONS).size() >= MINIMUM_TRIP_DESTINATIONS);
+        return (json.get(TRIP_DESTINATIONS).size() >= MINIMUM_TRIP_DESTINATIONS);
     }
 
 
@@ -162,9 +167,9 @@ public class TripController extends Controller {
      *
      * @param request   Http Request containing Json Body of the selected trip to modify.
      * @param tripId    the id of the trip being modified.
-     * @return          ok() (Http 200) if the trip has been successfully modified. If the trip is not valid, returns a
-     *                  badRequest() (Http 400). If the user is not logged in, returns a unauthorized()
-     *                  (Http 401).
+     * @return          ok() (Http 200) if the trip has been successfully modified.
+     *                  badRequest() (Http 400) If the trip is not valid.
+     *                  unauthorized() (Http 401) If the user is not logged in.
      */
     public Result edit(Http.Request request, Long tripId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -285,8 +290,8 @@ public class TripController extends Controller {
      * @return                  a LocalDate variable containing the requested date field, if none found returns null.
      */
     private LocalDate parseDestinationDates(JsonNode destinationJson, String field) {
-        if (!(destinationJson.get(field).asText().equals("null")
-                || destinationJson.get(field).asText().equals(""))) {
+        if (!(destinationJson.get(field).asText().equals(NULL)
+                || destinationJson.get(field).asText().equals(EMPTY_STRING))) {
            return LocalDate.parse(destinationJson.get(field).asText());
         }
         return null;
@@ -303,9 +308,9 @@ public class TripController extends Controller {
      *                      end date), otherwise returns false.
      */
     private boolean isValidDates(String startDate, String endDate) {
-        if (startDate.equals("") || startDate.equals("null")) {
+        if (startDate.equals(EMPTY_STRING) || startDate.equals("null")) {
             return true;
-        } else if (endDate.equals("") || endDate.equals("null")) {
+        } else if (endDate.equals(EMPTY_STRING) || endDate.equals(NULL)) {
             return true;
         } else {
             return (LocalDate.parse(startDate).isBefore(LocalDate.parse(endDate))
@@ -361,6 +366,7 @@ public class TripController extends Controller {
      *
      * @param affectedProfile   the profile that is having the trip added to.
      * @param tripDestination   the destination that is stored in the trip.
+     * @return ok               with the message of if the destination ownerships needs to change or not.
      */
     private Result determineDestinationOwnershipTransfer(Profile affectedProfile, TripDestination tripDestination) {
         Destination destination = tripDestination.getDestination();
@@ -370,10 +376,10 @@ public class TripController extends Controller {
         if (owner == null || owner.getId() != DEFAULT_ADMIN_ID && destination.getPublic()
                 && !affectedProfile.getId().equals(owner.getId())) {
             destinationRepository.transferToAdmin(destination);
-            return ok("Destination ownership changed");
+            return ok(DESTINATION_OWNERSHIP_CHANGED);
         }
 
-        return ok("Destination ownership doesn't need to be changed");
+        return ok(DESTNATON_OWNERSHIP_NO_CHANGE);
     }
 
 
@@ -382,7 +388,7 @@ public class TripController extends Controller {
      *
      * @param request   the Http request containing the relevant authentication values.
      * @param id        the id of the user requested.
-     * @return          unauthorized() (Http 401) if the user is not logged in
+     * @return          unauthorized() (Http 401) if the user is not logged in.
      *                  ok() (Http 200) containing the list of trips as a Json.
      */
     public Result fetchAllTrips(Http.Request request, Long id) {
@@ -432,8 +438,8 @@ public class TripController extends Controller {
      *
      * @param request           the Http request containing the query string.
      * @param pageSizeRequested the page being requested, whether it be future or past page size.
-     * @return                  null if the requested page cannot be passed as an integer,
-     *                          otherwise returns the requested page size
+     * @return                  null if the requested page cannot be passed as an integer.
+     *                          otherwise returns the requested page size.
      */
     private Integer determinePageSize(Http.Request request, String pageSizeRequested) {
         int pageSize = MAX_PAGE_SIZE;
@@ -456,7 +462,7 @@ public class TripController extends Controller {
      *
      * @param request   the Http request containing the relevant authentication values.
      * @param id        the id of the user requested.
-     * @return          unauthorized() (Http 401) if the user is not logged in
+     * @return          unauthorized() (Http 401) if the user is not logged in.
      *                  ok() (Http 200) total number of trip the specified user has.
      */
     public Result getTotalNumberOfTrips(Http.Request request, Long id) {
@@ -481,7 +487,7 @@ public class TripController extends Controller {
      * Deletes a trip from the user currently logged in.
      *
      * @param request   Http request from the client, from which the current user profile can be obtained.
-     * @param tripId    the id of the trip being deleted from a profile
+     * @param tripId    the id of the trip being deleted from a profile.
      * @return          If no profile or no trip is found, returns notFound() (Http 404).
      *                  If the trip id is not associated with any profile, returns badRequest() (Http 400).
      *                  If the user is not logged in, returns unauthorized() (Http 401).
