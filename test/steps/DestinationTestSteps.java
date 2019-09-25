@@ -160,6 +160,9 @@ public class DestinationTestSteps {
     private static final String RIDDLE = "riddle";
     private static final String RADIUS = "radius";
     private static final String ID = "id";
+    private static final String DESTINATION_ID = "destination_id";
+    private static final String START_DATE = "start_date";
+    private static final String END_DATE = "end_date";
 
     private DestinationRepository destinationRepository =
             testContext.getApplication().injector().instanceOf(DestinationRepository.class);
@@ -265,19 +268,19 @@ public class DestinationTestSteps {
         ArrayNode destinationsNode = json.putArray("trip_destinations");
 
         ObjectNode destinationNode1 = destinationsNode.addObject(); //Adding destinations to trip
-        destinationNode1.put("destination_id", "1155");
-        destinationNode1.put("start_date", "1990-12-12");
-        destinationNode1.put("end_date", "1991-12-12");
+        destinationNode1.put(DESTINATION_ID, "1155");
+        destinationNode1.put(START_DATE, "1990-12-12");
+        destinationNode1.put(END_DATE, "1991-12-12");
 
         ObjectNode destinationNode2 = destinationsNode.addObject(); //Adding destinations to trip
-        destinationNode2.put("destination_id", "567");
-        destinationNode2.put("start_date", "1992-12-12");
-        destinationNode2.put("end_date", "1993-12-12");
+        destinationNode2.put(DESTINATION_ID, "567");
+        destinationNode2.put(START_DATE, "1992-12-12");
+        destinationNode2.put(END_DATE, "1993-12-12");
 
         ObjectNode destinationNode3 = destinationsNode.addObject(); //Adding destinations to trip
-        destinationNode3.put("destination_id", destinationId.toString());
-        destinationNode3.put("start_date", "1994-12-12");
-        destinationNode3.put("end_date", "1995-12-12");
+        destinationNode3.put(DESTINATION_ID, destinationId.toString());
+        destinationNode3.put(START_DATE, "1994-12-12");
+        destinationNode3.put(END_DATE, "1995-12-12");
 
         return json;
     }
@@ -367,11 +370,11 @@ public class DestinationTestSteps {
         String latitude     = list.get(index).get(LATITUDE_STRING);
         String longitude    = list.get(index).get(LONGITUDE_STRING);
         String country      = list.get(index).get(COUNTRY_STRING);
-        String is_public    = list.get(index).get(IS_PUBLIC_STRING);
+        String isPublic    = list.get(index).get(IS_PUBLIC_STRING);
 
         //Test destinations are public by default
-        Boolean publicity = (is_public == null ||
-                !is_public.equalsIgnoreCase("false"));
+        Boolean publicity = (isPublic == null ||
+                !isPublic.equalsIgnoreCase("false"));
 
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
@@ -429,16 +432,19 @@ public class DestinationTestSteps {
                     editDestination.setDistrict(value);
                     break;
                 case LATITUDE_STRING:
-                    editDestination.setLatitude(Double.valueOf(value));
+                    editDestination.setLatitude(Double.parseDouble(value));
                     break;
                 case LONGITUDE_STRING:
-                    editDestination.setLongitude(Double.valueOf(value));
+                    editDestination.setLongitude(Double.parseDouble(value));
                     break;
                 case COUNTRY_STRING:
                     editDestination.setCountry(value);
                     break;
                 case IS_PUBLIC_STRING:
                     editDestination.setPublic(Boolean.valueOf(value));
+                    break;
+                default:
+                    fail("Default case for switch statement reached");
                     break;
             }
         }
@@ -466,7 +472,7 @@ public class DestinationTestSteps {
         ObjectNode json = mapper.createObjectNode();
         ObjectNode jsonDestination = json.putObject(DESTINATION);
 
-        if(!(destinationId == null)) {
+        if(destinationId != null) {
             jsonDestination.put(ID,  destinationId.intValue());
         }
 
@@ -486,7 +492,7 @@ public class DestinationTestSteps {
     private Long getDestinationId(io.cucumber.datatable.DataTable dataTable) {
         List<Destination> destinations = getDestinationList(dataTable);
 
-        Destination destination = destinations.size() > 0 ? destinations.get(destinations.size() - 1) : null;
+        Destination destination = !destinations.isEmpty() ? destinations.get(destinations.size() - 1) : null;
 
         return destination == null ? null : destination.getId();
     }

@@ -119,9 +119,7 @@ public class AchievementTrackerTestSteps {
 
     // -------------------------- IDs of users used for tests ---------------------------
 
-    private static final long REG_USER_ID = 2L;
     private static final long OTHER_USER_ID = 3L;
-    private static final long GLOBAL_ADMIN_ID = 1L;
 
 
     private static final int EMPTY_LIST_RESPONSE_SIZE = 2;
@@ -135,20 +133,19 @@ public class AchievementTrackerTestSteps {
     private static final String LEVEL = "level";
     private static final String PROGRESS = "progress";
 
-    private static final String CURRENT_STREAK = "streak";
     private static final String LAST_SEEN_DATE = "lastSeenDate";
     private static final String BRONZE_TEST_USER_FIRST_NAME = "bronzeTest";
-    private static final int FIRST_LEVEL_BADGE = 1;
     private static final String CLIENT_DATE_FIELD = "clientDate";
     private static final String CLIENT_DATE_OFFSET = "dateOffset";
-    private static final Integer DAY_IN_MS = 86400000;
-    private static final String REG_AUTH_PASS = "guest123";
+
+    private static final String YEAR_MONTH_DAY_FORMAT = "yyyy-MM-dd";
+    private static final String GUESS_RESULT = "guessResult";
 
 
     /**
      * Global variable for the person's badges.
      */
-    private JsonNode badges;
+    private JsonNode badgesJson;
 
 
     /**
@@ -179,12 +176,6 @@ public class AchievementTrackerTestSteps {
      * Users current streak global variable.
      */
     private int currentStreak;
-
-
-    /**
-     * Users last login date global variable.
-     */
-    private Date lastLoginDate;
 
 
     /**
@@ -253,13 +244,13 @@ public class AchievementTrackerTestSteps {
         Result result = route(testContext.getApplication(), request);
         try {
             ObjectNode profile = mapper.readTree(Helpers.contentAsString(result)).deepCopy();
-            badges = profile.get(ACHIEVEMENT_TRACKER).get(BADGES);
+            badgesJson = profile.get(ACHIEVEMENT_TRACKER).get(BADGES);
         } catch (Exception e) {
             fail("Unable to retrieve badges");
         }
 
-        // Iterates through each badge in the list of the person's badges.
-        for (JsonNode badge: badges) {
+        // Iterates through each badge in the list of the person's badgesJson.
+        for (JsonNode badge: badgesJson) {
             // If the current viewing badge is the requested badge, return it's level.
             if (badge.get(BADGE_NAME).asText().equals(badgeName)) {
                 currentBadgeProgress = badge.get(PROGRESS).asInt();
@@ -276,7 +267,6 @@ public class AchievementTrackerTestSteps {
     private void getProfileStreakInformation(String userId) {
         Profile profile = profileRepository.findById(Long.valueOf(userId));
         currentStreak = profile.getAchievementTracker().getCurrentStreak();
-        lastLoginDate = profile.getLastSeenDate();
     }
 
 
@@ -293,7 +283,6 @@ public class AchievementTrackerTestSteps {
     @Given("^the owner of the hint with id (\\d+) has some starting points$")
     public void theOwnerOfTheHintWithIdHasSomeStartingPoints(Integer hintId) {
         startingPoints = hintRepository.findById(hintId.longValue()).getCreator().getAchievementTracker().getPoints();
-        System.out.println("STARTING POINTS: " + startingPoints);
     }
 
 
@@ -309,6 +298,9 @@ public class AchievementTrackerTestSteps {
                 break;
             case QUESTS:
                 uri = QUEST_URI;
+                break;
+            default:
+                uri = "";
                 break;
         }
 
@@ -362,8 +354,8 @@ public class AchievementTrackerTestSteps {
         Date daysAgoDate = cal.getTime();
 
         Profile profile = profileRepository.findById(Long.valueOf(userId));
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date clientDate = new SimpleDateFormat("yyyy-MM-dd").parse(format.format(daysAgoDate));
+        SimpleDateFormat format = new SimpleDateFormat(YEAR_MONTH_DAY_FORMAT);
+        Date clientDate = new SimpleDateFormat(YEAR_MONTH_DAY_FORMAT).parse(format.format(daysAgoDate));
 
         assertNotNull(profile);
 
@@ -449,7 +441,7 @@ public class AchievementTrackerTestSteps {
     public void iSolveTheFirstRiddleOfTheQuestWithID() throws IOException {
         sendRiddleGuessRequest(QUEST_ATTEMPT_ID, DESTINATION_TO_GUESS);
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        Assert.assertEquals(SUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
+        Assert.assertEquals(SUCCESSFUL_GUESS, responseBody.get(GUESS_RESULT).asBoolean());
     }
 
 
@@ -457,7 +449,7 @@ public class AchievementTrackerTestSteps {
     public void iSolveTheFirstRiddleOfTheQuestAttemptId(Long questAttemptId) throws IOException {
         sendRiddleGuessRequest(questAttemptId, DESTINATION_TO_GUESS);
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        Assert.assertEquals(SUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
+        Assert.assertEquals(SUCCESSFUL_GUESS, responseBody.get(GUESS_RESULT).asBoolean());
     }
 
 
@@ -491,7 +483,7 @@ public class AchievementTrackerTestSteps {
     public void iIncorrectlyGuessTheAnswerToAQuestRiddle() throws IOException {
         sendRiddleGuessRequest(QUEST_ATTEMPT_ID, INCORRECT_DESTINATION_GUESS);
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        Assert.assertEquals(UNSUCCESSFUL_GUESS, responseBody.get("guessResult").asBoolean());
+        Assert.assertEquals(UNSUCCESSFUL_GUESS, responseBody.get(GUESS_RESULT).asBoolean());
     }
 
 
@@ -543,7 +535,6 @@ public class AchievementTrackerTestSteps {
         getPointsRequest(hintOwner.getId().toString());
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         currentPoints = responseBody.get("userPoints").asInt();
-        System.out.println("CURRENT POINTS: " + currentPoints);
         Assert.assertTrue("Current points is not less than starting points", currentPoints < startingPoints);
     }
 
@@ -629,7 +620,7 @@ public class AchievementTrackerTestSteps {
         cal.add(Calendar.DATE, -days);
         Date daysAgoDate = cal.getTime();
 
-        SimpleDateFormat formatNew = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatNew = new SimpleDateFormat(YEAR_MONTH_DAY_FORMAT);
 
         String daysAgoDateString = (formatNew.format(daysAgoDate));
 
