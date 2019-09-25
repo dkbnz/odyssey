@@ -111,8 +111,8 @@
             /**
              * Queries database for profiles which fit search criteria.
              *
-             * @param searchParameters  the search parameters that generate the search query for profiles.
-             * @returns {Promise <Response | never>}        the fetch method to retrieve profiles.
+             * @param searchParameters                  the search parameters generating the search query for profiles.
+             * @returns {Promise <Response | never>}    the fetch method to retrieve profiles.
              */
             queryProfiles(searchParameters) {
                 this.retrievingProfiles = true;
