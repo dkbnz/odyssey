@@ -34,7 +34,6 @@ public class TripController extends Controller {
     private static final String START_DATE = "start_date";
     private static final String END_DATE = "end_date";
     private static final String DESTINATION_ID = "destination_id";
-    private static final String TRIP_ID = "trip_id";
     public static final String REWARD = "reward";
     private static final String NEW_TRIP_ID = "newTripId";
     private static final String PAGE_FUTURE = "pageFuture";
