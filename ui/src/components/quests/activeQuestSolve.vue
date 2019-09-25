@@ -76,7 +76,11 @@
                 ></b-progress>
             </b-alert>
 
-            <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom show-only-mobile" size="sm">Back</b-button>
+            <b-button
+                    @click="$emit('show-quest-attempt', false)"
+                    class="buttonMarginsBottom show-only-mobile" size="sm">
+                    Back
+            </b-button>
             <h2 class="page-title" v-if="questAttempt.questAttempted">{{questAttempt.questAttempted.title}}</h2>
 
             <b-alert v-model="guessSuccess" variant="success" dismissible>
@@ -106,7 +110,10 @@
                             </b-col>
                             <b-col md="5">
                                 <div class="float-right">
-                                    <b-button size="sm" variant="primary" @click="showOrHideHints(true, solvedObjective)">{{solvedObjective.id === objective.id ? "Hide" : "Show"}} Hints</b-button>
+                                    <b-button size="sm" variant="primary"
+                                              @click="showOrHideHints(true, solvedObjective)">
+                                              {{solvedObjective.id === objective.id ? "Hide" : "Show"}} Hints
+                                    </b-button>
                                     <b-img src="../../../static/check_mark.png" fluid></b-img>
                                 </div>
                             </b-col>
@@ -134,8 +141,14 @@
                             </b-col>
                             <b-col md="5">
                                 <div class="float-right">
-                                    <b-button size="sm" variant="primary" @click="showOrHideHints(false, questAttempt.toSolve)">{{questAttempt.toSolve.id === objective.id ? "Hide" : "Show"}} Hints</b-button>
-                                    <b-button size="sm" variant="warning" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
+                                    <b-button size="sm" variant="primary"
+                                              @click="showOrHideHints(false, questAttempt.toSolve)">
+                                              {{questAttempt.toSolve.id === objective.id ? "Hide" : "Show"}} Hints
+                                    </b-button>
+                                    <b-button size="sm" variant="warning"
+                                              @click="destinationSearch(questAttempt.toSolve.riddle)">
+                                              Solve
+                                    </b-button>
                                 </div>
                             </b-col>
                         </b-row>
@@ -169,7 +182,10 @@
                                           @click="showOrHideHints(true, questAttempt.toCheckIn)">
                                     {{questAttempt.toCheckIn.id === objective.id ? "Hide" : "Show"}} Hints
                                 </b-button>
-                                <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
+                                <b-button class="no-wrap-text" size="sm" variant="warning"
+                                          @click="getCurrentLocation">
+                                          Check In
+                                </b-button>
                             </div>
                         </b-col>
                     </b-row>
