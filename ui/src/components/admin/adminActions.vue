@@ -32,7 +32,8 @@
                             Create a New Profile</b-button>
                         <!-- The collapsible that uses the sign up page to create a new profile -->
                         <b-collapse id="signUpPage" class="mt-2" v-model="showCollapse">
-                            <sign-up :createdByAdmin="true"
+                            <sign-up :key="refreshSignUp"
+                                     :createdByAdmin="true"
                                      :nationalityOptions="nationalityOptions"
                                      :travTypeOptions="travTypeOptions"
                                      @profile-created="showOptions">
@@ -41,9 +42,6 @@
                     </b-card>
                     <b-card header="Destination Traveller Types">
                         <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess" dismissible>
-                            <p class="wrapWhiteSpace">{{alertMessage}}</p>
-                        </b-alert>
-                        <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure" dismissible>
                             <p class="wrapWhiteSpace">{{alertMessage}}</p>
                         </b-alert>
                         <!-- Loop through the list of proposals and generate an area to accept/reject for each one -->
@@ -295,7 +293,6 @@
                         return response.json();
                     }
                 }).then(function () {
-                    self.showTravellerTypeUpdateFailure = false;
                     self.alertMessage = "Destination traveller types updated";
                     self.showTravellerTypeUpdateSuccess = true;
                     setTimeout(function () {
@@ -304,8 +301,6 @@
                     self.removeProposed(destination);
                 }).catch(function (response) {
                     self.sendingRequest = false;
-                    self.alertMessage = "Cannot update traveller types";
-                    self.showTravellerTypeUpdateFailure = true;
                     self.handleErrorResponse(response);
                 });
             }

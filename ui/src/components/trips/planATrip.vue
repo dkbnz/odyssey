@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
+    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-5 rounded-lg">
         <h1 class="page-title" align="center">{{ heading }} </h1>
         <p class="page-title"><i>{{ subHeading }}</i>
             <b-button id="page_info" class="info-button pb-0 pt-0" variant="primary">i</b-button></p>
@@ -109,16 +109,16 @@
                                 <b-row>
                                     <b-col>
                                         <h6 class="mb-1">Selected Destination:</h6>
-                                        <b-list-group>
+                                        <b-list-group class="cursor-click">
                                             <b-list-group-item class="flex-column align-items-start"
                                                                id="selectedDestination"
+                                                               @click="showDestinationSideBar = true"
                                                                :disabled="selectedDestination.length === '{}'">
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <h5 class="mb-1" v-if="selectedDestination.name">
                                                         {{selectedDestination.name}}
                                                     </h5>
                                                     <h5 class="mb-1" v-else>Select a Destination</h5>
-
                                                     <small>
                                                         <div class="d-flex justify-content-right">
                                                             <b-button variant="primary"
@@ -178,7 +178,6 @@
                                  outlined
                                  ref="tripDestTable"
                                  striped>
-
                             <!-- Buttons that appear for each destination added to table -->
                             <template v-slot:cell(actions)="row">
                                 <!--Opens edit modal-->
@@ -254,6 +253,9 @@
                             </template>
 
                         </b-table>
+                        <div class="text-center my-2">
+                            <strong v-if="inputTrip.destinations.length === 0">You need to add a destination!</strong>
+                        </div>
                         <!-- Determines pagination and number of results per row of the table -->
                         <b-row>
                             <b-col cols="1">
@@ -267,7 +269,7 @@
                                     </b-form-select>
                                 </b-form-group>
                             </b-col>
-                            <b-col cols="8">
+                            <b-col cols="10">
                                 <b-pagination
                                         :per-page="perPage"
                                         :total-rows="rows"
@@ -290,7 +292,7 @@
                     </b-container>
                 </b-card>
             </b-col>
-            <b-col>
+            <b-col v-if="showDestinationSideBar">
                 <b-card>
                     <destination-sidebar
                             :profile="profile"
@@ -385,7 +387,8 @@
                     longitude: null,
                     country: "",
                     public: false
-                }
+                },
+                showDestinationSideBar: false
             }
         },
 
@@ -471,6 +474,8 @@
                 this.tripDestination = "";
                 this.inDate = "";
                 this.outDate = "";
+                this.showDestinationSideBar = false;
+                console.log(this.showDestinationSideBar);
             },
 
 
