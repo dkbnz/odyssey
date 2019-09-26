@@ -62,7 +62,7 @@ public class VoteController {
      * @return              ok() (Http 200) response containing the new hint json if everything is successful
      *                      badRequest() (Http 400) response if there exists an identical hint in the system.
      *                      unauthorized() (Http 401) response if the user is not logged into the system.
-     *                      forbidden() (Http 403) response if the user is not allowed to vote on the given hint
+     *                      forbidden() (Http 403) response if the user is not allowed to vote on the given hint.
      *                      notFound() (Http 404) response if the hint or target user does not exist.
      */
     public Result vote(Http.Request request, Long hintId, Long userId, boolean isUpvote) {
@@ -132,8 +132,8 @@ public class VoteController {
      *
      * @param vote              the previous vote on the hint.
      * @param hintToVoteOn      the hint being voted on.
-     * @param isUpvote          the user's new vote. True is upvote, False is downvote
-     * @return                  a boolean determining whether the vote was deleted (For toggling votes)
+     * @param isUpvote          the user's new vote. True is upvote, False is downvote.
+     * @return                  a boolean determining whether the vote was deleted (For toggling votes).
      */
     private boolean processVote(Vote vote, Hint hintToVoteOn, boolean isUpvote) {
         // Remove upvotes/downvotes when the user has already voted

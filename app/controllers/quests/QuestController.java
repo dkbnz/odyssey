@@ -363,7 +363,6 @@ public class QuestController {
      * @return          ok() (Http 200) response containing the quests owned by the specified user.
      *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
      *                  unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
-     *
      */
     public Result fetchActiveUsers(Http.Request request, Long questId){
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -530,7 +529,7 @@ public class QuestController {
      *
      * @param request   Http request containing query parameters to filter results.
      * @param profile   The profile of the user logged in.
-     * @return          ok() (Http 200) response containing the destinations found in the response body,
+     * @return          ok() (Http 200) response containing the destinations found in the response body.
      *                  forbidden() (Http 403) if the user has tried to access destinations they are not authorised for.
      */
     private Set<Quest> getQuestsQuery(Http.Request request, Profile profile) {
@@ -741,8 +740,8 @@ public class QuestController {
         if (attemptedBy != null && !AuthenticationUtil.validUser(loggedInUser, attemptedBy)) {
             return forbidden(ApiError.forbidden());
         }
-
-        Objective objectiveToCheckInTo = questAttempt.getCurrentToCheckIn(); // Used to call check in 'rewardAction' method.
+        // Used to call check in 'rewardAction' method.
+        Objective objectiveToCheckInTo = questAttempt.getCurrentToCheckIn();
         if (questAttempt.checkIn()) {
             ObjectNode returnJson = objectMapper.createObjectNode();
 
@@ -753,11 +752,14 @@ public class QuestController {
             ArrayNode badgesAchieved = objectMapper.createArrayNode();
 
             // Objective reward result of checking in.
-            JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, objectiveToCheckInTo); // Points for checking in
+            // Points for checking in
+            JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, objectiveToCheckInTo);
 
             // Add all objective reward points and badges to the list of achieved points.
-            pointsRewarded = achievementTrackerController.addAllAwards(pointsRewarded, objectiveRewardJson, POINTS_REWARDED);
-            badgesAchieved = achievementTrackerController.addAllAwards(badgesAchieved, objectiveRewardJson, BADGES_ACHIEVED);
+            pointsRewarded = achievementTrackerController.addAllAwards(
+                    pointsRewarded, objectiveRewardJson, POINTS_REWARDED);
+            badgesAchieved = achievementTrackerController.addAllAwards(
+                    badgesAchieved, objectiveRewardJson, BADGES_ACHIEVED);
 
 
             // If quest was completed
@@ -766,8 +768,10 @@ public class QuestController {
                         Action.QUEST_COMPLETED); // Awards for completing a quest
 
                 // Add all quest reward points and badges to the list of achieved points.
-                pointsRewarded = achievementTrackerController.addAllAwards(pointsRewarded, questRewardJson, POINTS_REWARDED);
-                badgesAchieved = achievementTrackerController.addAllAwards(badgesAchieved, questRewardJson, BADGES_ACHIEVED);
+                pointsRewarded = achievementTrackerController.addAllAwards(
+                        pointsRewarded, questRewardJson, POINTS_REWARDED);
+                badgesAchieved = achievementTrackerController.addAllAwards(
+                        badgesAchieved, questRewardJson, BADGES_ACHIEVED);
 
             }
 

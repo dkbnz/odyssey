@@ -161,7 +161,7 @@
                                     :heading="'Add'"
                                     @addObjective="addObjective"
                                     @cancelCreate="cancelObjectiveCreate"
-                                    @destination-select="$emit('OBJ-side-bar', true)"
+                                    @destination-select="showDestinationsSideBar"
                                     :selectedDestination="destinationSelected">
                             </add-objective>
                         </b-card>
@@ -178,7 +178,7 @@
                                     @addObjective="addObjective"
                                     @editObjective="objectiveEdited"
                                     @cancelCreate="cancelObjectiveCreate"
-                                    @destination-select="$emit('OBJ-side-bar', true)"
+                                    @destination-select="showDestinationsSideBar"
                                     :selectedDestination="destinationSelected">
                             </add-objective>
                         </b-card>
@@ -799,6 +799,8 @@
              */
             viewHints(objective) {
                 this.$emit('add-hint-side-bar', objective);
+                this.$emit('OBJ-side-bar', false);
+                this.$emit('Your-OBJ-side-bar', false);
             },
 
 
@@ -807,6 +809,9 @@
              */
             cancelCreate() {
                 this.$emit('cancelCreate');
+                this.$emit('OBJ-side-bar', false);
+                this.$emit('Your-OBJ-side-bar', false);
+                this.$emit('hide-hint-side-bar', false);
             },
 
 
@@ -821,6 +826,17 @@
                 this.$emit('clear-objective-values');
                 this.$emit('OBJ-side-bar', false);
                 this.$emit('Your-OBJ-side-bar', false);
+                this.$emit('hide-hint-side-bar', false);
+            },
+
+
+            /**
+             * Shows the destination sidebar and hides the other side bar components.
+             */
+            showDestinationsSideBar() {
+                this.$emit('OBJ-side-bar', true);
+                this.$emit('Your-OBJ-side-bar', false);
+                this.$emit('hide-hint-side-bar', false);
             },
 
 
@@ -964,6 +980,7 @@
                 this.addNewObjective = !this.addNewObjective;
                 this.$emit('OBJ-side-bar', true);
                 this.$emit('Your-OBJ-side-bar', false);
+                this.$emit('hide-hint-side-bar', false);
             },
 
 
@@ -974,6 +991,7 @@
                 this.addNewObjective = !this.addNewObjective;
                 this.$emit('Your-OBJ-side-bar', true);
                 this.$emit('OBJ-side-bar', false);
+                this.$emit('hide-hint-side-bar', false);
             },
 
 

@@ -119,7 +119,6 @@
                 </template>
 
                 <template v-slot:cell(tripStartDate)="data">
-                    <!--{{data.item.destinations}}-->
                     {{formatDate(calculateTripDates(data.item.destinations)[0])}}
                 </template>
 
