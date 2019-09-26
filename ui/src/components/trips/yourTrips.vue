@@ -598,6 +598,7 @@
 
             /**
              * Used to allow an alert to countdown on the successful deletion of a trip.
+             *
              * @param dismissCountDown      the name of the alert.
              */
             countDownChanged(dismissCountDown) {

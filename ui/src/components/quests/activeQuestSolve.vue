@@ -110,7 +110,7 @@
                             </b-col>
                             <b-col md="5">
                                 <div class="float-right">
-                                    <b-button size="sm" variant="primary"
+                                    <b-button size="sm" variant="link"
                                               @click="showOrHideHints(true, solvedObjective)">
                                               {{solvedObjective.id === objective.id ? "Hide" : "Show"}} Hints
                                     </b-button>
@@ -141,7 +141,7 @@
                             </b-col>
                             <b-col md="5">
                                 <div class="float-right">
-                                    <b-button size="sm" variant="primary"
+                                    <b-button size="sm" variant="outline-primary"
                                               @click="showOrHideHints(false, questAttempt.toSolve)">
                                               {{questAttempt.toSolve.id === objective.id ? "Hide" : "Show"}} Hints
                                     </b-button>
@@ -312,6 +312,10 @@
                 }
             },
 
+
+            /**
+             * Watches for when the hints are retrieved and refreshes the hints in the hints table.
+             */
             hintsReceived() {
                 this.refreshHints = !this.refreshHints;
             }
@@ -328,7 +332,10 @@
 
         methods: {
             /**
-             * Shows or hides the hints for a given objective
+             * Shows or hides the hints for a given objective.
+             *
+             * @param solved        the boolean determining whether the objective is solved.
+             * @param objective     the objective containing the hints.
              */
             showOrHideHints(solved, objective) {
                 let defaultPerPage = 5;
@@ -350,6 +357,8 @@
 
             /**
              * Showing the create hint and setting the objective for the hint creation.
+             *
+             * @param objective         the target objective.
              */
             showAddHint(objective) {
                 this.objective = objective;
@@ -360,6 +369,8 @@
             /**
              * Function from the emit of a successfully created hint and shows the rewards and resets the list hints
              * component.
+             *
+             * @param responseBody      the  emitted response body containing the reward.
              */
             successCreateHint(responseBody) {
                 this.alertText = "Hint successfully created!";
@@ -661,8 +672,9 @@
             /**
              * Gets the hints to display from the backend for all hints for an objective but paginated based on
              * current page and the per page variables.
-             * @param currentPage           The current viewing page.
-             * @param perPage               The amount to view on a page.
+             *
+             * @param currentPage           the current viewing page.
+             * @param perPage               the amount to view on a page.
              */
             getPageHints(currentPage, perPage) {
                 let self = this;

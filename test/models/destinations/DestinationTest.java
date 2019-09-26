@@ -22,6 +22,7 @@ public class DestinationTest {
     private static final Double LATITUDE_2 = 32.4244;
     private static final Double LONGITUDE_1 = 34.43643;
 
+
     @Before
     public void setUp() {
         destinationType1 = new Type();
@@ -29,6 +30,7 @@ public class DestinationTest {
         testDestination1 = new Destination();
         testDestination2 = new Destination();
     }
+
 
     @Test
     public void testEqual() {
@@ -51,6 +53,7 @@ public class DestinationTest {
 
         assertEquals(testDestination1, testDestination2);
     }
+
 
     @Test
     public void testNameNotEqual() {
@@ -75,6 +78,7 @@ public class DestinationTest {
         assertNotEquals(testDestination1, testDestination2);
     }
 
+
     @Test
     public void testTypeNotEqual() {
         // DestinationType not equal therefore Destination not equal, Ceteris paribus
@@ -97,6 +101,7 @@ public class DestinationTest {
 
         assertNotEquals(testDestination1, testDestination2);
     }
+
 
     @Test
     public void testLatitudeNotEqual() {
@@ -144,6 +149,7 @@ public class DestinationTest {
         assertEquals(testDestination1.hashCode(), testDestination2.hashCode());
     }
 
+
     @Test
     public void testNameNotEqualHashCode() {
         destinationType1.setDestinationType(TYPE_STREAM);
@@ -167,6 +173,7 @@ public class DestinationTest {
         assertNotEquals(testDestination1.hashCode(), testDestination2.hashCode());
     }
 
+
     @Test
     public void testTypeNotEqualHashCode() {
         // DestinationType not equal therefore Destination not equal, Ceteris paribus
@@ -189,6 +196,7 @@ public class DestinationTest {
 
         assertNotEquals(testDestination1.hashCode(), testDestination2.hashCode());
     }
+
 
     @Test
     public void testLatitudeNotEqualHashCode() {

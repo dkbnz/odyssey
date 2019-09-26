@@ -88,6 +88,19 @@ public class GeneralTestSteps {
 
 
     /**
+     * Date formats.
+     */
+    private static final String YEAR_MONTH_DAY_FORMAT = "yyyy-MM-dd";
+    private static final String YEAR_MONTH_DAY_TIME_WITH_T_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    private static final String YEAR_MONTH_DAY_TIME_FORMAT = "yyyy-MM-dd hh:MM:ssZ";
+
+    /**
+     * Message part from API Error.
+     */
+    private static final String MESSAGE = "message";
+
+
+    /**
      * Repository to access the profiles in the running application.
      */
     private ProfileRepository profileRepository;
@@ -208,7 +221,7 @@ public class GeneralTestSteps {
             calendar.add(Calendar.DATE, START_DATE_BUFFER);
         }
         calendar.add(Calendar.DATE, END_DATE_BUFFER);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:MM:ssZ");
+        SimpleDateFormat sdf = new SimpleDateFormat(YEAR_MONTH_DAY_TIME_FORMAT);
         return sdf.format(calendar.getTime());
     }
 
@@ -228,7 +241,7 @@ public class GeneralTestSteps {
             calendar.add(Calendar.DATE, START_DATE_BUFFER + dateBuffer);
         }
         calendar.add(Calendar.DATE, END_DATE_BUFFER + dateBuffer);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat(YEAR_MONTH_DAY_FORMAT);
         return sdf.format(calendar.getTime());
     }
 
@@ -340,7 +353,7 @@ public class GeneralTestSteps {
         ObjectMapper objectMapper = new ObjectMapper();
         List<String> expectedApiErrors = dataTable.asList();
         for(JsonNode errorMessage : objectMapper.readTree(testContext.getResponseBody())) {
-            Assert.assertTrue(expectedApiErrors.contains(errorMessage.get("message").asText()));
+            Assert.assertTrue(expectedApiErrors.contains(errorMessage.get(MESSAGE).asText()));
         }
     }
 

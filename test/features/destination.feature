@@ -652,24 +652,16 @@ Feature: Destination API Endpoint
   Scenario: Retrieving destination usage for 1 trip
     Given the application is running
     And I am logged in as an admin user
-    And the following json body containing a trip is sent:
-      """
-        {
-          "trip_name": "A Holiday Away",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : "1990-12-12",
-              "end_date" : "1991-12-12"
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
     When I request the destination usage for destination with id 1155
     Then the status code received is 200
     And the trip count is 1
@@ -702,24 +694,16 @@ Feature: Destination API Endpoint
   Scenario: Retrieving destination usage for 1 photo and 1 trip
     Given the application is running
     And I am logged in as an admin user
-    And the following json body containing a trip is sent:
-      """
-        {
-          "trip_name": "A Holiday Away",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : "1990-12-12",
-              "end_date" : "1991-12-12"
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
     When I add a photo with id 1 to an existing destination with id 1155
     And I request the destination usage for destination with id 1155
     Then the status code received is 200

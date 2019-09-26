@@ -36,7 +36,7 @@
                     :profile="profile"
                     :solved="true"
                     :refresh="refreshHints"
-                    @showAddHint="showAddHint()"
+                    @showAddHint="showAddHint"
                     @request-new-hints-page="getPageHints">
         </list-hints>
     </div>
@@ -55,7 +55,12 @@
 
     export default {
         name: "completedQuestDetails",
-        components: {ListHints, CreateHint},
+
+        components: {
+            ListHints,
+            CreateHint
+        },
+
         props: {
             quest: Object,
             profile: Object
@@ -123,8 +128,9 @@
             /**
              * Gets the hints to display from the backend for all hints for an objective but paginated based on
              * current page and the per page variables.
-             * @param currentPage           The current viewing page.
-             * @param perPage               The amount to view on a page.
+             *
+             * @param currentPage           the current viewing page.
+             * @param perPage               the amount to view on a page.
              */
             getPageHints(currentPage, perPage) {
                 let self = this;
