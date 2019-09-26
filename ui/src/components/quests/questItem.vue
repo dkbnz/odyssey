@@ -185,7 +185,7 @@
                     </b-col>
                 </b-row>
 
-                <b-container fluid style="margin-top: 20px"
+                <b-container fluid class="mt-2"
                              v-if="inputQuest.objectives.length > 0 && !editCurrentObjective">
                     <!-- Table displaying all quest objectives -->
                     <b-table :current-page="currentPage" :fields="fields" :items="inputQuest.objectives"
@@ -505,6 +505,9 @@
             },
 
 
+            /**
+             * Computed function used for populating the fields of a quest objective.
+             */
             fields() {
                 if (this.activeUsers > 0) {
                     return [
@@ -528,7 +531,7 @@
             /**
              * Gets the current date+time as a Date object.
              *
-             * @returns Date    today's date.
+             * @returns {Date}    today's date.
              */
             getCurrentDate() {
                 return new Date();
@@ -536,7 +539,7 @@
 
 
             /**
-             * sets the input values to be their proper string versions of current date/time.
+             * Sets the input values to be their proper string versions of current date/time.
              */
             setDateTimeString() {
                 if (this.inputQuest.id === null) {
@@ -550,7 +553,7 @@
             /**
              * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day.
              *
-             * @returns Current Date in YYYY-MM-DD String Format.
+             * @returns {Date}      the current date in YYYY-MM-DD String Format.
              */
             getDateString() {
                 let today = this.getCurrentDate();
@@ -565,7 +568,7 @@
             /**
              * Gets the current time as a string in HH:MM format, including padding O's.
              *
-             * @returns Current Time in HH:MM String Format.
+             * @returns {Date}      the current time in HH:MM String Format.
              */
             getTimeString() {
                 let today = this.getCurrentDate();
@@ -704,6 +707,8 @@
 
             /**
              * Adds the specified objective to the list of quest objectives and handles the appropriate actions.
+             *
+             * @param objective     the objective being added.
              */
             addObjective(objective) {
                 this.inputQuest.objectives.push(JSON.parse(JSON.stringify(objective)));
@@ -721,6 +726,8 @@
 
             /**
              * Replaces the objective in the quest objectives array with the newly edited objective.
+             *
+             * @param objective     the new objective replacing the old one being edited.
              */
             objectiveEdited(objective) {
                 this.inputQuest.objectives[this.objectiveIndex] = JSON.parse(JSON.stringify(objective));
@@ -795,7 +802,9 @@
 
 
             /**
-             * Sends an emit to the quest list to view the hints for an objective
+             * Sends an emit to the quest list to view the hints for an objective.
+             *
+             * @param objective     the objective having its hints viewed.
              */
             viewHints(objective) {
                 this.$emit('add-hint-side-bar', objective);
@@ -904,6 +913,9 @@
 
             /**
              * Gets the local time offset and pads it to be 4 numbers long.
+             *
+             * @param date      the date being converted.
+             * @returns {Date}  the offset local time.
              */
             formatOffset(date) {
                 let timeOffset = (Math.abs(new Date(date).getTimezoneOffset() / 60)).toString();
