@@ -155,7 +155,6 @@
                                  outlined
                                  ref="tripDestTable"
                                  striped>
-
                             <!-- Buttons that appear for each destination added to table -->
                             <template v-slot:cell(actions)="row">
                                 <!--Opens edit modal-->
@@ -231,6 +230,9 @@
                             </template>
 
                         </b-table>
+                        <div class="text-center my-2">
+                            <strong v-if="inputTrip.destinations.length === 0">You need to add a destination!</strong>
+                        </div>
                         <!-- Determines pagination and number of results per row of the table -->
                         <b-row>
                             <b-col cols="1">
@@ -244,7 +246,7 @@
                                     </b-form-select>
                                 </b-form-group>
                             </b-col>
-                            <b-col cols="8">
+                            <b-col cols="10">
                                 <b-pagination
                                         :per-page="perPage"
                                         :total-rows="rows"
