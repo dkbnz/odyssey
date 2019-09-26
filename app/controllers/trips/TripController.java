@@ -45,7 +45,7 @@ public class TripController extends Controller {
     private static final String EMPTY_STRING = "";
     private static final String NULL = "null";
     private static final String DESTINATION_OWNERSHIP_CHANGED = "Destination ownership changed";
-    private static final String DESTNATON_OWNERSHIP_NO_CHANGE = "Destination ownership doesn't need to be changed";
+    private static final String DESTINATION_OWNERSHIP_NO_CHANGE = "Destination ownership doesn't need to be changed";
     private static final int MAX_PAGE_SIZE = 100;
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private static final int DEFAULT_ADMIN_ID = 1;
@@ -378,7 +378,7 @@ public class TripController extends Controller {
             return ok(DESTINATION_OWNERSHIP_CHANGED);
         }
 
-        return ok(DESTNATON_OWNERSHIP_NO_CHANGE);
+        return ok(DESTINATION_OWNERSHIP_NO_CHANGE);
     }
 
 
