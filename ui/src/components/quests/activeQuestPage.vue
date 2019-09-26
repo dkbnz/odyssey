@@ -67,7 +67,7 @@
 
         methods: {
             /**
-             * Shows the alert for a hint successfully created
+             * Shows the alert for a hint successfully created.
              */
             showHintCreateSuccess() {
                 this.alertText = "Hint successfully created!";

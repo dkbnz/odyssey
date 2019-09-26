@@ -2,7 +2,9 @@
     <div>
         <h1 class="page-title">{{ heading }} an Objective!</h1>
 
-        <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
+        <b-alert dismissible v-model="showError" variant="danger">
+            <p class="wrapWhiteSpace">{{errorMessage}}</p>
+        </b-alert>
 
         <!-- Displays success alert and progress bar on objective creation as a loading bar
         for the objective being added to the database -->

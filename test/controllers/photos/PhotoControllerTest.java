@@ -20,6 +20,7 @@ public class PhotoControllerTest {
 
     private static final String AUTHORIZED = "authorized";
     private static final String USER_ID = "1";
+    private static final Long PERSONAL_PHOTO_ID = 12L;
 
     private PhotoController testPhotoController;
     private ProfileRepository mockProfileRepo;
@@ -50,7 +51,7 @@ public class PhotoControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = testPhotoController.fetch(request, 12L, false);
+        Result result = testPhotoController.fetch(request, PERSONAL_PHOTO_ID, false);
 
         // Assert
         Assert.assertEquals(NOT_FOUND, result.status());
@@ -69,7 +70,7 @@ public class PhotoControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = testPhotoController.fetch(request, 12L, true);
+        Result result = testPhotoController.fetch(request, PERSONAL_PHOTO_ID, true);
 
         // Assert
         Assert.assertEquals(NOT_FOUND, result.status());
@@ -85,7 +86,7 @@ public class PhotoControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = testPhotoController.fetch(request, 12L, false);
+        Result result = testPhotoController.fetch(request, PERSONAL_PHOTO_ID, false);
 
         // Assert
         Assert.assertEquals(UNAUTHORIZED, result.status());

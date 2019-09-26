@@ -152,9 +152,9 @@
         },
 
         props: {
-            profileList: Array, // List of profiles to display
+            profileList: Array,
             adminView: Boolean,
-            profile: Object, // Profile viewing the list
+            profile: Object,
             loading: {
                 default: function() {
                     return false;

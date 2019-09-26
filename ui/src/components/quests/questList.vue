@@ -84,16 +84,23 @@
                                 <!-- If looking at the available quests tab, show a 'start now' button -->
                                 <b-col cols="2" v-if="availableQuests">
                                     <b-row>
-                                        <b-button variant="primary" @click="createAttempt(quest, true)">Start Now</b-button>
+                                        <b-button variant="primary" @click="createAttempt(quest, true)">
+                                            Start Now
+                                        </b-button>
                                     </b-row>
                                     <b-row class="mt-4">
-                                        <b-button variant="secondary" @click="createAttempt(quest, false)">Start Later</b-button>
+                                        <b-button variant="secondary" @click="createAttempt(quest, false)">
+                                            Start Later
+                                        </b-button>
                                     </b-row>
                                 </b-col>
                             </b-row>
                             <div v-if="yourQuests" class="buttonMarginsTop">
-                                <b-button @click="showHideLocations(quest)" variant="primary" class="buttonMarginsBottom">
-                                    Show/Hide Locations
+                                <b-button
+                                        @click="showHideLocations(quest)"
+                                        variant="primary"
+                                        class="buttonMarginsBottom">
+                                            Show/Hide Locations
                                 </b-button>
                                 <b-container fluid style="margin-top: 20px; display: none" :id="'display-' + quest.id">
                                     <!-- Table displaying all quest objectives -->
@@ -151,13 +158,17 @@
                         <!--Quest component-->
                     </b-list-group-item>
                     <!---Load More--->
-                    <b-list-group-item class="flex-column justify-content-center" v-if="!yourQuests && !completedQuests">
+                    <b-list-group-item
+                            class="flex-column justify-content-center"
+                            v-if="!yourQuests && !completedQuests">
                         <div class="d-flex justify-content-center" v-if="loadingResults">
                             <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
                         </div>
                         <div>
                             <div v-if="moreResults && !loadingResults">
-                                <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>Load More</b-button>
+                                <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>
+                                    Load More
+                                </b-button>
                             </div>
                             <div class="d-flex justify-content-center" v-else-if="!moreResults && !loadingResults">
                                 <h5 class="mb-1">No More Results</h5>
@@ -692,7 +703,7 @@
              * Sets the message for the success alert to the inputted message and runs showAlert to show the success
              * message.
              *
-             * @param messageObject the object to display.
+             * @param messageObject     the object to display.
              */
             showSuccess(messageObject) {
                 this.getMore();
@@ -718,8 +729,8 @@
              * Gets the hints to display from the backend for all hints for an objective but paginated based on
              * current page and the per page variables.
              *
-             * @param currentPage           the current viewing page.
-             * @param perPage               the amount to view on a page.
+             * @param currentPage       the current viewing page.
+             * @param perPage           the amount to view on a page.
              */
             getPageHints(currentPage, perPage) {
                 let self = this;
@@ -773,7 +784,9 @@
 
 
             /**
-             * Sets the treasure hunt emitted from the select treasure hunt side bar.
+             * Sets the objective emitted from the select objective side bar.
+             *
+             * @param objective         the selected objective.
              */
             setSelectedObjective(objective) {
                 let newObjective = JSON.parse(JSON.stringify(objective));
@@ -808,7 +821,8 @@
             /**
              * Returns a string radius value determined by the size.
              *
-             * @param radius    the radius to be changed.
+             * @param radius        the radius to be changed.
+             * @returns {String}     the radius as a string, represented either in meters or kilometers.
              */
             getRadiusValue(radius) {
                 if (radius < 1) {
@@ -821,7 +835,8 @@
             /**
              * Returns a string of the countries contained in the quest objectives, which indicates the quest scope.
              *
-             * @param quest     the quest containing one or more countries.
+             * @param quest         the quest containing one or more countries.
+             * @returns {String}     a string of the countries contained within the quest.
              */
             getQuestCountries(quest) {
                 let countries = "";
@@ -838,6 +853,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
+             * @param               the quest containing the objectives.
              * @returns {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
@@ -848,7 +864,7 @@
 
             /**
              * Hides or shows the quest locations given by the quest location id parameter.
-             *`
+             *
              * @param quest      the quest locations to hide.
              */
             showHideLocations(quest) {
