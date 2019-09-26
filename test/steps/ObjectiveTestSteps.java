@@ -112,7 +112,7 @@ public class ObjectiveTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
 
-        if (testContext.getStatusCode() == 200 || testContext.getStatusCode() == 201) {
+        if (testContext.getStatusCode() == OK || testContext.getStatusCode() == CREATED) {
             testContext.setResponseBody(Helpers.contentAsString(result));
             try {
                 JsonNode returnJson = objectMapper.readTree(Helpers.contentAsString(result));
