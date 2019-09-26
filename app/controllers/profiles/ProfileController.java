@@ -416,6 +416,9 @@ public class ProfileController {
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
                         // If user is admin, they can delete other profiles
                         if (userProfile.isAdmin()) {
+                            System.out.println(userProfile.isAdmin());
+
+                            System.out.println(Json.toJson(profileToDelete));
                             profileRepository.delete(profileToDelete);
                             return ok(Json.toJson("Profile Successfully Deleted"));
                         }
