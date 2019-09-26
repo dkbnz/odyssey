@@ -238,10 +238,8 @@
                         <list-hints
                                 :objective="currentObjective"
                                 :profile="profile"
-                                :refresh="refreshHints"
                                 :solved="true"
-                                @showAddHint="showAddHint"
-                                @request-new-hints-page="getPageHints">
+                                @add-hint="showHintSideBar = 'Create Hint'">
                         </list-hints>
                     </div>
 
@@ -679,15 +677,6 @@
 
 
             /**
-             * Shows the add hints component and sets the current page and per page to keep the users viewing preference
-             * for after the additional hint being added.
-             */
-            showAddHint() {
-                this.showHintSideBar = 'Create Hint';
-            },
-
-
-            /**
              * Sets creatingQuest to false and emits signal to hide destination search box. clears selected destination.
              */
             cancelCreate() {
@@ -720,36 +709,6 @@
                 this.showHintSideBar = "Hints";
                 this.currentObjective = objective;
                 this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
-            },
-
-
-            /**
-             * Gets the hints to display from the backend for all hints for an objective but paginated based on
-             * current page and the per page variables.
-             *
-             * @param currentPage       the current viewing page.
-             * @param perPage           the amount to view on a page.
-             */
-            getPageHints(currentPage, perPage) {
-                let self = this;
-                let currentPageQuery = currentPage - 1;
-                fetch(`/v1/objectives/` + self.currentObjective.id +
-                    `/hints/` + this.profile.id + `?pageNumber=` + currentPageQuery +
-                    `&pageSize=` + perPage, {
-
-                }).then(function (response) {
-                    if (!response.ok) {
-                        throw response;
-                    } else {
-                        return response.json();
-                    }
-                })
-                .then(function (responseBody) {
-                    self.currentObjective.hints = responseBody;
-                    self.refreshHints = !self.refreshHints;
-                }).catch(function (response) {
-                    self.handleErrorResponse(response);
-                });
             },
 
 
