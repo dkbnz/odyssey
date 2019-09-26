@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
     <div>
         <b-row>
             <b-col cols="12" md="8">
@@ -376,12 +376,13 @@
 
         methods: {
             /**
-             * Resets the foundQuests array and the query page for tab switching and lazy loading
+             * Resets the foundQuests array and the query page for tab switching and lazy loading.
              */
             refreshList() {
                 this.foundQuests = [];
                 this.queryPage = 0;
             },
+
 
             /**
              * Used to convert the quest object into a Json object.
@@ -512,6 +513,8 @@
             /**
              * Creates a new quest attempt for the selected quest and current user.
              *
+             * @param questToAttempt                the selected quest which will be contained in the attempt.
+             * @param viewActive                    a boolean determining whether the view should change upon starting.
              * @returns {Promise<Response | never>}
              */
             createAttempt(questToAttempt, viewActive) {
@@ -529,10 +532,9 @@
                         if (viewActive) {
                             self.$emit('start-quest-now', responseBody);
                         } else {
-                            // Refresh quests
-                            self.getMore();
-                            self.showSuccess({message: "Quest started"});
-                            self.$emit('start-quest-later', responseBody);
+                            // Remove the quest selected for later use from the list of available quests.
+                            let index = self.foundQuests.indexOf(questToAttempt);
+                            self.foundQuests.splice(index, 1);
                         }
                     }).catch(function (response) {
                         self.handleErrorResponse(response);
@@ -849,7 +851,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @param               the quest containing the objectives.
+             * @param quest         the quest containing the objectives.
              * @returns {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
