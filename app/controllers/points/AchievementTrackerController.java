@@ -42,6 +42,8 @@ public class AchievementTrackerController extends Controller {
     private static final String CLIENT_DATE_OFFSET = "dateOffset";
     private static final String CURRENT_STREAK = "currentStreak";
     private static final String REWARD = "reward";
+    private static final String ENTIRE_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     private static final int SINGLE_COUNTRY = 1;
     private static final int INCREMENT_ONE = 1;
@@ -295,7 +297,7 @@ public class AchievementTrackerController extends Controller {
      * the user created the quest, otherwise they completed the quest.
      *
      * @param actingProfile     the profile that completed the action.
-     * @param questWorkedOn     the quest that was either created or completed
+     * @param questWorkedOn     the quest that was either created or completed.
      * @param completedAction   an action indicating the operation performed on the quest.
      * @return                  Json node of the reward result.
      */
@@ -480,11 +482,11 @@ public class AchievementTrackerController extends Controller {
     private double calculateDistance(double latitude1, double latitude2, double longitude1, double longitude2) {
         double latitudeDistance = Math.toRadians(latitude2 - latitude1);
         double longitudeDistance = Math.toRadians(longitude2 - longitude1);
-        double a = Math.sin(latitudeDistance / 2) * Math.sin(latitudeDistance / 2)
+        double squareHalfCordLength = Math.sin(latitudeDistance / 2) * Math.sin(latitudeDistance / 2)
                 + Math.cos(Math.toRadians(latitude1)) * Math.cos(Math.toRadians(latitude2))
                 * Math.sin(longitudeDistance / 2) * Math.sin(longitudeDistance / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = RADIUS_OF_THE_EARTH * c * 1000; // convert to meters
+        double angularDistance = 2 * Math.atan2(Math.sqrt(squareHalfCordLength), Math.sqrt(1 - squareHalfCordLength));
+        double distance = RADIUS_OF_THE_EARTH * angularDistance * 1000; // convert to meters
         distance = Math.pow(distance, 2);
 
         return Math.sqrt(distance);
@@ -547,25 +549,18 @@ public class AchievementTrackerController extends Controller {
      *                              return 400 to the front end application.
      */
     private JsonNode checkStreakIncrement(Profile profile, String clientDateString, Long dateOffset) {
-
         Date clientDate;
-
         ObjectNode responseJson = objectMapper.createObjectNode();
 
         try {
-            clientDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(clientDateString);
-
+            clientDate = new SimpleDateFormat(ENTIRE_DATE_FORMAT).parse(clientDateString);
             // Adds the client's local date offset to the date
             clientDate = addTimeZone(clientDate, dateOffset * -1);
-
-            clientDate = new SimpleDateFormat("yyyy-MM-dd").parse(
-                    new SimpleDateFormat("yyyy-MM-dd").format(clientDate));
-
+            clientDate = new SimpleDateFormat(DATE_FORMAT).parse(
+                    new SimpleDateFormat(DATE_FORMAT).format(clientDate));
         } catch (ParseException e) {
             return null;
         }
-
-
 
         Date lastSeenDate = profile.getLastSeenDate();
         if (lastSeenDate == null) {
@@ -599,11 +594,11 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
-     * Adds time from the given date
+     * Adds time from the given date.
      *
-     * @param clientDate    date to add time to
-     * @param dateOffset    time to add, in minutes
-     * @return              the initial date, with the time offset add
+     * @param clientDate    date to add time to.
+     * @param dateOffset    time to add, in minutes.
+     * @return              the initial date, with the time offset added.
      */
     private Date addTimeZone(Date clientDate, Long dateOffset) {
         Long dateMilliseconds   = clientDate.getTime();

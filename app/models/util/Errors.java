@@ -35,6 +35,13 @@ public enum Errors {
     VOTE_ALREADY_EXISTS("You already have voted on this hint."),
     HINT_OBJECTIVE_SOLVED("You cannot request a hint for an objective you have already solved."),
     HINT_OBJECTIVE_OWNER("You cannot request a hint for an objective you own."),
+    NO_QUEST_TITLE("A quest title must be provided."),
+    LONG_QUEST_TITLE("A quest title must be provided."),
+    NO_START_DATE("You must provide a start date."),
+    NO_END_DATE("You must provide an end date."),
+    STAR_DATE_BEFORE_END_DATE("Start date must be before end date."),
+    NO_QUEST_OWNER("This quest does not have an owner."),
+    QUEST_NEED_ONE_OBJECTIVE("You must provide at least one objective for a quest."),
     QUEST_CANNOT_BE_EDITED("You cannot edit this part of the quest as it has been started");
 
 
