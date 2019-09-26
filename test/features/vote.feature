@@ -38,22 +38,6 @@ Feature: Voting API Endpoint
     And the hint with id 1 has 10 upvotes
 
 
-  Scenario: Upvoting a hint that I have already upvoted
-    Given the application is running
-    And I am logged in as user with id 7
-    And an objective exists with id 31
-    And I do not own the objective with id 31
-    And I have solved the objective with id 31
-    And a hint with id 3 exists for objective with id 31
-    And the owner of the hint with id 3 has some starting points
-    And the hint with id 3 has 45 upvotes
-    And I have already upvoted the hint with id 3
-    When I attempt to upvote a hint with id 3 for user with id 7
-    Then the status code received is 200
-    And the hint with id 3 has 44 upvotes
-    And the owner of the hint with id 3 has lost points
-
-
   # Successful cases for upvoting
   Scenario: Upvoting a hint for an objective I have solved
     Given the application is running
@@ -68,6 +52,22 @@ Feature: Voting API Endpoint
     Then the status code received is 200
     And the hint with id 1 has 11 upvotes
     And the owner of the hint with id 1 has gained points
+
+
+  Scenario: Removing an up vote for a hint that I have already upvoted
+    Given the application is running
+    And I am logged in as user with id 7
+    And an objective exists with id 31
+    And I do not own the objective with id 31
+    And I have solved the objective with id 31
+    And a hint with id 3 exists for objective with id 31
+    And the owner of the hint with id 3 has some starting points
+    And the hint with id 3 has 45 upvotes
+    And I have already upvoted the hint with id 3
+    When I attempt to upvote a hint with id 3 for user with id 7
+    Then the status code received is 200
+    And the hint with id 3 has 44 upvotes
+    And the owner of the hint with id 3 has lost points
 
 
   # Unsuccessful cases for downvoting
@@ -108,20 +108,6 @@ Feature: Voting API Endpoint
     And the hint with id 1 has 3 downvotes
 
 
-  Scenario: Downvoting a hint that I have already downvoted
-    Given the application is running
-    And I am logged in as user with id 9
-    And an objective exists with id 24
-    And I do not own the objective with id 24
-    And I have solved the objective with id 24
-    And a hint with id 2 exists for objective with id 24
-    And the hint with id 2 has 10 downvotes
-    And I have already downvoted the hint with id 2
-    When I attempt to downvote a hint with id 2 for user with id 9
-    Then the status code received is 200
-    And the hint with id 2 has 9 downvotes
-
-
   # Successful cases for downvoting
   Scenario: Downvoting a hint for an objective I have solved
     Given the application is running
@@ -134,6 +120,21 @@ Feature: Voting API Endpoint
     When I attempt to downvote a hint with id 1 for user with id 8
     Then the status code received is 200
     And the hint with id 1 has 4 downvotes
+
+
+  Scenario: Removing a down vote for a hint that I have already downvoted
+    Given the application is running
+    And I am logged in as user with id 9
+    And an objective exists with id 24
+    And I do not own the objective with id 24
+    And I have solved the objective with id 24
+    And a hint with id 2 exists for objective with id 24
+    And the hint with id 2 has 10 downvotes
+    And I have already downvoted the hint with id 2
+    When I attempt to downvote a hint with id 2 for user with id 9
+    Then the status code received is 200
+    And the hint with id 2 has 9 downvotes
+
 
   # Changing votes on a hint.
   Scenario: Changing my downvote to an upvote
