@@ -6,7 +6,20 @@
             <h1 class="page-title">Destinations</h1>
             <p class="page-title">
                 <i>Here you can add destinations, search destinations or view destinations on a map!</i>
-            </p>
+                <b-img id="page_info"
+                       height="30%"
+                       :src="assets['information']"></b-img></p>
+
+
+            <!-- Info tooltip for page -->
+            <b-tooltip target="page_info" title="How to use the Trips Page" placement="bottom">
+                <strong><i>How to View Destinations</i></strong> <br><br>
+
+                Search for destinations using the form on the right<br>
+                Loaded destinations will show up as markers on the map.<br><br>
+
+                Select a destination from the list or a marker to see further details below
+            </b-tooltip>
             <b-row>
                 <b-col :cols="adminView ? 7 : 8">
                     <b-card ref="maps">

@@ -1,7 +1,31 @@
 <template>
     <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-5 rounded-lg">
-        <h1 class="page-title">{{ heading }}</h1>
-        <p class="page-title"><i>{{ subHeading }}</i></p>
+        <h1 class="page-title" align="center">{{ heading }} </h1>
+        <p class="page-title"><i>{{ subHeading }}</i>
+            <b-img id="page_info"
+                   height="30%"
+                   :src="assets['information']"></b-img></p>
+
+
+        <!-- Info tooltip for page -->
+        <b-tooltip target="page_info" title="How to use the Trips Page" placement="bottom">
+            <strong><i>How to Create a Trip</i></strong> <br><br>
+
+            Add at least 2 destinations to the trip by selecting destinations from the panel on the right,
+            and clicking the "Add to Trip" button <br>
+            The search form can be used to find specific destinations, or a new destination can be added <br>
+            Note: Two identical destinations cannot be next to each other<br><br>
+
+            Arrival and departure dates can be added to a destination by filling in the respective fields <br><br>
+
+            Click the green arrows on the left of each destination to move the destination
+            one row in the direction of the arrow.<br>
+            Click the Edit button to change the start date and end date of the destination,
+            Show Details to view further details about the destination,
+            or Delete to remove the destination from the trip. <br><br>
+
+            When the trip is ready, click Save Trip to create the new trip with the set destinations
+        </b-tooltip>
 
         <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
 
