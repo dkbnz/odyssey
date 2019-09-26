@@ -119,7 +119,7 @@ public class HintController {
         ObjectNode returnJson = objectMapper.createObjectNode();
 
         // Points for creating a hint.
-        returnJson.set(REWARD, achievementTrackerController.rewardAction(hintCreator, hint));
+        returnJson.set(REWARD, achievementTrackerController.rewardHintCreate(hintCreator));
 
         profileRepository.update(hintCreator);
         objectiveRepository.update(objectiveToAddHint);

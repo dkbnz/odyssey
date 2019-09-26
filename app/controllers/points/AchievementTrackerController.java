@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
-import models.destinations.Destination;
 import models.hints.Hint;
 import models.objectives.Objective;
 import models.points.AchievementTracker;
@@ -14,7 +13,6 @@ import models.points.Badge;
 import models.points.PointReward;
 import models.profiles.Profile;
 import models.quests.Quest;
-import models.trips.Trip;
 import models.util.ApiError;
 import models.util.Errors;
 import play.libs.Json;
@@ -172,7 +170,7 @@ public class AchievementTrackerController extends Controller {
      * @param actingProfile         the profile receiving points.
      * @return                      Json node of the reward result.
      */
-    private ObjectNode rewardAction(Profile actingProfile) {
+    private ObjectNode rewardLogin(Profile actingProfile) {
 
         int currentStreak = actingProfile.getAchievementTracker().getCurrentStreak();
 
@@ -189,7 +187,6 @@ public class AchievementTrackerController extends Controller {
             }
         }
 
-
         if(foundBadge == null || foundBadge.getProgress() < currentStreak) {
             badgesAchieved.add(progressBadge(actingProfile, Action.LOGIN_STREAK, INCREMENT_ONE));
         }
@@ -204,10 +201,9 @@ public class AchievementTrackerController extends Controller {
      * Adds progress towards the trip creation badge.
      *
      * @param actingProfile         the profile that performed the action.
-     * @param tripCreated           the trip that was created.
      * @return                      Json node of the reward result.
      */
-    public JsonNode rewardAction(Profile actingProfile, Trip tripCreated) {
+    public JsonNode rewardTripCreate(Profile actingProfile) {
         Collection<Badge> badgesAchieved = new HashSet<>();
 
         // Award points
@@ -231,10 +227,9 @@ public class AchievementTrackerController extends Controller {
      * Rewards the user for creating a hint by adding points for creating a hint.
      *
      * @param actingProfile         the profile that performed the action.
-     * @param hintCreated           the hint that was created.
      * @return                      Json node of the reward result.
      */
-    public JsonNode rewardAction(Profile actingProfile, Hint hintCreated) {
+    public JsonNode rewardHintCreate(Profile actingProfile) {
         Collection<Badge> badgesAchieved = new HashSet<>();
         // Award points
         PointReward points = givePoints(actingProfile, Action.HINT_CREATED);
@@ -249,10 +244,9 @@ public class AchievementTrackerController extends Controller {
      * Adds points to the user's AchievementTracker and adds progress towards the destination creation badge.
      *
      * @param actingProfile         the profile that performed the action.
-     * @param destinationCreated    the destination that was created.
      * @return                      Json node of the reward result.
      */
-    public JsonNode rewardAction(Profile actingProfile, Destination destinationCreated) {
+    public JsonNode rewardDestinationCreate(Profile actingProfile) {
         Collection<Badge> badgesAchieved = new HashSet<>();
 
         // Award points
@@ -276,10 +270,9 @@ public class AchievementTrackerController extends Controller {
      * Adds points to the given profile's AchievementTracker based on the completed action.
      *
      * @param actingProfile         the profile receiving points.
-     * @param objectiveCheckedIn    the objective which the action was performed on.
      * @return                      Json node of the reward result.
      */
-    public JsonNode rewardAction(Profile actingProfile, Objective objectiveCheckedIn) {
+    public JsonNode rewardObjectiveCheckin(Profile actingProfile) {
         Collection<Badge> badgesAchieved = new HashSet<>();
 
         // Award points
@@ -301,7 +294,7 @@ public class AchievementTrackerController extends Controller {
      * @param completedAction   an action indicating the operation performed on the quest.
      * @return                  Json node of the reward result.
      */
-    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, Action completedAction) {
+    public JsonNode rewardQuestInteraction(Profile actingProfile, Quest questWorkedOn, Action completedAction) {
         Collection<Badge> badgesAchieved = new HashSet<>();
 
         // Award points
@@ -565,7 +558,7 @@ public class AchievementTrackerController extends Controller {
         Date lastSeenDate = profile.getLastSeenDate();
         if (lastSeenDate == null) {
             profile.getAchievementTracker().setCurrentStreak(STARTING_STREAK_NUMBER);
-            responseJson.set(REWARD, this.rewardAction(profile));
+            responseJson.set(REWARD, this.rewardLogin(profile));
             responseJson.put(CURRENT_STREAK, profile.getAchievementTracker().getCurrentStreak());
 
         } else {
@@ -577,7 +570,7 @@ public class AchievementTrackerController extends Controller {
                 profile.getAchievementTracker().addToCurrentStreak();
 
 
-                responseJson.set(REWARD, this.rewardAction(profile));
+                responseJson.set(REWARD, this.rewardLogin(profile));
                 responseJson.put(CURRENT_STREAK, profile.getAchievementTracker().getCurrentStreak());
             } else if (clientDate.after(incrementDate)) {
                 // User has lost their streak
