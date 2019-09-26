@@ -1,7 +1,31 @@
 <template>
-    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
-        <h1 class="page-title">{{ heading }}</h1>
-        <p class="page-title"><i>{{ subHeading }}</i></p>
+    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-5 rounded-lg">
+        <h1 class="page-title" align="center">{{ heading }} </h1>
+        <p class="page-title"><i>{{ subHeading }}</i>
+            <b-img id="page_info"
+                   height="30%"
+                   :src="assets['information']"></b-img></p>
+
+
+        <!-- Info tooltip for page -->
+        <b-tooltip target="page_info" title="How to use the Trips Page" placement="bottom">
+            <strong><i>How to Create a Trip</i></strong> <br><br>
+
+            Add at least 2 destinations to the trip by selecting destinations from the panel on the right,
+            and clicking the "Add to Trip" button <br>
+            The search form can be used to find specific destinations, or a new destination can be added <br>
+            Note: Two identical destinations cannot be next to each other<br><br>
+
+            Arrival and departure dates can be added to a destination by filling in the respective fields <br><br>
+
+            Click the green arrows on the left of each destination to move the destination
+            one row in the direction of the arrow.<br>
+            Click the Edit button to change the start date and end date of the destination,
+            Show Details to view further details about the destination,
+            or Delete to remove the destination from the trip. <br><br>
+
+            When the trip is ready, click Save Trip to create the new trip with the set destinations
+        </b-tooltip>
 
         <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
 
@@ -27,7 +51,7 @@
         <b-modal hide-footer id="editModal" ref="editModal" title="Edit Destination">
             <b-alert dismissible v-model="showDateError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
             <div class="d-block">
-                <b-form-group id="editInDate-field" label="Start Date:" label-for="editInDate">
+                <b-form-group id="editInDate-field" label="Arrival Date:" label-for="editInDate">
                     <b-input :type="'date'"
                              id="editInDate"
                              max='9999-12-31'
@@ -35,7 +59,7 @@
                         {{editInDate}} trim
                     </b-input>
                 </b-form-group>
-                <b-form-group id="editOutDate-field" label="End Date:" label-for="editOutDate">
+                <b-form-group id="editOutDate-field" label="Departure Date:" label-for="editOutDate">
                     <b-input :type="'date'"
                              id="editOutDate"
                              max='9999-12-31'
@@ -86,16 +110,16 @@
                                 <b-row>
                                     <b-col>
                                         <h6 class="mb-1">Selected Destination:</h6>
-                                        <b-list-group>
+                                        <b-list-group class="cursor-click">
                                             <b-list-group-item class="flex-column align-items-start"
                                                                id="selectedDestination"
+                                                               @click="showDestinationSideBar = true"
                                                                :disabled="selectedDestination.length === '{}'">
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <h5 class="mb-1" v-if="selectedDestination.name">
                                                         {{selectedDestination.name}}
                                                     </h5>
                                                     <h5 class="mb-1" v-else>Select a Destination</h5>
-
                                                     <small>
                                                         <div class="d-flex justify-content-right">
                                                             <b-button variant="primary"
@@ -119,7 +143,7 @@
                                     <b-col>
                                         <b-form-group
                                                 id="inDate-field"
-                                                label="In Date (optional):"
+                                                label="Arrival Date (optional):"
                                                 label-for="inDate">
                                             <b-form-input :type="'date'"
                                                           id="inDate"
@@ -129,7 +153,7 @@
                                         </b-form-group>
                                         <b-form-group
                                                 id="outDate-field"
-                                                label="Out Date (optional):"
+                                                label="Departure Date (optional):"
                                                 label-for="outDate">
                                             <b-form-input :type="'date'"
                                                           id="outDate"
@@ -155,7 +179,6 @@
                                  outlined
                                  ref="tripDestTable"
                                  striped>
-
                             <!-- Buttons that appear for each destination added to table -->
                             <template v-slot:cell(actions)="row">
                                 <!--Opens edit modal-->
@@ -164,7 +187,7 @@
                                           @click="populateModal(row.item)"
                                           variant="success"
                                           class="mr-2"
-                                          block>Edit
+                                          block>Edit Dates
                                 </b-button>
                                 <!-- Shows additional details about the selected destination -->
                                 <b-button size="sm"
@@ -231,6 +254,9 @@
                             </template>
 
                         </b-table>
+                        <div class="text-center my-2">
+                            <strong v-if="inputTrip.destinations.length === 0">You need to add a destination!</strong>
+                        </div>
                         <!-- Determines pagination and number of results per row of the table -->
                         <b-row>
                             <b-col cols="1">
@@ -244,7 +270,7 @@
                                     </b-form-select>
                                 </b-form-group>
                             </b-col>
-                            <b-col cols="8">
+                            <b-col cols="10">
                                 <b-pagination
                                         :per-page="perPage"
                                         :total-rows="rows"
@@ -267,7 +293,7 @@
                     </b-container>
                 </b-card>
             </b-col>
-            <b-col>
+            <b-col v-if="showDestinationSideBar">
                 <b-card>
                     <destination-sidebar
                             :profile="profile"
@@ -334,8 +360,8 @@
                 fields: [
                     'order',
                     {key: 'destination.name', label: 'Destination Name'},
-                    {key: 'startDate'},
-                    {key: 'endDate'},
+                    {key: 'startDate', label: "Arrival Date"},
+                    {key: 'endDate', label: "Departure Date"},
                     'actions'
                 ],
                 subFields: [
@@ -362,7 +388,8 @@
                     longitude: null,
                     country: "",
                     public: false
-                }
+                },
+                showDestinationSideBar: false
             }
         },
 
@@ -448,6 +475,8 @@
                 this.tripDestination = "";
                 this.inDate = "";
                 this.outDate = "";
+                this.showDestinationSideBar = false;
+                console.log(this.showDestinationSideBar);
             },
 
 
