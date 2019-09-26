@@ -134,7 +134,9 @@
 
         <!--Fields for inputting nationalities, passports & traveller types-->
         <div v-if="showSecond" id="secondSignup">
-            <b-alert v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
+            <b-alert v-model="showError" variant="danger" dismissible>
+                <p class="wrapWhiteSpace">{{alertMessage}}</p>
+            </b-alert>
             <b-form>
                 <b-row>
                     <b-col>
@@ -201,7 +203,7 @@
                             </b-form-checkbox>
                         </b-carousel-slide>
                     </b-carousel>
-                    <b-form-invalid-feedback :state="travTypeValidation" align="center">
+                    <b-form-invalid-feedback :state="travTypeValidation">
                         Please select at least one traveller type.
                     </b-form-invalid-feedback>
                 </b-form-group>

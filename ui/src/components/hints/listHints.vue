@@ -53,7 +53,9 @@
             <b-row no-gutters class="mt-2">
                 <b-col>
                     <div class="float-right">
-                        <b-button class="no-wrap-text" size="sm" variant="primary" @click="addHint" v-if="solved">Add Hint</b-button>
+                        <b-button class="no-wrap-text" size="sm" variant="primary" @click="addHint" v-if="solved">
+                            Add Hint
+                        </b-button>
                         <b-button size="sm" variant="primary"
                                   @click="requestHint"
                                   v-if="!solved && objective.numberOfHints > objective.hints.length">
@@ -123,6 +125,9 @@
         },
 
         watch: {
+            /**
+             * When the objective hints are changed, update the display on the frontend.
+             */
             refresh() {
                 this.objectiveHints = this.objective.hints;
             },
@@ -162,9 +167,9 @@
             /**
              * Uses a fetch method (POST) to upvote a hint. If there is an error for some reason, this is shown to the
              * user.
-             * If the vote is changed, updates the hint's vote sum
+             * If the vote is changed, updates the hint's vote sum.
              *
-             * @param hint      the hint being voted upon
+             * @param hint      the hint being voted upon.
              */
             upVote(hint) {
                 let self = this;
@@ -199,9 +204,9 @@
             /**
              * Uses a fetch method (POST) to downvote a hint. If there is an error for some reason, this is shown to the
              * user.
-             * If the vote is changed, updates the hint's vote sum
+             * If the vote is changed, updates the hint's vote sum.
              *
-             * @param hint      the hint being voted upon
+             * @param hint      the hint being voted upon.
              */
             downVote(hint) {
                 let self = this;
@@ -224,7 +229,7 @@
 
 
             /**
-             * Emits to the above layer to show the create hint instead of the main group
+             * Emits to the above layer to show the create hint instead of the main group.
              */
             addHint() {
                 this.$emit('showAddHint');
@@ -239,6 +244,8 @@
             }
         },
 
-        components: {CreateHint}
+        components: {
+            CreateHint
+        }
     }
 </script>
