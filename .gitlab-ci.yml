@@ -75,4 +75,3 @@ deploy-dev:
   - bash scripts/deploy development
   only:
     - dev_branch@seng302-2019/team-100
-    - end_of_year_fixes@seng302-2019/team-100
