@@ -536,11 +536,9 @@
                         if (viewActive) {
                             self.$emit('start-quest-now', responseBody);
                         } else {
-                            // Refresh quests
+                            // Remove the quest selected for later use from the list of available quests.
                             let index = self.foundQuests.indexOf(questToAttempt);
                             self.foundQuests.splice(index, 1);
-                            self.showSuccess({message: "Quest started"});
-                            self.$emit('start-quest-later', responseBody);
                         }
                     }).catch(function (response) {
                         self.handleErrorResponse(response);
@@ -857,7 +855,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @param               the quest containing the objectives.
+             * @param quest         the quest containing the objectives.
              * @returns {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
