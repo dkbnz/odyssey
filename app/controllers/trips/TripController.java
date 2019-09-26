@@ -126,7 +126,7 @@ public class TripController extends Controller {
             tripRepository.save(trip);
 
             ObjectNode returnJson = objectMapper.createObjectNode();
-            returnJson.set(REWARD, achievementTrackerController.rewardAction(affectedProfile, trip));
+            returnJson.set(REWARD, achievementTrackerController.rewardTripCreate(affectedProfile));
             returnJson.put(NEW_TRIP_ID, trip.getId());
 
             return created(returnJson);
