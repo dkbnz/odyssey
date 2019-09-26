@@ -180,7 +180,7 @@ public class TripTestSteps {
         testContext.setStatusCode(result.status());
         tripDestinations.clear();
 
-        if (testContext.getStatusCode() < 400) {
+        if (testContext.getStatusCode() < BAD_REQUEST) {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode actualObj = mapper.readTree(Helpers.contentAsString(result));
             tripId = Long.parseLong(actualObj.get(NEW_TRIP_ID).toString());
@@ -203,7 +203,7 @@ public class TripTestSteps {
         testContext.setStatusCode(result.status());
         tripDestinations.clear();
 
-        if (testContext.getStatusCode() < 400) {
+        if (testContext.getStatusCode() < BAD_REQUEST) {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode actualObj = mapper.readTree(Helpers.contentAsString(result));
             tripId = Long.parseLong(actualObj.get(NEW_TRIP_ID).toString());
