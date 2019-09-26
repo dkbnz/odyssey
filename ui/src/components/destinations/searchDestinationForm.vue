@@ -1,7 +1,30 @@
 <template>
     <div>
-        <h4 class="page-title" v-if="searchPublic">Search Public Destinations</h4>
-        <h4 class="page-title" v-else>Search Your Destinations</h4>
+        <h4 class="page-title" v-if="searchPublic">Search Public Destinations
+            <b-img id="public_search_info" height="25%" :src="assets['information']"></b-img></h4>
+        <h4 class="page-title" v-else>Search Your Destinations
+            <b-img id="your_search_info" height="25%" :src="assets['information']"></b-img></h4>
+
+        <!-- Info tooltip for public search -->
+        <b-tooltip target="public_search_info" title="" placement="bottom">
+            <strong><i>How to Search Destinations</i></strong> <br><br>
+
+            Enter as many search parameters as you like and click the Search button. <br>
+            Note: if you would like to view all destinations, click Search without any parameters.<br><br>
+
+            To load more destinations, click the More button.
+        </b-tooltip>
+
+        <!-- Info tooltip for your search -->
+        <b-tooltip target="your_search_info" title="" placement="bottom">
+            <strong><i>How to Search Destinations</i></strong> <br><br>
+
+            Enter as many search parameters as you like and click the Search button. <br>
+            Note: if you would like to view all destinations, click Search without any parameters.<br><br>
+
+            To load more destinations, click the More button.
+        </b-tooltip>
+
         <b-form @submit.prevent="searchDestinations">
             <!--Input fields for searching for destinations-->
             <b-form-group

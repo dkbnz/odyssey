@@ -1,6 +1,21 @@
 <template>
     <div>
-        <h4 class="page-title">{{heading}} a Destination</h4>
+        <h4 class="page-title">{{heading}} a Destination
+            <b-img id="add_destination_info" height="25%" :src="assets['information']"></b-img></h4>
+
+        <!-- Info tooltip for public search -->
+        <b-tooltip target="add_destination_info" title="" placement="bottom">
+            <strong><i>How to Create a Destination</i></strong> <br><br>
+
+            Fill out all the fields to create your new destination. <br><br>
+
+            You may click on a location on the map and the Latitude and Longitude values will be automatically populated in the form. <br>
+            Alternatively, you may click the Use Current Location button to populate the form with your current location details. <br>
+            Note: Latitude and Longitude values must be numbers and you cannot have identical destinations<br><br>
+
+            This destination will now be available in the list of Your Destinations.
+        </b-tooltip>
+
         <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act

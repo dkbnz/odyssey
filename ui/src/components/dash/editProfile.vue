@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-3 rounded-lg">
+    <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-5 rounded-lg">
         <h1 class="page-title">Edit Profile</h1>
         <p class="page-title"><i>Edit your profile using the form below!</i></p>
         <b-alert variant="success" v-model="showSuccess" dismissible>Profile successfully saved!</b-alert>
@@ -349,7 +349,7 @@
                 }  else if (this.saveProfile.username.length > 100) {
                     return false
                 }
-                let emailRegex = new RegExp("^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})");
+                let emailRegex = new RegExp("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$");
                 this.checkUsername();
                 return (emailRegex.test(this.saveProfile.username) && this.validEmail);
             },
@@ -604,15 +604,6 @@
                         }
                     }).then(function (responseBody) {
                         self.sendingRequest = false;
-                        if (!self.adminView) {
-                            self.$router.push('/profile');
-                            self.$router.go();
-                        } else {
-                            self.showSuccess = true;
-                            setTimeout(function() {
-                                self.showSuccess = false;
-                            }, 3000)
-                        }
                         self.$emit('profile-saved', self.saveProfile);
                         window.scrollTo(0, 0);
                         self.showErrorResponse = false;
