@@ -280,15 +280,18 @@ public class QuestController {
     private boolean canEditQuest(Quest questToEdit, Quest editedQuest) {
         List<Objective> questToEditObjectives = questToEdit.getObjectives();
         List<Objective> editedQuestObjectives = editedQuest.getObjectives();
-        boolean canEditQuest = false;
+        boolean canEditQuest = true;
 
         List<Profile> activeUsers = profileRepository.findAllUsing(questToEdit);
-        for (int i = 0; i < questToEditObjectives.size(); i++) {
-            if (questToEditObjectives.get(i).getDestination().getId()
-                    .equals(editedQuestObjectives.get(i).getDestination().getId())
-                    || activeUsers.isEmpty()) {
-                canEditQuest = true;
-                break;
+        int currentIndex = 0;
+
+        if (!activeUsers.isEmpty()) {
+            while (questToEditObjectives.size() > currentIndex && canEditQuest) {
+                if (!(questToEditObjectives.get(currentIndex).getDestination().getId()
+                        .equals(editedQuestObjectives.get(currentIndex).getDestination().getId()))) {
+                    canEditQuest = false;
+                }
+                currentIndex++;
             }
         }
 
