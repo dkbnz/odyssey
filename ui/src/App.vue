@@ -5,6 +5,7 @@
                          :destinationTypes="destinationTypes"
                          :nationalityOptions="nationalityOptions"
                          :travTypeOptions="travTypeOptions"
+                         @fetch-profile="getProfile"
                          @profile-received="getProfile">
             </router-view>
         </div>
