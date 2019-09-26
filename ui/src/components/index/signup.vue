@@ -465,7 +465,7 @@
                         firstName: this.firstName,
                         middleName: this.middleName,
                         lastName: this.lastName,
-                        username: this.username,
+                        username: this.username.toLowerCase(),
                         password: this.password,
                         dateOfBirth: this.dateOfBirth,
                         gender: this.gender,
