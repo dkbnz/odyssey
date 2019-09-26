@@ -14,8 +14,7 @@ OUTPUT_DIR = "output/"
 PHOTO_DIR = "photos/"
 THUMBNAIL_DIR = "thumbnail/"
 
-ID_OFFSET = 300
-
+ID_OFFSET = 30
 
 NUMBER_PHOTO_CRAWLERS = 50
 
@@ -156,7 +155,7 @@ def generateUsers(userDict):
         registered = registered.replace('T', ' ')
         registered = registered.replace('Z', '.579000')
 
-        points = random.randint(0, 500)
+        points = random.randint(0, 400)
         streak = random.randint(0, 50)
 
         user_sql = f"({id}, '{username}', '{password}', '{firstname}', '', '{lastname}', '{gender}', '{dob}', '{registered}', 0, {id}), "

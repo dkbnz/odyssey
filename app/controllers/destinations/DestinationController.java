@@ -425,7 +425,7 @@ public class DestinationController extends Controller {
 
                         ObjectMapper objectMapper = new ObjectMapper();
                         ObjectNode returnJson = objectMapper.createObjectNode();
-                        returnJson.set(REWARD, achievementTrackerController.rewardAction(loggedInUser, destination));
+                        returnJson.set(REWARD, achievementTrackerController.rewardDestinationCreate(loggedInUser));
                         returnJson.put(DESTINATION_ID, destination.getId());
                         return created(returnJson);
                     } else {
