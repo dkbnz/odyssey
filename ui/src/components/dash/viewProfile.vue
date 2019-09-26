@@ -28,7 +28,16 @@
                     <b-alert dismissible v-model="showError" variant="danger">
                         <p class="wrapWhiteSpace">{{alertMessage}}</p>
                     </b-alert>
-                    <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
+                    <b-row>
+                        <b-col cols="10">
+                            <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
+                        </b-col>
+                        <b-col>
+                            <b-img :src="assets['pencil']" alt="Edit Profile" height="25%" class="cursor-click"
+                                   @click="$emit('edit-profile')">
+                            </b-img>
+                        </b-col>
+                    </b-row>
                     <h6 v-if="profile.achievementTracker">
                         Rank: #{{profile.achievementTracker.rank}} Points: ({{profile.achievementTracker.points}})
                     </h6>

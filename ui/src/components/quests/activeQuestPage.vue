@@ -5,7 +5,7 @@
                 <active-quest-list
                         :quest-attempts="questAttempts"
                         :loading-results="loadingResults"
-                        @quest-attempt-clicked="questAttempt => this.selectedQuestAttempt = questAttempt">
+                        @quest-attempt-clicked="questAttempt => selectedQuestAttempt = questAttempt">
                 </active-quest-list>
             </b-col>
             <b-col cols="7">

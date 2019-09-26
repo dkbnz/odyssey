@@ -401,9 +401,9 @@
             fields() {
                 return [
                     'name',
-                    {key: 'tripStartDate', label: 'Start Date'},
+                    {key: 'tripStartDate', label: 'Arrival Date'},
                     {key: 'destinations[0].destination.name', label: 'Start Destination'},
-                    {key: 'tripEndDate', label: 'End Date'},
+                    {key: 'tripEndDate', label: 'Departure Date'},
                     {key: 'tripEndDest', label: 'End Destination'},
                     {key: 'duration', label: 'Duration'},
                     'actions'
