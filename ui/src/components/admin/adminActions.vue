@@ -44,9 +44,6 @@
                         <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess" dismissible>
                             <p class="wrapWhiteSpace">{{alertMessage}}</p>
                         </b-alert>
-                        <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure" dismissible>
-                            <p class="wrapWhiteSpace">{{alertMessage}}</p>
-                        </b-alert>
                         <!-- Loop through the list of proposals and generate an area to accept/reject for each one -->
                         <div v-if="travellerTypeProposals.length > 0" class="proposalDiv">
                             <b-card v-for="destination in travellerTypeProposals"
@@ -296,7 +293,6 @@
                         return response.json();
                     }
                 }).then(function () {
-                    self.showTravellerTypeUpdateFailure = false;
                     self.alertMessage = "Destination traveller types updated";
                     self.showTravellerTypeUpdateSuccess = true;
                     setTimeout(function () {
@@ -305,8 +301,6 @@
                     self.removeProposed(destination);
                 }).catch(function (response) {
                     self.sendingRequest = false;
-                    self.alertMessage = "Cannot update traveller types";
-                    self.showTravellerTypeUpdateFailure = true;
                     self.handleErrorResponse(response);
                 });
             }
