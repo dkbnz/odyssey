@@ -1,6 +1,10 @@
 <template>
     <div>
-        <b-alert dismissible v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
+        <b-alert dismissible v-model="showError" variant="danger">
+            <p class="wrapWhiteSpace">
+                {{alertMessage}}
+            </p>
+        </b-alert>
 
         <b-form @submit.prevent="searchProfiles">
             <!--Input fields for searching for destinations-->
