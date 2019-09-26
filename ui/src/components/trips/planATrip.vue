@@ -164,7 +164,7 @@
                                           @click="populateModal(row.item)"
                                           variant="success"
                                           class="mr-2"
-                                          block>Edit
+                                          block>Edit Dates
                                 </b-button>
                                 <!-- Shows additional details about the selected destination -->
                                 <b-button size="sm"
