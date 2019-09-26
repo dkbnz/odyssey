@@ -54,6 +54,10 @@ public class Objective extends BaseModel {
         return hints.add(hint);
     }
 
+    /**
+     * Backend validation for if an objective has any errors in the format of creating an objective.
+     * @return      a list of ApiError that states which parts of the objective are incorrect.
+     */
     @JsonIgnore
     public Collection<ApiError> getErrors() {
         List<ApiError> errors = new ArrayList<>();

@@ -73,7 +73,7 @@
                                   trim
                                   type="password" v-model="password"></b-form-input>
                     <b-form-invalid-feedback :state="passwordValidation">
-                        Your password must be between 5 and 15 characters and password must contain two of: Uppercase,
+                        Your password must be greater than 5 characters long and password must contain two of: Uppercase,
                         Lowercase, Number.
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -89,7 +89,7 @@
                                   trim
                                   type="password" v-model="rePassword"></b-form-input>
                     <b-form-invalid-feedback :state="rePasswordValidation">
-                        This must be the same as the password and your must be between 5 and 15 characters and
+                        This must be the same as the password and your must be greater than 5 characters long and
                         password must contain two of: Uppercase, Lowercase, Number.
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -330,11 +330,9 @@
             passwordValidation() {
                 if (this.password.length === 0) {
                     return null;
-                } else if (this.password.length > 15) {
-                    return false;
                 }
                 let passwordRegex =
-                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
+                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,})");
                 return passwordRegex.test(this.password)
             },
 
@@ -347,11 +345,9 @@
             rePasswordValidation() {
                 if (this.rePassword.length === 0) {
                     return null;
-                } else if (this.rePassword.length > 15) {
-                    return false;
                 }
                 let passwordRegex =
-                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
+                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,})");
                 return this.password.length > 0 && this.rePassword === this.password && passwordRegex.test(this.rePassword);
             },
 
