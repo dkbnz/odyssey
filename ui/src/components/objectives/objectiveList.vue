@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-list-group class="scroll">
+        <b-list-group class="scrollObjectives">
             <!--Successful objective delete alert -->
             <b-alert
                     :show="dismissCountDown"
@@ -8,27 +8,28 @@
                     @dismissed="dismissCountDown=0"
                     dismissible
                     variant="success">
-                <p>{{alertText}}</p>
+                <p>{{alertMessage}}</p>
                 <b-progress
                         :max="dismissSeconds"
-                        :value="dismissCountDown"
+                        :value="dismissCountDown - 1"
                         height="4px"
                         variant="success"
                 ></b-progress>
             </b-alert>
-            <b-list-group-item href="#" class="flex-column justify-content-center"
-                               v-if="creatingObjective" draggable="false">
+            <b-alert v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
+            <b-list-group-item class="flex-column justify-content-center"
+                               v-if="creatingObjective">
+                <!-- Adding objective component -->
                 <add-objective :profile="profile" :heading="'Create'"
+                               @successCreate="showSuccess"
                                @cancelCreate="cancelCreate"
                                :selectedDestination="selectedDestination"
-                               @destination-select="$emit('destination-select')"
-                               @successCreate="message => showSuccess(message)">
-
+                               @destination-select="$emit('destination-select')">
                 </add-objective>
             </b-list-group-item>
-            <div v-if="!sideBarView">
-                <b-list-group-item href="#" class="flex-column justify-content-center"
-                                   v-if="!creatingObjective" draggable="false">
+            <div v-if="!sideBarView && yourObjectives">
+                <b-list-group-item class="flex-column justify-content-center"
+                                   v-if="!creatingObjective">
                     <div class="d-flex justify-content-center">
                         <b-button variant="success"
                                   @click="addObjective" block>
@@ -67,25 +68,26 @@
                         </b-col>
                     </b-row>
                 </template>
+                <!-- Editing objective component -->
                 <add-objective v-else
                                :profile="profile"
                                :heading="'Edit'"
                                :input-objective="copiedObjective"
                                @cancelCreate="cancelEdit"
+                               @successCreate="showSuccess"
                                @destination-select="$emit('destination-select')"
                                :selectedDestination="selectedDestination">
 
                 </add-objective>
                 <!--Objective component-->
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center" v-if="loadingResults"
-                               draggable="false">
+            <b-list-group-item class="flex-column justify-content-center" v-if="loadingResults">
                 <div class="d-flex justify-content-center">
-                    <b-spinner label="Loading..."></b-spinner>
+                    <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
                 </div>
             </b-list-group-item>
-            <b-list-group-item href="#" class="flex-column justify-content-center"
-                               v-if="!loadingResults && foundObjectives.length === 0" draggable="false">
+            <b-list-group-item class="flex-column justify-content-center"
+                               v-if="!loadingResults && foundObjectives.length === 0">
                 <div class="d-flex justify-content-center">
                     <strong>No Objectives</strong>
                 </div>
@@ -151,10 +153,11 @@
                 objectiveId: null,
                 dismissSeconds: 3,
                 dismissCountDown: 0,
-                alertText: "",
+                alertMessage: "",
                 copiedObjective: null,
                 deleteAlertError: false,
-                deleteAlertMessage: ""
+                deleteAlertMessage: "",
+                showError: false
             }
         },
 
@@ -198,59 +201,72 @@
                 fetch(`/v1/objectives/` + this.objectiveId, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.getMore();
-                        self.$refs['deleteObjectiveModal'].hide();
-                        self.alertText = "Objective Successfully Deleted";
-                        self.showAlert();
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
                     }
-                    else {
-                        // Converts response to text, this is then displayed on the frontend.
-                        response.text().then(data => {
-                            self.deleteAlertMessage = data;
-                            self.deleteAlertError = true;
-                        });
-                    }
+                }).then(function () {
+                    self.deleteAlertError = false;
+                    self.getMore();
+                    self.$refs['deleteObjectiveModal'].hide();
+                    self.alertMessage = "Objective Successfully Deleted";
+                    self.showAlert();
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
                 });
             },
 
 
             /**
              * Runs a query which searches through the objectives in the database and returns all.
-             *
-             * @returns {Promise<Response | never>}
              */
             queryObjectives() {
-                return fetch(`/v1/objectives`, {
+                this.loadingResults = true;
+                let self = this;
+                fetch(`/v1/objectives`, {
                     accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.foundObjectives = data;
-                        this.loadingResults = false;
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.loadingResults = false;
+                    self.deleteAlertError = false;
+                    self.foundObjectives = responseBody;
+                }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
+                });
             },
 
 
             /**
-             * Runs a query which searches through the objectives in the database and returns only
-             * objectives created by the profile.
-             *
-             * @returns {Promise<Response | never>}
+             * Runs a query which searches through the objectives in the database and returns only objectives created by the profile.
              */
             queryYourObjectives() {
+                this.loadingResults = true;
+                let self = this;
                 if (this.profile.id !== undefined) {
-                    return fetch(`/v1/objectives/` + this.profile.id, {})
-                        .then(this.parseJSON)
-                        .then((data) => {
-                            this.foundObjectives = data;
-                            this.loadingResults = false;
-                        })
+                    fetch(`/v1/objectives/` + this.profile.id, {})
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.loadingResults = false;
+                            self.deleteAlertError = false;
+                            self.foundObjectives = responseBody;
+                        }).catch(function (response) {
+                            self.loadingResults = false;
+                            self.handleErrorResponse(response);
+                        });
                 }
-
             },
-
 
             /**
              * Changes creatingObjective to true to show the create objective window, and calls function to close edit
@@ -277,7 +293,6 @@
             /**
              * Changes the objective ID to the currently selected objective id.
              * Dismisses the delete objective modal.
-             *
              */
             setObjective(objective) {
                 this.objectiveId = objective.id;
@@ -310,23 +325,16 @@
             /**
              * Sets the message for the success alert to the inputted message and runs showAlert to show the success
              * message.
+             *
              * @param message to be set as the alert message.
              */
             showSuccess(message) {
                 this.getMore();
                 this.queryYourObjectives();
-                this.alertText = message;
+                this.alertMessage = message;
                 this.showAlert();
-            },
-
-
-            /**
-             * Converts the Http response body to a Json.
-             * @param response  the received Http response.
-             * @returns {*}     the response body as a Json object.
-             */
-            parseJSON(response) {
-                return response.json();
+                this.creatingObjective = false;
+                this.$emit('hide-destinations');
             },
 
 

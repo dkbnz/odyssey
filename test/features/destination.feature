@@ -106,6 +106,21 @@ Feature: Destination API Endpoint
       | ASB  |
 
 
+  Scenario: Search for a destination by type that exists
+    Given the application is running
+    And I am logged in
+    And a destination already exists with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    When I search for a destination with type
+      | Type |
+      | 3    |
+    Then the status code received is 200
+    And the response contains at least one destination with type
+      | Type |
+      | 3    |
+
+
   Scenario: Search for a destination by district that exists
     Given the application is running
     And I am logged in
@@ -134,6 +149,36 @@ Feature: Destination API Endpoint
     And the response contains at least one destination with latitude
       | Latitude |
       | 24.5     |
+
+
+  Scenario: Search for a destination by longitude that exists
+    Given the application is running
+    And I am logged in
+    And a destination already exists with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | New Zealand |
+    When I search for a destination with longitude
+      | Longitude |
+      | 34.6      |
+    Then the status code received is 200
+    And the response contains at least one destination with longitude
+      | Longitude |
+      | 34.6      |
+
+
+  Scenario: Search for a destination by country that exists
+    Given the application is running
+    And I am logged in
+    And a destination already exists with the following values
+      | Name | Type | District | Latitude | Longitude | Country     |
+      | ASB  | 3    | Nelson   | 24.5     | 34.6      | Germany     |
+    When I search for a destination with country
+      | Country       |
+      | Germany       |
+    Then the status code received is 200
+    And the response contains at least one destination with country
+      | Country       |
+      | Germany       |
 
 
   Scenario: Search for a private destinations
@@ -607,24 +652,16 @@ Feature: Destination API Endpoint
   Scenario: Retrieving destination usage for 1 trip
     Given the application is running
     And I am logged in as an admin user
-    And the following json body containing a trip is sent:
-      """
-        {
-          "trip_name": "A Holiday Away",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : "1990-12-12",
-              "end_date" : "1991-12-12"
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
     When I request the destination usage for destination with id 1155
     Then the status code received is 200
     And the trip count is 1
@@ -657,24 +694,16 @@ Feature: Destination API Endpoint
   Scenario: Retrieving destination usage for 1 photo and 1 trip
     Given the application is running
     And I am logged in as an admin user
-    And the following json body containing a trip is sent:
-      """
-        {
-          "trip_name": "A Holiday Away",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : "1990-12-12",
-              "end_date" : "1991-12-12"
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
     When I add a photo with id 1 to an existing destination with id 1155
     And I request the destination usage for destination with id 1155
     Then the status code received is 200

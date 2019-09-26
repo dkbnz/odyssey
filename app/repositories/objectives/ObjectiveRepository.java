@@ -5,6 +5,9 @@ import io.ebean.BeanRepository;
 import io.ebean.Ebean;
 import models.destinations.Destination;
 import models.objectives.Objective;
+import models.profiles.Profile;
+import models.quests.QuestAttempt;
+import repositories.quests.QuestAttemptRepository;
 
 import java.util.List;
 
@@ -17,9 +20,12 @@ public class ObjectiveRepository extends BeanRepository<Long, Objective> {
 
     private static final String DESTINATION = "destination";
 
+    private QuestAttemptRepository questAttemptRepository;
+
     @Inject
-    public ObjectiveRepository() {
+    public ObjectiveRepository(QuestAttemptRepository questAttemptRepository) {
         super(Objective.class, Ebean.getDefaultServer());
+        this.questAttemptRepository = questAttemptRepository;
     }
 
 
@@ -34,5 +40,30 @@ public class ObjectiveRepository extends BeanRepository<Long, Objective> {
                 .where()
                 .eq(DESTINATION, destination)
                 .findList();
+    }
+
+
+    /**
+     * Will check if a given user has solved a given objective.
+     *
+     * @param profile       the user to check if they have solved the objective.
+     * @param objective     the objective to check the solved status of.
+     * @return              true if the profile has solved the objective.
+     */
+    public boolean hasSolved(Profile profile, Objective objective) {
+
+        // Find the quest attempt relating to the profile and objective.
+        QuestAttempt questAttempt = questAttemptRepository.findUsing(profile, objective);
+
+        // If the quest attempt does not exist, the profile has not attempted a quest with the objective.
+        if (questAttempt == null) {
+            return false;
+        }
+
+        // Check if the objective is the most recently solved in the quest attempt.
+        boolean currentSolved = (questAttempt.getCurrentToCheckIn() != null
+                && questAttempt.getCurrentToCheckIn().equals(objective));
+
+        return currentSolved || questAttempt.getCheckedIn().contains(objective);
     }
 }

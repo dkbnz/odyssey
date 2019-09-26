@@ -1,7 +1,7 @@
 <template>
     <div>
         <h4 class="page-title">{{heading}} a Destination</h4>
-        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+        <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
 
         <!--Displays a progress bar alert on submission which ticks down time to act
         as a buffer for destination being added-->
@@ -14,7 +14,7 @@
             <p>Destination Successfully {{heading}}ed</p>
             <b-progress
                     :max="dismissSecs"
-                    :value="dismissCountDown"
+                    :value="dismissCountDown - 1"
                     height="4px"
                     variant="success"
             ></b-progress>
@@ -114,8 +114,13 @@
                         id="district-field"
                         label="District:"
                         label-for="district">
-                    <b-form-input id="district" @click="showError = false" v-model="inputDestination.district"
-                                  type="text" trim required :state="destinationDistrictValidation">
+                    <b-form-input id="district"
+                                  @click="showError=false"
+                                  v-model="inputDestination.district"
+                                  type="text"
+                                  trim
+                                  required
+                                  :state="destinationDistrictValidation">
                     </b-form-input>
                 </b-form-group>
 
@@ -123,7 +128,10 @@
                         id="latitude-field"
                         label="Latitude:"
                         label-for="latitude">
-                    <b-form-input id="latitude" v-model="inputDestination.latitude" type="text" trim required
+                    <b-form-input id="latitude"
+                                  v-model="inputDestination.latitude"
+                                  type="text"
+                                  trim required
                                   :state="destinationLatitudeValidation"></b-form-input>
                     <b-form-invalid-feedback :state="destinationLatitudeValidation">
                         {{latitudeErrorMessage}}
@@ -134,7 +142,10 @@
                         id="longitude-field"
                         label="Longitude:"
                         label-for="longitude">
-                    <b-form-input id="longitude" v-model="inputDestination.longitude" type="text" trim required
+                    <b-form-input id="longitude"
+                                  v-model="inputDestination.longitude"
+                                  type="text"
+                                  trim required
                                   :state="destinationLongitudeValidation"></b-form-input>
                     <b-form-invalid-feedback :state="destinationLongitudeValidation">
                         {{longitudeErrorMessage}}
@@ -185,7 +196,6 @@
 
         props: {
             profile: Object,
-            destinationTypes: Array,
             heading: String,
             inputDestination: {
                 default: function () {
@@ -216,23 +226,27 @@
                 longitudeErrorMessage: "",
                 destinationConflicts: [],
                 editDestinationConflicts: [],
-                countryList: Array
+                countryList: [],
+                destinationTypes: []
             }
         },
 
         mounted() {
             this.getCountries();
+            this.getDestinationTypes();
         },
 
         computed: {
             /**
              * Validates the name input field. Name is valid when it contains more than one character.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationNameValidation() {
                 if (this.inputDestination.name.length === 0) {
                     return null;
+                } else if (this.inputDestination.name.length > 100) {
+                    return false
                 }
                 return this.inputDestination.name.length > 0;
             },
@@ -241,7 +255,7 @@
             /**
              * Validates the type input field. Type is valid when the type has been selected.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationTypeValidation() {
                 if (this.inputDestination.type.id == null) {
@@ -254,11 +268,13 @@
             /**
              * Validates the district input field. District is valid when the district has been selected.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationDistrictValidation() {
                 if (this.inputDestination.district.length === 0) {
                     return null;
+                } else if (this.inputDestination.district.length > 100) {
+                    return false
                 }
                 return this.inputDestination.district.length > 0;
             },
@@ -268,7 +284,7 @@
              * Validates the latitude input field. Latitude is valid when it contains only numeric characters, is not
              * empty, and is within the range -90 to 90.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationLatitudeValidation() {
                 if (this.inputDestination.latitude === null || this.inputDestination.latitude.length === 0) {
@@ -291,7 +307,7 @@
              * Validates the longitude input field. Longitude is valid when it contains only numeric characters, is not
              * empty, and is within the range -180 to 180.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationLongitudeValidation() {
                 if (this.inputDestination.longitude === null || this.inputDestination.longitude.length === 0) {
@@ -313,7 +329,7 @@
              * Validates the country input field. Country is valid when it contains more than one character, and is not
              * a number.
              *
-             * @returns {*}     true if input is valid.
+             * @return{*}     true if input is valid.
              */
             destinationCountryValidation() {
                 if (this.inputDestination.country === null) {
@@ -326,7 +342,7 @@
             /**
              * Tells users editing a destination whether they've made the destination public or private.
              *
-             * @returns {string}    public or private depending on the input destination privacy.
+             * @return{string}    public or private depending on the input destination privacy.
              */
             isPublic() {
                 if (this.inputDestination.public) {
@@ -338,22 +354,49 @@
 
         methods: {
             /**
-             * Sets the countries list to the list of countries from the country api
+             * Retrieves the different destination types from the backend.
              */
-            getCountries() {
-                return fetch("https://restcountries.eu/rest/v2/all", {
-                    dataType: 'html'
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.countryList = data;
-                    })
+            getDestinationTypes() {
+                let self = this;
+                fetch(`/v1/destinationTypes`, {
+                    accept: "application/json"
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.destinationTypes = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
             /**
-             * Checks all of the input fields for valid input
+             * Sets the countries list to the list of countries from the country api.
+             */
+            getCountries() {
+                let self = this;
+                return fetch("https://restcountries.eu/rest/v2/all", {
+                    dataType: 'html'
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.countryList = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
+            },
+
+
+            /**
+             * Checks all of the input fields for valid input.
              */
             validateFields() {
                 return this.destinationNameValidation && this.destinationTypeValidation
@@ -405,11 +448,8 @@
             /**
              * Adds new destination to database, then resets form and shows success alert.
              * Checks whether location is duplicate and displays error if so.
-             *
-             * @param cb.
-             * @returns {Promise<Response | never>}.
              */
-            addDestination(cb) {
+            addDestination() {
                 let self = this;
                 fetch(`/v1/destinations/` + this.profile.id, {
                     method: 'POST',
@@ -423,49 +463,68 @@
                         "country": this.inputDestination.country,
                         "is_public": this.inputDestination.public
                     }))
-                })
-                    .then(this.checkStatus)
-                    .then(function (response) {
-                        self.resetDestForm();
-                        self.showAlert();
-                        self.$emit('data-changed');
-                        return JSON.parse(JSON.stringify(response));
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.resetDestForm();
+                    self.showAlert();
+                    self.showRewardToast(responseBody.reward);
+                    return responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
             /**
              * Checks whether the destination being edited is present in any other parts of the application.
              * This is to display a confirmation message to the user.
-             *
              */
             validateEdit() {
                 let self = this;
                 fetch(`/v1/destinations/` + this.inputDestination.id + `/checkDuplicates`, {
                     accept: "application/json"
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then(destinationConflicts => this.destinationConflicts = destinationConflicts)
-                    .then(function (response) {
-                        self.getMatchingEditedDestination();
-                        self.displayConfirmation();
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.destinationConflicts = responseBody;
+                    self.getMatchingEditedDestination();
+                    self.displayConfirmation();
+                    return responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
+            /**
+             * Retrieves all the destinations that match the requested destination after it has been modified.
+             */
             getMatchingEditedDestination() {
                 let self = this;
                 fetch(`/v1/destinationsCheckEdit`, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: (JSON.stringify(this.inputDestination))
-                })
-                    .then(function (response) {
-                        response.json().then(data => {
-                            self.editDestinationConflicts = data;
-                        })
-                    })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.editDestinationConflicts = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -489,25 +548,23 @@
                     headers: {'content-type': 'application/json'},
                     body: jsonBody
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.showAlert();
-                        self.dismissModal('confirmEditModal');
-                        response.json().then(data => {
-                            self.$emit('destination-saved', data);
-                        });
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        self.errorMessage = "";
-                        self.showError = true;
-                        response.clone().text().then(text => {
-                            self.errorMessage = text;
-                        });
+                        return response.json();
                     }
+                }).then(function (responseBody) {
+                    self.showAlert();
+                    self.dismissModal('confirmEditModal');
+                    self.$emit('destination-saved', responseBody);
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
                 });
             },
 
 
             /**
-             * Updates the latitude & longitude when emitted from the button that gets current location
+             * Updates the latitude & longitude when emitted from the button that gets current location.
              */
             setCurrentLocation(currentCoordinates) {
                 this.inputDestination.latitude = currentCoordinates.latitude;
@@ -544,45 +601,10 @@
 
 
             /**
-             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
-             * console.
-             *
-             * @param response, passed back to the getAllTrips function to be parsed into a Json.
-             * @returns throws the error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-
-                this.errorMessage = "";
-                response.clone().text().then(text => {
-                    this.errorMessage = text;
-                    this.showError = true;
-                });
-                throw error;
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response the Http response.
-             * @returns the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
-            },
-
-
-            /**
              * Converts the given boolean value to a readable string.
              *
              * @param isPublic      boolean value false if the destination is not public, true otherwise.
-             * @returns {string}    returns a string 'Public' or 'Private' depending on the given parameter.
+             * @return{string}    returns a string 'Public' or 'Private' depending on the given parameter.
              */
             convertToPublicString(isPublic) {
                 if (isPublic) {

@@ -19,6 +19,7 @@ Feature: Objective API Endpoint
       | Destination | Riddle                                 | Owner | Radius |
       | 119         | What rhymes with It's mean Kyle fleek? | 2     | 0.005  |
     Then the status code received is 201
+    And the objective is successfully created
 
 
   Scenario: Successfully creating a new Objective as an admin for another user
@@ -28,6 +29,7 @@ Feature: Objective API Endpoint
       | Destination | Riddle                                 | Owner | Radius |
       | 119         | What rhymes with It's mean Kyle fleek? | 2     | 0.005  |
     Then the status code received is 201
+    And the objective is successfully created
 
 
   Scenario: Unsuccessfully creating a new Objective with no destination
@@ -74,7 +76,6 @@ Feature: Objective API Endpoint
     Then the status code received is 400
 
 
-
   Scenario: Unsuccessfully editing a Objective for another user as non-admin
     Given the application is running
     And I am logged in as an admin user
@@ -119,6 +120,13 @@ Feature: Objective API Endpoint
     And I am logged in as an alternate user
     When I attempt to delete the objective
     Then the status code received is 403
+
+
+  Scenario: Unsuccessfully delete an already existing Objective that is used in a quest
+    Given the application is running
+    And I am logged in
+    When I attempt to delete the objective with id 19
+    Then the status code received is 400
 
 
   Scenario: Unsuccessfully delete an already existing Objective and I am not logged in

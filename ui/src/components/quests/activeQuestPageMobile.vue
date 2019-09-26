@@ -1,7 +1,8 @@
 <template>
-    <div class="adminTripsContainer">
+    <div class="bg-white m-1 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <div v-if="showQuestAttempt">
             <active-quest-solve
+                    :profile="profile"
                     :quest-attempt="selectedQuestAttempt"
                     @updated-quest-attempt="updateQuestAttempts"
                     @show-quest-attempt="showBoolean => this.showQuestAttempt = showBoolean">
@@ -70,18 +71,25 @@
             /**
              * Runs a query which searches through the quests in the database and returns only
              * quests started by the profile.
-             *
-             * @returns {Promise<Response | never>}
              */
             queryYourActiveQuests() {
+                let self = this;
                 if (this.profile.id !== undefined) {
                     this.loadingResults = true;
-                    return fetch(`/v1/quests/profiles/` + this.profile.id, {})
-                        .then(response => response.json())
-                        .then((data) => {
-                            this.questAttempts = data;
-                            this.loadingResults = false;
-                        })
+                    fetch(`/v1/quests/profiles/` + this.profile.id, {})
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw response;
+                            } else {
+                                return response.json();
+                            }
+                        }).then(function (responseBody) {
+                            self.loadingResults = false;
+                            self.questAttempts = responseBody;
+                        }).catch(function (response) {
+                            self.loadingResults = false;
+                            self.handleErrorResponse(response);
+                        });
                 }
             },
 

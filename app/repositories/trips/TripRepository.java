@@ -10,6 +10,7 @@ import models.trips.Trip;
 import models.trips.TripDestination;
 import repositories.profiles.ProfileRepository;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,7 @@ public class TripRepository extends BeanRepository<Long, Trip> {
 
     private static final String PROFILE_ID = "profile.id";
     private static final String TRIP_ID = "id";
+    private static final String DESTINATIONS_START_DATE = "destinations.startDate";
 
     private ProfileRepository profileRepository;
     private TripDestinationRepository tripDestinationRepository;
@@ -91,21 +93,86 @@ public class TripRepository extends BeanRepository<Long, Trip> {
 
 
     /**
-     * Finds all the trips with a specified user id.
+     * Finds the total number of future trips the specified profile has.
      *
      * @param profileId     the profile id.
-     * @return              the list of trips.
+     * @return              integer value of the total number of future trips.
      */
-    public List<Trip> fetchAllTrips(Long profileId) {
+    public int fetchAllFutureTripsCount(Long profileId) {
+        LocalDate today = LocalDate.now();
+        return query()
+                .where()
+                .eq(PROFILE_ID, profileId)
+                .disjunction()
+                    .ge(DESTINATIONS_START_DATE, today)
+                    .isNull(DESTINATIONS_START_DATE)
+                .endJunction()
+                .findList()
+                .size();
+    }
 
-        List<Trip> trips;
 
-        // Creates a list of trips from a query based on profile id
-        ExpressionList<Trip> expressionList = query().where();
-        expressionList.eq(PROFILE_ID, profileId);
-        trips = expressionList.findList();
+    /**
+     * Finds the total number of past trips the specified profile has.
+     *
+     * @param profileId     the profile id.
+     * @return              integer value of the total number of past trips.
+     */
+    public int fetchAllPastTripsCount(Long profileId) {
+        LocalDate today = LocalDate.now();
+        return query()
+                .where()
+                .eq(PROFILE_ID, profileId)
+                .lt(DESTINATIONS_START_DATE, today)
+                .findList()
+                .size();
+    }
 
-        return trips;
+
+    /**
+     * Returns a list of trips for a given owner that occur in the future.
+     * Trips either have a start date greater than today or null.
+     *
+     * @param owner             the user to request the trips for.
+     * @param pageSize          the page size of trips requested from the front end.
+     * @param pageNumber        the page number requested from the front end.
+     * @return                  a list of trips.
+     */
+    public List<Trip> fetchFuture(Profile owner, int pageSize, int pageNumber) {
+        LocalDate today = LocalDate.now();
+        return query()
+                .where()
+                .eq(PROFILE_ID, owner.getId())
+                .disjunction()
+                    .ge(DESTINATIONS_START_DATE, today)
+                    .isNull(DESTINATIONS_START_DATE)
+                .endJunction()
+                .setFirstRow(pageNumber * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
+    }
+
+
+    /**
+     * Returns a list of trips for a given owner that occur in the past.
+     * Trips have a start date less than today.
+     *
+     * @param owner             the user to request the trips for.
+     * @param pageSize          the page size of trips requested from the front end.
+     * @param pageNumber        the page number requested from the front end.
+     * @return                  a list of trips.
+     */
+    public List<Trip> fetchPast(Profile owner, int pageSize, int pageNumber) {
+        LocalDate today = LocalDate.now();
+        return query()
+                .where()
+                .eq(PROFILE_ID, owner.getId())
+                .lt(DESTINATIONS_START_DATE, today)
+                .setFirstRow(pageNumber * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+                .getList();
     }
 
 

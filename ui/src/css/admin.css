@@ -1,12 +1,23 @@
-.singleProfileNav {
-    background: white;
-    padding: 15px;
-}
-
 a {
     color: grey;
 }
 
 .boldText {
     font-weight: bold
+}
+
+.proposals {
+    margin: 1vh 0 2vh 0;
+}
+
+.proposalButton {
+    height: 20px;
+    width: 20px;
+    font-size: 12px;
+    padding: 0
+}
+
+.proposalDiv {
+    max-height: 100vh;
+    overflow: scroll;
 }

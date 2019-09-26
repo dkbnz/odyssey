@@ -10,10 +10,12 @@ import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import repositories.objectives.ObjectiveRepository;
 
 import java.io.IOException;
 import java.util.*;
 
+import static org.junit.Assert.*;
 import static play.test.Helpers.*;
 
 public class ObjectiveTestSteps {
@@ -51,12 +53,25 @@ public class ObjectiveTestSteps {
     private static final String RIDDLE = "riddle";
     private static final String RADIUS = "radius";
     private static final String ID = "id";
+    private static final String NULL = "null";
+
+    /**
+     * Static variable to call the related value from the creation return Json.
+     */
+    private static final String RESULT_OBJECTIVE_ID = "newObjectiveId";
+
+    private ObjectMapper objectMapper =
+            testContext.getApplication().injector().instanceOf(ObjectMapper.class);
+
+    private ObjectiveRepository objectiveRepository =
+            testContext.getApplication().injector().instanceOf(ObjectiveRepository.class);
 
 
     /**
      * Converts a given data table of destination values to a json node object of this destination.
      *
      * @param dataTable     the data table containing values of a destination.
+     * @param index         the position in the data table the Json components are extracted from.
      * @return              a JsonNode of a destination containing information from the data table.
      */
     private JsonNode convertDataTableToObjectiveJson(io.cucumber.datatable.DataTable dataTable, int index) {
@@ -70,11 +85,10 @@ public class ObjectiveTestSteps {
 
 
         //Add values to a JsonNode
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode json = mapper.createObjectNode();
+        ObjectNode json = objectMapper.createObjectNode();
         ObjectNode jsonDestination = json.putObject(DESTINATION);
 
-        if(!destinationId.equals("null")) {
+        if(!destinationId.equals(NULL)) {
             jsonDestination.put(ID,  Integer.parseInt(destinationId));
         }
 
@@ -98,9 +112,14 @@ public class ObjectiveTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
 
-        if (testContext.getStatusCode() == 200 || testContext.getStatusCode() == 201) {
+        if (testContext.getStatusCode() == OK || testContext.getStatusCode() == CREATED) {
             testContext.setResponseBody(Helpers.contentAsString(result));
-            objectiveId = Long.valueOf(testContext.getResponseBody());
+            try {
+                JsonNode returnJson = objectMapper.readTree(Helpers.contentAsString(result));
+                objectiveId = returnJson.get(RESULT_OBJECTIVE_ID).asLong();
+            } catch (IOException exception) {
+                fail(exception.getMessage());
+            }
         }
     }
 
@@ -123,7 +142,7 @@ public class ObjectiveTestSteps {
 
     @Given("a objective already exists with the following values")
     public void aObjectiveAlreadyExistsWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+        for (int i = 0; i < dataTable.height() - 1; i++) {
             JsonNode json = convertDataTableToObjectiveJson(dataTable, i);
             createObjectiveRequest(json);
             Assert.assertEquals(CREATED, testContext.getStatusCode());
@@ -143,6 +162,12 @@ public class ObjectiveTestSteps {
         testContext.setResponseBody(Helpers.contentAsString(result));
     }
 
+    @When("^I attempt to delete the objective with id (\\d+)$")
+    public void iAttemptToDeleteTheObjectiveWithId(long givenId) {
+        objectiveId = givenId;
+        this.iAttemptToDeleteTheObjective();
+    }
+
 
     @When("I attempt to delete the objective")
     public void iAttemptToDeleteTheObjective() {
@@ -158,7 +183,7 @@ public class ObjectiveTestSteps {
     @When("I attempt to create a objective with the following values")
     public void iAttemptToCreateAObjectiveWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
         testContext.setTargetId(testContext.getLoggedInId());
-        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+        for (int i = 0; i < dataTable.height() - 1; i++) {
             JsonNode json = convertDataTableToObjectiveJson(dataTable, i);
             createObjectiveRequest(json);
         }
@@ -167,7 +192,7 @@ public class ObjectiveTestSteps {
 
     @When("I attempt to edit the objective with the following values")
     public void iAttemptToEditTheObjectiveWithTheFollowingValues(io.cucumber.datatable.DataTable dataTable) {
-        for (int i = 0 ; i < dataTable.height() -1 ; i++) {
+        for (int i = 0; i < dataTable.height() - 1; i++) {
             JsonNode editValues = convertDataTableToObjectiveJson(dataTable, i);
             editObjectiveRequest(editValues);
         }
@@ -185,5 +210,11 @@ public class ObjectiveTestSteps {
     public void theResponseContainsNoObjectives() throws IOException {
         int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
         Assert.assertEquals(0, responseSize);
+    }
+
+
+    @Then("the objective is successfully created")
+    public void theObjectiveIsSuccessfullyCreated() {
+        assertNotNull(objectiveRepository.findById(objectiveId));
     }
 }

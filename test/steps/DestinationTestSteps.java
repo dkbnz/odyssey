@@ -139,6 +139,8 @@ public class DestinationTestSteps {
     private static final String NAME_STRING = "Name";
     private static final String IS_PUBLIC_STRING = "is_public";
     private static final String TRIP_COUNT = "trip_count";
+    private static final String TRIP_DESTINATIONS = "trip_destinations";
+    private static final String TRIP_NAME = "trip_name";
     private static final String PHOTO_COUNT = "photo_count";
     private static final String DESTINATION_COUNT = "destination_count";
     private static final String MATCHING_TRIPS = "matching_trips";
@@ -150,16 +152,24 @@ public class DestinationTestSteps {
     private static final String LONGITUDE = "longitude";
     private static final String COUNTRY = "country";
     private static final String TYPE = "type_id";
+    private static final String TYPE_VALUE = "type";
     private static final String NAME = "name";
     private static final String IS_PUBLIC = "is_public";
+    private static final String PUBLIC = "public";
 
     private static final String RIDDLE_STRING = "Riddle";
     private static final String RADIUS_STRING = "Radius";
     private static final String OWNER_STRING = "Owner";
+    private static final String OWNER = "owner";
     private static final String DESTINATION = "destination";
     private static final String RIDDLE = "riddle";
     private static final String RADIUS = "radius";
     private static final String ID = "id";
+    private static final String DESTINATION_ID = "destination_id";
+    private static final String DESTINATION_ID_CAMEL_CASE = "destinationId";
+    private static final String START_DATE = "start_date";
+    private static final String END_DATE = "end_date";
+    private static final String EMPTY_STRING = "";
 
     private DestinationRepository destinationRepository =
             testContext.getApplication().injector().instanceOf(DestinationRepository.class);
@@ -171,6 +181,10 @@ public class DestinationTestSteps {
             testContext.getApplication().injector().instanceOf(ObjectiveRepository.class);
     private TripRepository tripRepository =
             testContext.getApplication().injector().instanceOf(TripRepository.class);
+
+
+    private ObjectMapper objectMapper =
+            testContext.getApplication().injector().instanceOf(ObjectMapper.class);
 
 
     /**
@@ -187,8 +201,13 @@ public class DestinationTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
 
-        if (testContext.getStatusCode() < 400) {
-            createdDestinationId = Long.parseLong(Helpers.contentAsString(result));
+        if (testContext.getStatusCode() < BAD_REQUEST) {
+            try {
+                JsonNode response = objectMapper.readTree(Helpers.contentAsString(result));
+                createdDestinationId = Long.parseLong(response.get(DESTINATION_ID_CAMEL_CASE).asText());
+            } catch (IOException exception) {
+                fail("Error in response parsing");
+            }
         }
     }
 
@@ -248,27 +267,30 @@ public class DestinationTestSteps {
      * @return          a Json object containing the trip information.
      */
     private JsonNode createNewTripJson(String tripName) {
-        //Add values to a JsonNode
+        // Add values to a JsonNode.
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode json = mapper.createObjectNode();
 
-        json.put("trip_name", tripName);
-        ArrayNode destinationsNode = json.putArray("trip_destinations");
+        json.put(TRIP_NAME, tripName);
+        ArrayNode destinationsNode = json.putArray(TRIP_DESTINATIONS);
 
-        ObjectNode destinationNode1 = destinationsNode.addObject(); //Adding destinations to trip
-        destinationNode1.put("destination_id", "1155");
-        destinationNode1.put("start_date", "1990-12-12");
-        destinationNode1.put("end_date", "1991-12-12");
+        // Adding destinations to trip.
+        ObjectNode destinationNode1 = destinationsNode.addObject();
+        destinationNode1.put(DESTINATION_ID, "1155");
+        destinationNode1.put(START_DATE, "1990-12-12");
+        destinationNode1.put(END_DATE, "1991-12-12");
 
-        ObjectNode destinationNode2 = destinationsNode.addObject(); //Adding destinations to trip
-        destinationNode2.put("destination_id", "567");
-        destinationNode2.put("start_date", "1992-12-12");
-        destinationNode2.put("end_date", "1993-12-12");
+        // Adding destinations to trip.
+        ObjectNode destinationNode2 = destinationsNode.addObject();
+        destinationNode2.put(DESTINATION_ID, "567");
+        destinationNode2.put(START_DATE, "1992-12-12");
+        destinationNode2.put(END_DATE, "1993-12-12");
 
-        ObjectNode destinationNode3 = destinationsNode.addObject(); //Adding destinations to trip
-        destinationNode3.put("destination_id", destinationId.toString());
-        destinationNode3.put("start_date", "1994-12-12");
-        destinationNode3.put("end_date", "1995-12-12");
+        // Adding destinations to trip.
+        ObjectNode destinationNode3 = destinationsNode.addObject();
+        destinationNode3.put(DESTINATION_ID, destinationId.toString());
+        destinationNode3.put(START_DATE, "1994-12-12");
+        destinationNode3.put(END_DATE, "1995-12-12");
 
         return json;
     }
@@ -337,7 +359,7 @@ public class DestinationTestSteps {
         //Add values to a JsonNode
         ObjectNode json = mapper.createObjectNode();
 
-        json.put("id", photoId);
+        json.put(ID, photoId);
 
         return json;
     }
@@ -358,11 +380,11 @@ public class DestinationTestSteps {
         String latitude     = list.get(index).get(LATITUDE_STRING);
         String longitude    = list.get(index).get(LONGITUDE_STRING);
         String country      = list.get(index).get(COUNTRY_STRING);
-        String is_public    = list.get(index).get(IS_PUBLIC_STRING);
+        String isPublic    = list.get(index).get(IS_PUBLIC_STRING);
 
         //Test destinations are public by default
-        Boolean publicity = (is_public == null ||
-                !is_public.equalsIgnoreCase("false"));
+        Boolean publicity = (isPublic == null ||
+                !isPublic.equalsIgnoreCase("false"));
 
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();
@@ -420,16 +442,19 @@ public class DestinationTestSteps {
                     editDestination.setDistrict(value);
                     break;
                 case LATITUDE_STRING:
-                    editDestination.setLatitude(Double.valueOf(value));
+                    editDestination.setLatitude(Double.parseDouble(value));
                     break;
                 case LONGITUDE_STRING:
-                    editDestination.setLongitude(Double.valueOf(value));
+                    editDestination.setLongitude(Double.parseDouble(value));
                     break;
                 case COUNTRY_STRING:
                     editDestination.setCountry(value);
                     break;
                 case IS_PUBLIC_STRING:
                     editDestination.setPublic(Boolean.valueOf(value));
+                    break;
+                default:
+                    fail("Default case for switch statement reached");
                     break;
             }
         }
@@ -457,7 +482,7 @@ public class DestinationTestSteps {
         ObjectNode json = mapper.createObjectNode();
         ObjectNode jsonDestination = json.putObject(DESTINATION);
 
-        if(!(destinationId == null)) {
+        if(destinationId != null) {
             jsonDestination.put(ID,  destinationId.intValue());
         }
 
@@ -477,7 +502,7 @@ public class DestinationTestSteps {
     private Long getDestinationId(io.cucumber.datatable.DataTable dataTable) {
         List<Destination> destinations = getDestinationList(dataTable);
 
-        Destination destination = destinations.size() > 0 ? destinations.get(destinations.size() - 1) : null;
+        Destination destination = !destinations.isEmpty() ? destinations.get(destinations.size() - 1) : null;
 
         return destination == null ? null : destination.getId();
     }
@@ -549,49 +574,39 @@ public class DestinationTestSteps {
         String publicity = getValue(IS_PUBLIC, searchField, searchValue);
 
 
-        StringBuilder stringBuilder = new StringBuilder()
-                .append(QUESTION_MARK)
-
-                .append(NAME)
-                .append(EQUALS)
-                .append(name)
-
-                .append(AND)
-                .append(TYPE)
-                .append(EQUALS)
-                .append(type)
-
-                .append(AND)
-                .append(LATITUDE)
-                .append(EQUALS)
-                .append(latitude)
-
-                .append(AND)
-                .append(LONGITUDE)
-                .append(EQUALS)
-                .append(longitude)
-
-                .append(AND)
-                .append(DISTRICT)
-                .append(EQUALS)
-                .append(district)
-
-                .append(AND)
-                .append(COUNTRY)
-                .append(EQUALS)
-                .append(country)
-
-                .append(AND)
-                .append(IS_PUBLIC)
-                .append(EQUALS)
-                .append(publicity);
-
-        return stringBuilder.toString();
+        return QUESTION_MARK +
+                NAME +
+                EQUALS +
+                name +
+                AND +
+                TYPE +
+                EQUALS +
+                type +
+                AND +
+                LATITUDE +
+                EQUALS +
+                latitude +
+                AND +
+                LONGITUDE +
+                EQUALS +
+                longitude +
+                AND +
+                DISTRICT +
+                EQUALS +
+                district +
+                AND +
+                COUNTRY +
+                EQUALS +
+                country +
+                AND +
+                IS_PUBLIC +
+                EQUALS +
+                publicity;
     }
 
 
     /**
-     * Gets an id list of the photos in the given destination
+     * Gets an id list of the photos in the given destination.
      *
      * @param destination   the destination to check the photos in.
      * @return              a list of the photo ids.
@@ -795,8 +810,19 @@ public class DestinationTestSteps {
     @When("I search for a destination with name")
     public void iSearchForADestinationWithName(io.cucumber.datatable.DataTable dataTable) {
         // Set up the search fields with given name
-        String value = getValueFromDataTable("Name", dataTable);
+        String value = getValueFromDataTable(NAME_STRING, dataTable);
         String query = createSearchDestinationQueryString(NAME, value);
+
+        //Send search destinations request
+        searchDestinationsRequest(query);
+    }
+
+
+    @When("I search for a destination with type")
+    public void iSearchForADestinationWithType(io.cucumber.datatable.DataTable dataTable) {
+        // Set up the search fields with given name
+        String value = getValueFromDataTable(TYPE_STRING, dataTable);
+        String query = createSearchDestinationQueryString(TYPE, value);
 
         //Send search destinations request
         searchDestinationsRequest(query);
@@ -825,9 +851,31 @@ public class DestinationTestSteps {
     }
 
 
+    @When("I search for a destination with longitude")
+    public void iSearchForADestinationWithLongitude(io.cucumber.datatable.DataTable dataTable) {
+        // Set up the search fields with given district
+        String value = getValueFromDataTable(LONGITUDE_STRING, dataTable);
+        String query = createSearchDestinationQueryString(LONGITUDE, value);
+
+        //Send search destinations request
+        searchDestinationsRequest(query);
+    }
+
+
+    @When("I search for a destination with country")
+    public void iSearchForADestinationWithCountry(io.cucumber.datatable.DataTable dataTable) {
+        // Set up the search fields with given district
+        String value = getValueFromDataTable(COUNTRY_STRING, dataTable);
+        String query = createSearchDestinationQueryString(COUNTRY, value);
+
+        //Send search destinations request
+        searchDestinationsRequest(query);
+    }
+
+
     @When("I search for all destinations")
     public void iSearchForAllDestinations() {
-        String query = createSearchDestinationQueryString("", "");
+        String query = createSearchDestinationQueryString(EMPTY_STRING, EMPTY_STRING);
 
         //Send search destinations request
         searchDestinationsRequest(query);
@@ -978,7 +1026,18 @@ public class DestinationTestSteps {
     @Then("the response contains at least one destination with name")
     public void theResponseContainsAtLeastOneDestinationWithName(io.cucumber.datatable.DataTable dataTable) throws IOException {
         String value = getValueFromDataTable(NAME_STRING, dataTable);
-        String arrNode = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(NAME).asText();
+
+        String arrNode = objectMapper.readTree(testContext.getResponseBody()).get(0).get(NAME).asText();
+
+        Assert.assertEquals(value, arrNode);
+    }
+
+
+    @Then("the response contains at least one destination with type")
+    public void theResponseContainsAtLeastOneDestinationWithType(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        String value = getValueFromDataTable(TYPE_STRING, dataTable);
+
+        String arrNode = objectMapper.readTree(testContext.getResponseBody()).get(0).get(TYPE_VALUE).get(ID).asText();
 
         Assert.assertEquals(value, arrNode);
     }
@@ -1002,11 +1061,21 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("the response is empty")
-    public void theResponseIsEmpty() throws IOException {
-        JsonNode arrNode = new ObjectMapper().readTree(testContext.getResponseBody());
+    @Then("the response contains at least one destination with longitude")
+    public void theResponseContainsAtLeastOneDestinationWithLongitude(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        String value = getValueFromDataTable(LONGITUDE_STRING, dataTable);
+        String arrNode = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(LONGITUDE).asText();
 
-        Assert.assertEquals(0, arrNode.size());
+        Assert.assertEquals(value, arrNode);
+    }
+
+
+    @Then("the response contains at least one destination with country")
+    public void theResponseContainsAtLeastOneDestinationWithCountry(io.cucumber.datatable.DataTable dataTable) throws IOException {
+        String value = getValueFromDataTable(COUNTRY_STRING, dataTable);
+        String arrNode = new ObjectMapper().readTree(testContext.getResponseBody()).get(0).get(COUNTRY).asText();
+
+        Assert.assertEquals(value, arrNode);
     }
 
 
@@ -1014,8 +1083,8 @@ public class DestinationTestSteps {
     public void theResponseContainsOnlyOwnOrPublicDestinations() throws IOException {
         JsonNode arrNode = new ObjectMapper().readTree(testContext.getResponseBody());
         for (int i = 0 ; i < arrNode.size() ; i++) {
-            assertTrue(arrNode.get(i).get("public").asBoolean() ||
-                    arrNode.get(i).get("owner").get("id").asText() == testContext.getLoggedInId());
+            assertTrue(arrNode.get(i).get(PUBLIC).asBoolean() ||
+                    arrNode.get(i).get(OWNER).get(ID).asText().equals(testContext.getLoggedInId()));
         }
     }
 
@@ -1026,7 +1095,7 @@ public class DestinationTestSteps {
         JsonNode arrNode = new ObjectMapper().readTree(testContext.getResponseBody());
         Long ownerId;
         for (int i = 0 ; i < arrNode.size() ; i++) {
-            ownerId = destinationRepository.findById(arrNode.get(i).get("id").asLong()).getOwner().getId();  //Gets owner id of destination
+            ownerId = destinationRepository.findById(arrNode.get(i).get(ID).asLong()).getOwner().getId();  //Gets owner id of destination
             assertNotNull(ownerId);
             assertEquals(userId, ownerId);
         }

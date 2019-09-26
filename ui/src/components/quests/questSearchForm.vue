@@ -1,14 +1,15 @@
 <template>
     <div>
         <h4 class="page-title">Search Quests</h4>
-        <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
         <div>
             <!--Input fields for searching for quests-->
             <b-form-group
                     id="title-field"
                     label="Quest Title:"
                     label-for="title">
-                <b-form-input id="title" v-model="searchTitle" :state="questTitleValidation"></b-form-input>
+                <b-form-input id="title"
+                              v-model="searchTitle"
+                              :state="questTitleValidation"></b-form-input>
             </b-form-group>
 
             <p>Number of Objectives:</p>
@@ -37,7 +38,9 @@
                                 id="number-objectives-field"
                                 label="Amount:"
                                 label-for="number-objectives">
-                            <b-form-input id="number-objectives" trim v-model="searchNumberObjective"
+                            <b-form-input id="number-objectives"
+                                          trim
+                                          v-model="searchNumberObjective"
                                           :state="numberObjectiveValidation">
                             </b-form-input>
                         </b-form-group>
@@ -53,7 +56,9 @@
                                 id="created-first-field"
                                 label="First Name:"
                                 label-for="created-first">
-                            <b-form-input id="created-first" trim v-model="searchCreatedFirst"
+                            <b-form-input id="created-first"
+                                          trim
+                                          v-model="searchCreatedFirst"
                                           :state="createdFirstValidation">
                             </b-form-input>
                         </b-form-group>
@@ -64,7 +69,9 @@
                                 id="created-last-field"
                                 label="Last Name:"
                                 label-for="created-last">
-                            <b-form-input id="created-last" trim v-model="searchCreatedLast"
+                            <b-form-input id="created-last"
+                                          trim
+                                          v-model="searchCreatedLast"
                                           :state="createdLastValidation">
                             </b-form-input>
                         </b-form-group>
@@ -115,12 +122,10 @@
                 searchCreatedFirst: "",
                 searchCreatedLast: "",
                 searchCountry: "",
-                showError: false,
                 operatorOptions: [
                     {value: '>', text: "Greater than"},
                     {value: '<', text: "Less than"},
                 ],
-                errorMessage: "",
                 countryList: Array
             }
         },
@@ -201,14 +206,20 @@
              * Sets the countries list to the list of countries from the country api
              */
             getCountries() {
-                return fetch("https://restcountries.eu/rest/v2/all", {
+                let self = this;
+                fetch("https://restcountries.eu/rest/v2/all", {
                     dataType: 'html'
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.countryList = data;
-                    })
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.countryList = responseBody;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -242,6 +253,7 @@
              * @returns {Promise<Response | never>}
              */
             queryQuests() {
+                let self = this;
                 let searchQuery =
                     "?title=" + this.searchTitle +
                     "&operator=" + this.searchOperator +
@@ -251,41 +263,17 @@
                     "&country=" + this.searchCountry;
 
                 return fetch(`/v1/quests` + searchQuery, {
-                    dataType: 'html'
-                })
-                    .then(this.checkStatus)
-                    .then(this.parseJSON)
-                    .then((data) => {
-                        this.$emit('searched-quests', data);
-                    })
-            },
-
-
-            /**
-             * Displays an error if search failed.
-             *
-             * @param response from database search query.
-             * @throws the error if it occurs.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                throw error;
-            },
-
-
-            /**
-             * Converts the retrieved Http response to a Json format.
-             *
-             * @param response the Http response.
-             * @returns the Http response body as Json.
-             */
-            parseJSON(response) {
-                return response.json();
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                        self.$emit('searched-quests', responseBody);
+                }).catch(function (response) {
+                        self.handleErrorResponse(response);
+                });
             }
         },
     }

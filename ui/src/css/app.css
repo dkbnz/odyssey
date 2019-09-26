@@ -2,146 +2,15 @@ html {
     /* The html and body elements cannot have any padding or margin. */
     box-sizing: border-box;
     overflow: auto;
+    min-height: 100%;
+    height: 100%;
 }
 
 body {
-    background-color: #e2e6ea;
-    padding-bottom: 50px;
-    z-index: 1;
-}
-
-/* Styling for your profile page with fixed side bar */
-*, *:before, *:after {
-    box-sizing: inherit;
-}
-
-.cf:before, .cf:after {
-    content: " "; /* 1 */
-    display: table; /* 2 */
-}
-
-.cf:after {
-    clear: both;
-}
-
-.scroll {
-    height: 80vh;
-    overflow-y: scroll;
-    padding: 0 10px;
-    width: 100%;
-    margin: 1vh auto 1vh auto;
-}
-
-.wrapper {
-    margin-top: 0.5vh;
-}
-.sidebar {
-    padding: 20px;
-    background-color: white;
-    border-radius: 5px;
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
-}
-.sidebar h3 {
+    position: relative;
     margin: 0;
-}
-.content,
-.sidebar {
-    float: left;
-}
-
-/* When the screen is of max-width 2415px, change the layout of the page */
-@media screen and (max-width: 2415px) {
-    .cf:after {
-        clear: initial;
-        display: block;
-    }
-    .sidebar {
-        float: none;
-        margin: 5vh 10vw 0 10vw;
-        padding: 50px;
-        background-color: white;
-        border-radius: 5px;
-    }
-}
-
-
-@media only screen and (max-device-width: 480px) {
-    p {
-        font-size: 15px;
-    }
-
-    h1 {
-        font-size: 30px;
-    }
-
-    h2 {
-        font-size: 25px;
-    }
-}
-
-@media only screen and (min-device-width: 992px) {
-    .show-only-mobile {
-        visibility: hidden;
-    }
-}
-
-/* Styling for other pages */
-
-.containerMain {
-    margin: 5vh 5vw 0 5vw;
-    padding: 50px;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.containerAdminMain {
-    margin: 2vh 2vw 0 2vw;
-    padding: 30px;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.containerWithNav {
-    margin: 7vh 5vw 0 5vw;
-    padding: 50px 3vw 3vw 3vw;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.adminContainer {
-    margin: 10vh 10vw 0 2vw;
-    padding: 1vh 3vw 3vw 3vw;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.noMarginsContainer {
-    margin: 0;
-    padding: 1vh 3vw 3vw 3vw;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.noBordersContainer {
-    margin: 0 1vw 0 0 ;
-    padding: 0;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.adminProfilesContainer {
-    padding: 1vh 1vw 1vw 0;
-    background-color: white;
-    border-radius: 5px;
-}
-
-.adminTripsContainer {
-    margin: 3vh 1vw 0 0;
-    padding: 1vh 1vw 1vw 1vw;
-    background-color: white;
-    border-radius: 5px;
+    min-height: 100%;
+    height: 100%;
 }
 
 /* Imports the Bauman's Regular Font */
@@ -157,15 +26,58 @@ h1, h2, h3, h4 {
     font-weight: bold;
 }
 
+.scroll {
+    height: 80vh;
+    overflow-y: scroll;
+    padding: 0 10px;
+    width: 100%;
+    margin: 1vh auto 1vh auto;
+}
+
+.scrollObjectives {
+    height: 90vh;
+    overflow-y: scroll;
+    padding: 0 10px;
+    width: 100%;
+    margin: 1vh auto 1vh auto;
+}
+
+.stylised-text {
+    font-family: Baumans, sans-serif;
+    font-weight: bold;
+    font-size: x-large;
+}
+
+#page-container {
+    position: relative;
+    min-height: 100vh;
+}
+
+#app {
+    padding-bottom: 3rem;
+}
+
 #footer {
     background-color: white;
     text-align: center;
-    position: fixed;
-    left: 0;
+    position: absolute;
+    right: 0;
     bottom: 0;
-    height: 40px;
+    left: 0;
     width: 100%;
     font-size: 0.7em;
+}
+
+/* Solid line border to separate the two trips panels */
+#pastTrips {
+    border-top: 1px solid black;
+}
+
+.footer-link {
+    margin: 0;
+    padding: 0;
+    color: grey;
+    font-size: 1.1em;
 }
 
 /* Page Titles and Subtitles*/
@@ -178,19 +90,6 @@ h1, h2, h3, h4 {
     top: 0;
     width: 100%;
     z-index: 3;
-}
-
-/* Profile information in collapsible */
-.profilesSubSectionProfile {
-    background-color: white;
-    border-radius: 5px;
-    padding: 10px;
-}
-
-/* Profile page content in collapsible */
-.profilesSubSectionContent {
-    background-color: white;
-    border-radius: 5px;
 }
 
 a {
@@ -209,9 +108,31 @@ a {
     margin-bottom: 5px
 }
 
+.buttonMarginsRight {
+    margin-right: 5px
+}
+
 .descriptionText {
     font-size: 12px;
     color: grey;
+}
+
+.tableWidthSmall {
+    max-width: 8%;
+    width: 8%;
+    text-align: center;
+}
+
+.tableWidthMedium {
+    max-width: 8%;
+    width: 15%;
+    text-align: center;
+}
+
+.tableWidthLarge {
+    max-width: 8%;
+    width: 25%;
+    text-align: center;
 }
 
 .defaultCursor {
@@ -225,3 +146,207 @@ a {
 .no-wrap-text {
     white-space: nowrap;
 }
+
+.profilePage {
+    max-height: 100%;
+}
+
+.profilePage p {
+    margin: 0;
+    font-size: 15px;
+}
+
+.profilePage ul {
+    margin: 0;
+    font-size: 15px;
+}
+
+@media only screen and (min-device-width: 992px) {
+    .show-only-mobile {
+        display: none
+    }
+}
+
+@media only screen and (max-device-width: 991px) {
+    .mobileMargins {
+        margin-top: 10px;
+    }
+    .show-only-desktop {
+        visibility: hidden;
+    }
+}
+
+.loading {
+    animation: rotate 3s infinite;
+    -webkit-animation: rotate 3s infinite;
+}
+
+@keyframes rotate {
+    100% {transform: rotate(360deg);}
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.column {
+    flex: 25%;
+    max-width: 50%;
+}
+
+.column img {
+    margin-top: 8px;
+    vertical-align: middle;
+    width: 100%;
+}
+
+.rowStars {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.columnStars {
+    flex: 20%;
+}
+
+/* Disabled property for badges if user has not achieved them yet */
+.disabledBadge {
+    opacity: 0.2;
+}
+
+/* Lowers padding in b-card bodies */
+.card-body {
+    padding: 10px;
+}
+
+/* Used to wrap white space in p sections */
+.wrapWhiteSpace {
+    white-space:pre-wrap;
+}
+
+/* Used to wrap white space in p sections with a small gap */
+.wrapWhiteSpaceSmallGap {
+    white-space:pre-wrap;
+    font-size: 15px;
+}
+
+/* Contains all the badges, used to scroll the div */
+.badgesDiv {
+    max-height: 60vh;
+    overflow: auto;
+    overflow-y: scroll;
+}
+
+/* Default margin for mobile, don't change as this can be overridden whereas bootstrap's can't */
+.questMobileContent {
+    margin: 0.5em;
+}
+
+/* Changes font size on small devices, as text is too big and breaks div */
+@media only screen and (max-device-width: 1550px) {
+    .badgesContent {
+        font-size: 0.8em;
+    }
+
+    .badgesContent p {
+        font-size: 0.99em;
+    }
+}
+
+/* Changes width of column for quests when viewing on mobile */
+@media only screen and (max-device-width: 767px) {
+    .questMobile {
+        padding: 0;
+        margin: 0;
+    }
+
+    .questMobileContent {
+        padding: 0;
+        margin: 0.5em 0 0 0;
+    }
+}
+
+/* Change the scrollbar */
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+::-webkit-scrollbar:vertical {
+    width: 10px;
+}
+
+::-webkit-scrollbar:horizontal {
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+    border: 2px solid #eee;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #eee;
+}
+
+/* Change contents of the mobile leaderboard so everything fits appropriately */
+.mobileLeaderboard {
+    font-size: 0.99em;
+    width: 65%;
+}
+
+/* Loader div that displays over the whole page */
+.loader {
+    opacity:    0.9;
+    background: darkgrey;
+    width:      100%;
+    height:     100%;
+    z-index:    10;
+    top:        0;
+    left:       0;
+    position:   fixed;
+    text-align: center;
+}
+
+/* Is placed inside the loader div, contains the spinning logo and the loading text */
+.loader-content {
+    top: 35%;
+    opacity: 1;
+    height: 100%;
+    margin: 0 auto;
+    position: relative;
+    color: black;
+}
+
+/* Changes the size of the modal on large devices */
+@media (min-width: 992px) {
+    .modal-lg, .modal-xl {
+        max-width: 90vw;
+    }
+}
+
+.vote:hover {
+    cursor: pointer;
+}
+
+.vote:hover.redHover {
+    -webkit-filter: invert(40%) grayscale(100%) brightness(40%) sepia(100%) hue-rotate(-50deg) saturate(400%) contrast(2);
+    filter: grayscale(100%) brightness(40%) sepia(100%) hue-rotate(-50deg) saturate(600%) contrast(0.8);
+}
+
+.vote:hover.greenHover {
+    -webkit-filter: grayscale(100%) brightness(40%) sepia(100%) hue-rotate(50deg) saturate(1000%) contrast(0.8);
+    filter: grayscale(100%) brightness(40%) sepia(100%) hue-rotate(50deg) saturate(1000%) contrast(0.8);
+}
+
+.vote.red {
+    -webkit-filter: invert(40%) grayscale(100%) brightness(40%) sepia(100%) hue-rotate(-50deg) saturate(400%) contrast(2);
+    filter: grayscale(100%) brightness(40%) sepia(100%) hue-rotate(-50deg) saturate(600%) contrast(0.8);
+}
+
+.vote.green {
+    -webkit-filter: grayscale(100%) brightness(40%) sepia(100%) hue-rotate(50deg) saturate(1000%) contrast(0.8);
+    filter: grayscale(100%) brightness(40%) sepia(100%) hue-rotate(50deg) saturate(1000%) contrast(0.8);
+}
+

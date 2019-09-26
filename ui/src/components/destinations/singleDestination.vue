@@ -2,7 +2,7 @@
     <div v-if="destination.owner !== undefined">
         <b-modal id="deleteDestinationModal" ref="deleteDestinationModal" size="xl" title="Delete Destination">
             <b-alert v-model="showError" variant="danger" dismissible>
-                Could not delete destination!
+               {{alertMessage}}
             </b-alert>
             <p v-if="destinationUsage.photo_count === 1">
                 This destination contains {{destinationUsage.photo_count}} photo.
@@ -78,10 +78,10 @@
                     {{travellerTypeLinkText}}
                 </b-button>
 
-                <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess">{{alertMessage}}</b-alert>
-                <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure">{{alertMessage}}</b-alert>
+                <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
+                <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
 
-                <div v-if="showEditTravellerTypes" class="travellerTypeDiv">
+                <div v-if="showEditTravellerTypes" class="mb-1 mt-1">
                     <b-form-group label="Add Traveller Types:">
                         <b-form-checkbox-group id="addTravellerTypes" v-model="calculatedTravellerTypes">
                             <b-form-checkbox v-for="travellerType in travTypeOptions" :value="travellerType"
@@ -237,13 +237,18 @@
                 fetch(`/v1/destinations/` + this.copiedDestination.id, {
                     method: 'DELETE'
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.dismissModal('deleteDestinationModal');
-                        self.$emit('destination-deleted');
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
                     }
-                    else {
-                        self.showError = true;
-                    }
+                }).then(function () {
+                    self.showError = false;
+                    self.dismissModal('deleteDestinationModal');
+                    self.$emit('destination-deleted');
+                }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -252,11 +257,21 @@
              * Sends an Http request to check which trips a destination is used in.
              */
             getTripsUsedBy() {
+                let self = this;
                 fetch(`/v1/destinations/` + this.copiedDestination.id + `/checkDuplicates`, {
                     accept: "application/json"
-                })
-                    .then(response => response.json())
-                    .then(response => this.destinationUsage = response);
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    self.destinationUsage = responseBody;
+                }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -293,32 +308,36 @@
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(this.calculatedTravellerTypes)
-                })
-                    .then(function (response) {
-                        if (response.ok) {
-                            if (self.destination.owner.id === self.profile.id || self.profile.admin) {
-                                self.destination.travellerTypes = self.calculatedTravellerTypes;
-                                self.alertMessage = "Destination traveller types updated";
-                            } else {
-                                self.alertMessage = "Update request sent";
-                            }
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function () {
+                    if (self.destination.owner.id === self.profile.id || self.profile.admin) {
+                        self.destination.travellerTypes = self.calculatedTravellerTypes;
+                        self.alertMessage = "Destination traveller types updated";
+                    } else {
+                        self.alertMessage = "Update request sent";
+                    }
 
-                            self.showTravellerTypeUpdateSuccess = true;
-                            setTimeout(function () {
-                                self.showTravellerTypeUpdateSuccess = false;
-                            }, 3000);
-                            self.showEditTravellerTypes = false;
-                        } else {
-                            self.alertMessage = "Cannot update traveller types";
-                            self.showTravellerTypeUpdateFailure = true;
-                            setTimeout(function () {
-                                self.showTravellerTypeUpdateFailure = false;
-                            }, 3000);
-                            self.showEditTravellerTypes = false;
-                        }
-                        self.$emit('data-changed');
-                        return JSON.parse(JSON.stringify(response));
-                    });
+                    self.showTravellerTypeUpdateSuccess = true;
+                    setTimeout(function () {
+                        self.showTravellerTypeUpdateSuccess = false;
+                    }, 3000);
+                    self.showEditTravellerTypes = false;
+                }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.showTravellerTypeUpdateSuccess = false;
+                    self.showError = false;
+                    self.showTravellerTypeUpdateFailure = true;
+                    setTimeout(function () {
+                        self.showTravellerTypeUpdateFailure = false;
+                    }, 3000);
+                    self.showEditTravellerTypes = false;
+                    self.handleErrorResponse(response);
+                });
             }
         }
     }

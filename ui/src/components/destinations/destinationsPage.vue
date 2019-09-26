@@ -1,8 +1,8 @@
 <template>
-    <div v-if="profile.length !== 0" :class="containerClass">
+    <div v-if="profile">
         <!--Shows tabs for destination page-->
         <nav-bar-main :profile="profile" v-if="!adminView"></nav-bar-main>
-        <div class="containerMain">
+        <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-5 rounded-lg">
             <h1 class="page-title">Destinations</h1>
             <p class="page-title">
                 <i>Here you can add destinations, search destinations or view destinations on a map!</i>
@@ -26,7 +26,7 @@
                         <p>Destination Successfully {{action}}!</p>
                         <b-progress
                                 :max="dismissSeconds"
-                                :value="dismissCountDown"
+                                :value="dismissCountDown - 1"
                                 height="4px"
                                 variant="success"
                         ></b-progress>
@@ -57,7 +57,6 @@
                                 @destination-search="destinationSearch"
                                 :key="refreshDestinationData"
                                 :input-destination="destinationToAdd"
-                                @data-changed="$emit('data-changed')"
                         ></destination-sidebar>
                     </b-card>
                     <b-card v-else>
@@ -72,8 +71,8 @@
                     </b-card>
                 </b-col>
             </b-row>
-            <footer-main></footer-main>
         </div>
+        <footer-main></footer-main>
     </div>
     <div v-else>
         <unauthorised-prompt></unauthorised-prompt>
@@ -97,11 +96,6 @@
             profile: Object,
             destinations: Array,
             destinationTypes: Array,
-            containerClass: {
-                default: function () {
-                    return null;
-                }
-            },
             adminView: {
                 default: function () {
                     return false;

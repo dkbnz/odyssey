@@ -2,34 +2,20 @@
     <div>
         <b-navbar class="mainNav" toggleable="lg" variant="light">
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-            <b-navbar-brand class="nav-bar-brand" @click="goToProfile()"><img :src="assets.appLogo"></b-navbar-brand>
-
+            <router-link :to="'/profile'" tag="b-navbar-brand" class="nav-bar-brand" :class="{active: currentPage ==='/trips'}">
+                <img :src="assets.appLogo" width="200px">
+            </router-link>
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/profiles'}"
-                                @click="goToPeople()">People
-                    </b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/trips'}"
-                                @click="goToTrips()">Trips
-                    </b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/destinations'}"
-                                @click="goToDestinations()">
-                        Destinations
-                    </b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/objectives'}" @click="goToObjectives()">Objectives
-                    </b-nav-item>
-                    <b-nav-item :class="{active: currentPage==='/quests'}" @click="goToQuests()">Quests</b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage==='/admin'}"
-                                @click="goToAdminPanel()"
-                                v-if="profile.admin">
-                        Admin
-                    </b-nav-item>
+                    <router-link class="d-none d-lg-block" :to="'/trips'" tag="b-nav-item" :class="{active: currentPage ==='/trips'}">Trips</router-link>
+                    <router-link class="d-none d-lg-block" :to="'/destinations'" tag="b-nav-item" :class="{active: currentPage ==='/destinations'}">Destinations</router-link>
+                    <router-link :to="'/quests'" tag="b-nav-item" :class="{active: currentPage ==='/quests'}">Quests</router-link>
+                    <router-link :to="'/leaderboard'" tag="b-nav-item" :class="{active: currentPage ==='/leaderboard'}">Leaderboard</router-link>
+                    <router-link class="d-none d-lg-block" :to="'/admin'" tag="b-nav-item" :class="{active: currentPage ==='/admin'}" v-if="profile.admin">Admin</router-link>
                 </b-navbar-nav>
 
                 <b-navbar-nav class="ml-auto">
-                    <b-nav-item right :class="{active: currentPage==='/dash'}" @click="goToProfile()">
-                        {{ profile.firstName }}
-                    </b-nav-item>
+                    <router-link :to="'/profile'" tag="b-nav-item" :class="{active: currentPage ==='/profile'}">{{ profile.firstName }}</router-link>
                     <b-nav-item @click="logout">
                         Logout
                     </b-nav-item>
@@ -41,22 +27,14 @@
 </template>
 
 <script>
-    import Assets from '../../assets/index'
-
     export default {
         name: "navbarMain",
 
         props: ['profile'],
 
-        computed: {
-            assets() {
-                return Assets
-            },
-        },
-
         data() {
             return {
-                currentPage: '/dash'
+                currentPage: '/profile'
             }
         },
 
@@ -73,18 +51,18 @@
                 fetch(`/v1/logout`, {
                     method: 'POST',
                     accept: "application/json"
-                })
-                    .then(this.parseJSON)
-                    .then(function (response) {
-                        if (response.ok) {
-                            self.$router.push("/");
-                            self.$router.go();
-                            return response;
-                        } else {
-                            self.$router.push("/dash");
-                            return response;
-                        }
-                    });
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response;
+                    }
+                }).then(function (response) {
+                    self.$router.push("/");
+                    return response;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -93,32 +71,6 @@
              */
             getCurrentPage() {
                 this.currentPage = this.$router.currentRoute.fullPath;
-            },
-
-
-            /**
-             * Methods to navigate to each page using the VueRouter.
-             */
-            goToPeople() {
-                this.$router.push("/profiles");
-            },
-            goToTrips() {
-                this.$router.push("/trips");
-            },
-            goToDestinations() {
-                this.$router.push("/destinations");
-            },
-            goToProfile() {
-                this.$router.push("/dash");
-            },
-            goToAdminPanel() {
-                this.$router.push("/admin");
-            },
-            goToObjectives() {
-                this.$router.push("/objectives");
-            },
-            goToQuests() {
-                this.$router.push("/quests");
             }
         }
     }

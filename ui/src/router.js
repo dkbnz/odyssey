@@ -1,11 +1,11 @@
 import Index from './components/index/indexPage'
-import Dash from './components/dash/dashPage'
+import ProfilePage from './components/dash/dashPage'
 import Destinations from './components/destinations/destinationsPage'
-import Objectives from './components/objectives/objectivePage'
-import Profiles from './components/profiles/profilesPage'
+import Leaderboard from './components/profiles/leaderboardPage'
 import Trips from './components/trips/tripsPage'
 import AdminPanel from './components/admin/adminPanel'
 import Quests from './components/quests/questPage'
+import Credits from './components/helperComponents/creditsPage'
 
 import VueRouter from 'vue-router';
 
@@ -15,15 +15,15 @@ const routes = [
         name: "index",
         component: Index,
         meta: {
-            title: "Welcome to TravelEA"
+            title: "Welcome to Odyssey"
         }
     },
     {
-        path:"/dash",
-        name: "dash",
-        component: Dash,
+        path:"/profile",
+        name: "profile",
+        component: ProfilePage,
         meta: {
-            title: "Your Profile - TravelEA"
+            title: "Your Profile - Odyssey"
         }
     },
     {
@@ -31,15 +31,7 @@ const routes = [
         name: "destinations",
         component: Destinations,
         meta: {
-            title: "Destinations - TravelEA"
-        }
-    },
-    {
-        path:"/objectives",
-        name: "objectives",
-        component: Objectives,
-        meta: {
-            title: "Objectives - TravelEA"
+            title: "Destinations - Odyssey"
         }
     },
     {
@@ -47,15 +39,15 @@ const routes = [
         name: "quests",
         component: Quests,
         meta: {
-            title: "Quests - TravelEA"
+            title: "Quests - Odyssey"
         }
     },
     {
-        path:"/profiles",
-        name: "profiles",
-        component: Profiles,
+        path:"/leaderboard",
+        name: "leaderboard",
+        component: Leaderboard,
         meta: {
-            title: "Profiles - TravelEA"
+            title: "Leaderboard - Odyssey"
         }
     },
     {
@@ -63,7 +55,7 @@ const routes = [
         name: "trips",
         component: Trips,
         meta: {
-            title: "Trips - TravelEA"
+            title: "Trips - Odyssey"
         }
     },
     {
@@ -71,8 +63,20 @@ const routes = [
         name: "admin",
         component: AdminPanel,
         meta: {
-            title: "Administrator - TravelEA"
+            title: "Administrator - Odyssey"
         }
+    },
+    {
+        path:"/credits",
+        name: "credits",
+        component: Credits,
+        meta: {
+            title: "Credits - Odyssey"
+        }
+    },
+    {
+        path: '*',
+        redirect: '/profile'
     }
 ];
 
@@ -81,10 +85,8 @@ const router = new VueRouter({
     mode: 'history'
 });
 
-const defaultTitle = 'TravelEA';
+const defaultTitle = 'Odyssey';
 router.afterEach((to, from) => {
     document.title = to.meta.title || defaultTitle;
 });
-
 export default router;
-

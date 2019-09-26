@@ -1,8 +1,9 @@
 <template>
-    <div :class="containerClass">
+    <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <h1 class="page-title">Edit Profile</h1>
         <p class="page-title"><i>Edit your profile using the form below!</i></p>
-        <b-alert variant="success" v-model="showSuccess">Profile successfully saved!</b-alert>
+        <b-alert variant="success" v-model="showSuccess" dismissible>Profile successfully saved!</b-alert>
+        <b-alert variant="danger" v-model="showErrorResponse" dismissible><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
         <!--First name field, with default set to the user's current first name. Validates inputted text-->
         <b-row>
             <b-col>
@@ -13,6 +14,7 @@
                     <b-form-input :state="firstNameValidation"
                                   id="firstName"
                                   trim
+                                  autocomplete="new-password"
                                   type="text" v-model="saveProfile.firstName">
                     </b-form-input>
                     <b-form-invalid-feedback :state="firstNameValidation">
@@ -85,11 +87,14 @@
                         label-for="dateOfBirth">
                     <b-form-input :state="dateOfBirthValidation"
                                   :type="'date'"
+                                  min="1900-01-01"
+                                  :max="todaysDate"
                                   id="dateOfBirth"
-                                  trim v-model="saveProfile.dateOfBirth">
+                                  trim
+                                  v-model="saveProfile.dateOfBirth">
                     </b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
-                        You need a date of birth.
+                        You can't be born in the future or before 01/01/1900.
                     </b-form-invalid-feedback>
                     <b-form-valid-feedback :state="dateOfBirthValidation">
                         Looks Good
@@ -126,6 +131,7 @@
                                   id="password"
                                   placeholder="Unchanged"
                                   trim
+                                  autocomplete="new-password"
                                   type="password" v-model="saveProfile.password">
                     </b-form-input>
                     <b-form-invalid-feedback :state="passwordValidation">
@@ -148,6 +154,7 @@
                             id="passwordRe"
                             placeholder="Unchanged"
                             trim
+                            autocomplete="new-password"
                             type="password" v-model="rePassword">
                     </b-form-input>
                     <b-form-invalid-feedback :state="rePasswordValidation">
@@ -205,7 +212,7 @@
                                    trim
                                    v-model="saveProfilePassports">
                         <option
-                                v-for="passport in nationalityOptions"
+                                v-for="passport in passportsSorted"
                                 :value="{id: passport.id, country: passport.country}">
                             {{passport.country}}
                         </option>
@@ -251,7 +258,10 @@
         <!--Displayed if there are input errors when "Save Profile" is clicked-->
         <b-alert dismissible v-model="showError" variant="danger">The form contains errors! Please ensure that no fields are red</b-alert>
         <!--Validates inputs then updates user data if valid-->
-        <b-button :disabled="!checkSaveProfile()" @click="submitSaveProfile" block size="lg" variant="success">Save Profile</b-button>
+        <b-button :disabled="!checkSaveProfile() || sendingRequest" @click="submitSaveProfile" block size="lg" variant="success">
+            <b-img alt="Loading" class="loading" v-if="sendingRequest" :src="assets['loadingLogo']" height="30%"></b-img>
+            <p class="m-0 p-0" v-if="!sendingRequest">Save Profile</p>
+        </b-button>
     </div>
 </template>
 
@@ -266,11 +276,6 @@
             adminView: {
                 default: function () {
                     return false;
-                }
-            },
-            containerClass: {
-                default: function() {
-                    return 'containerWithNav';
                 }
             }
         },
@@ -293,6 +298,8 @@
                 validEmail: false,
                 showSuccess: false,
                 showError: false,
+                showErrorResponse: false,
+                errorMessage: "",
                 genderOptions: [
                     {value: 'Male', text: 'Male'},
                     {value: 'Female', text: 'Female'},
@@ -300,31 +307,38 @@
                 ],
                 nationalitiesSelected: [],
                 passportsSelected: [],
-                travellerTypesSelected: []
-
+                travellerTypesSelected: [],
+                sendingRequest: false
             }
         },
 
         computed: {
             /**
-             * Validates input fields based on regular expression.
+             * Each below method validates the input fields based on regular expression.
              *
              * @returns {boolean} true if input is valid, false if invalid, or null if field remains unselected.
              */
             firstNameValidation() {
                 if (this.saveProfile.firstName.length === 0) {
                     return false;
+                } else if (this.saveProfile.firstName.length > 100) {
+                    return false
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.saveProfile.firstName);
             },
             middleNameValidation() {
+                if (this.saveProfile.middleName.length > 100) {
+                    return false
+                }
                 let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.saveProfile.middleName) || this.saveProfile.middleName.length === 0;
             },
             lastNameValidation() {
                 if (this.saveProfile.lastName.length === 0) {
                     return false;
+                } else if (this.saveProfile.lastName.length > 100) {
+                    return false
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.saveProfile.lastName);
@@ -332,6 +346,8 @@
             emailValidation() {
                 if (this.saveProfile.username.length === 0) {
                     return false;
+                }  else if (this.saveProfile.username.length > 100) {
+                    return false
                 }
                 let emailRegex = new RegExp("^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})");
                 this.checkUsername();
@@ -340,6 +356,8 @@
             passwordValidation() {
                 if (this.saveProfile.password.length === 0) {
                     return null;
+                }  else if (this.saveProfile.password.length > 100) {
+                    return false
                 }
                 let passwordRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])" +
                     "(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
@@ -348,6 +366,8 @@
             rePasswordValidation() {
                 if (this.rePassword.length === 0) {
                     return null;
+                }  else if (this.rePassword.length > 100) {
+                    return false
                 }
                 let passwordRegex =
                     new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
@@ -357,7 +377,8 @@
                 if (this.saveProfile.dateOfBirth.length === 0) {
                     return false;
                 }
-                return this.saveProfile.dateOfBirth.length > 0;
+                let minDate = "1900-01-01";
+                return this.saveProfile.dateOfBirth.length > 0 && this.saveProfile.dateOfBirth <= this.todaysDate && this.saveProfile.dateOfBirth >= minDate;
             },
             genderValidation() {
                 if (this.saveProfile.gender.length === 0) {
@@ -382,6 +403,28 @@
                     return false;
                 }
                 return this.saveProfileTravellerTypes.length > 0;
+            },
+
+
+            /**
+             * Get the current date and return it in the format.
+             * yyyy-mm-dd.
+             *
+             * @returns Current date in format yyyy-mm-dd
+             */
+            todaysDate() {
+                let today = new Date();
+                let dd = today.getDate();
+                let mm = today.getMonth() + 1; //January is 0!
+                let yyyy = today.getFullYear();
+                if (dd < 10) {
+                    dd = '0' + dd
+                }
+                if (mm < 10) {
+                    mm = '0' + mm
+                }
+                today = yyyy + '-' + mm + '-' + dd;
+                return today
             },
 
 
@@ -429,6 +472,17 @@
                 set(travellerTypes) {
                     this.travellerTypesSelected = travellerTypes;
                 }
+            },
+
+
+            /**
+             * Sorts nationality options by their country value for passports.
+             *
+             * @returns a list of sorted nationalities.
+             */
+            passportsSorted() {
+                let passportOptions = JSON.parse(JSON.stringify(this.nationalityOptions));
+                return passportOptions.sort((a, b) => (a.country > b.country) ? 1 : -1)
             }
         },
 
@@ -452,8 +506,17 @@
                         body: JSON.stringify({'username': this.saveProfile.username})
 
                     }).then(function (response) {
-                        self.validEmail = response.ok || (self.saveProfile.username === self.profile.username)
-                    })
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response;
+                        }
+                    }).then(function (response) {
+                        self.validEmail = response.ok || (self.saveProfile.username === self.profile.username);
+                    }).catch(function (response) {
+                        self.validEmail = false;
+                        self.handleErrorResponse(response);
+                    });
                 }
 
             },
@@ -522,6 +585,7 @@
              */
             submitSaveProfile() {
                 let self = this;
+                this.sendingRequest = true;
                 if (this.checkSaveProfile) {
                     this.$emit('profileSaved', true);
                     this.retrieveNationalities();
@@ -533,7 +597,15 @@
                         headers: {'content-type': 'application/json'},
                         body: JSON.stringify(this.saveProfile)
                     }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        self.sendingRequest = false;
                         if (!self.adminView) {
+                            self.$router.push('/profile');
                             self.$router.go();
                         } else {
                             self.showSuccess = true;
@@ -543,8 +615,12 @@
                         }
                         self.$emit('profile-saved', self.saveProfile);
                         window.scrollTo(0, 0);
-                        return response.json();
-                    })
+                        self.showErrorResponse = false;
+                        return responseBody;
+                    }).catch(function (response) {
+                        self.validEmail = false;
+                        self.handleErrorResponse(response);
+                    });
                 }
             }
         }

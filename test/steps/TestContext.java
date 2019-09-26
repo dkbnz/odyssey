@@ -6,7 +6,7 @@ import play.db.Database;
 
 public class TestContext {
 
-    private static TestContext INSTANCE;
+    private static TestContext testInstance;
 
     @Inject
     Application application;
@@ -90,9 +90,9 @@ public class TestContext {
     }
 
     public static TestContext getInstance() {
-        if(INSTANCE == null) {
-            INSTANCE = new TestContext();
+        if(testInstance == null) {
+            testInstance = new TestContext();
         }
-        return INSTANCE;
+        return testInstance;
     }
 }
