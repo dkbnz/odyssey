@@ -326,6 +326,10 @@ a {
     }
 }
 
+.cursor-click {
+    cursor: pointer;
+}
+
 .vote:hover {
     cursor: pointer;
 }
