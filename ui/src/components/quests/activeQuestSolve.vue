@@ -255,7 +255,6 @@
                 totalDistance: null,
                 searchedRiddle: null,
                 objective: null,
-                showOrHide: "Show",
                 showHintAlertModal: false,
                 dismissSeconds: 3,
                 dismissCountDown: 0,
@@ -270,9 +269,8 @@
              * show or hide to show.
              */
             questAttempt() {
-                this.showDestinationSearch = false;
-                this.showOrHide = "Show";
                 this.objective = null;
+                this.pageDisplayed = 3;
             },
 
 
@@ -341,11 +339,11 @@
                     if (responseBody.guessResult) {
                         self.goBack();
                         self.guessSuccess = true;
-                        self.$emit('updated-quest-attempt', responseBody.attempt);
                         setTimeout(function() {
                             self.guessSuccess = false;
                         }, 3000);
                         self.showRewardToast(responseBody.reward);
+                        self.$emit('updated-quest-attempt', responseBody.attempt);
                     } else {
                         // If unsuccessful guess
                         self.showError = true;
@@ -364,7 +362,7 @@
              * answer to an objectives' riddle.
              */
             goBack() {
-                this.pageDisplayed = 1;
+                this.pageDisplayed = 3;
                 this.showDestinationSearchCollapse = true;
                 this.showSelectedDestination = false;
                 this.selectedDestination = {};
@@ -481,7 +479,7 @@
              * @param riddle    the riddle to be displayed in the destination sidebar.
              */
             destinationSearch(riddle) {
-                this.showDestinationSearch = true;
+                this.pageDisplayed = 0;
                 this.searchedRiddle = riddle;
             },
 
