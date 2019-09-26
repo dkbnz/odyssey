@@ -638,5 +638,6 @@ public class AchievementTrackerController extends Controller {
         if(pointReward != null) {
             progressBadge(hintCreator, Action.POINTS_GAINED, pointReward.getValue());
         }
+        profileRepository.update(hintCreator);
     }
 }
