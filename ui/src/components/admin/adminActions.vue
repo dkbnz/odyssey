@@ -88,7 +88,6 @@
                                                                   @click="addTravellerTypes(
                                                                   destination,
                                                                   travellerType)">
-                                                            &#10003;
                                                         </b-button>
                                                     </b-col>
                                                 </b-row>
@@ -108,7 +107,6 @@
                                                                   @click="removeTravellerTypes(
                                                                   destination,
                                                                   travellerType)">
-                                                            &#10003;
                                                         </b-button>
                                                     </b-col>
                                                 </b-row>

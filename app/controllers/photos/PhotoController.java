@@ -107,22 +107,39 @@ public class PhotoController extends Controller {
 
 
     /**
-     * Returns whether or not a list of uploaded photos are valid.
+     * Returns whether or not a list of uploaded photos are valid photo.
      *
      * @param photos    list of photos to be validated.
-     * @return          true if all photo files are valid.
+     * @return          true if all photo files are valid for their size.
      */
-    private boolean validatePhotos(List<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
+    private boolean validatePhotoSize(List<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
+
+        for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
+            Long fileSize = photo.getFileSize();
+
+            if (fileSize >= MAX_IMG_SIZE)
+                return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Returns whether or not a list of uploaded photos are valid photo types.
+     *
+     * @param photos    list of photos to be validated.
+     * @return          true if all photo files are valid for their type.
+     */
+    private boolean validatePhotoTypes(List<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
 
         ArrayList<String> validFileTypes = new ArrayList<>();
         validFileTypes.add("image/jpeg");
         validFileTypes.add("image/png");
 
         for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
-            Long fileSize = photo.getFileSize();
             String contentType = photo.getContentType();
 
-            if (!((fileSize < MAX_IMG_SIZE) && (validFileTypes.contains(contentType))))
+            if (!(validFileTypes.contains(contentType)))
                 return false;
         }
 
@@ -413,9 +430,14 @@ public class PhotoController extends Controller {
                     Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
                     List<Http.MultipartFormData.FilePart<TemporaryFile>> photos = body.getFiles();
 
-                    // Validate images
-                    if (!validatePhotos(photos)) {
-                        return badRequest(ApiError.badRequest(Errors.INVALID_PHOTO_SIZE_TYPE));
+                    // Validate images types
+                    if (!validatePhotoTypes(photos)) {
+                        return badRequest(ApiError.badRequest(Errors.INVALID_PHOTO_TYPE));
+                    }
+
+                    // Validate images size
+                    if (!validatePhotoSize(photos)) {
+                        return badRequest(ApiError.badRequest(Errors.INVALID_PHOTO_SIZE));
                     }
 
                     // Images are valid, if we have images, then add them to profile
