@@ -75,24 +75,20 @@
                             <b-row class="buttonMarginsTop">
                                 <b-col>
                                     <h4>Start Date</h4>
-                                    {{new Date(quest.startDate)}}
+                                    <p class="mobile-text">{{new Date(quest.startDate)}}</p>
                                 </b-col>
                                 <b-col>
                                     <h4>End Date</h4>
-                                    {{new Date(quest.endDate)}}
+                                    <p class="mobile-text">{{new Date(quest.endDate)}}</p>
                                 </b-col>
                                 <!-- If looking at the available quests tab, show a 'start now' button -->
-                                <b-col cols="2" v-if="availableQuests">
-                                    <b-row>
-                                        <b-button variant="primary" @click="createAttempt(quest, true)">
+                                <b-col v-if="availableQuests" md="3" lg="2">
+                                        <b-button variant="primary" @click="createAttempt(quest, true)" class="mb-1">
                                             Start Now
                                         </b-button>
-                                    </b-row>
-                                    <b-row class="mt-4">
                                         <b-button variant="secondary" @click="createAttempt(quest, false)">
                                             Start Later
                                         </b-button>
-                                    </b-row>
                                 </b-col>
                             </b-row>
                             <div v-if="yourQuests" class="buttonMarginsTop">

@@ -604,15 +604,6 @@
                         }
                     }).then(function (responseBody) {
                         self.sendingRequest = false;
-                        if (!self.adminView) {
-                            self.$router.push('/profile');
-                            self.$router.go();
-                        } else {
-                            self.showSuccess = true;
-                            setTimeout(function() {
-                                self.showSuccess = false;
-                            }, 3000)
-                        }
                         self.$emit('profile-saved', self.saveProfile);
                         window.scrollTo(0, 0);
                         self.showErrorResponse = false;
