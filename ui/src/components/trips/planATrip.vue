@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
+    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-5 rounded-lg">
         <h1 class="page-title">{{ heading }}</h1>
         <p class="page-title"><i>{{ subHeading }}</i></p>
 
@@ -86,16 +86,16 @@
                                 <b-row>
                                     <b-col>
                                         <h6 class="mb-1">Selected Destination:</h6>
-                                        <b-list-group>
+                                        <b-list-group class="cursor-click">
                                             <b-list-group-item class="flex-column align-items-start"
                                                                id="selectedDestination"
+                                                               @click="showDestinationSideBar = true"
                                                                :disabled="selectedDestination.length === '{}'">
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <h5 class="mb-1" v-if="selectedDestination.name">
                                                         {{selectedDestination.name}}
                                                     </h5>
                                                     <h5 class="mb-1" v-else>Select a Destination</h5>
-
                                                     <small>
                                                         <div class="d-flex justify-content-right">
                                                             <b-button variant="primary"
@@ -269,7 +269,7 @@
                     </b-container>
                 </b-card>
             </b-col>
-            <b-col>
+            <b-col v-if="showDestinationSideBar">
                 <b-card>
                     <destination-sidebar
                             :profile="profile"
@@ -364,7 +364,8 @@
                     longitude: null,
                     country: "",
                     public: false
-                }
+                },
+                showDestinationSideBar: false
             }
         },
 
@@ -450,6 +451,8 @@
                 this.tripDestination = "";
                 this.inDate = "";
                 this.outDate = "";
+                this.showDestinationSideBar = false;
+                console.log(this.showDestinationSideBar);
             },
 
 

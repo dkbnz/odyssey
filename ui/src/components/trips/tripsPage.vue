@@ -10,14 +10,12 @@
 
         <!-- Displays the plan a trip or your trips page depending on buttons selected by the user -->
         <plan-a-trip :adminView="adminView"
-                     :destinations="destinations"
                      :heading="'Plan a Trip'"
                      :profile="profile"
                      :subHeading="'Book your next trip!'"
                      v-if="planATrip">
         </plan-a-trip>
         <your-trips :adminView="adminView"
-                    :destinations="destinations"
                     :profile="profile"
                     v-if="yourTrips">
         </your-trips>
