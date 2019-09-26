@@ -240,13 +240,15 @@ Vue.mixin({
     data() {
         return {
             possibleActions: {
+                CHECKED_IN: 'Checked In',
                 DESTINATION_CREATED: 'Destination Created',
                 QUEST_CREATED: 'Quest Created',
-                TRIP_CREATED: 'Trip Created',
-                RIDDLE_SOLVED: 'Riddle Solved',
-                CHECKED_IN: 'Checked In',
                 QUEST_COMPLETED: 'Quest Completed',
-                HINT_CREATED: 'Hint Created'
+                TRIP_CREATED: 'Trip Created',
+                HINT_CREATED: 'Hint Created',
+                RIDDLE_SOLVED_NO_HINT: 'Riddle Solved with No Hints',
+                RIDDLE_SOLVED_ONE_HINT: 'Riddle Solved with Only One Hint',
+                RIDDLE_SOLVED_TWO_HINT: 'Riddle Solved with Two Hints'
             },
             MINUTE: 60000,
             onMobile: false
