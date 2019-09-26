@@ -110,7 +110,7 @@
                             </b-col>
                             <b-col md="5">
                                 <div class="float-right">
-                                    <b-button size="sm" variant="primary"
+                                    <b-button size="sm" variant="link"
                                               @click="showOrHideHints(true, solvedObjective)">
                                               {{solvedObjective.id === objective.id ? "Hide" : "Show"}} Hints
                                     </b-button>
@@ -141,7 +141,7 @@
                             </b-col>
                             <b-col md="5">
                                 <div class="float-right">
-                                    <b-button size="sm" variant="primary"
+                                    <b-button size="sm" variant="outline-primary"
                                               @click="showOrHideHints(false, questAttempt.toSolve)">
                                               {{questAttempt.toSolve.id === objective.id ? "Hide" : "Show"}} Hints
                                     </b-button>
