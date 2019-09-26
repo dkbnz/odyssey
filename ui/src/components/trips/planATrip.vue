@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
+    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-5 rounded-lg">
         <h1 class="page-title">{{ heading }}</h1>
         <p class="page-title"><i>{{ subHeading }}</i></p>
 
@@ -27,7 +27,7 @@
         <b-modal hide-footer id="editModal" ref="editModal" title="Edit Destination">
             <b-alert dismissible v-model="showDateError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
             <div class="d-block">
-                <b-form-group id="editInDate-field" label="Start Date:" label-for="editInDate">
+                <b-form-group id="editInDate-field" label="Arrival Date:" label-for="editInDate">
                     <b-input :type="'date'"
                              id="editInDate"
                              max='9999-12-31'
@@ -35,7 +35,7 @@
                         {{editInDate}} trim
                     </b-input>
                 </b-form-group>
-                <b-form-group id="editOutDate-field" label="End Date:" label-for="editOutDate">
+                <b-form-group id="editOutDate-field" label="Departure Date:" label-for="editOutDate">
                     <b-input :type="'date'"
                              id="editOutDate"
                              max='9999-12-31'
@@ -86,16 +86,16 @@
                                 <b-row>
                                     <b-col>
                                         <h6 class="mb-1">Selected Destination:</h6>
-                                        <b-list-group>
+                                        <b-list-group class="cursor-click">
                                             <b-list-group-item class="flex-column align-items-start"
                                                                id="selectedDestination"
+                                                               @click="showDestinationSideBar = true"
                                                                :disabled="selectedDestination.length === '{}'">
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <h5 class="mb-1" v-if="selectedDestination.name">
                                                         {{selectedDestination.name}}
                                                     </h5>
                                                     <h5 class="mb-1" v-else>Select a Destination</h5>
-
                                                     <small>
                                                         <div class="d-flex justify-content-right">
                                                             <b-button variant="primary"
@@ -119,7 +119,7 @@
                                     <b-col>
                                         <b-form-group
                                                 id="inDate-field"
-                                                label="In Date (optional):"
+                                                label="Arrival Date (optional):"
                                                 label-for="inDate">
                                             <b-form-input :type="'date'"
                                                           id="inDate"
@@ -129,7 +129,7 @@
                                         </b-form-group>
                                         <b-form-group
                                                 id="outDate-field"
-                                                label="Out Date (optional):"
+                                                label="Departure Date (optional):"
                                                 label-for="outDate">
                                             <b-form-input :type="'date'"
                                                           id="outDate"
@@ -155,7 +155,6 @@
                                  outlined
                                  ref="tripDestTable"
                                  striped>
-
                             <!-- Buttons that appear for each destination added to table -->
                             <template v-slot:cell(actions)="row">
                                 <!--Opens edit modal-->
@@ -164,7 +163,7 @@
                                           @click="populateModal(row.item)"
                                           variant="success"
                                           class="mr-2"
-                                          block>Edit
+                                          block>Edit Dates
                                 </b-button>
                                 <!-- Shows additional details about the selected destination -->
                                 <b-button size="sm"
@@ -231,6 +230,9 @@
                             </template>
 
                         </b-table>
+                        <div class="text-center my-2">
+                            <strong v-if="inputTrip.destinations.length === 0">You need to add a destination!</strong>
+                        </div>
                         <!-- Determines pagination and number of results per row of the table -->
                         <b-row>
                             <b-col cols="1">
@@ -244,7 +246,7 @@
                                     </b-form-select>
                                 </b-form-group>
                             </b-col>
-                            <b-col cols="8">
+                            <b-col cols="10">
                                 <b-pagination
                                         :per-page="perPage"
                                         :total-rows="rows"
@@ -267,7 +269,7 @@
                     </b-container>
                 </b-card>
             </b-col>
-            <b-col>
+            <b-col v-if="showDestinationSideBar">
                 <b-card>
                     <destination-sidebar
                             :profile="profile"
@@ -334,8 +336,8 @@
                 fields: [
                     'order',
                     {key: 'destination.name', label: 'Destination Name'},
-                    {key: 'startDate'},
-                    {key: 'endDate'},
+                    {key: 'startDate', label: "Arrival Date"},
+                    {key: 'endDate', label: "Departure Date"},
                     'actions'
                 ],
                 subFields: [
@@ -362,7 +364,8 @@
                     longitude: null,
                     country: "",
                     public: false
-                }
+                },
+                showDestinationSideBar: false
             }
         },
 
@@ -448,6 +451,8 @@
                 this.tripDestination = "";
                 this.inDate = "";
                 this.outDate = "";
+                this.showDestinationSideBar = false;
+                console.log(this.showDestinationSideBar);
             },
 
 
