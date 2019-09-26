@@ -35,9 +35,7 @@
                     :objective="objective"
                     :profile="profile"
                     :solved="true"
-                    :refresh="refreshHints"
-                    @showAddHint="showAddHint"
-                    @request-new-hints-page="getPageHints">
+                    @add-hint="show = 'Create Hint'">
         </list-hints>
     </div>
 
@@ -122,36 +120,6 @@
             cancelCreateHint() {
                 this.show = "Hints";
                 this.getPageHints(this.defaultCurrentPage, this.defaultPerPage);
-            },
-
-
-            /**
-             * Gets the hints to display from the backend for all hints for an objective but paginated based on
-             * current page and the per page variables.
-             *
-             * @param currentPage           the current viewing page.
-             * @param perPage               the amount to view on a page.
-             */
-            getPageHints(currentPage, perPage) {
-                let self = this;
-                let currentPageQuery = currentPage - 1;
-                fetch(`/v1/objectives/` + self.objective.id +
-                    `/hints/` + this.profile.id + `?pageNumber=` + currentPageQuery +
-                    `&pageSize=` + perPage, {
-
-                }).then(function (response) {
-                    if (!response.ok) {
-                        throw response;
-                    } else {
-                        return response.json();
-                    }
-                })
-                .then(function (responseBody) {
-                    self.objective.hints = responseBody;
-                    self.refreshHints = !self.refreshHints;
-                }).catch(function (response) {
-                    self.handleErrorResponse(response);
-                });
             }
         }
 
