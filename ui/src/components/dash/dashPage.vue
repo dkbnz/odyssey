@@ -1,12 +1,11 @@
 <template>
     <div v-if="profile">
-
         <!--Navigation Bar-->
         <nav-bar-main :profile="profile"></nav-bar-main>
         <b-navbar variant="light" class="d-none d-lg-block">
             <b-navbar-nav>
-                <b-nav-item @click="togglePage(viewProfile, 'view')">Profile</b-nav-item>
-                <b-nav-item @click="togglePage(editProfile, 'edit')">Edit Profile</b-nav-item>
+                <b-nav-item @click="togglePage(viewProfile, 'view')" :class="{'active': viewProfile}">Profile</b-nav-item>
+                <b-nav-item @click="togglePage(editProfile, 'edit')" :class="{'active': editProfile}">Edit Profile</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
         <div>
@@ -18,6 +17,7 @@
                     :userProfile="profile"
                     :travTypeOptions="travTypeOptions"
                     :trips="trips"
+                    @edit-profile="togglePage(editProfile)"
                     v-if="viewProfile">
             </view-profile>
             <edit-profile
@@ -79,6 +79,7 @@
             showSavedProfile() {
                 this.showSaved = true;
                 this.togglePage(this.viewProfile);
+                this.$emit('fetch-profile');
             }
         },
 
