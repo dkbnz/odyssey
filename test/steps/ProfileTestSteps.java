@@ -30,11 +30,6 @@ public class ProfileTestSteps {
      */
     private TestContext testContext = TestContext.getInstance();
 
-//    /**
-//     * An object mapper used during tests.
-//     */
-//    private ObjectMapper mapper = new ObjectMapper();
-
     /**
      * Authorised string variable.
      */
