@@ -1,8 +1,8 @@
 <template>
-    <div v-if="profile.length !== 0" :class="containerClass">
+    <div v-if="profile">
         <!--Shows tabs for the quest page-->
         <navbar-main v-bind:profile="profile" v-if="!adminView"></navbar-main>
-        <div class="containerMain d-none d-lg-block">
+        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-5 rounded-lg d-none d-lg-block h-100">
             <h1 class="page-title">Quests</h1>
             <p class="page-title">
                 <i>Here you can view and create Quests!</i>
@@ -39,17 +39,21 @@
                                 :refresh-quests="refreshQuests"
                         ></quest-list>
                     </b-tab>
+                    <b-tab title="Your Objectives" @click="refreshObjectives = !refreshObjectives">
+                        <objective-page :profile="profile" :admin-view="false" :refresh-objectives="refreshObjectives">
+                        </objective-page>
+                    </b-tab>
                 </b-tabs>
             </b-card>
-            <footer-main></footer-main>
         </div>
         <div class="show-only-mobile">
             <quests-solve-mobile
                     :profile="profile">
-
             </quests-solve-mobile>
         </div>
+        <footer-main></footer-main>
     </div>
+
     <div v-else>
         <unauthorised-prompt-page></unauthorised-prompt-page>
     </div>
@@ -63,17 +67,14 @@
     import QuestsSolveMobile from "./activeQuestPageMobile";
     import QuestAttemptSolve from "./activeQuestSolve";
     import ActiveQuestPage from "./activeQuestPage";
+    import ObjectiveList from "../objectives/objectiveList";
+    import ObjectivePage from "../objectives/objectivePage";
 
     export default {
         name: "questPage",
 
         props: {
             profile: Object,
-            containerClass: {
-                default: function () {
-                    return null;
-                }
-            },
             adminView: {
                 default: function () {
                     return false;
@@ -96,6 +97,8 @@
             /**
              * Switches to the 'active' page and refreshes the quest list.
              * The 'active' page has an index of 0.
+             *
+             * @param questAttempt      the quest attempt to be displayed on the active quests page.
              */
             changeToActiveTab(questAttempt) {
                 this.tabIndex = 0;
@@ -105,6 +108,8 @@
         },
 
         components: {
+            ObjectivePage,
+            ObjectiveList,
             ActiveQuestPage,
             QuestAttemptSolve,
             QuestsSolveMobile,

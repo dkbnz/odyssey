@@ -11,7 +11,9 @@
                     <b-form-input :state="fNameValidation"
                                   autofocus id="first_name"
                                   required
-                                  trim type="text" v-model="firstName"></b-form-input>
+                                  trim type="text"
+                                  v-model="firstName">
+                    </b-form-input>
                     <b-form-invalid-feedback :state="fNameValidation">
                         Your first name must be between 1-100 characters and contain no numbers.
                     </b-form-invalid-feedback>
@@ -21,8 +23,12 @@
                         id="mname-field"
                         label="Middle Name(s):"
                         label-for="middle_name">
-                    <b-form-input :state="mNameValidation" id="middle_name" placeholder="Optional"
-                                  trim type="text" v-model="middleName"></b-form-input>
+                    <b-form-input :state="mNameValidation"
+                                  id="middle_name"
+                                  placeholder="Optional"
+                                  trim
+                                  type="text" v-model="middleName">
+                    </b-form-input>
                     <b-form-invalid-feedback :state="mNameValidation">
                         Your middle name must be less than 100 characters and contain no numbers.
                     </b-form-invalid-feedback>
@@ -53,7 +59,7 @@
                                   trim
                                   type="text" v-model="username"></b-form-input>
                     <b-form-invalid-feedback :state="emailValidation">
-                        Your email must be valid and unique!
+                        Your email must be valid and unique, and also contain no more than 100 characters.
                     </b-form-invalid-feedback>
                 </b-form-group>
 
@@ -67,7 +73,7 @@
                                   trim
                                   type="password" v-model="password"></b-form-input>
                     <b-form-invalid-feedback :state="passwordValidation">
-                        Your password must be between 5 and 15 characters and password must contain two of: Uppercase,
+                        Your password must be greater than 5 characters long and password must contain two of: Uppercase,
                         Lowercase, Number.
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -83,7 +89,7 @@
                                   trim
                                   type="password" v-model="rePassword"></b-form-input>
                     <b-form-invalid-feedback :state="rePasswordValidation">
-                        This must be the same as the password and your must be between 5 and 15 characters and
+                        This must be the same as the password and your must be greater than 5 characters long and
                         password must contain two of: Uppercase, Lowercase, Number.
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -94,11 +100,13 @@
                         label-for="dateOfBirth">
                     <b-form-input :state="dateOfBirthValidation"
                                   id="dateOfBirth"
+                                  min="1900-01-01"
+                                  :max="todaysDate"
                                   required
                                   trim
                                   type="date" v-model="dateOfBirth"></b-form-input>
                     <b-form-invalid-feedback :state="dateOfBirthValidation">
-                        You need a date of birth before today.
+                        You can't be born in the future or before 01/01/1900.
                     </b-form-invalid-feedback>
                 </b-form-group>
 
@@ -116,7 +124,9 @@
                     </b-form-invalid-feedback>
                 </b-form-group>
 
-                <b-alert dismissible v-model="showError" variant="danger">The form contains errors! Please ensure that all fields are green</b-alert>
+                <b-alert dismissible v-model="showError" variant="danger">The form contains errors! Please ensure that
+                    all fields are green
+                </b-alert>
                 <b-button @click="checkPersonalForm" block variant="primary">Next</b-button>
 
             </b-form>
@@ -124,13 +134,15 @@
 
         <!--Fields for inputting nationalities, passports & traveller types-->
         <div v-if="showSecond" id="secondSignup">
-            <b-alert v-model="showError" variant="danger" dismissible>{{alertMessage}}</b-alert>
+            <b-alert v-model="showError" variant="danger" dismissible>
+                <p class="wrapWhiteSpace">{{alertMessage}}</p>
+            </b-alert>
             <b-form>
                 <b-row>
                     <b-col>
                         <b-form-group
                                 id="nationalities-field"
-                                label="Nationality:"
+                                label="Your Nationality:"
                                 label-for="nationality">
                             <b-form-select :state="nationalityValidation"
                                            id="nationality"
@@ -154,11 +166,11 @@
                                 label="Passport Country:"
                                 label-for="passports">
                             <b-form-select
-                                           id="passports"
-                                           multiple
-                                           trim v-model="passports">
+                                    id="passports"
+                                    multiple
+                                    trim v-model="passports">
                                 <option :value="{id: nationality.id, country: nationality.country}"
-                                        v-for="nationality in nationalityOptions">
+                                        v-for="nationality in passportsSorted">
                                     {{nationality.country}}
                                 </option>
                             </b-form-select>
@@ -186,12 +198,12 @@
                                           :state="travTypeValidation"
                                           :text="travType.description"
                                           v-for="travType in travTypeOptions">
-                            <b-form-checkbox :value="{id: travType.id, travellerType: travType.travellerType}"
+                            <b-form-checkbox size="lg" :value="{id: travType.id, travellerType: travType.travellerType}"
                                              v-model="travellerTypes">
                             </b-form-checkbox>
                         </b-carousel-slide>
                     </b-carousel>
-                    <b-form-invalid-feedback :state="travTypeValidation" align="center">
+                    <b-form-invalid-feedback :state="travTypeValidation">
                         Please select at least one traveller type.
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -255,6 +267,8 @@
             fNameValidation() {
                 if (this.firstName.length === 0) {
                     return null;
+                } else if (this.firstName.length > 100) {
+                    return false;
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.firstName);
@@ -267,6 +281,9 @@
              * @returns {*} true if input is valid.
              */
             mNameValidation() {
+                if (this.middleName.length > 100) {
+                    return false;
+                }
                 let nameRegex = new RegExp("^(?=.{0,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.middleName) || this.middleName.length === 0;
             },
@@ -280,6 +297,8 @@
             lNameValidation() {
                 if (this.lastName.length === 0) {
                     return null;
+                } else if (this.lastName.length > 100) {
+                    return false;
                 }
                 let nameRegex = new RegExp("^(?=.{1,100}$)([a-zA-Z]+((-|'| )[a-zA-Z]+)*)$");
                 return nameRegex.test(this.lastName);
@@ -294,6 +313,8 @@
             emailValidation() {
                 if (this.username.length === 0) {
                     return null;
+                } else if (this.username.length > 100) {
+                    return false;
                 }
                 let emailRegex = new RegExp("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$");
                 this.checkUsername();
@@ -311,7 +332,7 @@
                     return null;
                 }
                 let passwordRegex =
-                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
+                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,})");
                 return passwordRegex.test(this.password)
             },
 
@@ -326,7 +347,7 @@
                     return null;
                 }
                 let passwordRegex =
-                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
+                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,})");
                 return this.password.length > 0 && this.rePassword === this.password && passwordRegex.test(this.rePassword);
             },
 
@@ -340,7 +361,8 @@
                 if (this.dateOfBirth.length === 0) {
                     return null;
                 }
-                return this.dateOfBirth.length > 0 && this.dateOfBirth < this.todaysDate;
+                let minDate = "1900-01-01";
+                return this.dateOfBirth.length > 0 && this.dateOfBirth <= this.todaysDate && this.dateOfBirth >= minDate;
             },
 
 
@@ -387,7 +409,7 @@
              * Get the current date and return it in the format.
              * yyyy-mm-dd.
              *
-             * @returns Current date in format yyyy-mm-dd
+             * @returns the current date in format yyyy-mm-dd
              */
             todaysDate() {
                 let today = new Date();
@@ -402,6 +424,17 @@
                 }
                 today = yyyy + '-' + mm + '-' + dd;
                 return today
+            },
+
+
+            /**
+             * Sorts nationality options by their country value for passports.
+             *
+             * @returns a list of sorted nationalities.
+             */
+            passportsSorted() {
+                let passportOptions = JSON.parse(JSON.stringify(this.nationalityOptions));
+                return passportOptions.sort((a, b) => (a.country > b.country) ? 1 : -1)
             }
 
         },
@@ -417,7 +450,7 @@
                     this.showError = false;
                     this.nextPage();
                 } else {
-                        this.showError = true;
+                    this.showError = true;
                     return false
                 }
             },
@@ -432,7 +465,7 @@
                         firstName: this.firstName,
                         middleName: this.middleName,
                         lastName: this.lastName,
-                        username: this.username,
+                        username: this.username.toLowerCase(),
                         password: this.password,
                         dateOfBirth: this.dateOfBirth,
                         gender: this.gender,
@@ -456,7 +489,7 @@
                 fetch(`/v1/checkUsername`, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
-                    body: JSON.stringify({'username': this.username})
+                    body: JSON.stringify({'username': this.username.toLowerCase()})
 
                 }).then(function (response) {
                     self.validEmail = response.ok;
@@ -496,19 +529,23 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function (response) {
-                    if (response.status === 201 && !self.createdByAdmin) {
-                        self.$router.go();
-                        return response.json();
-                    } else if (response.status === 201 && self.createdByAdmin) {
-                        self.$emit('profile-created', true);
+                    console.log(response);
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        self.showError = true;
-                        response.clone().text().then(text => {
-                            self.alertMessage = text;
-                        });
+                        return response;
                     }
-
-                })
+                }).then(function (response) {
+                    if (response.status === 201 && !self.createdByAdmin) {
+                        self.updateActivity();
+                        self.$router.push('/profile');
+                    } else if (response.status === 201 && self.createdByAdmin) {
+                        self.updateActivity();
+                        self.$emit('profile-created', true);
+                    }
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
             }
         }
     }

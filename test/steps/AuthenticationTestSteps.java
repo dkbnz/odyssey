@@ -32,6 +32,18 @@ public class AuthenticationTestSteps {
 
 
     /**
+     * The username string variable for the datatable value.
+     */
+    private static final String USERNAME_STRING = "Username";
+
+
+    /**
+     * The password string variable for the datatable value.
+     */
+    private static final String PASS_FIELD_STRING = "Password";
+
+
+    /**
      * The login uri.
      */
     private static final String LOGIN_URI = "/v1/login";
@@ -45,8 +57,8 @@ public class AuthenticationTestSteps {
     private JsonNode convertDataTableToJsonNode(io.cucumber.datatable.DataTable dataTable) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String username = list.get(0).get("Username");
-        String password = list.get(0).get("Password");
+        String username = list.get(0).get(USERNAME_STRING);
+        String password = list.get(0).get(PASS_FIELD_STRING);
 
         //Add values to a JsonNode
         ObjectMapper mapper = new ObjectMapper();

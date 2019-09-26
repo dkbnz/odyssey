@@ -1,5 +1,5 @@
 <template>
-    <div v-if="profile.length !== 0">
+    <div v-if="profile">
 
         <!--Navigation Bar-->
         <nav-bar-main :profile="profile"></nav-bar-main>
@@ -9,25 +9,28 @@
                 <b-nav-item @click="togglePage(editProfile, 'edit')">Edit Profile</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
+        <div>
+            <!--Tab Elements-->
+            <view-profile
+                    :destinations="destinations"
+                    :nationalityOptions="nationalityOptions"
+                    :profile="profile"
+                    :userProfile="profile"
+                    :travTypeOptions="travTypeOptions"
+                    :trips="trips"
+                    v-if="viewProfile">
+            </view-profile>
+            <edit-profile
+                    :admin-view="adminView"
+                    :nationalityOptions="nationalityOptions"
+                    :profile="profile"
+                    :showSaved="showSaved"
+                    :travTypeOptions="travTypeOptions"
+                    @profile-saved="showSavedProfile"
+                    v-if="editProfile">
+            </edit-profile>
+        </div>
 
-        <!--Tab Elements-->
-        <view-profile
-                :destinations="destinations"
-                :nationalityOptions="nationalityOptions"
-                :profile="profile"
-                :travTypeOptions="travTypeOptions"
-                :trips="trips"
-                v-if="viewProfile">
-        </view-profile>
-        <edit-profile
-                :admin-view="adminView"
-                :nationalityOptions="nationalityOptions"
-                :profile="profile"
-                :showSaved="showSaved"
-                :travTypeOptions="travTypeOptions"
-                @profile-saved="showSavedProfile"
-                v-if="editProfile">
-        </edit-profile>
         <footer-main></footer-main>
     </div>
     <div v-else>
@@ -46,13 +49,12 @@
     export default {
         name: "dashPage",
 
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'trips', 'adminView', 'destinations'],
+        props: ['nationalityOptions', 'travTypeOptions', 'profile', 'trips', 'adminView', 'destinations'],
 
         data: function () {
             return {
                 viewProfile: true,
                 editProfile: false,
-                photoGallery: false,
                 showSaved: false
             }
         },
@@ -78,7 +80,6 @@
                 this.showSaved = true;
                 this.togglePage(this.viewProfile);
             }
-
         },
 
         components: {

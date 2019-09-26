@@ -2,6 +2,9 @@ package models.profiles;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import models.hints.Hint;
+import models.hints.Vote;
+import models.points.AchievementTracker;
 import models.util.BaseModel;
 import models.destinations.Destination;
 import models.photos.PersonalPhoto;
@@ -16,6 +19,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -36,6 +40,9 @@ public class Profile extends BaseModel {
     private String gender;
     private LocalDate dateOfBirth;
     private boolean isAdmin;
+
+    @Formats.DateTime(pattern = "yyyy-MM-dd")
+    private Date lastSeenDate;
 
     @Formats.DateTime(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date dateOfCreation;
@@ -74,6 +81,35 @@ public class Profile extends BaseModel {
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<Quest> myQuests;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "owner")
+    private AchievementTracker achievementTracker;
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "creator")
+    private Set<Hint> hintsCreated;
+
+    @JsonIgnore
+    @ManyToMany(cascade = CascadeType.PERSIST, mappedBy = "profilesSeen")
+    private Set<Hint> hintsSeen;
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Vote> votesCast;
+
+    @Transient
+    private int numberOfQuestsCreated;
+
+    @Transient
+    private int numberOfQuestsCompleted;
+
+    public Date getLastSeenDate() {
+        return lastSeenDate;
+    }
+
+    public void setLastSeenDate(Date lastSeenDate) {
+        this.lastSeenDate = lastSeenDate;
+    }
 
 
     public List<Objective> getMyObjectives() {
@@ -251,6 +287,27 @@ public class Profile extends BaseModel {
     }
 
 
+    public int getNumberOfQuestsCreated() {
+        if (myQuests == null) {
+            return 0;
+        }
+        return myQuests.size();
+    }
+
+
+    /**
+     * Calculates the number of quests the given profile has completed using the Java streams method.
+     *
+     * @return the total number of quests the profile has completed.
+     */
+    public long getNumberOfQuestsCompleted() {
+        if (questAttempts == null) {
+            return 0;
+        }
+        return questAttempts.stream().filter(QuestAttempt::isCompleted).count();
+    }
+
+
     public boolean removeObjective(Objective objective) {
         return myObjectives.remove(objective);
     }
@@ -300,4 +357,27 @@ public class Profile extends BaseModel {
         return myQuests;
     }
 
+
+    public AchievementTracker getAchievementTracker() {
+        return achievementTracker;
+    }
+
+
+    public void setAchievementTracker(AchievementTracker achievementTracker) {
+        this.achievementTracker = achievementTracker;
+    }
+
+    public Set<Hint> getHintsSeen() {
+        return hintsSeen;
+    }
+
+    /**
+     * Adds a new hint to the user's set of seen hints.
+     *
+     * @param seenHint      the new hint the user has seen.
+     * @return              true if new hint was added, false if the hint is already in the set.
+     */
+    public boolean addSeenHint(Hint seenHint) {
+        return hintsSeen.add(seenHint);
+    }
 }

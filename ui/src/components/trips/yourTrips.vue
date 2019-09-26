@@ -1,11 +1,10 @@
 <template>
-    <div :class="containerClass">
-
+    <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
         <!-- Div for all the user's future trips -->
-        <div id="upcomingTrips">
+        <div id="upcomingTrips" class="pt-3">
             <h1 class="page-title">Upcoming Trips</h1>
             <p class="page-title"><i>Here are your upcoming trips!</i></p>
-            <b-alert dismissible v-model="showError" variant="danger">{{errorMessage}}</b-alert>
+            <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
             <b-alert
                     :show="dismissCountDown"
                     @dismiss-count-down="countDownChanged"
@@ -15,7 +14,7 @@
                 <p>Trip Deleted</p>
                 <b-progress
                         :max="dismissSecs"
-                        :value="dismissCountDown"
+                        :value="dismissCountDown - 1"
                         height="4px"
                         variant="success"
                 ></b-progress>
@@ -38,9 +37,8 @@
             </b-modal>
 
             <!-- Modal that uses the plan a trip page to edit a selected trip -->
-            <b-modal hide-footer id="editTripModal" ref="editTripModal" size="xl" title="Edit Trip">
+            <b-modal hide-footer id="editTripModal" ref="editTripModal" size="lg" title="Edit Trip">
                 <plan-a-trip
-                        :containerClass="'noMarginsContainer'"
                         :destinations="destinations"
                         :heading="'Edit a Trip'"
                         :inputTrip="selectedTrip"
@@ -56,8 +54,6 @@
             <b-table
                     :items="futureTrips"
                     :fields="fields"
-                    :per-page="perPageUpcoming"
-                    :current-page="currentPageUpcoming"
                     :busy="futureTrips.length === 0"
                     :sort-by.sync="sortBy"
                     :sort-desc.sync="sortDesc"
@@ -68,17 +64,11 @@
                     striped
                     responsive>
                 <div class="text-center my-2" slot="table-busy">
-                    <b-spinner class="align-middle" v-if="retrievingTrips"></b-spinner>
-                    <strong>Can't find any trips!</strong>
+                    <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" :src="assets['loadingLogo']">
+                    </b-img>
+                    <strong v-if="!retrievingTrips && !futureTrips.length">Can't find any trips!</strong>
                 </div>
-                <template slot="more_details" slot-scope="row">
-                    <b-button size="sm"
-                              @click="row.toggleDetails"
-                              variant="warning"
-                              class="mr-2"
-                              block>
-                        Show Details
-                    </b-button>
+                <template v-slot:cell(actions)="row">
                     <b-button size="sm"
                               v-model="editButton"
                               v-b-modal.editTripModal
@@ -99,20 +89,27 @@
                               block>
                         Delete
                     </b-button>
+                    <b-button size="sm"
+                              @click="row.toggleDetails"
+                              variant="warning"
+                              class="mr-2"
+                              block>
+                        {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+                    </b-button>
                 </template>
 
                 <!-- Shows all the trip destinations in a separate nested table -->
-                <template slot="row-details" slot-scope="row">
+                <template v-slot:row-details="row">
                     <b-card>
                         <b-table
                                 :fields="subFields"
                                 :items="row.item.destinations"
                                 id="futureTripsDestinations"
                                 ref="destinationsTable">
-                            <template slot="destInDate" slot-scope="data" v-if="futureTrips.length > 0">
+                            <template v-slot:cell(destInDate)="data" v-if="futureTrips.length > 0">
                                 {{formatDate(data.item.startDate)}}
                             </template>
-                            <template slot="destOutDate" slot-scope="data" v-if="futureTrips.length > 0">
+                            <template v-slot:cell(destOutDate)="data" v-if="futureTrips.length > 0">
                                 {{formatDate(data.item.endDate)}}
                             </template>
 
@@ -121,21 +118,19 @@
                     </b-card>
                 </template>
 
-                <template slot="tripStartDate"
-                          slot-scope="data">
-                    <!--{{data.item.destinations}}-->
+                <template v-slot:cell(tripStartDate)="data">
                     {{formatDate(calculateTripDates(data.item.destinations)[0])}}
                 </template>
 
-                <template slot="tripEndDate" slot-scope="data">
+                <template v-slot:cell(tripEndDate)="data">
                     {{formatDate(calculateTripDates(data.item.destinations)[data.item.destinations.length -1])}}
                 </template>
 
-                <template slot="tripEndDest" slot-scope="data" v-if="futureTrips.length > 0">
+                <template v-slot:cell(tripEndDest)="data" v-if="futureTrips.length > 0">
                     {{data.item.destinations[data.item.destinations.length -1].destination.name}}
                 </template>
 
-                <template slot="duration" slot-scope="data" v-if="futureTrips.length > 0">
+                <template v-slot:cell(duration)="data" v-if="futureTrips.length > 0">
                     {{calculateDuration(data.item.destinations)}}
                 </template>
 
@@ -151,7 +146,7 @@
                                        trim v-model="perPageUpcoming"></b-form-select>
                     </b-form-group>
                 </b-col>
-                <b-col cols="8">
+                <b-col cols="10">
                     <b-pagination
                             :per-page="perPageUpcoming"
                             :total-rows="rowsUpcoming"
@@ -167,15 +162,14 @@
         </div>
 
         <!-- Div for all the user's past trips -->
-        <div id="pastTrips">
+        <div id="pastTrips" class="mt-3 mb-3 pt-3">
             <h1 class="page-title">Past Trips</h1>
             <p class="page-title"><i>Here are your past trips!</i></p>
 
             <b-container fluid>
                 <!-- Table to show all a profile's past trips -->
-                <b-table :busy="pastTrips.length === 0" :current-page="currentPagePast" :fields="fields"
+                <b-table :busy="pastTrips.length === 0" :fields="fields"
                          :items="pastTrips"
-                         :per-page="perPagePast"
                          :sort-by="sortBy"
                          :sort-desc="sortDescPast"
                          hover
@@ -186,16 +180,11 @@
                          responsive>
 
                     <div slot="table-busy" class="text-center my-2">
-                        <strong>Can't find any trips!</strong>
+                        <b-img alt="Loading" class="align-middle loading" v-if="retrievingTrips" :src="assets['loadingLogo']">
+                        </b-img>
+                        <strong v-if="!retrievingTrips && !pastTrips.length" >Can't find any trips!</strong>
                     </div>
-                    <template slot="more_details" slot-scope="row">
-                        <b-button size="sm"
-                                  @click="row.toggleDetails"
-                                  variant="warning"
-                                  class="mr-2"
-                                  block>
-                            {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
-                        </b-button>
+                    <template v-slot:cell(actions)="row">
                         <b-button size="sm"
                                   v-model="editButton"
                                   v-b-modal.editTripModal
@@ -216,39 +205,46 @@
                                   block>
                             Delete
                         </b-button>
+                        <b-button size="sm"
+                                  @click="row.toggleDetails"
+                                  variant="warning"
+                                  class="mr-2"
+                                  block>
+                            {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+                        </b-button>
                     </template>
 
                     <!-- Shows all the trip destinations in a separate nested table -->
-                    <template slot="row-details" slot-scope="row">
+                    <template v-slot:row-details="row">
                         <b-card>
                             <b-table
                                     :fields="subFields"
                                     :items="row.item.destinations"
                                     id="pastTripsDestinations"
                                     ref="pastDestinationsTable">
-                                <template slot="destInDate" slot-scope="data" v-if="pastTrips.length > 0">
+                                <template v-slot:cell(destInDate)="data" v-if="pastTrips.length > 0">
                                     {{formatDate(data.item.startDate)}}
                                 </template>
-                                <template slot="destOutDate" slot-scope="data" v-if="pastTrips.length > 0">
+                                <template v-slot:cell(destOutDate)="data" v-if="pastTrips.length > 0">
                                     {{formatDate(data.item.endDate)}}
                                 </template>
                             </b-table>
                         </b-card>
                     </template>
 
-                    <template slot="tripStartDate" slot-scope="data">
+                    <template v-slot:cell(tripStartDate)="data">
                         {{formatDate(calculateTripDates(data.item.destinations)[0])}}
                     </template>
 
-                    <template slot="tripEndDate" slot-scope="data">
+                    <template v-slot:cell(tripEndDate)="data">
                         {{formatDate(calculateTripDates(data.item.destinations)[data.item.destinations.length -1])}}
                     </template>
 
-                    <template slot="tripEndDest" slot-scope="data" v-if="pastTrips.length > 0">
+                    <template v-slot:cell(tripEndDest)="data" v-if="pastTrips.length > 0">
                         {{data.item.destinations[data.item.destinations.length -1].destination.name}}
                     </template>
 
-                    <template slot="duration" slot-scope="data" v-if="pastTrips.length > 0">
+                    <template v-slot:cell(duration)="data" v-if="pastTrips.length > 0">
                         {{calculateDuration(data.item.destinations)}}
                     </template>
 
@@ -264,7 +260,7 @@
                             </b-form-select>
                         </b-form-group>
                     </b-col>
-                    <b-col cols="8">
+                    <b-col cols="10">
                         <b-pagination
                                 :per-page="perPagePast"
                                 :total-rows="rowsPast"
@@ -297,16 +293,32 @@
                 }
             },
             destinations: Array,
-            adminView: Boolean,
-            containerClass: {
-                default: function () {
-                    return 'containerWithNav';
-                }
-            }
+            adminView: Boolean
         },
 
         watch: {
             profile() {
+                this.getAllTrips();
+                this.retrieveTripCount()
+            },
+
+
+            perPageUpcoming() {
+                this.getAllTrips();
+            },
+
+
+            perPagePast() {
+                this.getAllTrips();
+            },
+
+
+            currentPageUpcoming() {
+                this.getAllTrips();
+            },
+
+
+            currentPagePast() {
                 this.getAllTrips();
             }
         },
@@ -317,12 +329,14 @@
 
         data: function () {
             return {
-                optionViews: [{value: 1, text: "1"}, {value: 5, text: "5"}, {value: 10, text: "10"}, {
-                    value: 15,
-                    text: "15"
-                }],
-                perPageUpcoming: 10,
-                perPagePast: 10,
+                optionViews: [
+                    {value: 1, text: "1"},
+                    {value: 5, text: "5"},
+                    {value: 10, text: "10"},
+                    {value: 15, text: "15"}
+                ],
+                perPageUpcoming: 5,
+                perPagePast: 5,
                 sortBy: 'destinations[0].startDate',
                 sortDesc: false,
                 sortDescPast: true,
@@ -348,6 +362,8 @@
                 retrievingTrips: false,
                 dismissSecs: 3,
                 dismissCountDown: 0,
+                rowsUpcoming: 0,
+                rowsPast: 0
             }
         },
 
@@ -356,6 +372,12 @@
              *  Mounted function that uses the getAllTrips method to populate all a users trips on the page.
              */
             this.getAllTrips();
+
+
+            /**
+             * Retrieves the total number of trips a profile has to determine the table pagination.
+             */
+            this.retrieveTripCount();
 
 
             /**
@@ -374,22 +396,6 @@
 
         computed: {
             /**
-             *  Computed function to calculate the length of the future trips, this is used for the pagination.
-             */
-            rowsUpcoming() {
-                return this.futureTrips.length
-            },
-
-
-            /**
-             *  Computed function to calculate the length of the past trips, this is used for the pagination.
-             */
-            rowsPast() {
-                return this.pastTrips.length
-            },
-
-
-            /**
              * The fields that will displayed in the trips tables.
              */
             fields() {
@@ -400,7 +406,7 @@
                     {key: 'tripEndDate', label: 'End Date'},
                     {key: 'tripEndDest', label: 'End Destination'},
                     {key: 'duration', label: 'Duration'},
-                    'more_details'
+                    'actions'
                 ]
             },
 
@@ -426,6 +432,9 @@
 
             /**
              * Gathers trip dates into an array, regardless of whether they are start/end date.
+             *
+             * @param destinations  the destinations of the trip that is going to be used to display the trip dates.
+             * @returns {Array}      the dates of the first and last destination in the trip.
              */
             calculateTripDates(destinations) {
                 let tripDates = [];
@@ -442,118 +451,68 @@
 
 
             /**
-             * Gets all the trips for a specific profile id. Uses the checkStatus and parseJSON functions to handle the
-             * response. This function also splits up the trips into past and future trips based on their date compared
-             * to today's date.
-             *
-             * @returns {Promise<Response | never>}     Json body of the trips belonging to the user.
+             * Gets all the trips for a specific profile id. Checks the response status and handles appropriate errors.
+             * This method then passes the returned list of trips to the sortTrips() method to determine if they are
+             * future or past trips.
              */
             getAllTrips() {
                 let userId = this.profile.id;
                 this.retrievingTrips = true;
+                let self = this;
+                let futurePage = Number(this.currentPageUpcoming) - 1;
+                let pastPage = Number(this.currentPagePast) - 1;
+                let queryString =
+                    "?pageSizeFuture=" + this.perPageUpcoming +
+                    "&pageSizePast=" + this.perPagePast +
+                    "&pageFuture=" + futurePage +
+                    "&pagePast=" + pastPage;
                 if (userId !== undefined) {
-                    return fetch(`/v1/trips/` + userId, {
+                    fetch(`/v1/trips/` + userId + queryString, {
                         accept: "application/json"
-                    })
-                        .then(this.checkStatus)
-                        .then(this.parseJSON)
-                        .then(trips => {
-                            let today = new Date();
-                            let self = this;
-
-                            self.futureTrips = [];
-                            self.pastTrips = [];
-                            for (let i = 0; i < trips.length; i++) {
-
-                                // Sort the list of destinations of each trip using the list order
-                                trips[i].destinations.sort((a, b) => {
-                                    // This is a comparison function that .sort needs to determine how to order the list
-
-                                    if (a.listOrder > b.listOrder) return 1;
-                                    if (a.listOrder < b.listOrder) return -1;
-                                    return 0;
-                                });
-
-                                let destinationDates = [];
-                                for (let j = 0; j < trips[i].destinations.length; j++) {
-                                    if (trips[i].destinations[j].startDate !== null) {
-                                        destinationDates.push(trips[i].destinations[j].startDate)
-                                    }
-                                    if (trips[i].destinations[j].endDate !== null) {
-                                        destinationDates.push(trips[i].destinations[j].endDate)
-                                    }
-                                }
-                                if (destinationDates.length === 0) {
-                                    self.futureTrips.push(trips[i]);
-                                }
-                                else if (new Date(destinationDates[destinationDates.length - 1]) < today) {
-                                    self.pastTrips.push(trips[i]);
-                                } else {
-                                    self.futureTrips.push(trips[i]);
-                                }
-                                self.futureTrips.sort(self.sortFutureTrips);
-                            }
-                            self.retrievingTrips = false;
-                        });
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        self.showError = false;
+                        self.retrievingTrips = false;
+                        self.futureTrips = responseBody.futureTrips;
+                        self.pastTrips = responseBody.pastTrips;
+                    }).catch(function (response) {
+                        self.showError = false;
+                        self.retrievingTrips = false;
+                        self.handleErrorResponse(response);
+                    });
                 }
             },
 
 
             /**
-             * Orders the future trips by the dates. If there are no dates then they will be at the top. If there are
-             * dates, then trips will be ordered chronologically.
+             * Retrieves the total number of trips for the given profile.
              */
-            sortFutureTrips(first, next) {
-                let firstDestinationsStart = [];
-                let nextDestinationsStart = [];
-                for (let i = 0; i < first.destinations.length; i++) {
-                    if (first.destinations[i].startDate !== null) {
-                        firstDestinationsStart.push(first.destinations[i].startDate)
+            retrieveTripCount() {
+                let userId = this.profile.id;
+                let self = this;
+                fetch(`/v1/trips/` + userId + "/count", {
+                    accept: "application/json"
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
                     }
-                }
-                for (let i = 0; i < next.destinations.length; i++) {
-                    if (next.destinations[i].startDate !== null) {
-                        nextDestinationsStart.push(next.destinations[i].startDate)
-                    }
-                }
-                if (firstDestinationsStart[0] < nextDestinationsStart[0] || firstDestinationsStart[0] === undefined) {
-                    return -1;
-                }
-
-                if (firstDestinationsStart[0] > nextDestinationsStart[0]) {
-                    return 1;
-                }
-                return 0;
-            },
-
-
-            /**
-             * Used to check the response of a fetch method. If there is an error code, the code is printed to the
-             * console.
-             *
-             * @param response      the response passed back to the getAllTrips function to be parsed into a Json.
-             * @returns             the response if the status is between 200 - 300. Otherwise, throws the error.
-             */
-            checkStatus(response) {
-                if (response.status >= 200 && response.status < 300) {
-                    return response;
-                }
-                const error = new Error(`HTTP Error ${response.statusText}`);
-                error.status = response.statusText;
-                error.response = response;
-                console.log(error);
-                throw error;
-            },
-
-
-            /**
-             * Used to turn the response of the fetch method into a usable Json.
-             *
-             * @param response          the response of the fetch method.
-             * @returns                 the json body of the response.
-             */
-            parseJSON(response) {
-                return response.json();
+                }).then(function (responseBody) {
+                    self.showError = false;
+                    self.retrievingTrips = false;
+                    self.rowsUpcoming = responseBody.futureTrips;
+                    self.rowsPast = responseBody.pastTrips;
+                }).catch(function (response) {
+                    self.showError = false;
+                    self.retrievingTrips = false;
+                    self.handleErrorResponse(response);
+                });
             },
 
 
@@ -582,19 +541,19 @@
                 fetch('/v1/trips/' + trip.id, {
                     method: 'DELETE',
                 }).then(function (response) {
-                    if (response.ok) {
-                        self.validDelete = true;
-                        self.dismissModal('deleteModal');
-                        self.getAllTrips();
-                        self.showAlert();
-                    } else if (response.status === 403) {
-                        throw new Error('You cannot delete another user\'s trips');
+                    if (!response.ok) {
+                        throw response;
                     } else {
-                        throw new Error('Something went wrong, try again later.');
+                        return response.json();
                     }
-                }).catch((error) => {
-                    this.showError = true;
-                    this.errorMessage = (error);
+                }).then(function () {
+                    self.showError = false;
+                    self.validDelete = true;
+                    self.dismissModal('deleteModal');
+                    self.getAllTrips();
+                    self.showAlert();
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
                 });
             },
 
@@ -639,6 +598,7 @@
 
             /**
              * Used to allow an alert to countdown on the successful deletion of a trip.
+             *
              * @param dismissCountDown      the name of the alert.
              */
             countDownChanged(dismissCountDown) {
@@ -647,7 +607,3 @@
         }
     }
 </script>
-
-<style scoped>
-    @import "../../css/yourTrips.css";
-</style>

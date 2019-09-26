@@ -1,7 +1,12 @@
 <template>
     <div>
-        <nav-bar-main v-bind:profile="profile"></nav-bar-main>
-
+        <nav-bar-main :profile="profile"></nav-bar-main>
+        <div class="loader" v-if="loadingResults">
+            <div class="loader-content">
+                <b-img alt="Loading" class="loading" :src="assets['loadingLogoBig']"></b-img>
+                <h1>Checking Authentication</h1>
+            </div>
+        </div>
         <!-- Can only be seen if logged in user is an admin -->
         <div v-if="profile.admin">
             <!-- The admin actions panel, which acts as the Admin Dashboard -->
@@ -30,7 +35,7 @@
         </div>
 
         <!-- If logged in user is not an admin, then display an error -->
-        <div v-else>
+        <div v-else-if="!profile.admin && !loadingResults" class="d-flex justify-content-center">
             You do not have permission to access this page!
         </div>
 
@@ -45,7 +50,7 @@
     export default {
         name: "adminPanel",
 
-        props: ['profile', 'nationalityOptions', 'travTypeOptions', 'destinations', 'destinationTypes'],
+        props: ['nationalityOptions', 'travTypeOptions', 'destinations', 'destinationTypes'],
 
         data() {
             return {
@@ -53,8 +58,15 @@
                 editProfile: null,
                 viewSingleProfile: false,
                 adminView: true,
-                refreshSingleProfile: 0
+                refreshSingleProfile: 0,
+                loadingResults: false,
+                profile: {}
             }
+        },
+
+        mounted() {
+
+                this.loadingResults = false;            this.getProfile();
         },
 
         methods: {
@@ -66,6 +78,30 @@
                 this.editProfile = editProfile;
                 this.viewSingleProfile = true;
                 window.scrollTo(0, 0);
+            },
+
+
+            /**
+             * Retrieves the current profile as needs to check if admin or not.
+             */
+            getProfile() {
+                let self = this;
+                this.loadingResults = true;
+                fetch(`/v1/profile`, {
+                    accept: "application/json"
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.loadingResults = false;
+                    self.profile = responseBody;
+                }).catch(function (response) {
+                    self.loadingResults = false;
+                    self.handleErrorResponse(response);
+                });
             }
         },
 
@@ -76,6 +112,3 @@
         }
     }
 </script>
-
-<style scoped>
-</style>

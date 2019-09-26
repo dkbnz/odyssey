@@ -77,7 +77,8 @@ public class QuestAttempt extends BaseModel {
      * @return  list of objectives the user has solved for this particular quest attempt.
      */
     @JsonProperty("solved")
-    public List<Objective> getSolved() {
+    @JsonIgnoreProperties("hints")
+    public List<Objective> getCheckedIn() {
         return questAttempted
                 .getObjectives()
                 .subList(0, checkedInIndex);
@@ -92,6 +93,7 @@ public class QuestAttempt extends BaseModel {
      * @return  current Objective to check in to.
      */
     @JsonProperty("toCheckIn")
+    @JsonIgnoreProperties("hints")
     public Objective getCurrentToCheckIn() {
         if (solvedCurrent && !completed) {
             return questAttempted
@@ -112,7 +114,7 @@ public class QuestAttempt extends BaseModel {
      * @return  current Objective to solve.
      */
     @JsonProperty("toSolve")
-    @JsonIgnoreProperties({"destination", "radius"})
+    @JsonIgnoreProperties({"destination", "radius", "hints"})
     public Objective getCurrentToSolve() {
         if (!solvedCurrent && !completed) {
             return questAttempted
@@ -131,7 +133,7 @@ public class QuestAttempt extends BaseModel {
      * @return  a list of unsolved objectives.
      */
     @JsonProperty("unsolved")
-    @JsonIgnoreProperties({"destination", "radius"})
+    @JsonIgnoreProperties({"destination", "radius", "hints"})
     public List<Objective> getUnsolved() {
         return questAttempted
                 .getObjectives()

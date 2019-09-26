@@ -21,28 +21,30 @@ DELETE  /v1/profile/:id          controllers.profiles.ProfileController.delete(r
 
 # User Profiles
 GET     /v1/profiles             controllers.profiles.ProfileController.list(request: Request)
-POST    /v1/profiles                      controllers.profiles.ProfileController.create(request: Request)
+GET     /v1/profiles/count       controllers.profiles.ProfileController.getTotalNumberOfProfiles(request: Request)
+POST    /v1/profiles             controllers.profiles.ProfileController.create(request: Request)
 
 # Admin
 POST    /v1/makeAdmin/:id                 controllers.profiles.ProfileController.makeAdmin(request: Request, id: Long)
 POST    /v1/removeAdmin/:id               controllers.profiles.ProfileController.removeAdmin(request: Request, id: Long)
 
 # Destinations
-GET     /v1/destinations                  controllers.destinations.DestinationController.fetch(request: Request)
-GET     /v1/destinations/proposals        controllers.destinations.DestinationTravellerTypeController.fetchProposedDestinations(request: Request)
-POST    /v1/destinations/:userId          controllers.destinations.DestinationController.save(request: Request, userId: Long)
-GET     /v1/destinationTypes              controllers.destinations.DestinationController.getTypes()
-GET     /v1/destinations/:userId                controllers.destinations.DestinationController.fetchByUser(request: Request, userId: Long)
-PUT     /v1/destinations/:destId                controllers.destinations.DestinationController.edit(request: Request, destId: Long)
+GET     /v1/destinations                                    controllers.destinations.DestinationController.fetch(request: Request)
+GET     /v1/destinations/proposals                          controllers.destinations.DestinationTravellerTypeController.fetchProposedDestinations(request: Request)
+POST    /v1/destinations/:userId                            controllers.destinations.DestinationController.save(request: Request, userId: Long)
+GET     /v1/destinationTypes                                controllers.destinations.DestinationController.getTypes()
+GET     /v1/destinations/:userId                            controllers.destinations.DestinationController.fetchByUser(request: Request, userId: Long)
+PUT     /v1/destinations/:destId                            controllers.destinations.DestinationController.edit(request: Request, destId: Long)
 GET     /v1/destinations/:destinationId/checkDuplicates     controllers.destinations.DestinationController.getDestinationUsage(request: Request, destinationId: Long)
-POST    /v1/destinationsCheckEdit               controllers.destinations.DestinationController.getDestinationUsageEdited(request: Request)
-DELETE  /v1/destinations/:destinationId         controllers.destinations.DestinationController.destroy(request: Request, destinationId: Long)
+POST    /v1/destinationsCheckEdit                           controllers.destinations.DestinationController.getDestinationUsageEdited(request: Request)
+DELETE  /v1/destinations/:destinationId                     controllers.destinations.DestinationController.destroy(request: Request, destinationId: Long)
 
 POST    /v1/destinations/:destinationId/travellerTypes              controllers.destinations.DestinationTravellerTypeController.addTravellerTypes(request: Request, destinationId: Long)
 POST    /v1/destinations/:destinationId/travellerTypes/propose      controllers.destinations.DestinationTravellerTypeController.propose(request: Request, destinationId: Long)
 
 # Trips
-GET     /v1/trips/:userId                       controllers.trips.TripController.fetchAll(userId: Long)
+GET     /v1/trips/:userId                       controllers.trips.TripController.fetchAllTrips(request: Request, userId: Long)
+GET     /v1/trips/:userId/count                 controllers.trips.TripController.getTotalNumberOfTrips(request: Request, userId: Long)
 POST    /v1/trips/:userId                       controllers.trips.TripController.create(request: Request, userId: Long)
 DELETE  /v1/trips/:tripId                       controllers.trips.TripController.destroy(request: Request, tripId: Long)
 PATCH   /v1/trips/:tripId                       controllers.trips.TripController.edit(request: Request, tripId: Long)
@@ -70,6 +72,15 @@ POST    /v1/objectives/:userId                         controllers.objectives.Ob
 PUT     /v1/objectives/:objectiveId                    controllers.objectives.ObjectiveController.edit(request: Request, objectiveId: Long)
 DELETE  /v1/objectives/:objectiveId                    controllers.objectives.ObjectiveController.delete(request: Request, objectiveId: Long)
 
+# Objective Hints
+GET     /v1/objectives/:objectiveId/hints/:userId       controllers.hints.HintController.fetchAll(request: Request, objectiveId: Long, userId: Long)
+GET     /v1/objectives/:objectiveId/hints/:userId/new   controllers.hints.HintController.fetchNew(request: Request, objectiveId: Long, userId: Long)
+GET     /v1/objectives/:objectiveId/hints/:userId/seen  controllers.hints.HintController.fetchSeen(request: Request, objectiveId: Long, userId: Long)
+POST    /v1/objectives/:objectiveId/hints/:userId       controllers.hints.HintController.create(request: Request, objectiveId: Long, userId: Long)
+
+POST    /v1/hints/:hintId/upvote/:userId                controllers.hints.VoteController.vote(request: Request, hintId: Long, userId: Long, isUpvote:Boolean ?= true)
+POST    /v1/hints/:hintId/downvote/:userId              controllers.hints.VoteController.vote(request: Request, hintId: Long, userId: Long, isUpvote:Boolean ?= false)
+
 # Quests
 GET     /v1/quests                              controllers.quests.QuestController.fetchAll(request: Request)
 GET     /v1/quests/:userId                      controllers.quests.QuestController.fetchByOwner(request: Request, userId: Long)
@@ -84,6 +95,12 @@ POST    /v1/quests/:questId/attempt/:userId                    controllers.quest
 POST    /v1/quests/attempt/:attemptId/guess/:destinationId     controllers.quests.QuestController.guess(request: Request, attemptId: Long, destinationId: Long)
 POST    /v1/quests/attempt/:attemptId/checkIn                  controllers.quests.QuestController.checkIn(request: Request, attemptId: Long)
 GET     /v1/quests/profiles/:userId                            controllers.quests.QuestController.getQuestAttemptsByProfile(request: Request, userId: Long)
+
+# Achievement Tracker
+GET     /v1/achievementTracker/:userId/points                  controllers.points.AchievementTrackerController.fetchPoints(request: Request, userId: Long)
+GET     /v1/achievementTracker/badges                          controllers.points.AchievementTrackerController.fetchAllBadges(request: Request)
+POST    /v1/achievementTracker/updateLastSeen                  controllers.points.AchievementTrackerController.updateLastSeen(request: Request)
+
 
 # Map static resources from the /public folder to the file resource paths. Must stay at bottom of Routes for production, but above redirect.
 GET     /static/*file                                  controllers.Assets.at(path="/public/static", file)

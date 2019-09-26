@@ -26,6 +26,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collections;
 
 import static play.mvc.Http.HttpVerbs.PATCH;
@@ -38,9 +39,6 @@ public class PhotoTestSteps {
      * Singleton class which stores generally used variables
      */
     private TestContext testContext = TestContext.getInstance();
-
-
-
 
     private static final String AUTHORIZED = "authorized";
     private static final String PHOTO_URI = "/v1/photos/";
@@ -163,9 +161,11 @@ public class PhotoTestSteps {
         Result createPhotoResult = route(testContext.getApplication(), request);
         testContext.setStatusCode(createPhotoResult.status());
 
-        if (!file.delete())
-            log.error("Unable to delete test file");
-
+        try {
+            Files.delete(Paths.get("image.png"));
+        } catch (Exception e) {
+            log.error("Unable to delete test file" + e);
+        }
     }
 
 

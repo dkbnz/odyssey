@@ -2,17 +2,21 @@ package controllers.objectives;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
+import models.quests.Quest;
 import models.util.ApiError;
 import models.profiles.Profile;
 import models.destinations.Destination;
 import models.objectives.Objective;
+import models.util.Errors;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.profiles.ProfileRepository;
 import repositories.destinations.DestinationRepository;
 import repositories.objectives.ObjectiveRepository;
+import repositories.quests.QuestRepository;
 import util.AuthenticationUtil;
 import util.Views;
 
@@ -25,30 +29,36 @@ public class ObjectiveController {
     private ObjectiveRepository objectiveRepository;
     private DestinationRepository destinationRepository;
     private ProfileRepository profileRepository;
+    private QuestRepository questRepository;
+    private ObjectMapper objectMapper;
 
     private static final Long GLOBAL_ADMIN_ID = 1L;
     private static final String DESTINATION_ERROR = "Provided Destination not found.";
-    private static final String TREASURE_HUNT_NOT_FOUND = "Objective not found.";
     private static final String INVALID_JSON_FORMAT = "Invalid Json format.";
+    private static final String NEW_OBJECTIVE_ID = "newObjectiveId";
 
     @Inject
     public ObjectiveController(ObjectiveRepository objectiveRepository,
-                                  DestinationRepository destinationRepository,
-                                  ProfileRepository profileRepository) {
+                               DestinationRepository destinationRepository,
+                               ProfileRepository profileRepository,
+                               QuestRepository questRepository,
+                               ObjectMapper objectMapper) {
         this.objectiveRepository = objectiveRepository;
         this.destinationRepository = destinationRepository;
         this.profileRepository = profileRepository;
+        this.questRepository = questRepository;
+        this.objectMapper = objectMapper;
     }
 
 
     /**
      * Creates and saves a new objective for a user, checking if the user is creating one for themselves or if
-     * the user is an admin. It also checks the request for validity.
+     * the user is an admin. It also checks the request for validity. Gives the user points for creating an objective.
      *
      * @param request   the Http request containing a Json body of the new objective details.
      * @param userId    the id of the user who will own the created objective.
-     * @return          created() (Http 201) response if creation is successful.
-     *                  notFound() (Http 404) response if
+     * @return          created() (Http 201) response containing the points rewarded and the objective id.
+     *                  notFound() (Http 404) response if the global admin isn't found.
      *                  forbidden() (Http 403) response if the logged in user is not the target owner or an admin.
      *                  badRequest() (Http 400) response if the request contains any errors.
      *                  unauthorized() (Http 401) response if no one is logged in.
@@ -56,29 +66,27 @@ public class ObjectiveController {
     public Result create(Http.Request request, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Profile objectiveOwner = profileRepository.findById(userId);
 
         if (objectiveOwner == null) {
-            return badRequest();
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
         }
 
         if (!AuthenticationUtil.validUser(loggedInUser, objectiveOwner)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
         }
 
         // Create list to hold objective errors
         List<ApiError> objectiveErrors = new ArrayList<>();
 
-        ObjectMapper mapper = new ObjectMapper();
-
         Objective objective;
 
         try {
             // Attempt to turn json body into a objective object.
-            objective = mapper.readerWithView(Views.Owner.class)
+            objective = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Objective.class)
                     .readValue(request.body().asJson());
         } catch (Exception e) {
@@ -102,7 +110,7 @@ public class ObjectiveController {
         Profile globalAdmin = profileRepository.findById(GLOBAL_ADMIN_ID);
 
         if (globalAdmin == null) {
-            return notFound();
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         if (objectiveDestination != null) {
@@ -116,12 +124,17 @@ public class ObjectiveController {
             return badRequest(Json.toJson(objectiveErrors));
         }
 
+        ObjectNode returnJson = objectMapper.createObjectNode();
+
         objectiveRepository.save(objective);
+
+        returnJson.set(NEW_OBJECTIVE_ID, Json.toJson(objective.getId()));
+
         profileRepository.update(objectiveOwner);
         destinationRepository.update(objectiveDestination);
         profileRepository.update(globalAdmin);
 
-        return created(Json.toJson(objective.getId()));
+        return created(returnJson);
     }
     
 
@@ -141,13 +154,13 @@ public class ObjectiveController {
     public Result edit(Http.Request request, Long objectiveId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Objective objective = objectiveRepository.findById(objectiveId);
 
         if (objective == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.OBJECTIVE_NOT_FOUND));
         }
 
         Profile objectiveOwner = objective.getOwner();
@@ -159,11 +172,9 @@ public class ObjectiveController {
         // Create list to hold objective errors
         List<ApiError> objectiveErrors = new ArrayList<>();
 
-        ObjectMapper mapper = new ObjectMapper();
-
         try {
             // Attempt to turn json body into a objective object.
-            objective = mapper.readerWithView(Views.Owner.class)
+            objective = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Objective.class)
                     .readValue(request.body().asJson());
         } catch (Exception e) {
@@ -192,7 +203,7 @@ public class ObjectiveController {
 
 
         objectiveRepository.update(objective);
-        return ok();
+        return ok(Json.toJson(objective));
     }
 
 
@@ -213,28 +224,34 @@ public class ObjectiveController {
     public Result delete(Http.Request request, Long objectiveId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
         if (loggedInUser == null) {
-            return unauthorized();
+            return unauthorized(ApiError.unauthorized());
         }
 
         Objective objective = objectiveRepository.findById(objectiveId);
 
         if (objective == null) {
-            return notFound(TREASURE_HUNT_NOT_FOUND);
+            return notFound(ApiError.notFound(Errors.OBJECTIVE_NOT_FOUND));
         }
 
         Profile objectiveOwner = objective.getOwner();
 
         if (!AuthenticationUtil.validUser(loggedInUser, objectiveOwner)) {
-            return forbidden();
+            return forbidden(ApiError.forbidden());
+        }
+
+        List<Quest> quests = questRepository.findAllUsing(objective);
+
+        if (!quests.isEmpty()) {
+            return badRequest(ApiError.badRequest(Errors.OBJECTIVE_IN_USE));
         }
 
         if (objectiveOwner != null) {
             objectiveOwner.removeObjective(objective);
             objectiveRepository.delete(objective);
             profileRepository.update(objectiveOwner);
-            return ok();
+            return ok(Json.toJson(objective));
         }
-        return badRequest();
+        return badRequest(ApiError.invalidJson());
     }
 
 
@@ -254,11 +271,10 @@ public class ObjectiveController {
 
         List<Objective> objectivesQuery = objectiveRepository.findAll();
 
-        ObjectMapper mapper = new ObjectMapper();
         String result;
 
         try {
-            result = mapper
+            result = objectMapper
                     .writerWithView(Views.Public.class)
                     .writeValueAsString(objectivesQuery);
         } catch (JsonProcessingException e) {
@@ -275,8 +291,8 @@ public class ObjectiveController {
      * @param request   the request from the front end of the application containing login information.
      * @return          ok() (Http 200) containing a Json body of the retrieved objectives.
      *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
-     *      *           forbidden() (Http 401) response containing an ApiError for disallowed retrieval.
-     *      *           unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
+     *                  forbidden() (Http 401) response containing an ApiError for disallowed retrieval.
+     *                  unauthorized() (Http 403) response containing an ApiError if the user is not logged in.
      *
      */
     public Result fetchByOwner(Http.Request request, Long ownerId) {
@@ -288,7 +304,7 @@ public class ObjectiveController {
         Profile requestedUser = profileRepository.findById(ownerId);
 
         if (requestedUser == null) {
-            return notFound(ApiError.notFound());
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
         if (!AuthenticationUtil.validUser(loggedInUser, requestedUser)) {

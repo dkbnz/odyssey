@@ -3,6 +3,7 @@ package repositories.quests;
 import com.google.inject.Inject;
 import io.ebean.BeanRepository;
 import io.ebean.Ebean;
+import models.objectives.Objective;
 import models.profiles.Profile;
 import models.quests.QuestAttempt;
 
@@ -22,6 +23,7 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
     private static final String QUEST_ATTEMPTED = "questAttempted";
     private static final String COMPLETED = "completed";
     private static final String QUEST_ATTEMPTED_ID = "questAttempted.id";
+    private static final String QUEST_ATTEMPTED_OBJECTIVES = "questAttempted.objectives";
 
     @Inject
     public QuestAttemptRepository() {
@@ -47,6 +49,7 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
 
     /**
      * Finds all quest attempts using the profile.
+     *
      * @param requestedProfile      the profile to get quest attempts for.
      * @return                      a list of quest attempts for the given profile.
      */
@@ -61,6 +64,7 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
 
     /**
      * Finds all quest attempts using the profile.
+     *
      * @param requestedProfile      the profile to get quest attempts for.
      * @return                      a list of quest attempts for the given profile.
      */
@@ -76,6 +80,7 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
 
     /**
      * Finds all quest attempts using the profile and quest id.
+     *
      * @param requestedProfile      the profile to get quest attempts for.
      * @param questId               the quest id to get quest attempts for.
      * @return                      a list of quest attempts for the given profile relating to the given quest id.
@@ -87,5 +92,20 @@ public class QuestAttemptRepository extends BeanRepository<Long, QuestAttempt> {
                 .lt(START_DATE, new Date())
                 .gt(END_DATE, new Date())
                 .findList();
+    }
+
+
+    /**
+     * Finds all quest attempts of a profile that contain the given objective.
+     *
+     * @param profile      the profile to get quest attempt for.
+     * @param objective    the objective in the quest of the quest attempt.
+     * @return             a quest attempt for the given profile relating to the given objective.
+     */
+    public QuestAttempt findUsing(Profile profile, Objective objective) {
+        return query().where()
+                .eq(ATTEMPTED_PROFILE, profile)
+                .eq(QUEST_ATTEMPTED_OBJECTIVES, objective)
+                .findOne();
     }
 }

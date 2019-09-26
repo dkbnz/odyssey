@@ -202,21 +202,63 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
 
+#### Vue Slider Component
+The MIT License (MIT)
+
+Copyright (c) 2016 NightCatSama.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
 ## Photos and Media
 
 #### Welcome Page
 
-Image is taken by Isaac Worsley, a team member of Everyware. Therefore, permission is granted by him 
-to use the image throughout the TravelEA application.
+Main image is taken by Isaac Worsley, a team member of Everyware. Therefore, permission is granted by him 
+to use the image throughout the Odyssey application.
+
+[Scroll Down Arrow](https://www.flaticon.com/free-icon/down-arrow_118738#term=down%20arrow&page=1&position=1) - Icon by [Lucy G](https://www.flaticon.com/authors/lucy-g)
+[Team Icon](https://www.flaticon.com/free-icon/team_1189111) - Photo by Freepik
 
 #### Traveller Types
 
 All images are obtained from [Unsplash](https://unsplash.com), a free photo source, and don't require any copyright
 accreditation. However, they do prefer valid accreditation is given which is outlined below.
 - [Backpacker](https://unsplash.com/photos/gbaeHydpgtE) - Photo by [Chris Hayashi](https://unsplash.com/@chris_hayashi)
-- [Business](https://unsplash.com/photos/ZGjbiukp_-A) - Photo by [Samson Creative.](https://unsplash.com/@samsonyyc)
+- [Business](https://unsplash.com/photos/ZGjbiukp_-A) - Photo by [Samson Creative](https://unsplash.com/@samsonyyc)
 - [Frequent Weekender](https://unsplash.com/photos/BPCsppbNRMI) - Photo by [Everett McIntire](https://unsplash.com/@everettm)
 - [Gap Year](https://unsplash.com/photos/n5LNMjr7gyI) - Photo by [Court Prather](https://unsplash.com/@courtmarie)
 - [Groupie](https://unsplash.com/photos/zdSoe8za6Hs) - Photo by [Levi Guzman](https://unsplash.com/@homeschool)
 - [Holiday Maker](https://unsplash.com/photos/Yb-n0JHlsWY) - Photo by [Andre Benz](https://unsplash.com/@trapnation)
 - [Thrillseeker](https://unsplash.com/photos/FZ0qzjVF_-c) -  Photo by [Chen Hu](https://unsplash.com/@huchenme)
+
+
+#### Badges
+
+All images are obtained from [Flaticon](https://www.flaticon.com), a free photo source and requires accreditation for 
+images. Accreditation is required somewhere within credits, with the images or with documentation.
+ - [Planner](https://www.flaticon.com/free-icon/direction_1191593#term=signpost&page=1&position=3) - Photo by Freepik
+ - [Cartographer](https://www.flaticon.com/free-icon/address_1076323#term=location&page=1&position=5) - Photo by Freepik
+ - [Writer](https://www.flaticon.com/free-icon/map_1606528#term=map%20scroll&page=1&position=3) - Photo by Freepik
+ - [Solver](https://www.flaticon.com/free-icon/loupe_751381#term=search&page=1&position=4) - Photo by Freepik
+ - [Explorer](https://www.flaticon.com/free-icon/search_1150637#term=search%20map&page=1&position=16) - Photo by Freepik
+ - [Adventurer](https://www.flaticon.com/free-icon/helmet_1455027#term=greece&page=1&position=8) - Photo by Freepik
+ - [Wayfarer](https://www.flaticon.com/free-icon/hiking_1706736#term=walking&page=1&position=4) - Photo by Freepik
+ - [Streaker](https://www.flaticon.com/free-icon/flash_656403#term=lightning%20bolt&page=1&position=21) - Photo by Freepik
+ - [Overachiever](https://www.flaticon.com/free-icon/laurel_876862#term=award&page=1&position=22) - Photo by Freepik
+ - [Star](https://www.flaticon.com/free-icon/favorite_1721927) - Photo by Freepik
