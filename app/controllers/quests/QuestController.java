@@ -142,7 +142,7 @@ public class QuestController {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
-        returnJson.set(REWARD, achievementTrackerController.rewardAction(questOwner, newQuest,
+        returnJson.set(REWARD, achievementTrackerController.rewardQuestInteraction(questOwner, newQuest,
                 Action.QUEST_CREATED));   // Points for creating quest
 
         questRepository.save(newQuest);
@@ -756,7 +756,7 @@ public class QuestController {
 
             // Objective reward result of checking in.
             // Points for checking in
-            JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, objectiveToCheckInTo);
+            JsonNode objectiveRewardJson = achievementTrackerController.rewardObjectiveCheckin(attemptedBy);
 
             // Add all objective reward points and badges to the list of achieved points.
             pointsRewarded = achievementTrackerController.addAllAwards(
@@ -767,7 +767,7 @@ public class QuestController {
 
             // If quest was completed
             if (questAttempt.isCompleted()) {
-                JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted,
+                JsonNode questRewardJson = achievementTrackerController.rewardQuestInteraction(attemptedBy, questAttempted,
                         Action.QUEST_COMPLETED); // Awards for completing a quest
 
                 // Add all quest reward points and badges to the list of achieved points.
