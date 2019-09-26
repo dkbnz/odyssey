@@ -18,7 +18,6 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import scala.xml.dtd.EMPTY;
 import util.AuthenticationUtil;
 
 import com.google.inject.Inject;
@@ -127,7 +126,7 @@ public class TripController extends Controller {
             tripRepository.save(trip);
 
             ObjectNode returnJson = objectMapper.createObjectNode();
-            returnJson.set(REWARD, achievementTrackerController.rewardAction(affectedProfile, trip));
+            returnJson.set(REWARD, achievementTrackerController.rewardTripCreate(affectedProfile));
             returnJson.put(NEW_TRIP_ID, trip.getId());
 
             return created(returnJson);
