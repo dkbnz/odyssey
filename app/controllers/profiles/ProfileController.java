@@ -416,9 +416,6 @@ public class ProfileController {
                     if (!id.equals(Long.valueOf(userId))) { // Current user is trying to delete another user
                         // If user is admin, they can delete other profiles
                         if (userProfile.isAdmin()) {
-                            System.out.println(userProfile.isAdmin());
-
-                            System.out.println(Json.toJson(profileToDelete));
                             profileRepository.delete(profileToDelete);
                             return ok(Json.toJson("Profile Successfully Deleted"));
                         }
@@ -733,10 +730,8 @@ public class ProfileController {
         }
 
         if(request.getQueryString(RANK) != null && !request.getQueryString(RANK).isEmpty()) {
-            Integer rank = Integer.parseInt(request.getQueryString(RANK)) - 1;
-
-            int pointsFromRank = achievementTrackerRepository.getPointsFromRank(rank);
-            expressionList.le(ACHIEVEMENT_POINTS, pointsFromRank);
+            expressionList.le(ACHIEVEMENT_POINTS,
+                    achievementTrackerRepository.getPointsFromRank(Integer.parseInt(request.getQueryString(RANK))));
         }
     }
 
