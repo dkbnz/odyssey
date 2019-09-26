@@ -489,7 +489,7 @@
                 fetch(`/v1/checkUsername`, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
-                    body: JSON.stringify({'username': this.username})
+                    body: JSON.stringify({'username': this.username.toLowerCase()})
 
                 }).then(function (response) {
                     self.validEmail = response.ok;

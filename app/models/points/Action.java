@@ -18,7 +18,6 @@ public enum Action {
     HINT_UPVOTED("HINT_UPVOTED"),
     HINT_UPVOTE_REMOVED("HINT_UPVOTE_REMOVED");
 
-
     String value;
 
     Action(String value) {
