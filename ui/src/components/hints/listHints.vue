@@ -128,6 +128,13 @@
             /**
              * When the objective hints are changed, update the display on the frontend.
              */
+            objective() {
+                this.objectiveHints = this.objective.hints;
+            },
+
+            /**
+             * When the objective hints are changed, update the display on the frontend.
+             */
             refresh() {
                 this.objectiveHints = this.objective.hints;
             },
