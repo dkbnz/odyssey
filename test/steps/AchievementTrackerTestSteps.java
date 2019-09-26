@@ -126,6 +126,8 @@ public class AchievementTrackerTestSteps {
     private static final String DESTINATIONS = "destinations";
     private static final String TRIPS = "trips";
     private static final String QUESTS = "quests";
+    private static final String ID = "id";
+    private static final String USER_POINTS = "userPoints";
 
     private static final String ACHIEVEMENT_TRACKER = "achievementTracker";
     private static final String BADGES = "badges";
@@ -139,7 +141,19 @@ public class AchievementTrackerTestSteps {
     private static final String CLIENT_DATE_OFFSET = "dateOffset";
 
     private static final String YEAR_MONTH_DAY_FORMAT = "yyyy-MM-dd";
+    private static final String YEAR_MONTH_DAY_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final String GUESS_RESULT = "guessResult";
+    private static final Integer UTC_DATE_OFFSET = 0;
+
+    /**
+     * Assert messages if the test fails for any case.
+     */
+    private static final String QUEST_NOT_IN_COMPLETED_QUESTS = "Quest not in list of completed quests";
+    private static final String CURRENT_POINTS_NOT_GREATER_THAN_STARTING = "Current points is not greater than starting points";
+    private static final String CURRENT_POINTS_NOT_LESS_THAN_STARTING = "Current points is not less than starting points";
+    private static final String POINTS_IS_NEGATIVE = "Points value is negative";
+    private static final String NO_USER_POINTS = "No user points Json value";
+    private static final String START_END_POINTS_NOT_EQUAL = "Starting and end point values are not equal";
 
 
     /**
@@ -390,11 +404,11 @@ public class AchievementTrackerTestSteps {
         ObjectNode json = mapper.createObjectNode();
 
 
-        String daysAgoDateString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+        String daysAgoDateString = new SimpleDateFormat(YEAR_MONTH_DAY_TIME_FORMAT)
                 .format(new Date());
 
         json.put(CLIENT_DATE_FIELD, daysAgoDateString);
-        json.put(CLIENT_DATE_OFFSET, 0);
+        json.put(CLIENT_DATE_OFFSET, UTC_DATE_OFFSET);
 
         Http.RequestBuilder request = fakeRequest()
                 .method(POST)
@@ -425,11 +439,11 @@ public class AchievementTrackerTestSteps {
             testContext.setLoggedInId(foundProfile.getId().toString());
             ObjectNode json = mapper.createObjectNode();
 
-            String daysAgoDateString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+            String daysAgoDateString = new SimpleDateFormat(YEAR_MONTH_DAY_TIME_FORMAT)
                     .format(new Date());
 
             json.put(CLIENT_DATE_FIELD, daysAgoDateString);
-            json.put(CLIENT_DATE_OFFSET, 0);
+            json.put(CLIENT_DATE_OFFSET, UTC_DATE_OFFSET);
 
             Http.RequestBuilder request = fakeRequest()
                     .method(POST)
@@ -516,11 +530,11 @@ public class AchievementTrackerTestSteps {
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
         boolean hasQuest = false;
         for (JsonNode quest : responseBody) {
-            if (quest.get("id").asInt() == questId) {
+            if (quest.get(ID).asInt() == questId) {
                 hasQuest = true;
             }
         }
-        assertTrue("Quest not in list of completed quests", hasQuest);
+        assertTrue(QUEST_NOT_IN_COMPLETED_QUESTS, hasQuest);
     }
 
 
@@ -530,8 +544,8 @@ public class AchievementTrackerTestSteps {
         getPointsRequest(userToView);
 
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        currentPoints = responseBody.get("userPoints").asInt();
-        Assert.assertTrue("Current points is not greater than starting points",currentPoints > startingPoints);
+        currentPoints = responseBody.get(USER_POINTS).asInt();
+        Assert.assertTrue(CURRENT_POINTS_NOT_GREATER_THAN_STARTING,currentPoints > startingPoints);
     }
 
 
@@ -540,8 +554,8 @@ public class AchievementTrackerTestSteps {
         Profile hintOwner = hintRepository.findById(hintId.longValue()).getCreator();
         getPointsRequest(hintOwner.getId().toString());
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        currentPoints = responseBody.get("userPoints").asInt();
-        Assert.assertTrue("Current points is not greater than starting points", currentPoints > startingPoints);
+        currentPoints = responseBody.get(USER_POINTS).asInt();
+        Assert.assertTrue(CURRENT_POINTS_NOT_GREATER_THAN_STARTING, currentPoints > startingPoints);
     }
 
 
@@ -550,8 +564,8 @@ public class AchievementTrackerTestSteps {
         Profile hintOwner = hintRepository.findById(hintId.longValue()).getCreator();
         getPointsRequest(hintOwner.getId().toString());
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        currentPoints = responseBody.get("userPoints").asInt();
-        Assert.assertTrue("Current points is not less than starting points", currentPoints < startingPoints);
+        currentPoints = responseBody.get(USER_POINTS).asInt();
+        Assert.assertTrue(CURRENT_POINTS_NOT_LESS_THAN_STARTING, currentPoints < startingPoints);
     }
 
 
@@ -560,12 +574,12 @@ public class AchievementTrackerTestSteps {
         // Get the userPoints value from the JSON, convert it to an int and store it under current points if not null.
 
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        Assert.assertNotNull("No userPoints JSON value", responseBody.get("userPoints"));
+        Assert.assertNotNull(NO_USER_POINTS, responseBody.get(USER_POINTS));
 
-        currentPoints =  responseBody.get("userPoints").asInt();
+        currentPoints =  responseBody.get(USER_POINTS).asInt();
 
         // Points should never be negative, so something has gone wrong.
-        Assert.assertTrue("Points value is negative", currentPoints >= 0);
+        Assert.assertTrue(POINTS_IS_NEGATIVE, currentPoints >= 0);
 
     }
 
@@ -573,12 +587,12 @@ public class AchievementTrackerTestSteps {
     @Then("I am given their total number of points")
     public void iAmGivenTheirTotalNumberOfPoints() throws IOException {
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        Assert.assertNotNull("No userPoints JSON value", responseBody.get("userPoints"));
+        Assert.assertNotNull(NO_USER_POINTS, responseBody.get(USER_POINTS));
 
-        currentPoints =  responseBody.get("userPoints").asInt();
+        currentPoints =  responseBody.get(USER_POINTS).asInt();
 
         // Points should never be negative, so something has gone wrong.
-        Assert.assertTrue("Points value is negative", currentPoints >= 0);
+        Assert.assertTrue(POINTS_IS_NEGATIVE, currentPoints >= 0);
     }
 
 
@@ -588,8 +602,8 @@ public class AchievementTrackerTestSteps {
         getPointsRequest(userToView);
 
         JsonNode responseBody = mapper.readTree(testContext.getResponseBody());
-        currentPoints = responseBody.get("userPoints").asInt();
-        Assert.assertEquals("Starting and end point values are not equal", startingPoints, currentPoints);
+        currentPoints = responseBody.get(USER_POINTS).asInt();
+        Assert.assertEquals(START_END_POINTS_NOT_EQUAL, startingPoints, currentPoints);
     }
 
 

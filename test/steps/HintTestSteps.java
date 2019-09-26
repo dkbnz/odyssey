@@ -57,6 +57,9 @@ public class HintTestSteps {
     private static final String PAGE_SIZE = "pageSize";
     private static final String PAGE_NUMBER = "pageNumber";
 
+    private static final String USER_ID_ONE = "1";
+    private static final String ID = "id";
+
     /**
      * String constants for creating a query string.
      */
@@ -128,7 +131,7 @@ public class HintTestSteps {
      */
     private void fetchAllHintsRequest(int objectiveId) {
         // If user is not logged in, id is required for url
-        String targetId = testContext.getLoggedInId() != null ? testContext.getLoggedInId() : "1";
+        String targetId = testContext.getLoggedInId() != null ? testContext.getLoggedInId() : USER_ID_ONE;
 
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
@@ -311,7 +314,7 @@ public class HintTestSteps {
 
     @Then("^I receive a hint with id (\\d+)$")
     public void iReceiveAHintWithId(Integer expectedHintId) throws IOException {
-        Integer actualHintId = objectMapper.readTree(testContext.getResponseBody()).get("id").asInt();
+        Integer actualHintId = objectMapper.readTree(testContext.getResponseBody()).get(ID).asInt();
         Assert.assertEquals(expectedHintId, actualHintId);
     }
 
