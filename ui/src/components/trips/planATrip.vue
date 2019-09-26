@@ -2,7 +2,10 @@
     <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-5 rounded-lg">
         <h1 class="page-title" align="center">{{ heading }} </h1>
         <p class="page-title"><i>{{ subHeading }}</i>
-            <b-button id="page_info" class="info-button pb-0 pt-0" variant="primary">i</b-button></p>
+            <b-img id="page_info"
+                   height="30%"
+                   :src="assets['information']"></b-img></p>
+
 
         <!-- Info tooltip for page -->
         <b-tooltip target="page_info" title="How to use the Trips Page" placement="bottom">
@@ -22,8 +25,6 @@
             or Delete to remove the destination from the trip. <br><br>
 
             When the trip is ready, click Save Trip to create the new trip with the set destinations
-
-
         </b-tooltip>
 
         <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>

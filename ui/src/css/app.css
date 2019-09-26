@@ -217,7 +217,7 @@ a {
 .tooltip-inner {
     max-width: 1000px;
     /* If max-width does not work, try using width instead */
-    width: 1000px;
+    /*width: 1000px;*/
 }
 
 /* Disabled property for badges if user has not achieved them yet */
