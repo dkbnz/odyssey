@@ -537,9 +537,8 @@
                             self.$emit('start-quest-now', responseBody);
                         } else {
                             // Refresh quests
-                            //self.foundQuests.splice(Array.indexOf(questToAttempt), 1); Trying to remove the quest to attempt later from the array.
-                            //self.queryPage = 0;
-                            //self.getMore();
+                            let index = self.foundQuests.indexOf(questToAttempt);
+                            self.foundQuests.splice(index, 1);
                             self.showSuccess({message: "Quest started"});
                             self.$emit('start-quest-later', responseBody);
                         }
