@@ -9,6 +9,7 @@ public class DestinationTypeTest {
     private static final String TYPE_STREAM = "Stream";
     private static final String TYPE_HOUSE = "House";
 
+
     @Test
     public void testEqual() {
         Type destinationType1 = new Type();
@@ -19,6 +20,7 @@ public class DestinationTypeTest {
 
         assertEquals(destinationType1, destinationType2);
     }
+
 
     @Test
     public void testNotEqual() {
@@ -31,6 +33,7 @@ public class DestinationTypeTest {
         assertNotEquals(destinationType1, destinationType2);
     }
 
+
     @Test
     public void testEqualHashCode() {
         Type destinationType1 = new Type();
@@ -41,6 +44,7 @@ public class DestinationTypeTest {
 
         assertEquals(destinationType1.hashCode(), destinationType2.hashCode());
     }
+
 
     @Test
     public void testNotEqualHashCode() {

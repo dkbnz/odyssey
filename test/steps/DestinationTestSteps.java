@@ -139,6 +139,8 @@ public class DestinationTestSteps {
     private static final String NAME_STRING = "Name";
     private static final String IS_PUBLIC_STRING = "is_public";
     private static final String TRIP_COUNT = "trip_count";
+    private static final String TRIP_DESTINATIONS = "trip_destinations";
+    private static final String TRIP_NAME = "trip_name";
     private static final String PHOTO_COUNT = "photo_count";
     private static final String DESTINATION_COUNT = "destination_count";
     private static final String MATCHING_TRIPS = "matching_trips";
@@ -150,19 +152,24 @@ public class DestinationTestSteps {
     private static final String LONGITUDE = "longitude";
     private static final String COUNTRY = "country";
     private static final String TYPE = "type_id";
+    private static final String TYPE_VALUE = "type";
     private static final String NAME = "name";
     private static final String IS_PUBLIC = "is_public";
+    private static final String PUBLIC = "public";
 
     private static final String RIDDLE_STRING = "Riddle";
     private static final String RADIUS_STRING = "Radius";
     private static final String OWNER_STRING = "Owner";
+    private static final String OWNER = "owner";
     private static final String DESTINATION = "destination";
     private static final String RIDDLE = "riddle";
     private static final String RADIUS = "radius";
     private static final String ID = "id";
     private static final String DESTINATION_ID = "destination_id";
+    private static final String DESTINATION_ID_CAMEL_CASE = "destinationId";
     private static final String START_DATE = "start_date";
     private static final String END_DATE = "end_date";
+    private static final String EMPTY_STRING = "";
 
     private DestinationRepository destinationRepository =
             testContext.getApplication().injector().instanceOf(DestinationRepository.class);
@@ -194,10 +201,10 @@ public class DestinationTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
 
-        if (testContext.getStatusCode() < 400) {
+        if (testContext.getStatusCode() < BAD_REQUEST) {
             try {
                 JsonNode response = objectMapper.readTree(Helpers.contentAsString(result));
-                createdDestinationId = Long.parseLong(response.get("destinationId").asText());
+                createdDestinationId = Long.parseLong(response.get(DESTINATION_ID_CAMEL_CASE).asText());
             } catch (IOException exception) {
                 fail("Error in response parsing");
             }
@@ -260,24 +267,27 @@ public class DestinationTestSteps {
      * @return          a Json object containing the trip information.
      */
     private JsonNode createNewTripJson(String tripName) {
-        //Add values to a JsonNode
+        // Add values to a JsonNode.
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode json = mapper.createObjectNode();
 
-        json.put("trip_name", tripName);
-        ArrayNode destinationsNode = json.putArray("trip_destinations");
+        json.put(TRIP_NAME, tripName);
+        ArrayNode destinationsNode = json.putArray(TRIP_DESTINATIONS);
 
-        ObjectNode destinationNode1 = destinationsNode.addObject(); //Adding destinations to trip
+        // Adding destinations to trip.
+        ObjectNode destinationNode1 = destinationsNode.addObject();
         destinationNode1.put(DESTINATION_ID, "1155");
         destinationNode1.put(START_DATE, "1990-12-12");
         destinationNode1.put(END_DATE, "1991-12-12");
 
-        ObjectNode destinationNode2 = destinationsNode.addObject(); //Adding destinations to trip
+        // Adding destinations to trip.
+        ObjectNode destinationNode2 = destinationsNode.addObject();
         destinationNode2.put(DESTINATION_ID, "567");
         destinationNode2.put(START_DATE, "1992-12-12");
         destinationNode2.put(END_DATE, "1993-12-12");
 
-        ObjectNode destinationNode3 = destinationsNode.addObject(); //Adding destinations to trip
+        // Adding destinations to trip.
+        ObjectNode destinationNode3 = destinationsNode.addObject();
         destinationNode3.put(DESTINATION_ID, destinationId.toString());
         destinationNode3.put(START_DATE, "1994-12-12");
         destinationNode3.put(END_DATE, "1995-12-12");
@@ -349,7 +359,7 @@ public class DestinationTestSteps {
         //Add values to a JsonNode
         ObjectNode json = mapper.createObjectNode();
 
-        json.put("id", photoId);
+        json.put(ID, photoId);
 
         return json;
     }
@@ -564,49 +574,39 @@ public class DestinationTestSteps {
         String publicity = getValue(IS_PUBLIC, searchField, searchValue);
 
 
-        StringBuilder stringBuilder = new StringBuilder()
-                .append(QUESTION_MARK)
-
-                .append(NAME)
-                .append(EQUALS)
-                .append(name)
-
-                .append(AND)
-                .append(TYPE)
-                .append(EQUALS)
-                .append(type)
-
-                .append(AND)
-                .append(LATITUDE)
-                .append(EQUALS)
-                .append(latitude)
-
-                .append(AND)
-                .append(LONGITUDE)
-                .append(EQUALS)
-                .append(longitude)
-
-                .append(AND)
-                .append(DISTRICT)
-                .append(EQUALS)
-                .append(district)
-
-                .append(AND)
-                .append(COUNTRY)
-                .append(EQUALS)
-                .append(country)
-
-                .append(AND)
-                .append(IS_PUBLIC)
-                .append(EQUALS)
-                .append(publicity);
-
-        return stringBuilder.toString();
+        return QUESTION_MARK +
+                NAME +
+                EQUALS +
+                name +
+                AND +
+                TYPE +
+                EQUALS +
+                type +
+                AND +
+                LATITUDE +
+                EQUALS +
+                latitude +
+                AND +
+                LONGITUDE +
+                EQUALS +
+                longitude +
+                AND +
+                DISTRICT +
+                EQUALS +
+                district +
+                AND +
+                COUNTRY +
+                EQUALS +
+                country +
+                AND +
+                IS_PUBLIC +
+                EQUALS +
+                publicity;
     }
 
 
     /**
-     * Gets an id list of the photos in the given destination
+     * Gets an id list of the photos in the given destination.
      *
      * @param destination   the destination to check the photos in.
      * @return              a list of the photo ids.
@@ -875,7 +875,7 @@ public class DestinationTestSteps {
 
     @When("I search for all destinations")
     public void iSearchForAllDestinations() {
-        String query = createSearchDestinationQueryString("", "");
+        String query = createSearchDestinationQueryString(EMPTY_STRING, EMPTY_STRING);
 
         //Send search destinations request
         searchDestinationsRequest(query);
@@ -1037,7 +1037,7 @@ public class DestinationTestSteps {
     public void theResponseContainsAtLeastOneDestinationWithType(io.cucumber.datatable.DataTable dataTable) throws IOException {
         String value = getValueFromDataTable(TYPE_STRING, dataTable);
 
-        String arrNode = objectMapper.readTree(testContext.getResponseBody()).get(0).get("type").get("id").asText();
+        String arrNode = objectMapper.readTree(testContext.getResponseBody()).get(0).get(TYPE_VALUE).get(ID).asText();
 
         Assert.assertEquals(value, arrNode);
     }
@@ -1083,8 +1083,8 @@ public class DestinationTestSteps {
     public void theResponseContainsOnlyOwnOrPublicDestinations() throws IOException {
         JsonNode arrNode = new ObjectMapper().readTree(testContext.getResponseBody());
         for (int i = 0 ; i < arrNode.size() ; i++) {
-            assertTrue(arrNode.get(i).get("public").asBoolean() ||
-                    arrNode.get(i).get("owner").get("id").asText() == testContext.getLoggedInId());
+            assertTrue(arrNode.get(i).get(PUBLIC).asBoolean() ||
+                    arrNode.get(i).get(OWNER).get(ID).asText().equals(testContext.getLoggedInId()));
         }
     }
 
@@ -1095,7 +1095,7 @@ public class DestinationTestSteps {
         JsonNode arrNode = new ObjectMapper().readTree(testContext.getResponseBody());
         Long ownerId;
         for (int i = 0 ; i < arrNode.size() ; i++) {
-            ownerId = destinationRepository.findById(arrNode.get(i).get("id").asLong()).getOwner().getId();  //Gets owner id of destination
+            ownerId = destinationRepository.findById(arrNode.get(i).get(ID).asLong()).getOwner().getId();  //Gets owner id of destination
             assertNotNull(ownerId);
             assertEquals(userId, ownerId);
         }
