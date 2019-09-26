@@ -1,7 +1,7 @@
 <template>
     <b-container fluid>
         <b-row>
-            <b-col md="3" class="bg-white p-3 mt-2 rounded-lg">
+            <b-col md="3" class="bg-white p-3 pb-5 mt-2 rounded-lg">
                 <div class="profilePage">
                     <!-- The profile picture of the current profile being viewed. -->
 
