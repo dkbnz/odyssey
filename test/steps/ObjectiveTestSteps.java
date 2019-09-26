@@ -53,6 +53,7 @@ public class ObjectiveTestSteps {
     private static final String RIDDLE = "riddle";
     private static final String RADIUS = "radius";
     private static final String ID = "id";
+    private static final String NULL = "null";
 
     /**
      * Static variable to call the related value from the creation return Json.
@@ -87,7 +88,7 @@ public class ObjectiveTestSteps {
         ObjectNode json = objectMapper.createObjectNode();
         ObjectNode jsonDestination = json.putObject(DESTINATION);
 
-        if(!destinationId.equals("null")) {
+        if(!destinationId.equals(NULL)) {
             jsonDestination.put(ID,  Integer.parseInt(destinationId));
         }
 
@@ -111,7 +112,7 @@ public class ObjectiveTestSteps {
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
 
-        if (testContext.getStatusCode() == 200 || testContext.getStatusCode() == 201) {
+        if (testContext.getStatusCode() == OK || testContext.getStatusCode() == CREATED) {
             testContext.setResponseBody(Helpers.contentAsString(result));
             try {
                 JsonNode returnJson = objectMapper.readTree(Helpers.contentAsString(result));
