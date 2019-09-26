@@ -94,7 +94,7 @@ public class Profile extends BaseModel {
     private Set<Hint> hintsSeen;
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "voter")
     private Set<Vote> votesCast;
 
     @Transient
