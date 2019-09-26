@@ -27,10 +27,25 @@ Vue.use(BootstrapVue);
  * Allows use of these methods in every single component.
  */
 Vue.mixin({
+    /** Handles the events for if the user is viewing on mobile. **/
+    created() {
+        window.addEventListener("resize", this.handleViewOnMobile);
+    },
+
+    /** Handles the events for if the user is no longer viewing on mobile. **/
+    destroyed() {
+        window.removeEventListener("resize", this.handleViewOnMobile);
+    },
+
     components: {
         RewardToast,
         ErrorToast
     },
+
+    mounted() {
+        this.handleViewOnMobile();
+    },
+
     methods: {
         /**
          * Displays a toast for each action that awards points and each badge progress achieved.
@@ -169,7 +184,6 @@ Vue.mixin({
          * Runs every five minutes to check if a user is active.
          */
         updateActivity() {
-            console.log("Running");
             let self = this;
             let time = this.MINUTE * 5;      // Runs every 5 minutes
             this.setLastSeenDate();
@@ -185,12 +199,13 @@ Vue.mixin({
          */
         setLastSeenDate() {
             let date = new Date();
+            let offset = new Date().getTimezoneOffset();
             let self = this;
             fetch('/v1/achievementTracker/updateLastSeen', {
                 method: 'POST',
                 headers: {'content-type': 'application/json'},
                 accept: 'application/json',
-                body: JSON.stringify({clientDate: date})
+                body: JSON.stringify({clientDate: date, dateOffset: offset})
             }).then(function (response) {
                 if (!response.ok) {
                     throw response;
@@ -205,6 +220,14 @@ Vue.mixin({
             }).catch(function () {
 
             });
+        },
+
+
+        /**
+         * Handles if the user if viewing the page on a mobile device.
+         */
+        handleViewOnMobile() {
+            this.onMobile = window.innerWidth <= 991;
         }
     },
 
@@ -217,15 +240,18 @@ Vue.mixin({
     data() {
         return {
             possibleActions: {
+                CHECKED_IN: 'Checked In',
                 DESTINATION_CREATED: 'Destination Created',
                 QUEST_CREATED: 'Quest Created',
+                QUEST_COMPLETED: 'Quest Completed',
                 TRIP_CREATED: 'Trip Created',
-                RIDDLE_SOLVED: 'Riddle Solved',
-                CHECKED_IN: 'Checked In',
-                QUEST_COMPLETED: 'Quest Completed'
-
+                HINT_CREATED: 'Hint Created',
+                RIDDLE_SOLVED_NO_HINT: 'Riddle Solved with No Hints',
+                RIDDLE_SOLVED_ONE_HINT: 'Riddle Solved with Only One Hint',
+                RIDDLE_SOLVED_TWO_HINT: 'Riddle Solved with Two Hints'
             },
-            MINUTE: 60000
+            MINUTE: 60000,
+            onMobile: false
         }
     }
 });
@@ -236,3 +262,26 @@ new Vue({
     template: '<App/>',
     components: { App }
 });
+
+/* Pages that are not to be displayed on mobile. */
+let restrictedPages = ['/destinations','/admin', '/trips'];
+
+/* If the user is viewing a page on mobile that is restricted, redirect them to the profile page. */
+router.beforeEach((to, from, next) => {
+    if (restrictedPages.includes(to.path) && viewingOnMobile()) {
+        router.push(from.path);
+    } else {
+        next();
+    }
+});
+
+/* If the user is viewing a page on mobile that is restricted, redirect them to the profile page. */
+if (restrictedPages.includes(window.location.pathname) && viewingOnMobile()) {
+    router.push("/profile");
+}
+
+/* Detects if the user is viewing on a mobile device (width is 991). */
+$(window).on("resize", viewingOnMobile);
+function viewingOnMobile( e ) {
+    return $(window).width() <= 991;
+}

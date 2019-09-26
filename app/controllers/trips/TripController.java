@@ -34,9 +34,19 @@ public class TripController extends Controller {
     private static final String START_DATE = "start_date";
     private static final String END_DATE = "end_date";
     private static final String DESTINATION_ID = "destination_id";
-    private static final String TRIP_ID = "trip_id";
     public static final String REWARD = "reward";
     private static final String NEW_TRIP_ID = "newTripId";
+    private static final String PAGE_FUTURE = "pageFuture";
+    private static final String PAGE_PAST = "pagePast";
+    private static final String PAGE_SIZE_FUTURE = "pageSizeFuture";
+    private static final String PAGE_SIZE_PAST = "pageSizePast";
+    private static final String FUTURE_TRIPS = "futureTrips";
+    private static final String PAST_TRIPS = "pastTrips";
+    private static final String EMPTY_STRING = "";
+    private static final String NULL = "null";
+    private static final String DESTINATION_OWNERSHIP_CHANGED = "Destination ownership changed";
+    private static final String DESTINATION_OWNERSHIP_NO_CHANGE = "Destination ownership doesn't need to be changed";
+    private static final int MAX_PAGE_SIZE = 100;
     private static final int MINIMUM_TRIP_DESTINATIONS = 2;
     private static final int DEFAULT_ADMIN_ID = 1;
 
@@ -116,7 +126,7 @@ public class TripController extends Controller {
             tripRepository.save(trip);
 
             ObjectNode returnJson = objectMapper.createObjectNode();
-            returnJson.set(REWARD, achievementTrackerController.rewardAction(affectedProfile, trip));
+            returnJson.set(REWARD, achievementTrackerController.rewardTripCreate(affectedProfile));
             returnJson.put(NEW_TRIP_ID, trip.getId());
 
             return created(returnJson);
@@ -147,7 +157,7 @@ public class TripController extends Controller {
         }
 
         // Check if the array of destinations in the request contains at least two destinations.
-        return (json.get(TRIP_DESTINATIONS) == null || json.get(TRIP_DESTINATIONS).size() >= MINIMUM_TRIP_DESTINATIONS);
+        return (json.get(TRIP_DESTINATIONS).size() >= MINIMUM_TRIP_DESTINATIONS);
     }
 
 
@@ -156,9 +166,9 @@ public class TripController extends Controller {
      *
      * @param request   Http Request containing Json Body of the selected trip to modify.
      * @param tripId    the id of the trip being modified.
-     * @return          ok() (Http 200) if the trip has been successfully modified. If the trip is not valid, returns a
-     *                  badRequest() (Http 400). If the user is not logged in, returns a unauthorized()
-     *                  (Http 401).
+     * @return          ok() (Http 200) if the trip has been successfully modified.
+     *                  badRequest() (Http 400) If the trip is not valid.
+     *                  unauthorized() (Http 401) If the user is not logged in.
      */
     public Result edit(Http.Request request, Long tripId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -279,8 +289,8 @@ public class TripController extends Controller {
      * @return                  a LocalDate variable containing the requested date field, if none found returns null.
      */
     private LocalDate parseDestinationDates(JsonNode destinationJson, String field) {
-        if (!(destinationJson.get(field).asText().equals("null")
-                || destinationJson.get(field).asText().equals(""))) {
+        if (!(destinationJson.get(field).asText().equals(NULL)
+                || destinationJson.get(field).asText().equals(EMPTY_STRING))) {
            return LocalDate.parse(destinationJson.get(field).asText());
         }
         return null;
@@ -297,13 +307,26 @@ public class TripController extends Controller {
      *                      end date), otherwise returns false.
      */
     private boolean isValidDates(String startDate, String endDate) {
-        if (startDate.equals("") || startDate.equals("null")) {
+        if (startDate.equals(EMPTY_STRING) || startDate.equals("null")) {
             return true;
-        } else if (endDate.equals("") || endDate.equals("null")) {
+        } else if (endDate.equals(EMPTY_STRING) || endDate.equals(NULL)) {
             return true;
         } else {
             return (LocalDate.parse(startDate).isBefore(LocalDate.parse(endDate))
                     || LocalDate.parse(startDate).equals(LocalDate.parse(endDate)));
+        }
+    }
+
+
+    /**
+     * Adds the given date to the list of dates if it is not null.
+     *
+     * @param dateToAdd     the date to be added to the list.
+     * @param allDates      the list containing all dates.
+     */
+    private void addDate(LocalDate dateToAdd, List<LocalDate> allDates) {
+        if (dateToAdd != null) {
+            allDates.add(dateToAdd);
         }
     }
 
@@ -318,61 +341,21 @@ public class TripController extends Controller {
     private boolean isValidDateOrder(List<TripDestination> tripDestinations) {
         // Adds all dates within the list of trip destinations to an array if they aren't null
         List<LocalDate> allDates = new ArrayList<LocalDate>() {};
-        for (int i = 0; i < tripDestinations.size(); i++) {
-            LocalDate startDate = tripDestinations.get(i).getStartDate();
-            LocalDate endDate = tripDestinations.get(i).getEndDate();
-            if (startDate != null) {
-                allDates.add(startDate);
-            }
-            if (endDate != null) {
-                allDates.add(endDate);
-            }
+        for (TripDestination tripDestination : tripDestinations) {
+            addDate(tripDestination.getStartDate(), allDates);
+            addDate(tripDestination.getEndDate(), allDates);
         }
+
         // Iterate through from item 1 and 2 to n-1 and n. return false if any pair is not in order
         for (int j = 0; j < (allDates.size() - 1); j++) {
-            if (!(allDates.get(j) == null || (allDates.get(j + 1) == null))) {
-                if ((allDates.get(j).isAfter(allDates.get(j + 1)))) {
-                    if (!(allDates.get(j).equals(allDates.get(j + 1)))) {
-                        return false;
-                    }
-                }
+            boolean nullDates = allDates.get(j) == null || allDates.get(j + 1) == null;
+            boolean invalidOrder = allDates.get(j).isAfter(allDates.get(j + 1));
+            boolean areEqual = allDates.get(j).equals(allDates.get(j + 1));
+            if (!nullDates && invalidOrder && !areEqual) {
+                return false;
             }
         }
         return true;
-    }
-
-
-    /**
-     * Fetches a single trip from the database for a logged in user.
-     *
-     * @param request   Http request from client
-     * @return          an ok() (Http 200) response rendering the fetched trip onto the page. If requested trip not
-     *                  valid then returns a badRequest() (Http 400). If the trip is not found then returns notFound()
-     *                  (Http 404).
-     */
-    public Result fetch(Http.Request request) {
-
-        JsonNode json = request.body().asJson();
-
-        // The id taken from the json node, initialised as null for validation purposes.
-        long parsedTripId;
-
-        // Retrieving the id of the trip being fetched
-        try {
-            parsedTripId = Integer.parseInt(json.get(TRIP_ID).asText());
-        } catch (NumberFormatException e) {
-            return badRequest(ApiError.invalidJson());
-        }
-
-        // Retrieving the trip which corresponds to the id parsed.
-        Trip returnedTrip = tripRepository.findById(parsedTripId);
-
-        // Verifying the existence of the trip being retrieved.
-        if (returnedTrip == null) {
-            return notFound(ApiError.notFound(Errors.TRIP_NOT_FOUND));
-        }
-
-        return ok(Json.toJson(returnedTrip));
     }
 
 
@@ -382,6 +365,7 @@ public class TripController extends Controller {
      *
      * @param affectedProfile   the profile that is having the trip added to.
      * @param tripDestination   the destination that is stored in the trip.
+     * @return ok               with the message of if the destination ownerships needs to change or not.
      */
     private Result determineDestinationOwnershipTransfer(Profile affectedProfile, TripDestination tripDestination) {
         Destination destination = tripDestination.getDestination();
@@ -391,22 +375,110 @@ public class TripController extends Controller {
         if (owner == null || owner.getId() != DEFAULT_ADMIN_ID && destination.getPublic()
                 && !affectedProfile.getId().equals(owner.getId())) {
             destinationRepository.transferToAdmin(destination);
-            return ok("Destination ownership changed");
+            return ok(DESTINATION_OWNERSHIP_CHANGED);
         }
 
-        return ok("Destination ownership doesn't need to be changed");
+        return ok(DESTINATION_OWNERSHIP_NO_CHANGE);
     }
 
 
     /**
-     * Fetches all the trips for a specified user.
+     * Fetches all the trips for a specified user, using pagination for retrieving trips based on the requested page.
      *
-     * @param id    the id of the user requested.
-     * @return      the list of trips as a Json.
+     * @param request   the Http request containing the relevant authentication values.
+     * @param id        the id of the user requested.
+     * @return          unauthorized() (Http 401) if the user is not logged in.
+     *                  ok() (Http 200) containing the list of trips as a Json.
      */
-    public Result fetchAll(Long id) {
-        List<Trip> trips = tripRepository.fetchAllTrips(id);
-        return ok(Json.toJson(trips));
+    public Result fetchAllTrips(Http.Request request, Long id) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        Profile owner = profileRepository.findById(id);
+        if (owner == null) {
+            return badRequest(ApiError.badRequest(Errors.PROFILE_NOT_FOUND));
+        }
+
+        int pageNumberFuture = 0;
+        int pageNumberPast = 0;
+
+        if (request.getQueryString(PAGE_FUTURE) != null && !request.getQueryString(PAGE_FUTURE).isEmpty()) {
+            pageNumberFuture = Integer.parseInt(request.getQueryString(PAGE_FUTURE));
+        }
+
+        if (request.getQueryString(PAGE_PAST) != null && !request.getQueryString(PAGE_PAST).isEmpty()) {
+            pageNumberPast = Integer.parseInt(request.getQueryString(PAGE_PAST));
+        }
+
+        Integer pageSizeFuture = determinePageSize(request, PAGE_SIZE_FUTURE);
+        Integer pageSizePast = determinePageSize(request, PAGE_SIZE_PAST);
+
+        if (pageSizeFuture == null || pageSizePast == null) {
+            return badRequest(ApiError.badRequest(Errors.INVALID_PAGE_SIZE_REQUESTED));
+        }
+
+        List<Trip> futureTrips = tripRepository.fetchFuture(owner, pageSizeFuture, pageNumberFuture);
+        List<Trip> pastTrips = tripRepository.fetchPast(owner, pageSizePast, pageNumberPast);
+
+        ObjectNode returnJson = objectMapper.createObjectNode();
+
+        returnJson.set(FUTURE_TRIPS, Json.toJson(futureTrips));
+        returnJson.set(PAST_TRIPS, Json.toJson(pastTrips));
+
+        return ok(returnJson);
+    }
+
+
+    /**
+     * Determines the page size from the given query string inside the request. Is used to calculate the future and past
+     * trip pages.
+     *
+     * @param request           the Http request containing the query string.
+     * @param pageSizeRequested the page being requested, whether it be future or past page size.
+     * @return                  null if the requested page cannot be passed as an integer.
+     *                          otherwise returns the requested page size.
+     */
+    private Integer determinePageSize(Http.Request request, String pageSizeRequested) {
+        int pageSize = MAX_PAGE_SIZE;
+        if (request.getQueryString(pageSizeRequested) != null && !request.getQueryString(pageSizeRequested).isEmpty()) {
+            try {
+                pageSize = Integer.parseInt(request.getQueryString(pageSizeRequested));
+                // Restrict the page size to be no larger than the maximum page size.
+                pageSize = Math.min(pageSize, MAX_PAGE_SIZE);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return pageSize;
+    }
+
+
+    /**
+     * Retrieves the total number of trips the user has. This is so the frontend can determine the appropriate
+     * pagination for the trip tables.
+     *
+     * @param request   the Http request containing the relevant authentication values.
+     * @param id        the id of the user requested.
+     * @return          unauthorized() (Http 401) if the user is not logged in.
+     *                  ok() (Http 200) total number of trip the specified user has.
+     */
+    public Result getTotalNumberOfTrips(Http.Request request, Long id) {
+        Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        if (loggedInUser == null) {
+            return unauthorized(ApiError.unauthorized());
+        }
+
+        int totalNumberOfFutureTrips = tripRepository.fetchAllFutureTripsCount(id);
+        int totalNumberOfPastTrips = tripRepository.fetchAllPastTripsCount(id);
+
+        ObjectNode returnJson = objectMapper.createObjectNode();
+
+        returnJson.set(FUTURE_TRIPS, Json.toJson(totalNumberOfFutureTrips));
+        returnJson.set(PAST_TRIPS, Json.toJson(totalNumberOfPastTrips));
+
+        return ok(returnJson);
     }
 
 
@@ -414,7 +486,7 @@ public class TripController extends Controller {
      * Deletes a trip from the user currently logged in.
      *
      * @param request   Http request from the client, from which the current user profile can be obtained.
-     * @param tripId    the id of the trip being deleted from a profile
+     * @param tripId    the id of the trip being deleted from a profile.
      * @return          If no profile or no trip is found, returns notFound() (Http 404).
      *                  If the trip id is not associated with any profile, returns badRequest() (Http 400).
      *                  If the user is not logged in, returns unauthorized() (Http 401).

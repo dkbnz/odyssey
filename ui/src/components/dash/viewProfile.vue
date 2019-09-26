@@ -6,10 +6,15 @@
                     <!-- The profile picture of the current profile being viewed. -->
 
                     <b-img :src="profileImageThumb" fluid rounded="circle" thumbnail
-                           @click="showImage" onerror="this.src = '../../../static/default_profile_picture.png'">
+                           @click="showImage"
+                           onerror="this.onerror= null; this.src = '../../../static/default_profile_picture.png'">
                     </b-img>
 
-                    <streak-display v-if="profile.achievementTracker" class="float-right " :currentStreak="profile.achievementTracker.streak"></streak-display>
+                    <streak-display
+                            v-if="profile.achievementTracker"
+                            class="float-right "
+                            :currentStreak="profile.achievementTracker.streak">
+                    </streak-display>
 
                     <b-alert
                             class="m-1"
@@ -20,9 +25,13 @@
                             @dismiss-count-down="countDownChanged"
                     > {{alertMessage}}
                     </b-alert>
-                    <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
+                    <b-alert dismissible v-model="showError" variant="danger">
+                        <p class="wrapWhiteSpace">{{alertMessage}}</p>
+                    </b-alert>
                     <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
-                    <h6 v-if="profile.achievementTracker">Rank: #{{profile.achievementTracker.rank}} Points: ({{profile.achievementTracker.points}})</h6>
+                    <h6 v-if="profile.achievementTracker">
+                        Rank: #{{profile.achievementTracker.rank}} Points: ({{profile.achievementTracker.points}})
+                    </h6>
                     <p v-if="profile.admin"><i>Administrator</i></p>
                     <p v-else><i>Regular User</i></p>
                     <h3>Personal Details</h3>
@@ -57,7 +66,9 @@
                     <div class="questMobileContent bg-white pt-3 pl-3 pr-3 pb-3 rounded-lg">
                         <div class="pt-3 mobileMargins">
                             <h1 class="page-title">Quests</h1>
-                            <p class="page-title" v-if="userProfile.id !== profile.id"><i>Click a quest below to add it to your list of quests!</i></p>
+                            <p class="page-title" v-if="userProfile.id !== profile.id">
+                                <i>Click a quest below to add it to your list of quests!</i>
+                            </p>
                             <p class="page-title" v-else><i>Here are your currently active quests!</i></p>
                             <active-quest-list
                                     :quest-attempts="questAttempts"
@@ -111,7 +122,7 @@
                 </div>
                 <b-modal hide-footer centered ref="profilePictureModal" title="Profile Picture" size="xl">
                     <b-img v-if="profile.profilePicture" :src="getProfilePictureFull()"
-                                onerror="this.src = '../../../static/default_profile_picture.png'"
+                                onerror="this.onerror= null; this.src = '../../../static/default_profile_picture.png'"
                                 center fluid>
                     </b-img>
                     <b-row>
@@ -124,7 +135,9 @@
                             </b-button>
                             <b-modal ref="profilePhotoUploader" id="profilePhotoUploader" hide-footer centered
                                      title="Change Profile Photo">
-                                <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
+                                <b-alert dismissible v-model="showError" variant="danger">
+                                    <p class="wrapWhiteSpace">{{errorMessage}}</p>
+                                </b-alert>
                                 <photoUploader @save-photos="uploadProfilePhoto"
                                                :acceptTypes="'image/jpeg, image/jpg, image/png'"
                                                :multipleFiles="false">
@@ -323,7 +336,9 @@
              * view the users private photos and can add or delete images from the media.
              */
             checkAuthentication() {
-                this.authentication = (this.userProfile.id !== undefined) && (this.userProfile.id === this.profile.id) || (this.userProfile.admin && this.adminView);
+                this.authentication = (this.userProfile.id !== undefined)
+                    && (this.userProfile.id === this.profile.id)
+                    || (this.userProfile.admin && this.adminView);
             },
 
 
@@ -425,16 +440,6 @@
              */
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
-            },
-
-
-            /**
-             * Displays default image when no image is found.
-             *
-             * @param event     image error event.
-             */
-            imageAlt(event) {
-                event.target.src = "../../../static/default_profile_picture.png"
             },
 
 

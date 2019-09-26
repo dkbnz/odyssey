@@ -1,6 +1,10 @@
 <template>
     <div>
-        <b-alert dismissible v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
+        <b-alert dismissible v-model="showError" variant="danger">
+            <p class="wrapWhiteSpace">
+                {{alertMessage}}
+            </p>
+        </b-alert>
 
         <b-form @submit.prevent="searchProfiles">
             <!--Input fields for searching for destinations-->
@@ -150,7 +154,7 @@
             /**
              * Retrieves all the traveller types.
              *
-             * @return {Promise <Response | never>}     the fetch method promise.
+             * @returns {Promise <Response | never>}     the fetch method promise.
              */
             getTravellerTypes() {
                 let self = this;
@@ -173,7 +177,7 @@
             /**
              * Retrieves all the nationalities.
              *
-             * @return {Promise <Response | never>}     the fetch method promise.
+             * @returns {Promise <Response | never>}     the fetch method promise.
              */
             getNationalities() {
                 let self = this;

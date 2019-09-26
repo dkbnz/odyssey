@@ -1,459 +1,369 @@
 Feature: Trip API Endpoint
 
-  Scenario: Add a new trip with two destinations
+  Scenario: Successfully add a new trip with two destinations
     Given the application is running
     And I am logged in as an admin user
-    When the following json containing a trip is sent:
-      """
-        {
-          "trip_name": "A Holiday Away",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : "1990-12-12",
-              "end_date" : "1991-12-12"
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
     Then the status code received is 201
 
 
-  Scenario: Delete a trip as the trip's owner
-    Given the application is running
-    And I am logged in
-    And I own the trip with the following data
-      """
-        {
-          "trip_name": "Test Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
-    When I delete the trip with the following name
-      | Name            |
-      | Test Adventure  |
-    Then the status code received is 200
-
-
-  Scenario: Delete other user's trip as an admin
+  Scenario: Unsuccessfully creating a trip for a user that non-existent user
     Given the application is running
     And I am logged in as an admin user
-    And I do not own the trip with the following data
-      """
-        {
-          "trip_name": "Test Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
-    When I delete the trip with the following name
-      | Name            |
-      | Test Adventure  |
-    Then the status code received is 200
+    When I create the trip with the following values for user with id 500
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    Then the status code received is 400
 
 
-  Scenario: Delete a another user's trip as a standard user
+  Scenario: Unsuccessfully creating a trip for another user when not admin
     Given the application is running
     And I am logged in
-    And I do not own the trip with the following data
-      """
-        {
-          "trip_name": "Test Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
-    When I delete the trip with the following name
-      | Name            |
-      | Test Adventure  |
+    When I create the trip with the following values for user with id 1
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
     Then the status code received is 403
 
 
-  Scenario: Attempt to add a trip with one destination
+  Scenario: Successfully delete a trip as the trip's owner
     Given the application is running
     And I am logged in
-    When the following json containing a trip is sent:
-      """
-        {
-          "trip_name": "Unplanned bottle store excursion",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    And the trip exists with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    When I delete the trip
+    Then the status code received is 200
+
+
+  Scenario: Successfully delete other user's trip as an admin
+    Given the application is running
+    And I am logged in as an admin user
+    And the trip exists with the following values for user with id 3
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And the trip exists
+    When I delete the trip
+    Then the status code received is 200
+
+
+  Scenario: Unsuccessfully delete a trip when not logged in
+    Given the application is running
+    And I am logged in
+    And the trip exists with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    And I am not logged in
+    When I delete the trip
+    Then the status code received is 401
+
+
+  Scenario: Unsuccessfully delete a another user's trip as a standard user
+    Given the application is running
+    And I am logged in
+    And the trip exists with the following values for user with id 3
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And the trip exists
+    When I delete the trip
+    Then the status code received is 403
+
+
+  Scenario: Unsuccessfully attempt to add a trip with one destination
+    Given the application is running
+    And I am logged in
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And I create the trip
     Then the status code received is 400
 
 
-  Scenario: Attempt to add a trip with no name
+  Scenario: Unsuccessfully attempt to add a trip with no name
     Given the application is running
     And I am logged in
-    When the following json containing a trip is sent:
-      """
-        {
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
     Then the status code received is 400
 
 
-  Scenario: Attempt to add a trip with duplicate destinations in series
+  Scenario: Unsuccessfully attempt to add a trip with duplicate destinations in series
     Given the application is running
     And I am logged in
-    When the following json containing a trip is sent:
-      """
-        {
-          "trip_name": "There and there again.",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 1155        |            |          |
+    And I create the trip
     Then the status code received is 400
 
 
-  Scenario: Attempt to add a trip with inappropriately ordered dates
+  Scenario: Unsuccessfully attempt to add a trip with inappropriately ordered dates
     Given the application is running
     And I am logged in
-    When the following json containing a trip is sent:
-      """
-        {
-          "trip_name": "A Holiday Away",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : "1993-12-12",
-              "end_date" : "1991-12-12"
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        | 2019-08-25 | 2019-08-23 |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
     Then the status code received is 400
 
 
   Scenario: Edit a trip as the trip's owner with valid name
     Given the application is running
     And I am logged in
-    And I own the trip with the following data
-      """
-        {
-          "trip_name": "Edit Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
-    When I change the trip, "Edit Adventure" to contain the following data
-      """
-        {
-          "trip_name": "Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    When I change the trip to the following trip
+      | Name       |
+      | Adventure  |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I update the trip
     Then the status code received is 200
 
 
   Scenario: Edit a trip as the trip's owner with valid destinations
     Given the application is running
     And I am logged in
-    And I own the trip with the following data
-      """
-        {
-          "trip_name": "Edit Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
-    When I change the trip, "Edit Adventure" to contain the following data
-      """
-        {
-          "trip_name": "Edit Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    When I change the trip to the following trip
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 567         |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And I update the trip
     Then the status code received is 200
+
+
+  Scenario: Unsuccessfully edit a trip when not logged in
+    Given the application is running
+    And I am logged in
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    And I am not logged in
+    When I change the trip to the following trip
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 567         |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And I update the trip
+    Then the status code received is 401
 
 
   Scenario: Edit a trip as the trip's owner with invalid name
     Given the application is running
     And I am logged in
-    And I own the trip with the following data
-      """
-        {
-          "trip_name": "Edit Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
-    When I change the trip, "Edit Adventure" to contain the following data
-      """
-        {
-          "trip_name": "",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    When I change the trip to the following trip
+      | Name       |
+      |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 567         |            |            |
+    And I update the trip
     Then the status code received is 400
 
 
   Scenario: Edit a trip as the trip's owner with invalid destinations
     Given the application is running
     And I am logged in
-    And I own the trip with the following data
-      """
-        {
-          "trip_name": "Edit Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
-    When I change the trip, "Edit Adventure" to contain the following data
-      """
-        {
-          "trip_name": "Edit Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
+    When I change the trip to the following trip
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And I update the trip
     Then the status code received is 400
 
 
   Scenario: Edit other user's trip as an admin
     Given the application is running
     And I am logged in as an admin user
-    And I do not own the trip with the following data
-      """
-        {
-          "trip_name": "Edit Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
-    When I change the trip, "Edit Adventure" to contain the following data
-      """
-        {
-          "trip_name": "Edit Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When the trip exists with the following values for user with id 3
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And the trip exists
+    When I change the trip to the following trip
+      | Name       |
+      | Adventure  |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 567         |            |            |
+    And I update the trip
     Then the status code received is 200
 
 
-  Scenario: Edit a another user's trip as a standard user
+  Scenario: Unsuccessfully edit a another user's trip as a standard user
     Given the application is running
     And I am logged in
-    And I do not own the trip with the following data
-      """
-        {
-          "trip_name": "Edit Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
-    When I change the trip, "Edit Adventure" to contain the following data
-      """
-        {
-          "trip_name": "Adventure",
-          "trip_destinations" : [
-            {
-              "destination_id" : "1155",
-              "start_date" : null,
-              "end_date" : null
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When the trip exists with the following values for user with id 3
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And the trip exists
+    When I change the trip to the following trip
+      | Name       |
+      | Adventure  |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 1155        |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 567         |            |            |
+    And I update the trip
     Then the status code received is 403
 
 
@@ -461,24 +371,16 @@ Feature: Trip API Endpoint
     Given the application is running
     And I am logged in
     And the destination with id 119 exists
-    When the following json containing a trip is sent:
-      """
-        {
-          "trip_name": "A Holiday Away",
-          "trip_destinations" : [
-            {
-              "destination_id" : "119",
-              "start_date" : "1990-12-12",
-              "end_date" : "1991-12-12"
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 119         |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
     Then the destination with id 119 ownership changes to the user with id 1
 
 
@@ -486,24 +388,16 @@ Feature: Trip API Endpoint
     Given the application is running
     And I am logged in
     And the destination with id 325 exists
-    When the following json containing a trip is sent:
-      """
-        {
-          "trip_name": "A Holiday Away",
-          "trip_destinations" : [
-            {
-              "destination_id" : "325",
-              "start_date" : "1990-12-12",
-              "end_date" : "1991-12-12"
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 325         |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
     Then the destination with id 325 ownership changes to the user with id 2
 
 
@@ -511,22 +405,47 @@ Feature: Trip API Endpoint
     Given the application is running
     And I am logged in
     And the destination with id 567 exists
-    When the following json containing a trip is sent:
-      """
-        {
-          "trip_name": "A Holiday Away",
-          "trip_destinations" : [
-            {
-              "destination_id" : "567",
-              "start_date" : "1990-12-12",
-              "end_date" : "1991-12-12"
-            },
-            {
-              "destination_id" : "567",
-              "start_date" : null,
-              "end_date" : null
-            }
-          ]
-        }
-      """
+    When I create a new trip with the following values
+      | Name       |
+      | First Trip |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date   |
+      | 119         |            |            |
+    And the trip has a destination with the following values
+      | Destination | Start Date | End Date |
+      | 567         |            |          |
+    And I create the trip
     Then the destination with id 567 ownership changes to the user with id 2
+
+
+  Scenario: Successfully fetching all trips for a specified user
+    Given the application is running
+    And I am logged in
+    When I request all trips for user with id 3
+    Then the status code received is 200
+
+
+  Scenario: Unsuccessfully fetching all trips when not logged in
+    Given the application is running
+    When I request all trips for user with id 3
+    Then the status code received is 401
+
+
+  Scenario: Unsuccessfully fetching all trips for a non existent user
+    Given the application is running
+    And I am logged in
+    When I request all trips for user with id 500
+    Then the status code received is 400
+
+
+  Scenario: Successfully fetching the number of trips for a specified user
+    Given the application is running
+    And I am logged in
+    When I request the number of trips for user with id 3
+    Then the status code received is 200
+
+
+  Scenario: Unsuccessfully fetching the number of trips for a specified user when not logged in
+    Given the application is running
+    When I request the number of trips for user with id 3
+    Then the status code received is 401

@@ -2,6 +2,8 @@ package models.profiles;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import models.hints.Hint;
+import models.hints.Vote;
 import models.points.AchievementTracker;
 import models.util.BaseModel;
 import models.destinations.Destination;
@@ -17,6 +19,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -81,6 +84,24 @@ public class Profile extends BaseModel {
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "owner")
     private AchievementTracker achievementTracker;
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "creator")
+    private Set<Hint> hintsCreated;
+
+    @JsonIgnore
+    @ManyToMany(cascade = CascadeType.PERSIST, mappedBy = "profilesSeen")
+    private Set<Hint> hintsSeen;
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Vote> votesCast;
+
+    @Transient
+    private int numberOfQuestsCreated;
+
+    @Transient
+    private int numberOfQuestsCompleted;
 
     public Date getLastSeenDate() {
         return lastSeenDate;
@@ -344,5 +365,19 @@ public class Profile extends BaseModel {
 
     public void setAchievementTracker(AchievementTracker achievementTracker) {
         this.achievementTracker = achievementTracker;
+    }
+
+    public Set<Hint> getHintsSeen() {
+        return hintsSeen;
+    }
+
+    /**
+     * Adds a new hint to the user's set of seen hints.
+     *
+     * @param seenHint      the new hint the user has seen.
+     * @return              true if new hint was added, false if the hint is already in the set.
+     */
+    public boolean addSeenHint(Hint seenHint) {
+        return hintsSeen.add(seenHint);
     }
 }

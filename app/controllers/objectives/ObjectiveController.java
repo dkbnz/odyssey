@@ -291,8 +291,8 @@ public class ObjectiveController {
      * @param request   the request from the front end of the application containing login information.
      * @return          ok() (Http 200) containing a Json body of the retrieved objectives.
      *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
-     *      *           forbidden() (Http 401) response containing an ApiError for disallowed retrieval.
-     *      *           unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
+     *                  forbidden() (Http 401) response containing an ApiError for disallowed retrieval.
+     *                  unauthorized() (Http 403) response containing an ApiError if the user is not logged in.
      *
      */
     public Result fetchByOwner(Http.Request request, Long ownerId) {

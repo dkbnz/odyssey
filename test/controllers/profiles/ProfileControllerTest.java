@@ -27,28 +27,29 @@ public class ProfileControllerTest {
     private static final String USER_ID = "1";
     private static final String ADMIN_USER = "2";
 
+    private static final Long DEFAULT_ADMIN_ID = 1L;
+    private static final Long ADMIN_USER_ID = 2L;
+    private static final Long REGULAR_USER_ID = 3L;
+
+    private static final Long FULL_USER_ID = 4L;
+    private static final String FULL_USER_USERNAME = "test1@email.com";
+    private static final String FULL_USER_AUTHENTICATION = "guest123";
+    private static final String FULL_USER_FIRST_NAME = "Jack";
+    private static final String FULL_USER_LAST_NAME = "Taylor";
+    private static final String FULL_USER_GENDER = "Male";
+
     private ProfileRepository mockProfileRepo;
-    private NationalityRepository mockNationalityRepo;
-    private PassportRepository mockPassportRepo;
-    private TravellerTypeRepository mockTravellerTypeRepo;
-    private AchievementTrackerRepository mockAchievementTrackerRepo;
-
-    private Profile defaultAdminUser;
-    private Profile adminUser;
     private Profile regularUser;
-    private Profile fullUser;
-
     private ProfileController testProfileController;
-
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
     public void setUp() {
         mockProfileRepo = mock(ProfileRepository.class);
-        mockNationalityRepo = mock(NationalityRepository.class);
-        mockPassportRepo = mock(PassportRepository.class);
-        mockTravellerTypeRepo = mock(TravellerTypeRepository.class);
-        mockAchievementTrackerRepo = mock(AchievementTrackerRepository.class);
+        NationalityRepository mockNationalityRepo = mock(NationalityRepository.class);
+        PassportRepository mockPassportRepo = mock(PassportRepository.class);
+        TravellerTypeRepository mockTravellerTypeRepo = mock(TravellerTypeRepository.class);
+        AchievementTrackerRepository mockAchievementTrackerRepo = mock(AchievementTrackerRepository.class);
 
         testProfileController = new ProfileController(mockProfileRepo,
                 mockNationalityRepo,
@@ -56,32 +57,32 @@ public class ProfileControllerTest {
                 mockTravellerTypeRepo,
                 mockAchievementTrackerRepo);
 
-        defaultAdminUser = new Profile();
-        defaultAdminUser.setId(1L);
+        Profile defaultAdminUser = new Profile();
+        defaultAdminUser.setId(DEFAULT_ADMIN_ID);
         defaultAdminUser.setAdmin(false);
 
-        adminUser = new Profile();
-        adminUser.setId(2L);
+        Profile adminUser = new Profile();
+        adminUser.setId(ADMIN_USER_ID);
         adminUser.setAdmin(true);
 
         regularUser = new Profile();
-        regularUser.setId(3L);
+        regularUser.setId(REGULAR_USER_ID);
         regularUser.setAdmin(false);
 
-        fullUser = new Profile();
-        fullUser.setId(4L);
-        fullUser.setUsername("test1@email.com");
-        fullUser.setPassword("guest123");
-        fullUser.setFirstName("Jack");
-        fullUser.setLastName("Taylor");
-        fullUser.setGender("Male");
+        Profile fullUser = new Profile();
+        fullUser.setId(FULL_USER_ID);
+        fullUser.setUsername(FULL_USER_USERNAME);
+        fullUser.setPassword(FULL_USER_AUTHENTICATION);
+        fullUser.setFirstName(FULL_USER_FIRST_NAME);
+        fullUser.setLastName(FULL_USER_LAST_NAME);
+        fullUser.setGender(FULL_USER_GENDER);
         fullUser.setDateOfBirth(LocalDate.now().minusYears(5));
 
         // Mock profile fetches
-        when(mockProfileRepo.findById(1L)).thenReturn(defaultAdminUser);
-        when(mockProfileRepo.findById(2L)).thenReturn(adminUser);
-        when(mockProfileRepo.findById(3L)).thenReturn(regularUser);
-        when(mockProfileRepo.findById(4L)).thenReturn(fullUser);
+        when(mockProfileRepo.findById(DEFAULT_ADMIN_ID)).thenReturn(defaultAdminUser);
+        when(mockProfileRepo.findById(ADMIN_USER_ID)).thenReturn(adminUser);
+        when(mockProfileRepo.findById(REGULAR_USER_ID)).thenReturn(regularUser);
+        when(mockProfileRepo.findById(FULL_USER_ID)).thenReturn(fullUser);
     }
 
     @Test
@@ -131,7 +132,7 @@ public class ProfileControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = testProfileController.delete(request, 1L);
+        Result result = testProfileController.delete(request, DEFAULT_ADMIN_ID);
 
         // Assert
         Assert.assertEquals(BAD_REQUEST, result.status());
@@ -148,7 +149,7 @@ public class ProfileControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = testProfileController.delete(request, 3L);
+        Result result = testProfileController.delete(request, REGULAR_USER_ID);
 
         // Assert
         Assert.assertEquals(UNAUTHORIZED, result.status());
@@ -349,7 +350,7 @@ public class ProfileControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = testProfileController.makeAdmin(request, 3L);
+        Result result = testProfileController.makeAdmin(request, REGULAR_USER_ID);
 
         // Assert
         Assert.assertEquals(UNAUTHORIZED, result.status());
@@ -366,7 +367,7 @@ public class ProfileControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = testProfileController.makeAdmin(request, 3L);
+        Result result = testProfileController.makeAdmin(request, REGULAR_USER_ID);
 
         // Assert
         Assert.assertEquals(FORBIDDEN, result.status());
@@ -400,7 +401,7 @@ public class ProfileControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = testProfileController.makeAdmin(request, 4L);
+        Result result = testProfileController.makeAdmin(request, FULL_USER_ID);
 
         // Assert
         Assert.assertEquals(OK, result.status());
@@ -419,7 +420,7 @@ public class ProfileControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = testProfileController.removeAdmin(request, 3L);
+        Result result = testProfileController.removeAdmin(request, REGULAR_USER_ID);
 
         // Assert
         Assert.assertEquals(UNAUTHORIZED, result.status());
@@ -436,7 +437,7 @@ public class ProfileControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = testProfileController.removeAdmin(request, 3L);
+        Result result = testProfileController.removeAdmin(request, REGULAR_USER_ID);
 
         // Assert
         Assert.assertEquals(FORBIDDEN, result.status());
@@ -453,7 +454,7 @@ public class ProfileControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = testProfileController.removeAdmin(request, 1L);
+        Result result = testProfileController.removeAdmin(request, DEFAULT_ADMIN_ID);
 
         // Assert
         Assert.assertEquals(FORBIDDEN, result.status());
@@ -487,7 +488,7 @@ public class ProfileControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = testProfileController.removeAdmin(request, 4L);
+        Result result = testProfileController.removeAdmin(request, FULL_USER_ID);
 
         // Assert
         Assert.assertEquals(OK, result.status());

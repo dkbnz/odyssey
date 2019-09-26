@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
-import models.destinations.Destination;
+import models.hints.Hint;
 import models.objectives.Objective;
 import models.points.AchievementTracker;
 import models.points.Action;
@@ -13,13 +13,13 @@ import models.points.Badge;
 import models.points.PointReward;
 import models.profiles.Profile;
 import models.quests.Quest;
-import models.trips.Trip;
 import models.util.ApiError;
 import models.util.Errors;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import repositories.hints.HintRepository;
 import repositories.points.BadgeRepository;
 import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
@@ -27,6 +27,7 @@ import util.AuthenticationUtil;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
 import java.util.*;
 
 public class AchievementTrackerController extends Controller {
@@ -36,18 +37,24 @@ public class AchievementTrackerController extends Controller {
     private static final Integer STARTING_STREAK_NUMBER = 1;
     private static final Integer LOST_STREAK = 1;
     private static final String CLIENT_DATE_FIELD = "clientDate";
+    private static final String CLIENT_DATE_OFFSET = "dateOffset";
     private static final String CURRENT_STREAK = "currentStreak";
     private static final String REWARD = "reward";
+    private static final String ENTIRE_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     private static final int SINGLE_COUNTRY = 1;
     private static final int INCREMENT_ONE = 1;
     private static final int ADVENTURER_THRESHOLD = 10;
     private static final int RADIUS_OF_THE_EARTH = 6371;
+    private static final int SECONDS_IN_MINUTES = 60;
+    private static final int MILLISECONDS_IN_SECONDS = 1000;
 
 
     private ProfileRepository profileRepository;
     private PointRewardRepository pointRewardRepository;
     private BadgeRepository badgeRepository;
+    private HintRepository hintRepository;
     private ObjectMapper objectMapper;
 
 
@@ -55,10 +62,12 @@ public class AchievementTrackerController extends Controller {
     public AchievementTrackerController(ProfileRepository profileRepository,
                                         PointRewardRepository pointRewardRepository,
                                         BadgeRepository badgeRepository,
+                                        HintRepository hintRepository,
                                         ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
         this.pointRewardRepository = pointRewardRepository;
         this.badgeRepository = badgeRepository;
+        this.hintRepository = hintRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -161,7 +170,7 @@ public class AchievementTrackerController extends Controller {
      * @param actingProfile         the profile receiving points.
      * @return                      Json node of the reward result.
      */
-    private ObjectNode rewardAction(Profile actingProfile) {
+    private ObjectNode rewardLogin(Profile actingProfile) {
 
         int currentStreak = actingProfile.getAchievementTracker().getCurrentStreak();
 
@@ -178,7 +187,6 @@ public class AchievementTrackerController extends Controller {
             }
         }
 
-
         if(foundBadge == null || foundBadge.getProgress() < currentStreak) {
             badgesAchieved.add(progressBadge(actingProfile, Action.LOGIN_STREAK, INCREMENT_ONE));
         }
@@ -193,10 +201,9 @@ public class AchievementTrackerController extends Controller {
      * Adds progress towards the trip creation badge.
      *
      * @param actingProfile         the profile that performed the action.
-     * @param tripCreated           the trip that was created.
      * @return                      Json node of the reward result.
      */
-    public JsonNode rewardAction(Profile actingProfile, Trip tripCreated) {
+    public JsonNode rewardTripCreate(Profile actingProfile) {
         Collection<Badge> badgesAchieved = new HashSet<>();
 
         // Award points
@@ -217,14 +224,29 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
+     * Rewards the user for creating a hint by adding points for creating a hint.
+     *
+     * @param actingProfile         the profile that performed the action.
+     * @return                      Json node of the reward result.
+     */
+    public JsonNode rewardHintCreate(Profile actingProfile) {
+        Collection<Badge> badgesAchieved = new HashSet<>();
+        // Award points
+        PointReward points = givePoints(actingProfile, Action.HINT_CREATED);
+        profileRepository.update(actingProfile);    // Update the tracker stored in the database.
+
+        return constructRewardJson(badgesAchieved, points);
+    }
+
+
+    /**
      * Rewards the user for creating a destination.
      * Adds points to the user's AchievementTracker and adds progress towards the destination creation badge.
      *
      * @param actingProfile         the profile that performed the action.
-     * @param destinationCreated    the destination that was created.
      * @return                      Json node of the reward result.
      */
-    public JsonNode rewardAction(Profile actingProfile, Destination destinationCreated) {
+    public JsonNode rewardDestinationCreate(Profile actingProfile) {
         Collection<Badge> badgesAchieved = new HashSet<>();
 
         // Award points
@@ -248,10 +270,9 @@ public class AchievementTrackerController extends Controller {
      * Adds points to the given profile's AchievementTracker based on the completed action.
      *
      * @param actingProfile         the profile receiving points.
-     * @param objectiveCheckedIn    the objective which the action was performed on.
      * @return                      Json node of the reward result.
      */
-    public JsonNode rewardAction(Profile actingProfile, Objective objectiveCheckedIn) {
+    public JsonNode rewardObjectiveCheckin(Profile actingProfile) {
         Collection<Badge> badgesAchieved = new HashSet<>();
 
         // Award points
@@ -269,11 +290,11 @@ public class AchievementTrackerController extends Controller {
      * the user created the quest, otherwise they completed the quest.
      *
      * @param actingProfile     the profile that completed the action.
-     * @param questWorkedOn     the quest that was either created or completed
+     * @param questWorkedOn     the quest that was either created or completed.
      * @param completedAction   an action indicating the operation performed on the quest.
      * @return                  Json node of the reward result.
      */
-    public JsonNode rewardAction(Profile actingProfile, Quest questWorkedOn, Action completedAction) {
+    public JsonNode rewardQuestInteraction(Profile actingProfile, Quest questWorkedOn, Action completedAction) {
         Collection<Badge> badgesAchieved = new HashSet<>();
 
         // Award points
@@ -304,6 +325,47 @@ public class AchievementTrackerController extends Controller {
             }
 
         }
+
+        profileRepository.update(actingProfile);    // Update the tracker stored in the database.
+
+        return constructRewardJson(badgesAchieved, points);
+    }
+
+
+    /**
+     * Rewards the acting profile with points for solving an objective.
+     * The points are determined by the number of hints a user has requested for said objective.
+     *
+     * @param actingProfile     the profile that completed the action.
+     * @param objectiveSolved   the objective that was solved.
+     * @return                  Json node of the reward result.
+     */
+    public JsonNode rewardObjectiveSolved(Profile actingProfile, Objective objectiveSolved) {
+        Collection<Badge> badgesAchieved = new HashSet<>();
+
+        // Get number of hints requested for the objective.
+        PointReward points;
+
+        int hintsSeen = hintRepository.findSeenHints(objectiveSolved, actingProfile).size();
+
+        switch(hintsSeen) {
+            case 0:
+                points = givePoints(actingProfile, Action.RIDDLE_SOLVED_NO_HINT);
+                break;
+
+            case 1:
+                points = givePoints(actingProfile, Action.RIDDLE_SOLVED_ONE_HINT);
+                break;
+
+            case 2:
+                points = givePoints(actingProfile, Action.RIDDLE_SOLVED_TWO_HINT);
+                break;
+
+            default:
+                points = null;
+        }
+
+        updatePointsBadge(actingProfile, badgesAchieved);
 
         profileRepository.update(actingProfile);    // Update the tracker stored in the database.
 
@@ -413,11 +475,11 @@ public class AchievementTrackerController extends Controller {
     private double calculateDistance(double latitude1, double latitude2, double longitude1, double longitude2) {
         double latitudeDistance = Math.toRadians(latitude2 - latitude1);
         double longitudeDistance = Math.toRadians(longitude2 - longitude1);
-        double a = Math.sin(latitudeDistance / 2) * Math.sin(latitudeDistance / 2)
+        double squareHalfCordLength = Math.sin(latitudeDistance / 2) * Math.sin(latitudeDistance / 2)
                 + Math.cos(Math.toRadians(latitude1)) * Math.cos(Math.toRadians(latitude2))
                 * Math.sin(longitudeDistance / 2) * Math.sin(longitudeDistance / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = RADIUS_OF_THE_EARTH * c * 1000; // convert to meters
+        double angularDistance = 2 * Math.atan2(Math.sqrt(squareHalfCordLength), Math.sqrt(1 - squareHalfCordLength));
+        double distance = RADIUS_OF_THE_EARTH * angularDistance * 1000; // convert to meters
         distance = Math.pow(distance, 2);
 
         return Math.sqrt(distance);
@@ -442,14 +504,16 @@ public class AchievementTrackerController extends Controller {
 
             // Check if a body was given and has required fields
             if (lastSeenJson == null ||
-                    (!lastSeenJson.has(CLIENT_DATE_FIELD))) {
+                    (!lastSeenJson.has(CLIENT_DATE_FIELD) ||
+                            (!lastSeenJson.has(CLIENT_DATE_OFFSET)))) {
                 // If JSON Object contains no time or time offset key, return bad request
                 // Prevents null pointer exceptions when trying to get the values below.
                 return badRequest(ApiError.invalidJson());
             } else {
                 String clientDate = lastSeenJson.get(CLIENT_DATE_FIELD).asText();
+                Long dateOffset = lastSeenJson.get(CLIENT_DATE_OFFSET).asLong();
 
-                JsonNode responseJson = checkStreakIncrement(loggedInUser, clientDate);
+                JsonNode responseJson = checkStreakIncrement(loggedInUser, clientDate, dateOffset);
 
                 if (responseJson != null) {
                     return ok(responseJson);
@@ -477,23 +541,24 @@ public class AchievementTrackerController extends Controller {
      *                              jsonNode null if the process got caught with a parsing exception and so should.
      *                              return 400 to the front end application.
      */
-    private JsonNode checkStreakIncrement(Profile profile, String clientDateString) {
-
+    private JsonNode checkStreakIncrement(Profile profile, String clientDateString, Long dateOffset) {
         Date clientDate;
-
         ObjectNode responseJson = objectMapper.createObjectNode();
 
         try {
-            clientDate = new SimpleDateFormat("yyyy-MM-dd").parse(clientDateString);
+            clientDate = new SimpleDateFormat(ENTIRE_DATE_FORMAT).parse(clientDateString);
+            // Adds the client's local date offset to the date
+            clientDate = addTimeZone(clientDate, dateOffset * -1);
+            clientDate = new SimpleDateFormat(DATE_FORMAT).parse(
+                    new SimpleDateFormat(DATE_FORMAT).format(clientDate));
         } catch (ParseException e) {
             return null;
         }
 
         Date lastSeenDate = profile.getLastSeenDate();
-
         if (lastSeenDate == null) {
             profile.getAchievementTracker().setCurrentStreak(STARTING_STREAK_NUMBER);
-            responseJson.set(REWARD, this.rewardAction(profile));
+            responseJson.set(REWARD, this.rewardLogin(profile));
             responseJson.put(CURRENT_STREAK, profile.getAchievementTracker().getCurrentStreak());
 
         } else {
@@ -505,7 +570,7 @@ public class AchievementTrackerController extends Controller {
                 profile.getAchievementTracker().addToCurrentStreak();
 
 
-                responseJson.set(REWARD, this.rewardAction(profile));
+                responseJson.set(REWARD, this.rewardLogin(profile));
                 responseJson.put(CURRENT_STREAK, profile.getAchievementTracker().getCurrentStreak());
             } else if (clientDate.after(incrementDate)) {
                 // User has lost their streak
@@ -522,6 +587,23 @@ public class AchievementTrackerController extends Controller {
 
 
     /**
+     * Adds time from the given date.
+     *
+     * @param clientDate    date to add time to.
+     * @param dateOffset    time to add, in minutes.
+     * @return              the initial date, with the time offset added.
+     */
+    private Date addTimeZone(Date clientDate, Long dateOffset) {
+        Long dateMilliseconds   = clientDate.getTime();
+        Long offsetMilliseconds = dateOffset * SECONDS_IN_MINUTES * MILLISECONDS_IN_SECONDS;
+
+        long localMilliseconds  = dateMilliseconds + offsetMilliseconds;
+
+        return new Date(localMilliseconds);
+    }
+
+
+    /**
      * Adds one day to the given date and returns.
      *
      * @param date          the date that you want to add 1 date to.
@@ -532,5 +614,23 @@ public class AchievementTrackerController extends Controller {
         cal.setTime(date);
         cal.add(Calendar.DATE, INCREMENT_ONE);
         return cal.getTime();
+    }
+
+
+    /**
+     * Removes or awards points for a hint creator depending on if a upvoted has been added or removed.
+     *
+     * @param hint          the hint that has been upvoted.
+     * @param upvoteAdded   boolean value to dictate if a upvote has been added or removed.
+     */
+    public void handleHintUpvote(Hint hint, boolean upvoteAdded) {
+        Profile hintCreator = hint.getCreator();
+        Action action = upvoteAdded ? Action.HINT_UPVOTED : Action.HINT_UPVOTE_REMOVED;
+
+        PointReward pointReward = givePoints(hintCreator, action);
+        if(pointReward != null) {
+            progressBadge(hintCreator, Action.POINTS_GAINED, pointReward.getValue());
+        }
+        profileRepository.update(hintCreator);
     }
 }

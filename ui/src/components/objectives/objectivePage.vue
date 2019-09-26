@@ -1,28 +1,24 @@
 <template>
-    <div v-if="profile">
+    <div v-if="profile" class="pb-5">
         <b-row>
             <b-col cols="8">
-                <b-card>
-                    <objective-list
-                            :profile="profile"
-                            :adminView="adminView"
-                            :yourObjectives="true"
-                            :refreshObjectives="refreshObjectives"
-                            :selectedDestination="selectedDestination"
-                            @destination-select="showDestinationsSidebar"
-                            @hide-destinations="hideDestinationsSidebar"
-                    ></objective-list>
-                </b-card>
+                <objective-list
+                        :profile="profile"
+                        :adminView="adminView"
+                        :yourObjectives="true"
+                        :refreshObjectives="refreshObjectives"
+                        :selectedDestination="selectedDestination"
+                        @destination-select="showDestinationsSidebar"
+                        @hide-destinations="hideDestinationsSidebar"
+                ></objective-list>
             </b-col>
             <b-col>
-                <b-card>
-                    <found-destinations
-                            v-if="showDestinations"
-                            :search-public="true"
-                            :profile="profile"
-                            @destination-click="destination => this.selectedDestination = destination">
-                    </found-destinations>
-                </b-card>
+                <found-destinations
+                        v-if="showDestinations"
+                        :search-public="true"
+                        :profile="profile"
+                        @destination-click="destination => this.selectedDestination = destination">
+                </found-destinations>
             </b-col>
         </b-row>
     </div>

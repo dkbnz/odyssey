@@ -24,7 +24,6 @@ public class AuthenticationController extends Controller {
     private static final String USERNAME = "username";
     private static final String AUTHENTICATION_FIELD = "password";
     private static final String AUTHORIZED = "authorized";
-    private static final String LOGGED_IN = "OK, logged In";
     private static final String ALREADY_LOGGED_IN = "OK, Already Logged In";
     private static final String LOGGED_OUT = "OK, Logged out";
     private static final String HASH_FAIL = "Invalid JSON: JSON Object contains no user or password key";
@@ -41,9 +40,9 @@ public class AuthenticationController extends Controller {
      * database. If exists, set session and return ok() (Http 200).
      *
      * @param request   Http request from the client.
-     * @return          ok() (Http 200) if the user is logged in/successfully logged in, badRequest() (Http 400) if the
-     *                  user credentials are invalid, unauthorized() (Http 401) if no profile matching the user's
-     *                  credentials can be found.
+     * @return          ok() (Http 200) if the user is logged in/successfully logged in.
+     *                  badRequest() (Http 400) if the user credentials are invalid.
+     *                  unauthorized() (Http 401) if no profile matching the user's credentials can be found.
      */
     public Result login(Http.Request request) {
 
@@ -65,7 +64,7 @@ public class AuthenticationController extends Controller {
             String username = loginJson.get(USERNAME).asText();
 
             // Uses the hashProfilePassword() method to hash the given password.
-            String password = null;
+            String password;
             try {
                 password = AuthenticationUtil.hashProfilePassword(loginJson.get(AUTHENTICATION_FIELD).asText());
             } catch (NoSuchAlgorithmException e) {
@@ -76,8 +75,6 @@ public class AuthenticationController extends Controller {
             Profile profile = profileRepository.getExpressionList()
                     .like(USERNAME, username).findOne();
 
-
-
             if ((profile != null) && (profile.getPassword().equals(password))) {
                 // Profile was successfully fetched and password matches
                 // Set session token as id and return ok (200 response)
@@ -86,7 +83,7 @@ public class AuthenticationController extends Controller {
 
             return unauthorized(ApiError.unauthorized());
         } else {
-            // user is logged in
+            // User is logged in
 
             JsonNode loginJson = request.body().asJson();
 

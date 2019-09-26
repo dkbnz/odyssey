@@ -2,6 +2,8 @@ package models.objectives;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import models.hints.Hint;
+import models.quests.Quest;
 import models.util.ApiError;
 import models.util.BaseModel;
 import models.profiles.Profile;
@@ -9,9 +11,7 @@ import models.destinations.Destination;
 import models.util.Errors;
 import util.Views;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,6 +42,22 @@ public class Objective extends BaseModel {
     @JsonView(Views.Owner.class)
     private Double radius;
 
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JsonIgnore
+    private Quest questUsing;
+
+    @JsonView(Views.Owner.class)
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Hint> hints;
+
+    public boolean addHint(Hint hint) {
+        return hints.add(hint);
+    }
+
+    /**
+     * Backend validation for if an objective has any errors in the format of creating an objective.
+     * @return      a list of ApiError that states which parts of the objective are incorrect.
+     */
     @JsonIgnore
     public Collection<ApiError> getErrors() {
         List<ApiError> errors = new ArrayList<>();
@@ -97,6 +113,19 @@ public class Objective extends BaseModel {
 
     public void setRadius(Double radius) {
         this.radius = radius;
+    }
+
+    public Integer getNumberOfHints() {
+        return this.hints.size();
+    }
+
+    /**
+     * Returns an empty list if hints is null, otherwise returns the list of hints for the objective.
+     *
+     * @return      a list of hints.
+     */
+    public List<Hint> getHints() {
+        return hints == null ? new ArrayList<>() : hints;
     }
 
 

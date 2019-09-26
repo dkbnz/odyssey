@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
+        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-5 rounded-lg">
             <h1 class="page-title">Welcome to the Admin Panel</h1>
             <p class="page-title">
                 <i>Because you are an admin, you can achieve all functionality in the application!</i>
@@ -25,7 +25,9 @@
                 </b-col>
                 <b-col cols="6">
                     <b-card header="Create a Profile">
-                        <b-alert v-model="showSuccess" variant="success" dismissible>Profile successfully created</b-alert>
+                        <b-alert v-model="showSuccess" variant="success" dismissible>
+                            Profile successfully created
+                        </b-alert>
                         <b-button @click="showCollapse = !showCollapse" block variant="success">
                             Create a New Profile</b-button>
                         <!-- The collapsible that uses the sign up page to create a new profile -->
@@ -38,8 +40,12 @@
                         </b-collapse>
                     </b-card>
                     <b-card header="Destination Traveller Types">
-                        <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
-                        <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
+                        <b-alert variant="success" v-model="showTravellerTypeUpdateSuccess" dismissible>
+                            <p class="wrapWhiteSpace">{{alertMessage}}</p>
+                        </b-alert>
+                        <b-alert variant="danger" v-model="showTravellerTypeUpdateFailure" dismissible>
+                            <p class="wrapWhiteSpace">{{alertMessage}}</p>
+                        </b-alert>
                         <!-- Loop through the list of proposals and generate an area to accept/reject for each one -->
                         <div v-if="travellerTypeProposals.length > 0" class="proposalDiv">
                             <b-card v-for="destination in travellerTypeProposals"
@@ -71,13 +77,17 @@
                                         <b-card>
                                             <h5 class="page-title">Additions</h5>
                                             <!-- Set no gutters for the following rows, as otherwise they have a negative margin by default -->
-                                                <b-row no-gutters v-for="travellerType in destination.proposedTravellerTypesAdd" :key="travellerType.id">
+                                                <b-row no-gutters
+                                                       v-for="travellerType in destination.proposedTravellerTypesAdd"
+                                                       :key="travellerType.id">
                                                     <b-col cols="10" sm="10">
                                                         {{travellerType.travellerType}}
                                                     </b-col>
                                                     <b-col cols="2" sm="1">
                                                         <b-button variant="success" class="proposalButton"
-                                                                  @click="addTravellerTypes(destination, travellerType)">
+                                                                  @click="addTravellerTypes(
+                                                                  destination,
+                                                                  travellerType)">
                                                             &#10003;
                                                         </b-button>
                                                     </b-col>
@@ -87,13 +97,17 @@
                                     <b-col class="pr-1" md="4" sm="12">
                                         <b-card>
                                             <h5 class="page-title">Removals</h5>
-                                                <b-row no-gutters v-for="travellerType in destination.proposedTravellerTypesRemove" :key="travellerType.id">
+                                                <b-row no-gutters
+                                                       v-for="travellerType in destination.proposedTravellerTypesRemove"
+                                                       :key="travellerType.id">
                                                     <b-col cols="10" sm="10">
                                                         {{travellerType.travellerType}}
                                                     </b-col>
                                                     <b-col cols="2" sm="1">
                                                         <b-button variant="danger" class="proposalButton"
-                                                                  @click="removeTravellerTypes(destination, travellerType)">
+                                                                  @click="removeTravellerTypes(
+                                                                  destination,
+                                                                  travellerType)">
                                                             &#10003;
                                                         </b-button>
                                                     </b-col>
@@ -101,20 +115,26 @@
                                         </b-card>
                                     </b-col>
                                 </b-row>
-                                <b-row>
-                                    <b-button variant="primary" class="buttonMarginsTop"
-                                              @click="sendTravellerTypes(destination)" block :disabled="sendingRequest">
-                                        <b-img alt="Loading" class="align-middle loading" v-if="sendingRequest" :src="assets['loadingLogo']" height="20%">
-                                        </b-img>
-                                        Submit
-                                    </b-button>
+                                <b-row no-gutters>
+                                    <b-col>
+                                        <b-button variant="primary" class="buttonMarginsTop p-0 w-100"
+                                                  @click="sendTravellerTypes(destination)"
+                                                  block :disabled="sendingRequest">
+                                            Submit
+                                        </b-button>
+                                    </b-col>
                                 </b-row>
                             </b-card>
                         </div>
                         <div v-else class="text-center my-2">
-                            <b-img alt="Loading" class="align-middle loading" v-if="retrievingProposals" :src="assets['loadingLogo']">
+                            <b-img alt="Loading"
+                                   class="align-middle loading"
+                                   v-if="retrievingProposals"
+                                   :src="assets['loadingLogo']">
                             </b-img>
-                            <p v-if="!retrievingProposals && !travellerTypeProposals.length">No proposals could be found.</p>
+                            <p v-if="!retrievingProposals && !travellerTypeProposals.length">
+                                No proposals could be found.
+                            </p>
                         </div>
                     </b-card>
                 </b-col>
@@ -235,7 +255,8 @@
                         destination.travellerTypes.splice(i, 1);
                     }
                     for(let j = 0; j <= destination.proposedTravellerTypesRemove.length; j++) {
-                        if (JSON.stringify(destination.proposedTravellerTypesRemove[j]) === JSON.stringify(travellerType)) {
+                        if (JSON.stringify(destination.proposedTravellerTypesRemove[j])
+                            === JSON.stringify(travellerType)) {
                             destination.proposedTravellerTypesRemove.splice(j, 1);
                         }
                     }
