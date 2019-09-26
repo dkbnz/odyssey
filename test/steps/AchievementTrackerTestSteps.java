@@ -619,7 +619,7 @@ public class AchievementTrackerTestSteps {
 
 
     @Then("^the response contains (\\d+) badges$")
-    public void theResponseContainsBadges(int numberOfBadges) throws Exception {
+    public void theResponseContainsBadges(int numberOfBadges) throws IOException {
         // Write code here that turns the phrase above into concrete actions
         JsonNode responseJson = mapper.readTree(testContext.getResponseBody());
 

@@ -41,7 +41,7 @@ public class DestinationControllerTest {
         ObjectiveRepository mockObjectiveRepository;
         DestinationTypeRepository mockDestinationTypeRepository;
         BadgeRepository mockBadgeRepository;
-        PointRewardRepository mockPointRewardRepository;;
+        PointRewardRepository mockPointRewardRepository;
         AchievementTrackerController mockAchievementTrackerController;
         HintRepository mockHintRepository;
         ObjectMapper objectMapper;
