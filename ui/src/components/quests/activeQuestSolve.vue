@@ -52,7 +52,7 @@
             </b-collapse>
         </div>
 
-        <create-hint v-if="showHintSideBar"
+        <create-hint v-else-if="showHintSideBar"
                      :profile="profile"
                      :objective="objective"
                      @successCreate="successCreateHint"
@@ -270,7 +270,9 @@
                 searchedRiddle: null,
                 showHintSideBar: false,
                 objective: {
-                    id: -1
+                    id: -1,
+                    destination: "",
+                    riddle: ""
                 },
                 showOrHide: "Show",
                 showHintAlertModal: false,
