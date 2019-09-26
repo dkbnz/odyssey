@@ -7,7 +7,7 @@
             <p class="page-title">
                 <i>Here you can add destinations, search destinations or view destinations on a map!</i>
                 <b-img id="page_info"
-                       height="30%"
+                       height="25%"
                        :src="assets['information']"></b-img></p>
 
 
