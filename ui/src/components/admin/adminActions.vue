@@ -32,7 +32,8 @@
                             Create a New Profile</b-button>
                         <!-- The collapsible that uses the sign up page to create a new profile -->
                         <b-collapse id="signUpPage" class="mt-2" v-model="showCollapse">
-                            <sign-up :createdByAdmin="true"
+                            <sign-up :key="refreshSignUp"
+                                     :createdByAdmin="true"
                                      :nationalityOptions="nationalityOptions"
                                      :travTypeOptions="travTypeOptions"
                                      @profile-created="showOptions">
