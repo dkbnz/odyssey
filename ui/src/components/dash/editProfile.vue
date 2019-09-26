@@ -349,7 +349,7 @@
                 }  else if (this.saveProfile.username.length > 100) {
                     return false
                 }
-                let emailRegex = new RegExp("^([a-zA-Z0-9]+(@)([a-zA-Z]+((.)[a-zA-Z]+)*))(?=.{3,15})");
+                let emailRegex = new RegExp("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$");
                 this.checkUsername();
                 return (emailRegex.test(this.saveProfile.username) && this.validEmail);
             },
