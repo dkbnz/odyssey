@@ -210,6 +210,16 @@ a {
     flex: 20%;
 }
 
+.info-button {
+    font-size: 20px;
+}
+
+.tooltip-inner {
+    max-width: 1000px;
+    /* If max-width does not work, try using width instead */
+    /*width: 1000px;*/
+}
+
 /* Disabled property for badges if user has not achieved them yet */
 .disabledBadge {
     opacity: 0.2;
