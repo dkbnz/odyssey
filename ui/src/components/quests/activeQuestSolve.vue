@@ -543,13 +543,11 @@
              * @param objectiveToToggle     objective to toggle the hints for.
              */
             toggleHints(objectiveToToggle) {
-                console.log("Click!")
                 if(this.objective === null || (this.objective.id !== objectiveToToggle.id)) {
                     this.objective = objectiveToToggle;
                 } else {
                     this.objective = null;
                 }
-                console.log(this.objective)
             }
         },
     }
