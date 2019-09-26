@@ -31,11 +31,6 @@ public class ProfileTestSteps {
     private TestContext testContext = TestContext.getInstance();
 
     /**
-     * An object mapper used during tests.
-     */
-    private ObjectMapper mapper = new ObjectMapper();
-
-    /**
      * Authorised string variable.
      */
     private static final String AUTHORIZED = "authorized";
@@ -76,6 +71,16 @@ public class ProfileTestSteps {
     private static final String PASS_FIELD = "password";
 
     /**
+     * JSON variables
+     */
+    private static final String ID = "id";
+    private static final String FIRST_NAME = "firstName";
+    private static final String MIDDLE_NAME = "middleName";
+    private static final String LAST_NAME = "lastName";
+    private static final String DATE_OF_BIRTH = "dateOfBirth";
+    private static final String PASSPORTS = "passports";
+
+    /**
      * A valid username for login credentials for admin user.
      */
     private static final String VALID_USERNAME = "admin@travelea.com";
@@ -108,6 +113,19 @@ public class ProfileTestSteps {
     private static final String SORT_ORDER = "sortOrder";
     private static final String PAGE = "page";
     private static final String PAGE_SIZE = "pageSize";
+    private static final String FIRST_NAME_SNAKE_CASE = "first_name";
+    private static final String MIDDLE_NAME_SNAKE_CASE = "middle_name";
+    private static final String LAST_NAME_SNAKE_CASE = "last_name";
+    private static final String DATE_OF_BIRTH_SNAKE_CASE = "date_of_birth";
+    private static final String SINGLE_NATIONALITY = "nationality";
+    private static final String SINGLE_TRAVELLER_TYPE = "traveller_type";
+    private static final String SINGLE_TRAVELLER_TYPE_CAMEL_CASE = "travellerType";
+    private static final String SINGLE_PASSPORT = "passport_country";
+    private static final String EMPTY_STRING = "";
+    private static final String ZERO_STRING = "0";
+    private static final String ONE_STRING = "1";
+    private static final String ONE_HUNDRED_AND_TWENTY_STRING = "120";
+    private static final String POINTS_STRING = "points";
 
 
     /**
@@ -175,13 +193,13 @@ public class ProfileTestSteps {
     private JsonNode convertDataTableToJsonNode(io.cucumber.datatable.DataTable dataTable) {
         //Get all input from the data table
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-        String username = list.get(0).get("username");
-        String password = list.get(0).get("password");
-        String firstName = list.get(0).get("first_name");
-        String middleName = list.get(0).get("middle_name");
-        String lastName = list.get(0).get("last_name");
-        String gender = list.get(0).get("gender");
-        String dateOfBirth = list.get(0).get("date_of_birth");
+        String username = list.get(0).get(USERNAME);
+        String password = list.get(0).get(PASS_FIELD);
+        String firstName = list.get(0).get(FIRST_NAME_SNAKE_CASE);
+        String middleName = list.get(0).get(MIDDLE_NAME_SNAKE_CASE);
+        String lastName = list.get(0).get(LAST_NAME_SNAKE_CASE);
+        String gender = list.get(0).get(GENDER);
+        String dateOfBirth = list.get(0).get(DATE_OF_BIRTH_SNAKE_CASE);
 
         // complex json
         ObjectMapper mapper = new ObjectMapper();
@@ -190,24 +208,24 @@ public class ProfileTestSteps {
         ObjectNode json = mapper.createObjectNode();
 
         ObjectNode nationalityNode = mapper.createObjectNode();
-        nationalityNode.put("id", Integer.valueOf(list.get(0).get("nationality")));
+        nationalityNode.put(ID, Integer.valueOf(list.get(0).get(SINGLE_NATIONALITY)));
 
         ObjectNode travellerTypeNode = mapper.createObjectNode();
-        travellerTypeNode.put("id", Integer.valueOf(list.get(0).get("traveller_type")));
+        travellerTypeNode.put(ID, Integer.valueOf(list.get(0).get(SINGLE_TRAVELLER_TYPE)));
 
         ObjectNode passportNode = mapper.createObjectNode();
-        passportNode.put("id", Integer.valueOf(list.get(0).get("passport_country")));
+        passportNode.put(ID, Integer.valueOf(list.get(0).get(SINGLE_PASSPORT)));
 
-        json.put("username", username);
-        json.put("password", password);
-        json.put("firstName", firstName);
-        json.put("middleName", middleName);
-        json.put("lastName", lastName);
-        json.put("gender", gender);
-        json.put("dateOfBirth", dateOfBirth);
-        json.putArray("nationalities").add(nationalityNode);
-        json.putArray("travellerTypes").add(travellerTypeNode);
-        json.putArray("passports").add(passportNode);
+        json.put(USERNAME, username);
+        json.put(PASS_FIELD, password);
+        json.put(FIRST_NAME, firstName);
+        json.put(MIDDLE_NAME, middleName);
+        json.put(LAST_NAME, lastName);
+        json.put(GENDER, gender);
+        json.put(DATE_OF_BIRTH, dateOfBirth);
+        json.putArray(NATIONALITY).add(nationalityNode);
+        json.putArray(TRAVELLER_TYPE).add(travellerTypeNode);
+        json.putArray(PASSPORTS).add(passportNode);
         return json;
     }
 
@@ -254,9 +272,9 @@ public class ProfileTestSteps {
         String rank = getValue(RANK, givenFields, givenValues);
         String pageSize = getValue(PAGE_SIZE, givenFields, givenValues);
 
-        pageSize = pageSize.equals("") ? DEFAULT_PAGE_SIZE : pageSize;
-        minAge = minAge.equals("") ? "0"    : minAge;
-        maxAge = maxAge.equals("") ? "120"  : maxAge;
+        pageSize = pageSize.equals(EMPTY_STRING) ? DEFAULT_PAGE_SIZE : pageSize;
+        minAge = minAge.equals(EMPTY_STRING) ? ZERO_STRING    : minAge;
+        maxAge = maxAge.equals(EMPTY_STRING) ? ONE_HUNDRED_AND_TWENTY_STRING  : maxAge;
 
         return QUESTION_MARK
                 + NATIONALITY + EQUALS + nationality
@@ -277,9 +295,9 @@ public class ProfileTestSteps {
                 + AND
                 + RANK + EQUALS + rank
                 + AND
-                + SORT_BY + EQUALS + ""
+                + SORT_BY + EQUALS + EMPTY_STRING
                 + AND
-                + SORT_ORDER + EQUALS + ""
+                + SORT_ORDER + EQUALS + EMPTY_STRING
                 + AND
                 + PAGE + EQUALS + DEFAULT_PAGE
                 + AND
@@ -335,7 +353,7 @@ public class ProfileTestSteps {
         // Sends the fake request
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .session(AUTHORIZED, "1")
+                .session(AUTHORIZED, ONE_STRING)
                 .uri(PROFILES_URI);
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
@@ -369,8 +387,8 @@ public class ProfileTestSteps {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
 
         for (int i = 0; i < list.size(); i++) {
-            Long userId = Long.parseLong(list.get(i).get("id"));
-            String username = list.get(i).get("username");
+            Long userId = Long.parseLong(list.get(i).get(ID));
+            String username = list.get(i).get(USERNAME);
             Profile profile = profileRepository.findById(userId);
             Assert.assertNotNull(profile);
             Assert.assertEquals(profile.getUsername(), username);
@@ -401,11 +419,12 @@ public class ProfileTestSteps {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
 
         for (int i = 0; i < list.size(); i++) {
-            long userId = Long.parseLong(list.get(i).get("id"));
-            int points = Integer.parseInt(list.get(i).get("points"));
+            long userId = Long.parseLong(list.get(i).get(ID));
+            int points = Integer.parseInt(list.get(i).get(POINTS_STRING));
 
             Profile profile = profileRepository.findById(userId);
-            AchievementTracker achievementTracker = profile.getAchievementTracker(); //Null profile fails test, which is fine
+            // Null profile fails test, which is fine
+            AchievementTracker achievementTracker = profile.getAchievementTracker();
             achievementTracker.addPoints(points);
             profileRepository.update(profile);
             Assert.assertEquals(points, achievementTracker.getPoints());
@@ -439,7 +458,8 @@ public class ProfileTestSteps {
         while (iterator.hasNext()) {
             JsonNode jsonProfile = iterator.next();
             count++;
-            if (jsonProfile.get("id").asText().equals("1") && jsonProfile.get(USERNAME).asText().equals(VALID_USERNAME)) {
+            if (jsonProfile.get(ID).asText().equals(ONE_STRING)
+                    && jsonProfile.get(USERNAME).asText().equals(VALID_USERNAME)) {
                 passProfiles = true;
             }
         }
@@ -468,8 +488,8 @@ public class ProfileTestSteps {
         while (iterator.hasNext()) {
             JsonNode jsonTravellerType = iterator.next();
             count++;
-            if (jsonTravellerType.get("id").asText().equals("5")
-                    && jsonTravellerType.get("travellerType").asText().equals("Holidaymaker")) {
+            if (jsonTravellerType.get(ID).asText().equals("5")
+                    && jsonTravellerType.get(SINGLE_TRAVELLER_TYPE_CAMEL_CASE).asText().equals("Holidaymaker")) {
                 passTravelTypes = true;
             }
         }
@@ -498,8 +518,8 @@ public class ProfileTestSteps {
         while (iterator.hasNext()) {
             JsonNode jsonTravellerType = iterator.next();
             count++;
-            if (jsonTravellerType.get("id").asText().equals("16")
-                    && (jsonTravellerType.get("nationality").asText().equals("Chinese"))) {
+            if (jsonTravellerType.get(ID).asText().equals("16")
+                    && (jsonTravellerType.get(SINGLE_NATIONALITY).asText().equals("Chinese"))) {
                 passNationalities = true;
             }
         }
@@ -513,7 +533,7 @@ public class ProfileTestSteps {
 
 
     @When("A user attempts to create a profile with the following fields:")
-    public void aUserAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) throws IOException {
+    public void aUserAttemptsToCreateAProfileWithTheFollowingFields(io.cucumber.datatable.DataTable dataTable) {
         // Creates the json for the profile
         JsonNode json = convertDataTableToJsonNode(dataTable);
 
@@ -617,7 +637,7 @@ public class ProfileTestSteps {
             JsonNode profileJson = mapper.readTree(Helpers.contentAsString(result));
             profileToEdit = profileJson.deepCopy();
             profileToEdit.put(USERNAME, newUsername);
-            profileToEdit.put(PASS_FIELD, "");
+            profileToEdit.put(PASS_FIELD, EMPTY_STRING);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error converting string to Json", e);
         }
@@ -644,7 +664,7 @@ public class ProfileTestSteps {
     public void theResponseContainsTheFollowingProfiles(DataTable dataTable) {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
         for (int i = 0; i < list.size(); i++) {
-            String username = list.get(i).get("username");
+            String username = list.get(i).get(USERNAME);
             Assert.assertTrue(testContext.getResponseBody().contains(username));
         }
     }
@@ -655,7 +675,7 @@ public class ProfileTestSteps {
         List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
 
         for (int i = 0; i < list.size(); i++) {
-            String username = list.get(i).get("username");
+            String username = list.get(i).get(USERNAME);
             Assert.assertFalse(testContext.getResponseBody().contains(username));
         }
     }

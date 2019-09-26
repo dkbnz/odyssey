@@ -76,7 +76,6 @@ Feature: Objective API Endpoint
     Then the status code received is 400
 
 
-
   Scenario: Unsuccessfully editing a Objective for another user as non-admin
     Given the application is running
     And I am logged in as an admin user

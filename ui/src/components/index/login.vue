@@ -63,7 +63,7 @@
                 fetch('/v1/login', {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
-                    body: JSON.stringify({username: this.username, password: this.password})
+                    body: JSON.stringify({username: this.username.toLowerCase(), password: this.password})
                 }).then(function (response) {
                     if (!response.ok) {
                         throw response;

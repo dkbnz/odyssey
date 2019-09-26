@@ -8,7 +8,9 @@
                 </div>
 
                 <div class="subtitleSection">
-                    <h4 id="subtitle">Earn points and badges by creating and solving quests as you travel around the world!</h4>
+                    <h4 id="subtitle">
+                        Earn points and badges by creating and solving quests as you travel around the world!
+                    </h4>
                 </div>
                 <b-row class="loginSignUpButtons">
                     <b-col>
@@ -44,10 +46,10 @@
                                 <b-img :src="assets['loadingLogoBig']" alt="Odyssey Logo" width="100%"></b-img>
                                 <h1 class="page-title mt-1 blurbFontTitle">About Odyssey</h1>
                                 <p class="blurbFont">
-                                    <i>Odyssey</i> allows you to create and solve quests as you travel around the world, all
-                                    while earning points and badges for using the various features of the application. <br />
-                                    You can even solve quests on your mobile devices, allowing you to take <i>Odyssey</i> with
-                                    you while you solve quests.
+                                    <i>Odyssey</i> allows you to create and solve quests as you travel around the world,
+                                    all while earning points and badges for using the various features of the
+                                    application. <br /> You can even solve quests on your mobile devices, allowing you
+                                    to take <i>Odyssey</i> with you while you solve quests.
                                 </p>
                             </div>
                         </b-col>
@@ -56,22 +58,22 @@
                             <b-img :src="assets['teamIcon']" alt="Team Symbol" width="100%"></b-img>
                             <h1 class="page-title mt-1 blurbFontTitle">The Team</h1>
                             <p class="blurbFont">
-                                The developers of <i>Odyssey</i> are a group of students, <i>Everyware</i>, in the University of Canterbury's
+                                The developers of <i>Odyssey</i> are a group of students, <i>Everyware</i>, in the
+                                University of Canterbury's
                                 SENG302 2019 class. <br />
-                                We wanted to create an application that our PO, Moffat Matthews, could use for university
-                                events such as Open Days. <br />
-                                This application was developed over the course of eight months of university work, so we hope you
-                                enjoy it!
+                                We wanted to create an application that our PO, Moffat Matthews, could use for
+                                university events such as Open Days. <br />
+                                This application was developed over the course of eight months of university work, so we
+                                hope you enjoy it!
                             </p>
                         </b-col>
                     </b-row>
                     <b-row>
-                        <div class="w-100 text-center">
+                        <div class="w-100 text-center mt-5 pt-5">
                             <h4>So, what are you waiting for?</h4>
                             <div>
                                 <b-button id="get-started" variant="link">Get Started!</b-button>
                             </div>
-
                         </div>
                     </b-row>
                 </div>

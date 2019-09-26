@@ -111,8 +111,8 @@
             /**
              * Queries database for profiles which fit search criteria.
              *
-             * @param searchParameters  the search parameters that generate the search query for profiles.
-             * @return {Promise <Response | never>}        the fetch method to retrieve profiles.
+             * @param searchParameters                  the search parameters generating the search query for profiles.
+             * @returns {Promise <Response | never>}    the fetch method to retrieve profiles.
              */
             queryProfiles(searchParameters) {
                 this.retrievingProfiles = true;
@@ -127,6 +127,7 @@
                         "&gender=" + "" +
                         "&min_age=" + "" +
                         "&max_age=" + "" +
+                        "&rank=" +
                         "&travellerTypes=" + "" +
                         "&page=" + this.queryPage +
                         "&pageSize=" + this.pageSize;
@@ -138,6 +139,7 @@
                         "&min_age=" + this.searchParameters.age[0] +
                         "&max_age=" + this.searchParameters.age[1] +
                         "&travellerTypes=" + this.searchParameters.travellerType +
+                        "&rank=" + this.searchParameters.rank +
                         "&page=" + this.queryPage +
                         "&pageSize=" + this.pageSize;
                 }

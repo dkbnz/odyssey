@@ -2,36 +2,20 @@
     <div>
         <b-navbar class="mainNav" toggleable="lg" variant="light">
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-            <b-navbar-brand class="nav-bar-brand" @click="goToProfile()"><img :src="assets.appLogo" width="200px"></b-navbar-brand>
-
+            <router-link :to="'/profile'" tag="b-navbar-brand" class="nav-bar-brand" :class="{active: currentPage ==='/trips'}">
+                <img :src="assets.appLogo" width="200px">
+            </router-link>
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage ==='/trips'}"
-                                @click="goToTrips()">Trips
-                    </b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage ==='/destinations'}"
-                                @click="goToDestinations()">
-                        Destinations
-                    </b-nav-item>
-                    <b-nav-item :class="{active: currentPage==='/quests'}"
-                                @click="goToQuests()">
-                        Quests
-                    </b-nav-item>
-                    <b-nav-item :class="{active: currentPage ==='/leaderboard'}"
-                                @click="goToLeaderboard()">
-                        Leaderboard
-                    </b-nav-item>
-                    <b-nav-item class="d-none d-lg-block" :class="{active: currentPage ==='/admin'}"
-                                @click="goToAdminPanel()"
-                                v-if="profile.admin">
-                        Admin
-                    </b-nav-item>
+                    <router-link class="d-none d-lg-block" :to="'/trips'" tag="b-nav-item" :class="{active: currentPage ==='/trips'}">Trips</router-link>
+                    <router-link class="d-none d-lg-block" :to="'/destinations'" tag="b-nav-item" :class="{active: currentPage ==='/destinations'}">Destinations</router-link>
+                    <router-link :to="'/quests'" tag="b-nav-item" :class="{active: currentPage ==='/quests'}">Quests</router-link>
+                    <router-link :to="'/leaderboard'" tag="b-nav-item" :class="{active: currentPage ==='/leaderboard'}">Leaderboard</router-link>
+                    <router-link class="d-none d-lg-block" :to="'/admin'" tag="b-nav-item" :class="{active: currentPage ==='/admin'}" v-if="profile.admin">Admin</router-link>
                 </b-navbar-nav>
 
                 <b-navbar-nav class="ml-auto">
-                    <b-nav-item right :class="{active: currentPage ==='/profile'}" @click="goToProfile()">
-                        {{ profile.firstName }}
-                    </b-nav-item>
+                    <router-link :to="'/profile'" tag="b-nav-item" :class="{active: currentPage ==='/profile'}">{{ profile.firstName }}</router-link>
                     <b-nav-item @click="logout">
                         Logout
                     </b-nav-item>
@@ -87,29 +71,6 @@
              */
             getCurrentPage() {
                 this.currentPage = this.$router.currentRoute.fullPath;
-            },
-
-
-            /**
-             * Methods to navigate to each page using the VueRouter.
-             */
-            goToLeaderboard() {
-                this.$router.push("/leaderboard");
-            },
-            goToTrips() {
-                this.$router.push("/trips");
-            },
-            goToDestinations() {
-                this.$router.push("/destinations");
-            },
-            goToProfile() {
-                this.$router.push("/profile");
-            },
-            goToAdminPanel() {
-                this.$router.push("/admin");
-            },
-            goToQuests() {
-                this.$router.push("/quests");
             }
         }
     }

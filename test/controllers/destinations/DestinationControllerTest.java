@@ -11,8 +11,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repositories.destinations.DestinationRepository;
 import repositories.destinations.DestinationTypeRepository;
+import repositories.hints.HintRepository;
 import repositories.objectives.ObjectiveRepository;
-import repositories.points.AchievementTrackerRepository;
 import repositories.points.BadgeRepository;
 import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
@@ -26,6 +26,10 @@ public class DestinationControllerTest {
 
     private static final String AUTHORIZED = "authorized";
     private static final String USER_ID = "2";
+    private static final Long DEFAULT_ADMIN_ID = 1L;
+    private static final Long REGULAR_USER_ID = 2L;
+    private static final Long REQUESTED_USER_ID = 3L;
+    private static final Long NON_EXISTENT_USER_ID = 500L;
     private DestinationController mockDestinationController;
     private ProfileRepository mockProfileRepository;
 
@@ -38,8 +42,8 @@ public class DestinationControllerTest {
         DestinationTypeRepository mockDestinationTypeRepository;
         BadgeRepository mockBadgeRepository;
         PointRewardRepository mockPointRewardRepository;
-        AchievementTrackerRepository mockAchievementTrackerRepository;
         AchievementTrackerController mockAchievementTrackerController;
+        HintRepository mockHintRepository;
         ObjectMapper objectMapper;
 
         mockDestinationRepository = mock(DestinationRepository.class);
@@ -50,13 +54,16 @@ public class DestinationControllerTest {
         mockDestinationTypeRepository = mock(DestinationTypeRepository.class);
         mockBadgeRepository = mock(BadgeRepository.class);
         mockPointRewardRepository = mock(PointRewardRepository.class);
-        mockAchievementTrackerRepository = mock(AchievementTrackerRepository.class);
+        mockHintRepository = mock(HintRepository.class);
         objectMapper = mock(ObjectMapper.class);
+
         mockAchievementTrackerController = new AchievementTrackerController(
                 mockProfileRepository,
                 mockPointRewardRepository,
                 mockBadgeRepository,
+                mockHintRepository,
                 objectMapper);
+
         mockDestinationController = new DestinationController(
                 mockProfileRepository,
                 mockDestinationRepository,
@@ -71,23 +78,23 @@ public class DestinationControllerTest {
         Profile requestedUser;
 
         defaultAdmin = new Profile();
-        defaultAdmin.setId(1L);
+        defaultAdmin.setId(DEFAULT_ADMIN_ID);
         defaultAdmin.setAdmin(true);
 
         regularUser = new Profile();
-        regularUser.setId(2L);
+        regularUser.setId(REGULAR_USER_ID);
         regularUser.setAdmin(false);
 
 
         requestedUser = new Profile();
-        requestedUser.setId(3L);
+        requestedUser.setId(REQUESTED_USER_ID);
         requestedUser.setAdmin(false);
 
 
         // Mock profile fetches
-        when(mockProfileRepository.findById(1L)).thenReturn(defaultAdmin);
-        when(mockProfileRepository.findById(2L)).thenReturn(regularUser);
-        when(mockProfileRepository.findById(3L)).thenReturn(requestedUser);
+        when(mockProfileRepository.findById(DEFAULT_ADMIN_ID)).thenReturn(defaultAdmin);
+        when(mockProfileRepository.findById(REGULAR_USER_ID)).thenReturn(regularUser);
+        when(mockProfileRepository.findById(REQUESTED_USER_ID)).thenReturn(requestedUser);
     }
 
     @Test
@@ -156,7 +163,7 @@ public class DestinationControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = mockDestinationController.fetchByUser(request, 3L);
+        Result result = mockDestinationController.fetchByUser(request, REQUESTED_USER_ID);
 
         // Assert
         Assert.assertEquals(UNAUTHORIZED, result.status());
@@ -172,7 +179,7 @@ public class DestinationControllerTest {
         Http.RequestBuilder requestBuilder = fakeRequest().session(AUTHORIZED, USER_ID);
         Http.Request request = requestBuilder.build();
         // Act
-        Result result = mockDestinationController.fetchByUser(request, 500L);
+        Result result = mockDestinationController.fetchByUser(request, NON_EXISTENT_USER_ID);
 
         // Assert
         Assert.assertEquals(BAD_REQUEST, result.status());
@@ -189,7 +196,7 @@ public class DestinationControllerTest {
         Http.Request request = requestBuilder.build();
 
         // Act
-        Result result = mockDestinationController.fetchByUser(request, 3L);
+        Result result = mockDestinationController.fetchByUser(request, REQUESTED_USER_ID);
 
         // Assert
         Assert.assertEquals(FORBIDDEN, result.status());

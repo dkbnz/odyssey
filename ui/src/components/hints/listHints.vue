@@ -1,0 +1,251 @@
+<template>
+    <div class="w-100 buttonMarginsTop">
+        <b-list-group>
+            <p v-if="!objective.hints.length > 0">No Hints for this Objective</p>
+            <b-list-group-item v-for="hint in getHints"
+                               class="flex-column align-items-start"
+                               draggable="false"
+                               :key="hint.message">
+                <b-form-row>
+                    <b-col md="10" cols="8" class="d-inline text-wrap text-break">
+                        {{hint.message}}
+                    </b-col>
+                    <b-col @click="upVote(hint)" class="vote greenHover d-inline text-center"
+                               :class="{'vote green': hint.vote != null && hint.vote.upVote}" v-if="solved">
+                            <b-img
+                                    height="15%"
+                                    :src="assets['arrowUp']"></b-img>
+                        </b-col>
+                        <b-col v-if="solved" class="d-inline text-center">
+                            {{roundVoteSum(hint.voteSum)}}
+                        </b-col>
+                        <b-col @click="downVote(hint)" class="vote redHover d-inline text-center"
+                               :class="{'vote red': hint.vote != null && !hint.vote.upVote}" v-if="solved">
+                            <b-img
+                                    height="15%"
+                                    :src="assets['arrowDown']"></b-img>
+                        </b-col>
+                </b-form-row>
+
+            </b-list-group-item>
+            <b-row no-gutters class="mt-2" v-if="objective.hints.length > 0">
+                <b-col cols="3">
+                    <b-form-group
+                            id="numItemsPast-field"
+                            label-for="perPagePast">
+                        <b-form-select :options="optionViews" id="perPage" size="sm" trim v-model="perPage">
+                        </b-form-select>
+                    </b-form-group>
+                </b-col>
+                <b-col cols="8">
+                    <b-pagination
+                            :per-page="perPage"
+                            :total-rows="rows"
+                            align="center"
+                            aria-controls="my-table"
+                            first-text="First"
+                            last-text="Last"
+                            size="sm"
+                            v-model="currentPage"
+                    ></b-pagination>
+                </b-col>
+            </b-row>
+            <b-row no-gutters class="mt-2">
+                <b-col>
+                    <div class="float-right">
+                        <b-button class="no-wrap-text" size="sm" variant="primary" @click="addHint" v-if="solved">
+                            Add Hint
+                        </b-button>
+                        <b-button size="sm" variant="primary"
+                                  @click="requestHint"
+                                  v-if="!solved && objective.numberOfHints > objective.hints.length">
+                            I need {{objective.hints.length ? "another" : "a"}} hint!
+                        </b-button>
+                    </div>
+                </b-col>
+            </b-row>
+        </b-list-group>
+    </div>
+</template>
+
+<script>
+    import CreateHint from './createHint'
+    export default {
+        name: "listHints",
+
+        props: {
+            objective: Object,
+            profile: Object,
+            solved: false,
+            refresh: Boolean
+        },
+
+        data: function () {
+            return {
+                optionViews: [
+                    {value: 1, text: "1"},
+                    {value: 5, text: "5"},
+                    {value: 10, text: "10"},
+                    {value: 15, text: "15"}
+                ],
+                perPage: 5,
+                currentPage: 1,
+                startingRowNumber: 0,
+                endingRowNumber: 5,
+                objectiveHints: this.objective.hints
+            }
+        },
+
+        computed: {
+            /**
+             * The amount of rows in total for hints based on if the user is seeing their requested hints or all the
+             * hints for that given objective.
+             */
+            rows() {
+              if (this.solved) {
+                  return this.objective.numberOfHints;
+              }
+              return this.objectiveHints.length;
+            },
+
+
+            /**
+             * Gets the hints for the display list, if the user has solved the objective then they will see the list
+             * of hints based on the parent component. Otherwise using a sliced list of all the hints if using the
+             * requested hints for solving an objective.
+             */
+            getHints() {
+                if (this.solved) {
+                    return this.objectiveHints;
+                }
+                let currentHints = this.objectiveHints;
+                currentHints = currentHints.slice(this.startingRowNumber, this.endingRowNumber);
+                return currentHints;
+            }
+        },
+
+        watch: {
+            /**
+             * When the objective hints are changed, update the display on the frontend.
+             */
+            refresh() {
+                this.objectiveHints = this.objective.hints;
+            },
+
+
+            /**
+             * Calls change hint view when the user changes the current page to view of hints.
+             */
+            currentPage() {
+                this.changeHintView();
+            },
+
+
+            /**
+             * Calls change hint view when the user changes the amount of hints per page.
+             */
+            perPage() {
+                this.changeHintView();
+            },
+        },
+
+        methods: {
+            /**
+             * Called when per page or current page changes and emits if the user has solved the objective to get new
+             * hints from the backend. Or sets the starting and ending row number for the hints list for the hints you
+             * have requested.
+             */
+            changeHintView() {
+                if (this.solved) {
+                    this.$emit('request-new-hints-page', this.currentPage, this.perPage)
+                }
+                this.startingRowNumber = this.perPage * (this.currentPage -1);
+                this.endingRowNumber = this.startingRowNumber + this.perPage;
+            },
+
+
+            /**
+             * Uses a fetch method (POST) to upvote a hint. If there is an error for some reason, this is shown to the
+             * user.
+             * If the vote is changed, updates the hint's vote sum.
+             *
+             * @param hint      the hint being voted upon.
+             */
+            upVote(hint) {
+                let self = this;
+                fetch('/v1/hints/' + hint.id + '/upvote/' + this.profile.id, {
+                    method: 'POST'
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    let hintIndex = self.objectiveHints.findIndex(objectiveHint => objectiveHint.id === responseBody.id);
+                    self.objectiveHints.splice(hintIndex, 1, responseBody);
+                }).catch(function (response) {
+                    self.savingTrip = false;
+                    self.handleErrorResponse(response);
+                });
+            },
+
+
+            /**
+             * Round the number of votes for a given hint to a human readable format.
+             *
+             * @param votes     the number of votes for a given hint.
+             */
+            roundVoteSum(votes) {
+                return votes >= 1000 ? (votes/1000).toFixed(1) + 'k' : votes;
+            },
+
+
+            /**
+             * Uses a fetch method (POST) to downvote a hint. If there is an error for some reason, this is shown to the
+             * user.
+             * If the vote is changed, updates the hint's vote sum.
+             *
+             * @param hint      the hint being voted upon.
+             */
+            downVote(hint) {
+                let self = this;
+                fetch('/v1/hints/' + hint.id + '/downvote/' + this.profile.id, {
+                    method: 'POST'
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    let hintIndex = self.objectiveHints.findIndex(objectiveHint => objectiveHint.id === responseBody.id);
+                    self.objectiveHints.splice(hintIndex, 1, responseBody);
+                }).catch(function (response) {
+                    self.savingTrip = false;
+                    self.handleErrorResponse(response);
+                });
+            },
+
+
+            /**
+             * Emits to the above layer to show the create hint instead of the main group.
+             */
+            addHint() {
+                this.$emit('showAddHint');
+            },
+
+
+            /**
+             * Emits to the above layer to show the request a hint confirmation modal.
+             */
+            requestHint() {
+                this.$emit('hintRequested');
+            }
+        },
+
+        components: {
+            CreateHint
+        }
+    }
+</script>

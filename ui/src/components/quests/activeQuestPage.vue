@@ -11,6 +11,7 @@
             <b-col cols="7">
                 <b-card class="w-100 h-100">
                     <quest-attempt-solve
+                            :profile="profile"
                             :quest-attempt="selectedQuestAttempt"
                             @updated-quest-attempt="updateQuestAttempts">
                     </quest-attempt-solve>
@@ -65,6 +66,16 @@
         },
 
         methods: {
+            /**
+             * Shows the alert for a hint successfully created.
+             */
+            showHintCreateSuccess() {
+                this.alertText = "Hint successfully created!";
+                this.showAlert();
+                this.showRewardToast(responseBody.reward);
+            },
+
+
             /**
              * Runs a query which searches through the quests in the database and returns only
              * quests started by the profile.

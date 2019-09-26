@@ -13,13 +13,20 @@ import java.util.Optional;
 public final class AuthenticationUtil {
 
     private static final String AUTHORIZED = "authorized";
-    private static final String HASH_AUTHENTICATION_TYPE = "SHA-256";
+
+    /**
+     * SHA - 256 is a one way hashing algorithm uses to create a 255 bit stream generated from
+     * any other string
+     */
+    private static final String HASH_ALGORITHM_TYPE = "SHA-256";
+
+    private static final String UTILITY_CLASS = "Utility class";
 
     /**
      * Private constructor for the class to prevent instantiation.
      */
     private AuthenticationUtil() {
-        throw new IllegalStateException("Utility class");
+        throw new IllegalStateException(UTILITY_CLASS);
     }
 
 
@@ -31,7 +38,7 @@ public final class AuthenticationUtil {
      * @return                  true if the logged in user is allowed to manipulate the owners data.
      */
     public static boolean validUser(Profile loggedInUser, Profile owner) {
-        return loggedInUser.isAdmin()|| owner.getId().equals(loggedInUser.getId());
+        return loggedInUser.isAdmin() || owner.getId().equals(loggedInUser.getId());
     }
 
 
@@ -63,7 +70,7 @@ public final class AuthenticationUtil {
      * @throws NoSuchAlgorithmException if the algorithm specified does not exist for the MessageDigest library.
      */
     public static String hashProfilePassword(String password) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance(HASH_AUTHENTICATION_TYPE);
+        MessageDigest digest = MessageDigest.getInstance(HASH_ALGORITHM_TYPE);
         return DatatypeConverter.printHexBinary(digest.digest(password.getBytes(StandardCharsets.UTF_8)));
     }
 

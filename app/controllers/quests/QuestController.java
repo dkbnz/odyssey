@@ -20,7 +20,6 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repositories.destinations.DestinationRepository;
-import repositories.points.PointRewardRepository;
 import repositories.profiles.ProfileRepository;
 import repositories.quests.QuestAttemptRepository;
 import repositories.quests.QuestRepository;
@@ -78,7 +77,6 @@ public class QuestController {
                            ProfileRepository profileRepository,
                            DestinationRepository destinationRepository,
                            AchievementTrackerController achievementTrackerController,
-                           PointRewardRepository pointRewardRepository,
                            ObjectMapper objectMapper) {
         this.questRepository = questRepository;
         this.questAttemptRepository = questAttemptRepository;
@@ -144,7 +142,7 @@ public class QuestController {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
-        returnJson.set(REWARD, achievementTrackerController.rewardAction(questOwner, newQuest,
+        returnJson.set(REWARD, achievementTrackerController.rewardQuestInteraction(questOwner, newQuest,
                 Action.QUEST_CREATED));   // Points for creating quest
 
         questRepository.save(newQuest);
@@ -190,19 +188,20 @@ public class QuestController {
             return badRequest(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
 
+        Quest newQuest;
         try {
             // Attempt to turn Json body into a objective object.
-            quest = objectMapper.readerWithView(Views.Owner.class)
+            newQuest = objectMapper.readerWithView(Views.Owner.class)
                     .forType(Quest.class)
                     .readValue(request.body().asJson());
         } catch (Exception e) {
             return badRequest(ApiError.invalidJson());
         }
 
-        quest.setOwner(questOwner);
-        quest.setId(questId);
+        newQuest.setOwner(questOwner);
+        newQuest.setId(questId);
 
-        for(Objective newObjective : quest.getObjectives()) {
+        for(Objective newObjective : newQuest.getObjectives()) {
             newObjective.setOwner(questOwner);
             if (newObjective.getDestination().getId() == null) {
                 return badRequest(ApiError.invalidJson());
@@ -210,16 +209,21 @@ public class QuestController {
             newObjective.setDestination(destinationRepository.findById(newObjective.getDestination().getId()));
         }
 
+        if (!canEditQuest(quest, newQuest)) {
+            return badRequest(ApiError.badRequest(Errors.QUEST_CANNOT_BE_EDITED));
+        }
 
-        Collection<ApiError> questEditErrors = quest.getErrors();
+        Collection<ApiError> questEditErrors = newQuest.getErrors();
 
         if (!questEditErrors.isEmpty()) {
             return badRequest(Json.toJson(questEditErrors));
         }
 
-        questRepository.update(quest);
+        questRepository.update(newQuest);
 
-        return ok(Json.toJson(quest));
+        questRepository.refresh(newQuest);
+
+        return ok(Json.toJson(newQuest));
     }
 
 
@@ -261,6 +265,37 @@ public class QuestController {
          questRepository.delete(quest);
          profileRepository.update(questOwner);
          return ok(Json.toJson(QUEST_DELETED));
+    }
+
+
+    /**
+     * Determines if the user is able to edit the quest freely. This is determined by if the quest has been started by
+     * other users. If there are users that have started the quest, then they can't edit the objective destinations in
+     * the quest. Otherwise, they are free to edit.
+     *
+     * @param questToEdit    the quest to be edited, before it has been edited.
+     * @param editedQuest    the quest after it has been edited.
+     * @return               boolean true if they can edit the quest freely, false otherwise.
+     */
+    private boolean canEditQuest(Quest questToEdit, Quest editedQuest) {
+        List<Objective> questToEditObjectives = questToEdit.getObjectives();
+        List<Objective> editedQuestObjectives = editedQuest.getObjectives();
+        boolean canEditQuest = true;
+
+        List<Profile> activeUsers = profileRepository.findAllUsing(questToEdit);
+        int currentIndex = 0;
+
+        if (!activeUsers.isEmpty()) {
+            while (questToEditObjectives.size() > currentIndex && canEditQuest) {
+                if (!(questToEditObjectives.get(currentIndex).getDestination().getId()
+                        .equals(editedQuestObjectives.get(currentIndex).getDestination().getId()))) {
+                    canEditQuest = false;
+                }
+                currentIndex++;
+            }
+        }
+
+        return canEditQuest;
     }
 
 
@@ -331,7 +366,6 @@ public class QuestController {
      * @return          ok() (Http 200) response containing the quests owned by the specified user.
      *                  notFound() (Http 404) response containing an ApiError for retrieval failure.
      *                  unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
-     *
      */
     public Result fetchActiveUsers(Http.Request request, Long questId){
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
@@ -450,25 +484,12 @@ public class QuestController {
 
 
     /**
-     * Fetches all destinations based on Http request query parameters. This also includes pagination, destination
-     * ownership and the public or private query.
+     * Adds all fields in the given request query string to the given expression list.
      *
-     * @param request   Http request containing query parameters to filter results.
-     * @param profile   The profile of the user logged in.
-     * @return          ok() (Http 200) response containing the destinations found in the response body,
-     *                  forbidden() (Http 403) if the user has tried to access destinations they are not authorised for.
+     * @param expressionList        the expression list for fetching quests.
+     * @param request               the request sent containing the query fields.
      */
-    private Set<Quest> getQuestsQuery(Http.Request request, Profile profile) {
-
-        Set<Quest> quests;
-
-        ExpressionList<Quest> expressionList = questRepository.getExpressionList();
-
-        /*
-        Does not include quest that the profile has created
-         */
-        expressionList.ne(OWNER, profile);
-
+    private void addQueryFields(ExpressionList expressionList, Http.Request request) {
         /*
         Joins all similar quest titles
          */
@@ -502,10 +523,31 @@ public class QuestController {
          */
         expressionList.lt(START_DATE, new Date());
         expressionList.gt(END_DATE, new Date());
+    }
 
-        /*
-        Gets first 50 quests from index query * 50
-         */
+
+    /**
+     * Fetches all destinations based on Http request query parameters. This also includes pagination, destination
+     * ownership and the public or private query.
+     *
+     * @param request   Http request containing query parameters to filter results.
+     * @param profile   The profile of the user logged in.
+     * @return          ok() (Http 200) response containing the destinations found in the response body.
+     *                  forbidden() (Http 403) if the user has tried to access destinations they are not authorised for.
+     */
+    private Set<Quest> getQuestsQuery(Http.Request request, Profile profile) {
+
+        Set<Quest> quests;
+
+        ExpressionList<Quest> expressionList = questRepository.getExpressionList();
+
+        // Does not include quest that the profile has created
+        expressionList.ne(OWNER, profile);
+
+        // Add all fields provided in the query string of the request
+        addQueryFields(expressionList, request);
+
+        // Gets first 50 quests from index query * 50
         int pageNumber = 0;
         int pageSize = 50;
         String queryPageString = request.getQueryString(QUERY_PAGE);
@@ -513,7 +555,6 @@ public class QuestController {
         if (queryPageString != null && !queryPageString.isEmpty()) {
             pageNumber = Integer.parseInt(queryPageString);
         }
-
 
         /*
         Removes all quests that the profile has an attempt for
@@ -546,9 +587,8 @@ public class QuestController {
                 }
             }
             return allQuests;
-        } else {
-            return quests;
         }
+        return quests;
     }
 
 
@@ -654,15 +694,16 @@ public class QuestController {
 
         ObjectNode returnJson = objectMapper.createObjectNode();
 
+        Objective objectiveSolved = questAttempt.getCurrentToSolve();
+
         boolean solveSuccess = questAttempt.solveCurrent(destinationGuess);
 
         // Attempt to solve the current objective in the quest attempt, serialize the result.
         returnJson.put(GUESS_RESULT, solveSuccess);
 
-
         // Add points based on the action
         if (solveSuccess) {
-            returnJson.set(REWARD, achievementTrackerController.rewardAction(attemptedBy, questAttempt.getQuestAttempted(), Action.RIDDLE_SOLVED));
+            returnJson.set(REWARD, achievementTrackerController.rewardObjectiveSolved(attemptedBy, objectiveSolved));
         }
 
         // Serialize quest attempt regardless of result.
@@ -702,8 +743,8 @@ public class QuestController {
         if (attemptedBy != null && !AuthenticationUtil.validUser(loggedInUser, attemptedBy)) {
             return forbidden(ApiError.forbidden());
         }
-
-        Objective objectiveToCheckInTo = questAttempt.getCurrentToCheckIn(); // Used to call check in 'rewardAction' method.
+        // Used to call check in 'rewardAction' method.
+        Objective objectiveToCheckInTo = questAttempt.getCurrentToCheckIn();
         if (questAttempt.checkIn()) {
             ObjectNode returnJson = objectMapper.createObjectNode();
 
@@ -714,21 +755,26 @@ public class QuestController {
             ArrayNode badgesAchieved = objectMapper.createArrayNode();
 
             // Objective reward result of checking in.
-            JsonNode objectiveRewardJson = achievementTrackerController.rewardAction(attemptedBy, objectiveToCheckInTo); // Points for checking in
+            // Points for checking in
+            JsonNode objectiveRewardJson = achievementTrackerController.rewardObjectiveCheckin(attemptedBy);
 
             // Add all objective reward points and badges to the list of achieved points.
-            pointsRewarded = achievementTrackerController.addAllAwards(pointsRewarded, objectiveRewardJson, POINTS_REWARDED);
-            badgesAchieved = achievementTrackerController.addAllAwards(badgesAchieved, objectiveRewardJson, BADGES_ACHIEVED);
+            pointsRewarded = achievementTrackerController.addAllAwards(
+                    pointsRewarded, objectiveRewardJson, POINTS_REWARDED);
+            badgesAchieved = achievementTrackerController.addAllAwards(
+                    badgesAchieved, objectiveRewardJson, BADGES_ACHIEVED);
 
 
             // If quest was completed
             if (questAttempt.isCompleted()) {
-                JsonNode questRewardJson = achievementTrackerController.rewardAction(attemptedBy, questAttempted,
+                JsonNode questRewardJson = achievementTrackerController.rewardQuestInteraction(attemptedBy, questAttempted,
                         Action.QUEST_COMPLETED); // Awards for completing a quest
 
                 // Add all quest reward points and badges to the list of achieved points.
-                pointsRewarded = achievementTrackerController.addAllAwards(pointsRewarded, questRewardJson, POINTS_REWARDED);
-                badgesAchieved = achievementTrackerController.addAllAwards(badgesAchieved, questRewardJson, BADGES_ACHIEVED);
+                pointsRewarded = achievementTrackerController.addAllAwards(
+                        pointsRewarded, questRewardJson, POINTS_REWARDED);
+                badgesAchieved = achievementTrackerController.addAllAwards(
+                        badgesAchieved, questRewardJson, BADGES_ACHIEVED);
 
             }
 

@@ -18,7 +18,6 @@
             this.getNationalities();
             this.getTravellerTypes();
             this.getDestinationTypes();
-            this.handleRedirect();
         },
 
         data() {
@@ -124,16 +123,6 @@
                 }).catch(function (response) {
                     self.handleErrorResponse(response);
                 });
-            },
-
-
-            /**
-             * When the user manually changes the router, handles redirect to the index page if they are not logged in.
-             */
-            handleRedirect() {
-                if (this.$router.currentRoute.name !== 'index' && !this.profile) {
-                    this.$router.replace('/');
-                }
             }
         }
     }

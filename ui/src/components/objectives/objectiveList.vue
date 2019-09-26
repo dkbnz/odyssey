@@ -233,6 +233,7 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
+                    self.loadingResults = false;
                     self.deleteAlertError = false;
                     self.foundObjectives = responseBody;
                 }).catch(function (response) {
@@ -257,6 +258,7 @@
                                 return response.json();
                             }
                         }).then(function (responseBody) {
+                            self.loadingResults = false;
                             self.deleteAlertError = false;
                             self.foundObjectives = responseBody;
                         }).catch(function (response) {

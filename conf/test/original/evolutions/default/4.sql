@@ -183,38 +183,6 @@ INSERT INTO `destination_personal_photo` (`destination_id`, `personal_photo_id`)
 (119, 5);
 
 
-INSERT INTO `objective` (`id`, `destination_id`, `riddle`, `radius`, `owner_id`) VALUES
-(1, 567, 'Gully that *may* have killed its family', 1, 2),
-(2, 733, 'The hive of activity in NZ', 1, 2),
-(3, 858, 'Second Home of Computer Scientists', 1, 1),
-(4, 1031, 'What Rhymes with "sniff cream file week"?', 1, 2),
-(5, 1465, 'What is your favourite colour', 1, 2),
-(6, 1526, 'Where does santa live?', 1, 2),
-(7, 1797, 'I am the place of government in russia', 1, 2),
-(8, 1834, 'My radius riddle', 1, 2),
-(9, 1834, 'Under the seeeeeeeeaaaaaaaa', 1, 2),
-(10, 1834, 'In german I am named Koeln', 1, 2),
-(11, 119, 'I am the capital of Switzerland', 1, 2),
-(12, 1834, 'I am the capital of Australia', 1, 2),
-(13, 1834, 'I like to move it, move it!', 0.02, 2),
-(14, 1834, 'The better engineering university', 1, 2),
-(15, 1834, 'One small step for man, one giant leap for mankind', 1, 2),
-(16, 1834, 'Gully that *may* have killed its family', 1, 2),
-(17, 1834, 'What rhymes with smangus fat?', 0.005, 2),
-(18, 9000, 'Earthquake prone country that has had a nuclear bomb.', 10, 10),
-(19, 9000, 'Earthquake 3.', 10, 2),
-(20, 9000, 'Earthquake 4', 10, 2),
-(21, 9000, 'Earthquake 5', 10, 2),
-(22, 9000, 'Earthquake 6', 10, 2),
-(23, 9000, 'Earthquake 7', 10, 2),
-(24, 9000, 'Earthquake 8', 10, 2),
-(25, 9000, 'Earthquake 9', 10, 2),
-(26, 9000, 'Earthquake 10', 10, 2),
-(27, 9000, 'Earthquake 11', 10, 2),
-(28, 9000, 'Earthquake 12', 10, 2),
-(29, 9000, 'Earthquake 13', 10, 2);
-
-
 INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
 (1, 'Journey to the centre of the Earth', '2019-08-16 03:02:00', '9999-08-16 11:59:00', 1),
 (2, 'My new quest', '2019-08-15 22:47:00', '9999-08-16 11:59:00', 6),
@@ -227,35 +195,39 @@ INSERT INTO `quest` (`id`, `title`, `start_date`, `end_date`, `owner_id`) VALUES
 (9, 'Odyssey Quest', '1998-05-21 12:00:01', '2100-06-21 23:59:59', 2);
 
 
-INSERT INTO `quest_objective` (`quest_id`, `objective_id`) VALUES
-(1, 1),
-(1, 12),
-(1, 2),
-(2, 3),
-(2, 13),
-(3, 4),
-(3, 5),
-(3, 6),
-(3, 7),
-(4, 8),
-(4, 9),
-(5, 11),
-(5, 10),
-(6, 11),
-(7, 18),
-(7, 11),
-(7, 4),
-(8, 19),
-(9, 20),
-(9, 21),
-(9, 22),
-(9, 23),
-(9, 24),
-(9, 25),
-(9, 26),
-(9, 27),
-(9, 28),
-(9, 29);
+INSERT INTO `objective` (`id`, `destination_id`, `riddle`, `radius`, `owner_id`, `quest_using_id`) VALUES
+(1, 567, 'Gully that *may* have killed its family', 1, 2, 1),
+(12, 1834, 'I am the capital of Australia', 1, 2, 1),
+(2, 733, 'The hive of activity in NZ', 1, 2, 1),
+(3, 858, 'Second Home of Computer Scientists', 1, 1, 2),
+(13, 1834, 'I like to move it, move it!', 0.02, 2, 2),
+(4, 1031, 'What Rhymes with "sniff cream file week"?', 1, 2, 3),
+(5, 1465, 'What is your favourite colour', 1, 2, 3),
+(6, 1526, 'Where does santa live?', 1, 2, 3),
+(7, 1797, 'I am the place of government in russia', 1, 2, 3),
+(8, 1834, 'My radius riddle', 1, 2, 4),
+(9, 1834, 'Under the seeeeeeeeaaaaaaaa', 1, 2, 4),
+(10, 1834, 'In german I am named Koeln', 1, 2, 5),
+(11, 119, 'I am the capital of Switzerland', 1, 2, 5),
+(14, 1834, 'The better engineering university', 1, 2, null),
+(15, 1834, 'One small step for man, one giant leap for mankind', 1, 2, null),
+(16, 1834, 'Gully that *may* have killed its family', 1, 2, null),
+(17, 1834, 'What rhymes with smangus fat?', 0.005, 2, null),
+(18, 9000, 'Earthquake prone country that has had a nuclear bomb.', 10, 10, 7),
+(19, 9000, 'Earthquake 3.', 10, 2, 8),
+(20, 9000, 'Earthquake 4', 10, 2, 9),
+(21, 9000, 'Earthquake 5', 10, 2, 9),
+(22, 9000, 'Earthquake 6', 10, 2, 9),
+(23, 9000, 'Earthquake 7', 10, 2, 9),
+(24, 9000, 'Earthquake 8', 10, 2, 9),
+(25, 9000, 'Earthquake 9', 10, 2, 9),
+(26, 9000, 'Earthquake 10', 10, 2, 9),
+(27, 9000, 'Earthquake 11', 10, 2, 9),
+(28, 9000, 'Earthquake 12', 10, 2, 9),
+(29, 9000, 'Earthquake 13', 10, 2, 9),
+(30, 1031, 'What Rhymes with "sniff cream file week"?', 1, 2, 7),
+(31, 119, 'I am the capital of Switzerland', 1, 2, 6),
+(32, 119, 'I am the capital of Switzerland', 1, 2, 7);
 
 
 INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `solved_current`, `checked_in_index`, `completed`) VALUES
@@ -276,7 +248,35 @@ INSERT INTO `quest_attempt` (`id`, `attempted_by_id`, `quest_attempted_id`, `sol
 (15, 8, 9, 1, 9, 0),
 (16, 9, 9, 1, 9, 0),
 (17, 8, 6, 1, 0, 0),
-(18, 9, 6, 1, 0, 0);
+(18, 9, 6, 1, 0, 0),
+(19, 5, 4, 0, 1, 0),
+(20, 2, 8, 0, 1, 1);
 
+
+INSERT INTO `hint` (`id`, `message`, `up_votes`, `down_votes`, `objective_id`, `creator_id`) VALUES
+(1, 'This is a hint', 10, 3, 18, 7),
+(2, 'This is also a hint', 4, 10, 24, 7),
+(3, 'Think about the first word carefully', 45, 38, 31, 8),
+(4, 'The most up-voted hint', 100, 1, 18, 7),
+(5, 'The second most up-voted hint', 99, 1, 18, 7),
+(6, 'The second-equal up-voted hint', 100, 2, 18, 7),
+(7, 'First requested hint', 70, 2, 9, 7),
+(8, 'Second requested hint', 60, 2, 9, 7),
+(9, 'Third requested hint', 50, 2, 9, 7),
+(10, 'Fourth requested hint', 40, 2, 9, 7),
+(11, 'Fourth requested hint', 40, 2, 29, 7),
+(12, 'Fourth requested hint', 40, 2, 29, 7);
+
+
+INSERT INTO `vote` (`id`, `voter_id`, `target_hint_id`, `is_up_vote`) VALUES
+(1, 9, 2, false),
+(2, 7, 3, true);
+
+INSERT INTO `hint_profile` (`hint_id`, `profile_id`) VALUES
+(2, 2),
+(2, 3),
+(4, 8),
+(4, 7),
+(3, 3);
 
 # --- !Downs

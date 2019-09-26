@@ -2,7 +2,9 @@
     <div>
         <h1 class="page-title">{{ heading }} an Objective!</h1>
 
-        <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
+        <b-alert dismissible v-model="showError" variant="danger">
+            <p class="wrapWhiteSpace">{{errorMessage}}</p>
+        </b-alert>
 
         <!-- Displays success alert and progress bar on objective creation as a loading bar
         for the objective being added to the database -->
@@ -41,11 +43,11 @@
                     <b-form>
                         <b-container fluid>
                             <p class="mb-1">Selected Destination:</p>
-                            <b-list-group @click="$emit('destination-select')">
+                            <b-list-group @click="editingActiveQuest ? '' : $emit('destination-select')">
                                 <b-list-group-item class="flex-column align-items-start" href="#"
                                                    v-if="destinationSelected"
                                                    id="selectedDestination"
-                                                   :disabled="destinationSelected === '{}'"
+                                                   :disabled="destinationSelected === '{}' || editingActiveQuest"
                                                    :variant="checkDestinationState">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5 class="mb-1" v-if="destinationSelected.name">
@@ -142,7 +144,8 @@
             },
             newDestination: Object,
             selectedDestination: {},
-            heading: String
+            heading: String,
+            editingActiveQuest: Boolean
         },
 
         data() {
@@ -208,7 +211,7 @@
             /**
              * Returns true if the inputted riddle has length greater than 0.
              *
-             * @return {Boolean} true if validated.
+             * @returns {Boolean} true if validated.
              */
             validateRiddle() {
                 if (this.inputObjective.riddle.length > 0) {
@@ -223,7 +226,7 @@
             /**
              * Returns true if the user has selected a check in radius
              *
-             * @return {boolean} true if validated.
+             * @returns {boolean} true if validated.
              */
             validateCheckIn() {
                 if (this.radiusSelected.value === null) {
@@ -236,7 +239,7 @@
             /**
              * Returns true if the input destination exists and matches the one selected in the sidebar and isn't empty.
              *
-             * @return {boolean} true if valid.
+             * @returns {boolean} true if valid.
              */
             validateDestination() {
                 return (this.inputObjective.destination !== null

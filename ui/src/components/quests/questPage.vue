@@ -2,7 +2,7 @@
     <div v-if="profile">
         <!--Shows tabs for the quest page-->
         <navbar-main v-bind:profile="profile" v-if="!adminView"></navbar-main>
-        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg d-none d-lg-block">
+        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-5 rounded-lg d-none d-lg-block h-100">
             <h1 class="page-title">Quests</h1>
             <p class="page-title">
                 <i>Here you can view and create Quests!</i>
@@ -45,14 +45,15 @@
                     </b-tab>
                 </b-tabs>
             </b-card>
-            <footer-main></footer-main>
         </div>
         <div class="show-only-mobile">
             <quests-solve-mobile
                     :profile="profile">
             </quests-solve-mobile>
         </div>
+        <footer-main></footer-main>
     </div>
+
     <div v-else>
         <unauthorised-prompt-page></unauthorised-prompt-page>
     </div>

@@ -43,6 +43,8 @@
                                 :selectedDestination="destinationSelected"
                                 @OBJ-side-bar="showHideBar => this.showDestinations = showHideBar"
                                 @Your-OBJ-side-bar="showHideBar => this.showYourObjectives = showHideBar"
+                                @add-hint-side-bar="showHintSidebar"
+                                @hide-hint-side-bar="showHideBar => this.showHintSideBar = showHideBar"
                         ></quest-item>
                     </b-list-group-item>
                     <div v-if="yourQuests">
@@ -59,7 +61,7 @@
                                        draggable="false"
                                        v-if="!activeQuests"
                                        @click="selectedQuest = quest">
-                        <template v-if="!editingQuest && !(activeId === quest.id)">
+                        <template v-if="!editingQuest && !(activeId === quest.id) && !creatingQuest">
                             <b-row class="buttonMarginsTop">
                                 <b-col :cols="availableQuests ? 5 : ''">
                                     <h4>Title</h4>
@@ -82,16 +84,23 @@
                                 <!-- If looking at the available quests tab, show a 'start now' button -->
                                 <b-col cols="2" v-if="availableQuests">
                                     <b-row>
-                                        <b-button variant="primary" @click="createAttempt(quest, true)">Start Now</b-button>
+                                        <b-button variant="primary" @click="createAttempt(quest, true)">
+                                            Start Now
+                                        </b-button>
                                     </b-row>
                                     <b-row class="mt-4">
-                                        <b-button variant="secondary" @click="createAttempt(quest, false)">Start Later</b-button>
+                                        <b-button variant="secondary" @click="createAttempt(quest, false)">
+                                            Start Later
+                                        </b-button>
                                     </b-row>
                                 </b-col>
                             </b-row>
                             <div v-if="yourQuests" class="buttonMarginsTop">
-                                <b-button @click="showHideLocations(quest)" variant="primary" class="buttonMarginsBottom">
-                                    Show/Hide Locations
+                                <b-button
+                                        @click="showHideLocations(quest)"
+                                        variant="primary"
+                                        class="buttonMarginsBottom">
+                                            Show/Hide Locations
                                 </b-button>
                                 <b-container fluid style="margin-top: 20px; display: none" :id="'display-' + quest.id">
                                     <!-- Table displaying all quest objectives -->
@@ -149,13 +158,17 @@
                         <!--Quest component-->
                     </b-list-group-item>
                     <!---Load More--->
-                    <b-list-group-item class="flex-column justify-content-center" v-if="!yourQuests && !completedQuests">
+                    <b-list-group-item
+                            class="flex-column justify-content-center"
+                            v-if="!yourQuests && !completedQuests">
                         <div class="d-flex justify-content-center" v-if="loadingResults">
                             <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
                         </div>
                         <div>
                             <div v-if="moreResults && !loadingResults">
-                                <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>Load More</b-button>
+                                <b-button variant="success" class="buttonMarginsTop" @click="getMore" block>
+                                    Load More
+                                </b-button>
                             </div>
                             <div class="d-flex justify-content-center" v-else-if="!moreResults && !loadingResults">
                                 <h5 class="mb-1">No More Results</h5>
@@ -217,8 +230,31 @@
                     </quest-search-form>
                     <completed-quest-details
                             v-if="completedQuests"
-                            :quest="selectedQuest">
+                            :profile="profile"
+                            :quest="selectedQuest"
+                            @successCreate="successCreateHint">
                     </completed-quest-details>
+                    <div v-if="showHintSideBar === 'Hints'">
+                        <p class="mb-1 mobile-text font-weight-bold">Riddle: {{currentObjective.riddle}}</p>
+                        <p class="mb-1 mobile-text">
+                            Destination: {{currentObjective.destination.name}}
+                        </p>
+                        <list-hints
+                                :objective="currentObjective"
+                                :profile="profile"
+                                :refresh="refreshHints"
+                                :solved="true"
+                                @showAddHint="showAddHint"
+                                @request-new-hints-page="getPageHints">
+                        </list-hints>
+                    </div>
+
+                    <create-hint v-else-if="showHintSideBar === 'Create Hint'"
+                                 :profile="profile"
+                                 :objective="currentObjective"
+                                 @successCreate="successCreateHint"
+                                 @cancelCreate="cancelCreateHint">
+                    </create-hint>
                 </b-card>
             </b-col>
         </b-row>
@@ -233,6 +269,8 @@
     import QuestAttemptSolve from "./activeQuestSolve";
     import ActiveQuestList from "./activeQuestPage";
     import CompletedQuestDetails from "./completedQuestDetails";
+    import CreateHint from "../hints/createHint";
+    import ListHints from "../hints/listHints";
 
     export default {
         name: "questList",
@@ -289,6 +327,8 @@
                 showDestinations: false,
                 showYourObjectives: false,
                 showQuestAttemptSolve: false,
+                showHintSideBar: 'hide',
+                currentObjective: "",
                 selectedObjectiveTemplate: {
                     id: null,
                     destination: null,
@@ -320,12 +360,11 @@
                 selectedQuestAttempt: {},
                 selectedQuest: {},
                 activeUsers: 0,
-                queryPage: 0
+                queryPage: 0,
+                hintsDefaultPerPage: 5,
+                hintsDefaultCurrentPage: 1,
+                refreshHints: false
             }
-        },
-
-        mounted() {
-            this.$bvToast.show('example-toast');
         },
 
         watch: {
@@ -477,7 +516,7 @@
             /**
              * Creates a new quest attempt for the selected quest and current user.
              *
-             * @return {Promise<Response | never>}
+             * @returns {Promise<Response | never>}
              */
             createAttempt(questToAttempt, viewActive) {
                 let self = this;
@@ -540,6 +579,7 @@
              */
             addQuest() {
                 this.creatingQuest = true;
+                this.editingQuest = false;
                 this.cancelEdit();
             },
 
@@ -547,6 +587,7 @@
             /**
              * Changes the active quest id to the inputted one, and sets creatingQuest to false to hide creation
              * box.
+             *
              * @param quest     the quest to be changed to.
              */
             setActiveId(quest) {
@@ -561,6 +602,7 @@
              * Changes the quest id to the currently selected quest id.
              * Dismisses the delete quest modal.
              *
+             * @param quest         the quest to be checked for active users.
              */
             setQuest(quest) {
                 this.questId = quest.id;
@@ -599,6 +641,7 @@
                 this.editingQuest = false;
                 this.activeId = 0;
                 this.showDestinations = false;
+                this.showHintSideBar = false;
             },
 
 
@@ -616,6 +659,37 @@
 
 
             /**
+             * Success create hint show.
+             */
+            successCreateHint(responseBody) {
+                this.alertText = "Hint successfully created!";
+                this.showAlert();
+                this.showRewardToast(responseBody.reward);
+                this.showHintSideBar = 'Hints';
+                this.currentObjective.numberOfHints += 1;
+                this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
+            },
+
+
+            /**
+             * When the user cancels the creation of a hint.
+             */
+            cancelCreateHint() {
+                this.showHintSideBar = 'Hints';
+                this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
+            },
+
+
+            /**
+             * Shows the add hints component and sets the current page and per page to keep the users viewing preference
+             * for after the additional hint being added.
+             */
+            showAddHint() {
+                this.showHintSideBar = 'Create Hint';
+            },
+
+
+            /**
              * Sets creatingQuest to false and emits signal to hide destination search box. clears selected destination.
              */
             cancelCreate() {
@@ -629,7 +703,7 @@
              * Sets the message for the success alert to the inputted message and runs showAlert to show the success
              * message.
              *
-             * @param messageObject the object to display.
+             * @param messageObject     the object to display.
              */
             showSuccess(messageObject) {
                 this.getMore();
@@ -638,6 +712,47 @@
                 this.showAlert();
             },
 
+
+            /**
+             * Show the hint sidebar for adding a hint to an objective.
+             *
+             * @param objective         the current objective the user is looking at hints for.
+             */
+            showHintSidebar(objective) {
+                this.showHintSideBar = "Hints";
+                this.currentObjective = objective;
+                this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
+            },
+
+
+            /**
+             * Gets the hints to display from the backend for all hints for an objective but paginated based on
+             * current page and the per page variables.
+             *
+             * @param currentPage       the current viewing page.
+             * @param perPage           the amount to view on a page.
+             */
+            getPageHints(currentPage, perPage) {
+                let self = this;
+                let currentPageQuery = currentPage - 1;
+                fetch(`/v1/objectives/` + self.currentObjective.id +
+                    `/hints/` + this.profile.id + `?pageNumber=` + currentPageQuery +
+                    `&pageSize=` + perPage, {
+
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(function (responseBody) {
+                    self.currentObjective.hints = responseBody;
+                    self.refreshHints = !self.refreshHints;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
+            },
 
 
             /**
@@ -669,7 +784,9 @@
 
 
             /**
-             * Sets the treasure hunt emitted from the select treasure hunt side bar.
+             * Sets the objective emitted from the select objective side bar.
+             *
+             * @param objective         the selected objective.
              */
             setSelectedObjective(objective) {
                 let newObjective = JSON.parse(JSON.stringify(objective));
@@ -704,7 +821,8 @@
             /**
              * Returns a string radius value determined by the size.
              *
-             * @param radius    the radius to be changed.
+             * @param radius        the radius to be changed.
+             * @returns {String}     the radius as a string, represented either in meters or kilometers.
              */
             getRadiusValue(radius) {
                 if (radius < 1) {
@@ -717,7 +835,8 @@
             /**
              * Returns a string of the countries contained in the quest objectives, which indicates the quest scope.
              *
-             * @param quest     the quest containing one or more countries.
+             * @param quest         the quest containing one or more countries.
+             * @returns {String}     a string of the countries contained within the quest.
              */
             getQuestCountries(quest) {
                 let countries = "";
@@ -734,7 +853,8 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @return {number}    the number of rows required in the table based on number of objectives to be
+             * @param               the quest containing the objectives.
+             * @returns {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
             rows(quest) {
@@ -762,6 +882,8 @@
         },
 
         components: {
+            ListHints,
+            CreateHint,
             CompletedQuestDetails,
             ActiveQuestList,
             QuestAttemptSolve,

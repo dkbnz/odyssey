@@ -6,6 +6,7 @@ import models.util.ApiError;
 import models.util.BaseModel;
 import models.profiles.Profile;
 import models.objectives.Objective;
+import models.util.Errors;
 
 import javax.persistence.*;
 import java.util.*;
@@ -22,8 +23,7 @@ public class Quest extends BaseModel {
     /**
      * List of objectives to be solved in this quest.
      */
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    @OrderColumn
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "questUsing")
     private List<Objective> objectives;
 
     /**
@@ -61,29 +61,29 @@ public class Quest extends BaseModel {
         List<ApiError> errors = new ArrayList<>();
 
         if (title == null || title.isEmpty()) {
-            errors.add(new ApiError("A quest title must be provided."));
+            errors.add(new ApiError(Errors.NO_QUEST_TITLE.toString()));
         } else if (title.length() > MAX_TITLE_SIZE) {
-            errors.add(new ApiError("Quest titles must not exceed 255 characters in length."));
+            errors.add(new ApiError(Errors.LONG_QUEST_TITLE.toString()));
         }
 
         if(startDate == null) {
-            errors.add(new ApiError("You must provide a start date."));
+            errors.add(new ApiError(Errors.NO_START_DATE.toString()));
         }
 
         if(endDate == null) {
-            errors.add(new ApiError("You must provide an end date."));
+            errors.add(new ApiError(Errors.NO_END_DATE.toString()));
         }
 
         if (startDate != null && endDate != null && endDate.before(startDate)) {
-            errors.add(new ApiError("Start date must be before end date."));
+            errors.add(new ApiError(Errors.STAR_DATE_BEFORE_END_DATE.toString()));
         }
 
         if (owner == null) {
-            errors.add(new ApiError("This quest does not have an owner."));
+            errors.add(new ApiError(Errors.NO_QUEST_OWNER.toString()));
         }
 
         if (objectives.isEmpty()) {
-            errors.add(new ApiError("You must provide at least one Objective for a quest."));
+            errors.add(new ApiError(Errors.QUEST_NEED_ONE_OBJECTIVE.toString()));
         } else {
             for(Objective objective : objectives) {
                 errors.addAll(objective.getErrors());

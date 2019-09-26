@@ -50,12 +50,37 @@
                     </p>
                 </b-list-group-item>
             </b-collapse>
-
-
         </div>
 
+        <create-hint v-if="showHintSideBar"
+                     :profile="profile"
+                     :objective="objective"
+                     @successCreate="successCreateHint"
+                     @cancelCreate="cancelCreateHint">
+        </create-hint>
+
         <div v-else>
-            <b-button @click="$emit('show-quest-attempt', false)" class="buttonMarginsBottom show-only-mobile" size="sm">Back</b-button>
+            <!--Successful quest alert -->
+            <b-alert
+                    :show="dismissCountDown"
+                    @dismiss-count-down="countDownChanged"
+                    @dismissed="dismissCountDown=0"
+                    dismissible
+                    variant="success">
+                <p>{{alertText}}</p>
+                <b-progress
+                        :max="dismissSeconds"
+                        :value="dismissCountDown - 1"
+                        height="4px"
+                        variant="success"
+                ></b-progress>
+            </b-alert>
+
+            <b-button
+                    @click="$emit('show-quest-attempt', false)"
+                    class="buttonMarginsBottom show-only-mobile" size="sm">
+                    Back
+            </b-button>
             <h2 class="page-title" v-if="questAttempt.questAttempted">{{questAttempt.questAttempted.title}}</h2>
 
             <b-alert v-model="guessSuccess" variant="success" dismissible>
@@ -72,40 +97,117 @@
             <b-list-group>
 
                 <!-- List the solved objectives in the quest attempt -->
-                <b-list-group-item v-for="objective in questAttempt.solved"
+                <b-list-group-item v-for="solvedObjective in questAttempt.solved"
                                    class="flex-column align-items-start"
-                                   :key="objective.id">
-                    <div class="d-flex w-100 justify-content-between">
-                        <p class="mb-1 mobile-text font-weight-bold">{{objective.riddle}}</p>
-                        <small>
-                            <b-img src="../../../static/check_mark.png" fluid></b-img>
-                        </small>
-                    </div>
-                    <p class="mb-1 mobile-text">
-                        {{objective.destination.name}}
-                    </p>
+                                   :key="solvedObjective.id">
+                    <b-col class="w-100">
+                        <b-row class="pb-1">
+                            <b-col md="7">
+                                <span class="mobile-text font-weight-bold">{{solvedObjective.riddle}}</span>
+                                <p class="mb-1 mobile-text">
+                                    {{solvedObjective.destination.name}}
+                                </p>
+                            </b-col>
+                            <b-col md="5">
+                                <div class="float-right">
+                                    <b-button size="sm" variant="link"
+                                              @click="showOrHideHints(true, solvedObjective)">
+                                              {{solvedObjective.id === objective.id ? "Hide" : "Show"}} Hints
+                                    </b-button>
+                                    <b-img src="../../../static/check_mark.png" fluid></b-img>
+                                </div>
+                            </b-col>
+                        </b-row>
+                        <b-row v-if="solvedObjective.id === objective.id && hintsReceived">
+                            <list-hints
+                                    :objective="objective"
+                                    :profile="profile"
+                                    :solved="true"
+                                    :refresh="refreshHints"
+                                    @showAddHint="showAddHint(objective)"
+                                    @request-new-hints-page="getPageHints">
+                            </list-hints>
+                        </b-row>
+                    </b-col>
                 </b-list-group-item>
 
                 <!-- If we have an objective to solve, display it -->
-                <b-list-group-item
-                                   class="d-flex justify-content-between align-items-center"
+                <b-list-group-item class="d-flex justify-content-between align-items-center"
                                    v-if="questAttempt.toSolve != null">
-                    <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
-                    <b-button size="sm" variant="primary" @click="destinationSearch(questAttempt.toSolve.riddle)">Solve</b-button>
+                    <b-col class="w-100">
+                        <b-row class="pb-1">
+                            <b-col md="7">
+                                <span class="mobile-text font-weight-bold">{{questAttempt.toSolve.riddle}}</span>
+                            </b-col>
+                            <b-col md="5">
+                                <div class="float-right">
+                                    <b-button size="sm" variant="outline-primary"
+                                              @click="showOrHideHints(false, questAttempt.toSolve)">
+                                              {{questAttempt.toSolve.id === objective.id ? "Hide" : "Show"}} Hints
+                                    </b-button>
+                                    <b-button size="sm" variant="warning"
+                                              @click="destinationSearch(questAttempt.toSolve.riddle)">
+                                              Solve
+                                    </b-button>
+                                </div>
+                            </b-col>
+                        </b-row>
+                        <b-row v-if="questAttempt.toSolve.id  === objective.id && hintsReceived">
+                            <list-hints
+                                    :objective="objective"
+                                    :profile="profile"
+                                    :solved="false"
+                                    :refresh="refreshHints"
+                                    @hintRequested="showHintConfirmModal(objective)">
+                            </list-hints>
+                        </b-row>
+                    </b-col>
                 </b-list-group-item>
+
+
                 <!-- If we have an objective to check in to, display it -->
-                <b-list-group-item href="#"
-                                   class="d-flex justify-content-between align-items-center"
+                <b-list-group-item class="d-flex justify-content-between align-items-center"
                                    v-if="questAttempt.toCheckIn != null">
-                    <div>
-                    <span class="mobile-text font-weight-bold">{{questAttempt.toCheckIn.riddle}}</span>
-                        <p class="mb-1 mobile-text">
-                            {{questAttempt.toCheckIn.destination.name}}
-                        </p>
-                    </div>
-                    <b-button class="no-wrap-text" size="sm" variant="warning" @click="getCurrentLocation">Check In</b-button>
+                <b-col class="w-100">
+                    <b-row class="pb-1">
+                        <b-col md="7">
+                            <span class="mobile-text font-weight-bold">{{questAttempt.toCheckIn.riddle}}</span>
+                            <p class="mb-1 mobile-text">
+                                {{questAttempt.toCheckIn.destination.name}}
+                            </p>
+                        </b-col>
+                        <b-col md="5">
+                            <div class="float-right">
+                                <b-button class="no-wrap-text" size="sm" variant="primary"
+                                          @click="showOrHideHints(true, questAttempt.toCheckIn)">
+                                    {{questAttempt.toCheckIn.id === objective.id ? "Hide" : "Show"}} Hints
+                                </b-button>
+                                <b-button class="no-wrap-text" size="sm" variant="warning"
+                                          @click="getCurrentLocation">
+                                          Check In
+                                </b-button>
+                            </div>
+                        </b-col>
+                    </b-row>
+                    <b-row v-if="questAttempt.toCheckIn.id  === objective.id && hintsReceived">
+                        <list-hints
+                                :objective="objective"
+                                :profile="profile"
+                                :solved="true"
+                                :refresh="refreshHints"
+                                @showAddHint="showAddHint(objective)"
+                                @request-new-hints-page="getPageHints">
+                        </list-hints>
+                    </b-row>
+                </b-col>
                 </b-list-group-item>
-                <b-alert v-model="showNotValidCheckIn" variant="warning" class="buttonMarginsTop" dismissible>
+
+                <b-alert
+                        :show="showNotValidCheckIn"
+                        @dismiss-count-down="countDownChangedCheckIn"
+                        @dismissed="showNotValidCheckIn=0"
+                        dismissible
+                        variant="warning" class="mt-2">
                     You are not at the required location, you are {{getHowClose()}} away.
                 </b-alert>
 
@@ -117,16 +219,34 @@
                 </b-list-group-item>
             </b-list-group>
         </div>
+        <b-modal v-model="showHintAlertModal" title="Are you sure?">
+            <div>
+                <p>Are you sure you want a hint? <br />
+                You will not gain as many points for solving this objective!</p>
+            </div>
+            <template v-slot:modal-footer>
+                <b-col>
+                    <b-button variant="warning" block @click="getSingleHint">Show Me</b-button>
+                </b-col>
+                <b-col>
+                    <b-button @click="showHintAlertModal = false" block>Cancel</b-button>
+                </b-col>
+            </template>
+        </b-modal>
     </div>
 </template>
 
 <script>
     import FoundDestinations from "../destinations/destinationSearchList";
+    import CreateHint from "../hints/createHint"
+    import ListHints from "../hints/listHints";
+
     export default {
         name: "activeQuestSolve",
 
         props: {
-            questAttempt: Object
+            questAttempt: Object,
+            profile: Object
         },
 
         data() {
@@ -145,32 +265,65 @@
                 },
                 foundLocation: false,
                 validCheckIn: false,
-                showNotValidCheckIn: false,
+                showNotValidCheckIn: 0,
                 totalDistance: null,
                 searchedRiddle: null,
-                pointsGained: Number
+                showHintSideBar: false,
+                objective: {
+                    id: -1
+                },
+                showOrHide: "Show",
+                showHintAlertModal: false,
+                objectiveToGetHint: null,
+                showHintInObjective: false,
+                dismissSeconds: 3,
+                dismissCountDown: 0,
+                alertText: "",
+                hintsDefaultPerPage: 5,
+                hintsDefaultCurrentPage: 1,
+                hintsReceived: false,
+                checkInHints: 0,
+                refreshHints: false
             }
         },
 
         watch: {
+            /**
+             * Watches the quest attempt to see if it updates and if so then hide the destination search and change
+             * show or hide to show.
+             */
+            questAttempt() {
+                this.showDestinationSearch = false;
+                this.showOrHide = "Show";
+            },
+
+
+            /**
+             * Watching the found location variable to then do the checkin request once the user has been found.
+             */
             foundLocation() {
                 if (this.foundLocation) {
                     if (this.validCheckIn) {
                         this.sendCheckInRequest();
                     } else {
-                        this.showNotValidCheckIn = true;
-                        let self = this;
-                        setTimeout(function() {
-                            self.showNotValidCheckIn = false;
-                        }, 3000);
+                        this.showAlertNotValidCheckIn();
                     }
                     this.foundLocation = false;
                 }
+            },
+
+
+            /**
+             * Watches for when the hints are retrieved and refreshes the hints in the hints table.
+             */
+            hintsReceived() {
+                this.refreshHints = !this.refreshHints;
             }
         },
 
         components: {
-            FoundDestinations
+            ListHints,
+            FoundDestinations, CreateHint
         },
 
         mounted() {
@@ -179,10 +332,88 @@
 
         methods: {
             /**
+             * Shows or hides the hints for a given objective.
+             *
+             * @param solved        the boolean determining whether the objective is solved.
+             * @param objective     the objective containing the hints.
+             */
+            showOrHideHints(solved, objective) {
+                let defaultPerPage = 5;
+                let defaultCurrentPage = 1;
+
+                if (this.objective.id === objective.id) {
+                    this.objective.id = -1;
+                    this.hintsReceived = false;
+                } else {
+                    this.objective = JSON.parse(JSON.stringify(objective));
+                    if (solved) {
+                        this.getPageHints(defaultCurrentPage, defaultPerPage);
+                    } else {
+                        this.getHintsUserHasSeen();
+                    }
+                }
+            },
+
+
+            /**
+             * Showing the create hint and setting the objective for the hint creation.
+             *
+             * @param objective         the target objective.
+             */
+            showAddHint(objective) {
+                this.objective = objective;
+                this.showHintSideBar = true;
+            },
+
+
+            /**
+             * Function from the emit of a successfully created hint and shows the rewards and resets the list hints
+             * component.
+             *
+             * @param responseBody      the  emitted response body containing the reward.
+             */
+            successCreateHint(responseBody) {
+                this.alertText = "Hint successfully created!";
+                this.showAlert();
+                this.showRewardToast(responseBody.reward);
+                this.showHintSideBar = false;
+                this.objective.numberOfHints += 1;
+                this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
+            },
+
+
+            /**
+             * When the user cancels the creation of a hint.
+             */
+            cancelCreateHint() {
+                this.showHintSideBar = false;
+                this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
+            },
+
+
+            /**
+             * Displays the countdown alert on the successful deletion of a quest.
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSeconds;
+            },
+
+
+            /**
+             * Used to countdown the progress bar on an alert to countdown.
+             *
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown;
+            },
+
+
+            /**
              * Sends a request to check the users guess for a given quest attempt.
              * Displays appropriate messages upon receiving a response.
              *
-             * @return {Promise <Response | never>}     the fetch method promise.
+             * @returns {Promise <Response | never>}     the fetch method promise.
              */
             checkGuess() {
                 let self = this;
@@ -276,7 +507,7 @@
             /**
              * Sends the request to check in to the current objective.
              *
-             * @return {Promise <Response | never>}     the fetch method promise.
+             * @returns {Promise <Response | never>}     the fetch method promise.
              */
             sendCheckInRequest() {
                 let self = this;
@@ -348,18 +579,123 @@
              * Returns a string value for the distance from the user's current location to the location of the
              * objective destination.
              *
-             * @return a string value containing the total distance from the user to the objective destination.
+             * @returns a string value containing the total distance from the user to the objective destination.
              */
             getHowClose() {
                 if (this.totalDistance && this.questAttempt.toCheckIn) {
                     let showDistance = this.totalDistance - this.questAttempt.toCheckIn.radius;
                     if (showDistance >= 1) {
-                        return String(showDistance.toFixed(3)) + " kms";
+                        return String(showDistance.toFixed(2)) + " kms";
                     }
-                    return String(showDistance.toFixed(5)*1000) + " metres";
-                }
-            }
-        }
 
+                    return (Math.round(showDistance * 1000) + " metres");
+                }
+            },
+
+
+            /**
+             * Sets the global objective to be retrieved for the hint as well as displays the hint confirmation modal.
+             */
+            showHintConfirmModal(requestedObjective) {
+                this.objective = requestedObjective;
+                this.showHintAlertModal = true
+            },
+
+
+            /**
+             * Retrieves a hint for the currently viewed objective, is called after the user confirms they wish to
+             * retrieve a hint for the given objective in the popup modal.
+             */
+            getSingleHint() {
+                let self = this;
+                fetch("/v1/objectives/" + this.objective.id + "/hints/" + this.profile.id + "/new", {
+                    accept: "application/json"
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    if (responseBody) {
+                        self.objective.hints.push(responseBody);
+                    }
+                    self.showHintAlertModal = false;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
+            },
+
+
+            /**
+             * Displays the countdown alert on being unable to check in to an objective.
+             */
+            showAlertNotValidCheckIn() {
+                this.showNotValidCheckIn = this.dismissSeconds
+            },
+
+
+            /**
+             * Used to allow an alert to countdown on being unable to check in to an objective.
+             *
+             * @param dismissCountDown      the name of the alert.
+             */
+            countDownChangedCheckIn(dismissCountDown) {
+                this.showNotValidCheckIn = dismissCountDown
+            },
+
+
+            /**
+             * Gets the hints the user has requested for an unsolved objective from the backend.
+             *
+             * @returns {[]}        a list of hints.
+             */
+            getHintsUserHasSeen() {
+                let self = this;
+                fetch("/v1/objectives/" + this.objective.id + "/hints/" + this.profile.id + "/seen", {
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.objective.hints = responseBody;
+                    self.hintsReceived = true;
+                    self.refreshHints = !self.refreshHints;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
+            },
+
+
+            /**
+             * Gets the hints to display from the backend for all hints for an objective but paginated based on
+             * current page and the per page variables.
+             *
+             * @param currentPage           the current viewing page.
+             * @param perPage               the amount to view on a page.
+             */
+            getPageHints(currentPage, perPage) {
+                let self = this;
+                let currentPageQuery = currentPage - 1;
+                fetch(`/v1/objectives/` + this.objective.id +
+                    `/hints/` + this.profile.id + `?pageNumber=` + currentPageQuery +
+                    `&pageSize=` + perPage, {
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                }).then(function (responseBody) {
+                    self.objective.hints = responseBody;
+                    self.hintsReceived = true;
+                    self.refreshHints = !self.refreshHints;
+                }).catch(function (response) {
+                    self.handleErrorResponse(response);
+                });
+            }
+        },
     }
 </script>

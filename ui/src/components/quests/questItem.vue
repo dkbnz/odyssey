@@ -2,7 +2,8 @@
     <div>
         <h1 class="page-title">{{ heading }} a Quest!</h1>
 
-        <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
+        <b-alert dismissible v-model="showError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p>
+        </b-alert>
 
         <b-alert dismissible v-model="showSuccessObjective" variant="success">{{successMessage}}</b-alert>
 
@@ -22,7 +23,6 @@
                     variant="success"
             ></b-progress>
         </b-alert>
-
         <!-- Confirmation modal for deleting a quest. -->
         <b-modal hide-footer id="editQuestModal" ref="editQuestModal" title="Edit Quest">
             <div v-if="activeUsers > 0"
@@ -139,13 +139,13 @@
                 <div v-if="!editCurrentObjective">
                     <b-row>
                         <b-col>
-                            <b-button v-if="!addNewObjective" variant="success" :disabled="heading === 'Edit'"
+                            <b-button v-if="!addNewObjective" variant="success" :hidden="activeUsers > 0"
                                       @click="showObjectiveComponent" block>
                                 Add a new objective
                             </b-button>
                         </b-col>
                         <b-col>
-                            <b-button v-if="!addNewObjective" variant="primary" :disabled="heading === 'Edit'"
+                            <b-button v-if="!addNewObjective" variant="primary" :hidden="activeUsers > 0"
                                       @click="showYourObjectivesComponent" block>
                                 Select an objective
                             </b-button>
@@ -161,7 +161,7 @@
                                     :heading="'Add'"
                                     @addObjective="addObjective"
                                     @cancelCreate="cancelObjectiveCreate"
-                                    @destination-select="$emit('destination-select')"
+                                    @destination-select="showDestinationsSideBar"
                                     :selectedDestination="destinationSelected">
                             </add-objective>
                         </b-card>
@@ -174,17 +174,18 @@
                                     :inputObjective="objectiveSelected"
                                     :profile="profile"
                                     :heading="'Edit'"
+                                    :editing-active-quest="activeUsers > 0"
                                     @addObjective="addObjective"
                                     @editObjective="objectiveEdited"
                                     @cancelCreate="cancelObjectiveCreate"
-                                    @destination-select="$emit('destination-select')"
+                                    @destination-select="showDestinationsSideBar"
                                     :selectedDestination="destinationSelected">
                             </add-objective>
                         </b-card>
                     </b-col>
                 </b-row>
 
-                <b-container fluid style="margin-top: 20px"
+                <b-container fluid class="mt-2"
                              v-if="inputQuest.objectives.length > 0 && !editCurrentObjective">
                     <!-- Table displaying all quest objectives -->
                     <b-table :current-page="currentPage" :fields="fields" :items="inputQuest.objectives"
@@ -208,25 +209,36 @@
                                       @click="deleteObjective(row.item)"
                                       variant="danger"
                                       class="mr-2"
-                                      :disabled="heading === 'Edit'"
+                                      :hidden="activeUsers > 0"
                                       block>Delete
+                            </b-button>
+                            <b-button size="sm"
+                                      v-if="heading === 'Edit'"
+                                      @click="viewHints(row.item)"
+                                      variant="primary"
+                                      class="mr-2"
+                                      block>View Hints
                             </b-button>
                         </template>
 
                         <!-- Buttons to shift objectives up/down in table -->
                         <template v-slot:cell(order)="row">
-                            <b-button :disabled="inputQuest.objectives.length === 1 || row.index === 0 || heading === 'Edit'"
+                            <b-button :disabled="inputQuest.objectives.length === 1
+                                      || row.index === 0
+                                      || activeUsers > 0"
                                       @click="moveUp(row.index)"
                                       class="mr-2"
                                       size="sm"
                                       variant="success">&uarr;
                             </b-button>
-                            <b-button :disabled="inputQuest.objectives.length === 1 ||
-                           row.index === inputQuest.objectives.length-1 || heading === 'Edit'"
-                                      @click="moveDown(row.index)"
-                                      class="mr-2"
-                                      size="sm"
-                                      variant="success">&darr;
+                            <b-button
+                                    :disabled="inputQuest.objectives.length === 1
+                                    || row.index === inputQuest.objectives.length-1
+                                    || activeUsers > 0"
+                                    @click="moveDown(row.index)"
+                                    class="mr-2"
+                                    size="sm"
+                                    variant="success">&darr;
                             </b-button>
                         </template>
                         <template v-slot:cell(radius)="row">
@@ -331,13 +343,6 @@
                 addNewObjective: false,
                 showSuccessObjective: false,
                 successMessage: '',
-                fields: [
-                    'order',
-                    {key: 'riddle', label: 'Riddle'},
-                    {key: 'destination.name', label: 'Destination'},
-                    {key: 'radius', label: 'Radius'},
-                    'actions'
-                ],
                 optionViews: [
                     {value: 1, text: "1"},
                     {value: 5, text: "5"},
@@ -361,30 +366,27 @@
                     riddle: "",
                     radius: null
                 },
-                activeUsers: null,
+                activeUsers: 0,
                 pointsRewarded: Number
             }
         },
 
         watch: {
             selectedDestination() {
-                if (this.heading !== "Edit") {
-                    this.destinationSelected = this.selectedDestination;
-                    this.inputQuest.destination = this.selectedDestination;
-                    this.displayedDestination = this.selectedDestination;
-                }
+                this.destinationSelected = this.selectedDestination;
+                this.inputQuest.destination = this.selectedDestination;
+                this.displayedDestination = this.selectedDestination;
             },
 
             selectedObjective() {
-                if (this.heading !== "Edit") {
-                    this.objectiveSelected = this.selectedObjective;
-                }
+                this.objectiveSelected = this.selectedObjective;
             }
         },
 
         mounted() {
             this.splitDates();
             this.setDateTimeString();
+            this.getActiveUsers();
         },
 
         computed: {
@@ -392,7 +394,7 @@
              * For new quest, checks the start date is after the current date.
              * For all other quests, checks the start date is either the same as or before the end date.
              *
-             * @return {boolean} true if start date is valid, or a null if entry length isn't big enough.
+             * @returns {boolean} true if start date is valid, or a null if entry length isn't big enough.
              */
             validateStartDate() {
                 // For a new hunt, the start date must be after today.
@@ -400,7 +402,7 @@
                     return false;
                 }
 
-                if(this.inputQuest.startDate.length < 6) {
+                if (this.inputQuest.startDate.length < 6) {
                     return null;
                 }
 
@@ -413,18 +415,14 @@
              * Checks that the start time is not after or the same as the end time if the dates are the same,
              * and that the start time is not before the current time if the current date is today.
              *
-             * @return {boolean} true if start time is valid, null if entry length isn't big enough.
+             * @returns {boolean} true if start time is valid, null if entry length isn't big enough.
              */
             validateStartTime() {
                 // For new quests, check the start time is after the current time.
                 if (this.startTime === "" || this.startTime === undefined) {
                     return false
                 }
-                if (this.inputQuest.startDate === this.inputQuest.endDate) {
-                    if (this.startTime >= this.endTime) {
-                        return false;
-                    }
-                }
+
                 // If the dates are the same, check the start time is before the end time.
                 if (this.inputQuest.startDate === this.inputQuest.endDate) {
                     if (this.startTime >= this.endTime) {
@@ -438,7 +436,7 @@
             /**
              * Checks that the end time is not before or the same as the start time if the dates are the same.
              *
-             * @return {boolean} true if end time is valid.
+             * @returns {boolean} true if end time is valid.
              */
             validateEndTime() {
                 if (this.inputQuest.startDate === this.inputQuest.endDate) {
@@ -454,7 +452,7 @@
              * For new quests, checks the end date is after the current date.
              * For all other quests, checks the end date is either the same as or after the start date.
              *
-             * @return {boolean} true if end date is valid.
+             * @returns {boolean} true if end date is valid.
              */
             validateEndDate() {
                 // For a new quests, the end date must be after today.
@@ -472,7 +470,7 @@
             /**
              * Returns true if the inputted title has length greater than 0.
              *
-             * @return {Boolean} true if validated.
+             * @returns {Boolean} true if validated.
              */
             validateTitle() {
                 if (this.inputQuest.title.length > 0) {
@@ -487,7 +485,7 @@
             /**
              * Used to validate that there are enough objectives in the quest.
              *
-             * @return {Boolean} true if validated.
+             * @returns {Boolean} true if validated.
              */
             validateObjectives() {
                 if (this.inputQuest.objectives.length > 0) {
@@ -499,11 +497,33 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @return {number}    the number of rows required in the table based on number of objectives to be
+             * @returns {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */
             rows() {
                 return this.inputQuest.objectives.length
+            },
+
+
+            /**
+             * Computed function used for populating the fields of a quest objective.
+             */
+            fields() {
+                if (this.activeUsers > 0) {
+                    return [
+                        {key: 'riddle', label: 'Riddle'},
+                        {key: 'destination.name', label: 'Destination'},
+                        {key: 'radius', label: 'Radius'},
+                        'actions'
+                    ]
+                }
+                return [
+                    'order',
+                    {key: 'riddle', label: 'Riddle'},
+                    {key: 'destination.name', label: 'Destination'},
+                    {key: 'radius', label: 'Radius'},
+                    'actions'
+                ]
             }
         },
 
@@ -511,7 +531,7 @@
             /**
              * Gets the current date+time as a Date object.
              *
-             * @return Current Datetime.
+             * @returns {Date}    today's date.
              */
             getCurrentDate() {
                 return new Date();
@@ -519,7 +539,7 @@
 
 
             /**
-             * sets the input values to be their proper string versions of current date/time.
+             * Sets the input values to be their proper string versions of current date/time.
              */
             setDateTimeString() {
                 if (this.inputQuest.id === null) {
@@ -533,7 +553,7 @@
             /**
              * Gets the current date as a string in YYYY-MM-DD format, including padding O's on month/day.
              *
-             * @return Current Date in YYYY-MM-DD String Format.
+             * @returns {Date}      the current date in YYYY-MM-DD String Format.
              */
             getDateString() {
                 let today = this.getCurrentDate();
@@ -548,7 +568,7 @@
             /**
              * Gets the current time as a string in HH:MM format, including padding O's.
              *
-             * @return Current Time in HH:MM String Format.
+             * @returns {Date}      the current time in HH:MM String Format.
              */
             getTimeString() {
                 let today = this.getCurrentDate();
@@ -589,7 +609,9 @@
             assembleQuest() {
                 this.joinDates();
                 for (let i = 0; i < this.inputQuest.objectives.length; i++) {
-                    this.inputQuest.objectives[i].id = null;
+                    if (this.heading !== "Edit") {
+                        this.inputQuest.objectives[i].id = null;
+                    }
                     this.inputQuest.objectives[i].destination = {
                         "id": this.inputQuest.objectives[i].destination.id,
                         "country": this.inputQuest.objectives[i].destination.country
@@ -630,25 +652,26 @@
 
             /**
              * Gets all users that are currently using the given quest.
-             *
-             * @return {Promise <Response | never>}     the fetch method promise.
              */
             getActiveUsers() {
                 let self = this;
-                return fetch('/v1/quests/' + this.inputQuest.id + '/profiles', {
-                    accept: "application/json"
-                }).then(function (response) {
-                    if (!response.ok) {
-                        throw response;
-                    } else {
-                        return response.json();
-                    }
-                }).then(function (responseBody) {
-                    self.showError = false;
-                    self.activeUsers = responseBody.length;
-                }).catch(function (response) {
-                    self.handleErrorResponse(response);
-                });
+                if (this.inputQuest.id) {
+                    fetch('/v1/quests/' + this.inputQuest.id + '/profiles', {
+                        accept: "application/json"
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        self.showError = false;
+                        self.activeUsers = responseBody.length;
+                    }).catch(function (response) {
+                        self.handleErrorResponse(response);
+                    });
+                }
+
             },
 
 
@@ -684,6 +707,8 @@
 
             /**
              * Adds the specified objective to the list of quest objectives and handles the appropriate actions.
+             *
+             * @param objective     the objective being added.
              */
             addObjective(objective) {
                 this.inputQuest.objectives.push(JSON.parse(JSON.stringify(objective)));
@@ -701,6 +726,8 @@
 
             /**
              * Replaces the objective in the quest objectives array with the newly edited objective.
+             *
+             * @param objective     the new objective replacing the old one being edited.
              */
             objectiveEdited(objective) {
                 this.inputQuest.objectives[this.objectiveIndex] = JSON.parse(JSON.stringify(objective));
@@ -775,15 +802,30 @@
 
 
             /**
-             * Cancels the creation or editing of a quest by emitting a value to the questList.
+             * Sends an emit to the quest list to view the hints for an objective.
+             *
+             * @param objective     the objective having its hints viewed.
              */
-            cancelCreate() {
-                this.$emit('cancelCreate');
+            viewHints(objective) {
+                this.$emit('add-hint-side-bar', objective);
+                this.$emit('OBJ-side-bar', false);
+                this.$emit('Your-OBJ-side-bar', false);
             },
 
 
             /**
-             * Cancels the current creation of an objective addition to a quest
+             * Cancels the creation or editing of a quest by emitting a value to the questList.
+             */
+            cancelCreate() {
+                this.$emit('cancelCreate');
+                this.$emit('OBJ-side-bar', false);
+                this.$emit('Your-OBJ-side-bar', false);
+                this.$emit('hide-hint-side-bar', false);
+            },
+
+
+            /**
+             * Cancels the current creation of an objective addition to a quest.
              */
             cancelObjectiveCreate() {
                 this.addNewObjective = false;
@@ -793,6 +835,17 @@
                 this.$emit('clear-objective-values');
                 this.$emit('OBJ-side-bar', false);
                 this.$emit('Your-OBJ-side-bar', false);
+                this.$emit('hide-hint-side-bar', false);
+            },
+
+
+            /**
+             * Shows the destination sidebar and hides the other side bar components.
+             */
+            showDestinationsSideBar() {
+                this.$emit('OBJ-side-bar', true);
+                this.$emit('Your-OBJ-side-bar', false);
+                this.$emit('hide-hint-side-bar', false);
             },
 
 
@@ -839,8 +892,6 @@
              * Combines dates and times together from input fields and adds :00 on the end for seconds.
              */
             joinDates() {
-                let timeOffset = this.formatOffset();
-
                 if (this.startTime.length === 5) {
                     this.startTime += ":00";
                 }
@@ -850,10 +901,10 @@
                 }
 
                 this.inputQuest.startDate = this.inputQuest.startDate + " "
-                    + this.startTime + timeOffset;
+                    + this.startTime + this.formatOffset(this.inputQuest.startDate);
 
                 this.inputQuest.endDate = this.inputQuest.endDate + " "
-                    + this.endTime + timeOffset;
+                    + this.endTime + this.formatOffset(this.inputQuest.endDate);
 
                 delete this.inputQuest.startTime;
                 delete this.inputQuest.endTime;
@@ -862,14 +913,17 @@
 
             /**
              * Gets the local time offset and pads it to be 4 numbers long.
+             *
+             * @param date      the date being converted.
+             * @returns {Date}  the offset local time.
              */
-            formatOffset() {
-                let timeOffset = (Math.abs(new Date().getTimezoneOffset() / 60)).toString();
+            formatOffset(date) {
+                let timeOffset = (Math.abs(new Date(date).getTimezoneOffset() / 60)).toString();
 
                 let fullNumber = timeOffset.padStart(2, '0');
                 fullNumber = fullNumber.padEnd(4, '0');
 
-                let sign = (new Date().getTimezoneOffset() >= 0) ? "-" : "+";
+                let sign = (new Date(date).getTimezoneOffset() >= 0) ? "-" : "+";
 
                 return sign + fullNumber;
             },
@@ -938,6 +992,7 @@
                 this.addNewObjective = !this.addNewObjective;
                 this.$emit('OBJ-side-bar', true);
                 this.$emit('Your-OBJ-side-bar', false);
+                this.$emit('hide-hint-side-bar', false);
             },
 
 
@@ -948,6 +1003,7 @@
                 this.addNewObjective = !this.addNewObjective;
                 this.$emit('Your-OBJ-side-bar', true);
                 this.$emit('OBJ-side-bar', false);
+                this.$emit('hide-hint-side-bar', false);
             },
 
 
@@ -959,9 +1015,9 @@
             getRadiusValue(radius) {
                 if (radius < 1) {
                     // Convert radius value to metres by multiplying by 1000.
-                    return radius * 1000 + " Meters"
+                    return radius * 1000 + " m"
                 }
-                return radius + " Km";
+                return radius + " km";
             }
         }
     }

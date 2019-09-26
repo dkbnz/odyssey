@@ -73,7 +73,7 @@
                                   trim
                                   type="password" v-model="password"></b-form-input>
                     <b-form-invalid-feedback :state="passwordValidation">
-                        Your password must be between 5 and 15 characters and password must contain two of: Uppercase,
+                        Your password must be greater than 5 characters long and password must contain two of: Uppercase,
                         Lowercase, Number.
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -89,7 +89,7 @@
                                   trim
                                   type="password" v-model="rePassword"></b-form-input>
                     <b-form-invalid-feedback :state="rePasswordValidation">
-                        This must be the same as the password and your must be between 5 and 15 characters and
+                        This must be the same as the password and your must be greater than 5 characters long and
                         password must contain two of: Uppercase, Lowercase, Number.
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -134,13 +134,15 @@
 
         <!--Fields for inputting nationalities, passports & traveller types-->
         <div v-if="showSecond" id="secondSignup">
-            <b-alert v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
+            <b-alert v-model="showError" variant="danger" dismissible>
+                <p class="wrapWhiteSpace">{{alertMessage}}</p>
+            </b-alert>
             <b-form>
                 <b-row>
                     <b-col>
                         <b-form-group
                                 id="nationalities-field"
-                                label="Nationality:"
+                                label="Your Nationality:"
                                 label-for="nationality">
                             <b-form-select :state="nationalityValidation"
                                            id="nationality"
@@ -201,7 +203,7 @@
                             </b-form-checkbox>
                         </b-carousel-slide>
                     </b-carousel>
-                    <b-form-invalid-feedback :state="travTypeValidation" align="center">
+                    <b-form-invalid-feedback :state="travTypeValidation">
                         Please select at least one traveller type.
                     </b-form-invalid-feedback>
                 </b-form-group>
@@ -328,11 +330,9 @@
             passwordValidation() {
                 if (this.password.length === 0) {
                     return null;
-                } else if (this.password.length > 15) {
-                    return false;
                 }
                 let passwordRegex =
-                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
+                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,})");
                 return passwordRegex.test(this.password)
             },
 
@@ -345,11 +345,9 @@
             rePasswordValidation() {
                 if (this.rePassword.length === 0) {
                     return null;
-                } else if (this.rePassword.length > 15) {
-                    return false;
                 }
                 let passwordRegex =
-                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,15})");
+                    new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{5,})");
                 return this.password.length > 0 && this.rePassword === this.password && passwordRegex.test(this.rePassword);
             },
 
@@ -411,7 +409,7 @@
              * Get the current date and return it in the format.
              * yyyy-mm-dd.
              *
-             * @return the current date in format yyyy-mm-dd
+             * @returns the current date in format yyyy-mm-dd
              */
             todaysDate() {
                 let today = new Date();
@@ -432,7 +430,7 @@
             /**
              * Sorts nationality options by their country value for passports.
              *
-             * @return a list of sorted nationalities.
+             * @returns a list of sorted nationalities.
              */
             passportsSorted() {
                 let passportOptions = JSON.parse(JSON.stringify(this.nationalityOptions));
@@ -467,7 +465,7 @@
                         firstName: this.firstName,
                         middleName: this.middleName,
                         lastName: this.lastName,
-                        username: this.username,
+                        username: this.username.toLowerCase(),
                         password: this.password,
                         dateOfBirth: this.dateOfBirth,
                         gender: this.gender,
@@ -491,7 +489,7 @@
                 fetch(`/v1/checkUsername`, {
                     method: 'POST',
                     headers: {'content-type': 'application/json'},
-                    body: JSON.stringify({'username': this.username})
+                    body: JSON.stringify({'username': this.username.toLowerCase()})
 
                 }).then(function (response) {
                     self.validEmail = response.ok;
