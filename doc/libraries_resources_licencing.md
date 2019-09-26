@@ -235,6 +235,7 @@ to use the image throughout the Odyssey application.
 [Scroll Down Arrow](https://www.flaticon.com/free-icon/down-arrow_118738#term=down%20arrow&page=1&position=1) - Icon by [Lucy G](https://www.flaticon.com/authors/lucy-g)
 [Team Icon](https://www.flaticon.com/free-icon/team_1189111) - Photo by Freepik
 [Pencil Icon](https://www.flaticon.com/free-icon/pencil_1589406) - Photo by Freepik
+[Information Icon](https://www.flaticon.com/free-icon/information_1647786) - Photo by Freepik
 
 #### Traveller Types
 
