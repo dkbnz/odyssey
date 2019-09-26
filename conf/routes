@@ -29,15 +29,15 @@ POST    /v1/makeAdmin/:id                 controllers.profiles.ProfileController
 POST    /v1/removeAdmin/:id               controllers.profiles.ProfileController.removeAdmin(request: Request, id: Long)
 
 # Destinations
-GET     /v1/destinations                  controllers.destinations.DestinationController.fetch(request: Request)
-GET     /v1/destinations/proposals        controllers.destinations.DestinationTravellerTypeController.fetchProposedDestinations(request: Request)
-POST    /v1/destinations/:userId          controllers.destinations.DestinationController.save(request: Request, userId: Long)
-GET     /v1/destinationTypes              controllers.destinations.DestinationController.getTypes()
-GET     /v1/destinations/:userId                controllers.destinations.DestinationController.fetchByUser(request: Request, userId: Long)
-PUT     /v1/destinations/:destId                controllers.destinations.DestinationController.edit(request: Request, destId: Long)
+GET     /v1/destinations                                    controllers.destinations.DestinationController.fetch(request: Request)
+GET     /v1/destinations/proposals                          controllers.destinations.DestinationTravellerTypeController.fetchProposedDestinations(request: Request)
+POST    /v1/destinations/:userId                            controllers.destinations.DestinationController.save(request: Request, userId: Long)
+GET     /v1/destinationTypes                                controllers.destinations.DestinationController.getTypes()
+GET     /v1/destinations/:userId                            controllers.destinations.DestinationController.fetchByUser(request: Request, userId: Long)
+PUT     /v1/destinations/:destId                            controllers.destinations.DestinationController.edit(request: Request, destId: Long)
 GET     /v1/destinations/:destinationId/checkDuplicates     controllers.destinations.DestinationController.getDestinationUsage(request: Request, destinationId: Long)
-POST    /v1/destinationsCheckEdit               controllers.destinations.DestinationController.getDestinationUsageEdited(request: Request)
-DELETE  /v1/destinations/:destinationId         controllers.destinations.DestinationController.destroy(request: Request, destinationId: Long)
+POST    /v1/destinationsCheckEdit                           controllers.destinations.DestinationController.getDestinationUsageEdited(request: Request)
+DELETE  /v1/destinations/:destinationId                     controllers.destinations.DestinationController.destroy(request: Request, destinationId: Long)
 
 POST    /v1/destinations/:destinationId/travellerTypes              controllers.destinations.DestinationTravellerTypeController.addTravellerTypes(request: Request, destinationId: Long)
 POST    /v1/destinations/:destinationId/travellerTypes/propose      controllers.destinations.DestinationTravellerTypeController.propose(request: Request, destinationId: Long)

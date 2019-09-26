@@ -44,6 +44,7 @@
                                 @OBJ-side-bar="showHideBar => this.showDestinations = showHideBar"
                                 @Your-OBJ-side-bar="showHideBar => this.showYourObjectives = showHideBar"
                                 @add-hint-side-bar="showHintSidebar"
+                                @hide-hint-side-bar="showHideBar => this.showHintSideBar = showHideBar"
                         ></quest-item>
                     </b-list-group-item>
                     <div v-if="yourQuests">
@@ -60,7 +61,7 @@
                                        draggable="false"
                                        v-if="!activeQuests"
                                        @click="selectedQuest = quest">
-                        <template v-if="!editingQuest && !(activeId === quest.id)">
+                        <template v-if="!editingQuest && !(activeId === quest.id) && !creatingQuest">
                             <b-row class="buttonMarginsTop">
                                 <b-col :cols="availableQuests ? 5 : ''">
                                     <h4>Title</h4>
@@ -230,7 +231,7 @@
                         <list-hints
                                 :objective="currentObjective"
                                 :profile="profile"
-                                :hints="currentObjective.hints"
+                                :refresh="refreshHints"
                                 :solved="true"
                                 @showAddHint="showAddHint"
                                 @request-new-hints-page="getPageHints">
@@ -350,12 +351,9 @@
                 activeUsers: 0,
                 queryPage: 0,
                 hintsDefaultPerPage: 5,
-                hintsDefaultCurrentPage: 1
+                hintsDefaultCurrentPage: 1,
+                refreshHints: false
             }
-        },
-
-        mounted() {
-            this.$bvToast.show('example-toast');
         },
 
         watch: {
@@ -570,6 +568,7 @@
              */
             addQuest() {
                 this.creatingQuest = true;
+                this.editingQuest = false;
                 this.cancelEdit();
             },
 
@@ -577,6 +576,7 @@
             /**
              * Changes the active quest id to the inputted one, and sets creatingQuest to false to hide creation
              * box.
+             *
              * @param quest     the quest to be changed to.
              */
             setActiveId(quest) {
@@ -591,6 +591,7 @@
              * Changes the quest id to the currently selected quest id.
              * Dismisses the delete quest modal.
              *
+             * @param quest         the quest to be checked for active users.
              */
             setQuest(quest) {
                 this.questId = quest.id;
@@ -702,7 +703,9 @@
 
 
             /**
-             * Show the hint sidebar for adding a hint to an objective
+             * Show the hint sidebar for adding a hint to an objective.
+             *
+             * @param objective         the current objective the user is looking at hints for.
              */
             showHintSidebar(objective) {
                 this.showHintSideBar = "Hints";
@@ -714,27 +717,28 @@
             /**
              * Gets the hints to display from the backend for all hints for an objective but paginated based on
              * current page and the per page variables.
-             * @param currentPage           The current viewing page.
-             * @param perPage               The amount to view on a page.
+             *
+             * @param currentPage           the current viewing page.
+             * @param perPage               the amount to view on a page.
              */
             getPageHints(currentPage, perPage) {
                 let self = this;
                 let currentPageQuery = currentPage - 1;
                 fetch(`/v1/objectives/` + self.currentObjective.id +
                     `/hints/` + this.profile.id + `?pageNumber=` + currentPageQuery +
-                    `&pageSize=` + perPage, {})
-                    .then(function (response) {
-                        if (!response.ok) {
-                            throw response;
-                        } else {
-                            return response.json();
-                        }
-                    })
-                    .then(function (responseBody) {
-                        self.loadingResults = false;
-                        self.currentObjective.hints = responseBody;
-                    }).catch(function (response) {
-                    self.loadingResults = false;
+                    `&pageSize=` + perPage, {
+
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(function (responseBody) {
+                    self.currentObjective.hints = responseBody;
+                    self.refreshHints = !self.refreshHints;
+                }).catch(function (response) {
                     self.handleErrorResponse(response);
                 });
             },
@@ -844,7 +848,7 @@
 
             /**
              * Hides or shows the quest locations given by the quest location id parameter.
-             *
+             *`
              * @param quest      the quest locations to hide.
              */
             showHideLocations(quest) {

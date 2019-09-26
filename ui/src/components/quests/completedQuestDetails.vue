@@ -34,8 +34,8 @@
         <list-hints
                     :objective="objective"
                     :profile="profile"
-                    :hints="objective.hints"
                     :solved="true"
+                    :refresh="refreshHints"
                     @showAddHint="showAddHint()"
                     @request-new-hints-page="getPageHints">
         </list-hints>
@@ -66,7 +66,8 @@
                 objective: Object,
                 show: "Objectives",
                 defaultPerPage: 5,
-                defaultCurrentPage: 1
+                defaultCurrentPage: 1,
+                refreshHints: false
             }
         },
 
@@ -130,19 +131,19 @@
                 let currentPageQuery = currentPage - 1;
                 fetch(`/v1/objectives/` + self.objective.id +
                     `/hints/` + this.profile.id + `?pageNumber=` + currentPageQuery +
-                    `&pageSize=` + perPage, {})
-                    .then(function (response) {
-                        if (!response.ok) {
-                            throw response;
-                        } else {
-                            return response.json();
-                        }
-                    })
-                    .then(function (responseBody) {
-                        self.loadingResults = false;
-                        self.objective.hints = responseBody;
-                    }).catch(function (response) {
-                    self.loadingResults = false;
+                    `&pageSize=` + perPage, {
+
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(function (responseBody) {
+                    self.objective.hints = responseBody;
+                    self.refreshHints = !self.refreshHints;
+                }).catch(function (response) {
                     self.handleErrorResponse(response);
                 });
             }

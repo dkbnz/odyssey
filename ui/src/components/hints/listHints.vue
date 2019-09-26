@@ -1,7 +1,7 @@
 <template>
     <div class="w-100 buttonMarginsTop">
         <b-list-group>
-            <p v-if="!hints.length > 0">No Hints for this Objective</p>
+            <p v-if="!objective.hints.length > 0">No Hints for this Objective</p>
             <b-list-group-item v-for="hint in getHints"
                                class="flex-column align-items-start"
                                draggable="false"
@@ -28,7 +28,7 @@
                 </b-form-row>
 
             </b-list-group-item>
-            <b-row no-gutters class="mt-2" v-if="hints.length > 0">
+            <b-row no-gutters class="mt-2" v-if="objective.hints.length > 0">
                 <b-col cols="3">
                     <b-form-group
                             id="numItemsPast-field"
@@ -57,7 +57,7 @@
                         <b-button size="sm" variant="primary"
                                   @click="requestHint"
                                   v-if="!solved && objective.numberOfHints > objective.hints.length">
-                            I need {{hints.length ? "another" : "a"}} hint!
+                            I need {{objective.hints.length ? "another" : "a"}} hint!
                         </b-button>
                     </div>
                 </b-col>
@@ -74,8 +74,8 @@
         props: {
             objective: Object,
             profile: Object,
-            hints: Array,
-            solved: false
+            solved: false,
+            refresh: Boolean
         },
 
         data: function () {
@@ -89,7 +89,8 @@
                 perPage: 5,
                 currentPage: 1,
                 startingRowNumber: 0,
-                endingRowNumber: 5
+                endingRowNumber: 5,
+                objectiveHints: this.objective.hints
             }
         },
 
@@ -102,7 +103,7 @@
               if (this.solved) {
                   return this.objective.numberOfHints;
               }
-              return this.hints.length;
+              return this.objectiveHints.length;
             },
 
 
@@ -113,15 +114,20 @@
              */
             getHints() {
                 if (this.solved) {
-                    return this.hints;
+                    return this.objectiveHints;
                 }
-                let currentHints = this.hints;
+                let currentHints = this.objectiveHints;
                 currentHints = currentHints.slice(this.startingRowNumber, this.endingRowNumber);
                 return currentHints;
             }
         },
 
         watch: {
+            refresh() {
+                this.objectiveHints = this.objective.hints;
+            },
+
+
             /**
              * Calls change hint view when the user changes the current page to view of hints.
              */
@@ -161,9 +167,8 @@
              * @param hint      the hint being voted upon
              */
             upVote(hint) {
-                let hintId = hint.id;
                 let self = this;
-                fetch('/v1/hints/' + hintId + '/upvote/' + this.profile.id, {
+                fetch('/v1/hints/' + hint.id + '/upvote/' + this.profile.id, {
                     method: 'POST'
                 }).then(function (response) {
                     if (!response.ok) {
@@ -172,8 +177,8 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
-                    hint.vote = responseBody.vote;
-                    hint.voteSum = responseBody.voteSum;
+                    let hintIndex = self.objectiveHints.findIndex(objectiveHint => objectiveHint.id === responseBody.id);
+                    self.objectiveHints.splice(hintIndex, 1, responseBody);
                 }).catch(function (response) {
                     self.savingTrip = false;
                     self.handleErrorResponse(response);
@@ -199,9 +204,8 @@
              * @param hint      the hint being voted upon
              */
             downVote(hint) {
-                let hintId = hint.id;
                 let self = this;
-                fetch('/v1/hints/' + hintId + '/downvote/' + this.profile.id, {
+                fetch('/v1/hints/' + hint.id + '/downvote/' + this.profile.id, {
                     method: 'POST'
                 }).then(function (response) {
                     if (!response.ok) {
@@ -210,13 +214,14 @@
                         return response.json();
                     }
                 }).then(function (responseBody) {
-                    hint.vote = responseBody.vote;
-                    hint.voteSum = responseBody.voteSum;
+                    let hintIndex = self.objectiveHints.findIndex(objectiveHint => objectiveHint.id === responseBody.id);
+                    self.objectiveHints.splice(hintIndex, 1, responseBody);
                 }).catch(function (response) {
                     self.savingTrip = false;
                     self.handleErrorResponse(response);
                 });
             },
+
 
             /**
              * Emits to the above layer to show the create hint instead of the main group
@@ -237,7 +242,3 @@
         components: {CreateHint}
     }
 </script>
-
-<style scoped>
-
-</style>
