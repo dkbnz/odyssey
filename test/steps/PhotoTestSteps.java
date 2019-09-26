@@ -39,9 +39,6 @@ public class PhotoTestSteps {
      */
     private TestContext testContext = TestContext.getInstance();
 
-
-
-
     private static final String AUTHORIZED = "authorized";
     private static final String PHOTO_URI = "/v1/photos/";
     private static final String CHANGE_PHOTO_PRIVACY_URI = "/v1/photos";
