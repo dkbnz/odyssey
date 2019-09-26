@@ -78,9 +78,20 @@ public class QuestTestSteps {
     private static final String LAST_NAME = "last_name";
     private static final String COUNTRY = "country";
 
+    private static final String ID = "id";
+    private static final String QUEST_ATTEMPTED = "questAttempted";
+    private static final String SOLVED = "solved";
+    private static final String TO_CHECK_IN = "toCheckIn";
+    private static final String TO_SOLVE = "toSolve";
+    private static final String UNSOLVED = "unsolved";
+    private static final String PROGRESS = "progress";
+    private static final String NO_VALUE = "";
+    private static final String ATTEMPT = "attempt";
+    private static final String GUESS_RESULT = "guessResult";
+
 
     /**
-     * Fields for query to create query string
+     * Fields for query to create query string.
      */
     private String queryTitle;
     private String queryOperator;
@@ -91,7 +102,7 @@ public class QuestTestSteps {
 
 
     /**
-     *  String to add to the query parameter when searching for a quest
+     *  String to add to the query parameter when searching for a quest.
      */
     private static final String OBJECTIVE_QUERY = "objective";
 
@@ -131,14 +142,13 @@ public class QuestTestSteps {
      * The static Json variable keys for a objective.
      */
     private static final String QUEST_TITLE = "newQuest";
-    private static final String ID = "id";
     private static final String OBJECTIVE_DESTINATION = "destination";
     private static final String OBJECTIVE_RIDDLE = "riddle";
     private static final String OBJECTIVE_RADIUS = "radius";
 
 
     /**
-     * Authorisation token for sessions
+     * Authorisation token for sessions.
      */
     private static final String AUTHORIZED = "authorized";
 
@@ -324,39 +334,30 @@ public class QuestTestSteps {
      */
     private String createSearchQuestQueryString() {
 
-        StringBuilder stringBuilder = new StringBuilder()
-                .append(QUESTION_MARK)
-
-                .append(TITLE)
-                .append(EQUALS)
-                .append(queryTitle)
-
-                .append(AND)
-                .append(OPERATOR)
-                .append(EQUALS)
-                .append(queryOperator)
-
-                .append(AND)
-                .append(OBJECTIVE_QUERY)
-                .append(EQUALS)
-                .append(queryObjectives)
-
-                .append(AND)
-                .append(FIRST_NAME)
-                .append(EQUALS)
-                .append(queryFirstName)
-
-                .append(AND)
-                .append(LAST_NAME)
-                .append(EQUALS)
-                .append(queryLastName)
-
-                .append(AND)
-                .append(COUNTRY)
-                .append(EQUALS)
-                .append(queryCountry);
-
-        return stringBuilder.toString();
+        return QUESTION_MARK +
+                TITLE +
+                EQUALS +
+                queryTitle +
+                AND +
+                OPERATOR +
+                EQUALS +
+                queryOperator +
+                AND +
+                OBJECTIVE_QUERY +
+                EQUALS +
+                queryObjectives +
+                AND +
+                FIRST_NAME +
+                EQUALS +
+                queryFirstName +
+                AND +
+                LAST_NAME +
+                EQUALS +
+                queryLastName +
+                AND +
+                COUNTRY +
+                EQUALS +
+                queryCountry;
     }
 
 
@@ -370,7 +371,7 @@ public class QuestTestSteps {
      * @return                  a string that contains the given value or an empty string.
      */
     private String getValue(String searchField, String givenField, String givenValue) {
-        return searchField.equals(givenField) ? givenValue : "";
+        return searchField.equals(givenField) ? givenValue : NO_VALUE;
     }
 
 
@@ -489,7 +490,7 @@ public class QuestTestSteps {
      * @throws IOException      thrown if there is an error reading the response body following the request.
      */
     private void setQuestAttemptId() throws IOException {
-        if (testContext.getStatusCode() < 400) {
+        if (testContext.getStatusCode() < BAD_REQUEST) {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode actualObj = mapper.readTree(testContext.getResponseBody());
             questAttemptId = actualObj.get(ID).toString();
@@ -521,13 +522,13 @@ public class QuestTestSteps {
      * @param questAttempt the quest attempt to check.
      */
     private void validateQuestAttempt(JsonNode questAttempt) {
-        Assert.assertTrue(questAttempt.has("id"));
-        Assert.assertTrue(questAttempt.has("questAttempted"));
-        Assert.assertTrue(questAttempt.has("solved"));
-        Assert.assertTrue(questAttempt.has("toCheckIn"));
-        Assert.assertTrue(questAttempt.has("toSolve"));
-        Assert.assertTrue(questAttempt.has("unsolved"));
-        Assert.assertTrue(questAttempt.has("progress"));
+        Assert.assertTrue(questAttempt.has(ID));
+        Assert.assertTrue(questAttempt.has(QUEST_ATTEMPTED));
+        Assert.assertTrue(questAttempt.has(SOLVED));
+        Assert.assertTrue(questAttempt.has(TO_CHECK_IN));
+        Assert.assertTrue(questAttempt.has(TO_SOLVE));
+        Assert.assertTrue(questAttempt.has(UNSOLVED));
+        Assert.assertTrue(questAttempt.has(PROGRESS));
     }
 
 
@@ -665,11 +666,11 @@ public class QuestTestSteps {
     @When("^I attempt to retrieve all quests with title \'(.*)\'$")
     public void iAttemptToRetrieveAllQuestsWithTitle(String title) {
         queryTitle = getValue(TITLE, TITLE, title).replace(SPACE, QUERY_SPACE_REPLACE);
-        queryOperator = getValue(OPERATOR, "","");
-        queryObjectives = getValue(OBJECTIVE_QUERY, "","");
-        queryFirstName = getValue(FIRST_NAME, "", "");
-        queryLastName = getValue(LAST_NAME, "", "");
-        queryCountry = getValue(COUNTRY, "", "");
+        queryOperator = getValue(OPERATOR, NO_VALUE,NO_VALUE);
+        queryObjectives = getValue(OBJECTIVE_QUERY, NO_VALUE,NO_VALUE);
+        queryFirstName = getValue(FIRST_NAME, NO_VALUE, NO_VALUE);
+        queryLastName = getValue(LAST_NAME, NO_VALUE, NO_VALUE);
+        queryCountry = getValue(COUNTRY, NO_VALUE, NO_VALUE);
         String query = createSearchQuestQueryString();
         getAllQuestsRequest(query);
     }
@@ -677,59 +678,59 @@ public class QuestTestSteps {
 
     @When("^I attempt to retrieve all quests with exactly (\\d+) objectives$")
     public void iAttemptToRetrieveAllQuestsWithObjectivesNumbering(Integer numberOfObjectives) {
-        queryTitle = getValue(TITLE, "", "");
+        queryTitle = getValue(TITLE, NO_VALUE, NO_VALUE);
         queryOperator = getValue(OPERATOR, OPERATOR, EQUALS);
         queryObjectives = getValue(OBJECTIVE_QUERY, OBJECTIVE_QUERY, numberOfObjectives.toString());
-        queryFirstName = getValue(FIRST_NAME, "", "");
-        queryLastName = getValue(LAST_NAME, "", "");
-        queryCountry = getValue(COUNTRY, "", "");
+        queryFirstName = getValue(FIRST_NAME, NO_VALUE, NO_VALUE);
+        queryLastName = getValue(LAST_NAME, NO_VALUE, NO_VALUE);
+        queryCountry = getValue(COUNTRY, NO_VALUE, NO_VALUE);
         String query = createSearchQuestQueryString();
         getAllQuestsRequest(query);
     }
 
     @When("^I attempt to retrieve all quests with less than (\\d+) objectives$")
     public void iAttemptToRetrieveAllQuestsWithLessThanObjectivesNumbering(Integer numberOfObjectives) {
-        queryTitle = getValue(TITLE, "", "");
+        queryTitle = getValue(TITLE, NO_VALUE, NO_VALUE);
         queryOperator = getValue(OPERATOR, OPERATOR, LESS_THAN);
         queryObjectives = getValue(OBJECTIVE_QUERY, OBJECTIVE_QUERY, numberOfObjectives.toString());
-        queryFirstName = getValue(FIRST_NAME, "", "");
-        queryLastName = getValue(LAST_NAME, "", "");
-        queryCountry = getValue(COUNTRY, "", "");
+        queryFirstName = getValue(FIRST_NAME, NO_VALUE, NO_VALUE);
+        queryLastName = getValue(LAST_NAME, NO_VALUE, NO_VALUE);
+        queryCountry = getValue(COUNTRY, NO_VALUE, NO_VALUE);
         String query = createSearchQuestQueryString();
         getAllQuestsRequest(query);
     }
 
     @When("^I attempt to retrieve all quests with greater than (\\d+) objectives$")
     public void iAttemptToRetrieveAllQuestsWithGreaterThanObjectivesNumbering(Integer numberOfObjectives) {
-        queryTitle = getValue(TITLE, "", "");
+        queryTitle = getValue(TITLE, NO_VALUE, NO_VALUE);
         queryOperator = getValue(OPERATOR, OPERATOR, GREATER_THAN);
         queryObjectives = getValue(OBJECTIVE_QUERY, OBJECTIVE_QUERY, numberOfObjectives.toString());
-        queryFirstName = getValue(FIRST_NAME, "", "");
-        queryLastName = getValue(LAST_NAME, "", "");
-        queryCountry = getValue(COUNTRY, "", "");
+        queryFirstName = getValue(FIRST_NAME, NO_VALUE, NO_VALUE);
+        queryLastName = getValue(LAST_NAME, NO_VALUE, NO_VALUE);
+        queryCountry = getValue(COUNTRY, NO_VALUE, NO_VALUE);
         String query = createSearchQuestQueryString();
         getAllQuestsRequest(query);
     }
 
     @When("^I attempt to retrieve all quests created by the user \'(.*)\' \'(.*)\'$")
     public void iAttemptToRetrieveAllQuestsByUser(String firstName, String lastName) {
-        queryTitle = getValue(TITLE, "", "");
-        queryOperator = getValue(OPERATOR, "", "");
-        queryObjectives = getValue(OBJECTIVE_QUERY, "", "");
+        queryTitle = getValue(TITLE, NO_VALUE, NO_VALUE);
+        queryOperator = getValue(OPERATOR, NO_VALUE, NO_VALUE);
+        queryObjectives = getValue(OBJECTIVE_QUERY, NO_VALUE, NO_VALUE);
         queryFirstName = getValue(FIRST_NAME, FIRST_NAME, firstName).replace(SPACE, QUERY_SPACE_REPLACE);
         queryLastName = getValue(LAST_NAME, LAST_NAME, lastName).replace(SPACE, QUERY_SPACE_REPLACE);
-        queryCountry = getValue(COUNTRY, "", "");
+        queryCountry = getValue(COUNTRY, NO_VALUE, NO_VALUE);
         String query = createSearchQuestQueryString();
         getAllQuestsRequest(query);
     }
 
     @When("^I attempt to retrieve all quests that contain the country \'(.*)\'$")
     public void iAttemptToRetrieveAllQuestsByCountry(String country) {
-        queryTitle = getValue(TITLE, "", "");
-        queryOperator = getValue(OPERATOR, "", "");
-        queryObjectives = getValue(OBJECTIVE_QUERY, "", "");
-        queryFirstName = getValue(FIRST_NAME, "", "");
-        queryLastName = getValue(LAST_NAME, "", "");
+        queryTitle = getValue(TITLE, NO_VALUE, NO_VALUE);
+        queryOperator = getValue(OPERATOR, NO_VALUE, NO_VALUE);
+        queryObjectives = getValue(OBJECTIVE_QUERY, NO_VALUE, NO_VALUE);
+        queryFirstName = getValue(FIRST_NAME, NO_VALUE, NO_VALUE);
+        queryLastName = getValue(LAST_NAME, NO_VALUE, NO_VALUE);
         queryCountry = getValue(COUNTRY, COUNTRY, country).replace(SPACE, QUERY_SPACE_REPLACE);
         String query = createSearchQuestQueryString();
         getAllQuestsRequest(query);
@@ -866,7 +867,7 @@ public class QuestTestSteps {
     public void theGuessResultIs(String guessResult) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode actualObj = mapper.readTree(testContext.getResponseBody());
-        Assert.assertEquals(guessResult, actualObj.get("guessResult").asText());
+        Assert.assertEquals(guessResult, actualObj.get(GUESS_RESULT).asText());
     }
 
 
@@ -875,8 +876,8 @@ public class QuestTestSteps {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode questAttempt = mapper.readTree(testContext.getResponseBody());
 
-        if (questAttempt.has("attempt")) {
-            questAttempt = questAttempt.get("attempt");
+        if (questAttempt.has(ATTEMPT)) {
+            questAttempt = questAttempt.get(ATTEMPT);
         }
 
         validateQuestAttempt(questAttempt);
