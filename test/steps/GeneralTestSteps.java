@@ -91,7 +91,6 @@ public class GeneralTestSteps {
      * Date formats.
      */
     private static final String YEAR_MONTH_DAY_FORMAT = "yyyy-MM-dd";
-    private static final String YEAR_MONTH_DAY_TIME_WITH_T_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final String YEAR_MONTH_DAY_TIME_FORMAT = "yyyy-MM-dd hh:MM:ssZ";
 
     /**
