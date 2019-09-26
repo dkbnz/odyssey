@@ -730,10 +730,8 @@ public class ProfileController {
         }
 
         if(request.getQueryString(RANK) != null && !request.getQueryString(RANK).isEmpty()) {
-            Integer rank = Integer.parseInt(request.getQueryString(RANK)) - 1;
-
-            int pointsFromRank = achievementTrackerRepository.getPointsFromRank(rank);
-            expressionList.le(ACHIEVEMENT_POINTS, pointsFromRank);
+            expressionList.le(ACHIEVEMENT_POINTS,
+                    achievementTrackerRepository.getPointsFromRank(Integer.parseInt(request.getQueryString(RANK))));
         }
     }
 

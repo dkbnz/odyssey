@@ -28,5 +28,7 @@ export default {
     downArrow: './static/down_arrow.png',
     teamIcon: './static/team.png',
     arrowUp: './static/upvote_arrow.png',
-    arrowDown: './static/downvote_arrow.png'
+    arrowDown: './static/downvote_arrow.png',
+    pencil: './static/pencil.png',
+    information: './static/information.png'
 }

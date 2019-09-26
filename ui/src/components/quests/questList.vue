@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
     <div>
         <b-row>
             <b-col cols="12" md="8">
@@ -75,24 +75,20 @@
                             <b-row class="buttonMarginsTop">
                                 <b-col>
                                     <h4>Start Date</h4>
-                                    {{new Date(quest.startDate)}}
+                                    <p class="mobile-text">{{new Date(quest.startDate)}}</p>
                                 </b-col>
                                 <b-col>
                                     <h4>End Date</h4>
-                                    {{new Date(quest.endDate)}}
+                                    <p class="mobile-text">{{new Date(quest.endDate)}}</p>
                                 </b-col>
                                 <!-- If looking at the available quests tab, show a 'start now' button -->
-                                <b-col cols="2" v-if="availableQuests">
-                                    <b-row>
-                                        <b-button variant="primary" @click="createAttempt(quest, true)">
+                                <b-col v-if="availableQuests" md="3" lg="2">
+                                        <b-button variant="primary" @click="createAttempt(quest, true)" class="mb-1">
                                             Start Now
                                         </b-button>
-                                    </b-row>
-                                    <b-row class="mt-4">
                                         <b-button variant="secondary" @click="createAttempt(quest, false)">
                                             Start Later
                                         </b-button>
-                                    </b-row>
                                 </b-col>
                             </b-row>
                             <div v-if="yourQuests" class="buttonMarginsTop">
@@ -242,10 +238,8 @@
                         <list-hints
                                 :objective="currentObjective"
                                 :profile="profile"
-                                :refresh="refreshHints"
                                 :solved="true"
-                                @showAddHint="showAddHint"
-                                @request-new-hints-page="getPageHints">
+                                @add-hint="showHintSideBar = 'Create Hint'">
                         </list-hints>
                     </div>
 
@@ -380,12 +374,13 @@
 
         methods: {
             /**
-             * Resets the foundQuests array and the query page for tab switching and lazy loading
+             * Resets the foundQuests array and the query page for tab switching and lazy loading.
              */
             refreshList() {
                 this.foundQuests = [];
                 this.queryPage = 0;
             },
+
 
             /**
              * Used to convert the quest object into a Json object.
@@ -516,6 +511,8 @@
             /**
              * Creates a new quest attempt for the selected quest and current user.
              *
+             * @param questToAttempt                the selected quest which will be contained in the attempt.
+             * @param viewActive                    a boolean determining whether the view should change upon starting.
              * @returns {Promise<Response | never>}
              */
             createAttempt(questToAttempt, viewActive) {
@@ -533,10 +530,9 @@
                         if (viewActive) {
                             self.$emit('start-quest-now', responseBody);
                         } else {
-                            // Refresh quests
-                            self.getMore();
-                            self.showSuccess({message: "Quest started"});
-                            self.$emit('start-quest-later', responseBody);
+                            // Remove the quest selected for later use from the list of available quests.
+                            let index = self.foundQuests.indexOf(questToAttempt);
+                            self.foundQuests.splice(index, 1);
                         }
                     }).catch(function (response) {
                         self.handleErrorResponse(response);
@@ -681,15 +677,6 @@
 
 
             /**
-             * Shows the add hints component and sets the current page and per page to keep the users viewing preference
-             * for after the additional hint being added.
-             */
-            showAddHint() {
-                this.showHintSideBar = 'Create Hint';
-            },
-
-
-            /**
              * Sets creatingQuest to false and emits signal to hide destination search box. clears selected destination.
              */
             cancelCreate() {
@@ -722,36 +709,6 @@
                 this.showHintSideBar = "Hints";
                 this.currentObjective = objective;
                 this.getPageHints(this.hintsDefaultCurrentPage, this.hintsDefaultPerPage);
-            },
-
-
-            /**
-             * Gets the hints to display from the backend for all hints for an objective but paginated based on
-             * current page and the per page variables.
-             *
-             * @param currentPage       the current viewing page.
-             * @param perPage           the amount to view on a page.
-             */
-            getPageHints(currentPage, perPage) {
-                let self = this;
-                let currentPageQuery = currentPage - 1;
-                fetch(`/v1/objectives/` + self.currentObjective.id +
-                    `/hints/` + this.profile.id + `?pageNumber=` + currentPageQuery +
-                    `&pageSize=` + perPage, {
-
-                }).then(function (response) {
-                    if (!response.ok) {
-                        throw response;
-                    } else {
-                        return response.json();
-                    }
-                })
-                .then(function (responseBody) {
-                    self.currentObjective.hints = responseBody;
-                    self.refreshHints = !self.refreshHints;
-                }).catch(function (response) {
-                    self.handleErrorResponse(response);
-                });
             },
 
 
@@ -853,7 +810,7 @@
             /**
              * Computed function used for the pagination of the table.
              *
-             * @param               the quest containing the objectives.
+             * @param quest         the quest containing the objectives.
              * @returns {number}    the number of rows required in the table based on number of objectives to be
              *                      displayed.
              */

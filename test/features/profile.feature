@@ -261,16 +261,13 @@ Feature: Profile API Endpoint
     Then the status code received is 200
     And the response contains the following profiles:
       | username                |
-      | testuser1@email.com     |
       | testuser2@email.com     |
       | testuser3@email.com     |
       | testuser4@email.com     |
-      | testuser5@email.com     |
 
     And the response does not contain the following profiles:
       | username                |
       | admin@travelea.com      |
-      | guestUser@travelea.com  |
 
 
   Scenario: Searching for profiles by rank with tied profiles
@@ -292,19 +289,17 @@ Feature: Profile API Endpoint
       | 4   | 40      |
       | 5   | 40      |
       | 6   | 40      |
-    When I search for profiles by "rank" with value "3"
+    When I search for profiles by "rank" with value "2"
     Then the status code received is 200
     And the response contains the following profiles:
       | username                |
       | testuser2@email.com     |
       | testuser3@email.com     |
       | testuser4@email.com     |
-      | testuser5@email.com     |
-      | testuser6@email.com     |
     And the response does not contain the following profiles:
       | username                |
-      | admin@travelea.com      |
       | testuser1@email.com     |
+      | admin@travelea.com      |
       | guestUser@travelea.com  |
 
 
