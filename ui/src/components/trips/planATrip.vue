@@ -27,7 +27,7 @@
         <b-modal hide-footer id="editModal" ref="editModal" title="Edit Destination">
             <b-alert dismissible v-model="showDateError" variant="danger"><p class="wrapWhiteSpace">{{errorMessage}}</p></b-alert>
             <div class="d-block">
-                <b-form-group id="editInDate-field" label="Start Date:" label-for="editInDate">
+                <b-form-group id="editInDate-field" label="Arrival Date:" label-for="editInDate">
                     <b-input :type="'date'"
                              id="editInDate"
                              max='9999-12-31'
@@ -35,7 +35,7 @@
                         {{editInDate}} trim
                     </b-input>
                 </b-form-group>
-                <b-form-group id="editOutDate-field" label="End Date:" label-for="editOutDate">
+                <b-form-group id="editOutDate-field" label="Departure Date:" label-for="editOutDate">
                     <b-input :type="'date'"
                              id="editOutDate"
                              max='9999-12-31'
@@ -119,7 +119,7 @@
                                     <b-col>
                                         <b-form-group
                                                 id="inDate-field"
-                                                label="In Date (optional):"
+                                                label="Arrival Date (optional):"
                                                 label-for="inDate">
                                             <b-form-input :type="'date'"
                                                           id="inDate"
@@ -129,7 +129,7 @@
                                         </b-form-group>
                                         <b-form-group
                                                 id="outDate-field"
-                                                label="Out Date (optional):"
+                                                label="Departure Date (optional):"
                                                 label-for="outDate">
                                             <b-form-input :type="'date'"
                                                           id="outDate"
@@ -334,8 +334,8 @@
                 fields: [
                     'order',
                     {key: 'destination.name', label: 'Destination Name'},
-                    {key: 'startDate'},
-                    {key: 'endDate'},
+                    {key: 'startDate', label: "Arrival Date"},
+                    {key: 'endDate', label: "Departure Date"},
                     'actions'
                 ],
                 subFields: [
