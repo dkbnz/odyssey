@@ -156,7 +156,7 @@
                     <!---Load More--->
                     <b-list-group-item
                             class="flex-column justify-content-center"
-                            v-if="!yourQuests && !completedQuests">
+                            v-if="!yourQuests && !completedQuests && foundQuests.length">
                         <div class="d-flex justify-content-center" v-if="loadingResults">
                             <b-img alt="Loading" class="align-middle loading" :src="assets['loadingLogo']"></b-img>
                         </div>
