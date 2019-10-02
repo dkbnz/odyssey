@@ -38,7 +38,16 @@
                     </div>
                 </b-list-group-item>
             </div>
-
+            <!-- Editing objective component -->
+            <add-objective v-if="editingObjective"
+                           :profile="profile"
+                           :heading="'Edit'"
+                           :input-objective="copiedObjective"
+                           @cancelCreate="cancelEdit"
+                           @successCreate="showSuccess"
+                           @destination-select="$emit('destination-select')"
+                           :selectedDestination="selectedDestination">
+            </add-objective>
             <b-list-group-item v-for="objective in (foundObjectives)" href="#"
                                class="flex-column align-items-start"
                                :key="objective.id"
@@ -67,18 +76,8 @@
                             </b-button>
                         </b-col>
                     </b-row>
-                </template>
-                <!-- Editing objective component -->
-                <add-objective v-else
-                               :profile="profile"
-                               :heading="'Edit'"
-                               :input-objective="copiedObjective"
-                               @cancelCreate="cancelEdit"
-                               @successCreate="showSuccess"
-                               @destination-select="$emit('destination-select')"
-                               :selectedDestination="selectedDestination">
 
-                </add-objective>
+                </template>
                 <!--Objective component-->
             </b-list-group-item>
             <b-list-group-item class="flex-column justify-content-center" v-if="loadingResults">
@@ -286,7 +285,8 @@
             setActiveId(objective) {
                 this.copyObjective(objective);
                 this.activeId = objective.id;
-                this.creatingObjective = false
+                this.creatingObjective = false;
+                this.editingObjective = true;
             },
 
 
@@ -301,8 +301,8 @@
 
 
             /**
-             * Sets editingObjective to false and the active objective ID to 0 to close any open objective editing box. Emits signal
-             * to hide destination search box. clears selected destination.
+             * Sets editingObjective to false and the active objective ID to 0 to close any open objective editing box.
+             * Emits signal to hide destination search box. clears selected destination.
              */
             cancelEdit() {
                 this.getMore();
@@ -313,7 +313,8 @@
 
 
             /**
-             * Sets creatingObjective to false and emits signal to hide destination search box. clears selected destination.
+             * Sets creatingObjective to false and emits signal to hide destination search box. clears selected
+             * destination.
              */
             cancelCreate() {
                 this.getMore();
