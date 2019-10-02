@@ -108,7 +108,7 @@
                 </b-col>
                 <b-col cols="11">
                     <view-profile :admin-view="false" :destinations="destinations" :userProfile="profile"
-                                  :profile="selectedProfileToView"></view-profile>
+                                  :profile="selectedProfileToView" :viewing-from-leaderboard="true"></view-profile>
                 </b-col>
             </b-row>
         </div>

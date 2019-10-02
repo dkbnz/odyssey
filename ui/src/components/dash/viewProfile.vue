@@ -34,8 +34,11 @@
                         </b-col>
                         <b-col>
                             <b-img :src="assets['pencil']" alt="Edit Profile" height="25%" class="cursor-click"
-                                   @click="$emit('edit-profile')">
+                                   @click="$emit('edit-profile')" v-if="!viewingFromLeaderboard" id="edit-pencil">
                             </b-img>
+                            <b-tooltip target="edit-pencil" triggers="hover">
+                                Edit profile
+                            </b-tooltip>
                         </b-col>
                     </b-row>
                     <h6 v-if="profile.achievementTracker">
@@ -213,7 +216,8 @@
                 default: function () {
                     return false;
                 }
-            }
+            },
+            viewingFromLeaderboard: false
         },
 
         data() {
