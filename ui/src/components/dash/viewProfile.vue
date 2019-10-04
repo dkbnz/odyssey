@@ -83,6 +83,7 @@
                             </p>
                             <p class="page-title" v-else><i>Here are your currently active quests!</i></p>
                             <active-quest-list
+                                    :viewingFromLeaderboard="viewingFromLeaderboard"
                                     :quest-attempts="questAttempts"
                                     :loading-results="loadingResults"
                                     @quest-attempt-clicked="showAddQuestAttempt">
