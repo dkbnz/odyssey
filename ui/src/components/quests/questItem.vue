@@ -844,8 +844,6 @@
              */
             showDestinationsSideBar() {
                 this.$emit('OBJ-side-bar', true);
-                // this.$emit('Your-OBJ-side-bar', false);
-                // this.$emit('hide-hint-side-bar', false);
             },
 
 
