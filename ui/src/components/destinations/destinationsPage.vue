@@ -1,7 +1,7 @@
 <template>
     <div v-if="profile">
         <!--Shows tabs for destination page-->
-        <nav-bar-main :profile="profile" v-if="!adminView"></nav-bar-main>
+        <nav-bar-main :profile="profile" v-if="!adminView" @clear-profile="$emit('clear-profile')"></nav-bar-main>
         <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-5 rounded-lg">
             <h1 class="page-title">Destinations</h1>
             <p class="page-title mb-3 ml-1">

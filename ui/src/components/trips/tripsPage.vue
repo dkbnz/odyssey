@@ -1,6 +1,6 @@
 <template>
     <div v-if="profile">
-        <nav-bar-main v-bind:profile="profile"></nav-bar-main>
+        <nav-bar-main v-bind:profile="profile" @clear-profile="$emit('clear-profile')"></nav-bar-main>
         <b-navbar variant="light">
             <b-navbar-nav>
                 <b-nav-item @click="togglePage(planATrip)">Plan a Trip</b-nav-item>
