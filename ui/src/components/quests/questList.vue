@@ -357,9 +357,11 @@
                 queryPage: 0,
                 hintsDefaultPerPage: 5,
                 hintsDefaultCurrentPage: 1,
-                refreshHints: false
+                refreshHints: false,
+                questsAvailable: 0,
             }
         },
+
 
         watch: {
             refreshQuests() {
@@ -445,9 +447,9 @@
                 }).then(function (responseBody) {
                     self.loadingResults = false;
                     if (responseBody !== null && responseBody !== undefined) {
-                        self.moreResults = responseBody.length > 0;
+                        self.foundQuests = self.foundQuests.concat(responseBody.quests)
+                        self.moreResults = self.foundQuests.length < responseBody.totalAvailable;
                         self.queryPage += 1;
-                        self.foundQuests = self.foundQuests.concat(responseBody)
                     }
                 }).catch(function (response) {
                     self.loadingResults = false;
