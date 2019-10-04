@@ -1,7 +1,14 @@
 <template>
     <div class="w-100 buttonMarginsTop">
         <b-list-group v-if="!loading">
-            <p v-if="!(objectiveHints.length > 0) && !loading">No Hints for this Objective</p>
+
+            <p v-if="!(objectiveHints.length > 0) &&
+            !(objective.numberOfHints > objectiveHints.length) &&
+            !loading">No Hints for this Objective</p>
+
+            <p v-if="!solved && objective.numberOfHints > objectiveHints.length &&
+            !loading">No Hints retrieved yet</p>
+
             <b-list-group-item v-for="hint in getHints"
                                class="flex-column align-items-start"
                                draggable="false"
