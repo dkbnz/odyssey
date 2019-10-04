@@ -2,7 +2,7 @@
     <div v-if="profile">
         <div class="pb-5">
             <!--Navigation Bar-->
-            <nav-bar-main :profile="profile"></nav-bar-main>
+            <nav-bar-main :profile="profile" @clear-profile="$emit('clear-profile')"></nav-bar-main>
             <b-navbar variant="light" class="d-none d-lg-block">
                 <b-navbar-nav>
                     <b-nav-item @click="togglePage(viewProfile, 'view')" :class="{'active': viewProfile}">Profile</b-nav-item>
