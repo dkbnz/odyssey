@@ -818,7 +818,17 @@ public class QuestTestSteps {
 
     @Then("^the response contains (\\d+) quests$")
     public void theResponseContainsQuests(int numberOfQuests) throws IOException {
-        int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
+        JsonNode response = new ObjectMapper().readTree(testContext.getResponseBody());
+        int responseSize = response.size();
+        Assert.assertEquals(numberOfQuests, responseSize);
+    }
+
+
+    @Then("^the response contains (\\d+) available quests$")
+    public void theResponseContainsAvailableQuests(int numberOfQuests) throws IOException {
+        JsonNode response = new ObjectMapper().readTree(testContext.getResponseBody());
+        JsonNode responseQuests = response.get("quests");
+        int responseSize = responseQuests.size();
         Assert.assertEquals(numberOfQuests, responseSize);
     }
 
