@@ -397,7 +397,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 8 quests
+    And the response contains 8 available quests
 
 
   Scenario: Retrieve all quests that are available with additional invalid quest dates
@@ -419,7 +419,7 @@ Feature: Quest API Endpoint
     And the status code received is 201
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 8 quests
+    And the response contains 8 available quests
 
 
   Scenario: Retrieve all quests that are available with additional valid quest dates
@@ -441,7 +441,7 @@ Feature: Quest API Endpoint
     And the status code received is 201
     When I attempt to retrieve all quests
     Then the status code received is 200
-    And the response contains 8 quests
+    And the response contains 8 available quests
 
 
   Scenario: Retrieve all quests that have the title 'Cool Quest'
@@ -478,7 +478,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with title 'Cool Quest'
     Then the status code received is 200
-    And the response contains 1 quests
+    And the response contains 1 available quests
 
 
   Scenario: Retrieve all quests that have exactly 3 objectives
@@ -509,7 +509,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with exactly 3 objectives
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 3 available quests
 
 
   Scenario: Retrieve all quests that have less than 3 objectives
@@ -540,7 +540,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with less than 3 objectives
     Then the status code received is 200
-    And the response contains 5 quests
+    And the response contains 5 available quests
 
 
   Scenario: Retrieve all quests that have greater than 3 objectives
@@ -568,7 +568,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests with greater than 3 objectives
     Then the status code received is 200
-    And the response contains 3 quests
+    And the response contains 3 available quests
 
 
   Scenario: Retrieve all quests that were made by the owner
@@ -600,7 +600,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests created by the user 'Dave' 'McInloch'
     Then the status code received is 200
-    And the response contains 5 quests
+    And the response contains 5 available quests
 
 
   Scenario: Retrieve all quests that contain the country of 'Japan'
@@ -617,7 +617,7 @@ Feature: Quest API Endpoint
     And I am logged in as an alternate user
     When I attempt to retrieve all quests that contain the country 'Japan'
     Then the status code received is 200
-    And the response contains 4 quests
+    And the response contains 4 available quests
 
 
   Scenario: Retrieve all quests when I am not logged in
