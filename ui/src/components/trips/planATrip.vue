@@ -476,7 +476,6 @@
                 this.inDate = "";
                 this.outDate = "";
                 this.showDestinationSideBar = false;
-                console.log(this.showDestinationSideBar);
             },
 
 
