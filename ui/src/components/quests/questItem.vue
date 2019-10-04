@@ -843,7 +843,6 @@
              * Shows the destination sidebar and hides the other side bar components.
              */
             showDestinationsSideBar() {
-                console.log("HERE");
                 this.$emit('OBJ-side-bar', true);
                 // this.$emit('Your-OBJ-side-bar', false);
                 // this.$emit('hide-hint-side-bar', false);
