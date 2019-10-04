@@ -1,7 +1,8 @@
 <template>
     <div>
         <b-list-group>
-            <b-list-group-item v-for="questAttempt in questAttempts" href="#"
+            <b-list-group-item v-for="questAttempt in questAttempts"
+                               :class="{'cursor-click': viewingFromLeaderboard}"
                                class="flex-column align-items-start"
                                :key="questAttempt.id"
                                draggable="false"
@@ -50,7 +51,8 @@
                 default() {
                     return false;
                 }
-            }
+            },
+            viewingFromLeaderboard: Boolean
         }
     }
 </script>
