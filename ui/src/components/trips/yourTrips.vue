@@ -460,7 +460,6 @@
                 let self = this;
                 let futurePage = Number(this.currentPageUpcoming) - 1;
                 let pastPage = Number(this.currentPagePast) - 1;
-                console.log(this.profile);
                 let queryString =
                     "?pageSizeFuture=" + this.perPageUpcoming +
                     "&pageSizePast=" + this.perPagePast +
