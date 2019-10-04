@@ -456,18 +456,18 @@
              * future or past trips.
              */
             getAllTrips() {
-                let userId = this.profile.id;
                 this.retrievingTrips = true;
                 let self = this;
                 let futurePage = Number(this.currentPageUpcoming) - 1;
                 let pastPage = Number(this.currentPagePast) - 1;
+                console.log(this.profile);
                 let queryString =
                     "?pageSizeFuture=" + this.perPageUpcoming +
                     "&pageSizePast=" + this.perPagePast +
                     "&pageFuture=" + futurePage +
                     "&pagePast=" + pastPage;
-                if (userId !== undefined) {
-                    fetch(`/v1/trips/` + userId + queryString, {
+                if (this.profile) {
+                    fetch(`/v1/trips/` + this.profile.id + queryString, {
                         accept: "application/json"
                     }).then(function (response) {
                         if (!response.ok) {

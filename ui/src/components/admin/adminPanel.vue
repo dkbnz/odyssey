@@ -1,6 +1,6 @@
 <template>
     <div>
-        <nav-bar-main :profile="profile"></nav-bar-main>
+        <nav-bar-main :profile="profile" @clear-profile="$emit('clear-profile')"></nav-bar-main>
         <div class="loader" v-if="loadingResults">
             <div class="loader-content">
                 <b-img alt="Loading" class="loading" :src="assets['loadingLogoBig']"></b-img>
