@@ -6,6 +6,7 @@
                          :nationalityOptions="nationalityOptions"
                          :travTypeOptions="travTypeOptions"
                          @fetch-profile="getProfile"
+                         @clear-profile="profile = null"
                          @profile-received="getProfile">
             </router-view>
         </div>
