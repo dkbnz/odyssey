@@ -82,8 +82,8 @@
                                     <p class="mobile-text">{{new Date(quest.endDate)}}</p>
                                 </b-col>
                                 <!-- If looking at the available quests tab, show a 'start now' button -->
-                                <b-col v-if="availableQuests" md="3" lg="2">
-                                        <b-button variant="primary" @click="createAttempt(quest, true)" class="mb-1">
+                                <b-col v-if="availableQuests" md="3" lg="3">
+                                        <b-button variant="primary" @click="createAttempt(quest, true)" :class="{'mb-1': !onMobile}">
                                             Start Now
                                         </b-button>
                                         <b-button variant="secondary" @click="createAttempt(quest, false)">
