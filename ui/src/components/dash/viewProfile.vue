@@ -33,7 +33,7 @@
                             <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
                         </b-col>
                         <b-col>
-                            <b-img :src="assets['pencil']" alt="Edit Profile" height="25%" class="cursor-click"
+                            <b-img :src="assets['pencil']" alt="Edit Profile" height="25%" class="cursor-click show-only-desktop"
                                    @click="$emit('edit-profile')" v-if="!viewingFromLeaderboard" id="edit-pencil">
                             </b-img>
                             <b-tooltip target="edit-pencil" triggers="hover">
