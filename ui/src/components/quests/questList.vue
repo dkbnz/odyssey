@@ -436,25 +436,27 @@
             queryQuests() {
                 this.loadingResults = true;
                 let self = this;
-                return fetch('/v1/quests' + '?page=' + this.queryPage, {
-                    accept: "application/json"
-                }).then(function (response) {
-                    if (!response.ok) {
-                        throw response;
-                    } else {
-                        return response.json();
-                    }
-                }).then(function (responseBody) {
-                    self.loadingResults = false;
-                    if (responseBody !== null && responseBody !== undefined) {
-                        self.foundQuests = self.foundQuests.concat(responseBody.quests)
-                        self.moreResults = self.foundQuests.length < responseBody.totalAvailable;
-                        self.queryPage += 1;
-                    }
-                }).catch(function (response) {
-                    self.loadingResults = false;
-                    self.handleErrorResponse(response);
-                });
+                if (this.profile.id !== undefined) {
+                    fetch('/v1/quests/available/' + this.profile.id + '?page=' + this.queryPage, {
+                        accept: "application/json"
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw response;
+                        } else {
+                            return response.json();
+                        }
+                    }).then(function (responseBody) {
+                        self.loadingResults = false;
+                        if (responseBody !== null && responseBody !== undefined) {
+                            self.foundQuests = self.foundQuests.concat(responseBody.quests);
+                            self.moreResults = self.foundQuests.length < responseBody.totalAvailable;
+                            self.queryPage += 1;
+                        }
+                    }).catch(function (response) {
+                        self.loadingResults = false;
+                        self.handleErrorResponse(response);
+                    });
+                }
             },
 
 
