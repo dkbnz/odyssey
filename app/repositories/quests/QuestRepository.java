@@ -8,12 +8,8 @@ import models.profiles.Profile;
 import io.ebean.ExpressionList;
 import models.quests.Quest;
 import models.quests.QuestAttempt;
-import play.api.libs.json.Json;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -28,7 +24,6 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
     private static final String START_DATE = "startDate";
     private static final String END_DATE = "endDate";
     private static final String OWNER = "owner";
-    private static final String ATTEMPTS = "attempts";
 
     private QuestAttemptRepository questAttemptRepository = new QuestAttemptRepository();
 
