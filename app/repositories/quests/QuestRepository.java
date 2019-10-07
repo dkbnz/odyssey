@@ -73,7 +73,8 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
 
 
     /**
-     * Retrieve a list of quests that contain the given objective.
+     * Find the total number of quests that are available to the user. These are quests they don't own or haven't
+     * started.
      *
      * @param profile       the profiles to find the quests.
      * @return              the count of all available quests
