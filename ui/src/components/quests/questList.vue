@@ -62,33 +62,34 @@
                                        v-if="!activeQuests"
                                        @click="selectedQuest = quest">
                         <template v-if="!editingQuest && !(activeId === quest.id) && !creatingQuest">
-                            <b-row class="buttonMarginsTop">
+                            <b-row>
                                 <b-col :cols="availableQuests ? 5 : ''">
-                                    <h4>Title</h4>
-                                    <p>{{quest.title}}</p>
+                                    <div>
+                                        <h4>Title</h4>
+                                        <p>{{quest.title}}</p>
+                                    </div>
+                                    <div>
+                                        <h4>Start Date</h4>
+                                        <p class="mobile-text">{{new Date(quest.startDate)}}</p>
+                                    </div>
                                 </b-col>
-                                <b-col>
-                                    <h4>Countries</h4>
-                                    <p>{{getQuestCountries(quest)}}</p>
+                                <b-col :cols="availableQuests ? 5 : ''">
+                                    <div>
+                                        <h4>Countries</h4>
+                                        <p>{{getQuestCountries(quest)}}</p>
+                                    </div>
+                                    <div>
+                                        <h4>End Date</h4>
+                                        <p class="mobile-text">{{new Date(quest.endDate)}}</p>
+                                    </div>
                                 </b-col>
-                            </b-row>
-                            <b-row class="buttonMarginsTop">
-                                <b-col>
-                                    <h4>Start Date</h4>
-                                    <p class="mobile-text">{{new Date(quest.startDate)}}</p>
-                                </b-col>
-                                <b-col>
-                                    <h4>End Date</h4>
-                                    <p class="mobile-text">{{new Date(quest.endDate)}}</p>
-                                </b-col>
-                                <!-- If looking at the available quests tab, show a 'start now' button -->
-                                <b-col v-if="availableQuests" md="3" lg="3">
-                                        <b-button variant="primary" @click="createAttempt(quest, true)" :class="{'mb-1': !onMobile}">
-                                            Start Now
-                                        </b-button>
-                                        <b-button variant="secondary" @click="createAttempt(quest, false)">
-                                            Start Later
-                                        </b-button>
+                                <b-col v-if="availableQuests" md="2" class="align-self-center align-content-center">
+                                    <b-button variant="primary" @click="createAttempt(quest, true)" block>
+                                        Start Now
+                                    </b-button>
+                                    <b-button variant="secondary" @click="createAttempt(quest, false)" block>
+                                        Start Later
+                                    </b-button>
                                 </b-col>
                             </b-row>
                             <div v-if="yourQuests" class="buttonMarginsTop">
