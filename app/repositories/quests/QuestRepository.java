@@ -82,7 +82,6 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
         List<Quest> quests = query()
                 .where()
                 .notIn(OWNER, profile)
-                .eq(COMPLETED, false)
                 .lt(START_DATE, new Date())
                 .gt(END_DATE, new Date())
                 .findList();
