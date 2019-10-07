@@ -251,7 +251,8 @@ Vue.mixin({
                 RIDDLE_SOLVED_TWO_HINT: 'Riddle Solved with Two Hints'
             },
             MINUTE: 60000,
-            onMobile: false
+            onMobile: false,
+            streakUpdated: false
         }
     }
 });
