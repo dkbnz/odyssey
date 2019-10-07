@@ -662,7 +662,7 @@ public class QuestTestSteps {
         if (testContext.getLoggedInId() != null) {
             testContext.setTargetId(testContext.getLoggedInId());
         } else {
-            testContext.setTargetId("1");
+            testContext.setTargetId(REGULAR_USER);
         }
         getAllQuestsRequest();
     }
@@ -680,7 +680,7 @@ public class QuestTestSteps {
         if (testContext.getLoggedInId() != null) {
             testContext.setTargetId(testContext.getLoggedInId());
         } else {
-            testContext.setTargetId("1");
+            testContext.setTargetId(REGULAR_USER);
         }
         getAllQuestsRequest(query);
     }
@@ -698,7 +698,7 @@ public class QuestTestSteps {
         if (testContext.getLoggedInId() != null) {
             testContext.setTargetId(testContext.getLoggedInId());
         } else {
-            testContext.setTargetId("1");
+            testContext.setTargetId(REGULAR_USER);
         }
         getAllQuestsRequest(query);
     }
@@ -715,7 +715,7 @@ public class QuestTestSteps {
         if (testContext.getLoggedInId() != null) {
             testContext.setTargetId(testContext.getLoggedInId());
         } else {
-            testContext.setTargetId("1");
+            testContext.setTargetId(REGULAR_USER);
         }
         getAllQuestsRequest(query);
     }
@@ -732,7 +732,7 @@ public class QuestTestSteps {
         if (testContext.getLoggedInId() != null) {
             testContext.setTargetId(testContext.getLoggedInId());
         } else {
-            testContext.setTargetId("1");
+            testContext.setTargetId(REGULAR_USER);
         }
         getAllQuestsRequest(query);
     }
@@ -749,7 +749,7 @@ public class QuestTestSteps {
         if (testContext.getLoggedInId() != null) {
             testContext.setTargetId(testContext.getLoggedInId());
         } else {
-            testContext.setTargetId("1");
+            testContext.setTargetId(REGULAR_USER);
         }
         getAllQuestsRequest(query);
     }
@@ -766,7 +766,7 @@ public class QuestTestSteps {
         if (testContext.getLoggedInId() != null) {
             testContext.setTargetId(testContext.getLoggedInId());
         } else {
-            testContext.setTargetId("1");
+            testContext.setTargetId(REGULAR_USER);
         }
         getAllQuestsRequest(query);
     }

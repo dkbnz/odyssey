@@ -85,7 +85,7 @@
                 </b-col>
             </b-row>
         </div>
-        <footer-main></footer-main>
+        <footer-main v-if="!adminView"></footer-main>
     </div>
     <div v-else>
         <unauthorised-prompt></unauthorised-prompt>
