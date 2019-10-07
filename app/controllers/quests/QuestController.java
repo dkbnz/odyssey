@@ -561,7 +561,7 @@ public class QuestController {
 
         // Gets first 50 quests from index query * 50
         int pageNumber = 0;
-        int pageSize = 1;
+        int pageSize = 50;
         String queryPageString = request.getQueryString(QUERY_PAGE);
 
         if (queryPageString != null && !queryPageString.isEmpty()) {
