@@ -7,9 +7,13 @@ import models.objectives.Objective;
 import models.profiles.Profile;
 import io.ebean.ExpressionList;
 import models.quests.Quest;
+import models.quests.QuestAttempt;
+import play.api.libs.json.Json;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -24,6 +28,9 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
     private static final String START_DATE = "startDate";
     private static final String END_DATE = "endDate";
     private static final String OWNER = "owner";
+    private static final String ATTEMPTS = "attempts";
+
+    private QuestAttemptRepository questAttemptRepository = new QuestAttemptRepository();
 
     @Inject
     public QuestRepository() {
@@ -77,12 +84,20 @@ public class QuestRepository extends BeanRepository<Long, Quest> {
      * @return              the count of all available quests
      */
     public Integer findCountAvailable(Profile profile) {
-        return  query()
+        List<Quest> quests = query()
                 .where()
-                .ne(ATTEMPTED_BY, profile)
-                .ne(OWNER, profile)
+                .notIn(OWNER, profile)
+                .eq(COMPLETED, false)
                 .lt(START_DATE, new Date())
                 .gt(END_DATE, new Date())
-                .findCount();
+                .findList();
+
+        List<QuestAttempt> questAttempts = questAttemptRepository.findAllUsing(profile);
+
+        for (QuestAttempt questAttempt : questAttempts) {
+            quests.remove(questAttempt.getQuestAttempted());
+        }
+
+        return quests.size();
     }
 }
