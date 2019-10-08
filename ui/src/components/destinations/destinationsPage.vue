@@ -1,15 +1,15 @@
 <template>
     <div v-if="profile">
         <!--Shows tabs for destination page-->
-        <nav-bar-main :profile="profile" v-if="!adminView"></nav-bar-main>
+        <nav-bar-main :profile="profile" v-if="!adminView" @clear-profile="$emit('clear-profile')"></nav-bar-main>
         <div class="bg-white m-2 mt-0 pt-3 pl-3 pr-3 pb-5 rounded-lg">
             <h1 class="page-title">Destinations</h1>
-            <p class="page-title">
+            <p class="page-title mb-3 ml-1">
                 <i>Here you can add destinations, search destinations or view destinations on a map!</i>
                 <b-img id="page_info"
                        height="25%"
-                       :src="assets['information']"></b-img></p>
-
+                       :src="assets['information']"></b-img>
+            </p>
 
             <!-- Info tooltip for page -->
             <b-tooltip target="page_info" title="How to use the Trips Page" placement="bottom">
@@ -85,7 +85,7 @@
                 </b-col>
             </b-row>
         </div>
-        <footer-main></footer-main>
+        <footer-main v-if="!adminView"></footer-main>
     </div>
     <div v-else>
         <unauthorised-prompt></unauthorised-prompt>

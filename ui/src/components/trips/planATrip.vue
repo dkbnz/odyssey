@@ -1,11 +1,11 @@
 <template>
     <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-5 rounded-lg">
         <h1 class="page-title" align="center">{{ heading }} </h1>
-        <p class="page-title"><i>{{ subHeading }}</i>
+        <p class="page-title mb-3 ml-1"><i>{{ subHeading }}</i>
             <b-img id="page_info"
                    height="30%"
-                   :src="assets['information']"></b-img></p>
-
+                   :src="assets['information']"></b-img>
+        </p>
 
         <!-- Info tooltip for page -->
         <b-tooltip target="page_info" title="How to use the Trips Page" placement="bottom">
@@ -476,7 +476,6 @@
                 this.inDate = "";
                 this.outDate = "";
                 this.showDestinationSideBar = false;
-                console.log(this.showDestinationSideBar);
             },
 
 

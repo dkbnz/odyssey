@@ -78,7 +78,7 @@
 
             <b-button
                     @click="$emit('show-quest-attempt', false)"
-                    class="buttonMarginsBottom show-only-mobile" size="sm">
+                    class="buttonMarginsBottom" size="sm" v-if="onMobile">
                     Back
             </b-button>
             <h2 class="page-title" v-if="questAttempt.questAttempted">{{questAttempt.questAttempted.title}}</h2>

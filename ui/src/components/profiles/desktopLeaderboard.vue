@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg" v-if="!showSingleProfilePage">
+        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg" :class="{'hiddenDisplay': showSingleProfilePage}">
             <b-alert v-model="showError" variant="danger" dismissible><p class="wrapWhiteSpace">{{alertMessage}}</p></b-alert>
             <b-alert
                     :show="dismissCountDown"
@@ -99,7 +99,7 @@
                 </profile-list>
             </div>
         </div>
-        <div v-if="showSingleProfilePage" class="align-content-center">
+        <div v-if="showSingleProfilePage" class="align-content-center" style="z-index: 1000">
             <b-row>
                 <b-col>
                     <div class="p-3">
@@ -108,7 +108,7 @@
                 </b-col>
                 <b-col cols="11">
                     <view-profile :admin-view="false" :destinations="destinations" :userProfile="profile"
-                                  :profile="selectedProfileToView"></view-profile>
+                                  :profile="selectedProfileToView" :viewing-from-leaderboard="true"></view-profile>
                 </b-col>
             </b-row>
         </div>

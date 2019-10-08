@@ -58,7 +58,9 @@
                         return response;
                     }
                 }).then(function (response) {
+                    self.$emit('clear-profile');
                     self.$router.push("/");
+                    self.$router.go();
                     return response;
                 }).catch(function (response) {
                     self.handleErrorResponse(response);
