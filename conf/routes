@@ -81,7 +81,7 @@ POST    /v1/hints/:hintId/upvote/:userId                controllers.hints.VoteCo
 POST    /v1/hints/:hintId/downvote/:userId              controllers.hints.VoteController.vote(request: Request, hintId: Long, userId: Long, isUpvote:Boolean ?= false)
 
 # Quests
-GET     /v1/quests                              controllers.quests.QuestController.fetchAll(request: Request)
+GET     /v1/quests/available/:userId            controllers.quests.QuestController.fetchAll(request: Request, userId: Long)
 GET     /v1/quests/:userId                      controllers.quests.QuestController.fetchByOwner(request: Request, userId: Long)
 GET     /v1/quests/:userId/complete             controllers.quests.QuestController.getQuestsCompletedByProfile(request: Request, userId: Long)
 POST    /v1/quests/:userId                      controllers.quests.QuestController.create(request: Request, userId: Long)

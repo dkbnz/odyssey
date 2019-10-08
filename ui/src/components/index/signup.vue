@@ -529,7 +529,6 @@
                     headers: {'content-type': 'application/json'},
                     body: JSON.stringify(profile)
                 }).then(function (response) {
-                    console.log(response);
                     if (!response.ok) {
                         throw response;
                     } else {

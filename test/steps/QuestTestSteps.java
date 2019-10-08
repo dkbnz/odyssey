@@ -316,7 +316,7 @@ public class QuestTestSteps {
     private void getAllQuestsRequest() {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .uri(QUEST_URI)
+                .uri(QUEST_URI + "/available/" + testContext.getTargetId())
                 .session(AUTHORIZED, testContext.getLoggedInId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
@@ -381,7 +381,7 @@ public class QuestTestSteps {
     private void getAllQuestsRequest(String query) {
         Http.RequestBuilder request = fakeRequest()
                 .method(GET)
-                .uri(QUEST_URI + query)
+                .uri(QUEST_URI + "/available/" + testContext.getTargetId() + query)
                 .session(AUTHORIZED, testContext.getLoggedInId());
         Result result = route(testContext.getApplication(), request);
         testContext.setStatusCode(result.status());
@@ -659,6 +659,11 @@ public class QuestTestSteps {
 
     @When("I attempt to retrieve all quests")
     public void iAttemptToRetrieveAllQuests() {
+        if (testContext.getLoggedInId() != null) {
+            testContext.setTargetId(testContext.getLoggedInId());
+        } else {
+            testContext.setTargetId(REGULAR_USER);
+        }
         getAllQuestsRequest();
     }
 
@@ -672,6 +677,11 @@ public class QuestTestSteps {
         queryLastName = getValue(LAST_NAME, NO_VALUE, NO_VALUE);
         queryCountry = getValue(COUNTRY, NO_VALUE, NO_VALUE);
         String query = createSearchQuestQueryString();
+        if (testContext.getLoggedInId() != null) {
+            testContext.setTargetId(testContext.getLoggedInId());
+        } else {
+            testContext.setTargetId(REGULAR_USER);
+        }
         getAllQuestsRequest(query);
     }
 
@@ -685,6 +695,11 @@ public class QuestTestSteps {
         queryLastName = getValue(LAST_NAME, NO_VALUE, NO_VALUE);
         queryCountry = getValue(COUNTRY, NO_VALUE, NO_VALUE);
         String query = createSearchQuestQueryString();
+        if (testContext.getLoggedInId() != null) {
+            testContext.setTargetId(testContext.getLoggedInId());
+        } else {
+            testContext.setTargetId(REGULAR_USER);
+        }
         getAllQuestsRequest(query);
     }
 
@@ -697,6 +712,11 @@ public class QuestTestSteps {
         queryLastName = getValue(LAST_NAME, NO_VALUE, NO_VALUE);
         queryCountry = getValue(COUNTRY, NO_VALUE, NO_VALUE);
         String query = createSearchQuestQueryString();
+        if (testContext.getLoggedInId() != null) {
+            testContext.setTargetId(testContext.getLoggedInId());
+        } else {
+            testContext.setTargetId(REGULAR_USER);
+        }
         getAllQuestsRequest(query);
     }
 
@@ -709,6 +729,11 @@ public class QuestTestSteps {
         queryLastName = getValue(LAST_NAME, NO_VALUE, NO_VALUE);
         queryCountry = getValue(COUNTRY, NO_VALUE, NO_VALUE);
         String query = createSearchQuestQueryString();
+        if (testContext.getLoggedInId() != null) {
+            testContext.setTargetId(testContext.getLoggedInId());
+        } else {
+            testContext.setTargetId(REGULAR_USER);
+        }
         getAllQuestsRequest(query);
     }
 
@@ -721,6 +746,11 @@ public class QuestTestSteps {
         queryLastName = getValue(LAST_NAME, LAST_NAME, lastName).replace(SPACE, QUERY_SPACE_REPLACE);
         queryCountry = getValue(COUNTRY, NO_VALUE, NO_VALUE);
         String query = createSearchQuestQueryString();
+        if (testContext.getLoggedInId() != null) {
+            testContext.setTargetId(testContext.getLoggedInId());
+        } else {
+            testContext.setTargetId(REGULAR_USER);
+        }
         getAllQuestsRequest(query);
     }
 
@@ -733,6 +763,11 @@ public class QuestTestSteps {
         queryLastName = getValue(LAST_NAME, NO_VALUE, NO_VALUE);
         queryCountry = getValue(COUNTRY, COUNTRY, country).replace(SPACE, QUERY_SPACE_REPLACE);
         String query = createSearchQuestQueryString();
+        if (testContext.getLoggedInId() != null) {
+            testContext.setTargetId(testContext.getLoggedInId());
+        } else {
+            testContext.setTargetId(REGULAR_USER);
+        }
         getAllQuestsRequest(query);
     }
 
@@ -818,7 +853,17 @@ public class QuestTestSteps {
 
     @Then("^the response contains (\\d+) quests$")
     public void theResponseContainsQuests(int numberOfQuests) throws IOException {
-        int responseSize = new ObjectMapper().readTree(testContext.getResponseBody()).size();
+        JsonNode response = new ObjectMapper().readTree(testContext.getResponseBody());
+        int responseSize = response.size();
+        Assert.assertEquals(numberOfQuests, responseSize);
+    }
+
+
+    @Then("^the response contains (\\d+) available quests$")
+    public void theResponseContainsAvailableQuests(int numberOfQuests) throws IOException {
+        JsonNode response = new ObjectMapper().readTree(testContext.getResponseBody());
+        JsonNode responseQuests = response.get("quests");
+        int responseSize = responseQuests.size();
         Assert.assertEquals(numberOfQuests, responseSize);
     }
 

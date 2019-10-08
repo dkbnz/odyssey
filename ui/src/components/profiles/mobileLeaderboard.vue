@@ -46,6 +46,7 @@
             <view-profile
                     :profile="selectedProfile"
                     :user-profile="profile"
+                    :viewing-from-leaderboard="true"
             ></view-profile>
         </div>
     </div>
