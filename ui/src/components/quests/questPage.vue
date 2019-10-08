@@ -51,7 +51,7 @@
                     :profile="profile">
             </quests-solve-mobile>
         </div>
-        <footer-main></footer-main>
+        <footer-main v-if="!adminView"></footer-main>
     </div>
 
     <div v-else>

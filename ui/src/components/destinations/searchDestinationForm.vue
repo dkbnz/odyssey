@@ -12,7 +12,7 @@
             Enter as many search parameters as you like and click the Search button. <br>
             Note: if you would like to view all destinations, click Search without any parameters.<br><br>
 
-            To load more destinations, click the More button.
+            To load more destinations, click the Load More button.
         </b-tooltip>
 
         <!-- Info tooltip for your search -->
@@ -22,7 +22,7 @@
             Enter as many search parameters as you like and click the Search button. <br>
             Note: if you would like to view all destinations, click Search without any parameters.<br><br>
 
-            To load more destinations, click the More button.
+            To load more destinations, click the Load More button.
         </b-tooltip>
 
         <b-form @submit.prevent="searchDestinations">

@@ -1,7 +1,7 @@
 <template>
     <div>
         <navbar-main :profile="profile"></navbar-main>
-        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-3 rounded-lg">
+        <div class="bg-white m-2 pt-3 pl-3 pr-3 pb-5 rounded-lg">
             <h1 class="page-title">Credits</h1>
             <p class="page-title"><i>We have a few external sources that have made this website possible</i></p>
             <b-row>
@@ -286,7 +286,7 @@
                 </b-col>
             </b-row>
         </div>
-        <footer-main></footer-main>
+        <footer-main class="mt-1"></footer-main>
     </div>
 </template>
 

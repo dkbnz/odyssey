@@ -70,6 +70,8 @@ public class QuestController {
     private static final String BADGES_ACHIEVED = "badgesAchieved";
     private static final String ATTEMPT = "attempt";
     private static final String QUEST_DELETED = "Quest successfully deleted";
+    private static final String QUESTS = "quests";
+    private static final String TOTAL_AVAILABLE = "totalAvailable";
 
     @Inject
     public QuestController(QuestRepository questRepository,
@@ -308,21 +310,31 @@ public class QuestController {
      *                  badRequest() (Http 400) response containing an ApiError for an invalid Json body.
      *                  unauthorized() (Http 401) response containing an ApiError if the user is not logged in.
      */
-    public Result fetchAll(Http.Request request) {
+    public Result fetchAll(Http.Request request, Long userId) {
         Profile loggedInUser = AuthenticationUtil.validateAuthentication(profileRepository, request);
+        Profile requestedUser = profileRepository.findById(userId);
         if (loggedInUser == null) {
             return unauthorized(ApiError.unauthorized());
         }
 
-        Set<Quest> quests = getQuestsQuery(request, loggedInUser);
-        String result;
-        try {
-            result = objectMapper
-                    .writerWithView(Views.Public.class)
-                    .writeValueAsString(quests);
-        } catch (JsonProcessingException e) {
-            return badRequest(ApiError.invalidJson());
+        if (requestedUser == null) {
+            return notFound(ApiError.notFound(Errors.PROFILE_NOT_FOUND));
         }
+
+        if (!AuthenticationUtil.validUser(loggedInUser, requestedUser)) {
+            return forbidden(ApiError.forbidden());
+        }
+
+        Set<Quest> quests = getQuestsQuery(request, requestedUser);
+        Integer count = questRepository.findCountAvailable(requestedUser);
+        ObjectNode result = objectMapper.createObjectNode();
+
+        ArrayNode questNode = objectMapper.createArrayNode();
+        for (Quest quest : quests) {
+            questNode.add(Json.toJson(quest));
+        }
+        result.set(QUESTS, questNode);
+        result.put(TOTAL_AVAILABLE, count);
 
         return ok(result);
     }

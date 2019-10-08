@@ -33,9 +33,12 @@
                             <h1>{{profile.firstName}} {{profile.middleName}} {{profile.lastName}}</h1>
                         </b-col>
                         <b-col>
-                            <b-img :src="assets['pencil']" alt="Edit Profile" height="25%" class="cursor-click"
-                                   @click="$emit('edit-profile')">
+                            <b-img :src="assets['pencil']" alt="Edit Profile" height="25%" class="cursor-click show-only-desktop"
+                                   @click="$emit('edit-profile')" v-if="!viewingFromLeaderboard" id="edit-pencil">
                             </b-img>
+                            <b-tooltip target="edit-pencil" triggers="hover">
+                                Edit profile
+                            </b-tooltip>
                         </b-col>
                     </b-row>
                     <h6 v-if="profile.achievementTracker">
@@ -80,6 +83,7 @@
                             </p>
                             <p class="page-title" v-else><i>Here are your currently active quests!</i></p>
                             <active-quest-list
+                                    :viewingFromLeaderboard="viewingFromLeaderboard"
                                     :quest-attempts="questAttempts"
                                     :loading-results="loadingResults"
                                     @quest-attempt-clicked="showAddQuestAttempt">
@@ -213,7 +217,8 @@
                 default: function () {
                     return false;
                 }
-            }
+            },
+            viewingFromLeaderboard: false
         },
 
         data() {
