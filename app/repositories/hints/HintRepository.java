@@ -112,10 +112,20 @@ public class HintRepository extends BeanRepository<Long, Hint> {
     }
 
 
+    /**
+     * Gets all the hints for an objective and does pagination. Also orders by the net votes.
+     *
+     * @param objective         the objective for the hints.
+     * @param pageSize          the page size for pagination.
+     * @param pageNumber        the page number for pagination.
+     * @return                  an ordered list of hints for the given objective on the given page.
+     */
     public List<Hint> findAllUsing(Objective objective, int pageSize, int pageNumber) {
         return query()
                 .where()
                 .eq(OBJECTIVE, objective)
+                .orderBy()
+                    .desc(NET_VOTES)
                 .setFirstRow(pageNumber * pageSize)
                 .setMaxRows(pageSize)
                 .findPagedList()

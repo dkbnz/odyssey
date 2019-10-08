@@ -56,6 +56,15 @@
             }
         },
 
+        mounted() {
+            this.checkStreakValue();
+        },
+
+        methods: {
+            checkStreakValue() {
+            }
+        },
+
         components: {
             StreakDisplay,
             SingleBadge
