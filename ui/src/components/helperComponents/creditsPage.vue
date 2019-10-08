@@ -286,7 +286,7 @@
                 </b-col>
             </b-row>
         </div>
-        <footer-main></footer-main>
+        <footer-main class="mt-1"></footer-main>
     </div>
 </template>
 
