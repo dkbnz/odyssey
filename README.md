@@ -1,11 +1,12 @@
-# Odyssey
-
 ![Odyssey Logo](doc/img/full_logo.png)
 
 [![Test_badge](https://github.com/dkbarrett/odyssey/workflows/Tests/badge.svg)](https://github.com/dkbarrett/odyssey/actions?query=workflow%3ATests)
+[![Build_badge](https://github.com/dkbarrett/odyssey/workflows/Build/badge.svg)](https://github.com/dkbarrett/odyssey/actions?query=workflow%3ABuild)
 
 ## About
-Odyssey allows you to create and solve quests as you travel around the world, all while earning points and badges for using the various features of the application. You can even solve quests on your mobile devices, allowing you to take Odyssey with you while you solve quests.
+Odyssey is a web app built on a three tier architecture.
+
+The allows you to create and solve quests as you travel around the world, all while earning points and badges for using the various features of the application. You can even solve quests on your mobile devices, allowing you to take Odyssey with you while you solve quests.
 
 ## The Team
 The developers of Odyssey are a group of 8 students, dubbed Everyware, from the University of Canterbury's [SENG302](https://www.canterbury.ac.nz/courseinfo/GetCourseDetails.aspx?course=SENG302&year=2019) class of 2019.
