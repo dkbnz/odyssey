@@ -2,6 +2,8 @@
 
 ![Odyssey Logo](doc/img/full_logo.png)
 
+[![Test_badge](https://github.com/dkbarrett/odyssey/workflows/Tests/badge.svg?branch=master)](https://github.com/dkbarrett/odyssey/actions?query=workflow%3ATests)
+
 ## About
 Odyssey allows you to create and solve quests as you travel around the world, all while earning points and badges for using the various features of the application. You can even solve quests on your mobile devices, allowing you to take Odyssey with you while you solve quests.
 
