@@ -1,4 +1,4 @@
-name: Tests
+name: Build
 
 on:
   push:
@@ -15,12 +15,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Run headless tests
-        uses: GabrielBB/xvfb-action@v1.2
-        with:
-          run: sbt jacoco
-      - name: Save test results
+      - name: Build app
+        run: sbt dist
+      - name: Save build artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: test-results
-          path: ./target/scala-2.12/jacoco/report/html/
+          name: latest-build
+          path: ./target/universal/*.zip
