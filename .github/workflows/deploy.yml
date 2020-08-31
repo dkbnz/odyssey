@@ -18,7 +18,7 @@ jobs:
           java-version: 1.8
 
       - name: Build app
-        run: |
+      run: |
         sbt dist
         docker build . --tag registry.dougbarrett.nz/dkbarrett/odyssey:latest
 
