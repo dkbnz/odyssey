@@ -93,7 +93,6 @@ public class PhotoController extends Controller {
                 ? config.getString("travelea.photos.thumbnail")
                 : "");
 
-
         Path path = Paths.get(returnPath).toAbsolutePath();
 
         returnPath = path.toString();
@@ -115,7 +114,7 @@ public class PhotoController extends Controller {
     private boolean validatePhotoSize(List<Http.MultipartFormData.FilePart<TemporaryFile>> photos) {
 
         for (Http.MultipartFormData.FilePart<TemporaryFile> photo : photos) {
-            Long fileSize = photo.getFileSize();
+            long fileSize = photo.getFileSize();
 
             if (fileSize >= MAX_IMG_SIZE)
                 return false;
