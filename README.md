@@ -45,6 +45,27 @@ It may be extracted to your preferred install location.
 
 ## Run instructions
 
+#### Environment variables
+Connection to the database is specified via environment variables.
+The application is configured to use MySQL for the database with the following variables.
+- DB_HOST - Database hostname e.g. `mysqldb.odyssey.com`
+- DB_NAME - Name of the database holding the odyssey data e.g. `odyssey-production`
+- DB_USERNAME - Username with appropriate privileges to access the odyssey database.
+- DB_PASSWORD - Password for the aforementioned user.
+
+#### Docker
+After building using `sbt dist` you may create a docker container of the application using `docker build . -t odyssey`. The resulting container may be run using:
+```bash
+docker run \
+    -p 9000:9000 \
+    -e DB_HOST=example.com \
+    -e DB_NAME=odyssey_data \
+    -e DB_USERNAME=odyssey_db_user \
+    -e DB_PASSWORD=odyssey_db_pass \
+    -v user_photos:/opt/odyssey/data/photos \
+    odyssey
+```
+
 #### Windows
 1. Navigate into the newly extracted `${INSTALL_LOCATION}/bin` folder
 2. Execute the `odyssey-X.X.bat` file
@@ -54,9 +75,7 @@ It may be extracted to your preferred install location.
 2. Open the folder in the terminal and type `chmod +x ./odyssey-X.X`. This enables the file to be executable. 
 3. Execute `./odyssey-X.X`.
 
-Congratulations, Odyssey should now be running!
-Your browser should open onto the Odyssey website, but if it does not navigate to `localhost:8080`.  
-You can now Create a Profile or Login.  
+The application will now be accessible at `http://127.0.0.1:9000/`
 
 To login as an admin user use username `admin@travelea.com` and password `1nimda`.  
 To login as a regular user use username `guestUser@travelea.com` and password `guest123`.
